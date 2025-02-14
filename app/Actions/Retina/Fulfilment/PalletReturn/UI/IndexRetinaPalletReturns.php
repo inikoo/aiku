@@ -74,7 +74,8 @@ class IndexRetinaPalletReturns extends RetinaAction
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'created_at', label: __('Created at'), canBeHidden: false, type: 'date')
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'customer', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_reference', label: __('Your reference'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'customer', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->column(key: 'total_amount', label: __('total amount'), canBeHidden: false, sortable: false, searchable: false, type: 'currency');
         };

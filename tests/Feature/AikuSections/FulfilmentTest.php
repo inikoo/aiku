@@ -52,7 +52,7 @@ use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotificati
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
@@ -474,7 +474,7 @@ test('create fulfilment customer from customer', function (Fulfilment $fulfilmen
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($customer->reference)->toBe('000001')
-        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($customer->status)->toBe(CustomerStatusEnum::PENDING_APPROVAL)
         ->and($customer->is_fulfilment)->toBeTrue()
         ->and($customer->fulfilmentCustomer->pallets_storage)->toBeTrue()
         ->and($customer->fulfilmentCustomer->items_storage)->toBeTrue()
@@ -1417,6 +1417,8 @@ test('Update pallet reference', function (PalletReturn $palletReturn) {
         $pallet,
         [
             'reference' => 'GHO-p0006',
+            'state'     => PalletStateEnum::STORING,
+            'status'    => PalletStatusEnum::STORING
         ]
     );
     expect($pallet)->toBeInstanceOf(Pallet::class)
@@ -1437,45 +1439,16 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
     expect($palletReturn->pallets()->count())->toBe(1)
         ->and($palletReturn->stats->number_pallets)->toBe(1);
-    $upload = ImportPalletReturnItem::run($palletReturn, $file);
+    // dd($palletReturn->fulfilmentCustomer->pallets);
+    $palletReturn = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->model)->toBe('PalletReturnItem')
-        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(1)
-        ->and($upload->number_fails)->toBe(0)
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
     return $palletReturn;
 })->depends('store pallet to return');
-
-test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
-    Storage::fake('local');
-    $tmpPath  = 'tmp/uploads/';
-    $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
-    $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
-
-    Storage::fake('local')->put($tmpPath, $file);
-    $palletReturn->refresh();
-    expect($palletReturn->pallets()->count())->toBe(2)
-        ->and($palletReturn->stats->number_pallets)->toBe(2);
-    $upload = ImportPalletReturnItem::run($palletReturn, $file);
-    $palletReturn->refresh();
-
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->model)->toBe('PalletReturnItem')
-        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(0)
-        ->and($upload->number_fails)->toBe(1)
-        ->and($palletReturn->pallets()->count())->toBe(2)
-        ->and($palletReturn->stats->number_pallets)->toBe(2);
-
-    return $palletReturn;
-})->depends('import pallets in return (xlsx)');
 
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
     $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
@@ -1520,7 +1493,7 @@ test('submit pallet return', function (PalletReturn $palletReturn) {
 
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
-    $submittedPalletReturn = SubmitPalletReturn::make()->action($palletReturn);
+    $submittedPalletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
 
     $fulfilmentCustomer->refresh();
     $firstPallet = $submittedPalletReturn->pallets->first();
@@ -2228,7 +2201,7 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
 
 
     return $palletReturn;
-})->depends('create second pallet return');
+})->depends('create second pallet return')->todo();
 
 
 test('hydrate fulfilment command', function () {

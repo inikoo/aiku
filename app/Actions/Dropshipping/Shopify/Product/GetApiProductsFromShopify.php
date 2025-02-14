@@ -36,17 +36,25 @@ class GetApiProductsFromShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser): void
     {
         $client = $shopifyUser->api()->getRestClient();
-        $response = $client->request('GET', '/admin/api/2024-04/products.json');
+        $products = [];
+        $nextPage = null;
 
-        if ($response['status'] == 422) {
-            abort($response['status'], $response['body']);
-        }
+        do {
+            $response = $client->request('GET', '/admin/api/2024-01/products.json', [
+                'limit' => 250,
+                'page_info' => $nextPage,
+            ]);
+
+            $products = array_merge($products, $response['body']['products']['container']);
+            $nextPage = $response['link']['next'] ?? null;
+
+        } while ($nextPage);
 
         if ($response['body'] == 'Not Found') {
             abort(404, 'You dont have any products');
         }
 
-        foreach ($response['body']['products'] as $product) {
+        foreach ($products as $product) {
             foreach ($product['variants'] as $variant) {
                 DB::transaction(function () use ($variant, $product, $shopifyUser) {
                     if (!StoredItem::where('reference', $product['handle'])->exists()) {
@@ -59,7 +67,7 @@ class GetApiProductsFromShopify extends OrgAction
                             'type' => PortfolioTypeEnum::SHOPIFY
                         ]);
 
-                        $shopifyUser->products()->sync([$product->id => [
+                        $shopifyUser->products()->sync([$storedItem->id => [
                             'shopify_user_id' => $shopifyUser->id,
                             'product_type' => class_basename($storedItem),
                             'shopify_product_id' => $variant['product_id'],

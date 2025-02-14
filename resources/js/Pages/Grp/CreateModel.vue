@@ -61,13 +61,28 @@ const form = useForm(
 const isLoading = ref(false)
 const handleFormSubmit = async () => {
     if (!props.formData.submitButton) {
-        form.post(route(
-            props.formData.route.name,
-            props.formData.route.parameters
-        ), {
-            onStart: () => isLoading.value = true,
-            onError: () => isLoading.value = false
-        })
+        if (props.formData?.route?.body) {
+            form
+            .transform((data) => ({
+                ...data,
+                ...props.formData.route.body
+            }))
+            .post(route(
+                props.formData.route.name,
+                props.formData.route.parameters
+            ), {
+                onStart: () => isLoading.value = true,
+                onError: () => isLoading.value = false
+            })
+        } else {
+            form.post(route(
+                props.formData.route.name,
+                props.formData.route.parameters
+            ), {
+                onStart: () => isLoading.value = true,
+                onError: () => isLoading.value = false
+            })
+        }
     } else {
         form.post(route(
             ButtonActive.value.name,

@@ -345,6 +345,14 @@ return [
         'after_authenticate_job' => true,
     ],
 
+    'http_client_options' => [
+        'timeout' => 60, // Request timeout
+        'connect_timeout' => 30, // Connection timeout
+        'curl' => [
+            CURLOPT_DNS_SERVERS => '8.8.8.8,8.8.4.4', // Optional, to set Google DNS
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Register listeners to the events
@@ -400,7 +408,8 @@ return [
                 'address' => env('SHOPIFY_WEBHOOK_3_ADDRESS', 'https://some-app.com/webhook/orders-create'),
                 'class' => \App\Shopify\Actions\ExampleAppJob::class
             ],
-        */],
+        */
+    ],
 
     /*
     |--------------------------------------------------------------------------
