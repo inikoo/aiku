@@ -28,6 +28,9 @@ import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStored
 import RetinaBoxStatsDelivery from "@/Components/Retina/Storage/RetinaBoxStatsDelivery.vue"
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { Table as TableTS } from '@/types/Table'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -58,6 +61,11 @@ const props = defineProps<{
         dropshipping: boolean
     }
     upload_spreadsheet: UploadPallet
+
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
 
     storedItemsRoute: {
         index: routeType
@@ -100,7 +108,8 @@ const component = computed(() => {
         stored_items: TableStoredItems,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 
