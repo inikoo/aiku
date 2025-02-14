@@ -55,4 +55,9 @@ class UpdateRetinaPalletReturnDeliveryAddress extends RetinaAction
 
         $this->handle($palletReturn, $this->validatedData);
     }
+
+    public function htmlResponse(): \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+    {
+        return back();
+    }
 }

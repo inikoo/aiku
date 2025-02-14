@@ -48,4 +48,9 @@ class DeleteRetinaPalletReturnAddress extends RetinaAction
 
         return $this->handle($palletReturn);
     }
+
+    public function htmlResponse(): \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+    {
+        return back();
+    }
 }
