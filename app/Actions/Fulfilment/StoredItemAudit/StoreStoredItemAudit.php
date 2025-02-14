@@ -37,7 +37,6 @@ class StoreStoredItemAudit extends OrgAction
 
     public Customer $customer;
 
-    private bool $action = false;
     private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
@@ -69,7 +68,7 @@ class StoreStoredItemAudit extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
 

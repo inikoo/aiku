@@ -72,12 +72,12 @@ class ShowRetinaCurrentRecurringBill extends RetinaAction
                 ],
 
                 RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
-                    fn () => RetinaRecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
-                    : Inertia::lazy(fn () => RetinaRecurringBillTransactionsResource::collection(RetinaIndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
+                    fn () => RetinaRecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn () => RetinaRecurringBillTransactionsResource::collection(IndexRetinaRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
 
             ]
         )->table(
-            RetinaIndexRecurringBillTransactions::make()->tableStructure(
+            IndexRetinaRecurringBillTransactions::make()->tableStructure(
                 $recurringBill,
                 prefix: RecurringBillTabsEnum::TRANSACTIONS->value
             )

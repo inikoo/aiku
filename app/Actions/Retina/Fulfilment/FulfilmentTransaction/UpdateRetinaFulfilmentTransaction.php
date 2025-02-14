@@ -8,44 +8,16 @@
 
 namespace App\Actions\Retina\Fulfilment\FulfilmentTransaction;
 
-use App\Actions\Fulfilment\FulfilmentTransaction\SetClausesInFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRetinaFulfilmentTransaction extends RetinaAction
 {
-    use WithActionUpdate;
-
-    /**
-     * @var true
-     */
-    private bool $action = false;
-
     public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
     {
-        $fulfilmentTransaction =  $this->update($fulfilmentTransaction, $modelData, ['data']);
-
-        $fulfilmentTransaction->refresh();
-
-        $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
-
-        $this->update(
-            $fulfilmentTransaction,
-            [
-            'net_amount'              => $netAmount,
-            'gross_amount'            => $netAmount,
-            'grp_net_amount'          => $netAmount * $fulfilmentTransaction->grp_exchange,
-            'org_net_amount'          => $netAmount * $fulfilmentTransaction->org_exchange
-        ]
-        );
-
-        $fulfilmentTransaction->refresh();
-
-        SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
-
-        return $fulfilmentTransaction;
+        return UpdateFulfilmentTransaction::run($fulfilmentTransaction, $modelData);
     }
 
     public function rules(): array
@@ -64,7 +36,7 @@ class UpdateRetinaFulfilmentTransaction extends RetinaAction
 
     public function action(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($fulfilmentTransaction->fulfilmentCustomer, $modelData);
         return $this->handle($fulfilmentTransaction, $modelData);
     }

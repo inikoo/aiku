@@ -57,6 +57,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
