@@ -9,9 +9,12 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FulfilmentCustomerHydrateStoredItems
@@ -21,8 +24,10 @@ class FulfilmentCustomerHydrateStoredItems
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
+        $numberPalletsWithStoredItemsStateStoring = DB::table('pallet_stored_items')->where('pallet_stored_items.state', PalletStoredItemStateEnum::ACTIVE)->leftjoin('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id')->where('fulfilment_customer_id', $fulfilmentCustomer->id)->count();
         $stats = [
             'number_stored_items'        => $fulfilmentCustomer->storedItems->count(),
+            'number_pallets_with_stored_items_state_storing' => $numberPalletsWithStoredItemsStateStoring
         ];
 
         $stats = array_merge($stats, $this->getEnumStats(
@@ -34,7 +39,6 @@ class FulfilmentCustomerHydrateStoredItems
                 $q->where('fulfilment_customer_id', $fulfilmentCustomer->id);
             }
         ));
-
 
         $fulfilmentCustomer->update($stats);
     }
