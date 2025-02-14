@@ -461,6 +461,13 @@ class ShowRetinaStoredItemReturn extends RetinaAction
                     ]
                 ],
 
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
+
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
