@@ -19,6 +19,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -119,6 +120,7 @@ class PalletReturn extends Model
     use HasRetinaSearch;
     use HasAddress;
     use HasAddresses;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [

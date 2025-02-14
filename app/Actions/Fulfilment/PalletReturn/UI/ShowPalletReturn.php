@@ -14,17 +14,20 @@ use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -479,7 +482,22 @@ class ShowPalletReturn extends OrgAction
                      ]*/
                 ],
 
-
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'grp.models.pallet-return.attachment.attach',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'grp.models.pallet-return.attachment.detach',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
 
 
                 'tabs' => [
@@ -679,6 +697,10 @@ class ShowPalletReturn extends OrgAction
                 PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
+
+                PalletReturnTabsEnum::ATTACHMENTS->value => $this->tab == PalletReturnTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))),
             ]
         )->table(
             IndexPalletsInReturnPalletWholePallets::make()->tableStructure(
@@ -702,7 +724,7 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PHYSICAL_GOODS->value
             )
-        );
+        )->table(IndexAttachments::make()->tableStructure(PalletReturnTabsEnum::ATTACHMENTS->value));
     }
 
 
