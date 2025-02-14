@@ -15,6 +15,8 @@ use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\RetinaPalletReturnResource;
 use App\Models\Fulfilment\PalletReturn;
 use App\Rules\ValidAddress;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class AddRetinaAddressToPalletReturn extends RetinaAction
@@ -63,4 +65,7 @@ class AddRetinaAddressToPalletReturn extends RetinaAction
     {
         return new RetinaPalletReturnResource($palletReturn);
     }
+
+
+
 }
