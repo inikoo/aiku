@@ -122,10 +122,6 @@ class ShowOutbox extends OrgAction
             unset($navigation[OutboxTabsEnum::EMAIL_BULK_RUNS->value]);
         }
 
-        if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION) {
-            dd('Error this should be set up already in the seeder');
-        }
-
         return Inertia::render(
             'Comms/Outbox',
             [
