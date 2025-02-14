@@ -118,7 +118,14 @@ const submitUpload = async () => {
 			text: "The upload has successfully",
 			type: "success",
 		})
-		router.reload()  // To reload the table to show new data
+		router.reload({
+			// onSuccess: () => {
+			// 	console.log("reload")
+			// },
+			// onError: () => {
+			// 	console.log("errorrrrrrrrr")
+			// }
+		})  // To reload the table to show new data
 		closeModal()
 		// useEchoGrpPersonal().isShowProgress = true
 	} catch (error: any) {

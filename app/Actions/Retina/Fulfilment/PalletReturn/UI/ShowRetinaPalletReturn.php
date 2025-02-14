@@ -70,11 +70,11 @@ class ShowRetinaPalletReturn extends RetinaAction
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
-        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            $this->tab = PalletReturnTabsEnum::PALLETS->value;
-        } else {
-            $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
-        }
+        // if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+        //     $this->tab = PalletReturnTabsEnum::PALLETS->value;
+        // } else {
+        //     $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
+        // }
 
         if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle = [
@@ -440,6 +440,12 @@ class ShowRetinaPalletReturn extends RetinaAction
                     ]
                 ],
 
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
