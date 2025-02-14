@@ -125,6 +125,17 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             </div>
         </template>
 
+        <!-- Column: Customer Reference -->
+        <template #cell(customer_reference)="{ item: palletReturn }">
+            <div v-if="palletReturn.customer_reference">
+                {{ palletReturn.customer_reference }}
+            </div>
+
+            <div v-else class="text-gray-400">
+                -
+            </div>
+        </template>
+
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
             <Icon :data="palletReturn['type_icon']" class="px-1"/>
