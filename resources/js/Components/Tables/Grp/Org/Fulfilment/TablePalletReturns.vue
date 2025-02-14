@@ -17,6 +17,7 @@ import Icon from "@/Components/Icon.vue"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useFormatTime } from "@/Composables/useFormatTime"
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 
 library.add(faPlus)
 
@@ -126,12 +127,17 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
 
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
+            <Icon :data="palletReturn['type_icon']" class="px-1"/>
             <TagPallet v-if="layout.app.name == 'retina'" :stateIcon="palletReturn.state_icon" />
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 
-        <template #cell(type)="{ item: palletReturn }">
-            <Icon :data="palletReturn['type_icon']" class="px-1"/>
+        <template #cell(customer)="{ item: palletReturn }">
+            {{ palletReturn.customer.contact_name || '-' }} <span v-if="palletReturn.customer.company_name">({{ palletReturn.customer.company_name }})</span>
+            <span class="text-xs text-gray-500">
+                <AddressLocation :data="palletReturn.customer.location" />
+            </span>
+            <!-- <pre>{{ palletReturn.customer }}</pre> -->
         </template>
 
         <!-- Column: Pallets -->

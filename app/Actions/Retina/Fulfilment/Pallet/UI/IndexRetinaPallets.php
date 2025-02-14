@@ -27,6 +27,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexRetinaPallets extends RetinaAction
 {
     use WithRetinaPalletSubNavigation;
+
+    private string $bucket='';
+
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
         return [
@@ -61,6 +64,8 @@ class IndexRetinaPallets extends RetinaAction
 
         $query = QueryBuilder::for(Pallet::class);
         $query->leftJoin('rentals', 'pallets.rental_id', 'rentals.id');
+        $query->leftJoin('locations', 'pallets.location_id', 'locations.id');
+
         $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
 
         if ($this->bucket == 'storing') {
@@ -84,16 +89,16 @@ class IndexRetinaPallets extends RetinaAction
         }
 
         return $query->defaultSort('id')
-            ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name')
-            ->allowedSorts(['customer_reference', 'reference','state','rental_code'])
+            ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name', 'locations.code as location_code')
+            ->allowedSorts(['customer_reference', 'reference', 'state', 'rental_code', 'location_code'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, $prefix = null, $modelOperations = [], string $bucket = ''): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations, $fulfilmentCustomer) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $fulfilmentCustomer, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -126,6 +131,10 @@ class IndexRetinaPallets extends RetinaAction
             $table->column(key: 'status', label: __('Status'), sortable: true, type: 'icon');
             $table->column(key: 'reference', label: __('Id'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($bucket == 'storing') {
+                $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table->column(key: 'rental_code', label: __('Rent'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
@@ -135,9 +144,8 @@ class IndexRetinaPallets extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-        // dd($pallets);
-        $fulfilmentCustomer = auth()->user()->customer->fulfilmentCustomer;
-        $subNavigation = $this->getPalletSubNavigation($fulfilmentCustomer);
+        $fulfilmentCustomer = $this->fulfilmentCustomer;
+        $subNavigation      = $this->getPalletSubNavigation($fulfilmentCustomer);
 
         $actions = [];
 
@@ -155,6 +163,7 @@ class IndexRetinaPallets extends RetinaAction
                 ]
             ];
         }
+
         return Inertia::render(
             'Storage/RetinaPallets',
             [
@@ -163,20 +172,20 @@ class IndexRetinaPallets extends RetinaAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => $actions,
+                    'title'         => __('pallets'),
+                    'icon'          => ['fal', 'fa-pallet'],
+                    'actions'       => $actions,
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => RetinaPalletsResource::collection($pallets),
             ]
-        )->table($this->tableStructure($this->customer->fulfilmentCustomer, 'pallets'));
+        )->table($this->tableStructure($this->customer->fulfilmentCustomer, 'pallets', bucket: $this->bucket));
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->initialisation($request);
-
         return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
     }
 
@@ -214,7 +223,6 @@ class IndexRetinaPallets extends RetinaAction
 
     public function getBreadcrumbs(string $routeName): array
     {
-
         return match ($routeName) {
             'retina.fulfilment.storage.pallets.index' =>
             array_merge(
@@ -243,7 +251,7 @@ class IndexRetinaPallets extends RetinaAction
                             'route' => [
                                 'name' => 'retina.fulfilment.storage.pallets.storing_pallets.index',
                             ],
-                            'label' => __('Pallets')  .' ('  .__('Storing') . ')',
+                            'label' => __('Pallets').' ('.__('Storing').')',
                             'icon'  => 'fal fa-bars',
                         ],
 
@@ -260,7 +268,7 @@ class IndexRetinaPallets extends RetinaAction
                             'route' => [
                                 'name' => 'retina.fulfilment.storage.pallets.returned_pallets.index',
                             ],
-                            'label' => __('Pallets')  .' ('  .__('Returned') . ')',
+                            'label' => __('Pallets').' ('.__('Returned').')',
                             'icon'  => 'fal fa-bars',
                         ],
 
@@ -277,7 +285,7 @@ class IndexRetinaPallets extends RetinaAction
                             'route' => [
                                 'name' => 'retina.fulfilment.storage.pallets.in_process_pallets.index',
                             ],
-                            'label' => __('Pallets')  .' ('  .__('In Process') . ')',
+                            'label' => __('Pallets').' ('.__('In Process').')',
                             'icon'  => 'fal fa-bars',
                         ],
 
@@ -294,7 +302,7 @@ class IndexRetinaPallets extends RetinaAction
                             'route' => [
                                 'name' => 'retina.fulfilment.storage.pallets.incidents_pallets.index',
                             ],
-                            'label' => __('Pallets')  .' ('  .__('Incidents') . ')',
+                            'label' => __('Pallets').' ('.__('Incidents').')',
                             'icon'  => 'fal fa-bars',
                         ],
 
