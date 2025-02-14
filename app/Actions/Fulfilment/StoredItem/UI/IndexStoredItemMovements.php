@@ -19,6 +19,7 @@ use App\Models\Inventory\Warehouse;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\Pallet;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -50,7 +51,7 @@ class IndexStoredItemMovements extends OrgAction
         ];
     }
 
-    public function handle(StoredItem $storedItem, $prefix = null): LengthAwarePaginator
+    public function handle(StoredItem|Pallet $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -65,7 +66,6 @@ class IndexStoredItemMovements extends OrgAction
 
         $query = QueryBuilder::for(StoredItemMovement::class);
 
-        $query->where('stored_item_movements.stored_item_id', $storedItem->id);
 
         $query->leftJoin('locations', 'locations.id', 'stored_item_movements.location_id');
         $query->leftJoin('stored_items', 'stored_items.id', 'stored_item_movements.stored_item_id');
@@ -81,6 +81,7 @@ class IndexStoredItemMovements extends OrgAction
                 'stored_item_movements.quantity',
                 'stored_item_movements.type',
                 'stored_items.id as stored_item_id',
+                'stored_items.reference as stored_item_reference',
                 'pallets.slug as pallet_slug',
                 'pallets.reference as pallet_reference',
                 'locations.slug as location_slug',
@@ -91,20 +92,27 @@ class IndexStoredItemMovements extends OrgAction
                 'pallet_returns.reference as pallet_returns_reference'
             );
 
+        $allowedSort = ['id'];
 
-
-
+        if ($parent instanceof Pallet) {
+            $allowedSort = array_merge($allowedSort, ['stored_item_reference']);
+            $query->where('stored_item_movements.pallet_id', $parent->id);
+        } else {
+            $allowedSort = array_merge($allowedSort, ['pallet_reference']);
+            $query->where('stored_item_movements.stored_item_id', $parent->id);
+        }
 
         return $query->defaultSort('pallets.id')
-            ->allowedSorts(['id', 'pallets.reference'])
+            ->allowedSorts($allowedSort)
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+
     }
 
-    public function tableStructure($prefix = null, $modelOperations = []): Closure
+    public function tableStructure(StoredItem|Pallet $parent, $prefix = null, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations) {
+        return function (InertiaTable $table) use ($parent, $prefix, $modelOperations) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -124,11 +132,18 @@ class IndexStoredItemMovements extends OrgAction
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof StoredItem) {
+                $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true)->defaultSort('pallet_reference');
+            }
+
+            if ($parent instanceof Pallet) {
+                $table->column(key: 'stored_item_reference', label: __('SKU'), canBeHidden: false, sortable: true, searchable: true)->defaultSort('pallet_reference');
+            }
+
+
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
-            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true)
-                ->defaultSort('pallet_reference');
+            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true);
         };
     }
 }

@@ -9,9 +9,9 @@
 
 use App\Actions\Accounting\Invoice\UI\EditInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
-use App\Actions\Accounting\Refund\UI\ShowRefund;
+use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomerClients;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;

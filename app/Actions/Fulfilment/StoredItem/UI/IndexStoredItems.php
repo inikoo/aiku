@@ -22,6 +22,7 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -40,7 +41,7 @@ class IndexStoredItems extends OrgAction
 
     private Group|FulfilmentCustomer $parent;
 
-    public function handle(Group|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|FulfilmentCustomer|Pallet $parent, $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -67,6 +68,9 @@ class IndexStoredItems extends OrgAction
             ->when($parent, function ($query) use ($parent) {
                 if ($parent instanceof FulfilmentCustomer) {
                     $query->where('fulfilment_customer_id', $parent->id);
+                } elseif ($parent instanceof Pallet) {
+                    $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id')
+                        ->where('pallet_stored_items.pallet_id', $parent->id);
                 } elseif ($parent instanceof Group) {
                     $query->where('stored_items.group_id', $parent->id);
                 }
@@ -186,7 +190,18 @@ class IndexStoredItems extends OrgAction
                             'parameters' => $request->route()->originalParameters()
                         ]
                     ];
+
                 }
+
+                $actions[] = [
+                    'type'    => 'button',
+                    'tooltip' => __("Create SKU"),
+                    'label'   => __("Create SKU"),
+                    'route'   => [
+                        'name' => 'grp.models.fulfilment-customer.stored-items.store',
+                        'parameters' => $request->route()->originalParameters()
+                    ]
+                ];
             }
         }
 

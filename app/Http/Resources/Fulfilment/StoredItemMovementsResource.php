@@ -117,6 +117,7 @@ class StoredItemMovementsResource extends JsonResource
             'reference' => $this->reference,
             'quantity' => $this->quantity,
             'pallet_reference' => $this->pallet_reference,
+            'stored_item_reference' => $this->stored_item_reference,
             'pallet_slug' => $this->pallet_slug,
             'type' => $this->type,
             'location_slug' => $this->location_slug,

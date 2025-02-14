@@ -14,11 +14,9 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('fulfilment_stats', function (Blueprint $table) {
-            $table->decimal('current_recurring_bills_amount', 16)->change();
-            $table->decimal('current_recurring_bills_amount_org_currency', 16)->change();
-            $table->decimal('current_recurring_bills_amount_grp_currency', 16)->change();
-
-
+            $table->decimal('current_recurring_bills_amount', 16)->default(0)->change();
+            $table->decimal('current_recurring_bills_amount_org_currency', 16)->default(0)->change();
+            $table->decimal('current_recurring_bills_amount_grp_currency', 16)->default(0)->change();
 
         });
     }

@@ -55,7 +55,7 @@ class StoreWebhooksToShopify extends OrgAction
         }
 
         foreach ($webhooks as $webhook) {
-            $webhook = $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/webhooks.json', $webhook);
+            $webhook = $shopifyUser->api()->getRestClient()->request('GET', 'admin/api/2024-07/webhooks.json', $webhook);
 
             if (!$webhook['errors'] && is_array($webhook['body']['webhook'])) {
                 $this->update($shopifyUser, [
@@ -74,7 +74,7 @@ class StoreWebhooksToShopify extends OrgAction
 
     public function asCommand(Command $command)
     {
-        $shopifyUser = ShopifyUser::where('name', $command->argument('shopify'))->first();
+        $shopifyUser = ShopifyUser::where('name', $command->argument('shopify'))->firstOrFail();
 
         $this->handle($shopifyUser);
     }

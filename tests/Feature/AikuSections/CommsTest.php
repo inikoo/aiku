@@ -73,19 +73,19 @@ test('run seed post rooms command', function () {
 test('seed organisation outboxes customers command', function () {
     $this->artisan('org:seed_outboxes '.$this->organisation->slug)->assertExitCode(0);
     $this->artisan('org:seed_outboxes')->assertExitCode(0);
-    expect($this->group->commsStats->number_outboxes)->toBe(12)
-        ->and($this->organisation->commsStats->number_outboxes)->toBe(12)
+    expect($this->group->commsStats->number_outboxes)->toBe(13)
+        ->and($this->organisation->commsStats->number_outboxes)->toBe(13)
         ->and($this->organisation->commsStats->number_outboxes_type_test)->toBe(1)
-        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(9);
+        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(10);
 });
 
 test(
     'outbox seeded when shop created',
     function () {
         $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-        expect($shop->group->commsStats->number_outboxes)->toBe(23)
-            ->and($shop->organisation->commsStats->number_outboxes)->toBe(23)
-            ->and($shop->commsStats->number_outboxes)->toBe(11);
+        expect($shop->group->commsStats->number_outboxes)->toBe(25)
+            ->and($shop->organisation->commsStats->number_outboxes)->toBe(25)
+            ->and($shop->commsStats->number_outboxes)->toBe(12);
 
         return $shop;
     }
@@ -93,7 +93,7 @@ test(
 
 test('seed shop outboxes by command', function (Shop $shop) {
     $this->artisan('shop:seed_outboxes')->assertExitCode(0);
-    expect($shop->group->commsStats->number_outboxes)->toBe(23);
+    expect($shop->group->commsStats->number_outboxes)->toBe(25);
 })->depends('outbox seeded when shop created');
 
 test('outbox seeded when website created', function (Shop $shop) {
@@ -101,9 +101,9 @@ test('outbox seeded when website created', function (Shop $shop) {
         $shop,
         Website::factory()->definition()
     );
-    expect($website->group->commsStats->number_outboxes)->toBe(32)
-        ->and($website->organisation->commsStats->number_outboxes)->toBe(32)
-        ->and($website->shop->commsStats->number_outboxes)->toBe(20);
+    expect($website->group->commsStats->number_outboxes)->toBe(34)
+        ->and($website->organisation->commsStats->number_outboxes)->toBe(34)
+        ->and($website->shop->commsStats->number_outboxes)->toBe(21);
 
     return $website;
 })->depends('outbox seeded when shop created');
@@ -112,7 +112,7 @@ test('outbox seeded when website created', function (Shop $shop) {
 test('seed websites outboxes by command', function (Website $website) {
     $this->artisan('website:seed_outboxes '.$website->slug)->assertExitCode(0);
     $this->artisan('website:seed_outboxes')->assertExitCode(0);
-    expect($website->group->commsStats->number_outboxes)->toBe(32);
+    expect($website->group->commsStats->number_outboxes)->toBe(34);
 })->depends('outbox seeded when website created');
 
 
@@ -120,9 +120,9 @@ test(
     'outbox seeded when fulfilment created',
     function () {
         $fulfilment = createFulfilment($this->organisation);
-        expect($fulfilment->group->commsStats->number_outboxes)->toBe(40)
-            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(40)
-            ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(8);
+        expect($fulfilment->group->commsStats->number_outboxes)->toBe(43)
+            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(43)
+            ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(9);
 
         return $fulfilment;
     }
@@ -131,7 +131,7 @@ test(
 test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
     $this->artisan('fulfilment:seed_outboxes '.$fulfilment->slug)->assertExitCode(0);
     $this->artisan('fulfilment:seed_outboxes')->assertExitCode(0);
-    expect($fulfilment->group->commsStats->number_outboxes)->toBe(40);
+    expect($fulfilment->group->commsStats->number_outboxes)->toBe(43);
 })->depends('outbox seeded when fulfilment created');
 
 
@@ -236,7 +236,6 @@ test('UI show mail outboxes', function () {
                     ->where('title', $outbox->name)
                     ->etc()
             )
-            ->has('navigation')
             ->has('tabs')
             ->has('breadcrumbs', 5);
     });

@@ -2,8 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\Actions\Retina\UI\GetRetinaFirstLoadProps;
 use App\Actions\UI\Grp\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
+use App\Models\CRM\WebUser;
+use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +15,6 @@ use Illuminate\Http\Response;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Http\Request as RequestHttp;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
@@ -62,20 +64,6 @@ class Handler extends ExceptionHandler
             }
         });
 
-
-        /*        $this->reportable(function (Response $response, Throwable $exception, RequestHttp $request) {
-                    if (! app()->environment(['local', 'staging']) && in_array($response->getStatusCode(), [500, 503, 404, 403])) {
-                        return Inertia::render('Error', ['status' => $response->getStatusCode()])
-                            ->toResponse($request)
-                            ->setStatusCode($response->getStatusCode());
-                    } elseif ($response->getStatusCode() === 419) {
-                        return back()->with([
-                            'message' => 'The page expired, please try again.',
-                        ]);
-                    }
-
-                    return $response;
-                });*/
     }
 
     protected function loadErrorMiddleware($request, $callback)
@@ -92,6 +80,7 @@ class Handler extends ExceptionHandler
     {
         $response = parent::render($request, $e);
 
+
         if (!app()->environment(['local', 'testing'])
             && in_array($response->getStatusCode(), [500, 503, 404, 403, 422])
             && !(!$request->inertia() && $request->expectsJson())
@@ -105,10 +94,9 @@ class Handler extends ExceptionHandler
 
 
             return $this->loadErrorMiddleware($request, function ($request) use ($e, $response, $app) {
-
                 if (Auth::check()) {
                     $route = $request->route();
-                    if ($route and str_starts_with($route->getName(), 'grp.models')) {
+                    if ($route and (str_starts_with($route->getName(), 'grp.models') || str_starts_with($route->getName(), 'retina.models'))) {
                         return back()->withErrors([
                             'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
                         ]);
@@ -130,6 +118,7 @@ class Handler extends ExceptionHandler
                             );
                         }
 
+
                         return redirect()->route(
                             'grp.fallback',
                             [
@@ -143,14 +132,13 @@ class Handler extends ExceptionHandler
 
                     return Inertia::render(
                         $this->getInertiaPage($e, $app),
-                        $this->getInertiaProps($request->user(), $request, $response, $e)
+                        $this->getInertiaProps($request->user(), $app, $request, $response, $e)
                     )
                         ->toResponse($request)
                         ->setStatusCode($response->getStatusCode());
                 }
 
                 // User not logged in
-
                 if ($app == 'grp') {
                     return redirect('login');
                 } elseif ($app == 'retina') {
@@ -188,13 +176,18 @@ class Handler extends ExceptionHandler
         return $app;
     }
 
-    private function getInertiaProps($user, $request, $response, $e): array
+    private function getInertiaProps(User|WebUser $user, string $app, $request, $response, $e): array
     {
         $firstLoadOnlyProps = [];
 
 
         if (!$request->inertia()) {
-            $firstLoadOnlyProps          = GetFirstLoadProps::run($user);
+            $firstLoadOnlyProps = match ($app) {
+                'grp' => GetFirstLoadProps::run($user),
+                'retina' => GetRetinaFirstLoadProps::run($request, $user),
+                default => [],
+            };
+
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),
@@ -206,11 +199,13 @@ class Handler extends ExceptionHandler
         return array_merge(
             $firstLoadOnlyProps,
             [
-                'error' => $this->getBaseErrorData($response, $e),
-                'auth'  => [
+                'error'    => $this->getBaseErrorData($response, $e),
+                'datetime' => now()->tz('UTC')->toDateTimeString(),
+                'routeName' => $request->route()->getName(),
+                'auth'     => [
                     'user' => $request->user() ? LoggedUserResource::make($request->user())->getArray() : null,
                 ],
-                'ziggy' => [
+                'ziggy'    => [
                     'location' => $request->url(),
                 ],
 
@@ -258,7 +253,7 @@ class Handler extends ExceptionHandler
         return [
             'status'      => 500,
             'title'       => __('Server Error'),
-            'description' => __('Whoops, something went wrong on our servers.')
+            'description' => __('Whoops, is us not you.')
         ];
     }
 
