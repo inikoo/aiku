@@ -2,13 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 14 Feb 2025 12:51:07 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\Refund\UI;
+namespace App\Actions\Accounting\Invoice\UI;
 
-use App\Actions\Accounting\Refund\StoreRefund;
+use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\OrgAction;
 use App\Models\Accounting\Invoice;
 use Illuminate\Http\RedirectResponse;

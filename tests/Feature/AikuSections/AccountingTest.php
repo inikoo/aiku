@@ -836,7 +836,7 @@ test('UI show list invoices', function () {
 });
 
 test('UI show invoice', function () {
-
+    $this->withoutExceptionHandling();
     $shop = StoreShop::run(
         $this->organisation,
         Shop::factory()->definition()

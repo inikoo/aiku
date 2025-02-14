@@ -7,9 +7,9 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
-use App\Actions\Accounting\Refund\UI\ShowRefund;
+use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
