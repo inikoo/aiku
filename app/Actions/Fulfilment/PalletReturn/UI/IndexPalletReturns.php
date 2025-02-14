@@ -300,7 +300,7 @@ class IndexPalletReturns extends OrgAction
             ];
         }
         if ($this->parent->items_storage) {
-            if ($this->parent->number_stored_items > 0) {
+            if ($this->parent->number_pallets_with_stored_items_state_storing > 0) {
                 $actions[] = [
                     'type'        => 'button',
                     'style'       => 'create',

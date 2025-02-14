@@ -88,8 +88,8 @@ class IndexRetinaPalletReturns extends RetinaAction
         $fulfilmentCustomer = $this->customer->fulfilmentCustomer;
 
         $actions = [];
-
-        if (!app()->environment('production')) {
+        
+        // if (!app()->environment('production')) {
             $actions = [
                 $fulfilmentCustomer->number_pallets_status_storing ? [
                     'type'    => 'button',
@@ -114,7 +114,7 @@ class IndexRetinaPalletReturns extends RetinaAction
                     ]
                 ] : false,
             ];
-        }
+        // }
 
         return Inertia::render(
             'Storage/RetinaPalletReturns',
