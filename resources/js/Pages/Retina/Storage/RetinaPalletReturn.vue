@@ -100,6 +100,11 @@ const props = defineProps<{
     stored_items_add_route : routeType
     routeStorePallet : routeType
     route_check_stored_items : routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 
@@ -231,6 +236,9 @@ watch(
 
 // Method: open modal Upload
 const isModalUploadOpen = ref(false)
+
+const isModalUploadFileOpen = ref(false)
+
 </script>
 
 <template>
@@ -472,6 +480,16 @@ const isModalUploadOpen = ref(false)
             </div>
             <div v-else />
         </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
 
     <div class="border-b border-gray-200">
@@ -499,7 +517,18 @@ const isModalUploadOpen = ref(false)
         :tab="currentTab"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"
         :palletReturn="data?.data"
-    />
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <UploadExcel
         v-model="isModalUploadOpen"
@@ -511,5 +540,17 @@ const isModalUploadOpen = ref(false)
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+    
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 </template>
