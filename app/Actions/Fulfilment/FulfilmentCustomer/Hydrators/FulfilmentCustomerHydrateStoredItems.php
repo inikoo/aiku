@@ -21,9 +21,8 @@ class FulfilmentCustomerHydrateStoredItems
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
-
         $stats = [
-            'number_stored_items'        => $fulfilmentCustomer->storedItems()->count(),
+            'number_stored_items'        => $fulfilmentCustomer->storedItems->count(),
         ];
 
         $stats = array_merge($stats, $this->getEnumStats(
