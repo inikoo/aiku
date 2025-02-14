@@ -126,12 +126,12 @@ class GetOutboxShowcase
                 'builder' => $outbox->builder,
                 'compiled_layout' => $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout,
                 'dashboard_stats' => [
-                    'widgets' =>[
+                    'widgets' => [
                         'column_count' => 2,
                         'components' => [
                             [
                                 'type' => 'circle_display',
-                                
+
                                 'data' => $stats
                             ]
                         ]

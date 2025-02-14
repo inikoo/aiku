@@ -188,7 +188,7 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('edit pallet'),
-                           
+
                             'route'   => [
                                 'name'       => $routeName,
                                 'parameters' => array_values(request()->route()->originalParameters())
