@@ -63,7 +63,7 @@ class DeletePalletReturn extends OrgAction
                 'delete_comment' => Arr::get($modelData, 'delete_comment')
             ]);
 
-            $fulfilmentCustomer = $this->fulfilmentCustomer;
+            $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
             $fulfilmentCustomer->customer->auditEvent    = 'delete';
             $fulfilmentCustomer->customer->isCustomEvent = true;
