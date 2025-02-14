@@ -45,7 +45,7 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                 $this->rules()
             )
         );
-        
+
         $rowData = $row->only($fields)->all();
 
         $currentCustomerRef = $rowData['customer_reference'] ?? null;
