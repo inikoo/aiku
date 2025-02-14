@@ -198,10 +198,6 @@ class IndexStoredItems extends OrgAction
                     'tooltip' => __("Create SKU"),
                     'label'   => __("Create SKU"),
                     'key'    => 'create_sku',
-                    'route'   => [
-                        'name' => 'grp.models.fulfilment-customer.stored-items.store',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
                 ];
             }
         }
