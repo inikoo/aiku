@@ -26,7 +26,7 @@ class DetachAttachmentFromModel extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery|PalletReturn $model, Media $attachment): Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery|PalletReturn $model, Media $attachment): Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|PalletDelivery|PalletReturn
     {
         $model->attachments()->detach($attachment->id);
 

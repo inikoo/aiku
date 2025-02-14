@@ -289,7 +289,22 @@ class ShowRetinaStoredItemReturn extends RetinaAction
                     ]
                 ],
 
-
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'retina.models.pallet-return.attachment.attach',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'retina.models.pallet-return.attachment.detach',
+                        'parameters' => [
+                            'palletReturn' => $palletReturn->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
 
                 'tabs' => [
                     'current'    => $this->tab,
