@@ -73,7 +73,15 @@ function mediaRoute(attachment: {}) {
 // }
 
 const isLoading = ref<number[]>([])
-const onSendData = (routeLink: routeType, media_id: number, id: number) => {
+const onSendData = (media_id: number, id: number) => {
+    if(!props.detachRoute?.name) {
+        notify({
+            title: trans('Something went wrong'),
+            text: trans('No detach route provided'),
+            type: 'error',
+        })
+    }
+
     router.delete(
         route(props.detachRoute?.name, {...props.detachRoute?.parameters, attachment: media_id}),
         {
@@ -108,7 +116,7 @@ const confirmDelete = (event, media_id: number, id: number) => {
         // },
         accept: () => {
 
-            onSendData(route, media_id, id)
+            onSendData(media_id, id)
         },
         // reject: () => {
         //     notify({

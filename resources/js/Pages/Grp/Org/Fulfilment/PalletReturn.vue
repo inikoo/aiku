@@ -475,6 +475,7 @@ const isModalUploadFileOpen = ref(false)
         :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
         :palletReturn="data?.data"
+        :detachRoute="attachmentRoutes.detachRoute"
     >
         <template #button-empty-state-attachments="{ action }">
             <Button
