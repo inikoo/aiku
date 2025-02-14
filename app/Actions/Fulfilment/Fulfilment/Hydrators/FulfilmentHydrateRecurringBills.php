@@ -34,7 +34,6 @@ class FulfilmentHydrateRecurringBills
 
     public function handle(Fulfilment $fulfilment): void
     {
-        // need to make precision more bigger example decimal(18,2), be less than 10^16
         $stats = [
             'number_recurring_bills' => $fulfilment->recurringBills()->count(),
             'current_recurring_bills_amount' => $fulfilment->recurringBills->sum('net_amount'),
