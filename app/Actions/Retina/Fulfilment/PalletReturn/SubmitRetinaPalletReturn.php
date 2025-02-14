@@ -8,20 +8,8 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
-use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
+use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\RetinaAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
-use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,54 +17,22 @@ use Lorisleiva\Actions\ActionRequest;
 
 class SubmitRetinaPalletReturn extends RetinaAction
 {
-    use WithActionUpdate;
-
-
-    private bool $sendNotifications = false;
-    private bool $action = false;
-
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
-        $modelData['state'] = PalletReturnStateEnum::SUBMITTED;
-
-        foreach ($palletReturn->pallets as $pallet) {
-            UpdatePallet::run($pallet, [
-                'reference' => GetSerialReference::run(
-                    container: $palletReturn->fulfilmentCustomer,
-                    modelType: SerialReferenceModelEnum::PALLET
-                ),
-                'state'  => $modelData['state']->value,
-                'status' => PalletStatusEnum::RECEIVING
-            ]);
-
-            $palletReturn->pallets()->syncWithoutDetaching([$pallet->id => [
-                'state' => $modelData['state']
-            ]]);
-        }
-
-        $palletReturn = $this->update($palletReturn, $modelData);
-
-        GroupHydratePalletReturns::dispatch($palletReturn->group);
-        OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
-        WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
-        FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
-        FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-
-
-        if ($this->sendNotifications) {
-            SendPalletReturnNotification::run($palletReturn);
-        }
-        PalletReturnRecordSearch::dispatch($palletReturn);
-        return $palletReturn;
+        return SubmitPalletReturn::run($palletReturn, $modelData, sendNotofications: true);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
-        return true;
+
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
+            return true;
+        }
+
+        return false;
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource
@@ -86,7 +42,6 @@ class SubmitRetinaPalletReturn extends RetinaAction
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->sendNotifications = true;
         $this->initialisation($request);
 
         return $this->handle($palletReturn, $this->validatedData);
@@ -94,7 +49,7 @@ class SubmitRetinaPalletReturn extends RetinaAction
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);

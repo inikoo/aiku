@@ -74,7 +74,7 @@ class CreateStoredItem extends OrgAction
                         ],
                         'body' => [
                             'referral_route' => [
-                                'name'       => $request->route()->getName(),
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ]

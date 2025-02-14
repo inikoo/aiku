@@ -660,7 +660,7 @@ test('Create Retina Pallet Return (with stored item)', function (PalletReturn $p
 
     $fulfilmentCustomer = $this->fulfilmentCustomer;
 
-    $palletReturn = StoreRetinaPalletReturn::make()->actionFromRetinaWithStoredItems(
+    $palletReturn = StoreRetinaPalletReturn::make()->action(
         $fulfilmentCustomer,
         [
             'warehouse_id' => $this->warehouse->id,

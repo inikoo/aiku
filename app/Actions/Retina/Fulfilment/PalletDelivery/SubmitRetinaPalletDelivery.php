@@ -30,11 +30,11 @@ class SubmitRetinaPalletDelivery extends RetinaAction
 {
     use WithActionUpdate;
 
-    private bool $action = false;
     private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
+        // We're not using aiku action because this is only retina stuff
         $modelData['submitted_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
@@ -62,9 +62,9 @@ class SubmitRetinaPalletDelivery extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
-        } elseif ($this->customer->id == $request->route()->parameter('palletDelivery')->fulfilmentCustomer->customer_id) {
+        } elseif ($this->fulfilmentCustomer->id == $request->route()->parameter('palletDelivery')->fulfilment_customer_id) {
             return true;
         }
 
@@ -85,7 +85,7 @@ class SubmitRetinaPalletDelivery extends RetinaAction
 
     public function action(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $this->action       = true;
+        $this->asAction       = true;
         $this->palletDelivery = $palletDelivery;
         $this->initialisationFulfilmentActions($palletDelivery->fulfilmentCustomer, $modelData);
         return $this->handle($palletDelivery);

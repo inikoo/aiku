@@ -10,44 +10,27 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
+use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\CRM\WebUser;
+use App\Http\Resources\Fulfilment\RetinaPalletReturnResource;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Address;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
 class AddRetinaAddressToPalletReturn extends RetinaAction
 {
-    use WithActionUpdate;
-
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $addressData = $modelData['delivery_address'];
-        unset($addressData['can_edit']);
-        unset($addressData['can_delete']);
-        data_set($addressData, 'group_id', $palletReturn->group_id);
-        $add = Address::create($addressData);
-        $palletReturn->refresh();
-        $palletReturn->update([
-            'delivery_address_id' => $add->id,
-            'is_collection' => false
-        ]);
-        PalletReturnRecordSearch::dispatch($palletReturn);
-
-        return $palletReturn;
+        return AddAddressToPalletReturn::run($palletReturn, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
             return true;
         }
 
@@ -57,13 +40,12 @@ class AddRetinaAddressToPalletReturn extends RetinaAction
     public function rules(): array
     {
         return [
-            'delivery_address'         => ['sometimes', new ValidAddress()],
+            'delivery_address' => ['sometimes', new ValidAddress()],
         ];
     }
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->parent = $palletReturn;
         $this->initialisation($request);
 
         return $this->handle($palletReturn, $this->validatedData);
@@ -71,14 +53,14 @@ class AddRetinaAddressToPalletReturn extends RetinaAction
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function jsonResponse(PalletReturn $palletReturn): PalletReturnResource
+    public function jsonResponse(PalletReturn $palletReturn): RetinaPalletReturnResource
     {
-        return new PalletReturnResource($palletReturn);
+        return new RetinaPalletReturnResource($palletReturn);
     }
 }
