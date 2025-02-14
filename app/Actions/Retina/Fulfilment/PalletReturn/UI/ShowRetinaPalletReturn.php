@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -25,6 +26,7 @@ use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -436,7 +438,11 @@ class ShowRetinaPalletReturn extends RetinaAction
 
                 PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value)))
+                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn, PalletReturnTabsEnum::PHYSICAL_GOODS->value))),
+                
+                PalletReturnTabsEnum::ATTACHMENTS->value => $this->tab == PalletReturnTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletReturn, PalletReturnTabsEnum::ATTACHMENTS->value))),
             ]
         )->table(
             IndexPalletsInReturnPalletWholePallets::make()->tableStructure(
@@ -454,7 +460,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PHYSICAL_GOODS->value
             )
-        );
+        )->table(IndexAttachments::make()->tableStructure(PalletReturnTabsEnum::ATTACHMENTS->value));
     }
 
 
