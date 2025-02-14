@@ -16,6 +16,7 @@ use App\Enums\UI\Group\GroupDashboardIntervalTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,38 +25,41 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowGroupDashboard extends OrgAction
 {
     use WithDashboard;
-    public function handle(Group $group): Response
-    {
 
-        $userSettings = auth()->user()->settings;
+    public function handle(Group $group, User $user): Response
+    {
+        $userSettings = $user->settings;
+
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
-                'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
+                'breadcrumbs'     => $this->getBreadcrumbs(__('Dashboard')),
                 'dashboard_stats' => $this->getDashboardInterval($group, $userSettings),
             ]
         );
     }
+
     public function getDashboardInterval(Group $group, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $selectedAmount = Arr::get($userSettings, 'selected_amount', true);
+        $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_grp', 'grp');
 
         $organisations = $group->organisations()->where('type', '!=', OrganisationTypeEnum::AGENT->value)->get();
         $orgCurrencies = [];
+        /** @var Organisation $organisation */
         foreach ($organisations as $organisation) {
             $orgCurrencies[] = $organisation->currency->symbol;
         }
         $orgCurrenciesSymbol = implode('/', array_unique($orgCurrencies));
 
         $dashboard = [
-            'interval_options'  => $this->getIntervalOptions(),
-            'settings' => [
-                'selected_amount' => $selectedAmount,
-                'db_settings'   => $userSettings,
-                'key_currency'  =>  'grp',
-                'options_currency'  => [
+            'interval_options' => $this->getIntervalOptions(),
+            'settings'         => [
+                'selected_amount'  => $selectedAmount,
+                'db_settings'      => $userSettings,
+                'key_currency'     => 'grp',
+                'options_currency' => [
                     [
                         'value' => 'grp',
                         'label' => $group->currency->symbol,
@@ -66,45 +70,44 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ]
             ],
-            'current' => $this->tabDashboardInterval,
-            'table' => [
+            'current'          => $this->tabDashboardInterval,
+            'table'            => [
                 [
                     'tab_label' => __('Sales'),
                     'tab_slug'  => 'sales',
                     'tab_icon'  => 'fas fa-chart-line',
-                    'type'     => 'table',
-                    'data' => null
+                    'type'      => 'table',
+                    'data'      => null
                 ],
                 [
                     'tab_label' => __('Shops'),
                     'tab_slug'  => 'shops',
                     'tab_icon'  => 'fal fa-shopping-cart',
-                    'type'     => 'table',
-                    'data' => null
+                    'type'      => 'table',
+                    'data'      => null
                 ]
             ],
-            'widgets' => [
-                'column_count'    => 4,
-                'components' => []
+            'widgets'          => [
+                'column_count' => 4,
+                'components'   => []
             ]
         ];
 
 
-
         $total = [
-            'total_sales'    => 0,
-            'total_sales_percentages' => 0,
-            'total_invoices' => 0,
+            'total_sales'                => 0,
+            'total_sales_percentages'    => 0,
+            'total_invoices'             => 0,
             'total_invoices_percentages' => 0,
-            'total_refunds'  => 0,
+            'total_refunds'              => 0,
         ];
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
-            $total['total_sales'] = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
+            $total['total_sales']          = $organisations->sum(fn($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
         } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
-            $shops = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
-            $total['total_sales'] = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
+            $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
+            $total['total_sales']          = $shops->sum(fn($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         }
 
@@ -115,17 +118,17 @@ class ShowGroupDashboard extends OrgAction
     {
         $visualData = [];
 
-        $data =  $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
-            $keyCurrency = $dashboard['settings']['key_currency'];
-            $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
+        $data = $organisations->map(function (Organisation $organisation) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
+            $keyCurrency   = $dashboard['settings']['key_currency'];
+            $currencyCode  = $selectedCurrency === $keyCurrency ? $group->currency->code : $organisation->currency->code;
             $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
-            $responseData = [
-                'name'      => $organisation->name,
-                'slug'      => $organisation->slug,
-                'code'      => $organisation->code,
-                'type'      => $organisation->type,
-                'currency_code'  => $currencyCode,
-                'route'     => [
+            $responseData  = [
+                'name'          => $organisation->name,
+                'slug'          => $organisation->slug,
+                'code'          => $organisation->code,
+                'type'          => $organisation->type,
+                'currency_code' => $currencyCode,
+                'route'         => [
                     'name'       => 'grp.org.dashboard.show',
                     'parameters' => [
                         'organisation' => $organisation->slug,
@@ -134,14 +137,14 @@ class ShowGroupDashboard extends OrgAction
                 'route_invoice' => [
                     'name'       => 'grp.org.accounting.invoices.index',
                     'parameters' => [
-                        'organisation' => $organisation->slug,
+                        'organisation'  => $organisation->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
-                'route_refund' => [
+                'route_refund'  => [
                     'name'       => 'grp.org.accounting.refunds.index',
                     'parameters' => [
-                        'organisation' => $organisation->slug,
+                        'organisation'  => $organisation->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
@@ -156,10 +159,10 @@ class ShowGroupDashboard extends OrgAction
                     $selectedInterval,
                 );
                 // visual sales
-                $visualData['sales_data']['labels'][] = $organisation->code;
-                $visualData['sales_data']['currency_codes'][] = $currencyCode;
+                $visualData['sales_data']['labels'][]              = $organisation->code;
+                $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
-                $total['total_sales_percentages'] += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
+                $total['total_sales_percentages']                  += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
             }
 
             if ($organisation->orderingIntervals !== null) {
@@ -168,24 +171,25 @@ class ShowGroupDashboard extends OrgAction
                     'invoices',
                     $selectedInterval,
                 );
-                $responseData['interval_percentages']['refunds'] = $this->getIntervalPercentage(
+                $responseData['interval_percentages']['refunds']  = $this->getIntervalPercentage(
                     $organisation->orderingIntervals,
                     'refunds',
                     $selectedInterval,
                 );
-                $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
+                $total['total_invoices_percentages']              += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
 
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
-                $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
+                $total['total_refunds']  += $responseData['interval_percentages']['refunds']['amount'];
 
-                $visualData['invoices_data']['labels'][] = $organisation->code;
-                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $visualData['invoices_data']['labels'][]              = $organisation->code;
+                $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][] = $organisation->code;
-                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['labels'][]              = $organisation->code;
+                $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
                 $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
+
             return $responseData;
         })->toArray();
 
@@ -197,25 +201,25 @@ class ShowGroupDashboard extends OrgAction
             return floatval($b[2]) <=> floatval($a[2]);
         });
 
-        $visualData['sales_data']['labels'] = array_column($combined, 0);
-        $visualData['sales_data']['currency_codes'] = array_column($combined, 1);
+        $visualData['sales_data']['labels']              = array_column($combined, 0);
+        $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
         $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
             data: [
-                'status' => $total['total_sales'] < 0 ? 'danger' : '',
-                'value' => $total['total_sales'],
+                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                'value'         => $total['total_sales'],
                 'currency_code' => $group->currency->code,
-                'type' => 'currency',
+                'type'          => 'currency',
                 'description'   => __('Total sales')
             ],
             visual: [
-                'type' => 'doughnut',
+                'type'  => 'doughnut',
                 'value' => [
-                    'labels'  => $visualData['sales_data']['labels'],
+                    'labels'         => $visualData['sales_data']['labels'],
                     'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'    => $visualData['sales_data']['datasets']
+                    'datasets'       => $visualData['sales_data']['datasets']
                 ],
             ]
         );
@@ -226,8 +230,8 @@ class ShowGroupDashboard extends OrgAction
             return floatval($b[2]) <=> floatval($a[2]);
         });
 
-        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
-        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
         $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
@@ -256,15 +260,15 @@ class ShowGroupDashboard extends OrgAction
         $visualData = [];
 
         $data = $shops->map(function (Shop $shop) use ($selectedInterval, $group, &$dashboard, $selectedCurrency, &$visualData, &$total) {
-            $keyCurrency = $dashboard['settings']['key_currency'];
-            $currencyCode = $selectedCurrency === $keyCurrency ? $group->currency->code : $shop->organisation->currency->code;
+            $keyCurrency   = $dashboard['settings']['key_currency'];
+            $currencyCode  = $selectedCurrency === $keyCurrency ? $group->currency->code : $shop->organisation->currency->code;
             $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
-            $responseData = [
-                'name'      => $shop->name,
-                'slug'      => $shop->slug,
-                'code'      => $shop->code,
-                'type'      => $shop->type,
-                'currency_code'  => $currencyCode,
+            $responseData  = [
+                'name'          => $shop->name,
+                'slug'          => $shop->slug,
+                'code'          => $shop->code,
+                'type'          => $shop->type,
+                'currency_code' => $currencyCode,
                 'route'         => [
                     'name'       => 'grp.org.shops.show.dashboard',
                     'parameters' => [
@@ -275,23 +279,23 @@ class ShowGroupDashboard extends OrgAction
                 'route_invoice' => [
                     'name'       => 'grp.org.shops.show.ordering.invoices.index',
                     'parameters' => [
-                        'organisation' => $shop->organisation->slug,
-                        'shop' => $shop->slug,
+                        'organisation'  => $shop->organisation->slug,
+                        'shop'          => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
-                'route_refund' => [
+                'route_refund'  => [
                     'name'       => 'grp.org.shops.show.ordering.refunds.index',
                     'parameters' => [
-                        'organisation' => $shop->organisation->slug,
-                        'shop'        => $shop->slug,
+                        'organisation'  => $shop->organisation->slug,
+                        'shop'          => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
             ];
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
-                $responseData['route'] = [
+                $responseData['route']         = [
                     'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                     'parameters' => [
                         'organisation' => $shop->organisation->slug,
@@ -301,16 +305,16 @@ class ShowGroupDashboard extends OrgAction
                 $responseData['route_invoice'] = [
                     'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                     'parameters' => [
-                        'organisation' => $shop->organisation->slug,
-                        'fulfilment'   => $shop->slug,
+                        'organisation'  => $shop->organisation->slug,
+                        'fulfilment'    => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ];
-                $responseData['route_refund'] = [
+                $responseData['route_refund']  = [
                     'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
                     'parameters' => [
-                        'organisation' => $shop->organisation->slug,
-                        'fulfilment'   => $shop->slug,
+                        'organisation'  => $shop->organisation->slug,
+                        'fulfilment'    => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ];
@@ -325,10 +329,10 @@ class ShowGroupDashboard extends OrgAction
                 );
 
                 // visual sales
-                $visualData['sales_data']['labels'][] = $shop->code;
-                $visualData['sales_data']['currency_codes'][] = $currencyCode;
+                $visualData['sales_data']['labels'][]              = $shop->code;
+                $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
-                $total['total_sales_percentages'] += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
+                $total['total_sales_percentages']                  += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
             }
 
             if ($shop->orderingIntervals !== null) {
@@ -346,19 +350,20 @@ class ShowGroupDashboard extends OrgAction
                 );
 
                 $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
-                $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
+                $total['total_invoices']             += $responseData['interval_percentages']['invoices']['amount'];
 
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
 
                 // visual data
-                $visualData['invoices_data']['labels'][] = $shop->code;
-                $visualData['invoices_data']['currency_codes'][] = $currencyCode;
+                $visualData['invoices_data']['labels'][]              = $shop->code;
+                $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][] = $shop->code;
-                $visualData['refunds_data']['currency_codes'][] = $currencyCode;
+                $visualData['refunds_data']['labels'][]              = $shop->code;
+                $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
                 $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             }
+
             return $responseData;
         })->toArray();
 
@@ -371,25 +376,25 @@ class ShowGroupDashboard extends OrgAction
             return floatval($b[2]) <=> floatval($a[2]);
         });
 
-        $visualData['sales_data']['labels'] = array_column($combined, 0);
-        $visualData['sales_data']['currency_codes'] = array_column($combined, 1);
+        $visualData['sales_data']['labels']              = array_column($combined, 0);
+        $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
         $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
             type: 'chart_display',
             data: [
-                'status' => $total['total_sales'] < 0 ? 'danger' : '',
-                'value' => $total['total_sales'],
+                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                'value'         => $total['total_sales'],
                 'currency_code' => $group->currency->code,
-                'type' => 'currency',
+                'type'          => 'currency',
                 'description'   => __('Total sales')
             ],
             visual: [
-                'type' => 'doughnut',
+                'type'  => 'doughnut',
                 'value' => [
-                    'labels'  => $visualData['sales_data']['labels'],
+                    'labels'         => $visualData['sales_data']['labels'],
                     'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'    => $visualData['sales_data']['datasets']
+                    'datasets'       => $visualData['sales_data']['datasets']
                 ],
             ]
         );
@@ -400,8 +405,8 @@ class ShowGroupDashboard extends OrgAction
             return floatval($b[2]) <=> floatval($a[2]);
         });
 
-        $visualData['invoices_data']['labels'] = array_column($combinedInvoices, 0);
-        $visualData['invoices_data']['currency_codes'] = array_column($combinedInvoices, 1);
+        $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
+        $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
         $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
         $dashboard['widgets']['components'][] = $this->getWidget(
@@ -425,11 +430,13 @@ class ShowGroupDashboard extends OrgAction
 
         return $data;
     }
+
     public function asController(ActionRequest $request): Response
     {
         $group = group();
         $this->initialisationFromGroup($group, $request)->withTabDashboardInterval(GroupDashboardIntervalTabsEnum::values());
-        return $this->handle($group);
+
+        return $this->handle($group, $request->user());
     }
 
     public function getBreadcrumbs($label = null): array
