@@ -36,6 +36,7 @@ class RetinaAction
     protected ?FulfilmentCustomer $fulfilmentCustomer;
     protected Organisation $organisation;
     protected Shop $shop;
+    protected bool $asAction = false;
 
 
     protected array $validatedData;
@@ -101,6 +102,11 @@ class RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
+
+        if ($this->asAction) {
+            return true;
+        }
+
         // Define the segments or route names that should always be accessible
         $publicRoutes = ['login', 'register', 'profile', 'logout', 'home', 'dashboard', 'password', 'reset-password'];
 

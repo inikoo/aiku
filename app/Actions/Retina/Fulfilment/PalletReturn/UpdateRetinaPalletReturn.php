@@ -8,85 +8,33 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
-use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Traits\WithModelAddressActions;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Address;
-use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class UpdateRetinaPalletReturn extends RetinaAction
 {
-    use AsAction;
-    use WithAttributes;
-    use WithActionUpdate;
-    use WithModelAddressActions;
-
-    public Customer $customer;
-    /**
-     * @var true
-     */
-    private bool $action = false;
-    /**
-     * @var \App\Models\Fulfilment\PalletReturn
-     */
     private PalletReturn $palletReturn;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        if (Arr::exists($modelData, 'address')) {
-            $addressData = Arr::get($modelData, 'address');
-            $groupId     = $palletReturn->group_id;
-
-            data_set($addressData, 'group_id', $groupId);
-
-            if (Arr::exists($addressData, 'id')) {
-                $countryCode = Country::find(Arr::get($addressData, 'country_id'))->code;
-                data_set($addressData, 'country_code', $countryCode);
-                $label = isset($addressData['label']) ? $addressData['label'] : null;
-                unset($addressData['label']);
-                unset($addressData['can_edit']);
-                unset($addressData['can_delete']);
-                $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
-                $pivotData['label'] = $label;
-                $palletReturn->fulfilmentCustomer->customer->addresses()->updateExistingPivot(
-                    $updatedAddress->id,
-                    $pivotData
-                );
-            } else {
-                $this->addAddressToModelFromArray(
-                    $palletReturn->fulfilmentCustomer->customer,
-                    $addressData,
-                    'delivery',
-                    false,
-                    'delivery_address_id'
-                );
-            }
-
-            Arr::forget($modelData, 'address');
-        }
-
-        $palletReturn = $this->update($palletReturn, $modelData);
-        PalletReturnRecordSearch::dispatch($palletReturn);
-
-        return $palletReturn;
+        return UpdatePalletReturn::run($palletReturn, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
-        return true;
+
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->id) {
+            return true;
+        }
+
+        return false;
     }
 
     public function rules(): array
@@ -110,7 +58,7 @@ class UpdateRetinaPalletReturn extends RetinaAction
 
     public function action(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->palletReturn = $palletReturn;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
         return $this->handle($palletReturn, $modelData);

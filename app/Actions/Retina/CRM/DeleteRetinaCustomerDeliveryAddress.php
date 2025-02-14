@@ -9,7 +9,7 @@
 
 namespace App\Actions\Retina\CRM;
 
-use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
+use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\RetinaAction;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
@@ -22,14 +22,7 @@ class DeleteRetinaCustomerDeliveryAddress extends RetinaAction
     protected Address $address;
     public function handle(Customer $customer, Address $address): Customer
     {
-        $customer->addresses()->detach($address->id);
-
-        AddressHydrateUsage::dispatch($address);
-
-        $address->delete();
-
-        $customer->refresh();
-        return $customer;
+        return DeleteCustomerDeliveryAddress::run($customer, $address);
     }
 
     public function afterValidator(Validator $validator): void
@@ -53,8 +46,8 @@ class DeleteRetinaCustomerDeliveryAddress extends RetinaAction
 
     public function action(Customer $customer, Address $address): Customer
     {
+        $this->asAction = true;
         $this->address = $address;
-
         $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, []);
 
         return $this->handle($customer, $address);

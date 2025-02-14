@@ -20,6 +20,7 @@ import { faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMou
 import { Link } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
+import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue";
 library.add(faPaperPlane, faVirus, faInboxIn, faExclamationTriangle, faInbox, faMousePointer, faEnvelopeOpen, faHandPaper, faDumpster, faDraftingCompass)
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
@@ -33,7 +34,7 @@ const props = defineProps<{
         }
         stats: Array<any>
         compiled_layout: HtmlHTMLAttributes
-        state: String
+        dashboard_stats: String
         builder: String
     };
 }>();
@@ -76,7 +77,9 @@ const isLoadingVisit = ref(false)
 
     <div v-else class="card p-4">
         <!-- Stats Section -->
-        <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
+        <Dashboard
+            :dashboard="props.data.dashboard_stats"/>
+      <!--   <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
             <div class="md:col-span-4 grid sm:grid-cols-1 md:grid-cols-6 gap-2 h-auto mb-3">
                 <div v-for="item in data.stats" :key="item.key"
                  
@@ -94,7 +97,7 @@ const isLoadingVisit = ref(false)
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Bottom Section: Two Columns -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

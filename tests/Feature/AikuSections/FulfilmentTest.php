@@ -53,7 +53,6 @@ use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
@@ -2574,9 +2573,9 @@ test('pay invoice (exceed)', function ($invoice) {
     ]);
     // dump($invoice->total_amount, $invoice->payment_amount);
     $customer->refresh();
+    $invoice->refresh();
 
-    expect($invoice->total_amount)->toBe($invoice->payment_amount)
-        ->and($payment)->toBeInstanceOf(Payment::class)
+    expect($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()

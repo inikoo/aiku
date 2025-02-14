@@ -14,7 +14,6 @@ use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\Http\Resources\Mail\MailshotResource;
