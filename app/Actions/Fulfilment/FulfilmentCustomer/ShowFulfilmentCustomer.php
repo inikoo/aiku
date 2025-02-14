@@ -17,6 +17,7 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
@@ -24,6 +25,7 @@ use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerNoteResource;
 use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -172,6 +174,23 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.attach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.detach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
@@ -186,6 +205,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
+                FulfilmentCustomerTabsEnum::ATTACHMENTS->value => $this->tab == FulfilmentCustomerTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))),
                 //                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
                 //                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
                 //                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
@@ -194,7 +216,8 @@ class ShowFulfilmentCustomer extends OrgAction
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
-            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
+            ->table(IndexAttachments::make()->tableStructure(FulfilmentCustomerTabsEnum::ATTACHMENTS->value));;
         //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
