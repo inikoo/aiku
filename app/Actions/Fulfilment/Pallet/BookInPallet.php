@@ -51,7 +51,7 @@ class BookInPallet extends OrgAction
     {
         return [
             'location_id' => [
-                'required',
+                'sometimes',
                 Rule::exists('locations', 'id')
                     ->where('warehouse_id', $this->warehouse->id),
             ],

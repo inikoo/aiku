@@ -54,7 +54,7 @@ class RetinaPalletsResource extends JsonResource
             'status_icon'        => $this->status->statusIcon()[$this->status->value],
 
             'incident_report_message' => $this->incident_report->message ?? '-',
-            'stored_items'            => $this->storedItems->map(fn(StoredItem $storedItem) => [
+            'stored_items'            => $this->storedItems->map(fn (StoredItem $storedItem) => [
                 'id'         => $storedItem->id,
                 'reference'  => $storedItem->reference,
                 'notes'      => $storedItem->notes,

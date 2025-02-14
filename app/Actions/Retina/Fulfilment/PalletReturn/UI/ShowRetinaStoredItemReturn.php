@@ -24,7 +24,6 @@ use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
