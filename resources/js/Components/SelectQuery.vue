@@ -114,7 +114,7 @@ const onGetOptionsSuccess = async (response) => {
 
 
 const SearchChange = (value: any) => {
-    if(value === '') return // ==========================
+    if(value === null) return // ==========================
     q.value = value
     page.value = 1
     clearTimeout(timeoutId)
