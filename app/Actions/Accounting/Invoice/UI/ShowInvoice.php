@@ -217,16 +217,8 @@ class ShowInvoice extends OrgAction
                 'invoice' => InvoiceResource::make($invoice),
                 'outbox'  => [
                     'state'          => $invoice->shop->outboxes()->where('code', OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER->value)->first()?->state->value,
-                    'workshop_route' => [
-                        'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes.workshop',
-                        'parameters' => [
-                            'organisation' => $invoice->organisation->slug,
-                            'fulfilment'   => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
-                            'outbox'       => 'send-invoice-to-awf-aw',
-                        ]
-                    ]
+                    'workshop_route' => $this->getOutboxRoute($invoice)
                 ],
-
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
                     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
