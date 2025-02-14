@@ -36,6 +36,20 @@ function storedItemRoute(storedItem) {
             return route(
                 'grp.org.warehouses.show.inventory.stored_items.current.show',
                 [route().params['organisation'], route().params['warehouse'], storedItem.slug]);
+        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
+        case 'retina.fulfilment.itemised_storage.stored_items.index':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                [storedItem.slug]
+            )
+        case 'retina.fulfilment.storage.pallets.show':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                [storedItem.slug]
+            )
         default:
             null
     }

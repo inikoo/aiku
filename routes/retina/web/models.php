@@ -44,6 +44,7 @@ use App\Actions\Retina\Fulfilment\StoredItem\SyncRetinaStoredItemToPallet;
 use App\Actions\Retina\Fulfilment\StoredItem\UpdateRetinaStoredItem;
 use App\Actions\Retina\Media\AttachRetinaAttachmentToModel;
 use App\Actions\Retina\Media\DetachRetinaAttachmentFromModel;
+use App\Actions\Retina\Media\DownloadRetinaAttachment;
 use App\Actions\Retina\SysAdmin\AddRetinaDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Retina\SysAdmin\DeleteRetinaWebUser;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
@@ -135,3 +136,5 @@ Route::name('web-users.')->prefix('web-users')->group(function () {
     Route::patch('{webUser:id}/update', UpdateRetinaWebUser::class)->name('update');
     Route::delete('{webUser:id}/delete', DeleteRetinaWebUser::class)->name('delete');
 });
+
+Route::get('attachment/{media:ulid}', DownloadRetinaAttachment::class)->name('attachment.download');

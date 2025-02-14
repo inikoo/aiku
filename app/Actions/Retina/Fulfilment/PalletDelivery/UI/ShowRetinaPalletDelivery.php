@@ -407,6 +407,13 @@ class ShowRetinaPalletDelivery extends RetinaAction
 
                 ],
 
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
+
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),

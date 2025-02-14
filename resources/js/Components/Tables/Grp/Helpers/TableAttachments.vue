@@ -6,19 +6,24 @@
 
 <script setup lang="ts">
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link, router } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { FulfilmentCustomer } from "@/types/Customer";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
-import { ref } from "vue";
+import { inject, ref } from "vue";
 import { routeType } from "@/types/route";
 import { trans } from "laravel-vue-i18n"
 import ConfirmPopup from 'primevue/confirmpopup'
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTrashAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faTrashAlt)
 
 const confirm = useConfirm()
 const props = defineProps<{
@@ -29,13 +34,26 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 const isModalUploadOpen = ref(false)
+const layout = inject('layout', layoutStructure)
 
-function mediaRoute(attachment: {}) {
-    return route(
-        "grp.media.download",
-        [
-            attachment.media_ulid
-        ]);;
+function mediaRoute(attachment: {media_ulid: string}) {
+    const is_retina = route().current()?.includes('retina')
+
+    if (is_retina) {
+        // return null
+        return route(
+            "retina.models.attachment.download",
+            [
+                attachment.media_ulid
+            ]);
+    } else {
+        return route(
+            "grp.media.download",
+            [
+                attachment.media_ulid
+            ]);;
+    }
+
 }
 
 // function customerRoute(customer: FulfilmentCustomer) {
@@ -73,7 +91,7 @@ function mediaRoute(attachment: {}) {
 // }
 
 const isLoading = ref<number[]>([])
-const onSendData = (media_id: number, id: number) => {
+const onDelete = (media_id: number, id: number) => {
     if(!props.detachRoute?.name) {
         notify({
             title: trans('Something went wrong'),
@@ -115,8 +133,7 @@ const confirmDelete = (event, media_id: number, id: number) => {
         //     label: 'Delete'
         // },
         accept: () => {
-
-            onSendData(media_id, id)
+            onDelete(media_id, id)
         },
         // reject: () => {
         //     notify({
@@ -139,7 +156,7 @@ const confirmDelete = (event, media_id: number, id: number) => {
         </template>
         <template #cell(action)="{ item: attachment }">
             <div class="flex gap-x-2">
-                <a target='_blank' :href="mediaRoute(attachment)">
+                <a target='_blank' :href="mediaRoute(attachment) || '#'">
                     <Button
                         type="tertiary"
                         icon="fal fa-download"
@@ -154,7 +171,10 @@ const confirmDelete = (event, media_id: number, id: number) => {
                     preserve-scroll
                     as="div"
                 > -->
+                
+                <!-- Button: Delete -->
                 <Button
+                    v-if="attachment.is_can_deleted"
                     @click="(e) => confirmDelete(e, attachment.media_id, attachment.id)"
                     type="negative"
                     icon="fal fa-trash-alt"

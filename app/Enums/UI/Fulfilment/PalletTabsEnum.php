@@ -19,6 +19,7 @@ enum PalletTabsEnum: string
 
     case SHOWCASE     = 'showcase';
     case STORED_ITEMS = 'stored_items';
+    case MOVEMENTS      = 'movements';
     case HISTORY      = 'history';
 
     public function blueprint(Pallet $pallet): array
@@ -29,8 +30,12 @@ enum PalletTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
             PalletTabsEnum::STORED_ITEMS => [
-                'title' => __("customer's sKUs"). " ({$pallet->fulfilmentCustomer->number_stored_items})",
+                'title' => __("customer's sKUs"). " ({$pallet->number_stored_items})",
                 'icon'  => 'fal fa-narwhal',
+            ],
+            PalletTabsEnum::MOVEMENTS => [
+                'title' => __('movements'),
+                'icon'  => 'fal fa-exchange',
             ],
             PalletTabsEnum::HISTORY => [
                 'title' => __('history'),

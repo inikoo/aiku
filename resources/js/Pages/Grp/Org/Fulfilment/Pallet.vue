@@ -17,6 +17,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import PalletShowcase from "@/Components/Showcases/Org/PalletShowcase.vue"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
 
 const props = defineProps<{
     title: string
@@ -24,6 +25,7 @@ const props = defineProps<{
     tabs: TSTabs
     stored_items?: {}
     history?: {}
+    movements?: {}
     showcase: {}
 }>()
 
@@ -33,6 +35,7 @@ const component = computed(() => {
     const components: Component = {
         showcase: PalletShowcase,
         stored_items: TableStoredItems,
+        movements: StockItemsMovements,
         history: TableHistories
     }
     return components[currentTab.value]

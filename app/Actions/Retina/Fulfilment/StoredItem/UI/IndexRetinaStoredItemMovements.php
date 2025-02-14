@@ -1,21 +1,19 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 26 Jan 2024 18:40:36 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 14-02-2025, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2025
+ *
+*/
 
-namespace App\Actions\Fulfilment\StoredItem\UI;
+namespace App\Actions\Retina\Fulfilment\StoredItem\UI;
 
-use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemMovement;
-use App\Models\Inventory\Warehouse;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
@@ -23,15 +21,8 @@ use App\Models\Fulfilment\Pallet;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexStoredItemMovements extends OrgAction
+class IndexRetinaStoredItemMovements extends RetinaAction
 {
-    use HasFulfilmentAssetsAuthorisation;
-    private Warehouse|Fulfilment|Customer $parent;
-    /**
-     * @var true
-     */
-    private bool $selectStoredPallets = false;
-
     protected function getElementGroups(): array
     {
         return [
@@ -107,6 +98,7 @@ class IndexStoredItemMovements extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+
 
     }
 

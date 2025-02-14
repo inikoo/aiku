@@ -168,7 +168,7 @@ class ShowStoredItem extends OrgAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
-            ->table(IndexStoredItemMovements::make()->tableStructure(prefix: StoredItemTabsEnum::MOVEMENTS->value))
+            ->table(IndexStoredItemMovements::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
             ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
     }
 

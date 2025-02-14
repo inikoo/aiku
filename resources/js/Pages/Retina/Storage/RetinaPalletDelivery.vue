@@ -87,6 +87,12 @@ const props = defineProps<{
 
     physical_goods?: Table
     physical_good_list_route: routeType
+
+    attachments: {}
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -340,6 +346,8 @@ const onClickDisabledSubmit = () => {
         }
     }
 }
+
+const isModalUploadFileOpen = ref(false)
 
 </script>
 
@@ -685,6 +693,16 @@ const onClickDisabledSubmit = () => {
                 </div>
             </div>
         </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
     
     <!-- Box: Public Notes -->
@@ -747,7 +765,18 @@ const onClickDisabledSubmit = () => {
         :tableKey="tableKey"
         :storedItemsRoute="storedItemsRoute"
         @renderTableKey="() => (console.log('emit render', changeTableKey()))"
-    />
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <!-- <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
@@ -765,6 +794,18 @@ const onClickDisabledSubmit = () => {
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 
     <!-- <pre>{{ props.pallets }}</pre> -->
