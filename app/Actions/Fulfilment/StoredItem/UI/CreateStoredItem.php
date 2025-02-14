@@ -10,7 +10,6 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -27,7 +26,8 @@ class CreateStoredItem extends OrgAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->originalParameters()
+                    $request->route()->getName(),
+                    $request->route()->originalParameters(),
                 ),
                 'title'       => __('new SKU'),
                 'pageHead'    => [
@@ -91,17 +91,18 @@ class CreateStoredItem extends OrgAction
         return $this->handle($fulfilmentCustomer, $request);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(
-                routeParameters: $routeParameters,
+            IndexStoredItems::make()->getBreadcrumbs(
+                $routeName,
+                $routeParameters,
             ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating space'),
+                        'label' => __('Creating SKU'),
                     ]
                 ]
             ]
