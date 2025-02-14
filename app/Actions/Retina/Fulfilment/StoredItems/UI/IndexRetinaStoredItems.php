@@ -72,7 +72,7 @@ class IndexRetinaStoredItems extends RetinaAction
                         'description'   => __("No items stored in any pallets")
                     ]
                 )
-                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
