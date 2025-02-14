@@ -8,8 +8,11 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -69,6 +72,31 @@ trait IsInvoiceUI
         return $customerRoute;
     }
 
+    public function getOutboxRoute(Invoice $invoice): array
+    {
+        /** @var Outbox $outbox */
+        $outbox = $invoice->shop->outboxes()->where('code', OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER->value)->first();
+
+        if ($invoice->shop->type === ShopTypeEnum::FULFILMENT) {
+            return [
+                'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes.workshop',
+                'parameters' => [
+                    'organisation' => $invoice->organisation->slug,
+                    'fulfilment'   => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                    'outbox'       => $outbox->slug
+                ]
+            ];
+        }
+
+        return [
+            'name'       => 'grp.org.shops.show.comms.outboxes.workshop',
+            'parameters' => [
+                'organisation' => $invoice->organisation->slug,
+                'shop'   => $invoice->customer->shop->slug,
+                'outbox'       => $outbox->slug
+            ]
+        ];
+    }
 
     public function getRecurringBillRoute(Invoice $invoice): ?array
     {
