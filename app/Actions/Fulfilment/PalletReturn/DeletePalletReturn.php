@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Dropshipping\Shopify\Order\CancelFulfilmentRequestToShopify;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -76,6 +77,8 @@ class DeletePalletReturn extends OrgAction
             ];
 
             Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
+
+            CancelFulfilmentRequestToShopify::dispatch($palletReturn);
 
             $palletReturn->delete();
         } else {
