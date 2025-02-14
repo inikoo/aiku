@@ -110,12 +110,16 @@ onUnmounted(() => {
     }
 })
 
+
+const _multiselectRef = ref()
+
 </script>
 
 <template>
     <!-- <pre>{{ options }}</pre> -->
     <!-- <div class="relative w-full text-gray-600 rounded-sm"> -->
         <Multiselect
+            ref="_multiselectRef"
             v-model="model"
             :options="optionsList"
             :classes="{
@@ -124,7 +128,7 @@ onUnmounted(() => {
             }"
             valueProp="id"
             :filterResults="false"
-            @change="(e) => console.log('aaa', e)"
+            @change="(e) => _multiselectRef?.clearSearch()"
             :canClear="!required"
             :mode="mode || 'single'"
             :closeOnSelect="mode == 'multiple' ? false : true"
