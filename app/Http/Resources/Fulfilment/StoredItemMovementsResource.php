@@ -107,7 +107,7 @@ class StoredItemMovementsResource extends JsonResource
             }
         } else {
             $desc_title = '-';
-            $desc_model = __('No Parent');
+            $desc_model = __('Initial Setup');
             $route = null;
         }
 
