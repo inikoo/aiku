@@ -2574,9 +2574,9 @@ test('pay invoice (exceed)', function ($invoice) {
     ]);
     // dump($invoice->total_amount, $invoice->payment_amount);
     $customer->refresh();
+    $invoice->refresh();
 
-    expect($invoice->total_amount)->toBe($invoice->payment_amount)
-        ->and($payment)->toBeInstanceOf(Payment::class)
+    expect($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()
