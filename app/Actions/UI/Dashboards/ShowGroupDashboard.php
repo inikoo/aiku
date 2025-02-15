@@ -103,11 +103,11 @@ class ShowGroupDashboard extends OrgAction
         ];
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
-            $total['total_sales']          = $organisations->sum(fn($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
+            $total['total_sales']          = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
         } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
             $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray());
-            $total['total_sales']          = $shops->sum(fn($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
+            $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         }
 

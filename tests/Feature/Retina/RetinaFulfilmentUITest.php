@@ -190,16 +190,17 @@ test('show profile', function () {
 
 test('create rental agreement', function () {
 
-   $rentalAgreement= StoreRentalAgreement::make()->action(
-       $this->webUser->customer->fulfilmentCustomer,
+    $rentalAgreement = StoreRentalAgreement::make()->action(
+        $this->webUser->customer->fulfilmentCustomer,
         [
-            'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
-            'state'         => RentalAgreementStateEnum::ACTIVE,
-            'username'      => 'test',
-            'email'         => 'hello@aiku.io',
-        ]);
+             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
+             'state'         => RentalAgreementStateEnum::ACTIVE,
+             'username'      => 'test',
+             'email'         => 'hello@aiku.io',
+         ]
+    );
 
-   expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
+    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
 
 
 });

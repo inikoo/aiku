@@ -88,32 +88,32 @@ class IndexRetinaPalletReturns extends RetinaAction
         $fulfilmentCustomer = $this->customer->fulfilmentCustomer;
 
         $actions = [];
-        
+
         // if (!app()->environment('production')) {
-            $actions = [
-                $fulfilmentCustomer->number_pallets_status_storing ? [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'retina.models.pallet-return.store',
-                        'parameters' => []
-                    ]
-                ] : false,
-                $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => __('Create new return (Selected SKUs)'),
-                    'label'   => __('Return (Selected SKUs)'),
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'retina.models.pallet-return-stored-items.store',
-                        'parameters' => []
-                    ]
-                ] : false,
-            ];
+        $actions = [
+            $fulfilmentCustomer->number_pallets_status_storing ? [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return.store',
+                    'parameters' => []
+                ]
+            ] : false,
+            $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create new return (Selected SKUs)'),
+                'label'   => __('Return (Selected SKUs)'),
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return-stored-items.store',
+                    'parameters' => []
+                ]
+            ] : false,
+        ];
         // }
 
         return Inertia::render(

@@ -50,13 +50,13 @@ enum StoredItemStateEnum: string
             'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'class'   => 'text-gray-300',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
             ],
             'active'   => [
                 'tooltip' => __('Active'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-green-500',  // Color for normal icon (Aiku)
+                'icon'    => 'fal fa-inventory',
+                'class'   => 'text-green-700',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
             'discontinuing'   => [

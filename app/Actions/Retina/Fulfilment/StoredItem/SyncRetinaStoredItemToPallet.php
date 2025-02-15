@@ -9,21 +9,14 @@
 
 namespace App\Actions\Retina\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class SyncRetinaStoredItemToPallet extends RetinaAction
 {
-
     public function handle(Pallet $pallet, array $modelData): void
     {
         SyncStoredItemToPallet::run($pallet, $modelData);

@@ -25,7 +25,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -44,6 +43,9 @@ class IndexPalletReturns extends OrgAction
 
     private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
     private ?string $restriction = null;
+    private ?string $type = null;
+
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -153,8 +155,8 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
-        if ($type = request()->get('type')) {
-            $queryBuilder->where('type', $type);
+        if ($this->type) {
+            $queryBuilder->where('type', $this->type);
         }
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -252,7 +254,7 @@ class IndexPalletReturns extends OrgAction
     public function htmlResponse(LengthAwarePaginator $returns, ActionRequest $request): Response
     {
         $navigation = PalletReturnsTabsEnum::navigation();
-        if ($this->parent instanceof Group || $this->parent instanceof Warehouse) {
+        if ($this->parent instanceof Warehouse) {
             unset($navigation[PalletReturnsTabsEnum::UPLOADS->value]);
         }
         $subNavigation = [];
@@ -284,6 +286,10 @@ class IndexPalletReturns extends OrgAction
 
 
         $actions = [];
+
+
+
+
 
         if ($this->parent->number_pallets_status_storing) {
             $actions[] = [

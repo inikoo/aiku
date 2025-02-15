@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
@@ -38,6 +39,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexStoredItems extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
+    use WithFulfilmentAuthorisation;
 
     private Group|FulfilmentCustomer $parent;
 
@@ -109,7 +111,7 @@ class IndexStoredItems extends OrgAction
                         default => []
                     }
                 )
-                ->column(key: 'state', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
+                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true)
                 ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false)
@@ -123,19 +125,7 @@ class IndexStoredItems extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-        $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->authTo("human-resources.{$this->organisation->id}.view")
-            );
-    }
 
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection

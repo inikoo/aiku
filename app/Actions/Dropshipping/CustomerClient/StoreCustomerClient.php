@@ -17,7 +17,6 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Rules\IUnique;
-use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -101,13 +100,12 @@ class StoreCustomerClient extends OrgAction
             'contact_name'   => ['nullable', 'string', 'max:255'],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', new Phone()],
+            'phone'          => ['nullable', 'string', 'min:6'],
             'address'        => ['required', new ValidAddress()],
             'deactivated_at' => ['sometimes', 'nullable', 'date'],
             'status'         => ['sometimes', 'boolean'],
 
         ];
-        ;
     }
 
     public function rules(): array

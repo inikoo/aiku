@@ -44,18 +44,18 @@ class StoreRetinaPalletReturn extends RetinaAction
         }
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, bool $withStoredItems = false): PalletReturn
     {
-        $this->asAction = true;
+        $this->withStoredItems = $withStoredItems;
+        $this->asAction        = true;
         $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
 
-
     public function rules(): array
     {
-
         return [
             'type'           => ['sometimes', 'required', Rule::enum(PalletReturnTypeEnum::class)],
             'warehouse_id'   => [
@@ -71,8 +71,8 @@ class StoreRetinaPalletReturn extends RetinaAction
 
     public function asController(ActionRequest $request): PalletReturn
     {
-
         $this->initialisation($request);
+
         return $this->handle($this->fulfilmentCustomer, $this->validatedData);
     }
 

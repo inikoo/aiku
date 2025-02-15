@@ -9,7 +9,6 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Dropshipping\WithDropshippingAuthorisation;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
