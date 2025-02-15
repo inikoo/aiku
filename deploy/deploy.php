@@ -27,6 +27,11 @@ task('deploy:set-release', function () {
 });
 
 
+desc('Creates atomic symlink to release');
+task('deploy:symlink', function () {
+    run("mv -T {{deploy_path}}/release {{current_path}}");
+});
+
 set('keep_releases', 50);
 
 set('shared_dirs', ['storage', 'private']);
