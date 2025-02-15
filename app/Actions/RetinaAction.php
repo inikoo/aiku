@@ -130,6 +130,7 @@ class RetinaAction
             return true;
         }
 
+
         // Deny access if none of the above conditions pass.
         return false;
     }
