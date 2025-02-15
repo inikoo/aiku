@@ -27,10 +27,11 @@ task('deploy:set-release', function () {
 });
 
 
-desc('Creates atomic symlink to release');
-task('deploy:symlink', function () {
-    run("mv -T {{deploy_path}}/release {{current_path}}");
+desc('Sync octane anchor');
+task('deploy:sync-octane-anchor', function () {
+    run("rsync -avhH --delete {{release_path}} {{deploy_path}}/anchor/octane");
 });
+
 
 set('keep_releases', 50);
 
@@ -82,5 +83,6 @@ task('deploy', [
     'deploy:publish',
     'artisan:horizon:terminate',
     'artisan:pulse:restart',
+    'deploy:sync-octane-anchor',
     'artisan:octane:reload',
 ]);
