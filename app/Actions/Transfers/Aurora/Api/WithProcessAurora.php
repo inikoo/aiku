@@ -42,8 +42,10 @@ trait WithProcessAurora
             (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay(30);
 
             return [
-                'status' => 'ok',
-                'type'   => 'background'
+                'organisation' => $organisation->slug,
+                'class'  => class_basename($this->fetcher),
+                'id'=> Arr::get($validatedData, 'id'),
+                'date'   => now(),
             ];
         } else {
             $model = (new $this->fetcher())::make()->action($organisation->id, Arr::get($validatedData, 'id'), $with);
