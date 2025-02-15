@@ -58,8 +58,8 @@ Route::name('bk_api.')->group(function () {
             Route::post('customer', ProcessAuroraCustomer::class)->name('customer');
             Route::post('delivery-note', ProcessAuroraDeliveryNote::class)->name('delivery_note');
             Route::post('department', ProcessAuroraDepartment::class)->name('department');
-            Route::post('dispatched-email', ProcessAuroraDispatchedEmail::class)->name('supplier_product');
-            Route::post('email-tracking-event', ProcessAuroraEmailTrackingEvent::class)->name('supplier_product');
+            Route::post('dispatched-email', ProcessAuroraDispatchedEmail::class)->name('dispatched_email');
+            Route::post('email-tracking-event', ProcessAuroraEmailTrackingEvent::class)->name('email_tracking_event');
             Route::post('employee', ProcessAuroraEmployee::class)->name('employee');
             Route::post('family', ProcessAuroraFamily::class)->name('family');
             Route::post('feedback', ProcessAuroraFeedback::class)->name('feedback');
