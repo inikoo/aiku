@@ -16,7 +16,6 @@ use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInWarehouse;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Goods\Stock\UI\CreateStock;
-use App\Actions\Goods\Stock\UI\EditStock;
 use App\Actions\Goods\Stock\UI\ShowStock;
 use App\Actions\Goods\StockFamily\ExportStockFamilies;
 use App\Actions\Goods\StockFamily\UI\CreateStockFamily;
@@ -106,7 +105,6 @@ Route::prefix('families')->as('org_stock_families.')->group(function () {
 
                 Route::prefix('{orgStock}')->group(function () {
                     Route::get('', [ShowStock::class, 'inStockFamily'])->name('show');
-                    Route::get('edit', [EditStock::class, 'inStockFamily'])->name('edit');
                 });
             });
         });
