@@ -29,7 +29,7 @@ task('deploy:set-release', function () {
 
 desc('Sync octane anchor');
 task('deploy:sync-octane-anchor', function () {
-    run("rsync -avhH --delete {{release_path}} {{deploy_path}}/anchor/octane");
+    run("rsync -avhH --delete {{release_path}}/ {{deploy_path}}/anchor/octane");
 });
 
 
