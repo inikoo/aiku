@@ -369,7 +369,7 @@ class IndexStocks extends GrpAction
     {
         $headCrumb = function (array $routeParameters, ?string $suffix) {
 
-            $label=match ($routeParameters['name']) {
+            $label = match ($routeParameters['name']) {
                 'grp.goods.stocks.active_stocks.index' => __('Active SKUs'),
                 'grp.goods.stocks.in_process_stocks.index' => __('In process SKUs'),
                 'grp.goods.stocks.discontinuing_stocks.index' => __('Discontinuing SKUs'),

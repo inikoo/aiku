@@ -32,14 +32,14 @@ class EditStock extends OrgAction
 
     public function asController(Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisationFromGroup($stock->group,$request);
+        $this->initialisationFromGroup($stock->group, $request);
 
         return $this->handle($stock);
     }
 
     public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisationFromGroup($stockFamily->group,$request);
+        $this->initialisationFromGroup($stockFamily->group, $request);
 
         return $this->handle($stock);
     }

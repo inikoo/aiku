@@ -11,7 +11,6 @@ namespace App\Actions\Goods\Stock\UI;
 use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Goods\UI\ShowGoodsDashboard;
-use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
@@ -101,12 +100,12 @@ class ShowStock extends OrgAction
 
                 ],
                 StockTabsEnum::SHOWCASE->value => $this->tab == StockTabsEnum::SHOWCASE->value ?
-                    fn() => GetStockShowcase::run($stock)
-                    : Inertia::lazy(fn() => GetStockShowcase::run($stock)),
+                    fn () => GetStockShowcase::run($stock)
+                    : Inertia::lazy(fn () => GetStockShowcase::run($stock)),
 
                 StockTabsEnum::HISTORY->value => $this->tab == StockTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($stock))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($stock)))
+                    fn () => HistoryResource::collection(IndexHistory::run($stock))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($stock)))
 
 
             ]
