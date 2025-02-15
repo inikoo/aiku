@@ -8,6 +8,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Dropshipping\WithDropshippingAuthorisation;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
@@ -33,7 +34,7 @@ class ShowCustomerClient extends OrgAction
     use WithActionButtons;
     use WithWebUserMeta;
     use WithCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithDropshippingAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private Customer|FulfilmentCustomer $parent;

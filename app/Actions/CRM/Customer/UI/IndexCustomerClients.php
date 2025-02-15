@@ -8,6 +8,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Dropshipping\WithDropshippingAuthorisation;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -34,7 +35,7 @@ class IndexCustomerClients extends OrgAction
 {
     use WithCustomerSubNavigation;
     use WithFulfilmentCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithDropshippingAuthorisation;
 
     private Customer|FulfilmentCustomer $parent;
 
@@ -46,6 +47,7 @@ class IndexCustomerClients extends OrgAction
         return $this->handle($customer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
