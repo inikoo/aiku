@@ -99,14 +99,15 @@ class FetchAuroraInvoice extends FetchAurora
             'total_amount' => $this->auroraModelData->{'Invoice Total Amount'},
 
 
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
-            'data'            => $data,
-            'billing_address' => new Address($billingAddressData),
-            'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
-            'tax_category_id' => $taxCategory->id,
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-            'footer'          => $footer
+            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
+            'data'                => $data,
+            'billing_address'     => new Address($billingAddressData),
+            'currency_id'         => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
+            'tax_category_id'     => $taxCategory->id,
+            'fetched_at'          => now(),
+            'last_fetched_at'     => now(),
+            'footer'              => $footer,
+            'invoice_category_id' => $this->parseInvoiceCategory($this->organisation->id.':'.$this->auroraModelData->{'Invoice Category Key'})?->id,
 
         ];
 

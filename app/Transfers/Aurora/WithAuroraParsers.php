@@ -30,6 +30,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
+use App\Actions\Transfers\Aurora\FetchAuroraInvoiceCategories;
 use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
@@ -68,6 +69,7 @@ use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -1141,6 +1143,21 @@ trait WithAuroraParsers
         }
 
         return $query;
+    }
+
+    public function parseInvoiceCategory($sourceId): ?InvoiceCategory
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $invoiceCategory = InvoiceCategory::where('source_id', $sourceId)->first();
+        if (!$invoiceCategory) {
+            $sourceData      = explode(':', $sourceId);
+            $invoiceCategory = FetchAuroraInvoiceCategories::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $invoiceCategory;
     }
 
 

@@ -88,6 +88,10 @@ class UpdateInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
+
+
+            $rules['invoice_category_id'] = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
+
             $rules['reference'] = [
                 'sometimes',
                 'string',
