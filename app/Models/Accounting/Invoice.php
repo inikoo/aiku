@@ -91,6 +91,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $invoice_id For refunds link to original invoice
  * @property string|null $footer
  * @property int|null $invoice_category_id
+ * @property bool $is_vip Indicate if invoice is for a VIP customer
+ * @property int|null $as_organisation_id Indicate if invoice is for a organisation in this group
+ * @property int|null $as_employee_id Indicate if invoice is for a employee
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
