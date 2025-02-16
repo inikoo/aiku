@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shopify_user_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Currency $currency
  * @property-read Customer|null $customer
  * @property-read Address|null $deliveryAddress
@@ -96,10 +97,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read ShopifyUserHasFulfilment|null $shopifyFulfilment
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
  * @property-read Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read TaxCategory $taxCategory

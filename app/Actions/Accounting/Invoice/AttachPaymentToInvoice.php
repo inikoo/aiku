@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\CreditTransaction\StoreCreditTransaction;
 use App\Actions\OrgAction;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
+use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 

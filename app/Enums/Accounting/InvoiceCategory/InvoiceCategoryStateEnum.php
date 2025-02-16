@@ -7,7 +7,7 @@
  * copyright 2024
 */
 
-namespace App\Enums\Accounting\Invoice;
+namespace App\Enums\Accounting\InvoiceCategory;
 
 use App\Enums\EnumHelperTrait;
 
@@ -15,18 +15,18 @@ enum InvoiceCategoryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS  = 'in_process';
-    case ACTIVE   = 'active';
-    case CLOSED   = 'closed';
+    case IN_PROCESS = 'in_process';
+    case ACTIVE = 'active';
+    case CLOSED = 'closed';
     case COOLDOWN = 'cooldown';
 
     public static function labels(): array
     {
         return [
-            'in_process'      => __('in process'),
-            'active'       => __('active'),
-            'closed'       => __('closed'),
-            'cooldown'       => __('cooldown'),
+            'in_process' => __('in process'),
+            'active'     => __('active'),
+            'closed'     => __('closed'),
+            'cooldown'   => __('cooldown'),
         ];
     }
 }

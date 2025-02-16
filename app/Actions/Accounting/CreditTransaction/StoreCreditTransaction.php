@@ -15,7 +15,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCreditTransactions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
+use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\CRM\Customer;
 use Illuminate\Validation\Rule;

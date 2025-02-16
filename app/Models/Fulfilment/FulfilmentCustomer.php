@@ -133,10 +133,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_spaces_state_reserved
  * @property int $number_spaces_state_renting
  * @property int $number_spaces_state_finished
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns

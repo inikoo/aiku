@@ -6,7 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Accounting\Invoice;
+namespace App\Enums\Accounting\CreditTransaction;
 
 use App\Enums\EnumHelperTrait;
 
