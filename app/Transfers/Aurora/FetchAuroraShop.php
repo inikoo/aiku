@@ -27,6 +27,10 @@ class FetchAuroraShop extends FetchAurora
             return null;
         }
 
+        if (strtolower($this->auroraModelData->{'Store Type'}) == 'fulfilment') {
+            return null;
+        }
+
         $code     = strtoupper($this->auroraModelData->{'Store Code'});
         $sourceId = $this->organisation->id.':'.$this->auroraModelData->{'Store Key'};
         if (Shop::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
@@ -40,6 +44,18 @@ class FetchAuroraShop extends FetchAurora
 
     protected function parseModel(): void
     {
+        $type = match (strtolower($this->auroraModelData->{'Store Type'})) {
+            'b2b' => ShopTypeEnum::B2B,
+            'b2c' => ShopTypeEnum::B2C,
+            'fulfilment' => ShopTypeEnum::FULFILMENT,
+            'dropshipping' => ShopTypeEnum::DROPSHIPPING,
+        };
+
+        if ($type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
+
         $masterShopId = null;
 
 
@@ -59,17 +75,12 @@ class FetchAuroraShop extends FetchAurora
             $this->auroraModelData->code = 'AROMA';
         }
 
-        $type = match (strtolower($this->auroraModelData->{'Store Type'})) {
-            'b2b' => ShopTypeEnum::B2B,
-            'b2c' => ShopTypeEnum::B2C,
-            'fulfilment' => ShopTypeEnum::FULFILMENT,
-            'dropshipping' => ShopTypeEnum::DROPSHIPPING,
-        };
 
+        //        if ($type == ShopTypeEnum::FULFILMENT) {
+        //            $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::FULFILMENT)->first()->id;
+        //        } else
 
-        if ($type == ShopTypeEnum::FULFILMENT) {
-            $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::FULFILMENT)->first()->id;
-        } elseif ($type == ShopTypeEnum::DROPSHIPPING) {
+        if ($type == ShopTypeEnum::DROPSHIPPING) {
             if ($this->auroraModelData->code != 'DS') {
                 $masterShopId = $this->organisation->group->masterShops()->where('type', ShopTypeEnum::DROPSHIPPING)->first()->id;
             }

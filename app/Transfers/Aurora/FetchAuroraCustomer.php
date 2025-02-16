@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use Illuminate\Support\Arr;
@@ -19,6 +20,11 @@ class FetchAuroraCustomer extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
+
+        if ($this->parsedData['shop']->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
 
         $status = CustomerStatusEnum::APPROVED->value;
         $state  = CustomerStateEnum::ACTIVE->value;

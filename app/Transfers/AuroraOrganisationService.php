@@ -67,7 +67,6 @@ use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrderDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
-use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraOrgPaymentServiceProvider;
@@ -400,11 +399,6 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchStockDelivery($id): ?array
     {
         return (new FetchAuroraStockDelivery($this))->fetch($id);
-    }
-
-    public function fetchPallet($id): ?array
-    {
-        return (new FetchAuroraPallet($this))->fetch($id);
     }
 
     public function fetchTimesheet($id): ?array

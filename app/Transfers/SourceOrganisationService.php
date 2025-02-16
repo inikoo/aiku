@@ -127,8 +127,6 @@ interface SourceOrganisationService
 
     public function fetchStockDelivery($id);
 
-    public function fetchPallet($id);
-
     public function fetchTimesheet($id);
 
     public function fetchClockingMachine($id);

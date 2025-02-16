@@ -296,11 +296,6 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchPallet($id): ?array
-    {
-        return null;
-    }
-
     public function fetchTimesheet($id): ?array
     {
         return null;
