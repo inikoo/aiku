@@ -31,6 +31,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
@@ -442,7 +443,10 @@ test('delete credit transaction', function (CreditTransaction $creditTransaction
 test('store invoice category', function () {
     $invoiceCategory = StoreInvoiceCategory::make()->action($this->group, [
         'name'  => 'Test Inv Cate',
-        'state' => InvoiceCategoryStateEnum::ACTIVE
+        'state' => InvoiceCategoryStateEnum::ACTIVE,
+        'type'  => InvoiceCategoryTypeEnum::IS_ORGANISATION,
+        'currency_id'=> $this->organisation->currency_id,
+        'priority' => 1
     ]);
 
     $invoiceCategory->refresh();
