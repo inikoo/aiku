@@ -72,7 +72,13 @@ class FetchAuroraPaymentAccounts extends FetchAuroraAction
             }
 
 
-            // todo associate with shops #1010
+            foreach (DB::connection('aurora')->table('Payment Account Store Bridge')
+                 ->where('Payment Account Store Payment Account Key', $paymentAccount->source_id)->get() as $paymentAccountStoreBridgeData) {
+
+            }
+
+
+
 
 
             return $paymentAccount;

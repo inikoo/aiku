@@ -1,12 +1,12 @@
 <?php
 
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 02:04:48 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 16 Feb 2025 22:50:23 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop;
+namespace App\Actions\Accounting\PaymentAccountShop;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Traits\WithActionUpdate;

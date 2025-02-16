@@ -11,7 +11,6 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
-use App\Actions\Accounting\PaymentAccountShop\SyncPaymentAccountToShop;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
@@ -582,7 +581,6 @@ Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
-Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
 Route::name('production.')->prefix('production/{production:id}')->group(function () {
     Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
