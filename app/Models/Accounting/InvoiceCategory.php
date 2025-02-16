@@ -38,6 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed> $settings
  * @property bool $show_in_dashboards
  * @property array<array-key, mixed> $data
+ * @property int|null $organisation_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\InvoiceCategoryOrderingIntervals|null $orderingIntervals

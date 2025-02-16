@@ -9,7 +9,7 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreInvoiceCategory extends GrpAction
+class StoreInvoiceCategory extends OrgAction
 {
     use WithNoStrictRules;
 
@@ -60,6 +60,7 @@ class StoreInvoiceCategory extends GrpAction
             'priority'           => ['required', 'integer'],
             'type'               => ['required', Rule::enum(InvoiceCategoryTypeEnum::class)],
             'show_in_dashboards' => ['sometimes', 'boolean'],
+            'organisation_id'    => ['nullable', 'integer', Rule::exists('organisations', 'id')->where('group_id', $this->group->id)],
         ];
         if (!$this->strict) {
             $rules['state'] = ['required', Rule::enum(InvoiceCategoryStateEnum::class)];
@@ -80,7 +81,7 @@ class StoreInvoiceCategory extends GrpAction
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($group, $modelData);
+        $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
     }

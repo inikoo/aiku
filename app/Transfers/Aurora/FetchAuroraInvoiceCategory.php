@@ -134,7 +134,8 @@ class FetchAuroraInvoiceCategory extends FetchAurora
             'settings'           => $settings,
             'type'               => $type,
             'currency_id'        => $currencyID,
-            'show_in_dashboards' => !($this->auroraModelData->{'Invoice Category Hide Dashboard'} == 'Yes')
+            'show_in_dashboards' => !($this->auroraModelData->{'Invoice Category Hide Dashboard'} == 'Yes'),
+            'organisation_id'    => $this->organisation->id,
 
         ];
 

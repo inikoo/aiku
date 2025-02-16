@@ -9,7 +9,7 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
@@ -18,7 +18,7 @@ use App\Models\Accounting\InvoiceCategory;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateInvoiceCategory extends GrpAction
+class UpdateInvoiceCategory extends OrgAction
 {
     use WithNoStrictRules;
     use WithActionUpdate;
@@ -47,6 +47,8 @@ class UpdateInvoiceCategory extends GrpAction
             'settings'           => ['sometimes', 'array'],
             'priority'           => ['sometimes', 'integer'],
             'show_in_dashboards' => ['sometimes', 'boolean'],
+            'organisation_id'    => ['nullable', 'integer', Rule::exists('organisations', 'id')->where('group_id', $this->group->id)],
+
         ];
         if (!$this->strict) {
             $rules                = $this->noStrictUpdateRules($rules);
@@ -65,7 +67,7 @@ class UpdateInvoiceCategory extends GrpAction
         }
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($invoiceCategory->group, $modelData);
+        $this->initialisationFromGroup($invoiceCategory->group, $modelData);
 
         return $this->handle($invoiceCategory, $this->validatedData);
     }

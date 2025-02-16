@@ -445,7 +445,7 @@ test('store invoice category', function () {
         'name'  => 'Test Inv Cate',
         'state' => InvoiceCategoryStateEnum::ACTIVE,
         'type'  => InvoiceCategoryTypeEnum::IS_ORGANISATION,
-        'currency_id'=> $this->organisation->currency_id,
+        'currency_id' => $this->organisation->currency_id,
         'priority' => 1
     ]);
 
