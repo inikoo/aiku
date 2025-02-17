@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-02-2025-15h-44m
@@ -10,10 +11,7 @@ namespace App\Actions\Accounting\PaymentAccount\Hydrators;
 
 use App\Actions\Traits\Hydrators\WithPaymentAggregators;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Accounting\Payment\PaymentStateEnum;
-use App\Enums\Accounting\Payment\PaymentTypeEnum;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
-use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -57,7 +55,7 @@ class PaymentAccountHydratePAS
                 }
             )
         );
-        
+
         $paymentAccount->stats()->update($stats);
     }
 

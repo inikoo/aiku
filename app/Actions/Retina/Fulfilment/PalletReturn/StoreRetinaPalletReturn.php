@@ -15,9 +15,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\RedirectResponse;
 

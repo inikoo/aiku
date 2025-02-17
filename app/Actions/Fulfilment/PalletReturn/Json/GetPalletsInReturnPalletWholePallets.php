@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-02-2025-14h-59m
@@ -11,9 +12,7 @@ namespace App\Actions\Fulfilment\PalletReturn\Json;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;

@@ -17,12 +17,10 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Events\AuditCustom;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\RedirectResponse;
 
@@ -67,7 +65,7 @@ class DeletePalletDelivery extends OrgAction
         }
     }
 
-    public function htmlResponse():RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
         return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index', [
             'organisation' => $this->organisation->slug,
