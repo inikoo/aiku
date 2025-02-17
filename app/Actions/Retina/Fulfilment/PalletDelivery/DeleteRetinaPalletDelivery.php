@@ -15,17 +15,20 @@ use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class DeleteRetinaPalletDelivery extends RetinaAction
 {
     public function handle(PalletDelivery $palletDelivery, array $modelData = []): void
     {
         DeletePalletDelivery::run($palletDelivery, $modelData);
+    
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(): RedirectResponse
     {
-        return Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.index'));
+        return Redirect::route('retina.fulfilment.storage.pallet_deliveries.index' );
     }
 
     public function rules(): array
