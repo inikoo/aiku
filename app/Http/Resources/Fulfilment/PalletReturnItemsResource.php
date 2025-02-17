@@ -77,6 +77,12 @@ class PalletReturnItemsResource extends JsonResource
             },
             'attachRoute'             => match (request()->routeIs('retina.*')) {
                 true => [
+                    'name'       => 'retina.models.pallet-return.pallet.attach',
+                    'parameters' => [
+                        'palletReturn' => null, //add in FE , BE didnt get access to it
+                        'pallet' => $this->pallet_id
+
+                    ]
                 ],
                 default => [
                     'name'       => 'grp.models.pallet-return.pallet.attach',

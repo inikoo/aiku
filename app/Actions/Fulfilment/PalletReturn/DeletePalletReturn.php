@@ -27,6 +27,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use OwenIt\Auditing\Events\AuditCustom;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class DeletePalletReturn extends OrgAction
 {
@@ -93,13 +95,13 @@ class DeletePalletReturn extends OrgAction
         ];
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(): RedirectResponse
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.index', [
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.index', [
             'organisation'       => $this->organisation->slug,
             'fulfilment'         => $this->fulfilment->slug,
             'fulfilmentCustomer' => $this->fulfilmentCustomer->slug
-        ]));
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool

@@ -31,6 +31,8 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class StorePalletDelivery extends OrgAction
 {
@@ -175,20 +177,20 @@ class StorePalletDelivery extends OrgAction
         ];
     }
 
-    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
+    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
+            'grp.models.fulfilment-customer.pallet-delivery.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'       => $palletDelivery->organisation->slug,
                 'fulfilment'         => $palletDelivery->fulfilment->slug,
                 'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                 'palletDelivery'     => $palletDelivery->slug
-            ])),
-            default => Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.show', [
+            ]),
+            default =>Redirect::route('retina.fulfilment.storage.pallet_deliveries.show', [
                 'palletDelivery' => $palletDelivery->slug
-            ]))
+            ])
         };
     }
 

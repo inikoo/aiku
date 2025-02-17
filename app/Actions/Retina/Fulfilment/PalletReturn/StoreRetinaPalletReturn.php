@@ -18,6 +18,8 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class StoreRetinaPalletReturn extends RetinaAction
 {
@@ -99,10 +101,10 @@ class StoreRetinaPalletReturn extends RetinaAction
         ];
     }
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
-        return Inertia::location(route('retina.fulfilment.storage.pallet_returns.show', [
+        return  Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
             'palletReturn' => $palletReturn->slug
-        ]));
+        ]);
     }
 }

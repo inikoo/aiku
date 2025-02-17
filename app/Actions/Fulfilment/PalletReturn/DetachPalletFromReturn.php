@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
-use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -23,9 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 class DetachPalletFromReturn extends OrgAction
 {
     use WithActionUpdate;
+    use WithFulfilmentAuthorisation;
 
-
-    private Pallet $pallet;
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
     {
@@ -36,28 +35,16 @@ class DetachPalletFromReturn extends OrgAction
         ]);
 
         $palletReturn->pallets()->detach([$pallet->id]);
+
         AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
-
-        SendPalletReturnNotification::run($palletReturn);
-
         PalletReturnHydratePallets::dispatch($palletReturn);
         PalletReturnHydrateTransactions::dispatch($palletReturn);
 
         return true;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
-    }
-
     public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
-        $this->pallet = $pallet;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $pallet);
@@ -65,7 +52,6 @@ class DetachPalletFromReturn extends OrgAction
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool
     {
-        $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
@@ -73,8 +59,8 @@ class DetachPalletFromReturn extends OrgAction
         return $this->handle($pallet->palletReturn, $pallet);
     }
 
-    public function jsonResponse(Pallet $pallet): PalletResource
-    {
-        return new PalletResource($pallet);
-    }
+    // public function jsonResponse(Pallet $pallet): PalletResource
+    // {
+    //     return new PalletResource($pallet);
+    // }
 }

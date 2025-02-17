@@ -163,6 +163,7 @@ const props = defineProps(
 const emits = defineEmits<{
     (e: 'onSelectRow', value: {[key: string]: boolean}): void
     (e: 'onCheked', value: {[key: string]: boolean}, checked : {[key: string]: boolean}): void
+    (e: 'onChecked', value: {}): void
 }>()
 
 const app = getCurrentInstance();
@@ -657,9 +658,11 @@ const onClickSelectAll = (state: boolean) => {
     }
 }
 
-const onSelectCheckbox = (item : Any) => {
+const onSelectCheckbox = async (item : Any) => {
     emits('onCheked', item , !selectRow[item[props.checkboxKey]])
-    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+    // selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+    item.is_checked = !item.is_checked
+    emits('onChecked', item)
 
 }
 
@@ -899,7 +902,7 @@ const isLoading = ref<string | boolean>(false)
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
-                                    <div v-if="isCheckBox"
+                                    <!-- <div v-if="isCheckBox"
                                         @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
                                         class="py-1.5 cursor-pointer">
                                         <FontAwesomeIcon
@@ -908,7 +911,7 @@ const isLoading = ref<string | boolean>(false)
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
                                             fixed-width aria-hidden='true' />
-                                    </div>
+                                    </div> -->
 
                                     <slot v-for="column in queryBuilderProps.columns" :name="`header(${column.key})`" :header="column">
                                         <HeaderCell
@@ -929,7 +932,7 @@ const isLoading = ref<string | boolean>(false)
                                                 {
                                                     'bg-gray-50': striped && key % 2,
                                                 },
-                                                selectRow[item[checkboxKey]]
+                                                selectRow[item[checkboxKey]] || item.is_checked
                                                     ? 'bg-green-100/70'
                                                     : striped ? 'bg-gray-200 hover:bg-gray-300' : 'hover:bg-gray-50'
                                             ]"
@@ -940,12 +943,12 @@ const isLoading = ref<string | boolean>(false)
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
                                                 -->
-                                                <FontAwesomeIcon v-if="item.is_checked || selectRow[item[checkboxKey]]"
-                                                    @click="onSelectCheckbox(item)"
+                                                <FontAwesomeIcon v-show="item.is_checked || selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
                                                     icon='fas fa-check-square' class='text-green-500 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
-                                                <FontAwesomeIcon v-else
-                                                    @click="onSelectCheckbox(item)"
+                                                <FontAwesomeIcon v-show="!item.is_checked && !selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
                                                     icon='fal fa-square' class='text-gray-400 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
                                             </td>
