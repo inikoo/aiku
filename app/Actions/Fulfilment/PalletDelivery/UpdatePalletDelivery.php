@@ -47,10 +47,9 @@ class UpdatePalletDelivery extends OrgAction
                 'state' => $palletDelivery->state
             ]);
         }
-        
+
         if ($palletDelivery->wasChanged('received_at')) {
-            foreach ($palletDelivery->pallets as $pallet)
-            {
+            foreach ($palletDelivery->pallets as $pallet) {
                 UpdatePallet::run($pallet, [
                     'received_at' => $palletDelivery->received_at
                 ]);

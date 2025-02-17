@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-02-2025-14h-08m
@@ -9,9 +10,7 @@
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
-use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\RetinaAction;
-use App\Http\Resources\Fulfilment\RetinaPalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,7 +40,7 @@ class AttachRetinaPalletToReturn extends RetinaAction
     public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): PalletReturn
     {
         $this->initialisation($request);
-        
+
         return $this->handle($palletReturn, $pallet);
     }
 

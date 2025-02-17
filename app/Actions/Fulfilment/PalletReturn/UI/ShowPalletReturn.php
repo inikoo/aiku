@@ -679,7 +679,7 @@ class ShowPalletReturn extends OrgAction
                     'method'     => 'get',
                     'name'       => 'grp.json.pallet-return.pallets.index',
                     'parameters' => [
-                        $palletReturn->id
+                        $palletReturn->slug
                     ]
                 ],
 
