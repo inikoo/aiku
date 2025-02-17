@@ -50,7 +50,6 @@ const beeConfig = () => {
         /* Authorization: token.value ? `Bearer ${token.value.access_token}` : null, */
         'Content-Type': 'application/json',
     }
-    //"0qAk5t1Xy9X5"
     axios
         .post(endpoint,payload,headers)
         .then((response) => {
