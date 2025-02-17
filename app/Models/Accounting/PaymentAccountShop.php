@@ -2,12 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:30:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:30:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Currency;
@@ -18,17 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * App\Models\Accounting\PaymentAccountShop
  *
- * @property int $id
- * @property int $shop_id
- * @property int $payment_account_id
- * @property int $currency_id
- * @property array<array-key, mixed> $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @property PaymentAccountShopStateEnum $state
- * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
+ * @property PaymentAccountTypeEnum $type
+ * @property-read Currency|null $currency
+ * @property-read \App\Models\Accounting\PaymentAccount|null $paymentAccount
+ * @property-read Shop|null $shop
+ * @property-read \App\Models\Accounting\PaymentAccountShopStats|null $stats
  * @method static Builder<static>|PaymentAccountShop newModelQuery()
  * @method static Builder<static>|PaymentAccountShop newQuery()
  * @method static Builder<static>|PaymentAccountShop query()
@@ -36,15 +34,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PaymentAccountShop extends Model
 {
-    public $incrementing = true;
-
     protected $casts = [
-        'data'     => 'array',
-        'state'    => PaymentAccountShopStateEnum::class
+        'data'  => 'array',
+        'state' => PaymentAccountShopStateEnum::class,
+        'type'  => PaymentAccountTypeEnum::class,
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -66,6 +63,6 @@ class PaymentAccountShop extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(PaymentAccountStats::class);
+        return $this->hasOne(PaymentAccountShopStats::class);
     }
 }

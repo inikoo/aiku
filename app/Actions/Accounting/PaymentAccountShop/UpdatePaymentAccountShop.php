@@ -24,7 +24,9 @@ class UpdatePaymentAccountShop extends OrgAction
     {
         $paymentAccountShop = $this->update($paymentAccountShop, $modelData);
 
-        PaymentAccountHydratePAS::dispatch($paymentAccountShop->paymentAccount);
+        if ($paymentAccountShop->wasChanged('state')) {
+            PaymentAccountHydratePAS::dispatch($paymentAccountShop->paymentAccount);
+        }
 
         return $paymentAccountShop;
     }
@@ -38,7 +40,7 @@ class UpdatePaymentAccountShop extends OrgAction
             ],
             'currency_id' => [
                 'sometimes',
-                'nullable',
+                'required',
                 Rule::Exists('currencies', 'id')
             ]
         ];

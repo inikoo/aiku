@@ -15,7 +15,6 @@ use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -23,8 +22,10 @@ class StorePaymentAccountShop extends OrgAction
 {
     public function handle(PaymentAccount $paymentAccount, Shop $shop, array $modelData): PaymentAccountShop
     {
-        data_set($modelData, 'shop', $shop->id);
-        /** @var StoredItem $storedItem */
+        data_set($modelData, 'shop_id', $shop->id);
+        data_set($modelData, 'type', $paymentAccount->type);
+
+
         $paymentAccountShop = $paymentAccount->paymentAccountShops()->create($modelData);
 
         PaymentAccountHydratePAS::dispatch($paymentAccount);
@@ -41,7 +42,6 @@ class StorePaymentAccountShop extends OrgAction
             ],
             'currency_id' => [
                 'required',
-                'nullable',
                 Rule::Exists('currencies', 'id')
             ]
         ];
