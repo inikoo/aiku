@@ -132,8 +132,12 @@ class IndexRetinaPallets extends RetinaAction
             $table->column(key: 'reference', label: __('Id'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($bucket == 'storing') {
+            if ($bucket == 'storing' || $bucket == 'all') {
                 $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, sortable: true, searchable: true);
+            } elseif ($bucket == 'returned') {
+                $table->column(key: 'location_code', label: __('Delivered From'), tooltip: __('The location the pallet was delivered from'), canBeHidden: false, sortable: true, searchable: true);
+            } elseif ($bucket == 'incidents') {
+                $table->column(key: 'location_code', label: __('Last Known Location'), tooltip: __('The location the pallet was last seen at'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'rental_code', label: __('Rent'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);

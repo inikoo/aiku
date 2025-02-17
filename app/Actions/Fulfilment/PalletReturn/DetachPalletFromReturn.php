@@ -33,7 +33,8 @@ class DetachPalletFromReturn extends OrgAction
     {
         $this->update($pallet, ['pallet_return_id' => null,
             'status'                               => PalletStatusEnum::STORING,
-            'state'                                => PalletStateEnum::STORING
+            'state'                                => PalletStateEnum::STORING,
+            'requested_for_return_at' => null
         ]);
 
         $palletReturn->pallets()->detach([$pallet->id]);
@@ -56,10 +57,10 @@ class DetachPalletFromReturn extends OrgAction
         return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
+    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
     {
         $this->pallet = $pallet;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $pallet);
     }

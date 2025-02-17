@@ -119,9 +119,13 @@ class ShowPallet extends OrgAction
         $model = __('Pallet');
         $title = $this->pallet->reference;
         $iconRight = $pallet->status->statusIcon()[$pallet->status->value];
-        $afterTitle = [
-            'label'     => '(' . $this->pallet->customer_reference . ')'
-        ];
+        $afterTitle = [];
+
+        if ($this->pallet->customer_reference) {
+            $afterTitle = [
+                'label'     => '(' . $this->pallet->customer_reference . ')'
+            ];
+        }
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $icon = [

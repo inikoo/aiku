@@ -30,6 +30,7 @@ const props = defineProps<{
 }>()
 
 function palletRoutes(pallet: Pallet) {
+    console.log("test123")
     switch (route().current()) {
         case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
             return route(
@@ -67,6 +68,15 @@ function palletRoutes(pallet: Pallet) {
                     route().params['fulfilmentCustomer'],
                     pallet['pallet_slug']
                 ])
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    pallet['pallet_slug']
+                ])
 
         default:
             return []
@@ -85,6 +95,21 @@ const generateLinkStoredItems = (storedItem: {}) => {
                     storedItem: storedItem.stored_item_slug,
                     tab: 'showcase'
                 });
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    storedItem['slug']
+                ])
+        case 'retina.fulfilment.itemised_storage.stored_items.show':
+            return route(
+                'retina.fulfilment.storage.pallets.show',
+                [
+                    storedItem['slug']
+                ])
         default:
             '#'
     }
