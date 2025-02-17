@@ -51,7 +51,7 @@ class DeletePalletReturn extends OrgAction
                         'state'                => PalletStateEnum::STORING,
                         'status'               => PalletStatusEnum::STORING,
                         'pallet_return_id'     => null,
-                        'request_to_return_at' => null
+                        'request_for_return_at' => null
                     ]);
                 }
                 $palletReturn->pallets()->detach($palletIds);
