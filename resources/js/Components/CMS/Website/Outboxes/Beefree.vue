@@ -70,7 +70,7 @@ const beeConfig = () => {
         client_secret: props.apiKey.client_secret,
     };
     var headers = {
-        Authorization: token.value ? `Bearer ${token.value.access_token}` : null,
+        /* Authorization: token.value ? `Bearer ${token.value.access_token}` : null, */
         'Content-Type': 'application/json',
     }
     axios
