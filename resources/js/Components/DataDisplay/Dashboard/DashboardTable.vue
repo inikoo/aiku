@@ -101,7 +101,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
-									<Link :href="ShopDashboard(data)" class="primaryLink">
+									<Link :href="ShopDashboard(data)">
 										{{ data.name }}
 									</Link>
 								</div>
@@ -119,7 +119,11 @@ function useTabChangeDashboard(tab_slug: string) {
 					</template>
 				</Column>
 				<!-- Refunds -->
-				<Column sortable headerClass="align-right">
+				<Column 
+				field="interval_percentages.refunds.amount"
+				sortField="interval_percentages.refunds.amount"
+				sortable 
+				headerClass="align-right">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Refunds</span>
@@ -129,7 +133,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
                                 <div :key="data?.refunds || 0">
-									<Link :href="ShopRefundDashboard(data)" class="primaryLink">
+									<Link :href="ShopRefundDashboard(data)">
 										{{
 											locale.number(
 												data?.interval_percentages?.refunds?.amount || 0
@@ -155,7 +159,8 @@ function useTabChangeDashboard(tab_slug: string) {
 					hidden
 					sortable
 					class="overflow-hidden transition-all"
-					headerClass="align-right">
+					headerClass="align-right"
+					headerStyle=" width: 130px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-semibold">
@@ -209,7 +214,8 @@ function useTabChangeDashboard(tab_slug: string) {
 				<!-- Invoice -->
 				<Column
 					sortable
-					field="invoices"
+					field="interval_percentages.invoices.amount"
+					sortField="interval_percentages.invoices.amount"
 					class="overflow-hidden transition-all"
 					headerClass="align-right">
 					<template #header>
@@ -221,7 +227,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
-									<Link :href="ShopInvoiceDashboard(data)" class="primaryLink">
+									<Link :href="ShopInvoiceDashboard(data)" >
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
@@ -235,11 +241,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Invoice: Diff 1y -->
 				<Column
-					field="invoices_percentage"
+					field="interval_percentages.invoices.percentage"
+					sortField="interval_percentages.invoices.percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="width: 200px">
+					headerStyle=" width: 130px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">
@@ -301,11 +308,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Sales -->
 				<Column
-					field="sales"
+					field="interval_percentages.sales.amount"
+					sortField="interval_percentages.sales.amount"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 250px">
+					>
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Sales</span>
@@ -336,11 +344,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Sales: Diff 1y -->
 				<Column
-					field="sales_percentage"
+					field="interval_percentages.sales.percentage"
+					sortField="interval_percentages.sales.percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 270px">
+					headerStyle=" width: 130px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold text-gray-700">
