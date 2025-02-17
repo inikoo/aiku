@@ -20,6 +20,7 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
@@ -463,36 +464,38 @@ class ShowPalletDelivery extends OrgAction
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'key'     => 'add-service',
-                                'label'   => __('add service'),
-                                'tooltip' => __('Add single service'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
+                            $palletDelivery->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'secondary',
+                                    'icon'    => 'fal fa-plus',
+                                    'key'     => 'add-service',
+                                    'label'   => __('add service'),
+                                    'tooltip' => __('Add single service'),
+                                    'route'   => [
+                                        'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'secondary',
+                                    'icon'    => 'fal fa-plus',
+                                    'key'     => 'add_physical_good',
+                                    'label'   => __('add physical good'),
+                                    'tooltip' => __('Add physical good'),
+                                    'route'   => [
+                                        'name'       => 'grp.models.pallet-delivery.transaction.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
                                     ]
                                 ]
-                            ],
-                            [
-                                'type'    => 'button',
-                                'style'   => 'secondary',
-                                'icon'    => 'fal fa-plus',
-                                'key'     => 'add_physical_good',
-                                'label'   => __('add physical good'),
-                                'tooltip' => __('Add physical good'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
-                            ]
+                            ] : []
                         ]
-                    ],
+                    ]
                 ],
                 default => []
             };

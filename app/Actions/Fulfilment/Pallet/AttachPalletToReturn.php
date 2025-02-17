@@ -1,10 +1,10 @@
 <?php
-
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 17-02-2025-10h-00m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\Pallet;
 
@@ -18,6 +18,7 @@ use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
 class AttachPalletToReturn extends OrgAction
@@ -26,23 +27,7 @@ class AttachPalletToReturn extends OrgAction
 
     private PalletReturn $parent;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
-    {
-        $reference  = Arr::get($modelData, 'reference');
-        $pallet     = Pallet::where('reference', $reference)
-                    ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
-                    ->first();
-
-        $this->attach($palletReturn, $pallet);
-
-        $palletReturn->refresh();
-
-        PalletReturnHydratePallets::run($palletReturn);
-
-        return $palletReturn;
-    }
-
-    private function attach(PalletReturn $palletReturn, Pallet $pallet): void
+    private function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
     {
         $palletReturn->pallets()->attach($pallet->id, [
             'quantity_ordered'     => 1,
@@ -56,47 +41,29 @@ class AttachPalletToReturn extends OrgAction
             'requested_for_return_at' => now()
         ]);
 
+        $palletReturn->refresh();
 
         AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
+        PalletReturnHydratePallets::run($palletReturn);
+
+        return $palletReturn;
     }
 
-    public function rules(): array
-    {
-        return [
-            'reference' => [
-                'required',
-                'string',
-                Rule::exists('pallets', 'reference')->where(function ($query) {
-                    $query->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id)
-                    ->where('status', PalletStatusEnum::STORING);
-                })
-            ],
-        ];
-    }
-
-    public function action(PalletReturn $palletReturn, array $modelData, int $hydratorsDelay = 0): PalletReturn
+    public function action(PalletReturn $palletReturn, Pallet $pallet, int $hydratorsDelay = 0): PalletReturn
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->parent         = $palletReturn;
-        $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($palletReturn, $pallet);
     }
 
-    public function prepareForValidation()
+    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): PalletReturn
     {
-        $reference = $this->get('reference');
+        $this->parent = $palletReturn;
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-
-        $pallet = Pallet::where('reference', $reference)
-                        ->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id)
-                        ->first();
-
-        if ($pallet && $this->parent->pallets()->where('pallet_id', $pallet->id)->exists()) {
-            throw ValidationException::withMessages([
-                'reference' => ['This pallet is already attached to the pallet return.'],
-            ]);
-        }
+        return $this->handle($palletReturn, $pallet);
     }
 }
