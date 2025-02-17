@@ -20,6 +20,7 @@ use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTra
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\UpdateRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\Pallet\DeleteRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
+use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPalletsInPalletDeliveryWithStoredItems;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaMultiplePalletsFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\UpdateRetinaPallet;
@@ -91,6 +92,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::delete('attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inPalletDelivery'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('pallet-upload', ImportRetinaPallet::class)->name('pallet.upload');
+    Route::post('pallet-upload-with-stored-items', ImportRetinaPalletsInPalletDeliveryWithStoredItems::class)->name('pallet.upload.with-stored-items');
     Route::post('pallet', StoreRetinaPalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreRetinaMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::patch('update', UpdateRetinaPalletDelivery::class)->name('update');

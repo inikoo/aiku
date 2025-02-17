@@ -36,6 +36,7 @@ class StoredItemResource extends JsonResource
             'created_at'     => $storedItem->created_at,
             'reference'      => $storedItem->reference,
             'slug'           => $storedItem->slug,
+            'audit_slug'     => $storedItem->audit_slug,
             'customer_name'  => $storedItem->fulfilmentCustomer?->customer['name'],
             'organisation_name'  => $storedItem->organisation?->name,
             'location'       => $storedItem->location ? $storedItem->location['slug'] : '-',

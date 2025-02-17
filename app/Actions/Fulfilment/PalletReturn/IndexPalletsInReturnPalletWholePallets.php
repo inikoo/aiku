@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
+use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
@@ -139,10 +140,15 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletsResource::collection($pallets);
+        return PalletReturnItemsResource::collection($pallets);
     }
 
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
+        return $this->handle($palletReturn);
+    }
     public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $request, $palletReturn) {
