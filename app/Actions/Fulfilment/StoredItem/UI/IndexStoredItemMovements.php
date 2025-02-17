@@ -131,7 +131,7 @@ class IndexStoredItemMovements extends OrgAction
                 ->withModelOperations($modelOperations);
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: false, searchable: false);
             if ($parent instanceof StoredItem) {
                 $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true)->defaultSort('pallet_reference');
             }

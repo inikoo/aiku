@@ -119,7 +119,7 @@ class GetRetinaFulfilmentNavigation
                     ]
                 ];
 
-                if (in_array(app()->environment(), ['staging', 'local'])) {
+                if (config('app.env') !== 'production') {
                     $groupNavigation = array_merge($groupNavigation, GetRetinaDropshippingNavigation::run($webUser));
                 }
             }
