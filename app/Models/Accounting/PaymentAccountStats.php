@@ -47,6 +47,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $grp_amount_refunded
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_pas Number of Payment Account Shops
+ * @property int $number_pas_state_in_process Number of Payment Account Shops in in_process
+ * @property int $number_pas_state_active Number of Payment Account Shops in active
+ * @property int $number_pas_state_inactive Number of Payment Account Shops in inactive
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @method static Builder<static>|PaymentAccountStats newModelQuery()
  * @method static Builder<static>|PaymentAccountStats newQuery()

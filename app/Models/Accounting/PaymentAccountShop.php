@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property PaymentAccountShopStateEnum $state
+ * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static Builder<static>|PaymentAccountShop newModelQuery()
  * @method static Builder<static>|PaymentAccountShop newQuery()
  * @method static Builder<static>|PaymentAccountShop query()
