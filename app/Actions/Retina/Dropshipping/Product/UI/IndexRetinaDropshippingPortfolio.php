@@ -119,6 +119,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
             }
 
             $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'quantity_left', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
             // $table->column(key: 'tags', label: __('tags'), canBeHidden: false);
         };
     }
