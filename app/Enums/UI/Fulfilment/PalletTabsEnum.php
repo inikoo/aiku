@@ -34,7 +34,7 @@ enum PalletTabsEnum: string
                 'icon'  => 'fal fa-narwhal',
             ],
             PalletTabsEnum::MOVEMENTS => [
-                'title' => __('movements'),
+                'title' => __('SKU movements'),
                 'icon'  => 'fal fa-exchange',
             ],
             PalletTabsEnum::HISTORY => [

@@ -2,17 +2,17 @@
     "private": true,
     "scripts": {
         "dev": "npx concurrently -c \"#06b6d4,#6366f1,#a3e635,#fdba74\" \"npm run dev.aiku-public\" \"npm run dev.grp\" \"npm run dev.iris\" \"npm run dev.retina\" --names=public,grp,iris,retina",
-        "build": "npm run build.grp && npm run build.aiku-public && npm run build.iris && npm run build.retina",
+        "build": "npm run build.grp && npm run build.aiku-public && npm run build.iris && npm run build.retina && npm run build.pupil",
         "dev.grp": "vite --config vite.grp.config.js",
-        "build.grp": "vite build --config vite.grp.config.js && vite build --config vite.grp.config.js --ssr",
+        "build.grp": "vite build --config vite.grp.config.js",
         "dev.aiku-public": "vite --config vite.aiku-public.config.js",
-        "build.aiku-public": "vite build --config vite.aiku-public.config.js && vite build --config vite.aiku-public.config.js --ssr",
+        "build.aiku-public": "vite build --config vite.aiku-public.config.js",
         "dev.iris": "vite --config vite.iris.config.js",
         "build.iris": "vite build --config vite.iris.config.js && vite build --config vite.iris.config.js --ssr",
         "dev.retina": "vite --config vite.retina.config.js",
-        "build.retina": "vite build --config vite.retina.config.js && vite build --config vite.retina.config.js --ssr",
+        "build.retina": "vite build --config vite.retina.config.js",
         "dev.pupil": "vite --config vite.pupil.config.js",
-        "build.pupil": "vite build --config vite.pupil.config.js && vite build --config vite.pupil.config.js --ssr"
+        "build.pupil": "vite build --config vite.pupil.config.js"
     },
     "devDependencies": {
         "@codecov/vite-plugin": "^0.0.1-beta.6",
@@ -127,6 +127,6 @@
         "vue3-moveable": "^0.28.0",
         "vue3-popper": "^1.5.0",
         "vuedraggable": "^4.1.0",
-        "xlsx": "^0.18.5"
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
     }
 }
