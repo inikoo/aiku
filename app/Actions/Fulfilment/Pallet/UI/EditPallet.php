@@ -103,7 +103,7 @@ class EditPallet extends OrgAction
                                     'value'   => $pallet->notes,
                                     // 'required' => true
                                 ],
-                                'location'  => [
+                                'location_id'  => [
                                     'type'    => 'select_infinite',
                                     'label'   => __('location'),
                                     'options'   => [
