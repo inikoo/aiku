@@ -25,7 +25,7 @@ class AttachPalletToReturn extends OrgAction
     use WithFulfilmentAuthorisation;
 
 
-    private function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
+    public function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
     {
         $palletReturn->pallets()->attach($pallet->id, [
             'quantity_ordered'     => 1,
