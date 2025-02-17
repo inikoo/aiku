@@ -2,6 +2,7 @@
 import { faCube, faStar, faImage } from "@fas"
 import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { getStyles } from "@/Composables/styles";
 
 library.add(faCube, faStar, faImage, faPencil)
 
