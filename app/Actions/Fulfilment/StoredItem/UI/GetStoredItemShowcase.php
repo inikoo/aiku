@@ -43,6 +43,7 @@ class GetStoredItemShowcase
                     'fulfilmentCustomer'   => $storedItem->fulfilmentCustomer->slug
                 ]
             ],
+            'last_audit_slug'         => $storedItem->fulfilmentCustomer->storedItemAudits->last()->slug,
             'route_update_stored_item' => [
                 'name'       => 'grp.models.stored-items.pallets.update',
                 'parameters' => [

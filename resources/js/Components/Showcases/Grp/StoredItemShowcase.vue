@@ -99,15 +99,17 @@ const generateLinkPallet = () => {
 }
 
 // Generate link to pallet
-const generateLinkAudit = () => {
+const generateLinkAudit = (data) => {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
-                {
-                    ...route().params,
-                    tab: 'pallets',
-                });
+            return route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    data.last_audit_slug
+                ]
+            );
         default:
             return null
     }
@@ -146,14 +148,14 @@ const generateLinkAudit = () => {
                     </div>
                     
                     <div class="flex justify-between gap-x-4 py-3">
-                        <dt class="text-gray-500">{{ trans("Total stocks") }}</dt>
+                        <dt class="text-gray-500">{{ trans("Quantity warehouse") }}</dt>
                         <dd class="flex items-start gap-x-2">
                             <div class="font-medium">{{ locale.number(data.stored_item?.total_quantity || 0) }}</div>
                         </dd>
                     </div>
                     
                     <div class="flex justify-between gap-x-4 py-3">
-                        <dt class="text-gray-500">{{ trans("Total existence in pallets") }}</dt>
+                        <dt class="text-gray-500">{{ trans("Pallet") }}</dt>
                         <dd class="flex items-start gap-x-2">
                             <Link v-if="generateLinkPallet()" :href="generateLinkPallet()" class="primaryLink">
                                 {{ locale.number(data.stored_item?.pallets?.length || 0) }}
@@ -165,10 +167,10 @@ const generateLinkAudit = () => {
                     <div class="flex justify-between gap-x-4 py-3">
                         <dt class="text-gray-500">{{ trans("Last audit") }}</dt>
                         <dd class="flex items-start gap-x-2">
-                            <!-- <Link v-if="generateLinkAudit()" :href="generateLinkAudit()" class="primaryLink">
+                            <Link v-if="generateLinkAudit(data)" :href="generateLinkAudit(data)" class="primaryLink">
                                 {{ useFormatTime(data.stored_item?.last_audit_at) }}
-                            </Link> -->
-                            <div class="font-medium">{{ useFormatTime(data.stored_item?.last_audit_at) }}</div>
+                            </Link>
+                            <div v-else class="font-medium">{{ useFormatTime(data.stored_item?.last_audit_at) }}</div>
                         </dd>
                     </div>
 
