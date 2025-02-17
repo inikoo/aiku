@@ -8,8 +8,10 @@
 
 namespace App\Models\Accounting;
 
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -33,6 +35,7 @@ class PaymentAccountShop extends Pivot
 
     protected $casts = [
         'data'     => 'array',
+        'state'    => PaymentAccountShopStateEnum::class
     ];
 
     protected $attributes = [
@@ -40,4 +43,9 @@ class PaymentAccountShop extends Pivot
     ];
 
     protected $guarded = [];
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(PaymentAccountStats::class);
+    }
 }
