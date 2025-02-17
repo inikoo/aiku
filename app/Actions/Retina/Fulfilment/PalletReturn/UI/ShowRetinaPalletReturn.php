@@ -452,7 +452,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'method'     => 'get',
                     'name'       => 'retina.json.pallet-return.pallets.index',
                     'parameters' => [
-                        $palletReturn->id
+                        $palletReturn->slug
                     ]
                 ],
                 'option_attach_file' => [
