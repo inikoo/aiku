@@ -101,7 +101,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
-									<Link :href="ShopDashboard(data)">
+									<Link :href="ShopDashboard(data)" class="hover-underline">
 										{{ data.name }}
 									</Link>
 								</div>
@@ -133,7 +133,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
                                 <div :key="data?.refunds || 0">
-									<Link :href="ShopRefundDashboard(data)">
+									<Link :href="ShopRefundDashboard(data)" class="hover-underline">
 										{{
 											locale.number(
 												data?.interval_percentages?.refunds?.amount || 0
@@ -227,7 +227,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
-									<Link :href="ShopInvoiceDashboard(data)" >
+									<Link :href="ShopInvoiceDashboard(data)" class="hover-underline" >
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
@@ -493,4 +493,8 @@ function useTabChangeDashboard(tab_slug: string) {
 		</div>
 	</div>
 </template>
-<style scoped></style>
+<style scoped>
+.hover-underline:hover {
+  text-decoration: underline;
+}
+</style>

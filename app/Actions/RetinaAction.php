@@ -9,6 +9,7 @@
 namespace App\Actions;
 
 use App\Actions\Traits\WithTab;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -44,10 +45,10 @@ class RetinaAction
 
     public function registerInitialisation(Fulfilment $fulfilment, ActionRequest $request): static
     {
-        $this->fulfilment    = $fulfilment;
-        $this->shop          = $this->fulfilment->shop;
-        $this->organisation  = $this->shop->organisation;
-        $this->website       = $request->get('website');
+        $this->fulfilment = $fulfilment;
+        $this->shop = $this->fulfilment->shop;
+        $this->organisation = $this->shop->organisation;
+        $this->website = $request->get('website');
         $this->fillFromRequest($request);
         $this->validatedData = $this->validateAttributes();
 
@@ -56,13 +57,13 @@ class RetinaAction
 
     public function initialisation(ActionRequest $request): static
     {
-        $this->webUser       = $request->user();
-        $this->customer      = $this->webUser->customer;
+        $this->webUser = $request->user();
+        $this->customer = $this->webUser->customer;
         $this->fulfilmentCustomer = $this->customer->fulfilmentCustomer;
-        $this->shop          = $this->customer->shop;
-        $this->fulfilment    = $this->shop->fulfilment;
-        $this->organisation  = $this->shop->organisation;
-        $this->website       = $request->get('website');
+        $this->shop = $this->customer->shop;
+        $this->fulfilment = $this->shop->fulfilment;
+        $this->organisation = $this->shop->organisation;
+        $this->website = $request->get('website');
         $this->fillFromRequest($request);
 
         $this->validatedData = $this->validateAttributes();
@@ -72,12 +73,12 @@ class RetinaAction
 
     public function initialisationFulfilmentActions(FulfilmentCustomer $fulfilmentCustomer, array $modelData): static
     {
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $this->fulfilment = $fulfilmentCustomer->fulfilment;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->customer     = $fulfilmentCustomer->customer;
-        $this->shop         = $this->fulfilment->shop;
+        $this->customer = $fulfilmentCustomer->customer;
+        $this->shop = $this->fulfilment->shop;
         $this->organisation = $this->fulfilment->organisation;
-        $this->webUser      = $this->customer->webUsers()->first();
+        $this->webUser = $this->customer->webUsers()->first();
         $this->setRawAttributes($modelData);
         $this->validatedData = $this->validateAttributes();
 
@@ -87,11 +88,11 @@ class RetinaAction
     public function logoutInitialisation(ActionRequest $request): static
     {
 
-        $this->website       = $request->get('website');
+        $this->website = $request->get('website');
 
-        $this->shop          = $this->website->shop;
-        $this->fulfilment    = $this->shop->fulfilment;
-        $this->organisation  = $this->shop->organisation;
+        $this->shop = $this->website->shop;
+        $this->fulfilment = $this->shop->fulfilment;
+        $this->organisation = $this->shop->organisation;
 
         $this->fillFromRequest($request);
 
@@ -122,18 +123,17 @@ class RetinaAction
             }
         }
 
-        // Otherwise, apply the additional authorization logic.
-        if ($this->webUser->customer->status === CustomerStatusEnum::APPROVED
+        if ($this->shop->type === ShopTypeEnum::FULFILMENT && $this->webUser->customer->status === CustomerStatusEnum::APPROVED
             && $this->fulfilmentCustomer->rentalAgreement) {
             return true;
         }
 
+        if ($this->shop->type === ShopTypeEnum::DROPSHIPPING
+            && $this->webUser->id === $request->user()->id) {
+            return true;
+        }
 
         // Deny access if none of the above conditions pass.
         return false;
     }
-
-
-
-
 }
