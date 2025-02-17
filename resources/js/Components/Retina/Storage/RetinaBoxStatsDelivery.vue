@@ -118,7 +118,7 @@ const disableBeforeToday = (date: Date) => {
                     <template #content="{ close }">
                         <DatePicker v-model="data_pallet.estimated_delivery_date"
                             @update:modelValue="() => onChangeEstimateDate(close)" inline auto-apply
-                            :disabled-dates="disableBeforeToday" :enable-time-picker="false" />
+                            :xdisabled-dates="disableBeforeToday" :enable-time-picker="false" />
                         
                         <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
                             <LoadingIcon class="text-5xl" />
@@ -128,7 +128,7 @@ const disableBeforeToday = (date: Date) => {
 
                 <div v-else>
                     <dd class="text-sm text-gray-500">{{ data_pallet.estimated_delivery_date ?
-                        useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
+                        useFormatTime(data_pallet.estimated_delivery_date) : trans('Not Set') }}</dd>
                 </div>
 
             </div>

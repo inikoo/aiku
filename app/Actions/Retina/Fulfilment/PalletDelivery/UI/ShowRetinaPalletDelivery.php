@@ -16,6 +16,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Catalogue\RentalsResource;
@@ -282,6 +283,110 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             ]
                         ],
                     ],
+                ], //TODO: Delete if new one is implemented
+
+                'upload_pallet' => [
+                    'title' => [
+                        'label' => __('Upload pallet'),
+                        'information' => __('The list of column file: customer_reference, notes')
+                    ],
+                    'progressDescription'   => __('Adding Pallet Deliveries'),
+                    'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
+                        'header' => ['type', 'customer_reference', 'notes'],
+                        'rows' => [
+                            [
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
+                            ],
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'retina.models.pallet-delivery.pallet.upload',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.history',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
+                    ]
+                ],
+                'upload_stored_item' => [
+                    'title' => [
+                        'label' => __('Upload Customer\'s SKU'),
+                        'information' => __('The list of column file: customer_reference, notes, stored_items')
+                    ],
+                    'progressDescription'   => __('Adding stored item'),
+                    'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
+                        'header' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
+                        'rows' => [
+                            [
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
+                                'stored_item_reference' => 'SKU1',
+                                'quantity'  => 10,
+                                'stored_item_name' => 'SKU 1'
+                            ],
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name' ],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'retina.models.pallet-delivery.pallet.upload.with-stored-items',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.history',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
+                    ]
                 ],
 
                 'locationRoute' => [

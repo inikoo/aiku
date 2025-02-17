@@ -1,12 +1,12 @@
 <?php
-
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 12 Feb 2025 14:08:16 Central Indonesia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2025, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 17-02-2025-14h-59m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
-namespace App\Actions\Fulfilment\PalletReturn;
+namespace App\Actions\Fulfilment\PalletReturn\Json;
 
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -25,31 +25,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPalletsInReturnPalletWholePallets extends OrgAction
+class GetPalletsInReturnPalletWholePallets extends OrgAction
 {
-    protected function getElementRadioFilters(PalletReturn $palletReturn): array
-    {
-        return [
-            'radio' => [
-                'options' => collect(PalletsInPalletReturnWholePalletsOptionEnum::labels())
-                    ->map(function ($label, $key) use ($palletReturn) {
-                        return [
-                            'label' => $label . ' (' . PalletsInPalletReturnWholePalletsOptionEnum::count($palletReturn)[$key] . ')',
-                            'value' => PalletsInPalletReturnWholePalletsOptionEnum::from($key)->value
-                        ];
-                    })
-                    ->values()
-                    ->toArray(),
-                'engine' => function ($query, $elements) use ($palletReturn) {
-                    if (PalletsInPalletReturnWholePalletsOptionEnum::SELECTED->value === $elements) {
-                        $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-                    }
-                }
-            ],
-        ];
-    }
-
-    public function handle(PalletReturn $palletReturn, $prefix = null): LengthAwarePaginator
+    public function handle(PalletReturn $palletReturn): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -57,10 +35,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                     ->orWhereWith('pallets.reference', $value);
             });
         });
-
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
-        }
 
         $query = QueryBuilder::for(Pallet::class);
 
@@ -84,18 +58,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
 
         $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
-
-        if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-            foreach ($this->getElementRadioFilters($palletReturn) as $key => $elementFilter) {
-                $query->whereRadioFilter(
-                    key: $key,
-                    allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
-                    defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value,
-                    engine: $elementFilter['engine'],
-                    prefix: $prefix
-                );
-            }
-        }
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -122,7 +84,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(null)
             ->withQueryString();
     }
 
@@ -163,16 +125,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
                 'title' => '',
                 'count' => $palletReturn->fulfilmentCustomer->number_pallets_state_storing
             ];
-
-            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-                foreach ($this->getElementRadioFilters($palletReturn) as $key => $radioFilterGroup) {
-                    $table->radioFilterGroup(
-                        key: $key,
-                        elements: $radioFilterGroup['options'],
-                        default: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value
-                    );
-                }
-            }
 
             $table->withGlobalSearch();
 

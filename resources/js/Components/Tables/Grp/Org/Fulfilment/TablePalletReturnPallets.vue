@@ -18,7 +18,7 @@ import { inject, reactive, ref, onBeforeMount } from 'vue'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Popover from '@/Components/Popover.vue'
-import { isNull } from 'lodash'
+import { debounce, isNull } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -29,6 +29,7 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification";
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
+import axios from "axios"
 
 const layout = inject('layout', layoutStructure)
 
@@ -39,6 +40,7 @@ const props = defineProps<{
     tab?: string
     state?: string
     route_checkmark : routeType
+    palletReturn: {}
 }>()
 
 console.log(props)
@@ -93,7 +95,7 @@ const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNo
     })
 }
 
-const SetSelected = () => {
+const SetSelected = debounce(() => {
     const finalValue: Record<string, { quantity: number }> = [];
 
     for(const key in selectedRow.value){
@@ -118,7 +120,7 @@ const SetSelected = () => {
             },
         }
     );
-};
+}, 500);
 
 const onChangeCheked = (value) => {
     selectedRow.value = value;
@@ -135,6 +137,58 @@ const setUpChecked = () => {
         selectedRow.value = set;
     }
 };
+
+const debounceReloadBoxStats = debounce(() => {
+    router.reload({
+        only: ['box_stats'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
+    })
+}, 500)
+
+const onCheckTable = async (item: {}) => {
+    if (item.is_checked) {
+        try {
+            if(!item.attachRoute?.name) {
+                throw new Error('Attach route is not defined')
+            }
+            axios.post(
+                route(item.attachRoute.name, {
+                    ...item.attachRoute.parameters,
+                    palletReturn: props.palletReturn.id
+                }),
+                {},
+            )
+
+            debounceReloadBoxStats()
+        } catch (error) {
+            notify({
+                title: 'Something went wrong',
+                text: 'Failed to select the data',
+                type: 'error',
+            })
+            
+        }
+        
+    } else {
+        try {
+            if(!item.deleteFromReturnRoute?.name) {
+                throw new Error('Delete route is not defined')
+            }
+            axios.delete(
+                route(item.deleteFromReturnRoute.name, item.deleteFromReturnRoute.parameters)   
+            )
+
+            debounceReloadBoxStats()
+        } catch (error) {
+            notify({
+                title: 'Something went wrong',
+                text: 'Failed to select the data',
+                type: 'error',
+            })
+            
+        }
+    }
+    
+}
 
 const onSaved = async (pallet: { form: {} }, fieldName: string) => {
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
@@ -212,9 +266,10 @@ const generateLinkPallet = (pallet: {}) => {
 </script>
 
 <template>
-    <!-- <pre>{{data}}</pre> -->
+    <!-- <pre>{{ data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in_process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
+        @onSelectRow="onChangeCheked" checkboxKey='pallet_id'
+        @onChecked="(item) => onCheckTable(item)"
     >
 
         <!-- Column: Type Icon -->
