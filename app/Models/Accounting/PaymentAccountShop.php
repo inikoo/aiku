@@ -9,8 +9,12 @@
 namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Currency;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -29,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static Builder<static>|PaymentAccountShop query()
  * @mixin Eloquent
  */
-class PaymentAccountShop extends Pivot
+class PaymentAccountShop extends Model
 {
     public $incrementing = true;
 
@@ -43,6 +47,21 @@ class PaymentAccountShop extends Pivot
     ];
 
     protected $guarded = [];
+
+    public function paymentAccount(): BelongsTo
+    {
+        return $this->belongsTo(PaymentAccount::class);
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(Shop::class);
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
 
     public function stats(): HasOne
     {
