@@ -62,11 +62,11 @@ class UpdatePallet extends OrgAction
             FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer)->delay($this->hydratorsDelay);
             FulfilmentHydratePallets::dispatch($pallet->fulfilment)->delay($this->hydratorsDelay);
             WarehouseHydratePallets::dispatch($pallet->warehouse)->delay($this->hydratorsDelay);
-            if($oldLocation) {
+            if ($oldLocation) {
                 LocationHydratePallets::dispatch($oldLocation)->delay($this->hydratorsDelay); //Hydrate Old Location
             }
-            if($pallet->location) {
-                LocationHydratePallets::dispatch($pallet->location)->delay($this->hydratorsDelay); //Hydrate New Location        
+            if ($pallet->location) {
+                LocationHydratePallets::dispatch($pallet->location)->delay($this->hydratorsDelay); //Hydrate New Location
             }
         }
 
