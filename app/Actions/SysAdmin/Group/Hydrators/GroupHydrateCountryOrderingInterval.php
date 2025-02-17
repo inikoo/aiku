@@ -40,6 +40,7 @@ class GroupHydrateCountryOrderingInterval
 
     public function handle(Group $group): void
     {
+        // calculate order country interval = (population + gdp) / order, the value we have to orders_all, etc
         $countries = Country::all();
         foreach ($countries as $country) {
             $group->countryOrderingIntervals()->create(['country_id' => $country->id]);

@@ -30,7 +30,8 @@ class CountryOrderingIntervalSeeder extends Seeder
         $organisations = Organisation::all();
         $shops = Shop::all();
 
-        // this running every day
+        // this running every day at (00:00) to fetch data population & gdp and put it in table countries
+        // then call hydrator here to save the calculation with order we have
         foreach ($countries as $countryId) {
             $groupData = ['country_id' => $countryId];
             $organisationData = ['country_id' => $countryId];
