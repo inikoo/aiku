@@ -37,6 +37,7 @@ use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDeliveryWithStoredItems;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
@@ -1448,7 +1449,30 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
     return $palletReturn;
-})->depends('store pallet to return')->todo('fix excel with new columns');
+})->depends('store pallet to return');
+
+test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    $palletReturn = ImportPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    return $palletReturn;
+})->depends('import pallets in return (xlsx)');
 
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
     $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
@@ -1850,8 +1874,8 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/pallet.xlsx');
-    $file     = new UploadedFile($filePath, 'pallet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/PalletsOnlyTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
@@ -1862,50 +1886,81 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
     ]);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(3)
         ->and($upload->number_fails)->toBe(0)
-        ->and($palletDelivery->stats->number_pallets)->toBe(1);
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
 
 
     return $palletDelivery;
 })->depends('create fourth pallet delivery (pallet import test)');
 
-test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDelivery) {
+test('import pallet (xlsx) duplicate', function (PalletDelivery $palletDelivery) {
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/palletWithStoredItems.xlsx');
-    $file     = new UploadedFile($filePath, 'palletWithStoredItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/PalletsOnlyTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
+    expect($palletDelivery->stats->number_pallets)->toBe(3)
+    ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
 
-    expect($palletDelivery->pallets->count())->toBe(1)
-        ->and($palletDelivery->stats->number_pallets)->toBe(1);
-
-    $upload = ImportPalletsInPalletDelivery::run(
-        palletDelivery: $palletDelivery,
-        file: $file,
-        includeStoredItem: true
-    );
-
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(1)
-        ->and($upload->number_fails)->toBe(0);
-
-
+    $upload = ImportPalletsInPalletDelivery::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
     $palletDelivery->refresh();
-    $pallet = $palletDelivery->pallets->skip(1)->first();
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
 
-    expect($palletDelivery->pallets->count())->toBe(2)
-        ->and($palletDelivery->stats->number_pallets)->toBe(2)
-        ->and($pallet->storedItems()->count())->toBe(1);
 
     return $palletDelivery;
-})->depends('create fourth pallet delivery (pallet import test)')->todo();
+})->depends('import pallet (xlsx)');
+
+test('import pallet (xlsx) invalid types', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletsOnlyTestInvalidType.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTestInvalidType.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    expect($palletDelivery->stats->number_pallets)->toBe(3)
+    ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    $upload = ImportPalletsInPalletDelivery::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
+    $palletDelivery->refresh();
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(3)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(6)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(4)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+
+    return $palletDelivery;
+})->depends('import pallet (xlsx) duplicate');
 
 test('create third fulfilment customer', function (Fulfilment $fulfilment) {
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
@@ -2179,30 +2234,6 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
 
     return $palletReturn;
 })->depends('set fifth pallet delivery as booked in');
-
-test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
-    Storage::fake('local');
-
-    $tmpPath = 'tmp/uploads/';
-
-    $filePath = base_path('tests/fixtures/storedItemsA.xlsx');
-    $file     = new UploadedFile($filePath, 'storedItemsA.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
-
-    Storage::fake('local')->put($tmpPath, $file);
-
-    $upload = ImportPalletReturnItem::run($palletReturn, $file);
-    $palletReturn->refresh();
-
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->number_rows)->toBe(2)
-        ->and($upload->number_success)->toBe(2)
-        ->and($upload->number_fails)->toBe(0)
-        ->and($palletReturn->stats->number_stored_items)->toBe(2);
-
-
-    return $palletReturn;
-})->depends('create second pallet return')->todo();
-
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
@@ -2584,6 +2615,89 @@ test('pay invoice (exceed)', function ($invoice) {
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');
+
+test('create seventh pallet delivery (pallet with stored items import test)', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
+        ->and($palletDelivery->stats->number_pallets)->toBe(0);
+
+    return $palletDelivery;
+})->depends('create second fulfilment customer');
+
+test('import pallet with stored items (xlsx)', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletStoredItemsTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletStoredItemsTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    expect($palletDelivery->stats->number_pallets)->toBe(0);
+    expect($fulfilmentCustomer->number_stored_items)->toBe(2);
+
+    $upload = ImportPalletsInPalletDeliveryWithStoredItems::run($palletDelivery, $file, [
+    ]);
+
+    $palletDelivery->refresh();
+    $fulfilmentCustomer->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(5)
+        ->and($upload->number_success)->toBe(3)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1)
+        ->and($fulfilmentCustomer->number_stored_items)->toBe(5);
+
+
+    return $palletDelivery;
+})->depends('create seventh pallet delivery (pallet with stored items import test)');
+
+test('import pallet with stored items (xlsx) duplicate', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletStoredItemsTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletStoredItemsTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    expect($palletDelivery->stats->number_pallets)->toBe(3);
+    expect($fulfilmentCustomer->number_stored_items)->toBe(5);
+
+    $upload = ImportPalletsInPalletDeliveryWithStoredItems::run($palletDelivery, $file, [
+    ]);
+
+    $palletDelivery->refresh();
+
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(5)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(5)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    return $palletDelivery;
+})->depends('import pallet with stored items (xlsx)');
 
 test('hydrate pallet return command', function () {
     $this->artisan('hydrate:pallet_returns  '.$this->organisation->slug)->assertExitCode(0);
