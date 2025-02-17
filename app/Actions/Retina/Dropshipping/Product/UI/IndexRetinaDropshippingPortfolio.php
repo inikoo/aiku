@@ -53,10 +53,9 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-
         $shopifyUser = $request->user()->customer->shopifyUser;
         $this->shopifyUser = $shopifyUser;
+        $this->initialisation($request);
 
         return $this->handle($shopifyUser);
     }
