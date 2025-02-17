@@ -281,7 +281,7 @@ const onUpdateCustomerReference = () => {
                             v-model="dataPalletDelivery.estimated_delivery_date"
                             @update:modelValue="() => onChangeEstimateDate(close)"
                             inline auto-apply
-                            :disabled-dates="disableBeforeToday"
+                            :xxdisabled-dates="disableBeforeToday"
                             :enable-time-picker="false"
                         />
                         <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
