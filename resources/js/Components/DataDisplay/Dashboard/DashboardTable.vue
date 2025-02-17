@@ -267,7 +267,7 @@ function useTabChangeDashboard(tab_slug: string) {
 										<div
 											:key="`${data.interval_percentages?.invoices?.difference}_${data.interval_percentages?.invoices?.percentage}`"
 											style="align-items: center">
-											<span style="font-size: 16px; font-weight: 500">
+											<span style="font-size: 16px; font-weight: 500" class="pr-1">
 												{{
 													data.interval_percentages?.invoices?.percentage
 														? `${
@@ -291,14 +291,14 @@ function useTabChangeDashboard(tab_slug: string) {
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
-												style="font-size: 20px"
+												style="font-size: 16px"
 												:class="
 													data.interval_percentages.invoices?.percentage <
 													0
-														? 'text-red-500 rotate-90'
-														: 'text-green-500 rotate-[-90deg]'
+														? 'text-[#ff6347] rotate-90'
+														: 'text-[#26a65b] rotate-[-90deg]'
 												" />
-											<div v-else style="width: 20px"></div>
+											<div v-else style="width: 60px"></div>
 										</div>
 									</Transition>
 								</div>
@@ -368,7 +368,7 @@ function useTabChangeDashboard(tab_slug: string) {
 								<div
 									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
 									style="align-items: center">
-									<span style="font-size: 16px; font-weight: 500">
+									<span style="font-size: 16px; font-weight: 500" class="pr-1">
 										{{
 											data.interval_percentages?.sales?.percentage
 												? `${
@@ -389,13 +389,13 @@ function useTabChangeDashboard(tab_slug: string) {
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
-										style="font-size: 20px"
+										style="font-size: 16px"
 										:class="
 											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
-									<div v-else style="width: 20px"></div>
+									<div v-else style="width: 60px"></div>
 								</div>
 							</Transition>
 						</div>
@@ -414,7 +414,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500">
+								<span style="font-size: 16px; font-weight: 500" class="pr-1">
 									{{
 										totalAmount.total_invoices_percentages
 											? `${
@@ -432,13 +432,13 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'fas fa-play'
 											: 'fas fa-play'
 									"
-									style="font-size: 20px"
+									style="font-size: 16px"
 									:class="
 										totalAmount.total_invoices_percentages < 0
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 20px"></div>
+								<div v-else style="width: 16px"></div>
 							</template>
 						</Column>
 						<Column
@@ -458,7 +458,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500">
+								<span style="font-size: 16px; font-weight: 500" class="pr-1">
 									{{
 										totalAmount.total_sales_percentages
 											? `${
@@ -476,13 +476,13 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'fas fa-play'
 											: 'fas fa-play'
 									"
-									style="font-size: 20px"
+									style="font-size: 16px"
 									:class="
 										totalAmount.total_sales_percentages < 0
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 20px"></div>
+								<div v-else style="width: 60px"></div>
 							</template>
 						</Column>
 					</Row>
@@ -497,4 +497,5 @@ function useTabChangeDashboard(tab_slug: string) {
 .hover-underline:hover {
   text-decoration: underline;
 }
+
 </style>
