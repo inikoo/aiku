@@ -22,8 +22,13 @@ class ShowRetinaDashboard extends RetinaAction
 
     public function handle(ActionRequest $request): Response
     {
+        $inertiaPage = 'Dashboard/RetinaFulfilmentDashboard';
+        if ($this->shop->type === ShopTypeEnum::DROPSHIPPING) {
+            $inertiaPage = 'Dashboard/RetinaDropshippingDashboard';
+        }
+
         return Inertia::render(
-            'Dashboard/RetinaDashboard',
+            $inertiaPage,
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     __('Home')
