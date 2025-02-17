@@ -675,6 +675,14 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
+                'pallets_route' => [
+                    'method'     => 'get',
+                    'name'       => 'grp.json.pallet-return.pallets.index',
+                    'parameters' => [
+                        $palletReturn->slug
+                    ]
+                ],
+
                 'route_check_stored_items'   => [
                     'method'     => 'post',
                     'name'       => 'grp.models.pallet-return.stored_item.store',

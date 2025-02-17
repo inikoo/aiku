@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -47,6 +48,14 @@ class UpdatePalletDelivery extends OrgAction
             ]);
         }
 
+        if ($palletDelivery->wasChanged('received_at')) {
+            foreach ($palletDelivery->pallets as $pallet) {
+                UpdatePallet::run($pallet, [
+                    'received_at' => $palletDelivery->received_at
+                ]);
+            }
+        }
+
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
 
         return $palletDelivery;
@@ -80,7 +89,7 @@ class UpdatePalletDelivery extends OrgAction
             'customer_reference'        => ['sometimes', 'nullable', 'string', Rule::unique('pallet_deliveries', 'customer_reference')
                 ->ignore($this->palletDelivery->id)],
             'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
-            'received_at' => ['sometimes', 'date', 'gte:confirmed_at'],
+            'received_at' => ['sometimes', 'date'],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'current_recurring_bill_id' => [
                 'sometimes',
