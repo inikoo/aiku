@@ -31,6 +31,8 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class StorePalletReturn extends OrgAction
 {
@@ -196,27 +198,27 @@ class StorePalletReturn extends OrgAction
         ];
     }
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'grp.models.fulfilment-customer.pallet-return.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'       => $palletReturn->organisation->slug,
                 'fulfilment'         => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'       => $palletReturn->slug
-            ])),
-            'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show', [
+            ]),
+            'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show', [
                 'organisation'       => $palletReturn->organisation->slug,
                 'fulfilment'         => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'       => $palletReturn->slug
-            ])),
+            ]),
 
-            default => Inertia::location(route('retina.fulfilment.storage.pallet_returns.show', [
+            default => Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
                 'palletReturn' => $palletReturn->slug
-            ]))
+            ])
         };
     }
 
