@@ -28,9 +28,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\RedirectResponse;
 
@@ -133,7 +131,8 @@ class StorePalletReturn extends OrgAction
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
-            'customer_notes' => ['sometimes', 'nullable', 'string']
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
+            'platform_id' => ['sometimes', 'nullable', 'integer', 'exists:platforms,id']
         ];
     }
 
