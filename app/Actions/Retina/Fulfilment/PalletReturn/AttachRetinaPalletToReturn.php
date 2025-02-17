@@ -38,11 +38,11 @@ class AttachRetinaPalletToReturn extends RetinaAction
         return false;
     }
 
-    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request)
     {
         $this->initialisation($request);
         
-        return $this->handle($palletReturn, $pallet);
+        $this->handle($palletReturn, $pallet);
     }
 
 }

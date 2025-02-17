@@ -29,6 +29,7 @@ const props = defineProps<{
     routeSubmit?: routeType
     allowZero?: boolean
     noUndoButton?: boolean
+    noSaveButton?: boolean
     keySubmit?: string
     bindToTarget?: {
         max?: number
@@ -40,6 +41,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
+    (e: 'update:modelValue', value: number): void
 }>()
 
 const model = defineModel()
@@ -70,9 +72,9 @@ defineOptions({
     inheritAttrs: false
 })
 
-// watch(model, () => {
-//     form.quantity = model.value
-// })
+watch(() => form.quantity, (newVal: number) => {
+    emits('update:modelValue', newVal)
+})
 
 
 const onClickMinusButton = () => {
@@ -156,7 +158,7 @@ const onClickPlusButton = () => {
             </div>
 
             <!-- Button: Save -->
-            <button class="relative flex items-center justify-center px-1 py-0.5 text-sm"
+            <button v-if="!noSaveButton" class="relative flex items-center justify-center px-1 py-0.5 text-sm"
                 :class="{ 'text-gray-400': !form.isDirty }"
                 :disabled="form.processing || !form.isDirty" type="submit">
                 <slot name="save" :isProcessing="form.processing" :isDirty="form.isDirty" :onSaveViaForm="onSaveViaForm">
