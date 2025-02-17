@@ -75,6 +75,18 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
+            'attachRoute'             => match (request()->routeIs('retina.*')) {
+                true => [
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet-return.pallet.attach',
+                    'parameters' => [
+                        'palletReturn' => null, //add in FE , BE didnt get access to it
+                        'pallet' => $this->pallet_id
+
+                    ]
+                ]
+            },
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return-item.update',
@@ -124,8 +136,8 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => [$this->pallet_return_id, $this->pallet_id]
                 ],
                 default => [
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->pallet_id]
+                    'name'       => 'grp.models.pallet-return.pallet.detach',
+                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
                 ]
             },
             'notReceivedRoute' => [

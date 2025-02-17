@@ -118,8 +118,8 @@ class PalletsResource extends JsonResource
                     'parameters' => [$this->pallet_return_id, $this->id]
                 ],
                 default => [
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->id]
+                    'name'       => 'grp.models.pallet-return.pallet.detach',
+                    'parameters' => [$this->pallet_return_id, $this->id]
                 ]
             },
             'notReceivedRoute'         => [
