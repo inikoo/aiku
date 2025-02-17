@@ -35,29 +35,6 @@ const emits = defineEmits<{
 }>()
 
 
-/* const onSaveEmail = (jsonFile, htmlFile) => {
-    axios
-        .patch(
-            route(props.updateRoute.name, props.updateRoute.parameters),
-            {
-                layout: JSON.parse(jsonFile),
-            },
-        )
-        .then((response) => {
-            console.log("autosave successful:", response.data);
-        })
-        .catch((error) => {
-            console.error("autosave failed:", error);
-            notify({
-                title: "Failed to save",
-			    type: "error",   
-            })
-        })
-        .finally(() => {
-            console.log("autosave finished.");
-        });
-} */
-
 const getCatalog = () => {
     console.log(beeInstance.value)
 };
@@ -73,12 +50,16 @@ const beeConfig = () => {
         /* Authorization: token.value ? `Bearer ${token.value.access_token}` : null, */
         'Content-Type': 'application/json',
     }
+    //"0qAk5t1Xy9X5"
     axios
         .post(endpoint,payload,headers)
         .then((response) => {
             token.value = response.data;
+
+            console.log(token)
+
             const config = {
-                uid: token.value.userName,
+                uid: 'CmsUserName', // Do not modify this
                 container: "bee-plugin-container",
                 language: "en-US",
                 loadingSpinnerDisableOnDialog: true,
