@@ -20,7 +20,7 @@ const props = defineProps<{
                 {{ "+" + Math.floor(item.delta) }}
             </div>
             <div v-else class="text-red-500">
-                {{ "-" + Math.floor(item.delta) }}
+                {{ Math.floor(item.delta) }}
             </div>
         </template>
         <template #cell(description)="{ item }">
