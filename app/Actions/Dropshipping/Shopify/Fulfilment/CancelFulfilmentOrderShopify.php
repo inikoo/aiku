@@ -38,6 +38,8 @@ class CancelFulfilmentOrderShopify extends OrgAction
             DeletePalletReturn::make()->action($palletReturn, [
                 'delete_comment' => __('Your order doesn\'t have enough quantity in warehouse.')
             ]);
+
+            $shopifyUserHasFulfilment->delete();
         }
 
         if ($response['body'] == 'Not Found') {
