@@ -15,8 +15,13 @@ const props = defineProps<{
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(quantity)="{ item: item }">
-            {{ Math.floor(item.quantity) }}
+        <template #cell(delta)="{ item: item }">
+            <div v-if="item.delta > 0" class="text-green-500">
+                {{ "+" + Math.floor(item.delta) }}
+            </div>
+            <div v-else class="text-red-500">
+                {{ "-" + Math.floor(item.delta) }}
+            </div>
         </template>
         <template #cell(description)="{ item }">
             <!-- edit type : {{ item.edit_type }} -->
