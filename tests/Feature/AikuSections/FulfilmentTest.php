@@ -1441,12 +1441,18 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     expect($palletReturn->pallets()->count())->toBe(1)
         ->and($palletReturn->stats->number_pallets)->toBe(1);
     // dd($palletReturn->fulfilmentCustomer->pallets);
-    $palletReturn = ImportPalletReturnItem::run($palletReturn, $file);
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_fails)->toBe(0);
 
     return $palletReturn;
 })->depends('store pallet to return');
@@ -1464,12 +1470,47 @@ test('import pallets in return (xlsx) again', function (PalletReturn $palletRetu
     expect($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
-    $palletReturn = ImportPalletReturnItem::run($palletReturn, $file);
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
+        
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1);
+
+    return $palletReturn;
+})->depends('import pallets in return (xlsx)');
+
+test('import pallets in return (xlsx) invalid pallet reference', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletReturnInvalid.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletReturnInvalid.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1);
 
     return $palletReturn;
 })->depends('import pallets in return (xlsx)');

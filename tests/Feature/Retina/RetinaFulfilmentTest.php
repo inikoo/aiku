@@ -646,6 +646,60 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('Create Retina Pallet Return');
 
+test('import pallets in return (xlsx) duplicate', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+    //
+    $filePath = base_path('tests/fixtures/returnRetinaPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnRetinaPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+    $upload = ImportRetinaPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('returnRetinaPalletItems.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+        ->and($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
+
+test('import pallets in return (xlsx) invalid reference', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+    //
+    $filePath = base_path('tests/fixtures/PalletReturnInvalid.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletReturnInvalid.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+    $upload = ImportRetinaPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('PalletReturnInvalid.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+        ->and($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
+
 test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletReturn) {
     $palletReturn = AttachRetinaPalletsToReturn::make()->action(
         $palletReturn,
