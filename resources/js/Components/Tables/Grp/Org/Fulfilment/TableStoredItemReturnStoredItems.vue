@@ -350,6 +350,10 @@ const generateLinkPalletLocation = (pallet: any) => {
                     </Teleport>
                 </template>
 
+                <div v-if="!value.pallet_stored_items?.length" class="italic text-gray-400">
+                    {{ trans('No pallet') }}
+                </div>
+
                 <!-- Section: area for pallet that have 0 selected quantity -->
                 <div v-if="palletReturn.state != 'in_process'">
                     <Collapse as="section" :when="get(proxyItem, ['is_open_collapsed'], false)" class="">
