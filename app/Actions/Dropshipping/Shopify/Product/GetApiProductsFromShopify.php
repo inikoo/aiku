@@ -36,7 +36,7 @@ class GetApiProductsFromShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser): void
     {
         $client = $shopifyUser->api()->getRestClient();
-        $shopName = $shopifyUser->shop->name;
+        $shopName = $shopifyUser->customer->shop->name;
         $products = [];
         $nextPage = null;
 
