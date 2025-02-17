@@ -71,7 +71,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                     'title' => __('My Portfolio'),
                     'icon' => 'fal fa-cube',
                     'actions' => [
-                        [
+                        $this->customer->fulfilmentCustomer ? [
                             'type' => 'button',
                             'style' => 'create',
                             'label' => 'Sync Items',
@@ -81,7 +81,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                                     'shopifyUser' => $this->shopifyUser->id
                                 ]
                             ]
-                        ],
+                        ] : [],
                     ]
                 ],
                 'tabs' => [
@@ -112,11 +112,6 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
                 ]);
 
             $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-
-            if ($this->parent instanceof Customer) {
-                $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
             $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_left', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
             // $table->column(key: 'tags', label: __('tags'), canBeHidden: false);

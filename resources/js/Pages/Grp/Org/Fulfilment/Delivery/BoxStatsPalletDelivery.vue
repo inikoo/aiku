@@ -290,8 +290,9 @@ const onUpdateCustomerReference = () => {
                     </template>
                 </Popover>
 
-				<div v-else class=" text-gray-400">
-					{{ trans('Estimated date is not set') }}
+				<div v-else class="text-gray-500">
+					<span v-if="dataPalletDelivery.estimated_delivery_date">{{ useFormatTime(dataPalletDelivery.estimated_delivery_date) }}</span>
+					<span v-else class="text-gray-400">{{ trans('Estimated date is not set') }}</span>
 				</div>
 			</div>
 
