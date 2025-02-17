@@ -78,7 +78,7 @@ class IndexStoredItemMovements extends OrgAction
         $query->defaultSort('stored_item_movements.id')
             ->select(
                 'stored_item_movements.id',
-                'stored_item_movements.quantity',
+                'stored_item_movements.quantity as delta',
                 'stored_item_movements.type',
                 'stored_items.id as stored_item_id',
                 'stored_items.reference as stored_item_reference',
@@ -92,7 +92,7 @@ class IndexStoredItemMovements extends OrgAction
                 'pallet_returns.reference as pallet_returns_reference'
             );
 
-        $allowedSort = ['id'];
+        $allowedSort = ['id', 'description', 'delta'];
 
         if ($parent instanceof Pallet) {
             $allowedSort = array_merge($allowedSort, ['stored_item_reference']);
@@ -143,7 +143,7 @@ class IndexStoredItemMovements extends OrgAction
 
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
-            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true);
+            $table->column(key: 'delta', label: __('Delta'), canBeHidden: false, searchable: true, sortable: true);
         };
     }
 }
