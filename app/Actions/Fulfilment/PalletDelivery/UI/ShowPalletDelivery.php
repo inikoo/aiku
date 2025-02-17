@@ -460,11 +460,10 @@ class ShowPalletDelivery extends OrgAction
                     ] : null,
                 ],
                 PalletDeliveryStateEnum::BOOKED_IN => [
-                    [
+                    $palletDelivery->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            $palletDelivery->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
                                 [
                                     'type'    => 'button',
                                     'style'   => 'secondary',
@@ -493,13 +492,12 @@ class ShowPalletDelivery extends OrgAction
                                         ]
                                     ]
                                 ]
-                            ] : []
                         ]
-                    ]
+                    ]: []
                 ],
                 default => []
             };
-
+        
             if (!in_array($palletDelivery->state, [
                 PalletDeliveryStateEnum::IN_PROCESS,
                 PalletDeliveryStateEnum::SUBMITTED
@@ -596,7 +594,7 @@ class ShowPalletDelivery extends OrgAction
                 ];
             }
         }
-
+        
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
