@@ -72,30 +72,10 @@ class GetApiProductsFromShopify extends OrgAction
                             'type' => PortfolioTypeEnum::SHOPIFY
                         ]);
 
-                        $shopifyUser->products()->sync([$storedItem->id => [
+                        $shopifyUser->products()->attach([$storedItem->id => [
                             'shopify_user_id' => $shopifyUser->id,
                             'product_type' => class_basename($storedItem),
-                            'shopify_product_id' => $variant['product_id'],
-                            'portfolio_id' => $portfolio->id
-                        ]]);
-
-                        UpdateStoredItem::run($storedItem, [
-                            'state' => StoredItemStateEnum::SUBMITTED,
-                            'total_quantity' => $variant['inventory_quantity']
-                        ]);
-                    } elseif (!StoredItem::where('reference', $product['handle'])->exists() && $shopType === ShopTypeEnum::DROPSHIPPING) {
-                        $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
-                            'reference' => $product['handle']
-                        ]);
-
-                        $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
-                            'stored_item_id' => $storedItem->id,
-                            'type' => PortfolioTypeEnum::SHOPIFY
-                        ]);
-
-                        $shopifyUser->products()->sync([$storedItem->id => [
-                            'shopify_user_id' => $shopifyUser->id,
-                            'product_type' => class_basename($storedItem),
+                            'product_id' => $storedItem->id,
                             'shopify_product_id' => $variant['product_id'],
                             'portfolio_id' => $portfolio->id
                         ]]);
@@ -105,7 +85,6 @@ class GetApiProductsFromShopify extends OrgAction
                             'total_quantity' => $variant['inventory_quantity']
                         ]);
                     }
-
                 });
             }
         }

@@ -58,7 +58,7 @@ class StoreFulfilmentFromShopify extends OrgAction
                     ->where('shopify_product_id', $shopifyProduct['product_id'])
                     ->first();
 
-                $storedItems[$shopifyUserHasProduct->product->id] = [
+                $storedItems[$shopifyUserHasProduct->portfolio->item_id] = [
                     'quantity' => $shopifyProduct['quantity']
                 ];
             }

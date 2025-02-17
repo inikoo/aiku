@@ -8,6 +8,7 @@
 
 namespace App\Models;
 
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -40,8 +41,13 @@ class ShopifyUserHasProduct extends Pivot
         return $this->belongsTo(ShopifyUser::class);
     }
 
+    public function portfolio(): BelongsTo
+    {
+        return $this->belongsTo(Portfolio::class);
+    }
+
     public function product(): MorphTo
     {
-        return $this->morphTo('product');
+        return $this->morphTo();
     }
 }
