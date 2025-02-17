@@ -53,6 +53,7 @@ class EditPallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
+        // dd($pallet->warehouse);
         return Inertia::render(
             'EditModel',
             [
@@ -90,16 +91,39 @@ class EditPallet extends OrgAction
                                 ],
                                 'customer_reference' => [
                                     'type'    => 'input',
+                                    'placeholder'   => __('add customer reference'),
                                     'label'   => __('customer_reference'),
                                     'value'   => $pallet->customer_reference,
                                     'required' => true
                                 ],
                                 'notes' => [
-                                    'type'    => 'input',
+                                    'type'    => 'textarea',
+                                    'placeholder'   => __('Add note to pallet'),
                                     'label'   => __('notes'),
                                     'value'   => $pallet->notes,
-                                    'required' => true
+                                    // 'required' => true
                                 ],
+                                'location'  => [
+                                    'type'    => 'select_infinite',
+                                    'label'   => __('location'),
+                                    'options'   => [
+                                        [
+                                            'id' => $pallet->location->id,
+                                            'code' => $pallet->location->code
+                                        ]
+                                        ],
+                                    'fetchRoute'    => [
+                                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                                        'parameters' => [
+                                            'organisation' => $this->organisation->slug,
+                                            'warehouse'    => $pallet->warehouse->slug
+                                        ]
+                                    ],
+                                    'valueProp' => 'id',
+                                    'labelProp' => 'code',
+                                    'required' => true,
+                                    'value'   => $pallet->location->id,
+                                ]
                                 // 'type' => [
                                 //     'type'    => 'select',
                                 //     'label'   => __('type'),

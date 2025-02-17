@@ -48,6 +48,7 @@ const props = defineProps<{
 const blueprint = {
     note: {
         label: 'Note',
+        value: props.data.data.notes
     },
     reference: {
         label: 'Reference',
@@ -121,14 +122,6 @@ const printBarcodePallet = (id: string, code: string) => {
 
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
-            <div class="col-span-2 " v-if="blueprint.note.value">
-                <dt class="font-medium">{{ blueprint.note.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <PureTextarea :modelValue="blueprint.note.value" :rows="5"
-                        :placeholder="trans('No note from customer.')" disabled />
-                </dd>
-            </div>
-
             <div :class="[blueprint.note.value && 'border-t border-gray-200', 'pt-4']">
                 <dt class="font-medium">{{ blueprint.reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.reference.value }}</dd>
@@ -192,6 +185,16 @@ const printBarcodePallet = (id: string, code: string) => {
                     </Tag>
                 </dd>
             </div>
+
+            <div class="col-span-2 ">
+                <dt class="font-medium">{{ blueprint.note.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <PureTextarea :modelValue="blueprint.note.value" :rows="5"
+                        :placeholder="trans('No note for this pallet')" disabled />
+                </dd>
+            </div>
+
+            
         </dl>
 
 

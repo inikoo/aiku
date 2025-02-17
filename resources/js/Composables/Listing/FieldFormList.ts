@@ -32,6 +32,9 @@ import GeneratePassword from '@/Components/Forms/Fields/GeneratePassword.vue'
 import TaxNumber from '@/Components/Forms/Fields/TaxNumber.vue'
 import EditorHtml from '@/Components/Forms/Fields/EditorHtml.vue'
 
+import SelectInfiniteScroll from '@/Components/Forms/Fields/SelectInfiniteScroll.vue'
+
+
 const GoogleSearch = defineAsyncComponent(() => import('@/Components/Forms/Fields/GoogleSearch.vue'))
 const EmployeeState = defineAsyncComponent(() => import('@/Components/Forms/Fields/Employee/EmployeeState.vue'))
 const Language = defineAsyncComponent(() => import("@/Components/Forms/Fields/Language.vue"))
@@ -85,7 +88,9 @@ export const componentsList: {[key: string]: Component} = {
     'employeeState': EmployeeState,
     'pin' : Pin,
     'tax_number' : TaxNumber,
-    'editor' : EditorHtml
+    'editor' : EditorHtml,
+
+    'select_infinite': SelectInfiniteScroll
 }
 
 export const getComponent = (componentName: string) => {
