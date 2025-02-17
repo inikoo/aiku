@@ -136,10 +136,9 @@ class PaymentAccount extends Model implements Auditable
     }
 
 
-    public function paymentAccountShops(): BelongsToMany
+    public function paymentAccountShops(): HasMany
     {
-        return $this->belongsToMany(Shop::class)->using(PaymentAccountShop::class)
-            ->withTimestamps();
+        return $this->hasMany(PaymentAccountShop::class);
     }
 
     public function stats(): HasOne
