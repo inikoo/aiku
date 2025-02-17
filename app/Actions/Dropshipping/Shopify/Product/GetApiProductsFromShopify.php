@@ -36,6 +36,7 @@ class GetApiProductsFromShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser): void
     {
         $client = $shopifyUser->api()->getRestClient();
+        $shopName = $shopifyUser->shop->name;
         $products = [];
         $nextPage = null;
 
@@ -43,6 +44,7 @@ class GetApiProductsFromShopify extends OrgAction
             $response = $client->request('GET', '/admin/api/2024-01/products.json', [
                 'limit' => 250,
                 'page_info' => $nextPage,
+                'vendor' => $shopName
             ]);
 
             $products = array_merge($products, $response['body']['products']['container']);
