@@ -39,7 +39,7 @@ class IndexPaymentAccounts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('payment_accounts.code', $value)
-                    ->orWhereAnyWordStartWith('payment_accounts.name', 'ILIKE', $value);
+                    ->orWhereAnyWordStartWith('payment_accounts.name',  $value);
             });
         });
 
@@ -81,10 +81,6 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_service_providers.slug as payment_service_provider_slug',
                 'payment_service_providers.name as payment_service_provider_name',
                 'payment_service_providers.code as payment_service_provider_code',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-                'shops.id as shop_id',
-                'shops.slug as shop_slug',
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
                 'payment_account_stats.number_pas_state_active'
