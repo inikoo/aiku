@@ -16,6 +16,7 @@ use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\StoredItem;
@@ -75,15 +76,20 @@ class ShowRetinaStoredItem extends RetinaAction
                     : Inertia::lazy(fn () => GetStoredItemShowcase::run($storedItem)),
 
                 StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
+                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem, StoredItemTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem, StoredItemTabsEnum::PALLETS->value))),
+
+                StoredItemTabsEnum::MOVEMENTS->value => $this->tab == StoredItemTabsEnum::MOVEMENTS->value ?
+                    fn () =>  StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($storedItem, StoredItemTabsEnum::MOVEMENTS->value))
+                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($storedItem, StoredItemTabsEnum::MOVEMENTS->value))),
 
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($storedItem))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
+                    fn () => HistoryResource::collection(IndexHistory::run($storedItem, StoredItemTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem, StoredItemTabsEnum::HISTORY->value))),
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
+            ->table(IndexRetinaStoredItemMovements::make()->tableStructure($storedItem, StoredItemTabsEnum::MOVEMENTS->value))
             ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, StoredItemTabsEnum::PALLETS->value));
     }
 

@@ -185,9 +185,8 @@ class IndexPalletReturns extends OrgAction
             }
         }
 
-
+        $queryBuilder->defaultSort('-created_at');
         return $queryBuilder
-            ->defaultSort('reference')
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch, 'type'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -238,7 +237,7 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
+                // ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true)

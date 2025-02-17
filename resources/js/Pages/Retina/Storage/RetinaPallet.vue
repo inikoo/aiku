@@ -18,7 +18,10 @@
   import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
   import { Tabs as TSTabs } from '@/types/Tabs'
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
-  
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faExchange, faFragile, faNarwhal } from '@fal'
+library.add(faFragile, faNarwhal, faExchange)
+
   const props = defineProps<{
       title: string
       pageHead: PageHeadingTypes

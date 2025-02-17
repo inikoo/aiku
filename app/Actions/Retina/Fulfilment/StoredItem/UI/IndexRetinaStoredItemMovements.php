@@ -44,6 +44,7 @@ class IndexRetinaStoredItemMovements extends RetinaAction
 
     public function handle(StoredItem|Pallet $parent, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.reference', $value)
@@ -83,7 +84,7 @@ class IndexRetinaStoredItemMovements extends RetinaAction
                 'pallet_returns.reference as pallet_returns_reference'
             );
 
-        $allowedSort = ['id'];
+        $allowedSort = ['id', 'description'];
 
         if ($parent instanceof Pallet) {
             $allowedSort = array_merge($allowedSort, ['stored_item_reference']);
@@ -98,8 +99,6 @@ class IndexRetinaStoredItemMovements extends RetinaAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
-
-
     }
 
     public function tableStructure(StoredItem|Pallet $parent, $prefix = null, $modelOperations = []): Closure
@@ -123,7 +122,7 @@ class IndexRetinaStoredItemMovements extends RetinaAction
                 ->withModelOperations($modelOperations);
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: false, searchable: false);
             if ($parent instanceof StoredItem) {
                 $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true)->defaultSort('pallet_reference');
             }

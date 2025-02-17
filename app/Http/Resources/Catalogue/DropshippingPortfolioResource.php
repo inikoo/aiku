@@ -37,6 +37,7 @@ class DropshippingPortfolioResource extends JsonResource
             'slug'                      => $this->item->slug,
             'code'                      => $this->item->code,
             'name'                      => $this->item->name,
+            'quantity_left'             => $this->item->total_quantity,
             'type'                      => $this->item_type,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
