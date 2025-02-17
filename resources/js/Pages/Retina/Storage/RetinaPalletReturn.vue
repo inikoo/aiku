@@ -55,6 +55,8 @@ import { notify } from "@kyvg/vue3-notification"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
+import ModalAddPalletReturn from "@/Components/Segmented/ModalAddPalletReturn.vue"
+import Modal from "@/Components/Utils/Modal.vue"
 
 const props = defineProps<{
 	title: string
@@ -105,6 +107,7 @@ const props = defineProps<{
 		name: string
 		code: string
 	}[]
+    pallets_route: routeType
 }>()
 
 
@@ -239,6 +242,9 @@ const isModalUploadOpen = ref(false)
 
 const isModalUploadFileOpen = ref(false)
 
+
+// Section: add pallet
+const openModalAddPallet = ref(false)
 </script>
 
 <template>
@@ -294,6 +300,21 @@ const isModalUploadFileOpen = ref(false)
         <template #button-upload="{ action }">
             <Button v-if="currentTab === 'pallets' || currentTab === 'stored_items'" @click="() => isModalUploadOpen = true"
                 :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
+            />
+            <div v-else></div>
+        </template>
+
+        <!-- Button: Upload -->
+        <template #button-modal-add-pallet="{ action }">
+            
+            <Button
+                v-if="currentTab == 'pallets'"
+                :label="trans('Add pallet')"
+                type="secondary"
+                icon="fal fa-plus"
+                :tooltip="'action.tooltip'"
+                @click="() => openModalAddPallet = true"
+                class="border-none rounded-[4px]"
             />
             <div v-else></div>
         </template>
@@ -556,4 +577,14 @@ const isModalUploadFileOpen = ref(false)
         :attachmentRoutes
         :options="props.option_attach_file"
     />
+    
+    <Modal :isOpen="openModalAddPallet" @onClose="openModalAddPallet = false">
+        <ModalAddPalletReturn
+            :fetchRoute="pallets_route"
+            :palletReturn="data?.data"
+        >
+
+        </ModalAddPalletReturn>
+
+    </Modal>
 </template>

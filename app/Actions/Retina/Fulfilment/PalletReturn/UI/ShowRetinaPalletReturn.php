@@ -104,6 +104,10 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'label'   => __('upload'),
                     'tooltip' => __('Upload file')
                 ],
+                [
+                    'type'    => 'button',
+                    'key'     => 'modal-add-pallet',
+                ],
                 $palletReturn->pallets()->count() > 0 ? [
                     'type'    => 'button',
                     'style'   => 'save',
@@ -452,7 +456,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'method'     => 'get',
                     'name'       => 'retina.json.pallet-return.pallets.index',
                     'parameters' => [
-                        $palletReturn->slug
+                        'palletReturn'  => $palletReturn->slug
                     ]
                 ],
                 'option_attach_file' => [

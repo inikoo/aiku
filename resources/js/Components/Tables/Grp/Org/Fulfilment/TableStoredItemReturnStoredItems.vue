@@ -327,7 +327,7 @@ const generateLinkPalletLocation = (pallet: any) => {
                                     </NumberWithButtonSave>
                                 </template>
     
-                                <div v-else class="flex flex-nowrap gap-x-1 items-center">
+                                <div v-else class="flex flex-nowrap gap-x-1 items-center tabular-nums">
                                     <ButtonWithLink
                                         v-if="palletReturn.state == 'picking' && pallet_stored_item.state == 'picked'"
                                         icon="fal fa-undo-alt"
@@ -338,7 +338,7 @@ const generateLinkPalletLocation = (pallet: any) => {
                                         class="py-0 mr-1"
                                         :routeTarget="pallet_stored_item.undoRoute"
                                     />
-                                    {{ pallet_stored_item.picked_quantity }}
+                                    {{ pallet_stored_item.picked_quantity }}/{{ pallet_stored_item.selected_quantity }}
                                     <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
                                 </div>
     
@@ -349,6 +349,10 @@ const generateLinkPalletLocation = (pallet: any) => {
                         </div>
                     </Teleport>
                 </template>
+
+                <div v-if="!value.pallet_stored_items?.length" class="italic text-gray-400">
+                    {{ trans('No pallet') }}
+                </div>
 
                 <!-- Section: area for pallet that have 0 selected quantity -->
                 <div v-if="palletReturn.state != 'in_process'">
