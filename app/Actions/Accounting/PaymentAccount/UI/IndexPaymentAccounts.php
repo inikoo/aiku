@@ -39,7 +39,7 @@ class IndexPaymentAccounts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('payment_accounts.code', $value)
-                    ->orWhereAnyWordStartWith('payment_accounts.name',  $value);
+                    ->orWhereAnyWordStartWith('payment_accounts.name', $value);
             });
         });
 

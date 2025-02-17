@@ -87,6 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $invoice_id
  * @property int|null $recurring_bill_id
  * @property int|null $shopify_user_id
+ * @property int|null $platform_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
