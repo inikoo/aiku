@@ -12,6 +12,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
 import { inject } from "vue"
 import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
+import Image from "@/Components/Image.vue";
 
 library.add(faChevronDown, faDotCircle, faTerminal, faCog, faAbacus, faFolder, faFax,faUserCircle, faBarcode, faBallotCheck, faUsdCircle)
 
@@ -29,6 +30,7 @@ const layout = inject('layout')
 
 
 const layoutStore = inject("layout", layoutStructure);
+const logo = layout?.iris?.header?.header?.data?.fieldValue?.logo
 console.log(layout,layoutStore)
 const isStaging = layout.app.environment === 'staging'
 console.log('environment', isStaging)
@@ -70,7 +72,7 @@ console.log('environment', isStaging)
                         // 'border-bottom': `1px solid ${layout.app.theme[1]}3F`
                     }">
                     <!-- {{ layout.iris?.domain }} -->
-                    <a  :href="layout.iris?.domain ? `https://${layout.iris?.domain}` : '#'"
+                    <a v-if="!logo?.image?.source" :href="layout.iris?.website?.domain ? `https://${layout.iris?.website?.domain}/` : '#'"
                         target="_blank"
                         class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                         :class="[
@@ -84,6 +86,15 @@ console.log('environment', isStaging)
                                 {{ layout.website?.label }}
                             </p>
                         </Transition>
+                    </a>
+
+                    <a v-else :href="layout.iris?.website?.domain ? `https://${layout.iris?.website?.domain}/` : '#'"
+                        target="_blank"
+                        class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
+                        :class="[
+                             layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
+                        ]">
+                          <Image :src="logo?.image?.source" />
                     </a>
                 </div>
             </div>
