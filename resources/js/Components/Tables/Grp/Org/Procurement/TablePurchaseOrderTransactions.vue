@@ -8,10 +8,12 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {PurchaseOrder} from "@/types/purchase-order";
+import { useLocaleStore } from '@/Stores/locale'
 
 const props = defineProps<{
-    data: object,
+    data: object
     tab?: string
+    currency?: {}
 }>()
 
 
@@ -48,6 +50,9 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
         </template>
         <template #cell(unit_cost)="{ item: purchaseOrderTransaction }">
             {{ purchaseOrderTransaction['unit_cost'] }}
+        </template>
+        <template #cell(total_cost)="{ item: purchaseOrderTransaction }">
+            {{  useLocaleStore().currencyFormat(props.currency?.code, purchaseOrderTransaction['total_cost']) }}
         </template>
         <template #cell(status)="{ item: purchaseOrderTransaction }">
             {{ purchaseOrderTransaction['status'] }}

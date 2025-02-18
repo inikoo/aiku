@@ -86,6 +86,7 @@ const props = defineProps<{
 		current: string
 		navigation: {}
 	}
+    currency: {}
 	data?: {
 		data: PalletDelivery
 	}
@@ -490,7 +491,7 @@ const fallbackColor = "#374151"
 			<section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
 				<!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
 
-				<OrderSummary :order_summary="box_stats.order_summary" />
+				<OrderSummary :order_summary="box_stats.order_summary" :currency_code="currency?.code" />
 
 				<!-- <div class="mt-6">
                     <button type="submit"
@@ -504,6 +505,7 @@ const fallbackColor = "#374151"
 
 	<div class="pb-12">
 		<component
+            :currency="props.currency"
 			:is="component"
 			:data="props[currentTab as keyof typeof props]"
 			:tab="currentTab"

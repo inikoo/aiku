@@ -10,6 +10,7 @@ namespace App\Actions\SupplyChain\Supplier;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
@@ -33,7 +34,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreSupplier extends GrpAction
+class StoreSupplier extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -107,6 +108,9 @@ class StoreSupplier extends GrpAction
 
     public function rules(): array
     {
+
+
+
         $rules = [
             'code'         => [
                 'required',
@@ -149,10 +153,11 @@ class StoreSupplier extends GrpAction
         }
     }
 
-    public function prepareForValidation($request)
+    public function prepareForValidation(ActionRequest $request): void
     {
         if (!$this->get('scope_type')) {
             $this->set('scope_type', 'Group');
+            $this->set('scope_id', $this->group->id);
         }
     }
 
@@ -174,7 +179,7 @@ class StoreSupplier extends GrpAction
             $group = $parent;
         }
 
-        $this->initialisation($group, $modelData);
+        $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle(
             parent: $parent,
@@ -187,8 +192,10 @@ class StoreSupplier extends GrpAction
      */
     public function asController(ActionRequest $request): Supplier
     {
+
         $group = group();
-        $this->initialisation($group, $request);
+
+        $this->initialisationFromGroup($group, $request);
 
         return $this->handle(
             parent: $group,
@@ -201,7 +208,7 @@ class StoreSupplier extends GrpAction
      */
     public function inAgent(Agent $agent, ActionRequest $request): Supplier
     {
-        $this->initialisation(app('group'), $request);
+        $this->initialisationFromGroup(app('group'), $request);
 
         return $this->handle(
             parent: $agent,

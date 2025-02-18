@@ -57,7 +57,7 @@ const CustomDrawer = props => {
 
             <View className="absolute top-[-10px] left-4 bg-white px-2 flex flex-row items-center gap-2">
               <FontAwesomeIcon icon={faWarehouse} size={18} />
-              <Text className="text-lg font-bold">{warehouse.name}</Text>
+              <Text className="text-lg font-bold">{warehouse.label || warehouse.name}</Text>
             </View>
 
             <View className="pt-6 px-2">
