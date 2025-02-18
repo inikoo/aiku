@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,6 +40,11 @@ class ShopifyUserHasFulfilment extends Pivot
     public function shopifyUser(): BelongsTo
     {
         return $this->belongsTo(ShopifyUser::class);
+    }
+
+    public function customerClient(): BelongsTo
+    {
+        return $this->belongsTo(CustomerClient::class);
     }
 
     public function model(): MorphTo
