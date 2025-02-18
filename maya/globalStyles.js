@@ -74,8 +74,8 @@ const globalStyles = StyleSheet.create({
 
     activeCard: {
       borderWidth: 2,
-      borderColor: '#007AFF',
-      backgroundColor: '#E6F0FF',
+      borderColor: '#4F39F6',
+      backgroundColor: '#EEF2FF',
     },
     activeIndicator: {
       position: 'absolute',
