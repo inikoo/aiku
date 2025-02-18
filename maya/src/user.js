@@ -1,26 +1,27 @@
 import {merge} from 'lodash';
 import request from '@/src/utils/Request';
-import { navigationRef } from '@/src/utils/NavigationService';
+import {navigationRef} from '@/src/utils/NavigationService';
+import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 
 export function retrieveProfile(options) {
-  options = merge(
-    {
-      onSuccess: window.noop,
-      onFailed: window.noop,
-    },
-    options,
-  );
+    options = merge(
+        {
+            onSuccess: window.noop,
+            onFailed: window.noop,
+        },
+        options,
+    );
 
-  return request({
-    urlKey: 'get-profile',
-    headers: {
-      Authorization: `Bearer ${options.accessToken}`,
-    },
-    onFailed: options.onFailed,
-    onSuccess: userProfileRes => {
-        options.onSuccess({...userProfileRes})
-      }
-  });
+    return request({
+        urlKey: 'get-profile',
+        headers: {
+            Authorization: `Bearer ${options.accessToken}`,
+        },
+        onFailed: options.onFailed,
+        onSuccess: userProfileRes => {
+            options.onSuccess({...userProfileRes});
+        },
+    });
 }
 
 /* export function revokeToken(
@@ -48,16 +49,28 @@ export function retrieveProfile(options) {
     return null;
   } */
 
+export function logout(signOut) {
+    console.log('Logging out...');
 
-  export function logout(signOut) {
-    console.log("Logging out...");
-  
     if (signOut) {
-      signOut();
+        request({
+            urlKey: 'logout',
+            method: 'post',
+            onSuccess: () => {
+                signOut();
+            },
+            onFailed: error => {
+              console.log(error)
+                Toast.show({
+                    type: ALERT_TYPE.DANGER,
+                    title: 'Error',
+                    textBody: error.detail?.message || 'Failed to logout',
+                });
+            },
+        });
     } else {
-      if (navigationRef.isReady()) {
-        navigationRef.navigate('session-expired');
-      }
+        if (navigationRef.isReady()) {
+            navigationRef.navigate('session-expired');
+        }
     }
-  }
-  
+}
