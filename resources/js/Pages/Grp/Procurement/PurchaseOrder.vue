@@ -86,6 +86,7 @@ const props = defineProps<{
 		current: string
 		navigation: {}
 	}
+    currency: {}
 	data?: {
 		data: PalletDelivery
 	}
@@ -504,6 +505,7 @@ const fallbackColor = "#374151"
 
 	<div class="pb-12">
 		<component
+            :currency="props.currency"
 			:is="component"
 			:data="props[currentTab as keyof typeof props]"
 			:tab="currentTab"
