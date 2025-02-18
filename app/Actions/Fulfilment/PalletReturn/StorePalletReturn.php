@@ -131,7 +131,8 @@ class StorePalletReturn extends OrgAction
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
-            'customer_notes' => ['sometimes', 'nullable', 'string']
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
+            'platform_id' => ['sometimes', 'nullable', 'integer', 'exists:platforms,id']
         ];
     }
 

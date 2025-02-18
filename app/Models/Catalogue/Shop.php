@@ -173,7 +173,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
- * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
+ * @property-read OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read \App\Models\Catalogue\ShopOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
@@ -184,7 +184,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopOutboxPushIntervals|null $outboxPushIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
- * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
+ * @property-read LaravelCollection<int, PaymentAccountShop> $paymentAccountShops
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, Picking> $pickings
  * @property-read LaravelCollection<int, Poll> $polls
@@ -420,18 +420,14 @@ class Shop extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    public function paymentAccounts(): BelongsToMany
+    public function paymentAccountShops(): HasMany
     {
-        return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)
-            ->withTimestamps();
+        return $this->hasMany(PaymentAccountShop::class);
     }
 
-    public function getAccounts(): PaymentAccount
+    public function getPaymentAccountTypeAccount(): ?PaymentAccount
     {
-        /** @var PaymentAccount $paymentAccount */
-        $paymentAccount = $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
-
-        return $paymentAccount;
+        return $this->paymentAccountShops->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
     }
 
     public function outboxes(): HasMany

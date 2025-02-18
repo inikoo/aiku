@@ -10,7 +10,6 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Helpers\SerialReference;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -21,7 +20,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -56,8 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider|null $orgPaymentServiceProvider
  * @property-read Organisation $organisation
- * @property-read \App\Models\Accounting\PaymentAccountShop|null $pivot
- * @property-read Collection<int, Shop> $paymentAccountShops
+ * @property-read Collection<int, \App\Models\Accounting\PaymentAccountShop> $paymentAccountShops
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read Collection<int, SerialReference> $serialReferences
@@ -134,7 +131,6 @@ class PaymentAccount extends Model implements Auditable
     {
         return $this->hasMany(Payment::class);
     }
-
 
     public function paymentAccountShops(): HasMany
     {
