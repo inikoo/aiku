@@ -194,6 +194,7 @@ class ShowStoredItemAudit extends OrgAction
         } else {
             $render->table(
                 IndexStoredItemAuditDeltas::make()->tableStructure(
+                    $storedItemAudit,
                     prefix: 'stored_item_deltas',
                 )
             );

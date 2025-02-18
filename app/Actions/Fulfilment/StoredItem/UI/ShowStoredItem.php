@@ -9,12 +9,14 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
@@ -155,21 +157,26 @@ class ShowStoredItem extends OrgAction
                     : Inertia::lazy(fn () => GetStoredItemShowcase::run($storedItem)),
 
                 StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
+                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem, prefix: StoredItemTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem, prefix: StoredItemTabsEnum::PALLETS->value))),
+
+                StoredItemTabsEnum::AUDITS->value => $this->tab == StoredItemTabsEnum::AUDITS->value ?
+                    fn () => StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItem, prefix: StoredItemTabsEnum::AUDITS->value))
+                    : Inertia::lazy(fn () => StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItem, prefix: StoredItemTabsEnum::AUDITS->value))),
 
                 StoredItemTabsEnum::MOVEMENTS->value => $this->tab == StoredItemTabsEnum::MOVEMENTS->value ?
-                    fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))
-                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))),
+                    fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
+                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))),
 
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($storedItem))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
+                    fn () => HistoryResource::collection(IndexHistory::run($storedItem, prefix: StoredItemTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem, prefix: StoredItemTabsEnum::HISTORY->value)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
+            ->table(IndexStoredItemAuditDeltas::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::AUDITS->value))
             ->table(IndexStoredItemMovements::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
-            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
+            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::PALLETS->value));
     }
 
 
