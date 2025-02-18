@@ -78,7 +78,7 @@ const beeConfig = () => {
         .then((response) => {
             token.value = response.data;
             const config = {
-                uid: token.value.userName,
+                uid: 'CmsUserName', // Do not modify this
                 container: "bee-plugin-container",
                 language: "en-US",
                 loadingSpinnerDisableOnDialog: true,
