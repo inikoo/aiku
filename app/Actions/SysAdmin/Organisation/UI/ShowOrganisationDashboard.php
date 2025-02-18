@@ -61,6 +61,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'key_currency'         => 'org',
                 'key_shop'             => 'open',
                 'selected_amount'      => $selectedAmount,
+                'selected_shop_state'  => $selectedShopState,
                 'options_shop'         => [
                     [
                         'value' => 'open',

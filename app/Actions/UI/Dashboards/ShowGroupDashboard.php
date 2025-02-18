@@ -110,6 +110,7 @@ class ShowGroupDashboard extends OrgAction
             $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray())->where('state', $selectedShopState);
             $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            $dashboard['settings']['selected_shop_state'] = $selectedShopState;
         }
 
         return $dashboard;
