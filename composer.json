@@ -35,6 +35,7 @@
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^1",
         "inspector-apm/inspector-laravel": "^4.10",
+        "jackwh/laravel-new-relic": "^1.1",
         "jubaer/zoom-laravel": "^1.3",
         "kyon147/laravel-shopify": "^21.1",
         "laravel-notification-channels/fcm": "^4.3",
