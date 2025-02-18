@@ -23,10 +23,12 @@ class ShowPupilDashboard
 
     public function asController(ActionRequest $request): Response
     {
+        /** @var \App\Models\Dropshipping\ShopifyUser $shopifyUser */
         $shopifyUser = $request->user('pupil');
         // dd(session('_token'));
-        return Inertia::render('Dashboard/PupilDashboard', [
-            // 'shop'                  => $shopifyUser,
+        return Inertia::render('Dashboard/PupilWelcome', [
+             'shop'                  => $shopifyUser->customer->shop->name,
+             'shopUrl'                  => 'https://'.$shopifyUser->customer->shop->website->domain . '/app',
             // 'token'                 => session()->all(),
             // 'token_request'         => $request->get('token'),
             'user'                  => $shopifyUser,
