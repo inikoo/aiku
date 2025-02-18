@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-11h-02m
@@ -11,16 +12,8 @@ namespace App\Actions\Accounting\InvoiceCategory\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceCategoryTabsEnum;
-use App\Enums\UI\Accounting\PaymentTabsEnum;
-use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Accounting\InvoiceCategoryResource;
-use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\InvoiceCategory;
-use App\Models\Accounting\Payment;
-use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -140,7 +133,7 @@ class ShowInvoiceCategory extends OrgAction
     public function getPrevious(InvoiceCategory $invoiceCategory, ActionRequest $request): ?array
     {
         $previous = InvoiceCategory::where('slug', '<', $invoiceCategory->slug)->when(true, function ($query) use ($invoiceCategory, $request) {
-            if($this->parent instanceof Organisation) {
+            if ($this->parent instanceof Organisation) {
                 $query->where('organisation_id', $this->parent->id);
             } else {
                 $query->where('group', $this->parent->id);
@@ -154,7 +147,7 @@ class ShowInvoiceCategory extends OrgAction
     public function getNext(InvoiceCategory $invoiceCategory, ActionRequest $request): ?array
     {
         $next = InvoiceCategory::where('slug', '>', $invoiceCategory->slug)->when(true, function ($query) use ($invoiceCategory, $request) {
-            if($this->parent instanceof Organisation) {
+            if ($this->parent instanceof Organisation) {
                 $query->where('organisation_id', $this->parent->id);
             } else {
                 $query->where('group', $this->parent->id);

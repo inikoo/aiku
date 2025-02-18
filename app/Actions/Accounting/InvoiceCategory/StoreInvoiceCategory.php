@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
-use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -34,7 +33,7 @@ class StoreInvoiceCategory extends OrgAction
 
     public function handle(Group|Organisation $parent, array $modelData): InvoiceCategory
     {
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             data_set($modelData, 'group_id', $parent->group_id);
         }
         return DB::transaction(function () use ($parent, $modelData) {
@@ -98,7 +97,7 @@ class StoreInvoiceCategory extends OrgAction
         if (!$audit) {
             InvoiceCategory::disableAuditing();
         }
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $group = $parent->group;
         } else {
             $group = $parent;

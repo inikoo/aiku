@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 17-02-2025-16h-50m
@@ -8,27 +9,20 @@
 
 namespace App\Actions\Accounting\PaymentAccountShop\UI;
 
-use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountShopsResource;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,8 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPaymentAccountShops extends OrgAction
 {
-    private PaymentAccount $parent;
     use WithPaymentAccountSubNavigation;
+    private PaymentAccount $parent;
 
     public function handle(PaymentAccount $paymentAccount, $prefix = null): LengthAwarePaginator
     {

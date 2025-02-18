@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-10h-30m
@@ -10,8 +11,6 @@ namespace App\Actions\Accounting\InvoiceCategory\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
-use App\Enums\Ordering\Purge\PurgeTypeEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

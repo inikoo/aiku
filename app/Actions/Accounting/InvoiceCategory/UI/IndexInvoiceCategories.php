@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-09h-55m
@@ -9,29 +10,16 @@
 namespace App\Actions\Accounting\InvoiceCategory\UI;
 
 use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategoriesSubNavigation;
-use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
-use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
-use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoiceCategoriesResource;
-use App\Http\Resources\Accounting\PaymentAccountShopsResource;
-use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\InvoiceCategory;
-use App\Models\Accounting\OrgPaymentServiceProvider;
-use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentAccountShop;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,9 +27,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoiceCategories extends OrgAction
 {
-    private Organisation $parent;
-
     use WithInvoiceCategoriesSubNavigation;
+    private Organisation $parent;
 
     public function handle(Organisation $parent, $prefix = null): LengthAwarePaginator
     {
@@ -91,7 +78,7 @@ class IndexInvoiceCategories extends OrgAction
                 )
                 ->column(key: 'state_label', label: __('state'), canBeHidden: false, type:'icon', sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type_label', label: __('type'), canBeHidden: false,  type:'icon', sortable: true, searchable: true)
+                ->column(key: 'type_label', label: __('type'), canBeHidden: false, type:'icon', sortable: true, searchable: true)
                 ->defaultSort('id');
         };
     }

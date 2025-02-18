@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-10h-21m
@@ -8,9 +9,6 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 trait WithInvoiceCategoriesSubNavigation
