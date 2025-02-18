@@ -22,6 +22,7 @@ import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1Wo
 import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2Workshop.vue'
 import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3Workshop.vue'
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Workshop.vue'
+import Header2 from '@/Components/CMS/Website/Headers/Header2/Header2Workshop.vue'
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnWorkshop.vue'
 import Topbar1Fulfilment from '@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentWorkshop.vue'
@@ -55,6 +56,7 @@ export const getComponent = (componentName: string) => {
         'top-bar-2': Topbar2,
         'top-bar-3': Topbar3,
         'header-1': Header1,
+        'header-2': Header2,
         'menu-1': Menu1,
         'text-column' : TextColumn,
         'top-bar-1-fulfilment': Topbar1Fulfilment,
