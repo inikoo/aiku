@@ -171,6 +171,7 @@ const onClickPlusButton = () => {
                     </template>
                 </slot>
             </button>
+            <slot></slot>
         </div>
     </div>
 </template>
