@@ -20,6 +20,7 @@ trait WithProcessAurora
             'id'   => ['required', 'integer'],
             'with' => ['sometimes', 'string'],
             'bg'   => ['sometimes', 'boolean'],
+            'delay' => ['sometimes', 'integer']
         ];
     }
 
@@ -39,7 +40,10 @@ trait WithProcessAurora
 
 
         if (Arr::get($validatedData, 'bg', false)) {
-            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay(30);
+
+            $delay = Arr::get($validatedData, 'delay', 30);
+
+            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay($delay);
 
             return [
                 'organisation' => $organisation->slug,
