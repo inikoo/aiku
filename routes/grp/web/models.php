@@ -6,7 +6,8 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-
+use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
@@ -282,6 +283,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('position', StoreJobPosition::class)->name('jon_position.store');
     Route::post('working-place', StoreWorkplace::class)->name('workplace.store');
     Route::post('clocking-machine', [StoreClockingMachine::class, 'inOrganisation'])->name('clocking-machine.store');
+
+    Route::post('invoice-category', StoreInvoiceCategory::class)->name('invoice-category.store');
 
 
     Route::post('shop', StoreShop::class)->name('shop.store');
@@ -676,6 +679,11 @@ Route::name('services.')->prefix('serivices/')->group(function () {
 });
 Route::name('rentals.')->prefix('rentals/')->group(function () {
     Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
+});
+
+
+Route::name('invoice-category.')->prefix('invoice-category/')->group(function () {
+    Route::patch('{invoiceCategory:id}/update', UpdateInvoiceCategory::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

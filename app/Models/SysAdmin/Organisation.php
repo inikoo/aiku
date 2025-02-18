@@ -13,6 +13,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -166,6 +167,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read Language $language
@@ -595,6 +597,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function invoiceCategories(): HasMany
+    {
+        return $this->hasMany(InvoiceCategory::class);
     }
 
     public function orders(): HasMany

@@ -19,7 +19,10 @@ const props = defineProps<{
             <div v-if="item.delta > 0" class="text-green-500">
                 {{ "+" + Math.floor(item.delta) }}
             </div>
-            <div v-else class="text-red-500">
+            <div v-else-if="item.delta < 0" class="text-red-500">
+                {{ Math.floor(item.delta) }}
+            </div>
+            <div v-else>
                 {{ Math.floor(item.delta) }}
             </div>
         </template>

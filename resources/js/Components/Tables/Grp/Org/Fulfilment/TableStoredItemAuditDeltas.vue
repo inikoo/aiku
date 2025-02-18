@@ -21,19 +21,6 @@ const props = defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 
-function customerRoute(customer: FulfilmentCustomer) {
-    // switch (route().current()) {
-    //     default:
-    //         return route(
-    //             'grp.org.fulfilments.show.crm.customers.show',
-    //             [
-    //                 route().params['organisation'],
-    //                 route().params['fulfilment'],
-    //                 customer.slug
-    //             ])
-    // }
-}
-
 </script>
 
 <template>
@@ -42,37 +29,27 @@ function customerRoute(customer: FulfilmentCustomer) {
             <Icon :data="storedItemAudit['state_icon']" class="px-1" />
         </template>
 
-        
-        <template #cell(audited_at)="{ item: customer }">
-            <div class="text-gray-500 text-right">{{ useFormatTime(customer["audited_at"]) }}</div>
-        </template>
-        <!-- <template #cell(status)="{ item: customer }">
-            <div v-tooltip="customer.status_icon.tooltip" class="px-1 py-0.5">
-                <FontAwesomeIcon :icon='customer.status_icon.icon' :class='customer.status_icon.class' fixed-width
-                    aria-hidden='true' />
+        <template #cell(description)="{ item }">
+            <!-- edit type : {{ item.edit_type }} -->
+            <div v-if="item.description?.model || item.description?.title || item.description?.after_title">
+            <FontAwesomeIcon :icon="item.description.icon" fixed-width aria-hidden="true" class="pr-2" />
+                <span v-if="item.description?.model">{{ item.description.model }}:</span>
+                <Link v-if="item.description?.title && item.description.route?.name" :href="route(item.description.route?.name, item.description.route?.parameters)" class="primaryLink">
+                    {{ item.description.title }}
+                </Link>
+                <span v-else>&nbsp;{{ item.description.title }}</span>
+                
+                <div v-if="item.description.after_title" class="text-gray-400 italic text-xs">({{ item.description.after_title }})</div>
+            </div>
+
+            <div v-else>
+
             </div>
         </template>
 
-        <template #cell(reference)="{ item: customer }">
-            <Link :href="customerRoute(customer)" class="primaryLink">
-            {{ customer['reference'] }}
-            </Link>
+        
+        <template #cell(audited_at)="{ item: item }">
+            <div class="text-gray-500 text-right">{{ useFormatTime(item.audited_at, { localeCode: locale.language.code, formatTime: "hms" }) }}</div>
         </template>
-        <template #cell(last_invoiced_at)="{ item: customer }">
-            <div class="text-gray-500 text-right">{{ useFormatTime(customer["last_invoiced_at"], {
-                localeCode:
-                    locale.language.code, formatTime: "aiku" }) }}</div>
-        </template>
-        <template #cell(invoiced_net_amount)="{ item: customer }">
-            <div class="text-gray-500">{{ useLocaleStore().currencyFormat(customer.currency_code, customer.sales_all)
-                }}</div>
-        </template>
-        <template #cell(location)="{ item: customer }">
-            <AddressLocation :data="customer['location']" />
-        </template>
-        <template #cell(sales_all)="{ item: customer }">
-            <div class="text-gray-500">{{ useLocaleStore().currencyFormat(customer.currency_code, customer.sales_all)
-                }}</div>
-        </template> -->
     </Table>
 </template>

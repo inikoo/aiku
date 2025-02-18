@@ -8,9 +8,10 @@
 
 namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
-use App\Actions\Fulfilment\PalletReturn\DeletePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\ShopifyUserHasFulfilment;
 use Illuminate\Validation\ValidationException;
@@ -30,16 +31,21 @@ class CancelFulfilmentOrderShopify extends OrgAction
     {
         $client = $shopifyUser->api()->getRestClient();
 
-        $response = $client->request('POST', "/admin/api/2024-04/fulfillments/$shopifyUserHasFulfilment->shopify_fulfilment_id/cancel.json");
+        $response = $client->request('POST', "/admin/api/2024-04/fulfillment_orders/$shopifyUserHasFulfilment->shopify_fulfilment_id/hold.json", [
+            'fulfillment_hold' => [
+                'reason' => 'inventory_out_of_stock',
+                'reason_notes' => __('Not enough inventory to complete this work.')
+            ]
+        ]);
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $shopifyUserHasFulfilment->model;
 
         if (!$response['errors']) {
-            DeletePalletReturn::make()->action($palletReturn, [
-                'delete_comment' => __('Your order doesn\'t have enough quantity in warehouse.')
-            ]);
+            CancelPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
 
-            $shopifyUserHasFulfilment->delete();
+            $this->update($shopifyUserHasFulfilment, [
+                'state' => ShopifyFulfilmentStateEnum::INCOMPLETE
+            ]);
         }
 
         if ($response['body'] == 'Not Found') {

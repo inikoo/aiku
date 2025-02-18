@@ -21,11 +21,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  *
  *
+ * @property int $id
+ * @property int $shop_id
+ * @property int $payment_account_id
+ * @property int $currency_id
+ * @property array<array-key, mixed> $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property PaymentAccountShopStateEnum $state
- * @property PaymentAccountTypeEnum $type
- * @property-read Currency|null $currency
- * @property-read \App\Models\Accounting\PaymentAccount|null $paymentAccount
- * @property-read Shop|null $shop
+ * @property PaymentAccountTypeEnum|null $type
+ * @property-read Currency $currency
+ * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
+ * @property-read Shop $shop
  * @property-read \App\Models\Accounting\PaymentAccountShopStats|null $stats
  * @method static Builder<static>|PaymentAccountShop newModelQuery()
  * @method static Builder<static>|PaymentAccountShop newQuery()
@@ -34,6 +41,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PaymentAccountShop extends Model
 {
+    protected $table = 'payment_account_shop';
+
     protected $casts = [
         'data'  => 'array',
         'state' => PaymentAccountShopStateEnum::class,

@@ -12,6 +12,10 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
+use App\Actions\Accounting\InvoiceCategory\UI\CreateInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UI\EditInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UI\IndexInvoiceCategories;
+use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\ExportPayments;
@@ -24,6 +28,7 @@ use App\Actions\Accounting\PaymentAccount\UI\CreatePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\EditPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
+use App\Actions\Accounting\PaymentAccountShop\UI\IndexPaymentAccountShops;
 use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
@@ -63,6 +68,7 @@ Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 
 Route::get('/payments/create', CreatePayment::class)->name('payments.create');
 Route::get('/accounts', [IndexPaymentAccounts::class, 'inOrganisation'])->name('payment-accounts.index');
 Route::get('/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inOrganisation'])->name('payment-accounts.show');
+Route::get('/accounts/{paymentAccount}/shops', IndexPaymentAccountShops::class)->name('payment-accounts.show.shops.index');
 Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
 Route::get('/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.edit');
@@ -84,7 +90,10 @@ Route::get('/refunds', IndexRefunds::class)->name('refunds.index');
 Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_invoices.index');
 Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
 
-
+Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
+Route::get('/invoice-categories/create', CreateInvoiceCategory::class)->name('invoice-categories.create');
+Route::get('/invoice-categories/{invoiceCategory}', ShowInvoiceCategory::class)->name('invoice-categories.show');
+Route::get('/invoice-categories/{invoiceCategory}/edit', EditInvoiceCategory::class)->name('invoice-categories.edit');
 
 
 //Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');

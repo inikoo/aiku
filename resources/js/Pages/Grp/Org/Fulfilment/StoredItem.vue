@@ -18,10 +18,12 @@ import { routeType } from '@/types/route'
 import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFragile, faNarwhal, faExchange, faYinYang } from '@fal'
+import { faFragile, faNarwhal, faExchange, faYinYang, faBallotCheck, faTruckCouch, faSignOutAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
-library.add(faFragile, faNarwhal, faExchange, faYinYang)
+import TableStoredItemsAudits from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue'
+import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
+library.add(faFragile, faNarwhal, faExchange, faYinYang, faBallotCheck, faTruckCouch, faSignOutAlt)
 
 
 const props = defineProps<{
@@ -34,6 +36,7 @@ const props = defineProps<{
     showcase?: {}
     movements?: {}
     history?: {}
+    audits?: {}
     pageHead: {}
     palletRoute: {
         index: routeType
@@ -52,7 +55,8 @@ const component = computed(() => {
         showcase: StoredItemShowcase,
         pallets: TablePalletStoredItem,
         history: TableHistories,
-        movements: StockItemsMovements
+        movements: StockItemsMovements,
+        audits: TableStoredItemAuditDeltas
     }
     return components[currentTab.value]
 
