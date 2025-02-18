@@ -412,7 +412,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right" >
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500" class="pr-1">
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_refunds_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_refunds_percentages
 											? `${
@@ -444,7 +444,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500" class="pr-1">
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_invoices_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_invoices_percentages
 											? `${
@@ -488,7 +488,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right ">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500" class="pr-1">
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_sales_percentages
 											? `${
@@ -512,7 +512,7 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 60px"></div>
+								<div v-else style="width: 60px;"></div>
 							</template>
 						</Column>
 					</Row>
