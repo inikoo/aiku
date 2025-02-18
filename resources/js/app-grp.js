@@ -1,6 +1,12 @@
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 18 Feb 2025 02:01:02 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
+
+import { BrowserAgent } from "@newrelic/browser-agent/loaders/browser-agent";
 import "./bootstrap";
 import "../css/app.css";
-
 import { createApp, h } from "vue";
 import { createInertiaApp, router } from "@inertiajs/vue3";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
@@ -16,7 +22,33 @@ import Aura from "@primevue/themes/aura";
 import { definePreset } from "@primevue/themes";
 import ConfirmationService from "primevue/confirmationservice";
 
-const appName = 'aiku';
+if (import.meta.env.VITE_NEW_RELIC_BROWSER_GRP_AGENT_ID) {
+  const options = {
+    init         : {
+      distributed_tracing: { enabled: true },
+      privacy            : { cookies_enabled: true },
+      ajax               : { deny_list: ["bam.nr-data.net"] }
+    },
+    info         : {
+      beacon       : "bam.nr-data.net",
+      errorBeacon  : "bam.nr-data.net",
+      licenseKey   : import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
+      applicationID: import.meta.env.VITE_NEW_RELIC_BROWSER_GRP_AGENT_ID,
+      sa           : 1
+    },
+    loader_config: {
+      accountID    : import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
+      trustKey     : import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
+      agentID      : import.meta.env.VITE_NEW_RELIC_BROWSER_GRP_AGENT_ID,
+      licenseKey   : import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
+      applicationID: import.meta.env.VITE_NEW_RELIC_BROWSER_GRP_AGENT_ID
+    }
+  };
+
+  new BrowserAgent(options);
+}
+
+const appName = "aiku";
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -62,7 +94,7 @@ createInertiaApp(
                       integrations            : [
                         new Sentry.BrowserTracing({
                                                     routingInstrumentation: inertiaRoutingInstrumentation,
-                                                    enableInp: true
+                                                    enableInp             : true
                                                   }),
                         Sentry.replayIntegration(),
                         Sentry.httpClientIntegration(),
