@@ -260,7 +260,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
   };
 
   return (
-    <View style={{marginVertical: 5}}>
+    <View style={{marginVertical: 0}}>
       {data.state === 'booking_in' && (
         <>
           {item.state !== 'not_received' ? (
