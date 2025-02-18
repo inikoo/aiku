@@ -20,6 +20,7 @@ import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1Ir
 import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2Iris.vue'
 import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3Iris.vue'
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Iris.vue'
+import Header2 from '@/Components/CMS/Website/Headers/Header2/Header2Iris.vue'
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import TextColumn from '@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue'
 import Topbar1FulfilmentIris from '@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentIris.vue'
@@ -32,6 +33,7 @@ export const getIrisComponent = (componentName: string) => {
     const components: Component = {
         'footer-1': Footer1,
         'header-1': Header1,
+        'header-2': Header2,
         'top-bar-1': Topbar1,
         'top-bar-2': Topbar2,
         'top-bar-3': Topbar3,

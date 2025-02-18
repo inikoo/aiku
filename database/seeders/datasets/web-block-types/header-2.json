@@ -1,0 +1,239 @@
+{
+	"scope": "website",
+	"slug": "header-2",
+	"code": "header-2",
+	"name": "Header 2",
+	"component": "header",
+	"data": {
+		"fieldValue": {
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#ffff",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
+			},
+			"logo": {
+				"visible": "all",
+				"image": null,
+				"alt": "image",
+				"properties": {
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"dimension": {
+						"height": {
+							"value": "100%",
+							"unit": "px"
+						},
+						"width": {
+							"value": "50",
+							"unit": "px"
+						}
+					}
+				}
+			},
+			"text": {	
+				"text": "Become Gold Reward Member",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"color": "rgba(231, 231, 231, 1)",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 1)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

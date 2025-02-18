@@ -167,6 +167,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read Language $language

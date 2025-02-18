@@ -55,7 +55,7 @@
         "meilisearch/meilisearch-php": "^1.0",
         "monicahq/laravel-cloudflare": "^3.3",
         "mpdf/qrcode": "^1.2",
-        "owen-it/laravel-auditing": "^13.5",
+        "owen-it/laravel-auditing": "13.6.9",
         "pgvector/pgvector": "^0.2.0",
         "phlak/semver": "^4.0",
         "phpmailer/phpmailer": "^6.9",
