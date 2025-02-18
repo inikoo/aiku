@@ -17,6 +17,7 @@ import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import FontFamily from '@tiptap/extension-font-family'
 import Toogle from '@/Components/Forms/Fields/BubleTextEditor/Toogle.vue'
+import "@/../css/Iris/blockTextContent.css"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
@@ -333,59 +334,4 @@ section {
     pointer-events: none;
 }
 
-#blockTextContent blockquote {
-    padding-left: 1rem;
-    border-left: 3px solid rgba(#0D0D0D, 0.1);
-}
-
-
-#blockTextContent ul,
-#blockTextContent ol {
-    padding: 0 1rem;
-}
-
-#blockTextContent ul {
-    list-style: disc
-}
-
-#blockTextContent ol {
-    list-style: decimal
-}
-
-#blockTextContent h1 {
-    display: block;
-    font-size: 2em;
-    margin-block-start: 0.67em;
-    margin-block-end: 0.67em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    unicode-bidi: isolate;
-}
-
-#blockTextContent h2 {
-    display: block;
-    font-size: 1.5em;
-    margin-block-start: 0.83em;
-    margin-block-end: 0.83em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    unicode-bidi: isolate;
-}
-
-#blockTextContent h3 {
-    display: block;
-    font-size: 1.17em;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    unicode-bidi: isolate;
-}
-
-#blockTextContent p:empty::after {
-    content: "\00A0";
-}
 </style>

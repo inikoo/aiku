@@ -77,6 +77,7 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_accounts.code as code',
                 'payment_accounts.name',
                 'payment_account_stats.number_payments',
+                'payment_account_stats.number_pas',
                 'payment_accounts.slug as slug',
                 'payment_service_providers.slug as payment_service_provider_slug',
                 'payment_service_providers.name as payment_service_provider_name',

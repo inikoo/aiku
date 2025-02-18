@@ -11,6 +11,7 @@ import WebPreview from "@/Layouts/WebPreview.vue";
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { sendMessageToParent } from '@/Composables/Workshop'
 import { router } from '@inertiajs/vue3'
+import "@/../css/Iris/editor.css"
 
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { trans } from 'laravel-vue-i18n'
@@ -99,77 +100,6 @@ onMounted(() => {
 
 
 <style lang="scss">
-.editor-class {
-    @apply flex flex-col;
-}
-
-.editor-class p {
-    display: block;
-    margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    unicode-bidi: isolate;
-}
-
-.editor-class h1 {
-    @apply text-4xl font-semibold;
-}
-
-.editor-class h2 {
-    @apply text-3xl font-semibold;
-}
-
-.editor-class h3 {
-    @apply text-2xl font-semibold;
-}
-
-.editor-class ol,
-.editor-class ul {
-    @apply ml-8 list-outside mt-2;
-}
-
-.editor-class ol {
-    @apply list-decimal;
-}
-
-.editor-class ul {
-    @apply list-disc;
-}
-
-.editor-class ol li,
-.editor-class ul li {
-    @apply mt-2 first:mt-0;
-}
-
-.editor-class blockquote {
-    @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
-}
-
-.editor-class hr {
-    @apply border-gray-400 my-4;
-}
-
-.editor-class table {
-    @apply border border-gray-400 table-fixed border-collapse w-full my-4;
-}
-
-.editor-class table th,
-.editor-class table td {
-    @apply border border-gray-400 py-2 px-4 text-left relative;
-}
-
-.editor-class table th {
-    @apply bg-blue-100 font-semibold;
-}
-
-.editor-class .tableWrapper {
-    @apply overflow-auto;
-}
-
-.editor-class p:empty::after {
-    content: "\00A0";
-}
 
 .hover-dashed {
     @apply hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
