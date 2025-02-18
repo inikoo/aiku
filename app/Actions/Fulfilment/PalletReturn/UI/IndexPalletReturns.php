@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Fulfilment\WithPalletReturnSubNavigation;
 use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -39,6 +40,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexPalletReturns extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
+    use WithPalletReturnSubNavigation;
 
 
     private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
@@ -71,6 +73,33 @@ class IndexPalletReturns extends OrgAction
         return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
     }
 
+    public function inFulfilmentConfirmed(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->restriction = 'confirmed';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    public function inFulfilmentPicking(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->restriction = 'picking';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    public function inFulfilmentPicked(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->restriction = 'picked';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
@@ -95,6 +124,36 @@ class IndexPalletReturns extends OrgAction
     {
         $this->parent      = $warehouse;
         $this->restriction = 'handling';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseConfirmed(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'confirmed';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehousePicking(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'picking';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehousePicked(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'picked';
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
@@ -172,6 +231,15 @@ class IndexPalletReturns extends OrgAction
             switch ($this->restriction) {
                 case 'dispatched':
                     $queryBuilder->where('state', PalletReturnStateEnum::DISPATCHED);
+                    break;
+                case 'confirmed':
+                    $queryBuilder->where('state', PalletReturnStateEnum::CONFIRMED);
+                    break;
+                case 'picking':
+                    $queryBuilder->where('state', PalletReturnStateEnum::PICKING);
+                    break;
+                case 'picked':
+                    $queryBuilder->where('state', PalletReturnStateEnum::PICKED);
                     break;
                 case 'handling':
                     $queryBuilder->whereIn(
@@ -277,10 +345,12 @@ class IndexPalletReturns extends OrgAction
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
+            $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Warehouse) {
             $icon      = ['fal', 'fa-arrow-from-left'];
             $model     = __('Goods Out');
             $iconRight = ['fal', 'fa-sign-out-alt'];
+            $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
         }
 
 
@@ -374,7 +444,10 @@ class IndexPalletReturns extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.warehouses.show.dispatching.pallet-returns.index' => array_merge(
+            'grp.org.warehouses.show.dispatching.pallet-returns.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.picking.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.picked.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
@@ -397,7 +470,10 @@ class IndexPalletReturns extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.pallet-returns.index' => array_merge(
+            'grp.org.fulfilments.show.operations.pallet-returns.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.picking.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.picked.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters
                 ),

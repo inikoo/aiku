@@ -9,6 +9,7 @@
 namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -105,6 +106,8 @@ class StoreFulfilmentFromShopify extends OrgAction
 
             if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::INCOMPLETE) {
                 CancelFulfilmentOrderShopify::run($shopifyOrder, $shopifyUser);
+            } elseif ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::OPEN) {
+                SubmitAndConfirmPalletReturn::make()->action($palletReturn);
             }
 
             return true;
