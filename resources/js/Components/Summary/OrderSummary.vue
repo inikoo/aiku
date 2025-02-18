@@ -36,7 +36,9 @@ const locale = inject('locale', aikuLocaleStructure)
                     <!-- <dd class="col-span-2 place-self-end">{{ fieldSummary.price_base }}</dd> -->
                     <div class="relative col-span-4 justify-self-end font-medium overflow-hidden">
                         <Transition name="spin-to-right">
-                            <dd :key="fieldSummary.price_total" class="" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">{{ locale.currencyFormat(currency_code || 'usd', fieldSummary.price_total || 0) }}</dd>
+                            <dd :key="fieldSummary.price_total" class="" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">
+                                {{ locale.currencyFormat(currency_code || 'usd', fieldSummary.price_total || 0) }}
+                            </dd>
                         </Transition>
                     </div>
                 </div>
