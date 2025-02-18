@@ -187,7 +187,12 @@ const DrawerNavigator = () => {
 
 const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator 
+      screenOptions={{
+        headerShown: false,
+    /*     headerStyle: { backgroundColor: '#4F46E5' },
+        headerTintColor: '#fff', */
+    }}>
       <Stack.Screen name="home-drawer" component={DrawerNavigator} />
       <Stack.Screen name="setting" component={Settings} />
       <Stack.Screen

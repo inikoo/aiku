@@ -3,6 +3,7 @@ export default {
 	"login-scanner": { url: "maya/connect/qr-code" },
 	"get-profile": { url: "maya/profile" },
 	"update-profile": { url: "maya/action/profile" },
+	"logout" : {url : "maya/logout"},
 
 	//Goods In stock
 	"get-stock-deliveries" : { url: "maya/org/{}/warehouses/{}/incoming/stock-deliveries" },

@@ -64,6 +64,16 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
     }
 }
 
+function shopsRoute(paymentAccount: PaymentAccount) {
+    switch (route().current()) {
+        case 'grp.org.accounting.payment-accounts.index':
+            return route(
+                'grp.org.accounting.payment-accounts.show.shops.index',
+                [route().params['organisation'], paymentAccount.slug])
+
+    }
+}
+
 
 
 </script>
@@ -90,6 +100,13 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
         <template #cell(number_payments)="{ item: paymentAccount }">
             <Link :href="paymentsRoute(paymentAccount)" class="secondaryLink">
                 {{ paymentAccount['number_payments'] }}
+            </Link>
+        </template>
+
+        <!-- Column: Payment -->
+        <template #cell(number_pas_state_active)="{ item: paymentAccount }">
+            <Link :href="shopsRoute(paymentAccount)" class="secondaryLink">
+                {{ paymentAccount['number_pas_state_active'] }}
             </Link>
         </template>
 
