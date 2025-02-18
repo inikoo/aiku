@@ -14,11 +14,12 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 trait WithSendBulkEmails
 {
-    public function sendEmailWithMergeTags(DispatchedEmail $dispatchedEmail, string $sender, string $subject, string $emailHtmlBody, string $unsubscribeUrl, string $passwordToken = null): DispatchedEmail
+    public function sendEmailWithMergeTags(DispatchedEmail $dispatchedEmail, string $sender, string $subject, string $emailHtmlBody, string $unsubscribeUrl = null, string $passwordToken = null, string $invoiceUrl = null, array $additionalData = []): DispatchedEmail
     {
         $html = $emailHtmlBody;
 
@@ -27,13 +28,13 @@ trait WithSendBulkEmails
 
         if (preg_match_all("/{{(.*?)}}/", $html, $matches)) {
             foreach ($matches[1] as $i => $placeholder) {
-                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
+                $placeholder = $this->replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl, $passwordToken, $invoiceUrl, $additionalData);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
         if (preg_match_all("/\[(.*?)]/", $html, $matches)) {
             foreach ($matches[1] as $i => $tag) {
-                $placeholder = $this->replaceMergeTags($tag, $dispatchedEmail, $unsubscribeUrl, $passwordToken);
+                $placeholder = $this->replaceMergeTags($tag, $dispatchedEmail, $unsubscribeUrl, $passwordToken, $invoiceUrl, $additionalData);
                 $html        = str_replace($matches[0][$i], sprintf('%s', $placeholder), $html);
             }
         }
@@ -47,10 +48,9 @@ trait WithSendBulkEmails
         );
     }
 
-    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl = null, $passwordToken = null): ?string
+    private function replaceMergeTags($placeholder, $dispatchedEmail, $unsubscribeUrl = null, $passwordToken = null, $invoiceUrl = null, array $additionalData = []): ?string
     {
         $originalPlaceholder = $placeholder;
-
         $placeholder = Str::kebab(trim($placeholder));
 
         if ($dispatchedEmail->recipient instanceof WebUser) {
@@ -59,10 +59,11 @@ trait WithSendBulkEmails
             $customerName = $dispatchedEmail->recipient->name;
         }
 
-
         return match ($placeholder) {
             'username' => $this->getUsername($dispatchedEmail->recipient),
             'customer-name' => $customerName,
+            'rejected-notes' => Arr::get($additionalData, 'rejected_notes'),
+            'invoice_-url' => $invoiceUrl,
             'reset_-password_-u-r-l' => $passwordToken,
             'unsubscribe' => sprintf(
                 "<a ses:no-track href=\"$unsubscribeUrl\">%s</a>",

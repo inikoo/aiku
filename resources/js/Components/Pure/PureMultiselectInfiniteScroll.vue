@@ -28,6 +28,7 @@ const props = defineProps<{
     placeholder?: string
     labelProp?: string
     noOptionsText?: string
+    initOptions?: {}[]
 }>()
 const emits = defineEmits<{
     (e: 'optionsList', value: any[]): void
@@ -110,21 +111,25 @@ onUnmounted(() => {
     }
 })
 
+
+const _multiselectRef = ref()
+
 </script>
 
 <template>
     <!-- <pre>{{ options }}</pre> -->
     <!-- <div class="relative w-full text-gray-600 rounded-sm"> -->
         <Multiselect
+            ref="_multiselectRef"
             v-model="model"
-            :options="optionsList"
+            :options="optionsList.length ? optionsList : (initOptions || [])"
             :classes="{
                 placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1',
                 ...classes,
             }"
             valueProp="id"
             :filterResults="false"
-            @change="(e) => console.log('aaa', e)"
+            @change="(e) => _multiselectRef?.clearSearch()"
             :canClear="!required"
             :mode="mode || 'single'"
             :closeOnSelect="mode == 'multiple' ? false : true"

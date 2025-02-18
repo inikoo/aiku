@@ -9,6 +9,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
 use App\Actions\Comms\Email\SendCustomerWelcomeEmail;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
@@ -34,7 +35,9 @@ class RegisterFulfilmentCustomer extends OrgAction
         $sizeAndWeight = Arr::pull($modelData, 'size_and_weight');
         $password = Arr::pull($modelData, 'password');
 
-        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
+        $customer = StoreCustomer::make()->action($fulfilment->shop, array_merge($modelData, [
+            'registered_at' => now()
+        ]));
 
 
         $webUser = StoreWebUser::make()->action($customer, [
@@ -56,6 +59,8 @@ class RegisterFulfilmentCustomer extends OrgAction
         $fulfilmentCustomer = UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, $fulfilmmentCustomerModelData);
 
         SendCustomerWelcomeEmail::run($fulfilmentCustomer->customer);
+
+        ShopHydrateCrmStats::run($fulfilment->shop);
 
         auth('retina')->login($webUser);
 

@@ -393,7 +393,12 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                         
                                                         <InputNumber
                                                             :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [(item.rowIndex+1)?.toString(), `id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
-                                                            @update:modelValue="(e) => debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, e)"
+                                                            @update:modelValue="(e) => (
+                                                                set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, e),
+                                                                data.stored_item_audit_delta_id
+                                                                    ? debounceChangeQuantity(item.rowIndex, data.stored_item_audit_delta_id, e)
+                                                                    : debounceStoreStoredItem(item.rowIndex, item.id, data.stored_item_id, e, data.stored_item_audit_id)
+                                                            )"
                                                             buttonLayout="horizontal" :min="0" style="width: 100%"
                                                             :inputStyle="{
                                                                 padding: '0px',

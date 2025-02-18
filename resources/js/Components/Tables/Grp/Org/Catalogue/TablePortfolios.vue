@@ -51,9 +51,17 @@ function productRoute(product: Product) {
                 'retina.dropshipping.products.show',
                 [product.slug])
         case 'retina.dropshipping.portfolios.index':
+
+            if(product.type == 'StoredItem') {
+                return route(
+                    'retina.fulfilment.itemised_storage.stored_items.show',
+                    [product.slug])
+            }
+
             return route(
-                'retina.dropshipping.portfolios.show',
-                [product.slug])
+            'retina.dropshipping.portfolios.show',
+            [product.slug])
+
         case 'grp.overview.catalogue.products.index':
             return route(
                 'grp.org.shops.show.catalogue.products.current_products.show',
@@ -131,9 +139,9 @@ onUnmounted(() => {
             <Icon :data="product.state"> </Icon>
         </template>
 
-        <template #cell(code)="{ item: product }">
+        <template #cell(slug)="{ item: product }">
             <Link :href="productRoute(product)" class="primaryLink">
-                {{ product['code'] }}
+                {{ product['slug'] }}
             </Link>
         </template>
 

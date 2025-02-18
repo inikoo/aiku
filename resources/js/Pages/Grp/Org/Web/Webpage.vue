@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
-import { computed, ref } from "vue"
+import { computed, inject, onMounted, onUnmounted, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
@@ -23,6 +23,8 @@ import { faUsersClass, faAnalytics, faBrowser, faChartLine, faDraftingCompass, f
 import WebpageShowcase from "@/Components/Showcases/Org/WebpageShowcase.vue"
 import WebpageAnalytics from "@/Components/DataDisplay/WebpageAnalytics.vue"
 import TableSnapshots from "@/Components/Tables/TableSnapshots.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChartLine, faClock, faUsersClass, faAnalytics, faDraftingCompass, faSlidersH, faRoad, faLayerGroup, faBrowser, faLevelDown, faShapes, faSortAmountDownAlt, faExternalLink)
 
@@ -33,6 +35,7 @@ const props = defineProps<{
         current: string
         navigation: object
     }
+    root_active?: string  // To manipulate the route active (SubNavigation)
     webpages?: object
     changelog?: object
     showcase?: any
@@ -44,7 +47,9 @@ const props = defineProps<{
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
-
+const openWebsite = () => {
+  window.open('https://'+ props.showcase.domain + '/' + props.showcase.url, "_blank")
+}
 const component = computed(() => {
     const components = {
         'details': ModelDetails,
@@ -59,12 +64,28 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
+const layout = inject('layout', layoutStructure)
+
+onMounted(() => {
+    layout.root_active = props.root_active
+})
+
+onUnmounted(() => {
+    layout.root_active = null
+})
+
 </script>
 
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+      <template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>

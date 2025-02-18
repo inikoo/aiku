@@ -14,9 +14,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
@@ -35,7 +33,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
     Route::delete('pallet-delivery/{palletDelivery:id}/pallet/{pallet:id}', DeletePalletInDelivery::class)->name('pallet-delivery.pallet.delete');
     Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
-    Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
 
     // pallet return
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
@@ -48,10 +45,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::patch('address/update', [UpdateCustomerAddress::class, 'fromFulfilmentCustomer'])->name('address.update');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
-        Route::prefix('pallet/{pallet:id}')->group(function () {
-            Route::delete('', DetachPalletFromReturn::class)->name('pallet.delete');
-        });
-
         Route::prefix('stored-item/{palletReturnItem:id}')->group(function () {
             Route::delete('', DeleteStoredItemFromReturn::class)->name('stored-item.delete')->withoutScopedBindings();
         });

@@ -9,10 +9,10 @@
 
 namespace App\Models\Accounting;
 
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InGroup;
-use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -32,7 +32,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property int $priority
+ * @property int $currency_id
+ * @property InvoiceCategoryTypeEnum $type
+ * @property array<array-key, mixed> $settings
+ * @property bool $show_in_dashboards
+ * @property array<array-key, mixed> $data
+ * @property int|null $organisation_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\InvoiceCategoryOrderingIntervals|null $orderingIntervals
@@ -47,11 +53,18 @@ class InvoiceCategory extends Model implements Auditable
 {
     use HasSlug;
     use HasHistory;
-    use HasSoftDeletes;
     use InGroup;
 
     protected $casts = [
-        'state'            => InvoiceCategoryStateEnum::class,
+        'state'    => InvoiceCategoryStateEnum::class,
+        'type'     => InvoiceCategoryTypeEnum::class,
+        'data'     => 'array',
+        'settings' => 'array',
+    ];
+
+    protected $attributes = [
+        'data'     => '{}',
+        'settings' => '{}',
     ];
 
     protected $guarded = [];
@@ -64,6 +77,8 @@ class InvoiceCategory extends Model implements Auditable
     protected array $auditInclude = [
         'name',
         'state',
+        'type',
+        'settings'
     ];
 
     public function getRouteKeyName(): string

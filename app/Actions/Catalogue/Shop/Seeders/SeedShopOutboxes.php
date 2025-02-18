@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Shop\Seeders;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Traits\WithOutboxBuilder;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
@@ -36,11 +37,16 @@ class SeedShopOutboxes
 
                 /** @var Outbox $outbox */
                 if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->first()) {
+                    $dataToUpdate = [
+                        'name' => $case->label(),
+                    ];
+                    if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                        data_set($dataToUpdate, 'fulfilment_id', $shop->fulfilment->id);
+                    }
+
                     UpdateOutbox::make()->action(
                         $outbox,
-                        [
-                            'name' => $case->label(),
-                        ]
+                        $dataToUpdate
                     );
                 } else {
                     $outbox = StoreOutbox::make()->action(

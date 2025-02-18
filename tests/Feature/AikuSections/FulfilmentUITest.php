@@ -1064,7 +1064,7 @@ test('UI edit stored item', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 1)
+            ->has('formData.blueprint.0.fields', 2)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',

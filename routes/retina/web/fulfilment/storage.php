@@ -17,6 +17,7 @@ use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnPallet;
 use App\Actions\Retina\Fulfilment\PalletReturn\ExportRetinaPalletReturnStoredItem;
 use App\Actions\Retina\Fulfilment\PalletReturn\UI\IndexRetinaPalletReturns;
 use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaPalletReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\UI\ShowRetinaStoredItemReturn;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\IndexRetinaStoredItemsAudits;
 use App\Actions\Retina\Fulfilment\StoredItemsAudit\UI\ShowRetinaStoredItemAudit;
@@ -38,6 +39,7 @@ Route::prefix('pallet-deliveries')->as('pallet_deliveries.')->group(function () 
 Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
     Route::get('', IndexRetinaPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowRetinaPalletReturn::class)->name('show');
+    Route::get('{palletReturn}/with-stored-items', ShowRetinaStoredItemReturn::class)->name('with-stored-items.show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowRetinaPallet::class, 'inPalletReturn'])->name('pallets.show');
     Route::get('{fulfilmentCustomer}/stored-items-templates', ExportRetinaPalletReturnStoredItem::class)->name('stored-items.uploads.templates');
     Route::get('{fulfilmentCustomer}/pallets-templates', ExportRetinaPalletReturnPallet::class)->name('pallets.uploads.templates');
@@ -45,6 +47,12 @@ Route::prefix('pallet-returns')->as('pallet_returns.')->group(function () {
 });
 
 Route::get('pallets', IndexRetinaPallets::class)->name('pallets.index');
+Route::get('pallets/storing', [IndexRetinaPallets::class, 'storing'])->name('pallets.storing_pallets.index');
+Route::get('pallets/returned', [IndexRetinaPallets::class, 'returned'])->name('pallets.returned_pallets.index');
+Route::get('pallets/incidents', [IndexRetinaPallets::class, 'incidents'])->name('pallets.incidents_pallets.index');
+Route::get('pallets/in_process', [IndexRetinaPallets::class, 'inProcess'])->name('pallets.in_process_pallets.index');
+
+
 Route::get('pallets/{pallet}', ShowRetinaPallet::class)->name('pallets.show');
 Route::get('pallets/{pallet}/edit', EditRetinaPallet::class)->name('pallets.edit');
 Route::get('stored-items', IndexRetinaStoredItems::class)->name('stored-items.index');

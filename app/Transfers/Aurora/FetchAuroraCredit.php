@@ -9,7 +9,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
+use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraCredit extends FetchAurora

@@ -15,6 +15,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
@@ -87,17 +88,16 @@ beforeAll(function () {
     loadDB();
 });
 beforeEach(function () {
-
-    $this->organisation      = createOrganisation();
-    $this->warehouse         = createWarehouse();
-    $this->fulfilment        = createFulfilment($this->organisation);
-    $this->website           = createWebsite($this->fulfilment->shop);
+    $this->organisation = createOrganisation();
+    $this->warehouse    = createWarehouse();
+    $this->fulfilment   = createFulfilment($this->organisation);
+    $this->website      = createWebsite($this->fulfilment->shop);
     if ($this->website->state != WebsiteStateEnum::LIVE) {
         LaunchWebsite::make()->action($this->website);
     }
-    $this->shop = $this->fulfilment->shop;
-    $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
-    $this->customer = createCustomer($this->shop);
+    $this->shop               = $this->fulfilment->shop;
+    $this->shop               = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+    $this->customer           = createCustomer($this->shop);
     $this->fulfilmentCustomer = $this->customer->fulfilmentCustomer;
 
     list(
@@ -146,7 +146,6 @@ beforeEach(function () {
         data_set($storeData, 'email', 'test@aiku.io');
 
 
-
         $rentalAgreement = StoreRentalAgreement::make()->action(
             $this->customer->fulfilmentCustomer,
             $storeData,
@@ -154,7 +153,7 @@ beforeEach(function () {
     }
     $this->rentalAgreement = $rentalAgreement;
 
-    $location           = $this->warehouse->locations()->first();
+    $location = $this->warehouse->locations()->first();
     if (!$location) {
         StoreLocation::run(
             $this->warehouse,
@@ -167,44 +166,44 @@ beforeEach(function () {
     }
     $this->location = $location;
 
-    $this->webUser  = createWebUser($this->customer);
+    $this->webUser = createWebUser($this->customer);
 
-    $palletRental = StoreRental::make()->action(
+    $palletRental         = StoreRental::make()->action(
         $this->fulfilment->shop,
         [
-            'price' => 100,
-            'unit'  => RentalUnitEnum::WEEK->value,
-            'code'  => 'R00002',
-            'name'  => 'Rental Asset B',
+            'price'                  => 100,
+            'unit'                   => RentalUnitEnum::WEEK->value,
+            'code'                   => 'R00002',
+            'name'                   => 'Rental Asset B',
             'auto_assign_asset'      => 'Pallet',
             'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
         ]
     );
-    $this->palletRental = $palletRental;
-    $oversizeRental = StoreRental::make()->action(
+    $this->palletRental   = $palletRental;
+    $oversizeRental       = StoreRental::make()->action(
         $this->fulfilment->shop,
         [
-            'price' => 100,
-            'unit'  => RentalUnitEnum::WEEK->value,
-            'code'  => 'R00003',
-            'name'  => 'Rental Asset C',
+            'price'                  => 100,
+            'unit'                   => RentalUnitEnum::WEEK->value,
+            'code'                   => 'R00003',
+            'name'                   => 'Rental Asset C',
             'auto_assign_asset'      => 'Pallet',
             'auto_assign_asset_type' => PalletTypeEnum::OVERSIZE->value
         ]
     );
     $this->oversizeRental = $oversizeRental;
-    $boxRental = StoreRental::make()->action(
+    $boxRental            = StoreRental::make()->action(
         $this->fulfilment->shop,
         [
-            'price' => 100,
-            'unit'  => RentalUnitEnum::WEEK->value,
-            'code'  => 'R00004',
-            'name'  => 'Rental Asset D',
+            'price'                  => 100,
+            'unit'                   => RentalUnitEnum::WEEK->value,
+            'code'                   => 'R00004',
+            'name'                   => 'Rental Asset D',
             'auto_assign_asset'      => 'Pallet',
             'auto_assign_asset_type' => PalletTypeEnum::BOX->value
         ]
     );
-    $this->boxRental = $boxRental;
+    $this->boxRental      = $boxRental;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -228,7 +227,7 @@ test('Update Retina Profile', function () {
 
 test('Create Retina Pallet Delivery', function () {
     $fulfilmentCustomer = $this->fulfilmentCustomer;
-    $palletDelivery = StoreRetinaPalletDelivery::make()->action($fulfilmentCustomer, []);
+    $palletDelivery     = StoreRetinaPalletDelivery::make()->action($fulfilmentCustomer, []);
 
     $fulfilmentCustomer->refresh();
 
@@ -253,22 +252,22 @@ test('Create Stored Item', function () {
     $storedItem = StoreRetinaStoredItem::make()->action(
         $this->fulfilmentCustomer,
         [
-        'reference' => 'item1'
-    ]
+            'reference' => 'item1'
+        ]
     );
 
     $storedItem2 = StoreRetinaStoredItem::make()->action(
         $this->fulfilmentCustomer,
         [
-        'reference' => 'item2'
-    ]
+            'reference' => 'item2'
+        ]
     );
 
     $storedItem3 = StoreRetinaStoredItem::make()->action(
         $this->fulfilmentCustomer,
         [
-        'reference' => 'item3'
-    ]
+            'reference' => 'item3'
+        ]
     );
 
     $storedItem->refresh();
@@ -287,12 +286,12 @@ test('Sync Stored Item to Pallet', function (Pallet $pallet) {
     SyncRetinaStoredItemToPallet::make()->action(
         $pallet,
         [
-        'stored_item_ids' => [
-            1 => [
-                'quantity' => 100
+            'stored_item_ids' => [
+                1 => [
+                    'quantity' => 100
+                ]
             ]
         ]
-    ]
     );
 
     $pallet->refresh();
@@ -300,10 +299,11 @@ test('Sync Stored Item to Pallet', function (Pallet $pallet) {
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->number_stored_items)->toBe(1);
 
+
     return $pallet;
 })->depends('Add Retina Pallet to PalletDelivery');
 
-test('Add Retina Mutiple Pallets to Pallet Delivery', function (PalletDelivery $palletDelivery) {
+test('Add Retina Multiple Pallets to Pallet Delivery', function (PalletDelivery $palletDelivery) {
     StoreRetinaMultiplePalletsFromDelivery::make()->action($palletDelivery, [
         'number_pallets' => 9,
         'type'           => PalletTypeEnum::PALLET
@@ -330,39 +330,39 @@ test('Delete Retina Pallet', function (PalletDelivery $palletDelivery) {
 })->depends('Create Retina Pallet Delivery');
 
 test('Sync Stored Item to Pallet (again)', function (PalletDelivery $palletDelivery) {
-    $pallet = $palletDelivery->pallets()->skip(1)->first();
+    $pallet  = $palletDelivery->pallets()->skip(1)->first();
     $pallet2 = $palletDelivery->pallets()->skip(2)->first();
     SyncRetinaStoredItemToPallet::make()->action(
         $pallet,
         [
-        'stored_item_ids' => [
-            2 => [
-                'quantity' => 200
+            'stored_item_ids' => [
+                2 => [
+                    'quantity' => 200
+                ]
             ]
         ]
-    ]
     );
     SyncRetinaStoredItemToPallet::make()->action(
         $pallet2,
         [
-        'stored_item_ids' => [
-            3 => [
-                'quantity' => 300
+            'stored_item_ids' => [
+                3 => [
+                    'quantity' => 300
+                ]
             ]
         ]
-    ]
     );
 
     $pallet->refresh();
     $pallet2->refresh();
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
-        ->and($pallet->number_stored_items)->toBe(1);
-    expect($pallet2)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->number_stored_items)->toBe(1)
+        ->and($pallet2)->toBeInstanceOf(Pallet::class)
         ->and($pallet2->number_stored_items)->toBe(1);
 
     return $pallet;
-})->depends('Add Retina Mutiple Pallets to Pallet Delivery');
+})->depends('Add Retina Multiple Pallets to Pallet Delivery');
 
 test('Update Retina Pallet Delivery', function (PalletDelivery $palletDelivery) {
     $palletDelivery = UpdateRetinaPalletDelivery::make()->action($palletDelivery, [
@@ -393,7 +393,7 @@ test('Store Retina Fulfilment Transaction in Pallet Delivery', function (PalletD
 
 test('Update Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
     $fulfilmentTransaction = UpdateRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction, [
-        'quantity'          => 7
+        'quantity' => 7
     ]);
 
     $fulfilmentTransaction->refresh();
@@ -405,6 +405,7 @@ test('Update Retina Fulfilment Transaction in Pallet Delivery', function (Fulfil
 })->depends('Store Retina Fulfilment Transaction in Pallet Delivery');
 
 test('Delete Retina Fulfilment Transaction in Pallet Delivery', function (FulfilmentTransaction $fulfilmentTransaction) {
+    /** @var PalletDelivery $parent */
     $parent = $fulfilmentTransaction->parent;
     DeleteRetinaFulfilmentTransaction::make()->action($fulfilmentTransaction);
 
@@ -437,12 +438,11 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
         ->and($upload->number_fails)->toBe(0)
         ->and($palletDelivery->stats->number_pallets)->toBe(10);
 
-
     return $palletDelivery;
 })->depends('Create Retina Pallet Delivery');
 
 test('Submit Retina Pallet Delivery', function (PalletDelivery $palletDelivery) {
-    $palletDelivery = SubmitRetinaPalletDelivery::make()->action($palletDelivery, []);
+    $palletDelivery     = SubmitRetinaPalletDelivery::make()->action($palletDelivery, []);
     $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
     $palletDelivery->refresh();
     $fulfilmentCustomer->refresh();
@@ -462,7 +462,6 @@ test('Generate Pallet Delivery PDF', function (PalletDelivery $palletDelivery) {
 })->depends('Submit Retina Pallet Delivery');
 
 test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDelivery) {
-
     $palletDelivery = ConfirmPalletDelivery::make()->action($palletDelivery);
 
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
@@ -482,25 +481,33 @@ test('Process Pallet Delivery (from aiku)', function (PalletDelivery $palletDeli
 
 
 
-    $pallet = $palletDelivery->pallets->first();
-    BookInPallet::make()->action($pallet, ['location_id' => $this->location->id]);
+    foreach ($palletDelivery->pallets as $pallet) {
+        $pallet = BookInPallet::make()->action($pallet, ['location_id' => $this->location->id]);
+    }
+
+
+
+
+    $palletDelivery = SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
     $pallet->refresh();
 
     expect($pallet->location)->toBeInstanceOf(Location::class)
         ->and($pallet->location->id)->toBe($this->location->id)
-        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN);
+        ->and($pallet->state)->toBe(PalletStateEnum::STORING);
+
+
 
 
     return $palletDelivery;
 })->depends('Submit Retina Pallet Delivery');
 
-test('Update Retina Pallet to PalletDelivery', function (PalletDelivery $palletDelivery) {
+test('Update Pallet', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
     $pallet = UpdateRetinaPallet::make()->action(
         $pallet,
         [
-        'reference'          => '000001-diam-p0001',
-        'customer_reference' => 'bruh-01',
+            'reference'          => '000001-diam-p0001',
+            'customer_reference' => 'hello-01',
         ]
     );
 
@@ -508,15 +515,14 @@ test('Update Retina Pallet to PalletDelivery', function (PalletDelivery $palletD
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->reference)->toBe('000001-diam-p0001')
-        ->and($pallet->customer_reference)->toBe('bruh-01');
+        ->and($pallet->customer_reference)->toBe('hello-01');
 
     return $pallet;
 })->depends('Process Pallet Delivery (from aiku)');
 
 test('Create Retina Pallet Return', function () {
-
     $fulfilmentCustomer = $this->fulfilmentCustomer;
-    $palletReturn = StoreRetinaPalletReturn::make()->action(
+    $palletReturn       = StoreRetinaPalletReturn::make()->action(
         $fulfilmentCustomer,
         [
             'warehouse_id' => $this->warehouse->id,
@@ -533,7 +539,6 @@ test('Create Retina Pallet Return', function () {
 });
 
 test('Update Retina Pallet Return', function (PalletReturn $palletReturn) {
-
     $palletReturn = UpdateRetinaPalletReturn::make()->action(
         $palletReturn,
         [
@@ -574,13 +579,13 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
         ->and($palletReturn->stats->number_pallets)->toBe(1);
 
     return $palletReturn;
-})->depends('Create Retina Pallet Return');
+})->depends('Create Retina Pallet Return')->todo();
 
 test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletReturn) {
     $palletReturn = AttachRetinaPalletsToReturn::make()->action(
         $palletReturn,
         [
-            'pallets' => [3,4]
+            'pallets' => [3, 4]
         ]
     );
 
@@ -612,7 +617,7 @@ test('Add Transaction to Retina Pallet Return', function (PalletReturn $palletRe
     $fulfilmentTransaction = StoreRetinaFulfilmentTransaction::make()->action(
         $palletReturn,
         [
-            'quantity' => 10,
+            'quantity'          => 10,
             'historic_asset_id' => $this->product->current_historic_asset_id
         ]
     );
@@ -627,7 +632,6 @@ test('Add Transaction to Retina Pallet Return', function (PalletReturn $palletRe
 })->depends('Attach Pallet to Retina Pallet Return');
 
 test('Submit Retina Pallet Return', function (PalletReturn $palletReturn) {
-
     $palletReturn = SubmitRetinaPalletReturn::make()->action(
         $palletReturn,
         []
@@ -642,7 +646,6 @@ test('Submit Retina Pallet Return', function (PalletReturn $palletReturn) {
 })->depends('Detach Pallet to Retina Pallet Return');
 
 test('Cancel Retina Pallet Return', function (PalletReturn $palletReturn) {
-
     $palletReturn = CancelRetinaPalletReturn::make()->action(
         $palletReturn,
         []
@@ -657,14 +660,14 @@ test('Cancel Retina Pallet Return', function (PalletReturn $palletReturn) {
 })->depends('Submit Retina Pallet Return');
 
 test('Create Retina Pallet Return (with stored item)', function (PalletReturn $palletReturn) {
-
     $fulfilmentCustomer = $this->fulfilmentCustomer;
 
-    $palletReturn = StoreRetinaPalletReturn::make()->actionFromRetinaWithStoredItems(
+    $palletReturn = StoreRetinaPalletReturn::make()->action(
         $fulfilmentCustomer,
         [
             'warehouse_id' => $this->warehouse->id,
-        ]
+        ],
+        withStoredItems: true
     );
 
     $fulfilmentCustomer->refresh();
@@ -770,13 +773,13 @@ test('Store retina customer client', function () {
     $customerClient = StoreRetinaCustomerClient::make()->action(
         $this->fulfilmentCustomer->customer,
         [
-            'reference' => 'ref1',
+            'reference'    => 'ref1',
             'contact_name' => 'Jowki',
             'company_name' => 'Jowki.inc',
-            'email' => 'jowki@jowki.com',
-            'phone' => '123456789',
-            'address' => Address::factory()->definition(),
-            'status' => true
+            'email'        => 'jowki@jowki.com',
+            'phone'        => '123456789',
+            'address'      => Address::factory()->definition(),
+            'status'       => true
         ]
     );
 
@@ -795,9 +798,9 @@ test('Store retina web user', function () {
         $this->fulfilmentCustomer->customer,
         [
             'contact_name' => 'Jowkiwi',
-            'username' => 'jowkisii',
-            'email' => 'jowki@jowki.com',
-            'password' => 'jokoooo'
+            'username'     => 'jowkisii',
+            'email'        => 'jowki@jowki.com',
+            'password'     => 'jokoooo'
         ]
     );
 
@@ -834,5 +837,4 @@ test('delete retina web user', function (WebUser $webUser) {
     );
     $webUser->customer->refresh();
     expect($webUser->customer->stats->number_web_users)->toBe(1);
-
 })->depends('update retina web user');

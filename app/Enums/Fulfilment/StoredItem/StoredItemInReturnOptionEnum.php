@@ -9,28 +9,30 @@
 namespace App\Enums\Fulfilment\StoredItem;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Fulfilment\PalletReturn;
 
 enum StoredItemInReturnOptionEnum: string
 {
     use EnumHelperTrait;
 
-    case UNSELECTED  = 'unselected';
-    case SELECTED    = 'selected';
+    case ALL_STORED_PALLETS = 'all_stored_pallets';
+    case SELECTED = 'selected';
 
 
     public static function labels(): array
     {
         return [
-            'unselected'         => __('Unselected'),
-            'selected'           => __('Selected')
+            'selected'           => __('Selected'),
+            'all_stored_pallets' => __('All stored pallets'),
+
         ];
     }
 
-    public static function count(): array
+    public static function count(PalletReturn $palletReturn): array
     {
         return [
-            'unselected'      => 0,
-            'selected'        => 0
+            'all_stored_pallets' => $palletReturn->fulfilmentCustomer->number_pallets_status_storing,
+            'selected'           => $palletReturn->stats->number_pallets
         ];
     }
 }

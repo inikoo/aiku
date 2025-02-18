@@ -7,8 +7,8 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
@@ -21,6 +21,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
@@ -67,6 +68,7 @@ Route::get('deliveries/{palletDelivery}/edit', EditPalletDelivery::class)->name(
 
 Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
+Route::get('return-with-stored-items/{palletReturn}', ShowStoredItemReturn::class)->name('pallet-return-with-stored-items.show');
 
 Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');

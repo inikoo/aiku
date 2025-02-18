@@ -2,6 +2,27 @@
 <head>
     <title>{{ $invoice->slug }}</title>
     <style>
+        @page {
+            size: 8.27in 11.69in; /* <length>{1,2} | auto | portrait | landscape */
+            /* 'em' 'ex' and % are not allowed; length values are width height */
+            margin-top: 15%; /* <any of the usual CSS values for margins> */
+            /*(% of page-box width for LR, of height for TB) */
+            margin-bottom: 13%;
+            margin-right: 8%;
+            margin-left: 8%;
+            margin-header: 1mm; /* <any of the usual CSS values for margins> */
+            margin-footer: 5mm; /* <any of the usual CSS values for margins> */
+            marks: 'cross'; /*crop | cross | none*/
+            header: myheader;
+            footer: myfooter;
+            /* background: ...
+            background-image: ...
+            background-position ...
+            background-repeat ...
+            background-color ...
+            background-gradient: ... */
+        }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;
@@ -114,8 +135,6 @@
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
 
-<br><br><br><br><br>
-
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
@@ -214,7 +233,7 @@
 
         <td style="text-align:left">{{ __('Qty') }}</td>
 
-        <td style="width:10%;text-align:right">{{ __('Amount') }}</td>
+        <td style="width:14%;text-align:right">{{ __('Amount') }}</td>
     </tr>
     </thead>
     <tbody>
@@ -288,7 +307,7 @@
         <td style="text-align:right">{{ __('Date') }}</td>
         <td style="text-align:left">{{ __('Status') }}</td>
         <td style="text-align:left">{{ __('Reference') }}</td>
-        <td style="text-align:right">{{ __('Amount') }}</td>
+        <td style="text-align:right; width:14%;">{{ __('Amount') }}</td>
     </tr>
 
     <tbody>
@@ -318,7 +337,7 @@
 
 <htmlpagefooter name="myfooter">
     <div
-        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
+        style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 5mm; margin-top: 5mm;"></div>
     <table width="100%">
         <tr>
         <tr>
@@ -334,7 +353,7 @@
                 </small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                {{ __('Page') }} 1 {{ __('of') }} 1
+                {{ __('Page') }} {PAGENO} {{ __('of') }} {nbpg}
             </td>
             <td width="34%" style="text-align: right;">
                 <small>{{$shop->phone}}<br>

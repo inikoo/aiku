@@ -92,7 +92,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-pallet',
                     'tooltip' => __('Pallets'),
                 ],
-                'number' => $fulfilmentCustomer->number_pallets
+                'number' => $fulfilmentCustomer->number_pallets_status_storing
 
             ];
 
@@ -109,10 +109,25 @@ trait WithFulfilmentCustomerSubNavigation
                         'icon'    => 'fal fa-narwhal',
                         'tooltip' => __("Customer's SKUs"),
                     ],
-                    'number' => $fulfilmentCustomer->number_stored_items
+                    'number' => $fulfilmentCustomer->number_stored_items_state_active
 
                 ];
 
+                if (!app()->isProduction()) {
+                    $subNavigation[] = [
+                        'route' => [
+                            'name'      => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ],
+
+                        'label'     => __("Clients"),
+                        'leftIcon'  => [
+                            'icon'    => 'fal fa-users',
+                            'tooltip' => __("Customer's Clients"),
+                        ],
+                        'number' => $fulfilmentCustomer->number_stored_items_state_active
+                    ];
+                }
             }
 
             $subNavigation[] = [

@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
+use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateSales;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
@@ -79,6 +80,7 @@ class StoreInvoiceTransaction extends OrgAction
             ]);
         }
 
+        AssetHydrateSales::dispatch($invoiceTransaction->asset)->delay($this->hydratorsDelay);
         AssetHydrateInvoices::dispatch($invoiceTransaction->asset)->delay($this->hydratorsDelay);
         AssetHydrateInvoicedCustomers::dispatch($invoiceTransaction->asset)->delay($this->hydratorsDelay);
 

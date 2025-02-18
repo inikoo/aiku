@@ -17,6 +17,7 @@ import Icon from "@/Components/Icon.vue"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useFormatTime } from "@/Composables/useFormatTime"
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 
 library.add(faPlus)
 
@@ -63,25 +64,91 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
     }
 }
 
+function storedItemReturnRoute(palletReturn: PalletDelivery) {
+    switch (route().current()) {
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
+            return route(
+                'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    palletReturn.slug
+                ]);
+        case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+            return route(
+                'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    palletReturn.slug
+                ]);
+        case 'retina.fulfilment.storage.pallet_returns.index':
+            return route(
+                'retina.fulfilment.storage.pallet_returns.with-stored-items.show',
+                [
+                    palletReturn.slug
+                ]);
+        case 'retina.dropshipping.orders.index':
+            return route(
+                'retina.fulfilment.storage.pallet_returns.with-stored-items.show',
+                [
+                    palletReturn.slug
+                ]);
+        default:
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    palletReturn.slug
+                ]);
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletReturn }">
-            <Link :href="palletReturnRoute(palletReturn)" class="primaryLink">
+            <Link v-if="palletReturn.type === 'pallet'" :href="palletReturnRoute(palletReturn)" class="primaryLink">
                 {{ palletReturn['reference'] }}
             </Link>
+
+            <Link v-else-if="palletReturn.type === 'stored_item'" :href="storedItemReturnRoute(palletReturn)" class="primaryLink">
+                {{ palletReturn['reference'] }}
+            </Link>
+
+            <div v-else>
+                {{ palletReturn.reference }}
+            </div>
+        </template>
+
+        <!-- Column: Customer Reference -->
+        <template #cell(customer_reference)="{ item: palletReturn }">
+            <div v-if="palletReturn.customer_reference">
+                {{ palletReturn.customer_reference }}
+            </div>
+
+            <div v-else class="text-gray-400">
+                -
+            </div>
         </template>
 
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
+            <Icon :data="palletReturn['type_icon']" class="px-1"/>
             <TagPallet v-if="layout.app.name == 'retina'" :stateIcon="palletReturn.state_icon" />
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 
-        <template #cell(type)="{ item: palletReturn }">
-            <Icon :data="palletReturn['type_icon']" class="px-1"/>
+        <template #cell(customer)="{ item: palletReturn }">
+            {{ palletReturn.customer.contact_name || '-' }} <span v-if="palletReturn.customer.company_name">({{ palletReturn.customer.company_name }})</span>
+            <span class="text-xs text-gray-500">
+                <AddressLocation :data="palletReturn.customer.location" />
+            </span>
+            <!-- <pre>{{ palletReturn.customer }}</pre> -->
         </template>
 
         <!-- Column: Pallets -->

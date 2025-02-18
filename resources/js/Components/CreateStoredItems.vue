@@ -18,12 +18,13 @@ import Tag from '@/Components/Tag.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus, faChevronDown, faTimes, faMinus, faSparkles, faRampLoading } from "@fas"
 import { faTrashAlt, faExclamationTriangle } from "@far"
+import { faAsterisk } from "@fas"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import InputNumber from "primevue/inputnumber"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 import PureInput from "@/Components/Pure/PureInput.vue"
 
-library.add(faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
+library.add(faAsterisk, faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
 
 const props = defineProps<{
 	storedItemsRoute: {
@@ -34,6 +35,7 @@ const props = defineProps<{
 	form: {}
 	stored_items: {}[]
     title?: string
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
 }>()
 
 const loadingAddStoredItem = ref(false)
@@ -156,7 +158,7 @@ const onSaved = async () => {
 const newStoredItemName = ref('')
 const errorNewStoredItemName = ref('')
 const onSaveNameForNewStoredItem = async () => {
-	if (!newStoredItem.value?.id && newStoredItemName.value) {
+	if (!newStoredItem.value?.id || !newStoredItemName.value) {
 		return
 	}
 
@@ -181,7 +183,7 @@ const onSaveNameForNewStoredItem = async () => {
 <template>
 	<div v-if="!messageMode">
 		<div class="text-center font-semibold text-2xl mb-4">
-			{{ title ? title : disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
+			{{ title ? title : disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up Customer's SKUs") }}
 		</div>
 		<div class="grid grid-cols-3 gap-x-4">
 			<label class="mt-1 block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
@@ -198,6 +200,7 @@ const onSaveNameForNewStoredItem = async () => {
 					:valueProp="'id'"
 					:closeOnSelect="true"
 					:clearOnSearch="false"
+					:prefixQuery
 					:fieldName="'id'"
 					:createOption="false"
 					:onCreate="createStoredItems"
@@ -268,7 +271,12 @@ const onSaveNameForNewStoredItem = async () => {
 
 		<!-- Section: input Name -->
 		<div v-if="form.id && newStoredItem" class="mt-4 grid grid-cols-3 gap-x-4">
-			<label class="mt-1 block text-sm font-medium text-gray-700">{{ trans("Name") }}</label>
+			<label class="mt-1 text-sm font-medium text-gray-700 inline-flex items-start py-0">
+					<span class="leading-none">{{ trans("Name") }}</span>
+					<FontAwesomeIcon
+						icon="fas fa-asterisk"
+						class="ml-1 font-light text-[8px] text-red-400 mr-1 opacity-75" />
+			</label>
 			
 			<PureInput
 				v-model="newStoredItemName"
@@ -345,7 +353,14 @@ const onSaveNameForNewStoredItem = async () => {
 
 	<div v-if="!messageMode" class="flex gap-3 mt-5">
 		<Button type="tertiary" :label="trans('Cancel')" @click="onCancel" class="select-none" />
-		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)" />
+		<Button
+			full
+			@click="onSaved"
+			type="save"
+			:loading="props.form.processing"
+			:disabled="!(props.form.id || props.form.oldData?.id) || (newStoredItem ? !newStoredItemName : false)"
+			v-tooltip="(newStoredItem && !newStoredItemName ? 'Complete name to save' : '')"
+		/>
 	</div>
 
 	<div v-else class="grid grid-cols-2 gap-3">

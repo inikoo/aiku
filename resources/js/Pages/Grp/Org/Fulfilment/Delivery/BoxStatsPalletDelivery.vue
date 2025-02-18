@@ -281,7 +281,7 @@ const onUpdateCustomerReference = () => {
                             v-model="dataPalletDelivery.estimated_delivery_date"
                             @update:modelValue="() => onChangeEstimateDate(close)"
                             inline auto-apply
-                            :disabled-dates="disableBeforeToday"
+                            :xxdisabled-dates="disableBeforeToday"
                             :enable-time-picker="false"
                         />
                         <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
@@ -290,8 +290,9 @@ const onUpdateCustomerReference = () => {
                     </template>
                 </Popover>
 
-				<div v-else class=" text-gray-400">
-					{{ trans('Estimated date is not set') }}
+				<div v-else class="text-gray-500">
+					<span v-if="dataPalletDelivery.estimated_delivery_date">{{ useFormatTime(dataPalletDelivery.estimated_delivery_date) }}</span>
+					<span v-else class="text-gray-400">{{ trans('Estimated date is not set') }}</span>
 				</div>
 			</div>
 

@@ -15,10 +15,12 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
+use App\Models\ShopifyUserHasFulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -28,7 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -83,8 +87,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $invoice_id
  * @property int|null $recurring_bill_id
  * @property int|null $shopify_user_id
+ * @property int|null $platform_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Currency $currency
  * @property-read Customer|null $customer
  * @property-read Address|null $deliveryAddress
@@ -92,10 +98,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read ShopifyUserHasFulfilment|null $shopifyFulfilment
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
  * @property-read Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read TaxCategory $taxCategory
@@ -111,7 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @mixin \Eloquent
  */
 
-class PalletReturn extends Model
+class PalletReturn extends Model implements HasMedia
 {
     use HasSlug;
     use SoftDeletes;
@@ -119,6 +127,7 @@ class PalletReturn extends Model
     use HasRetinaSearch;
     use HasAddress;
     use HasAddresses;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [
@@ -233,6 +242,11 @@ class PalletReturn extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function shopifyFulfilment(): MorphOne
+    {
+        return $this->morphOne(ShopifyUserHasFulfilment::class, 'model');
     }
 
 }

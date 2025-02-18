@@ -12,6 +12,7 @@ use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\Fulfilment\StoredItemAudit\Search\StoredItemAuditRecordSearch;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
@@ -33,11 +34,11 @@ class StoreStoredItemAudit extends OrgAction
 {
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
+    use WithFulfilmentAuthorisation;
 
 
     public Customer $customer;
 
-    private bool $action = false;
     private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
@@ -65,19 +66,6 @@ class StoreStoredItemAudit extends OrgAction
 
 
         return $storedItemAudit;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->action) {
-            return true;
-        }
-
-        if ($this->hasRentalAgreement($this->fulfilmentCustomer)) {
-            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        }
-
-        return false;
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -125,6 +113,7 @@ class StoreStoredItemAudit extends OrgAction
     public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
     {
         $this->action = true;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 

@@ -7,6 +7,8 @@ import { faCheckCircle } from '@fas'
 import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
+import { notify } from '@kyvg/vue3-notification'
+import { trans } from 'laravel-vue-i18n'
 library.add(faCheckCircle, faCircle)
 
 interface OptionRadio {
@@ -48,7 +50,14 @@ const onClickRadio = async (value: string) => {
                 router.patch(route(props.updateRoute?.name, props.updateRoute?.parameters), {
                     [value]: false
                 }, {
-                    onFinish: () => radioLoading[value] = false
+                    onFinish: () => radioLoading[value] = false,
+                    onError: (e) => {
+                        notify({
+                            title: trans('Something went wrong'),
+                            text: e.message,
+                            type: 'error',
+                        })
+                    }
                 })
             }
 
@@ -62,7 +71,14 @@ const onClickRadio = async (value: string) => {
             router.patch(route(props.updateRoute?.name, props.updateRoute?.parameters), {
                 [value]: true
             }, {
-                onFinish: () => radioLoading[value] = false
+                onFinish: () => radioLoading[value] = false,
+                onError: (e) => {
+                    notify({
+                        title: trans('Something went wrong'),
+                        text: e.message,
+                        type: 'error',
+                    })
+                }
             })
         }
 
@@ -79,8 +95,8 @@ const onClickRadio = async (value: string) => {
             <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third'
                 class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else-if="radioValue.includes(radio.value)" icon='fas fa-check-circle'
-                class='text-lime-500' fixed-width aria-hidden='true' />
-            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
+                class='text-green-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-green-600' fixed-width aria-hidden='true' />
             <span class="whitespace-nowrap">{{ radio.label }}</span>
         </button>
     </div>

@@ -25,6 +25,10 @@ const props = defineProps<{
     disabled?: boolean
     noHover?: boolean
     routeTarget?: routeType
+    bindToLink: {
+        preserveScroll?: boolean
+        preserveState?: boolean
+    }
 }>()
 
 
@@ -39,6 +43,7 @@ const isLoadingVisit = ref(false)
         @finish="() => isLoadingVisit = false"
         :method="props.routeTarget?.method || undefined"
         :data="props.routeTarget?.body"
+        v-bind="bindToLink"
     >
         <!-- Don't use v-bind make 'style' return empty object -->
         <Button

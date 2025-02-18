@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { trans } from "laravel-vue-i18n"
 
 import Modal from "@/Components/Utils/Modal.vue"
@@ -118,7 +118,14 @@ const submitUpload = async () => {
 			text: "The upload has successfully",
 			type: "success",
 		})
-		router.reload()  // To reload the table to show new data
+		router.reload({
+			// onSuccess: () => {
+			// 	console.log("reload")
+			// },
+			// onError: () => {
+			// 	console.log("errorrrrrrrrr")
+			// }
+		})  // To reload the table to show new data
 		closeModal()
 		// useEchoGrpPersonal().isShowProgress = true
 	} catch (error: any) {
@@ -140,6 +147,12 @@ const closeModal = () => {
 	model.value = false
 	console.log("model")
 }
+
+onMounted(() => {
+	if (typeEmployee.length === 1) {
+		selectedType.value = typeEmployee[0]
+	}
+})
 </script>
 
 <template>
@@ -164,7 +177,9 @@ const closeModal = () => {
 							optionLabel="name"
 							fluid
 							placeholder="Select a type"
-							class="w-full md:w-40">
+							class="w-full md:w-40"
+							:dropdownIcon="typeEmployee.length === 1 ? 's' : 'pi pi-chevron-down'"
+							disabled>
 							<template #optiongroup="slotProps">
 								<div class="flex items-center">
 									<div>{{ slotProps.option.label }}</div>
@@ -256,3 +271,11 @@ const closeModal = () => {
 		</div>
 	</Modal>
 </template>
+
+<style scoped>
+/* Adjust the selector based on the rendered DOM of PrimeVue's Select.
+   This example assumes the arrow is contained in an element with the class `.p-dropdown-trigger` */
+.no-arrow .p-dropdown-trigger {
+  display: none;
+}
+</style>

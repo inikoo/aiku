@@ -9,6 +9,27 @@
 <head>
     <title>{{ $filename }}</title>
     <style>
+        @page {
+            size: 8.27in 11.69in; /* <length>{1,2} | auto | portrait | landscape */
+            /* 'em' 'ex' and % are not allowed; length values are width height */
+            margin-top: 15%; /* <any of the usual CSS values for margins> */
+            /*(% of page-box width for LR, of height for TB) */
+            margin-bottom: 13%;
+            margin-right: 8%;
+            margin-left: 8%;
+            margin-header: 1mm; /* <any of the usual CSS values for margins> */
+            margin-footer: 5mm; /* <any of the usual CSS values for margins> */
+            marks: 'cross'; /*crop | cross | none*/
+            header: myheader;
+            footer: myfooter;
+            /* background: ...
+            background-image: ...
+            background-position ...
+            background-repeat ...
+            background-color ...
+            background-gradient: ... */
+        }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;
@@ -124,19 +145,17 @@
 <sethtmlpageheader name="myheader" value="on" show-this-page="1"/>
 <sethtmlpagefooter name="myfooter" value="on"/>
 
-<br><br><br><br><br>
-
 <table width="100%" style="margin-top: 40px">
     <tr>
         <td>
             <h1>
-                Pallet Delivery
+                {{ __('Pallet Delivery') }}
             </h1>
         </td>
         <td style="text-align: right">
             @if(in_array($delivery->state, [\App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum::RECEIVED, \App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum::BOOKED_IN]))
             <div>
-                Received Date: <b>{{ $delivery->received_at->format('j F Y') }}</b>
+                {{ __('Received Date') }}: <b>{{ $delivery->received_at->format('j F Y') }}</b>
             </div>
             @endif
         </td>
@@ -147,19 +166,19 @@
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
             <div>
                 <div>
-                    Customer: <b>{{ $customer->name }}</b>
+                    {{ __('Customer') }}: <b>{{ $customer->name }}</b>
                     ({{ $customer->reference }})
                 </div>
                 @if($customer->phone)
                     <div>
-                        <span class="address_label">Phone:</span> <span class="address_value">{{ $customer->phone }}</span>
+                        <span class="address_label">{{ __('Phone') }}:</span> <span class="address_value">{{ $customer->phone }}</span>
                     </div>
                 @endif
             </div>
         </td>
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
             <div style="text-align:right;">
-                State: <b>{{ $delivery->state->labels()[$delivery->state->value] }}</b>
+                {{ __('State') }}: <b>{{ $delivery->state->labels()[$delivery->state->value] }}</b>
             </div>
         </td>
     </tr>
@@ -170,9 +189,9 @@
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <thead>
     <tr>
-        <td style="width:20%; text-align:left">Reference</td>
-        <td style="width:50%; text-align:left">Pallet Reference (Customer's)</td>
-        <td style="text-align:right">Notes</td>
+        <td style="width:20%; text-align:left">{{ __('Reference') }}</td>
+        <td style="width:50%; text-align:left">{{ __('Pallet Reference (Customer\'s)') }}</td>
+        <td style="text-align:right">{{ __('Notes') }}</td>
     </tr>
     </thead>
     <tbody>
@@ -189,10 +208,6 @@
 
 </table>
 
-<br>
-<br>
-<br>
-
 <htmlpagefooter name="myfooter">
     <div
         style="border-top: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; margin-top: 120px"></div>
@@ -200,17 +215,17 @@
         <tr>
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
-                <small>AW Aromatics Limited<br> VAT Number:
-                    <b>GB356317102</b>
+                <small>{{ $shop->name }}<br> {{ __('VAT Number') }}:
+                    <b>{{ $shop->identity_document_number }}</b>
                     <br>
-                    Registration Number: 1279117</small>
+                    {{ __('Registration Number') }}: {{ $shop->identity_document_number }}</small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                Page 1 of 1
+                {{ __('Page') }} {PAGENO} {{ __('of') }} {nbpg}
             </td>
             <td width="34%" style="text-align: right;">
-                <small>00441144384914<br>
-                    sales@aw-aromatics.com
+                <small>{{ $shop->phone }}<br>
+                    {{ $shop->email }}
                 </small>
             </td>
         </tr>

@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
@@ -28,16 +29,36 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletStoredItems extends OrgAction
 {
+    protected function getElementGroups(FulfilmentCustomer $parent): array
+    {
+        return [
+            'status' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    StoredItemStateEnum::labels(),
+                    StoredItemStateEnum::count($parent)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('stored_items.state', $elements);
+                }
+
+            ]
+        ];
+    }
+
     public function handle(Group|FulfilmentCustomer|Pallet|Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('stored_items.reference', $value);
+                $query->whereWith('pallets.reference', $value);
             });
         });
 
-
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         $queryBuilder = QueryBuilder::for(PalletStoredItem::class);
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
@@ -45,6 +66,14 @@ class IndexPalletStoredItems extends OrgAction
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
 
         if ($parent instanceof FulfilmentCustomer) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
             $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
         }
 
@@ -53,7 +82,6 @@ class IndexPalletStoredItems extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('pallet_stored_items.id')
             ->select([
                 'pallet_stored_items.id',
                 'pallets.id as pallet_id',
@@ -66,10 +94,11 @@ class IndexPalletStoredItems extends OrgAction
                 'pallet_stored_items.quantity',
                 'pallet_stored_items.damaged_quantity',
                 'locations.code as location_code'
-            ]);
+            ])
+            ->defaultSort('pallet_reference');
 
 
-        return $queryBuilder->allowedSorts(['code','price','name','state'])
+        return $queryBuilder->allowedSorts(['stored_item_reference', 'quantity', 'code','price','name','state', 'pallet_reference', 'slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -85,6 +114,16 @@ class IndexPalletStoredItems extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            if ($parent instanceof FulfilmentCustomer) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+            }
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -98,13 +137,13 @@ class IndexPalletStoredItems extends OrgAction
                         default => []
                     }
                 )
-                ->column(key: 'stored_item_state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
                 ->column(key: 'pallet_reference', label: __('pallet'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'stored_item_reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->defaultSort('pallet_reference');
         };
     }
 

@@ -8,51 +8,32 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
-use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
 
 class DetachRetinaPalletFromReturn extends RetinaAction
 {
-    use WithActionUpdate;
-
-
-    private Pallet $pallet;
-    private bool $action = false;
-
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
     {
-        $this->update($pallet, ['pallet_return_id' => null,
-            'status'                               => PalletStatusEnum::STORING,
-            'state'                                => PalletStateEnum::STORING
-        ]);
-
-        $palletReturn->pallets()->detach([$pallet->id]);
-        AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
-
-        SendPalletReturnNotification::run($palletReturn);
-
-        PalletReturnHydratePallets::dispatch($palletReturn);
-        PalletReturnHydrateTransactions::dispatch($palletReturn);
-
-        return true;
+        return DetachPalletFromReturn::run($palletReturn, $pallet);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
         }
-        return true;
+
+        if ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilment_customer_id
+            and $this->fulfilmentCustomer->id == $request->route()->parameter('pallet')->fulfilment_customer_id
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     public function asController(PalletReturn $palletReturn, Pallet $pallet, ActionRequest $request): bool
@@ -64,14 +45,9 @@ class DetachRetinaPalletFromReturn extends RetinaAction
 
     public function action(PalletReturn $palletReturn, Pallet $pallet, array $modelData): bool
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $pallet);
-    }
-
-    public function jsonResponse(Pallet $pallet): PalletResource
-    {
-        return new PalletResource($pallet);
     }
 }

@@ -16,7 +16,8 @@ import { initialiseRetinaApp } from "@/Composables/initialiseRetinaApp"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import Notification from '@/Components/Utils/Notification.vue'
 
-import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox, faCube, faBallot, faConciergeBell, faGarage } from '@fal'
+import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox, faCube, faBallot, faConciergeBell, faGarage, faAlignJustify } from '@fal'
+import { faNarwhal } from '@fal'
 import { faSearch, faBell } from '@far'
 import { ref, provide } from 'vue'
 import { useLocaleStore } from "@/Stores/locale"
@@ -26,7 +27,7 @@ import { useLocaleStore } from "@/Stores/locale"
 provide('layout', useLayoutStore())
 provide('locale', useLocaleStore())
 
-library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox, faCube, faBallot, faConciergeBell, faGarage, faSearch, faBell )
+library.add( faNarwhal, faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox, faCube, faBallot, faConciergeBell, faGarage, faAlignJustify, faSearch, faBell )
 
 initialiseRetinaApp()
 
@@ -160,7 +161,10 @@ const isStaging = layout.app.environment === 'staging'
 }
 
 .secondaryLink {
-    background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[6]}, ${layout.app.theme[6] + "AA"})`');
+    &:hover, &:focus {
+        color: v-bind('`${layout.app.theme[7]}`');
+    }
 
     @apply focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]

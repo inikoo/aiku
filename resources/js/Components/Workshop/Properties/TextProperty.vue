@@ -63,7 +63,7 @@ const fontFamilies = [...useFontFamilyList];
             </div>
 
             <div class="px-3 items-center">
-                <div class="text-xs mb-2">{{ trans('Font Families') }}</div>
+                <div class="text-xs mb-2">{{ trans('Font') }}</div>
                 <div class="col-span-4">
                     <PureMultiselect v-model="model.fontFamily" class="" required :options="fontFamilies">
                         <template #option="{ option, isSelected, isPointed, search }">

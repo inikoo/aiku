@@ -18,6 +18,7 @@ import SelectButton from "primevue/selectbutton"
 import MetricCard from "./MetricCard.vue"
 import OverviewCard from "./OverviewCard.vue"
 import HorizontalCard from "./HorizontalCard.vue"
+import { computed } from "vue"
 
 library.add(faArrowUp, faArrowDown, faHandSparkles, faEnvelope, faUser, faHdd, faCloudDownload)
 
@@ -267,40 +268,81 @@ const handleSelectChange = () => {
 }
 
 const setChartDataAndOptions = () => {
+	// Retrieve your timeseries data
 	const timeseriesData =
 		props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts[0]?.series || []
 
-	const labels = timeseriesData.map((item, index) => {
-		const currentDate = new Date(item.dimensions.ts)
-		const previousDate = index > 0 ? new Date(timeseriesData[index - 1].dimensions.ts) : null
+	// Determine the current time rounded down to the nearest 15 minutes.
+	const now = new Date()
+	const roundedNow = new Date(now)
+	const currentMinutes = roundedNow.getMinutes()
+	roundedNow.setMinutes(currentMinutes - (currentMinutes % 15), 0, 0)
+	const endTime = roundedNow // end of the timeline
+	// Set startTime to 24 hours before the endTime.
+	const startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 1000)
 
-		// If it's a new day, display the date (e.g., "Mon 06"), otherwise show the time (e.g., "18:00")
-		const isNewDay = !previousDate || currentDate.toDateString() !== previousDate.toDateString()
+	// We'll create 96 buckets (15-minute intervals)
+	const labels: string[] = []
+	const dataPoints: number[] = new Array(96).fill(0)
+	const intervalMs = 15 * 60 * 1000 // 15 minutes in milliseconds
 
-		if (isNewDay) {
-			return currentDate.toLocaleDateString("en-US", {
-				weekday: "short", // "Mon"
-				day: "2-digit", // "06"
-			})
+	// Helper: Format a Date as "HH:mm"
+	const formatTime = (date: Date): string =>
+		`${date.getHours().toString().padStart(2, "0")}:${date
+			.getMinutes()
+			.toString()
+			.padStart(2, "0")}`
+
+	// Generate labels for every 15-minute bucket.
+	// Every 12th bucket (every 3 hours) gets a visible label.
+	for (let i = 0; i < 96; i++) {
+		const bucketTime = new Date(startTime.getTime() + i * intervalMs)
+		if (i % 12 === 0) {
+			if (i === 0) {
+				// For the very first bucket, show the time.
+				labels.push(formatTime(bucketTime))
+			} else {
+				// Compare with the previous labeled bucket (12 intervals earlier)
+				const prevBucketTime = new Date(startTime.getTime() + (i - 12) * intervalMs)
+				if (bucketTime.toDateString() !== prevBucketTime.toDateString()) {
+					// New day: display as "Tue 11"
+					labels.push(
+						bucketTime.toLocaleDateString("en-US", {
+							weekday: "short",
+							day: "numeric",
+						})
+					)
+				} else {
+					// Same day: display as "HH:mm"
+					labels.push(formatTime(bucketTime))
+				}
+			}
+		} else {
+			labels.push("") // no visible label for this bucket
 		}
+	}
 
-		return currentDate.toLocaleTimeString("en-US", {
-			hour: "2-digit", // "18"
-			minute: "2-digit", // "00"
-			hour12: false, // Use 24-hour format
-		})
+	// Bucket the data points into their respective 15-minute intervals.
+	timeseriesData.forEach((item) => {
+		const timestamp = new Date(item.dimensions.ts)
+		// Only include data points within the 24-hour window.
+		if (timestamp < startTime || timestamp > endTime) {
+			return
+		}
+		const diffMs = timestamp.getTime() - startTime.getTime()
+		const bucketIndex = Math.floor(diffMs / intervalMs)
+		if (bucketIndex >= 0 && bucketIndex < dataPoints.length) {
+			dataPoints[bucketIndex] += item.sum.visits
+		}
 	})
 
-	const data = timeseriesData.map((item) => item.sum.visits)
-
-	// Update chart data
 	chartsData.value = {
 		"Analytics Timeseries": {
 			labels: labels,
 			datasets: [
 				{
 					label: "Total visits",
-					data: data,
+					data: dataPoints,
 					borderColor: "#007bff",
 					backgroundColor: "transparent",
 					fill: false,
@@ -312,11 +354,15 @@ const setChartDataAndOptions = () => {
 		},
 	}
 
-	// Update chart options
+	// Update the chart options, adding tooltip callbacks.
 	chartsOptions.value = {
 		"Analytics Timeseries": {
 			maintainAspectRatio: false,
 			responsive: true,
+			interaction: {
+				mode: "index",
+				intersect: false,
+			},
 			plugins: {
 				legend: { display: true },
 				tooltip: {
@@ -325,6 +371,25 @@ const setChartDataAndOptions = () => {
 					bodyColor: "#fff",
 					borderColor: "#fff",
 					borderWidth: 1,
+					callbacks: {
+						// The title callback computes the full date/time for the hovered bucket.
+						title: (tooltipItems) => {
+							// Get the dataIndex from the first hovered item.
+							const index = tooltipItems[0].dataIndex
+							const bucketTime = new Date(startTime.getTime() + index * intervalMs)
+							// Format the bucketTime as "YYYY-MM-DD HH:mm"
+							const year = bucketTime.getFullYear()
+							const month = (bucketTime.getMonth() + 1).toString().padStart(2, "0")
+							const day = bucketTime.getDate().toString().padStart(2, "0")
+							const hours = bucketTime.getHours().toString().padStart(2, "0")
+							const minutes = bucketTime.getMinutes().toString().padStart(2, "0")
+							return `${year}-${month}-${day} ${hours}:${minutes}`
+						},
+						// The label callback shows the count.
+						label: (tooltipItem) => {
+							return `Count: ${tooltipItem.parsed.y}`
+						},
+					},
 				},
 			},
 			scales: {
@@ -340,8 +405,8 @@ const setChartDataAndOptions = () => {
 		},
 	}
 
-	// Add summary metric for total visits
-	const totalVisits = data.reduce((sum, visits) => sum + visits, 0)
+	// Update summary metrics (example: total visits).
+	const totalVisits = dataPoints.reduce((sum, visits) => sum + visits, 0)
 	summaryMetrics.value = [
 		{
 			id: 1,
@@ -358,14 +423,117 @@ const handleCardClick = (metricLabel: string) => {
 	selectedMetric.value = metricLabel
 }
 
-const labels = ["LCP", "INP", "FID", "CLS"]
-const data = [80, 70, 90, 60]
-const backgroundColors = ["#22c55e", "#22c55e", "#22c55e", "#22c55e"]
+const visitsTotal = computed(() => {
+	const accounts = props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts
 
-const thresholdColors = data.map((value) => {
-	if (value >= 80) return "#22c55e"
-	else if (value >= 50) return "#facc15"
-	else return "#ef4444"
+	if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+		return 0
+	}
+
+	return accounts.reduce((accountSum, account) => {
+		if (!account.series || !Array.isArray(account.series)) {
+			return accountSum
+		}
+
+		const seriesSum = account.series.reduce((seriesTotal, seriesItem) => {
+			return seriesTotal + (seriesItem.sum?.visits || 0)
+		}, 0)
+
+		return accountSum + seriesSum
+	}, 0)
+})
+
+const pageViewsTotal = computed(() => {
+	const accounts = props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts
+	if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+		return 0
+	}
+
+	return accounts.reduce((totalSum, account) => {
+		if (!account.series || !Array.isArray(account.series)) {
+			return totalSum
+		}
+
+		const accountSeriesSum = account.series.reduce((sum, seriesItem) => {
+			return sum + (seriesItem.count || 0)
+		}, 0)
+
+		return totalSum + accountSeriesSum
+	}, 0)
+})
+
+const pageViewsChartData = computed(() => {
+	const timeseriesData =
+		props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts[0]?.series || []
+
+	const now = new Date()
+	const roundedNow = new Date(now)
+	const currentMinutes = roundedNow.getMinutes()
+	roundedNow.setMinutes(currentMinutes - (currentMinutes % 15), 0, 0)
+	const endTime = roundedNow
+
+	const startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 1000)
+
+	const labels: string[] = []
+	const dataPoints: number[] = new Array(96).fill(0)
+	const intervalMs = 15 * 60 * 1000 
+
+	const formatTimeInternal = (date: Date): string =>
+		`${date.getHours().toString().padStart(2, "0")}:${date
+			.getMinutes()
+			.toString()
+			.padStart(2, "0")}`
+
+	for (let i = 0; i < 96; i++) {
+		const bucketTime = new Date(startTime.getTime() + i * intervalMs)
+		if (i % 12 === 0) {
+			if (i === 0) {
+				labels.push(formatTimeInternal(bucketTime))
+			} else {
+				const prevBucketTime = new Date(startTime.getTime() + (i - 12) * intervalMs)
+				if (bucketTime.toDateString() !== prevBucketTime.toDateString()) {
+					labels.push(
+						bucketTime.toLocaleDateString("en-US", {
+							weekday: "short",
+							day: "numeric",
+						})
+					)
+				} else {
+					labels.push(formatTimeInternal(bucketTime))
+				}
+			}
+		} else {
+			labels.push("")
+		}
+	}
+
+	timeseriesData.forEach((item) => {
+		const timestamp = new Date(item.dimensions.ts)
+		if (timestamp < startTime || timestamp > endTime) {
+			return
+		}
+		const diffMs = timestamp.getTime() - startTime.getTime()
+		const bucketIndex = Math.floor(diffMs / intervalMs)
+		if (bucketIndex >= 0 && bucketIndex < dataPoints.length) {
+			dataPoints[bucketIndex] += item.count || 0
+		}
+	})
+
+	return {
+		labels: labels,
+		datasets: [
+			{
+				label: "Page Views",
+				data: dataPoints,
+				borderColor: "#3b82f6",
+				backgroundColor: "transparent",
+				fill: false,
+				tension: 0,
+				borderWidth: 2,
+				pointRadius: 0,
+			},
+		],
+	}
 })
 
 onMounted(() => {
@@ -384,39 +552,17 @@ watch(value, handleSelectChange)
 
 				<OverviewCard
 					label="Visits"
-					:value="39"
-					:percentageChange="-72.34"
-					:chartData="{
-						labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-						datasets: [
-							{
-								label: 'Visits',
-								data: [10, 20, 15, 10, 5, 10, 5],
-								borderColor: '#3b82f6',
-								backgroundColor: 'rgba(59, 130, 246, 0.2)',
-								fill: true,
-							},
-						],
-					}" />
+					:value="visitsTotal"
+					:percentageChange="0"
+					:chartData="chartsData['Analytics Timeseries']" />
 
 				<OverviewCard
 					label="Page Views"
-					:value="310"
-					:percentageChange="-72.34"
-					:chartData="{
-						labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-						datasets: [
-							{
-								label: 'Visits',
-								data: [10, 20, 15, 10, 5, 10, 5],
-								borderColor: '#3b82f6',
-								backgroundColor: 'rgba(59, 130, 246, 0.2)',
-								fill: true,
-							},
-						],
-					}" />
+					:value="pageViewsTotal"
+					:percentageChange="0"
+					:chartData="pageViewsChartData" />
 
-				<OverviewCard
+				<!-- 				<OverviewCard
 					label="Page Load Time"
 					value="1781ms"
 					:percentageChange="-72.34"
@@ -433,38 +579,12 @@ watch(value, handleSelectChange)
 						],
 					}" />
 
-				<!-- Core Web Vitals -->
-				<HorizontalCard :labels="labels" :data="data" :backgroundColors="thresholdColors" />
+				<HorizontalCard :labels="labels" :data="data" :backgroundColors="thresholdColors" /> -->
 			</div>
 
 			<!-- Main Content -->
 			<div class="lg:col-span-3">
 				<div class="bg-white rounded-lg shadow-md p-6">
-					<!-- Title and Filters -->
-					<div class="flex justify-between items-center mb-6">
-						<div>
-							<h2 class="text-lg font-semibold text-gray-700">
-								Web Analytics for example.com
-							</h2>
-							<p class="text-sm text-gray-500">
-								Overview of site performance and visitor statistics
-							</p>
-						</div>
-						<div class="flex space-x-4 items-center">
-							<button
-								class="bg-blue-500 text-white text-sm font-medium py-2 px-4 rounded-md shadow hover:bg-blue-600">
-								Add Filter
-							</button>
-							<select
-								class="border border-gray-300 rounded-md py-2 px-4 text-sm text-gray-700">
-								<option>Last 24 Hours</option>
-								<option>Last 7 Days</option>
-								<option>Last 14 Days</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Graph -->
 					<div class="relative">
 						<Chart
 							type="line"

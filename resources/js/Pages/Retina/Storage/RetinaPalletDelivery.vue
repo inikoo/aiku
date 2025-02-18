@@ -28,6 +28,9 @@ import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStored
 import RetinaBoxStatsDelivery from "@/Components/Retina/Storage/RetinaBoxStatsDelivery.vue"
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { Table as TableTS } from '@/types/Table'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -59,6 +62,11 @@ const props = defineProps<{
     }
     upload_spreadsheet: UploadPallet
 
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
+
     storedItemsRoute: {
         index: routeType
         store: routeType
@@ -79,6 +87,12 @@ const props = defineProps<{
 
     physical_goods?: Table
     physical_good_list_route: routeType
+
+    attachments: {}
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -100,7 +114,8 @@ const component = computed(() => {
         stored_items: TableStoredItems,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 
@@ -332,6 +347,8 @@ const onClickDisabledSubmit = () => {
     }
 }
 
+const isModalUploadFileOpen = ref(false)
+
 </script>
 
 <template>
@@ -358,6 +375,10 @@ const onClickDisabledSubmit = () => {
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    :title="action.title"
+                    :isWithMessage="action.ask_why"
+                    :whyLabel="action.why_label"
+                    :description="action.description"
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
@@ -672,6 +693,16 @@ const onClickDisabledSubmit = () => {
                 </div>
             </div>
         </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
     
     <!-- Box: Public Notes -->
@@ -734,7 +765,18 @@ const onClickDisabledSubmit = () => {
         :tableKey="tableKey"
         :storedItemsRoute="storedItemsRoute"
         @renderTableKey="() => (console.log('emit render', changeTableKey()))"
-    />
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <!-- <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
@@ -752,6 +794,18 @@ const onClickDisabledSubmit = () => {
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 
     <!-- <pre>{{ props.pallets }}</pre> -->

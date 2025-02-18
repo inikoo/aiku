@@ -27,12 +27,19 @@ task('deploy:set-release', function () {
 });
 
 
+desc('Sync octane anchor');
+task('deploy:sync-octane-anchor', function () {
+    run("rsync -avhH --delete {{release_path}}/ {{deploy_path}}/anchor/octane");
+});
+
 
 set('keep_releases', 50);
 
 set('shared_dirs', ['storage', 'private']);
 set('shared_files', [
+    'frankenphp',
     'rr',
+    '.rr.yaml',
     '.env',
     '.env.testing',
     '.user.ini',
@@ -76,5 +83,6 @@ task('deploy', [
     'deploy:publish',
     'artisan:horizon:terminate',
     'artisan:pulse:restart',
-   // 'artisan:octane:reload'
+    'deploy:sync-octane-anchor',
+    'artisan:octane:reload',
 ]);

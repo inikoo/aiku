@@ -93,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletStoredItem> $palletStoredItems
  * @property-read Rental|null $rental
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
@@ -157,7 +158,7 @@ class Pallet extends Model implements Auditable
         'status',
         'state',
         'type',
-        'notes',
+        'notes'
     ];
 
     public function getRouteKeyName(): string
@@ -205,9 +206,14 @@ class Pallet extends Model implements Auditable
         return $this->hasMany(MovementPallet::class);
     }
 
+    public function palletStoredItems(): HasMany
+    {
+        return $this->hasMany(PalletStoredItem::class);
+    }
+
     public function storedItems(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity', 'delivered_quantity')->withTimestamps();
     }
 
     public function storedItemAuditDeltas(): BelongsToMany

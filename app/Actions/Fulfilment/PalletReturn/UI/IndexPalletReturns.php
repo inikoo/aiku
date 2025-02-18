@@ -25,7 +25,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -43,15 +42,20 @@ class IndexPalletReturns extends OrgAction
 
 
     private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
+    private ?string $restriction = null;
+    private ?string $type = null;
+
+
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
             $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit = $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
+
             return $request->user()->authTo("fulfilment.{$this->warehouse->id}.view");
         }
 
@@ -64,7 +68,7 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -73,7 +77,7 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -82,7 +86,28 @@ class IndexPalletReturns extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseHandling(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'handling';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseDispatched(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'dispatched';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
     }
 
     protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
@@ -130,8 +155,8 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
-        if ($type = request()->get('type')) {
-            $queryBuilder->where('type', $type);
+        if ($this->type) {
+            $queryBuilder->where('type', $this->type);
         }
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -143,8 +168,25 @@ class IndexPalletReturns extends OrgAction
             );
         }
 
+        if ($this->restriction) {
+            switch ($this->restriction) {
+                case 'dispatched':
+                    $queryBuilder->where('state', PalletReturnStateEnum::DISPATCHED);
+                    break;
+                case 'handling':
+                    $queryBuilder->whereIn(
+                        'state',
+                        [
+                            PalletReturnStateEnum::CONFIRMED,
+                            PalletReturnStateEnum::PICKING,
+                            PalletReturnStateEnum::PICKED
+                        ]
+                    );
+            }
+        }
+
+        $queryBuilder->defaultSort('-created_at');
         return $queryBuilder
-            ->defaultSort('reference')
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch, 'type'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -174,8 +216,8 @@ class IndexPalletReturns extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Fulfilment' => [
-                            'title'       => __('No pallet returns found for this shop'),
-                            'count'       => $parent->stats->number_pallet_returns
+                            'title' => __('No pallet returns found for this shop'),
+                            'count' => $parent->stats->number_pallet_returns
                         ],
                         'Warehouse' => [
                             'title'       => __('No pallet returns found for this warehouse'),
@@ -195,7 +237,7 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
+                // ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true)
@@ -211,34 +253,72 @@ class IndexPalletReturns extends OrgAction
     public function htmlResponse(LengthAwarePaginator $returns, ActionRequest $request): Response
     {
         $navigation = PalletReturnsTabsEnum::navigation();
-        if ($this->parent instanceof Group || $this->parent instanceof Warehouse) {
+        if ($this->parent instanceof Warehouse) {
             unset($navigation[PalletReturnsTabsEnum::UPLOADS->value]);
         }
         $subNavigation = [];
 
-        $icon      = ['fal', 'fa-sign-out-alt'];
-        $title     = __('returns');
+        $icon       = ['fal', 'fa-sign-out-alt'];
+        $title      = __('returns');
         $afterTitle = null;
-        $iconRight = null;
-        $model     = null;
+        $iconRight  = null;
+        $model      = null;
 
-        if ($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         = ['fal', 'fa-user'];
-            $title        = $this->parent->customer->name;
-            $iconRight    = [
+            $icon          = ['fal', 'fa-user'];
+            $title         = $this->parent->customer->name;
+            $iconRight     = [
                 'icon' => 'fal fa-sign-out-alt',
             ];
-            $afterTitle = [
+            $afterTitle    = [
 
-                'label'     => __('returns')
+                'label' => __('returns')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
         } elseif ($this->parent instanceof Warehouse) {
-            $icon         = ['fal', 'fa-arrow-from-left'];
-            $model        = __('Goods Out');
-            $iconRight    = ['fal', 'fa-sign-out-alt'];
+            $icon      = ['fal', 'fa-arrow-from-left'];
+            $model     = __('Goods Out');
+            $iconRight = ['fal', 'fa-sign-out-alt'];
+        }
+
+
+        $actions = [];
+
+
+
+
+
+        if ($this->parent->number_pallets_status_storing) {
+            $actions[] = [
+                'type'        => 'button',
+                'style'       => 'create',
+                'tooltip'     => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                'label'       => $this->parent->items_storage ? __('Return (whole pallet) ') : __('Return'),
+                'fullLoading' => true,
+                'route'       => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
+        }
+        if ($this->parent->items_storage) {
+            if ($this->parent->number_pallets_with_stored_items_state_storing > 0) {
+                $actions[] = [
+                    'type'        => 'button',
+                    'style'       => 'create',
+                    'tooltip'     => __('Create new return (Customer SKUs)'),
+                    'label'       => __('Return (Customer SKUs)'),
+                    'fullLoading' => true,
+                    'route'       => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                        'parameters' => [$this->parent->id]
+                    ]
+                ];
+            }
         }
 
         return Inertia::render(
@@ -256,42 +336,7 @@ class IndexPalletReturns extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                                $this->parent->number_pallets_status_storing ? [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
-                                    'label'   => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
-                                    'fullLoading'   => true,
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                        'parameters' => [$this->parent->id]
-                                    ]
-                                ] : false,
-
-                            default => null
-                        },
-                        match (class_basename($this->parent)) {
-                            'FulfilmentCustomer' =>
-                            $this->parent->items_storage ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new return (stored items)'),
-                                'label'   => __('Return (Stored items)'),
-                                'fullLoading'   => true,
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
-                                    'parameters' => [$this->parent->id]
-                                ]
-                            ] : false,
-
-                            default => null
-                        }
-                    ]
+                    'actions'       => $actions
                 ],
                 'data'        => PalletReturnsResource::collection($returns),
 
@@ -310,12 +355,11 @@ class IndexPalletReturns extends OrgAction
 
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix: PalletReturnsTabsEnum::RETURNS->value))
-        ->table(IndexPalletReturnItemUploads::make()->tableStructure(prefix:PalletReturnsTabsEnum::UPLOADS->value));
+            ->table(IndexPalletReturnItemUploads::make()->tableStructure(prefix: PalletReturnsTabsEnum::UPLOADS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
@@ -330,7 +374,6 @@ class IndexPalletReturns extends OrgAction
         };
 
         return match ($routeName) {
-
             'grp.org.warehouses.show.dispatching.pallet-returns.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
@@ -338,7 +381,7 @@ class IndexPalletReturns extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','warehouse'])
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                     ]
                 )
             ),
@@ -350,7 +393,7 @@ class IndexPalletReturns extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
                 )
             ),
@@ -361,14 +404,10 @@ class IndexPalletReturns extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                     ]
                 )
             ),
-
         };
-
-
-
     }
 }

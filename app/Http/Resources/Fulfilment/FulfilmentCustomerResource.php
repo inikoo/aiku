@@ -26,7 +26,7 @@ class FulfilmentCustomerResource extends JsonResource
             'radioTabs' => [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
                 'items_storage'   => $fulfilmentCustomer->items_storage,
-                'dropshipping'    => $fulfilmentCustomer->dropshipping,
+                // 'dropshipping'    => $fulfilmentCustomer->dropshipping,
                 'space_rental'    => $fulfilmentCustomer->space_rental,
             ],
             'number_pallets'                => $fulfilmentCustomer->number_pallets,

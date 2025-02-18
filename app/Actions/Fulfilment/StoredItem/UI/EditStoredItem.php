@@ -67,7 +67,9 @@ class EditStoredItem extends OrgAction
                 ),
                 'title'       => __("customer's sKUs"),
                 'pageHead'    => [
-                    'title'     => __("customer's sKUs"),
+                    'model'     => __("Customer's SKU"),
+                    'title'     => $storedItem->slug,
+                    'icon'      => 'fal fa-narwhal',
                     'actions'   => [
                         [
                             'type'  => 'button',
@@ -82,8 +84,8 @@ class EditStoredItem extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Item'),
-                            'icon'   => ['fal', 'fa-narwhal'],
+                            'label'  => __('Basic information'),
+                            // 'icon'   => ['fal', 'fa-narwhal'],
                             'fields' => [
                                 'reference' => [
                                     'type'    => 'input',
@@ -91,7 +93,14 @@ class EditStoredItem extends OrgAction
                                     'value'   => $storedItem->reference,
                                     'required' => true
                                 ],
-                            ]
+                                'name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('name'),
+                                    'placeholder'   => __('Customer\'s SKU name'),
+                                    'value'   => $storedItem->name,
+                                    // 'required' => true
+                                ],
+                            ],
                         ]
                     ],
                     'args' => [

@@ -7,12 +7,12 @@ import Fieldset from 'primevue/fieldset'
 import { router } from '@inertiajs/vue3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faHelmetBattle, faStar, faCheckCircle } from '@fas'
+import { faHelmetBattle, faStar, faCheckCircle, faComputerClassic } from '@fas'
 import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
 import EmployeePositionPictogram from './EmployeePositionPictogram.vue'
-library.add(faHelmetBattle, faStar, faCheckCircle, faCircle)
+library.add(faHelmetBattle, faStar, faCheckCircle, faComputerClassic, faCircle)
 
 interface Organisation {
     slug: string
@@ -98,12 +98,12 @@ const groupPositionList = {
     },
 }
 
-Object.keys(props.data_pictogram.organisations).forEach(key => {
-    console.log('key', key)
-    if (Array.isArray(props.data_pictogram.organisations[key]) && props.data_pictogram.organisations[key].length === 0) {
-        props.data_pictogram.organisations[key] = {}
-    }
-})
+// Object.keys(props.data_pictogram.organisations).forEach(key => {
+//     console.log('key', key)
+//     if (Array.isArray(props.data_pictogram.organisations[key]) && props.data_pictogram.organisations[key].length === 0) {
+//         props.data_pictogram.organisations[key] = {}
+//     }
+// })
 
 const isRadioChecked = (subDepartmentSlug: string) => {
     return props.data_pictogram?.group?.includes(subDepartmentSlug)
@@ -151,7 +151,7 @@ const organisationPositionCounts = ref<{
                                                             <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                             <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                         </template>
-                                                        <template v-else-if="data_pictogram.group.includes(subDepartment.slug)">
+                                                        <template v-else-if="data_pictogram?.group?.includes(subDepartment.slug)">
                                                             <FontAwesomeIcon icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                         </template>
                                                         <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />

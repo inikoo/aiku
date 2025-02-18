@@ -10,16 +10,16 @@ import { faRobot, faPlus, faMinus, faUndoAlt } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import InputNumber from "primevue/inputnumber"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { faSave as fadSave } from "@fad"
 import { faSave as falSave, faInfoCircle } from "@fal"
-import { faAsterisk, faQuestion, faSpinner } from "@fas"
+import { faAsterisk, faQuestion, faSpinner, faMinus as fasMinus, faPlus as fasPlus } from "@fas"
 import { useForm } from "@inertiajs/vue3"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 import { routeType } from "@/types/route"
 import { trans } from "laravel-vue-i18n"
 
-library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner )
+library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner, fasMinus, fasPlus )
 
 const props = defineProps<{
     modelValue: number
@@ -27,14 +27,24 @@ const props = defineProps<{
     max?: number
     saveOnForm?: boolean
     routeSubmit?: routeType
+    allowZero?: boolean
+    noUndoButton?: boolean
+    noSaveButton?: boolean
     keySubmit?: string
-    bindToTarget?: {}
+    bindToTarget?: {
+        max?: number
+        min?: number
+        step?: number
+    }
+    colorTheme?: string  // '#374151'
 }>()
 
 const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
+    (e: 'update:modelValue', value: number): void
 }>()
 
+const model = defineModel()
 
 const form = useForm({
     quantity: props.modelValue,
@@ -58,20 +68,47 @@ const onSaveViaForm = () => {
 
 const keyIconUndo = ref(0)
 
+defineOptions({
+    inheritAttrs: false
+})
+
+watch(() => form.quantity, (newVal: number) => {
+    emits('update:modelValue', newVal)
+})
+
+
+const onClickMinusButton = () => {
+    // Check if the quantity is less than or equal to the minimum value and prevent decrease
+    if ((props.bindToTarget?.min !== undefined && form.quantity <= props.bindToTarget?.min) || 
+        (props.min !== undefined && form.quantity <= props.min)) {
+        return false; // Prevent decreasing when the quantity is at or below the min value
+    } else {
+        form.quantity--; // Decrease the quantity if it's above the minimum
+    }
+}
+const onClickPlusButton = () => {
+    // Prevent increase when quantity is at or exceeds max value (including max being 0)
+    if ((props.bindToTarget?.max !== undefined && form.quantity >= props.bindToTarget?.max) || 
+        (props.max !== undefined && form.quantity >= props.max)) {
+        return false; // Prevent increase if quantity is at or exceeds max value
+    } else {
+        form.quantity++; // Increase quantity if it's less than the max
+    }
+}
 </script>
 
 <template>
     <div class="relative w-full">
-        <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1">
+        <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1 py-0.5">
             <!-- Button: Save -->
-            <button
+            <button v-if="!noUndoButton"
                 @click="() => (keyIconUndo++, form.reset('quantity'))"
                 v-tooltip="trans('Reset value')"
-                class="relative flex items-center justify-center p-2"
-                :class="form.isDirty ? 'cursor-pointer hover:text-gray-800 disabled:text-gray-400' : 'text-gray-400'"
+                class="relative flex items-center justify-center px-1 py-1.5 "
+                :class="form.isDirty ? 'cursor-pointer hover:text-gray-800 disabled:text-gray-400 hover:bg-gray-200 rounded' : 'text-gray-400'"
                 :disabled="form.processing || !form.isDirty"
                 type="submit">
-                <div class="text-base flex items-center rounded-full hover:bg-gray-200 cursor-pointer">
+                <div class="text-sm flex items-center">
                     <Transition name="spin-to-left">
                         <FontAwesomeIcon :key="keyIconUndo" icon='far fa-undo-alt' class='' fixed-width aria-hidden='true' />
                     </Transition>
@@ -81,17 +118,22 @@ const keyIconUndo = ref(0)
             <!-- Section: - and + -->
             <div class="transition-all relative inline-flex items-center justify-center" :class="bindToTarget?.fluid ? 'w-full' : 'w-28'">
                 <!-- Button: Minus -->
-                <div @click="form.quantity = form.quantity > 0 ? form.quantity - 1 : 1"
+                <div @click="() => onClickMinusButton()"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
-                    <FontAwesomeIcon icon="fas fa-minus" fixed-width aria-hidden="true" />
+                    <FontAwesomeIcon icon="fas fa-minus" :class="form.quantity < 1 ? 'text-gray-400' : ''" fixed-width aria-hidden="true" />
                 </div>
 
                 <!-- Input -->
                 <div
-                    class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
+                    class="mx-1 text-center tabular-nums rounded-md"
+                    :style="{
+                        border: `1px dashed ${(colorTheme ? colorTheme : null) || '#374151'}55`,
+                    }"
+                >
                     <InputNumber 
                         v-model="form.quantity" 
                         @update:model-value="(e)=>form.quantity=e"
+                        @input="(e) => form.quantity = e.value"
                         buttonLayout="horizontal" 
                         :min="min || 0"
                         :max="max || undefined"
@@ -99,44 +141,37 @@ const keyIconUndo = ref(0)
                         :inputStyle="{
                             padding: '0px',
                             width: bindToTarget?.fluid ? undefined : '50px',
-                            color: 'gray',
+                            color: colorTheme ?? '#374151',
                             border: 'none',
                             textAlign: 'center',
+                            background: (colorTheme ? colorTheme + '22' : null ) ?? 'transparent',
                         }"
                         v-bind="bindToTarget"
                     />
                 </div>
+                
                 <!-- Button: Plus -->
-                <div @click="() => form.quantity++"
+                <div @click="() => onClickPlusButton()"
                     class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                     <FontAwesomeIcon icon="fas fa-plus" fixed-width aria-hidden="true" />
                 </div>
             </div>
 
             <!-- Button: Save -->
-            <button class="relative flex items-center justify-center p-2"
+            <button v-if="!noSaveButton" class="relative flex items-center justify-center px-1 py-0.5 text-sm"
                 :class="{ 'text-gray-400': !form.isDirty }"
                 :disabled="form.processing || !form.isDirty" type="submit">
-                <LoadingIcon v-if="form.processing" class="text-2xl" />
-                <template v-else>
-                    <FontAwesomeIcon v-if="form.isDirty" @click="saveOnForm ? onSaveViaForm() : emits('onSave', form)"
-                        :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-2xl"
-                        aria-hidden="true" />
-                    <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-2xl" aria-hidden="true" />
-                </template>
+                <slot name="save" :isProcessing="form.processing" :isDirty="form.isDirty" :onSaveViaForm="onSaveViaForm">
+                    <LoadingIcon v-if="form.processing" class="text-xl" />
+                    <template v-else>
+                        <FontAwesomeIcon v-if="form.isDirty" @click="saveOnForm ? onSaveViaForm() : emits('onSave', form)"
+                            :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" icon="fad fa-save" fixed-width class=" cursor-pointer text-xl"
+                            aria-hidden="true" />
+                        <FontAwesomeIcon v-else icon="fal fa-save" fixed-width class="text-xl" aria-hidden="true" />
+                    </template>
+                </slot>
             </button>
         </div>
     </div>
 </template>
 
-<style scoped>
-::v-deep(.p-inputnumber) {
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s;
-}
-
-::v-deep(.p-inputnumber:focus-within) {
-    border-bottom: 2px solid #4b5563;
-    /* gray-500 */
-}
-</style>

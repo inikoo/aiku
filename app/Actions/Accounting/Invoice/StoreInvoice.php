@@ -206,7 +206,12 @@ class StoreInvoice extends OrgAction
                 'max:64',
                 'string'
             ];
+            $rules['is_vip'] = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
+            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
 
+
+            $rules['invoice_category_id'] = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
             $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
             $rules['billing_address'] = ['required', new ValidAddress()];
             $rules                    = $this->orderingAmountNoStrictFields($rules);

@@ -8,6 +8,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
+use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydratePallets;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -26,8 +28,10 @@ class AttachStoredItemToPallet extends OrgAction
 
     public function handle(Pallet $pallet, StoredItem $storedItem, int $quantity): void
     {
-        $pallet->storedItems()->attach([$storedItem->id], [
-            'quantity' => $quantity
+        $pallet->storedItems()->syncWithoutDetaching([
+            $storedItem->id => ['quantity' => $quantity]
         ]);
+        PalletHydrateStoredItems::dispatch($pallet);
+        StoreItemHydratePallets::dispatch($storedItem);
     }
 }

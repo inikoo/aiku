@@ -82,6 +82,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_outboxes_type_send_invoice_to_customer
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @method static Builder<static>|OrganisationCommsStats newModelQuery()
  * @method static Builder<static>|OrganisationCommsStats newQuery()

@@ -21,6 +21,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Events\AuditCustom;
 
@@ -73,9 +74,22 @@ class UpdateFulfilmentCustomer extends OrgAction
         data_forget($modelData, 'shipments_per_week');
         data_forget($modelData, 'size_and_weight');
 
+        if ($fulfilmentCustomer->number_pallets > 0 && Arr::exists($modelData, 'pallets_storage')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have pallets.')]);
+        }
+
+        if ($fulfilmentCustomer->number_spaces > 0 && Arr::exists($modelData, 'space_rental')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have spaces.')]);
+        }
+
+        if ($fulfilmentCustomer->customer->shopifyUser && Arr::exists($modelData, 'dropshipping')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have platform accounts.')]);
+        }
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
-        if ($fulfilmentCustomer->wasChanged()) {
+        $attributes = ['pallets_storage', 'items_storage', 'dropshipping', 'space_rental'];
+        if (collect($attributes)->contains(fn ($attr) => $fulfilmentCustomer->wasChanged($attr))) {
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 

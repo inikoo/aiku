@@ -9,6 +9,7 @@
 namespace App\Models\CRM;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Enums\CRM\Customer\CustomerRejectReasonEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
@@ -105,6 +106,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array<array-key, mixed> $migration_data
+ * @property string|null $registered_at
+ * @property CustomerRejectReasonEnum|null $rejected_reason
+ * @property string|null $rejected_notes
+ * @property \Illuminate\Support\Carbon|null $rejected_at
+ * @property bool $is_vip VIP customer
+ * @property int|null $as_organisation_id Indicate if customer is a organisation in this group
+ * @property int|null $as_employee_id Indicate customer is a employee
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
@@ -176,10 +184,12 @@ class Customer extends Model implements HasMedia, Auditable
         'state'                       => CustomerStateEnum::class,
         'status'                      => CustomerStatusEnum::class,
         'trade_state'                 => CustomerTradeStateEnum::class,
+        'rejected_reason'             => CustomerRejectReasonEnum::class,
         'last_submitted_order_at'     => 'datetime',
         'last_dispatched_delivery_at' => 'datetime',
         'last_invoiced_at'            => 'datetime',
         'fetched_at'                  => 'datetime',
+        'rejected_at'                 => 'datetime',
         'last_fetched_at'             => 'datetime',
     ];
 

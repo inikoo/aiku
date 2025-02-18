@@ -9,16 +9,17 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Models\Accounting\InvoiceCategory;
 use App\Models\SysAdmin\Group;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreInvoiceCategory extends GrpAction
+class StoreInvoiceCategory extends OrgAction
 {
     use WithNoStrictRules;
 
@@ -51,25 +52,36 @@ class StoreInvoiceCategory extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'name' => ['required', 'string'],
-            'state' => ['sometimes', Rule::enum(InvoiceCategoryStateEnum::class)]
+            'name'               => ['required', 'string'],
+            'state'              => ['sometimes', Rule::enum(InvoiceCategoryStateEnum::class)],
+            'data'               => ['sometimes', 'array'],
+            'settings'           => ['sometimes', 'array'],
+            'currency_id'        => ['required', 'integer', 'exists:currencies,id'],
+            'priority'           => ['required', 'integer'],
+            'type'               => ['required', Rule::enum(InvoiceCategoryTypeEnum::class)],
+            'show_in_dashboards' => ['sometimes', 'boolean'],
+            'organisation_id'    => ['nullable', 'integer', Rule::exists('organisations', 'id')->where('group_id', $this->group->id)],
         ];
         if (!$this->strict) {
-            $rules['state']   = ['required', Rule::enum(InvoiceCategoryStateEnum::class)];
-            $rules             = $this->noStrictStoreRules($rules);
+            $rules['state'] = ['required', Rule::enum(InvoiceCategoryStateEnum::class)];
+            $rules          = $this->noStrictStoreRules($rules);
         }
+
         return $rules;
     }
 
     /**
      * @throws \Throwable
      */
-    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): InvoiceCategory
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): InvoiceCategory
     {
-        $this->asAction = true;
-        $this->strict   = $strict;
+        if (!$audit) {
+            InvoiceCategory::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($group, $modelData);
+        $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
     }

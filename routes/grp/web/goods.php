@@ -51,24 +51,24 @@ Route::prefix('stocks')->as('stocks.')->group(function () {
     Route::prefix('in-process')->as('in_process_stocks.')->group(function () {
         Route::get('/', [IndexStocks::class, 'inProcess'])->name('index');
         Route::prefix('{stock}')->group(function () {
-            Route::get('', [ShowStock::class, 'inProcess'])->name('show');
-            Route::get('edit', [EditStock::class, 'inProcess'])->name('edit');
+            Route::get('', ShowStock::class)->name('show');
+            Route::get('edit', EditStock::class)->name('edit');
         });
     });
 
     Route::prefix('discontinuing')->as('discontinuing_stocks.')->group(function () {
         Route::get('/', [IndexStocks::class, 'discontinuing'])->name('index');
         Route::prefix('{stock}')->group(function () {
-            Route::get('', [ShowStock::class, 'discontinuing'])->name('show');
-            Route::get('edit', [EditStock::class, 'discontinuing'])->name('edit');
+            Route::get('', ShowStock::class)->name('show');
+            Route::get('edit', EditStock::class)->name('edit');
         });
     });
 
     Route::prefix('discontinued')->as('discontinued_stocks.')->group(function () {
         Route::get('/', [IndexStocks::class, 'discontinued'])->name('index');
         Route::prefix('{stock}')->group(function () {
-            Route::get('', [ShowStock::class, 'discontinued'])->name('show');
-            Route::get('edit', [EditStock::class, 'discontinued'])->name('edit');
+            Route::get('', ShowStock::class)->name('show');
+            Route::get('edit', EditStock::class)->name('edit');
         });
     });
 

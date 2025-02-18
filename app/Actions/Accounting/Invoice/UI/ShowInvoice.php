@@ -12,9 +12,10 @@ use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
@@ -31,6 +32,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowInvoice extends OrgAction
 {
+    use IsInvoiceUI;
+    use WithFulfilmentCustomerSubNavigation;
+
     private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
     public function handle(Invoice $invoice): Invoice
@@ -38,32 +42,6 @@ class ShowInvoice extends OrgAction
         return $invoice;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-
-        if ($this->parent instanceof Organisation) {
-            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
-        } elseif ($this->parent instanceof Shop) {
-            //todo think about it
-            return false;
-        } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->authTo(
-                [
-                    "fulfilment-shop.{$this->fulfilment->id}.view",
-                    "accounting.{$this->fulfilment->organisation_id}.view"
-                ]
-            );
-        } elseif ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->authTo(
-                [
-                    "fulfilment-shop.{$this->fulfilment->id}.view",
-                    "accounting.{$this->fulfilment->organisation_id}.view"
-                ]
-            );
-        }
-
-        return false;
-    }
 
     public function asController(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
@@ -102,76 +80,56 @@ class ShowInvoice extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-
-        if ($invoice->recurringBill()->exists()) {
-            if ($this->parent instanceof Fulfilment) {
-                $recurringBillRoute = [
-                    'name' => 'grp.org.fulfilments.show.operations.recurring_bills.show',
-                    'parameters' => [$invoice->organisation->slug, $this->parent->slug, $invoice->recurringBill->slug]
-                ];
-            } else {
-                $recurringBillRoute = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                    'parameters' => [$invoice->organisation->slug, $this->parent->fulfilment->slug, $this->parent->slug, $invoice->recurringBill->slug]
-                ];
-            }
-        } else {
-            $recurringBillRoute = null;
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
-        $payAmount = $invoice->total_amount - $invoice->payment_amount;
-        $roundedDiff = round($payAmount, 2);
 
-        $customerRoute = [];
-
-        if ($this->parent instanceof Fulfilment) {
-            $customerRoute = [
-                'name' => 'grp.org.fulfilments.show.crm.customers.show',
-                'parameters' => [
-                    'organisation' => $invoice->organisation->slug,
-                    'fulfilment' => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
-                    'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
-                ]
-            ];
-        } else {
-            $customerRoute = [
-                'name' => 'grp.org.shops.show.crm.customers.show',
-                'parameters' => [
-                    'organisation' => $invoice->organisation->slug,
-                    'shop' => $invoice->shop->slug,
-                    'customer' => $invoice->customer->slug,
-                ]
-            ];
-        }
         $actions = [];
         if (!app()->environment('production')) {
             $actions[] =
                 [
-                    'type' => 'button',
+                    'type'  => 'button',
                     'style' => 'create',
                     'label' => __('create refund'),
                     'route' => [
-                        'method' => 'post',
-                        'name' => 'grp.models.refund.create',
+                        'method'     => 'post',
+                        'name'       => 'grp.models.refund.create',
                         'parameters' => [
                             'invoice' => $invoice->id,
 
                         ],
-                        'body' => [
+                        'body'       => [
                             'referral_route' => [
-                                'name' => $request->route()->getName(),
+                                'name'       => $request->route()->getName(),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ]
                     ],
                 ];
+
+            $actions[] =
+                [
+                    'type'  => 'button',
+                    'style' => 'tertiary',
+                    'label' => __('send invoice'),
+                    'key'   => 'send-invoice',
+                    'route' => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.invoice.send_invoice',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ]
+                ];
         }
 
         $actions[] = [
-            'type' => 'button',
+            'type'  => 'button',
             'style' => 'edit',
             'label' => __('edit'),
             'route' => [
-                'name' => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
                 'parameters' => $request->route()->originalParameters()
             ],
         ];
@@ -179,119 +137,88 @@ class ShowInvoice extends OrgAction
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
-                'title' => __('invoice'),
+                'title'       => __('invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($invoice, $request),
-                    'next' => $this->getNext($invoice, $request),
+                    'next'     => $this->getNext($invoice, $request),
                 ],
-                'pageHead' => [
-                    'model' => __('invoice'),
-                    'title' => $invoice->reference,
-                    'icon' => [
-                        'icon' => ['fal', 'fa-file-invoice-dollar'],
+                'pageHead'    => [
+                    'subNavigation' => $subNavigation,
+                    'model'         => __('invoice'),
+                    'title'         => $invoice->reference,
+                    'icon'          => [
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->reference
                     ],
-                    'actions' => $actions
+                    'actions'       => $actions
                 ],
-                'tabs' => [
-                    'current' => $this->tab,
+                'tabs'        => [
+                    'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
                 'order_summary' => [
                     [
                         [
-                            'label' => __('Services'),
+                            'label'       => __('Services'),
                             'price_total' => $invoice->services_amount
                         ],
                         [
-                            'label' => __('Physical Goods'),
+                            'label'       => __('Physical Goods'),
                             'price_total' => $invoice->goods_amount
                         ],
                         [
-                            'label' => __('Rental'),
+                            'label'       => __('Rental'),
                             'price_total' => $invoice->rental_amount
                         ],
                     ],
                     [
                         [
-                            'label' => __('Charges'),
+                            'label'       => __('Charges'),
                             // 'information'   => __('Shipping fee to your address using DHL service.'),
                             'price_total' => $invoice->charges_amount
                         ],
                         [
-                            'label' => __('Shipping'),
+                            'label'       => __('Shipping'),
                             // 'information'   => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->shipping_amount
                         ],
                         [
-                            'label' => __('Insurance'),
+                            'label'       => __('Insurance'),
                             // 'information'   => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->insurance_amount
                         ],
                         [
-                            'label' => __('Tax'),
+                            'label'       => __('Tax'),
                             'price_total' => $invoice->tax_amount
                         ]
                     ],
                     [
                         [
-                            'label' => __('Total'),
+                            'label'       => __('Total'),
                             'price_total' => $invoice->total_amount
                         ],
                     ],
                 ],
 
                 'exportPdfRoute' => [
-                    'name' => 'grp.org.accounting.invoices.download',
+                    'name'       => 'grp.org.accounting.invoices.download',
                     'parameters' => [
                         'organisation' => $invoice->organisation->slug,
-                        'invoice' => $invoice->slug
+                        'invoice'      => $invoice->slug
                     ]
                 ],
-                'box_stats' => [
-                    'customer' => [
-                        'slug' => $invoice->customer->slug,
-                        'reference' => $invoice->customer->reference,
-                        'route' => $customerRoute,
-                        'contact_name' => $invoice->customer->contact_name,
-                        'company_name' => $invoice->customer->company_name,
-                        'location' => $invoice->customer->location,
-                        'phone' => $invoice->customer->phone,
-                        // 'address'      => AddressResource::collection($invoice->customer->addresses),
-                    ],
-                    'information' => [
-                        'recurring_bill' => [
-                            'reference' => $invoice->reference,
-                            'route' => $recurringBillRoute
-                        ],
-                        'routes' => [
-                            'fetch_payment_accounts' => [
-                                'name' => 'grp.json.shop.payment-accounts',
-                                'parameters' => [
-                                    'shop' => $invoice->shop->slug
-                                ]
-                            ],
-                            'submit_payment' => [
-                                'name' => 'grp.models.invoice.payment.store',
-                                'parameters' => [
-                                    'invoice' => $invoice->id,
-                                    'customer' => $invoice->customer_id,
-                                ]
-                            ]
-
-                        ],
-                        'paid_amount' => $invoice->payment_amount,
-                        'pay_amount' => $roundedDiff
-                    ]
-                ],
+                'box_stats'      => $this->getBoxStats($invoice),
 
                 'invoice' => InvoiceResource::make($invoice),
-
+                'outbox'  => [
+                    'state'          => $invoice->shop->outboxes()->where('code', OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER->value)->first()?->state->value,
+                    'workshop_route' => $this->getOutboxRoute($invoice)
+                ],
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
                     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
@@ -320,11 +247,11 @@ class ShowInvoice extends OrgAction
             return [
                 [
 
-                    'type' => 'modelWithIndex',
+                    'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Invoices') . $suffixIndex,
+                            'label' => __('Invoices').$suffixIndex,
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -332,12 +259,12 @@ class ShowInvoice extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
-        $invoice = Invoice::where('slug', $routeParameters['invoice'])->first();
+        $invoice   = Invoice::where('slug', $routeParameters['invoice'])->first();
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.invoices.show',
@@ -347,11 +274,11 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.fulfilments.show.operations.invoices.all.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.fulfilments.show.operations.invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
                         ]
                     ],
@@ -365,16 +292,16 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.fulfilments.show.operations.invoices.all.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
                         ]
                     ],
                     $suffix,
-                    ' (' . __('All') . ')'
+                    ' ('.__('All').')'
                 ),
             ),
             'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
@@ -384,16 +311,16 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
                         ]
                     ],
                     $suffix,
-                    ' (' . __('Unpaid') . ')'
+                    ' ('.__('Unpaid').')'
                 ),
             ),
 
@@ -404,11 +331,11 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.fulfilments.show.crm.customers.show.invoices.index',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'invoice'])
                         ]
                     ],
@@ -423,16 +350,16 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.accounting.invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.accounting.invoices.all_invoices.show',
+                            'name'       => 'grp.org.accounting.invoices.all_invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
                         ]
                     ],
                     $suffix,
-                    ' (' . __('All') . ')'
+                    ' ('.__('All').')'
                 ),
             ),
 
@@ -443,16 +370,16 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.accounting.invoices.unpaid_invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.unpaid_invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.accounting.invoices.unpaid_invoices.show',
+                            'name'       => 'grp.org.accounting.invoices.unpaid_invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
                         ]
                     ],
                     $suffix,
-                    ' (' . __('Unpaid') . ')'
+                    ' ('.__('Unpaid').')'
                 ),
             ),
 
@@ -463,11 +390,11 @@ class ShowInvoice extends OrgAction
                     $invoice,
                     [
                         'index' => [
-                            'name' => 'grp.org.accounting.invoices.index',
+                            'name'       => 'grp.org.accounting.invoices.index',
                             'parameters' => Arr::only($routeParameters, ['organisation'])
                         ],
                         'model' => [
-                            'name' => 'grp.org.accounting.invoices.show',
+                            'name'       => 'grp.org.accounting.invoices.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
                         ]
                     ],
@@ -507,72 +434,27 @@ class ShowInvoice extends OrgAction
         // $isInvoice = $invoice->type === InvoiceTypeEnum::INVOICE;
 
         return match ($routeName) {
-            'grp.org.accounting.invoices.show' => [
+            'grp.org.accounting.invoices.show', 'grp.org.accounting.invoices.all_invoices.show', 'grp.org.accounting.invoices.unpaid_invoices.show' => [
                 'label' => $invoice->reference,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $invoice->organisation->slug,
-                        'invoice' => $invoice->slug
+                        'invoice'      => $invoice->slug
                     ]
 
                 ]
             ],
-            'grp.org.accounting.invoices.all_invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name' => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'invoice' => $invoice->slug
-                    ]
-
-                ]
-            ],
-            'grp.org.accounting.invoices.unpaid_invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name' => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'invoice' => $invoice->slug
-                    ]
-
-                ]
-            ],
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name' => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'fulfilment' => $this->parent->slug,
-                        'invoice' => $invoice->slug
-                    ]
-
-                ]
-            ],
-            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name' => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'fulfilment' => $this->parent->slug,
-                        'invoice' => $invoice->slug
-                    ]
-
-                ]
-            ],
-
+            'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
+            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
             'grp.org.fulfilments.show.operations.invoices.show' => [
                 'label' => $invoice->reference,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $invoice->organisation->slug,
-                        'fulfilment' => $this->parent->slug,
-                        'invoice' => $invoice->slug
+                        'fulfilment'   => $this->parent->slug,
+                        'invoice'      => $invoice->slug
                     ]
 
                 ]
@@ -582,12 +464,12 @@ class ShowInvoice extends OrgAction
             'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
                 'label' => $invoice->reference,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'fulfilment' => $invoice->shop->fulfilment->slug,
+                        'organisation'       => $invoice->organisation->slug,
+                        'fulfilment'         => $invoice->shop->fulfilment->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice' => $invoice->slug
+                        'invoice'            => $invoice->slug
                     ]
                 ]
             ],

@@ -34,14 +34,16 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
     public function handle(Website $website, array $modelData): array
     {
 
-        // $cacheKey = "cloudflare_analytics_{$website->id}_" . md5(json_encode($modelData));
-        // $cacheTTL = now()->addMinutes(30); // Cache for 30 minutes
+        $user = auth()->user();
 
-        // $cachedData = cache()->get($cacheKey);
 
-        // if ($cachedData) {
-        //     return $cachedData;
-        // }
+        $cacheKey = "ui_state-user:{$user->id};website:{$website->id};filter-analytics:" . md5(json_encode($modelData));
+
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return $cachedData;
+        }
 
         $groupSettings = $website->group->settings;
         $dataWebsite = $website->data;
@@ -55,7 +57,6 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         data_set($modelData, "accountTag", $accountTag);
         data_set($modelData, "siteTag", $siteTag);
         data_set($modelData, "apiToken", $apiToken);
-
 
         $partialShowTopNs = Arr::get($modelData, 'partialShowTopNs');
         if ($partialShowTopNs) {
@@ -92,7 +93,12 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         $rumSparklinePromise = async(fn () => $this->getRumSparkline($modelData));
         $zonePromise = async(fn () => $this->getZone($modelData));
 
-        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseries, $zone] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $rumAnalyticsTimeseriesPromise, $zonePromise]);
+        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseries, $zone] = await([
+            $rumAnalyticsTopNsPromise,
+            $rumSparklinePromise,
+            $rumAnalyticsTimeseriesPromise,
+            $zonePromise
+        ]);
         $rumWebVitals = [];
         foreach ($rumWebVitalsPromise as $key => $promise) {
             [$webVital] = await([$promise]);
@@ -106,8 +112,8 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
             'rumWebVitals' => $rumWebVitals,
             'zone' => $zone,
         ]);
-        // dd($data);
-        // cache()->put($cacheKey, $data, $cacheTTL);
+
+        cache()->put($cacheKey, $data, now()->addMinutes(5));
 
         return $data;
     }
@@ -226,38 +232,5 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
 
         return $this->handle($website, $validatedData);
     }
-
-
-    // public string $commandSignature = "xxx";
-
-    // /**
-    //  * @throws \Exception
-    //  */
-    // public function asCommand($command): int
-    // {
-    //     // if ($command->argument("website")) {
-    //     //     try {
-    //     //         /** @var Website $website */
-    //     //         $website = Website::where("slug", $command->argument("website"))->firstOrFail();
-    //     //     } catch (Exception) {
-    //     //         $command->error("Website not found");
-    //     //         exit();
-    //     //     }
-
-    //     //     $this->action($website, []);
-
-    //     //     $command->line("Website ".$website->slug." fetched");
-
-    //     // } else {
-    //     //     foreach (Website::orderBy('id')->get() as $website) {
-    //     //         $command->line("Website ".$website->slug." fetched");
-    //     //         $this->action($website, []);
-    //     //     }
-    //     // }
-
-
-    //     return 0;
-    // }
-
 
 }

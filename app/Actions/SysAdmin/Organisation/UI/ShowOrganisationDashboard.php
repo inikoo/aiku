@@ -46,6 +46,7 @@ class ShowOrganisationDashboard extends OrgAction
     public function getDashboardInterval(Organisation $organisation, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
+        $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
         $shops            = $organisation->shops;
         $shopCurrencies   = [];
         foreach ($shops as $shop) {
@@ -59,6 +60,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'db_settings'          => $userSettings,
                 'key_currency'         => 'org',
                 'key_shop'             => 'open',
+                'selected_amount'      => $selectedAmount,
                 'selected_shop_closed' => Arr::get($userSettings, 'selected_shop_closed', 'closed'),
                 'selected_shop_open'   => Arr::get($userSettings, 'selected_shop_open', 'open'),
                 'options_shop'         => [
@@ -123,29 +125,57 @@ class ShowOrganisationDashboard extends OrgAction
                 'type'          => $shop->type,
                 'currency_code' => $currencyCode,
                 'state'         => $shop->state,
-                'route'         => $shop->type == ShopTypeEnum::FULFILMENT
-                    ? [
-                        'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-                        'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'fulfilment'   => $shop->slug
-                        ]
-                    ]
-                    : [
-                        'name'       => 'grp.org.shops.show.dashboard',
-                        'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'shop'         => $shop->slug
-                        ]
-                ],
-                'route_invoice' => [
-                    'name'       => 'grp.org.accounting.invoices.index',
+                'route'         => [
+                    'name'       => 'grp.org.shops.show.dashboard',
                     'parameters' => [
                         'organisation' => $organisation->slug,
+                        'shop'         => $shop->slug
+                    ]
+                ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'shop' => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+                'route_refund' => [
+                    'name'       => 'grp.org.shops.show.ordering.refunds.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'shop'        => $shop->slug,
                         'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
             ];
+
+            if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                $responseData['route'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'fulfilment'   => $shop->slug
+                    ]
+                ];
+                $responseData['route_invoice'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+                $responseData['route_refund'] = [
+                    'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'fulfilment'   => $shop->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ];
+            }
+
 
             if ($shop->salesIntervals !== null) {
                 $responseData['interval_percentages']['sales']     = $this->getIntervalPercentage(

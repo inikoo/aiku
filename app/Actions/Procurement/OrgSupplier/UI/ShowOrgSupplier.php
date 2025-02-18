@@ -80,12 +80,12 @@ class ShowOrgSupplier extends OrgAction
                     'next'     => $this->getNext($orgSupplier, $request),
                 ],
                 'pageHead'    => [
-                    'icon'    =>
-                        [
-                            'icon'  => 'fal fa-person-dolly',
-                            'title' => __('supplier')
-                        ],
+                    'icon'    => [
+                        'icon'  => 'fal fa-person-dolly',
+                        'title' => __('supplier')
+                    ],
                     'title'   => $orgSupplier->supplier->name,
+                    'model'     => __('Supplier'),
                     'subNavigation' => $this->getOrgSupplierNavigation($orgSupplier),
                     'actions' => [
                         $this->canEdit ? [

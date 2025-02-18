@@ -9,6 +9,7 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Accounting\PaymentAccountShop\AttachPaymentAccountToShop;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOfferCampaigns;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopPermissions;

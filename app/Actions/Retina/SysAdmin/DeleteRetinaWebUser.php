@@ -9,7 +9,7 @@
 
 namespace App\Actions\Retina\SysAdmin;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
+use App\Actions\CRM\WebUser\DeleteWebUser;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
@@ -24,22 +24,10 @@ class DeleteRetinaWebUser extends RetinaAction
     private bool $action = false;
     public function handle(WebUser $webUser, array $deletedData = [], bool $skipHydrate = false): void
     {
-        $webUser->delete();
-        $webUser = $this->update($webUser, $deletedData, ['data']);
-
-        if (!$skipHydrate) {
-            CustomerHydrateWebUsers::dispatch($webUser->customer);
-        }
+        DeleteWebUser::run($webUser, $deletedData, $skipHydrate);
     }
 
-    public function authorize(ActionRequest $request)
-    {
-        if ($this->action) {
-            return true;
-        }
 
-        return false;
-    }
 
     public function htmlResponse(): RedirectResponse
     {
@@ -56,7 +44,7 @@ class DeleteRetinaWebUser extends RetinaAction
 
     public function action(WebUser $webUser): void
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($webUser->customer->fulfilmentCustomer, []);
 
         $this->handle($webUser);

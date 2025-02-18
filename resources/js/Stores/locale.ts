@@ -48,6 +48,16 @@ export const useLocaleStore = defineStore("locale", () => {
 		}).format(amount || 0)
 	}
 
+	const currencySymbol = (currencyCode: string) => {
+		if(!currencyCode) return '-'
+		
+		return new Intl.NumberFormat('en', {
+			style: 'currency',
+			currency: currencyCode,
+			currencyDisplay: 'symbol'
+		}).formatToParts(123).find(part => part.type === 'currency')?.value || '';
+	}
+
 	const CurrencyShort = (currencyCode: string, number: number, useShort: boolean) => {
 		console.log(useShort,'asdasd');
 		
@@ -75,6 +85,6 @@ export const useLocaleStore = defineStore("locale", () => {
 		}
 	}
 
-	return { language, languageOptions, number, currencyFormat, CurrencyShort }
+	return { language, languageOptions, number, currencyFormat, CurrencyShort, currencySymbol }
 })
 //make same class for all dashboard font size wight and all

@@ -11,20 +11,16 @@ import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross } from "@fal"
-import { Link, router } from "@inertiajs/vue3"
-import Button from "@/Components/Elements/Buttons/Button.vue"
-import Table from "@/Components/Table/Table.vue"
-import Modal from "@/Components/Utils/Modal.vue"
+
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref } from "vue"
 import type { Component } from "vue"
 import type { Navigation } from "@/types/Tabs"
 import { useTabChange } from "@/Composables/tab-change"
-import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue"
+import TablePalletDeliveries from "@/Components/Tables/Retina/TableRetinaPalletDeliveries.vue"
 import TablePalletUploads from "@/Components/Tables/TablePalletUploads.vue"
-import { PalletDelivery } from "@/types/pallet-delivery"
-import TagPallet from '@/Components/TagPallet.vue'
+
 
 library.add(faPlus, faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross)
 

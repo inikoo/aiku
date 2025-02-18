@@ -11,8 +11,8 @@ import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManag
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
-import { trans } from "laravel-vue-i18n";
-import { set } from "lodash";
+import { trans } from "laravel-vue-i18n"
+import { set } from "lodash"
 import { routeType } from "@/types/route"
 import { getStyles } from "@/Composables/styles"
 
@@ -21,7 +21,7 @@ library.add(faCube, faStar, faImage, faPencil)
 const props = defineProps<{
 	modelValue: any
 	webpageData?: any
-	blockData?:Object
+	blockData?: Object
 	// uploadRoutes: routeType
 }>()
 
@@ -30,13 +30,13 @@ const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
 
-const isInWorkshop = inject('isInWorkshop', false)
+const isInWorkshop = inject("isInWorkshop", false)
 
 const openGallery = ref(false)
 const activeImageIndex = ref<number | null>(null)
 
 // Method: on select image from stock images/uploaded images
-const submitImage = (imageData: {source: {}}[]) => {
+const submitImage = (imageData: { source: {} }[]) => {
 	if (activeImageIndex.value !== null) {
 		// const images = toRaw(props.modelValue?.value?.images) || []
 
@@ -47,18 +47,17 @@ const submitImage = (imageData: {source: {}}[]) => {
 
 		// Ensure the array is long enough by filling with empty objects if necessary
 		while (props.modelValue?.value?.images.length <= activeImageIndex.value) {
-			props.modelValue?.value?.images.push({});
+			props.modelValue?.value?.images.push({})
 		}
 
 		// Replace the value at the specified index with dataToPut
 		// props.modelValue.value.images[activeImageIndex.value] = imageData[0];
-		set(props.modelValue.value, ['images', activeImageIndex.value], {
+		set(props.modelValue.value, ["images", activeImageIndex.value], {
 			link_data: {},
 			source: toRaw(imageData[0] || {})?.source,
 		})
 
 		// console.log(props.modelValue?.value?.images)
-
 
 		emits("autoSave")
 	} else {
@@ -76,7 +75,9 @@ const onUpload = async (files: File[], clear: Function) => {
 			formData.append(`images[${index}]`, file)
 		})
 		const response = await axios.post(
-			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData?.id }),
+			route(props.webpageData?.images_upload_route.name, {
+				modelHasWebBlocks: props.blockData?.id,
+			}),
 			formData,
 			{
 				headers: {
@@ -201,24 +202,25 @@ console.log(props.modelValue)
 				target="_blank"
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full overflow-hidden"
-				@click="(e) => isInWorkshop ? e.preventDefault() : null"
-				>
-		
+				@click="(e) => (isInWorkshop ? e.preventDefault() : null)">
 				<Image
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full group-hover:opacity-75"
-				/>
+					class="w-full group-hover:opacity-75" @click="openImageGallery(index - 1)" />
 			</a>
 
-			<div
-				class="bg-gray-800/50 hover:bg-gray-800/80 w-fit absolute flex items-center justify-center gap-x-2 py-2 px-3 opacity-0 top-2/3 group-hover:top-1/2 group-hover:-translate-y-1/2 group-hover:opacity-100 transition-all left-1/2 -translate-x-1/2 text-gray-300 hover:text-white rounded cursor-pointer"
+			<!-- <div
+				class="bg-gray-800/50 hover:bg-gray-800/80 w-fit absolute flex items-center justify-center gap-x-2 py-2 px-3 opacity-0 top-2 right-2 group-hover:opacity-100 transition-all text-gray-300 hover:text-white rounded cursor-pointer"
 				@click="openImageGallery(index - 1)">
-				<FontAwesomeIcon icon='fas fa-image' class='text-lg opacity-40' fixed-width aria-hidden='true' />
+				<FontAwesomeIcon
+					icon="fas fa-image"
+					class="text-lg opacity-40"
+					fixed-width
+					aria-hidden="true" />
 				<div class="text-sm font-semibold whitespace-nowrap">
 					{{ trans("Change image") }}
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<!-- <Gallery
@@ -228,22 +230,21 @@ console.log(props.modelValue)
 		@onPick="submitImage"
 		@onUpload="onUpload" /> -->
 
-
-		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false, activeImageIndex = null)" width="w-3/4">
-			<GalleryManagement 
-				:maxSelected="1" 
-				:closePopup="() => (openGallery = false)" 
-				@submitSelectedImages="submitImage" 
+		<Modal
+			:isOpen="openGallery"
+			@onClose="() => ((openGallery = false), (activeImageIndex = null))"
+			width="w-3/4">
+			<GalleryManagement
+				:maxSelected="1"
+				:closePopup="() => (openGallery = false)"
+				@submitSelectedImages="submitImage"
 				:submitUpload="onUpload"
 				:uploadRoute="{
 					...webpageData?.images_upload_route,
 					parameters: {
-						modelHasWebBlocks: blockData?.id
+						modelHasWebBlocks: blockData?.id,
 					},
-				}"
-			/>
+				}" />
 		</Modal>
 	</div>
-
-	
 </template>

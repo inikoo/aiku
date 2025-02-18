@@ -12,9 +12,11 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Catalogue\RentalsResource;
@@ -22,6 +24,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\PalletDelivery;
 use Inertia\Inertia;
@@ -98,61 +101,61 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     'button' => array_values(
                         array_filter(
                             [
-                        !app()->environment('production') ? [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => ['fal', 'fa-upload'],
-                            'label' => 'upload',
-                        ] : null,
-                        [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => ['far', 'fa-layer-plus'],
-                            'label' => 'multiple',
-                            'route' => [
-                                'name'       => 'retina.models.pallet-delivery.multiple-pallets.store',
-                                'parameters' => [
-                                    'palletDelivery' => $palletDelivery->id
-                                ]
-                            ]
-                        ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('pallet'),
-                            'route' => [
-                                'name'       => 'retina.models.pallet-delivery.pallet.store',
-                                'parameters' => [
-                                    'palletDelivery' => $palletDelivery->id
-                                ]
-                            ]
-                        ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('service'),
-                            'route' => [
-                                'name'       => 'retina.models.pallet-delivery.transaction.store',
-                                'parameters' => [
-                                    'palletDelivery' => $palletDelivery->id
-                                ]
-                            ]
-                        ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('physical good'),
-                            'route' => [
-                                'name'       => 'retina.models.pallet-delivery.transaction.store',
-                                'parameters' => [
-                                    'palletDelivery' => $palletDelivery->id
-                                ]
-                            ]
-                        ],
-                    ],
+                                !app()->environment('production') ? [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => ['fal', 'fa-upload'],
+                                    'label' => 'upload',
+                                ] : null,
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => ['far', 'fa-layer-plus'],
+                                    'label' => 'multiple',
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.multiple-pallets.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
+                                    'label' => __('pallet'),
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.pallet.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
+                                    'label' => __('service'),
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.transaction.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
+                                    'label' => __('physical good'),
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.transaction.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                            ],
                             fn ($button) => $button !== null // Filter out null values
                         )
                     )
@@ -194,20 +197,26 @@ class ShowRetinaPalletDelivery extends RetinaAction
             PalletDeliveryStateEnum::IN_PROCESS,
             PalletDeliveryStateEnum::SUBMITTED
         ])) {
-            $actions = array_merge([[
-                'type'    => 'button',
-                'style'   => 'delete',
-                'tooltip' => __('delete'),
-                'label'   => __('delete'),
-                'key'     => 'delete_delivery',
-                'route'   => [
-                    'method'     => 'delete',
-                    'name'       => 'retina.models.pallet-delivery.delete',
-                    'parameters' => [
-                        'palletDelivery' => $palletDelivery->id
+            $actions = array_merge([
+                [
+                    'type'        => 'button',
+                    'style'       => 'delete',
+                    'tooltip'     => __('delete'),
+                    'label'       => __('delete'),
+                    'key'         => 'delete_delivery',
+                    'ask_why'     => false,
+                    'title'       => __('Are you sure you want to delete this delivery'),
+                    'description' => __('This action cannot be undone'),
+                    'why_label'   => __('Reason for deletion'),
+                    'route'       => [
+                        'method'     => 'patch',
+                        'name'       => 'retina.models.pallet-delivery.delete',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id
+                        ]
                     ]
                 ]
-            ]], $actions);
+            ], $actions);
         }
 
         return Inertia::render(
@@ -227,7 +236,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => $palletDelivery->reference
                     ],
-                    'title'   => $palletDelivery->reference,
+                    'title' => $palletDelivery->reference,
 
                     'actions' => $actions,
 
@@ -274,6 +283,110 @@ class ShowRetinaPalletDelivery extends RetinaAction
                             ]
                         ],
                     ],
+                ], //TODO: Delete if new one is implemented
+
+                'upload_pallet' => [
+                    'title' => [
+                        'label' => __('Upload pallet'),
+                        'information' => __('The list of column file: customer_reference, notes')
+                    ],
+                    'progressDescription'   => __('Adding Pallet Deliveries'),
+                    'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
+                        'header' => ['type', 'customer_reference', 'notes'],
+                        'rows' => [
+                            [
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
+                            ],
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'retina.models.pallet-delivery.pallet.upload',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.history',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
+                    ]
+                ],
+                'upload_stored_item' => [
+                    'title' => [
+                        'label' => __('Upload Customer\'s SKU'),
+                        'information' => __('The list of column file: customer_reference, notes, stored_items')
+                    ],
+                    'progressDescription'   => __('Adding stored item'),
+                    'preview_template'    => [
+                        'unique_column' => [
+                            'type'  => [
+                                'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                            ]
+                        ],
+                        'header' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
+                        'rows' => [
+                            [
+                                'type' => 'Pallet',
+                                'customer_reference' => 'PALLET1',
+                                'notes' => 'notes',
+                                'stored_item_reference' => 'SKU1',
+                                'quantity'  => 10,
+                                'stored_item_name' => 'SKU 1'
+                            ],
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name' ],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => [
+                                'name'       => 'retina.models.pallet-delivery.pallet.upload.with-stored-items',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ]
+                            ],
+                            'history'  => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.history',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                            'download' => [
+                                'name'       => 'retina.fulfilment.storage.pallet_deliveries.pallets.uploads.templates',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->slug
+                                ]
+                            ],
+                        ],
+                    ]
                 ],
 
                 'locationRoute' => [
@@ -309,6 +422,23 @@ class ShowRetinaPalletDelivery extends RetinaAction
                     'parameters' => [
                         'fulfilment' => $palletDelivery->fulfilment->slug,
                         'scope'      => $palletDelivery->slug
+                    ]
+                ],
+
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'retina.models.pallet-delivery.attachment.attach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'retina.models.pallet-delivery.attachment.detach',
+                        'parameters' => [
+                            'palletDelivery' => $palletDelivery->id,
+                        ],
+                        'method'     => 'delete'
                     ]
                 ],
 
@@ -382,6 +512,13 @@ class ShowRetinaPalletDelivery extends RetinaAction
 
                 ],
 
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
+
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
@@ -393,6 +530,11 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
+
+                PalletDeliveryTabsEnum::ATTACHMENTS->value => $this->tab == PalletDeliveryTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($palletDelivery, PalletDeliveryTabsEnum::ATTACHMENTS->value))),
+
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
@@ -409,7 +551,7 @@ class ShowRetinaPalletDelivery extends RetinaAction
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
             )
-        );
+        )->table(IndexAttachments::make()->tableStructure(PalletDeliveryTabsEnum::ATTACHMENTS->value));
     }
 
 

@@ -8,7 +8,6 @@
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 
 import { faNarwhal, faBallotCheck } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -16,8 +15,9 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { computed, ref } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
 import Tabs from '@/Components/Navigation/Tabs.vue'
-import Table from '@/Components/Table/Table.vue'
 import TableStoredItemsAudits from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsAudits.vue'
+import TableStoredItemsInWarehouse from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsInWarehouse.vue";
+import TablePalletStoredItems from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletStoredItems.vue'
 library.add(faNarwhal, faBallotCheck)
 
 const props = defineProps<{
@@ -40,8 +40,8 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        stored_items:TableStoredItems,
-        pallet_stored_items: Table,
+        stored_items:TableStoredItemsInWarehouse,
+        pallet_stored_items: TablePalletStoredItems,
         stored_item_audits: TableStoredItemsAudits
     };
     return components[currentTab.value];
@@ -54,5 +54,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :resource="props[currentTab]" :tab="currentTab" :name="currentTab"></component>
+    <component :is="component" :key="currentTab" :tab="currentTab" :data="props[currentTab as keyof typeof props]"></component>
 </template>

@@ -33,6 +33,7 @@ class RentalsResource extends JsonResource
             'slug'                   => $this->slug,
             'code'                   => $this->code,
             'name'                   => $this->name,
+            'sales'                  => $this->sales,
             'rental_price'           => $this->rental_price,
             'currency_code'          => $this->currency_code,
             'unit'                   => $this->unit,

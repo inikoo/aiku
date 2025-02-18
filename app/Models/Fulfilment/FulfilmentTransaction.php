@@ -53,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read HistoricAsset $historicAsset
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $parent
+ * @property-read \App\Models\Fulfilment\RecurringBillTransaction|null $recurringBillTransaction
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction query()

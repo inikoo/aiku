@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Mailshot;
 
+use App\Enums\Comms\Outbox\OutboxMergeTagsEnum;
 use App\Models\Comms\Mailshot;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -20,21 +21,7 @@ class GetMailshotMergeTags
 
     public function handle(Mailshot $mailshot): array
     {
-
-        return [
-            [
-                'name'  => __('Name'),
-                'value' => '[ name ]'
-            ],
-            [
-                'name'  => __('Email'),
-                'value' => '[ email ]'
-            ],
-            [
-                'name'  => __('Password Reset Token'),
-                'value' => '[ password_reset_token ]'
-            ],
-        ];
+        return OutboxMergeTagsEnum::tags();
     }
 
     public function asController(Mailshot $mailshot): array

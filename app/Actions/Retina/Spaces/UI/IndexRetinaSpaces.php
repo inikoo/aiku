@@ -109,7 +109,7 @@ class IndexRetinaSpaces extends RetinaAction
 
             $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), sortable: false, canBeHidden: false, searchable: false);
-            $table->column(key: 'rental', label: __('rental'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'rental', label: __('rental'), sortable: false, canBeHidden: false, searchable: false);
             $table->column(key: 'start_at', label: __('start'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'end_at', label: __('end'), sortable: true, canBeHidden: false, searchable: true);
 

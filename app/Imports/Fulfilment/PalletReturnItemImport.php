@@ -8,7 +8,7 @@
 
 namespace App\Imports\Fulfilment;
 
-use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturnFromImport;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -56,7 +56,7 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
 
         if ($this->scope->type == PalletReturnTypeEnum::PALLET) {
             try {
-                AttachPalletToReturn::make()->action(
+                AttachPalletToReturnFromImport::make()->action(
                     $this->scope,
                     $modelData
                 );

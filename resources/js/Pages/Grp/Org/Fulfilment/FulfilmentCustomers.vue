@@ -7,8 +7,12 @@
 <script setup  lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableCustomers from '@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentCustomers.vue';
+import TableFulfilmentCustomers from '@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentCustomers.vue';
 import { capitalize } from "@/Composables/capitalize"
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserClock, faUserTimes } from '@fal';
+
+library.add(faUserClock, faUserTimes)
 
 const props = defineProps<{
     data: object
@@ -22,5 +26,5 @@ const props = defineProps<{
     <!-- <pre>{{ data }}</pre> -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableCustomers :data="data"  />
+    <TableFulfilmentCustomers :data="data"  />
 </template>

@@ -73,6 +73,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_outboxes_type_send_invoice_to_customer
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats query()

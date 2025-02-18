@@ -20,6 +20,21 @@ class GetRetinaDropshippingPlatformNavigation
         $platformNavigation = [];
 
         if ($webUser->customer->shopifyUser) {
+            $tabs = [];
+
+            if (!$webUser->customer->fulfilmentCustomer) {
+                $tabs = [
+                    [
+                        'label' => __('All Products'),
+                        'icon' => ['fal', 'fa-cube'],
+                        'root' => 'retina.dropshipping.portfolios.products.index',
+                        'route' => [
+                            'name' => 'retina.dropshipping.portfolios.products.index'
+                        ],
+                    ]
+                ];
+            }
+
             $platformNavigation['portfolios'] = [
                 'label' => __('Portfolios'),
                 'icon' => ['fal', 'fa-cube'],
@@ -37,14 +52,7 @@ class GetRetinaDropshippingPlatformNavigation
                                 'name' => 'retina.dropshipping.portfolios.index'
                             ],
                         ],
-                        [
-                            'label' => __('All Products'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'root' => 'retina.dropshipping.portfolios.products.index',
-                            'route' => [
-                                'name' => 'retina.dropshipping.portfolios.products.index'
-                            ],
-                        ]
+                        ...$tabs
                     ]
                 ]
             ];

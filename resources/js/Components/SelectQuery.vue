@@ -40,6 +40,7 @@ const props = withDefaults(defineProps<{
     isSelected?: Function
     loadingCaret?:boolean
     disabled?: boolean
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
 }>(), {
     required: false,
     placeholder: 'select',
@@ -78,12 +79,13 @@ const lastPage = ref(2)
 
 // Method: retrieve locations list
 const getOptions = async () => {
+    const filterQuery = props.prefixQuery ? `${props.prefixQuery}_filter[global]` : 'filter[global]'
     console.log(props.urlRoute)
     loading.value = true
     try {
         const response = await axios.get(props.urlRoute, {
             params: {
-                [`filter[global]`]: q.value,
+                [filterQuery]: q.value,
                 page: page.value,
                   
             }
@@ -112,7 +114,7 @@ const onGetOptionsSuccess = async (response) => {
 
 
 const SearchChange = (value: any) => {
-    if(value === '') return // ==========================
+    if(value === null) return // ==========================
     q.value = value
     page.value = 1
     clearTimeout(timeoutId)

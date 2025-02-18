@@ -68,7 +68,7 @@ class PublishOutbox extends OrgAction
     public function rules(): array
     {
         return [
-            'comment' => ['required', 'string'],
+            'comment' => ['sometimes', 'nullable', 'string'],
             'layout' => ['required'],
             'compiled_layout' => ['required', 'string']
         ];

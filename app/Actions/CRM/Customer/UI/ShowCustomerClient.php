@@ -8,6 +8,8 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Dropshipping\WithDropshippingAuthorisation;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
@@ -18,6 +20,8 @@ use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use Arr;
 use Inertia\Inertia;
@@ -29,20 +33,15 @@ class ShowCustomerClient extends OrgAction
     use WithActionButtons;
     use WithWebUserMeta;
     use WithCustomerSubNavigation;
+    use WithDropshippingAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
 
-    private Customer $parent;
+    private Customer|FulfilmentCustomer $parent;
 
     public function handle(CustomerClient $customerClient): CustomerClient
     {
         return $customerClient;
     }
-
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->authTo("crm.{$this->shop->id}.view");
-    }
-
 
     public function asController(
         Organisation $organisation,
@@ -57,6 +56,14 @@ class ShowCustomerClient extends OrgAction
         return $this->handle($customerClient);
     }
 
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, CustomerClient $customerClient, ActionRequest $request): CustomerClient
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
+        ;
+
+        return $this->handle($customerClient);
+    }
 
     public function htmlResponse(CustomerClient $customerClient, ActionRequest $request): Response
     {
@@ -76,6 +83,8 @@ class ShowCustomerClient extends OrgAction
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             $subNavigation = $this->getCustomerClientSubNavigation($customerClient, $request);
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
         return Inertia::render(
@@ -243,6 +252,25 @@ class ShowCustomerClient extends OrgAction
                 ),
             ),
 
+            'grp.org.fulfilments.show.crm.customers.show.customer-clients.show'
+            => array_merge(
+                (new IndexCustomerClients())->getBreadcrumbs('grp.org.fulfilments.show.crm.customers.show.customer-clients.index', $routeParameters),
+                $headCrumb(
+                    $customerClient,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.customer-clients.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+
             'grp.org.shops.show.crm.customers.show.customer-clients.show'
              => array_merge(
                  (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
@@ -299,6 +327,13 @@ class ShowCustomerClient extends OrgAction
                         'customerClient' => $customerClient->ulid,
                     ]
 
+                ]
+            ],
+            'grp.org.fulfilments.show.crm.customers.show.customer-clients.show' => [
+                'label' => $customerClient->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => request()->route()->originalParameters()
                 ]
             ]
         };

@@ -18,6 +18,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -40,17 +41,15 @@ class PickedPalletReturn extends OrgAction
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
-        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-            foreach ($palletReturn->pallets as $pallet) {
-                $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
-                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-            }
-        } else {
-            foreach ($palletReturn->storedItems as $storedItem) {
-                $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
-                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
-            }
+        if ($palletReturn->type != PalletReturnTypeEnum::PALLET) {
+            abort(419);
         }
+        $unpickedPallets = $palletReturn->pallets->filter(fn ($pallet) => $pallet->pivot->state !== PalletReturnItemStateEnum::PICKED->value);
+        foreach ($unpickedPallets as $pallet) {
+            $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
+            SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
+        }
+
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);

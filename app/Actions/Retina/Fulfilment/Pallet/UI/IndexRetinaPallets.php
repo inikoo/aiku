@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet\UI;
 
+use App\Actions\Retina\Fulfilment\Pallet\WithRetinaPalletSubNavigation;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -25,6 +26,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaPallets extends RetinaAction
 {
+    use WithRetinaPalletSubNavigation;
+
+    private string $bucket = '';
+
     protected function getElementGroups(FulfilmentCustomer $fulfilmentCustomer): array
     {
         return [
@@ -59,7 +64,19 @@ class IndexRetinaPallets extends RetinaAction
 
         $query = QueryBuilder::for(Pallet::class);
         $query->leftJoin('rentals', 'pallets.rental_id', 'rentals.id');
+        $query->leftJoin('locations', 'pallets.location_id', 'locations.id');
+
         $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
+
+        if ($this->bucket == 'storing') {
+            $query->whereIn('pallets.status', [PalletStatusEnum::STORING, PalletStatusEnum::RETURNING]);
+        } elseif ($this->bucket == 'in_process') {
+            $query->whereIn('pallets.status', [PalletStatusEnum::IN_PROCESS]);
+        } elseif ($this->bucket == 'incidents') {
+            $query->whereIn('pallets.status', [PalletStatusEnum::INCIDENT]);
+        } elseif ($this->bucket == 'returned') {
+            $query->whereIn('pallets.status', [PalletStatusEnum::RETURNED]);
+        }
 
 
         foreach ($this->getElementGroups($fulfilmentCustomer) as $key => $elementGroup) {
@@ -72,16 +89,16 @@ class IndexRetinaPallets extends RetinaAction
         }
 
         return $query->defaultSort('id')
-            ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name')
-            ->allowedSorts(['customer_reference', 'reference','state','rental_code'])
+            ->select('pallets.*', 'rentals.code as rental_code', 'rentals.name as rental_name', 'locations.code as location_code')
+            ->allowedSorts(['customer_reference', 'reference', 'state', 'rental_code', 'location_code'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, $prefix = null, $modelOperations = [], string $bucket = ''): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations, $fulfilmentCustomer) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $fulfilmentCustomer, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -114,6 +131,14 @@ class IndexRetinaPallets extends RetinaAction
             $table->column(key: 'status', label: __('Status'), sortable: true, type: 'icon');
             $table->column(key: 'reference', label: __('Id'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            if ($bucket == 'storing' || $bucket == 'all') {
+                $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, sortable: true, searchable: true);
+            } elseif ($bucket == 'returned') {
+                $table->column(key: 'location_code', label: __('Delivered From'), tooltip: __('The location the pallet was delivered from'), canBeHidden: false, sortable: true, searchable: true);
+            } elseif ($bucket == 'incidents') {
+                $table->column(key: 'location_code', label: __('Last Known Location'), tooltip: __('The location the pallet was last seen at'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table->column(key: 'rental_code', label: __('Rent'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
@@ -123,9 +148,12 @@ class IndexRetinaPallets extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
+        $fulfilmentCustomer = $this->fulfilmentCustomer;
+        $subNavigation      = $this->getPalletSubNavigation($fulfilmentCustomer);
+
         $actions = [];
 
-        if (!app()->environment('production')) {
+        if (!app()->environment('production') && $fulfilmentCustomer->pallets_storage) {
             $actions = [
                 [
                     'type'  => 'button',
@@ -139,6 +167,7 @@ class IndexRetinaPallets extends RetinaAction
                 ]
             ];
         }
+
         return Inertia::render(
             'Storage/RetinaPallets',
             [
@@ -147,17 +176,50 @@ class IndexRetinaPallets extends RetinaAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => $actions
+                    'title'         => __('pallets'),
+                    'icon'          => ['fal', 'fa-pallet'],
+                    'actions'       => $actions,
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => RetinaPalletsResource::collection($pallets),
             ]
-        )->table($this->tableStructure($this->customer->fulfilmentCustomer, 'pallets'));
+        )->table($this->tableStructure($this->customer->fulfilmentCustomer, 'pallets', bucket: $this->bucket));
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
+        $this->initialisation($request);
+        return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
+    }
+
+    public function storing(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'storing';
+        $this->initialisation($request);
+
+        return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
+    }
+
+    public function inProcess(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'in_process';
+        $this->initialisation($request);
+
+        return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
+    }
+
+    public function returned(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'returned';
+        $this->initialisation($request);
+
+        return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
+    }
+
+    public function incidents(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'incidents';
         $this->initialisation($request);
 
         return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
@@ -177,6 +239,74 @@ class IndexRetinaPallets extends RetinaAction
                                 'name' => 'retina.fulfilment.storage.pallets.index',
                             ],
                             'label' => __('Pallets'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+            'retina.fulfilment.storage.pallets.storing_pallets.index' =>
+            array_merge(
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.fulfilment.storage.pallets.storing_pallets.index',
+                            ],
+                            'label' => __('Pallets').' ('.__('Storing').')',
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+            'retina.fulfilment.storage.pallets.returned_pallets.index' =>
+            array_merge(
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.fulfilment.storage.pallets.returned_pallets.index',
+                            ],
+                            'label' => __('Pallets').' ('.__('Returned').')',
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+            'retina.fulfilment.storage.pallets.in_process_pallets.index' =>
+            array_merge(
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.fulfilment.storage.pallets.in_process_pallets.index',
+                            ],
+                            'label' => __('Pallets').' ('.__('In Process').')',
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+            'retina.fulfilment.storage.pallets.incidents_pallets.index' =>
+            array_merge(
+                ShowRetinaStorageDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.fulfilment.storage.pallets.incidents_pallets.index',
+                            ],
+                            'label' => __('Pallets').' ('.__('Incidents').')',
                             'icon'  => 'fal fa-bars',
                         ],
 

@@ -19,7 +19,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -32,8 +31,6 @@ class ImportPalletsInPalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, $file, array $modelData): Upload
     {
-        $includeStoredItem = Arr::pull($modelData, 'with_stored_item', false);
-
         $upload = StoreUpload::make()->fromFile(
             $palletDelivery->fulfilment->shop,
             $file,
@@ -48,13 +45,13 @@ class ImportPalletsInPalletDelivery extends OrgAction
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new PalletImport($palletDelivery, $upload, $includeStoredItem)
+                new PalletImport($palletDelivery, $upload)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new PalletImport($palletDelivery, $upload, $includeStoredItem)
+                new PalletImport($palletDelivery, $upload)
             );
         }
 
@@ -65,7 +62,6 @@ class ImportPalletsInPalletDelivery extends OrgAction
     {
         return [
             'file'             => ['required', 'file', 'mimes:xlsx,csv,xls,txt'],
-            'with_stored_item' => ['sometimes', 'required', 'bool']
         ];
     }
 
@@ -80,14 +76,6 @@ class ImportPalletsInPalletDelivery extends OrgAction
 
         return $this->handle($palletDelivery, $file, $this->validatedData);
     }
-
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $request->merge([
-            'with_stored_item' => $request->input('stored_item') == "true"
-        ]);
-    }
-
 
     public function runImportForCommand($file, $command): Upload
     {

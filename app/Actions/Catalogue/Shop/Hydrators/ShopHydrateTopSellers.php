@@ -44,6 +44,7 @@ class ShopHydrateTopSellers
                 return $department->stats->{'shop_amount_'.$timeUpdate};
             })->first();
 
+            // TODO: Change to raw or leftjoin #1446
             $topProduct = $shop->products()->with(['asset.salesIntervals'])->get()->sortByDesc(function ($product) use ($timeUpdate) {
                 return $product->asset->salesIntervals->{'sales_'.$timeUpdate} ?? 0;
             })->first();

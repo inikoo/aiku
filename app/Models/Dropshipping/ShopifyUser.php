@@ -12,7 +12,7 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
@@ -23,6 +23,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
@@ -75,7 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, PalletReturn> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
@@ -143,13 +144,13 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'shopify_user_has_products')
+        return $this->morphToMany(Product::class, 'product', 'shopify_user_has_products')
             ->withTimestamps();
     }
 
-    public function orders(): BelongsToMany
+    public function orders(): MorphToMany
     {
-        return $this->belongsToMany(Order::class, 'shopify_user_has_fulfilments')
+        return $this->morphToMany(PalletReturn::class, 'model', 'shopify_user_has_fulfilments', 'model_id', 'model_id')
             ->withTimestamps();
     }
 }

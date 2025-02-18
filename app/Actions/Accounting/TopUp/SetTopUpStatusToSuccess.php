@@ -15,7 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTopUps;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateTopUps;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
+use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Enums\Accounting\TopUp\TopUpStatusEnum;
 use App\Models\Accounting\TopUp;
 

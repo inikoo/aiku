@@ -9,7 +9,6 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -55,6 +54,7 @@ class IndexInvoices extends OrgAction
 
     public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereWith('invoices.reference', $value);
@@ -341,7 +341,7 @@ class IndexInvoices extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => $actions
+                    'actions'       => $actions,
                 ],
 
                 ...$data
