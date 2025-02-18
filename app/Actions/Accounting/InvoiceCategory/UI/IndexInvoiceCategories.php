@@ -1,12 +1,12 @@
 <?php
 /*
  * author Arya Permana - Kirin
- * created on 17-02-2025-16h-50m
+ * created on 18-02-2025-09h-55m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
 
-namespace App\Actions\Accounting\PaymentAccountShop\UI;
+namespace App\Actions\Accounting\InvoiceCategory\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
@@ -14,10 +14,12 @@ use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Http\Resources\Accounting\InvoiceCategoriesResource;
 use App\Http\Resources\Accounting\PaymentAccountShopsResource;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
@@ -34,46 +36,40 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPaymentAccountShops extends OrgAction
+class IndexInvoiceCategories extends OrgAction
 {
-    private PaymentAccount $parent;
-    use WithPaymentAccountSubNavigation;
+    private Group $parent;
 
-    public function handle(PaymentAccount $paymentAccount, $prefix = null): LengthAwarePaginator
+    public function handle(Group $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('payment_accounts.code', $value)
-                        ->orWhereStartWith('shops.name', $value);
+                $query->whereStartWith('invoice_categories.name', $value)
+                        ->orWhereStartWith('invoice_categories.slug', $value);
             });
         });
 
-        // if ($prefix) {
-        //     InertiaTable::updateQueryBuilderParameters($prefix);
-        // }
+        $queryBuilder = QueryBuilder::for(InvoiceCategory::class);
 
-        $queryBuilder = QueryBuilder::for(PaymentAccountShop::class);
-
-
-        $queryBuilder->where('payment_account_shop.payment_account_id', $paymentAccount->id);
-        $queryBuilder->leftjoin('shops', 'payment_account_shop.shop_id', 'shops.id');
+        $queryBuilder->where('invoice_categories.group_id', $parent->id);
+        $queryBuilder->leftjoin('currencies', 'invoice_categories.currency_id', 'currencies.id');
 
         return $queryBuilder
-            ->defaultSort('payment_account_shop.id')
+            ->defaultSort('invoice_categories.id')
             ->select([
-                'payment_account_shop.id',
-                'shops.id as shop_id',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-                'shops.slug as shop_slug',
+                'invoice_categories.id',
+                'invoice_categories.slug',
+                'invoice_categories.name',
+                'invoice_categories.state',
+                'invoice_categories.type',
             ])
-            ->allowedSorts(['shop_code', 'shop_name'])
+            ->allowedSorts(['name', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -86,35 +82,27 @@ class IndexPaymentAccountShops extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
-                        'title'       => __('no shops'),
-                        'count'       => $parent->stats->number_pas,
+                        'title'       => __('no invoice categories'),
+                        'count'       => 0,
                     ]
                 )
-                ->column(key: 'shop_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('id');
         };
     }
 
-    public function authorize(ActionRequest $request): bool
+    public function jsonResponse(LengthAwarePaginator $invoiceCategories): AnonymousResourceCollection
     {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
-
-        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
-    }
-
-    public function jsonResponse(LengthAwarePaginator $paymentAccounts): AnonymousResourceCollection
-    {
-        return PaymentAccountsResource::collection($paymentAccounts);
+        return InvoiceCategoriesResource::collection($invoiceCategories);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $paymentAccountShops, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $invoiceCategories, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Accounting/PaymentAccountShops',
+            'Org/Accounting/InvoiceCategories',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -122,25 +110,22 @@ class IndexPaymentAccountShops extends OrgAction
                 ),
                 'title'       => __('Payment Account Shops'),
                 'pageHead'    => [
-                    'subNavigation' => $this->getPaymentAccountNavigation($this->parent),
+                    'subNavigation' => '',
                     'icon'      => ['fal', 'fa-store-alt'],
                     'title'     => __('Payment Account Shops'),
                 ],
-                'data'             => PaymentAccountShopsResource::collection($paymentAccountShops)
-
-
+                'data'             => InvoiceCategoriesResource::collection($invoiceCategories)
             ]
         )->table($this->tableStructure($this->parent));
     }
 
-    public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request)
+    public function asController(Organisation $organisation, ActionRequest $request)
     {
-        $this->parent = $paymentAccount;
+        $this->parent = group();
         $this->initialisation($organisation, $request);
 
-        return $this->handle($paymentAccount);
+        return $this->handle(group());
     }
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function () use ($routeName, $routeParameters) {
@@ -152,7 +137,7 @@ class IndexPaymentAccountShops extends OrgAction
                             'name'       => $routeName,
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('Shops'),
+                        'label' => __('Invoice Categories'),
                         'icon'  => 'fal fa-bars',
 
                     ],
@@ -161,9 +146,9 @@ class IndexPaymentAccountShops extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.accounting.payment-accounts.show.shops.index' =>
+            'grp.org.accounting.invoice-categories.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.payment-accounts.show', $routeParameters),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb()
             ),
             default => []

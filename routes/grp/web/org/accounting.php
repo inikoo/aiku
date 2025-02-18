@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
+use App\Actions\Accounting\InvoiceCategory\UI\IndexInvoiceCategories;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\ExportPayments;
@@ -87,7 +88,7 @@ Route::get('/refunds', IndexRefunds::class)->name('refunds.index');
 Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_invoices.index');
 Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
 
-
+Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
 
 
 //Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');
