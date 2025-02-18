@@ -280,7 +280,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
   };
 
   return (
-    <View style={{marginVertical: 5}}>
+    <View style={{marginVertical: 0}}>
       {data?.state == 'picking' &&
         item?.state != 'damaged' &&
         item?.state != 'lost' &&

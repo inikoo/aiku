@@ -27,6 +27,7 @@ import {
   faUsers,
   faHandHoldingBox,
   faChevronRight,
+  faWarehouseAlt
 } from '@/private/fa/pro-regular-svg-icons';
 
 const MainContent = ({navigation}) => {
@@ -52,6 +53,10 @@ const MainContent = ({navigation}) => {
       icon: faHandHoldingBox,
       subText: 'Fulfilment',
       route: 'fulfilment',
+    },{
+      icon: faWarehouseAlt,
+      subText: 'warehouse',
+      route: 'warehouse',
     });
   }
 

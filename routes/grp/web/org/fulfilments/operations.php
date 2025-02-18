@@ -67,6 +67,10 @@ Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pall
 Route::get('deliveries/{palletDelivery}/edit', EditPalletDelivery::class)->name('pallet-deliveries.edit');
 
 Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
+Route::get('returns/confirmed', [IndexPalletReturns::class, 'inFulfilmentConfirmed'])->name('pallet-returns.confirmed.index');
+Route::get('returns/picking', [IndexPalletReturns::class, 'inFulfilmentPicking'])->name('pallet-returns.picking.index');
+Route::get('returns/picked', [IndexPalletReturns::class, 'inFulfilmentPicked'])->name('pallet-returns.picked.index');
+
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
 Route::get('return-with-stored-items/{palletReturn}', ShowStoredItemReturn::class)->name('pallet-return-with-stored-items.show');
 

@@ -15,7 +15,6 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\RemoveMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;

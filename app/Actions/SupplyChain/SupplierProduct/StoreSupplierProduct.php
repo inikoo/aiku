@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreSupplierProduct extends GrpAction
 {
@@ -141,6 +142,14 @@ class StoreSupplierProduct extends GrpAction
         $this->strict         = $strict;
 
         $this->initialisation($supplier->group, $modelData);
+
+        return $this->handle($supplier, $this->validatedData);
+    }
+
+    public function asController(Supplier $supplier, ActionRequest $request)
+    {
+        $this->supplier_id    = $supplier->id;
+        $this->initialisation($supplier->group, $request);
 
         return $this->handle($supplier, $this->validatedData);
     }

@@ -12,7 +12,10 @@ const GroupItem = ({ item, navigation, selectedOrganisation }) => {
 
   const onPickOrganisation = () => {
     setOrganisation({ ...userData, organisation: item });
-    navigation.navigate('fulfilment');
+    if(item.authorised_fulfilments.length > 0){
+      navigation.navigate('fulfilment');
+    }else navigation.navigate('warehouse');
+ 
   };
 
   const isActive = selectedOrganisation?.id === item.id;

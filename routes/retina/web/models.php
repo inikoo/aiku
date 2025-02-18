@@ -127,6 +127,7 @@ Route::name('fulfilment_customer.')->prefix('fulfilment-customer/{fulfilmentCust
 Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer-client.store');
 
 Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
+    //     Route::post('orders/{shopifyHasFulfilmentId:id}/release-hold', StoreRetinaProductShopify::class)->name('orders.release_hold')->withoutScopedBindings();
     Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
 

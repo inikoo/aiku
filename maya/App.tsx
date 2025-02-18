@@ -54,7 +54,7 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
         });
       },
-      setFulfilment: async user => {
+      setFulfilmentWarehouse: async user => {
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {

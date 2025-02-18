@@ -15,6 +15,7 @@ use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\SupplyChain\Supplier\UI\EditSupplier;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
+use App\Actions\SupplyChain\SupplierProduct\UI\CreateSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\UI\ShowSupplierProduct;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
@@ -74,10 +75,10 @@ Route::prefix("suppliers")->name("suppliers")->group(
 
         Route::prefix('{supplier}')->group(function () {
             Route::get('', ShowSupplier::class)->name('.show');
-            Route::get('edit', EditSupplier::class)->name('.edit');
 
             Route::prefix('supplier-products')->as('.supplier_products')->group(function () {
                 Route::get('', [IndexSupplierProducts::class, 'inSupplier'])->name('.index');
+                Route::get('create', CreateSupplierProduct::class)->name('.create');
 
                 Route::prefix('{supplierProduct}')->group(function () {
                     Route::get('', [ShowSupplierProduct::class, 'inSupplier'])->name('.show');
@@ -93,6 +94,7 @@ Route::prefix("suppliers")->name("suppliers")->group(
 Route::prefix("supplier-products")->name("supplier_products.")->group(
     function () {
         Route::get('', IndexSupplierProducts::class)->name('index');
+
         Route::get('/{supplierProduct}', ShowSupplierProduct::class)->name('show');
     }
 );

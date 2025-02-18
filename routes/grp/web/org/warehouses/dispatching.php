@@ -21,5 +21,8 @@ Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWareho
 Route::get('/delivery-notes/{deliveryNote}/pdf', PdfDeliveryNote::class)->name('delivery-notes.pdf');
 
 Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
+Route::get('returns/confirmed', [IndexPalletReturns::class, 'inWarehouseConfirmed'])->name('pallet-returns.confirmed.index');
+Route::get('returns/picking', [IndexPalletReturns::class, 'inWarehousePicking'])->name('pallet-returns.picking.index');
+Route::get('returns/picked', [IndexPalletReturns::class, 'inWarehousePicked'])->name('pallet-returns.picked.index');
 Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');
 Route::get('return-stored-items/{palletReturn}', [ShowStoredItemReturn::class, 'inWarehouse'])->name('pallet-return-with-stored-items.show');

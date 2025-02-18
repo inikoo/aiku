@@ -12,7 +12,7 @@ import { faBoxesAlt, faPallet, faNarwhal } from '@/private/fa/pro-regular-svg-ic
 const TabArr = [
   {route: 'families', label: 'Families', icon: faBoxesAlt, component: OrgStocks},
   {route: 'pallet', label: 'Pallet', icon: faPallet, component: Pallet},
-  {route: 'stored-items', label: 'Stored Item', icon: faNarwhal, component: StoredItem},
+  {route: 'stored-items', label: 'SKU', icon: faNarwhal, component: StoredItem},
 ];
 
 export default function InventoryStackScreen() {

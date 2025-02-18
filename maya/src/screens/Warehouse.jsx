@@ -5,11 +5,11 @@ import globalStyles from '@/globalStyles';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheckCircle } from '@/private/fa/pro-solid-svg-icons';
 
-const GroupItem = ({ item, navigation, selectedfulfilment }) => {
+const GroupItem = ({ item, navigation, selectedWarehouse }) => {
   const { setFulfilmentWarehouse, userData } = useContext(AuthContext);
-  const isActive = selectedfulfilment?.id === item.id;
-  const onPickFulfilment = () => {
-    setFulfilmentWarehouse({ ...userData, fulfilment : item, warehouse : item.warehouse[0] })
+  const isActive = selectedWarehouse?.id === item.id;
+  const onPickWarehouse = () => {
+    setFulfilmentWarehouse({ ...userData, warehouse : item })
     navigation.navigate('home-drawer')
   }
 
@@ -20,12 +20,12 @@ const GroupItem = ({ item, navigation, selectedfulfilment }) => {
       isActive && globalStyles.list.activeCard,
     ]}
     activeOpacity={0.7}
-    onPress={onPickFulfilment}
+    onPress={onPickWarehouse}
   >
     <View style={globalStyles.list.container}>
       <View style={globalStyles.list.textContainer}>
         <Text style={globalStyles.list.title}>{item.label}</Text>
-        <Text style={globalStyles.list.description}>{item.type || 'No description available'}</Text>
+        <Text style={globalStyles.list.description}>{item.code || 'No code available'}</Text>
       </View>
       {isActive && (
         <View style={globalStyles.list.activeIndicator}>
@@ -37,20 +37,22 @@ const GroupItem = ({ item, navigation, selectedfulfilment }) => {
   );
 };
 
-const Fulfilment = ({ navigation }) => {
-  const { userData, organisation, fulfilment } = useContext(AuthContext);
-  const selectedfulfilment = userData.fulfilment;
+const Warehouse = ({ navigation }) => {
+  const { userData, organisation, fulfilment, warehouse } = useContext(AuthContext);
+  const selectedWarehouse = userData.warehouse;
+
+  console.log('warehouse',organisation)
   return (
     <View style={globalStyles.container}>
       <FlatList
-        data={organisation?.authorised_fulfilments ? organisation?.authorised_fulfilments : []}
+        data={organisation?.authorised_warehouses ? organisation?.authorised_warehouses : []}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <GroupItem item={item} navigation={navigation} selectedfulfilment={selectedfulfilment}/>}
+        renderItem={({ item }) => <GroupItem item={item} navigation={navigation} selectedWarehouse={selectedWarehouse}/>}
       />
     </View>
   );
 };
 
 
-export default Fulfilment;
+export default Warehouse;

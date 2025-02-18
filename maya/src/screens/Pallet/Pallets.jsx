@@ -164,11 +164,35 @@ const GroupItem = ({item: initialItem, navigation}) => {
   };
 
   const onSubmitSetDamaged = async formData => {
-    console.log(formData);
+    request({
+      urlKey: 'set-pallet-not-picked',
+      method: 'patch',
+      data: formData,
+      args: [item.id],
+      onSuccess: response => {
+        fetchData();
+        setShowModalDamaged(false);
+        Toast.show({
+          type: ALERT_TYPE.SUCCESS,
+          title: 'Success',
+          textBody: 'Updated pallet ' + item.reference,
+        });
+      },
+      onFailed: error => {
+        setShowModalDamaged(false);
+        Toast.show({
+          type: ALERT_TYPE.DANGER,
+          title: 'Error',
+          textBody:
+            error.detail?.message ||
+            'Failed to update pallet ' + item.reference,
+        });
+      },
+    });
   };
 
   return (
-    <View style={{marginVertical: 5}}>
+    <View style={{marginVertical: 0}}>
       <View style={[{width: MAX_SWIPE}, globalStyles.button_swipe_primary]}>
         <TouchableOpacity
           size="md"
@@ -221,15 +245,22 @@ const GroupItem = ({item: initialItem, navigation}) => {
             </View>
 
             <View style={globalStyles.list.textContainer}>
-              <Text style={globalStyles.list.title}>
-                {item?.reference || 'No reference available'}
-              </Text>
+              <View className="flex-row justify-between">
+                <Text style={globalStyles.list.title}>
+                  {item?.customer_reference || 'N/A'}
+                </Text>
+                <Text style={globalStyles.list.title}>
+                  {item?.location_code || '-'}
+                </Text>
+              </View>
+
               <Text style={globalStyles.list.description}>
-                {item?.customer_reference || 'No customer reference available'}
+                {item?.reference}
               </Text>
             </View>
 
-            <View
+
+            {/* <View
               style={{
                 marginLeft: 10,
                 flexDirection: 'row',
@@ -244,7 +275,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
               <Text style={{fontWeight: 'bold'}}>
                 {item?.location_code || '-'}
               </Text>
-            </View>
+            </View> */}
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -313,6 +344,13 @@ const GroupItem = ({item: initialItem, navigation}) => {
                       <RadioIcon as={CircleIcon} />
                     </RadioIndicator>
                     <RadioLabel>Lost</RadioLabel>
+                  </Radio>
+
+                  <Radio value="other_incident">
+                    <RadioIndicator>
+                      <RadioIcon as={CircleIcon} />
+                    </RadioIndicator>
+                    <RadioLabel>Other</RadioLabel>
                   </Radio>
                 </View>
               </RadioGroup>
