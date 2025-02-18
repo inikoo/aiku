@@ -149,6 +149,13 @@ class StoreSupplier extends GrpAction
         }
     }
 
+    public function prepareForValidation($request)
+    {
+        if (!$this->get('scope_type')) {
+            $this->set('scope_type', 'Group');
+        }
+    }
+
     /**
      * @throws \Throwable
      */
@@ -180,10 +187,11 @@ class StoreSupplier extends GrpAction
      */
     public function asController(ActionRequest $request): Supplier
     {
-        $this->initialisation(app('group'), $request);
+        $group = group();
+        $this->initialisation($group, $request);
 
         return $this->handle(
-            parent: group(),
+            parent: $group,
             modelData: $this->validatedData
         );
     }
