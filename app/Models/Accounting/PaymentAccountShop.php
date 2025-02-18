@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PaymentAccountShop extends Model
 {
+    protected $table = 'payment_account_shop';
+
     protected $casts = [
         'data'  => 'array',
         'state' => PaymentAccountShopStateEnum::class,

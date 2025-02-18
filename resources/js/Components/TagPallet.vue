@@ -14,19 +14,29 @@ defineProps<{
 }>()
 
 
-const getClass = (colorName: string | undefined) => {
-    if (!colorName) return
+// const getClass = (colorName: string | undefined) => {
+//     if (!colorName) return
+
+//     if (colorName.includes('#')) {
+//         return `bg-[${colorName}] border border-[${colorName}] text-[${colorName}]`
+//     }
     
-    return `bg-${colorName}-100 border border-${colorName}-200 text-${colorName}-500`
-}
+//     return `bg-${colorName}-100 border border-${colorName}-200 text-${colorName}-500`
+// }
 
 </script>
 
 <template>
-    <Tag :label="stateIcon.tooltip" :class="getClass(stateIcon?.color)">
+    <Tag :label="stateIcon.tooltip" :style="{
+        background: stateIcon.color ? stateIcon.color + '19' : '',
+        border: `1px solid ${stateIcon.color ? stateIcon.color + 'AA' : ''}`,
+        color: stateIcon.color ? `color-mix(in srgb, ${stateIcon.color} 90%, black)` : ''
+    }">
         <template #label>
-            <FontAwesomeIcon :icon='stateIcon.icon' class='' fixed-width aria-hidden='true' />
-            <span class="whitespace-nowrap capitalize">{{ stateIcon?.tooltip }}</span>
+            <div>
+                <FontAwesomeIcon :icon='stateIcon.icon' class='' fixed-width aria-hidden='true' />
+                <span class="whitespace-nowrap capitalize">{{ stateIcon?.tooltip }}</span>
+            </div>
         </template>
     </Tag>
 </template>

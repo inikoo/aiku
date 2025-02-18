@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ced908cdc9567b48e9d02c69fe076a1c",
+    "content-hash": "b90e572157250f8f5f7c49dbe89af158",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -5565,6 +5565,84 @@
                 "source": "https://github.com/inspector-apm/inspector-php/tree/3.9.0"
             },
             "time": "2025-01-22T16:06:35+00:00"
+        },
+        {
+            "name": "jackwh/laravel-new-relic",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JackWH/laravel-new-relic.git",
+                "reference": "e74e554313f89dfdecef541d1b21a791a6999f43"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JackWH/laravel-new-relic/zipball/e74e554313f89dfdecef541d1b21a791a6999f43",
+                "reference": "e74e554313f89dfdecef541d1b21a791a6999f43",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^9.0|^10.0|^11.0",
+                "illuminate/support": "^9.0|^10.0|^11.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "driftingly/rector-laravel": "^1.2",
+                "larastan/larastan": "^2.9.0",
+                "laravel/pint": "^1.15",
+                "nunomaduro/collision": "^6.0|^8.0",
+                "orchestra/testbench": "^7.0|^9.0",
+                "pestphp/pest": "^1.21|^2.34",
+                "pestphp/pest-plugin-laravel": "^1.1|^2.3",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpunit/phpunit": "^9.5|^10.5",
+                "rector/rector": "^1.0",
+                "roave/security-advisories": "dev-latest",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "NewRelicTransaction": "JackWH\\LaravelNewRelic\\Facades\\NewRelicTransaction"
+                    },
+                    "providers": [
+                        "JackWH\\LaravelNewRelic\\LaravelNewRelicServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JackWH\\LaravelNewRelic\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jack Webb-Heller",
+                    "email": "hello@jwh.fyi",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Monitor your Laravel application performance with New Relic",
+            "homepage": "https://github.com/JackWH/laravel-new-relic",
+            "keywords": [
+                "JackWH",
+                "laravel",
+                "laravel-new-relic",
+                "monitoring",
+                "new relic",
+                "performance"
+            ],
+            "support": {
+                "issues": "https://github.com/JackWH/laravel-new-relic/issues",
+                "source": "https://github.com/JackWH/laravel-new-relic/tree/v1.1.0"
+            },
+            "time": "2024-05-10T10:38:39+00:00"
         },
         {
             "name": "jaybizzle/crawler-detect",

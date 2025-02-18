@@ -1,13 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, ScrollView, ActivityIndicator} from 'react-native';
+import { View, ScrollView } from 'react-native';
 import {AuthContext} from '@/src/components/Context/context';
 import request from '@/src/utils/Request';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 import {Card} from '@/src/components/ui/card';
 import {Heading} from '@/src/components/ui/heading';
 import {Text} from '@/src/components/ui/text';
-import Description from '@/src/components/Description'
+import Description from '@/src/components/Description';
 import {Divider} from '@/src/components/ui/divider';
+import { Spinner } from '@/src/components/ui/spinner';
 
 const ShowArea = ({navigation, route}) => {
   const {organisation, warehouse} = useContext(AuthContext);
@@ -42,7 +43,7 @@ const ShowArea = ({navigation, route}) => {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" color="purple" />
+        <Spinner size="large" />
       </View>
     );
   }
