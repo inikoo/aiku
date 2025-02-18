@@ -19,6 +19,7 @@ import { PalletDelivery, BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import type { Component } from 'vue'
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
@@ -41,6 +42,19 @@ import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { notify } from '@kyvg/vue3-notification'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil, faPaperclip)
+
+interface UploadSection {
+    title: {
+        label: string
+        information: string
+    }
+    progressDescription: string
+    upload_spreadsheet: UploadPallet
+    preview_template: {
+        header: string[]
+        rows: {}[]
+    }
+}
 
 const props = defineProps<{
     title: string
@@ -93,6 +107,8 @@ const props = defineProps<{
 		name: string
 		code: string
 	}[]
+    upload_pallet: UploadSection
+    upload_stored_item: UploadSection
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -349,6 +365,10 @@ const onClickDisabledSubmit = () => {
 
 const isModalUploadFileOpen = ref(false)
 
+
+// Section: Upload spreadsheet
+const isModalUploadPallet = ref(false)
+const isModalUploadStoredItemOpen = ref(false)
 </script>
 
 <template>
@@ -357,16 +377,36 @@ const isModalUploadFileOpen = ref(false)
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button
-                v-if="currentTab === 'pallets'"
-                @click="() => isModalUploadOpen = true"
-                :style="action.style"
-                :icon="action.icon"
-                :label="action.label"
-                v-tooltip="action.tooltip"
-                class="rounded-l-md rounded-r-none border-none"
-            />
-            <div v-else />
+
+            <Menu v-slot="{ close }" as="div" class="relative inline-block text-left">
+                <div>
+                    <MenuButton class="">
+                        <Button
+                            v-if="currentTab === 'pallets'"
+                            :label="action.label"
+                            :style="action.style"
+                            :icon="action.icon"
+                            v-tooltip="action.tooltip"
+                            class="rounded-l-ms rounded-r-none border-0"
+                        />
+                        <div v-else></div>
+                    </MenuButton>
+                </div>
+
+                <transition name="headlessui2">
+                    <MenuItems class="z-10 absolute right-0 p-1 mt-2 w-fit origin-top-right rounded-md bg-white shadow-lg ring-1 ring-indigo-500/50 focus:outline-none" >
+                        <div @click="() => (isModalUploadPallet = true, close())" class="whitespace-nowrap px-3 py-1 rounded hover:bg-gray-200 cursor-pointer">
+                            <FontAwesomeIcon icon='fal fa-upload' class='' fixed-width aria-hidden='true' />
+                            {{ trans("Upload pallet") }}
+                        </div>
+                        <div @click="() => (isModalUploadStoredItemOpen = true, close())" class="whitespace-nowrap px-3 py-1 rounded hover:bg-gray-200 cursor-pointer">
+                            <FontAwesomeIcon icon='fal fa-upload' class='' fixed-width aria-hidden='true' />
+                            {{ trans("Upload Customer's SKU") }}
+                        </div>
+                    </MenuItems>
+                </transition>
+            </Menu>
+
         </template>
         
         <!-- Button: delete Delivery -->
@@ -793,6 +833,24 @@ const isModalUploadFileOpen = ref(false)
         }"
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadExcel
+        v-model="isModalUploadPallet"
+        :title="upload_pallet.title"
+        :progressDescription="upload_pallet.progressDescription"
+        :upload_spreadsheet="upload_pallet.upload_spreadsheet"
+        :preview_template="upload_pallet.preview_template"
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadExcel
+        v-model="isModalUploadStoredItemOpen"
+        :title="upload_stored_item.title"
+        :progressDescription="upload_stored_item.progressDescription"
+        :preview_template="upload_stored_item.preview_template"
+        :upload_spreadsheet="upload_stored_item.upload_spreadsheet"
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
     />
 

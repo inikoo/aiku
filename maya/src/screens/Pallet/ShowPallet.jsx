@@ -143,7 +143,6 @@ const ShowPallet = ({navigation, route}) => {
 
 
   const onSubmitSetLocation = formData => {
-    console.log(formData)
     request({
       method:'patch',
       urlKey: 'set-pallet-location',

@@ -15,7 +15,9 @@ use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Models\Accounting\InvoiceCategory;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -26,11 +28,17 @@ class StoreInvoiceCategory extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Group $group, array $modelData): InvoiceCategory
+
+    private Organisation|Group $parent;
+
+    public function handle(Group|Organisation $parent, array $modelData): InvoiceCategory
     {
-        return DB::transaction(function () use ($group, $modelData) {
+        if ($parent instanceof Organisation) {
+            data_set($modelData, 'group_id', $parent->group_id);
+        }
+        return DB::transaction(function () use ($parent, $modelData) {
             /** @var InvoiceCategory $invoiceCategory */
-            $invoiceCategory = $group->invoiceCategories()->create($modelData);
+            $invoiceCategory = $parent->invoiceCategories()->create($modelData);
             $invoiceCategory->stats()->create();
             $invoiceCategory->orderingIntervals()->create();
             $invoiceCategory->salesIntervals()->create();
@@ -45,9 +53,20 @@ class StoreInvoiceCategory extends OrgAction
             return true;
         }
 
-        return false;
+        return $request->user()->authTo("accounting.{$this->organisation->id}.edit"); //TODO: Review this
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if ($this->parent instanceof Organisation) {
+            $this->set('currency_id', $this->parent->currency_id);
+        }
+    }
+
+    public function htmlResponse(InvoiceCategory $invoiceCategory)
+    {
+        return Redirect::route('grp.org.accounting.invoice-categories.show', ['organisation' => $invoiceCategory->organisation->slug, 'invoiceCategory' => $invoiceCategory->slug]);
+    }
 
     public function rules(): array
     {
@@ -57,7 +76,7 @@ class StoreInvoiceCategory extends OrgAction
             'data'               => ['sometimes', 'array'],
             'settings'           => ['sometimes', 'array'],
             'currency_id'        => ['required', 'integer', 'exists:currencies,id'],
-            'priority'           => ['required', 'integer'],
+            'priority'           => ['sometimes', 'integer'],
             'type'               => ['required', Rule::enum(InvoiceCategoryTypeEnum::class)],
             'show_in_dashboards' => ['sometimes', 'boolean'],
             'organisation_id'    => ['nullable', 'integer', Rule::exists('organisations', 'id')->where('group_id', $this->group->id)],
@@ -73,17 +92,31 @@ class StoreInvoiceCategory extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): InvoiceCategory
+    public function action(Group|Organisation $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): InvoiceCategory
     {
         if (!$audit) {
             InvoiceCategory::disableAuditing();
         }
+        if ($parent instanceof Organisation) {
+            $group = $parent->group;
+        } else {
+            $group = $parent;
+        }
+        $this->parent         = $parent;
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromGroup($group, $modelData);
 
-        return $this->handle($group, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
+    }
+
+    public function asController(Organisation $organisation, ActionRequest $request): InvoiceCategory
+    {
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation, $this->validatedData);
     }
 
 

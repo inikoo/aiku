@@ -9,8 +9,8 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet\UI;
 
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemMovements;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Retina\Fulfilment\StoredItem\UI\IndexRetinaStoredItemMovements;
 use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
@@ -126,8 +126,8 @@ class ShowRetinaPallet extends RetinaAction
                     : Inertia::lazy(fn () => StoredItemResource::collection(IndexRetinaStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))),
 
                 PalletTabsEnum::MOVEMENTS->value => $this->tab == PalletTabsEnum::MOVEMENTS->value ?
-                fn () => StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))
-                : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexRetinaStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))),
+                fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))
+                : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -135,8 +135,8 @@ class ShowRetinaPallet extends RetinaAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexRetinaStoredItemMovements::make()->tableStructure($pallet, prefix: PalletTabsEnum::MOVEMENTS->value))
-            ->table(IndexRetinaStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
+            ->table(IndexStoredItemMovements::make()->tableStructure($pallet, prefix: PalletTabsEnum::MOVEMENTS->value))
+            ->table(IndexRetinaStoredItems::make()->tableStructure($pallet, prefix: PalletTabsEnum::STORED_ITEMS->value));
     }
 
 

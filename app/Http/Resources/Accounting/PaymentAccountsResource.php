@@ -36,6 +36,8 @@ class PaymentAccountsResource extends JsonResource
             'payment_service_provider_code' => $this->payment_service_provider_code,
             'payment_service_provider_name' => $this->payment_service_provider_name,
             'number_payments'               => $this->number_payments,
+            'number_pas'                    => $this->number_pas,
+            'number_pas_state_active'       => $this->number_pas_state_active,
             'code'                          => $this->code,
             'number_shop'                   => $this->number_shop,
             'organisation_name'             => $this->organisation_name,
