@@ -43,7 +43,6 @@ export const loginReducer = (prevState, action) => {
         fulfilment: action.fulfilment,
         warehouse : action.warehouse
       };
-
     default:
       return prevState;
   }
