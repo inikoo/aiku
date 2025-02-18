@@ -72,7 +72,7 @@ class StoredItemResource extends JsonResource
                 default => [
                     'name'       => 'grp.models.stored-items.delete',
                     'parameters' => [
-                       'storedItem' => $storedItem->id
+                        'storedItem' => $storedItem->id
                     ]
                 ]
             }

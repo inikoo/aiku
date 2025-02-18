@@ -78,7 +78,7 @@ class IndexStoredItems extends OrgAction
                     $query->where('stored_items.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'state', 'total_quantity', 'name', 'number_pallets', 'number_audits', 'pallet_reference'])
+            ->allowedSorts(['reference', 'total_quantity', 'name', 'number_pallets', 'number_audits', 'pallet_reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -115,8 +115,8 @@ class IndexStoredItems extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true)
-                ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false)
-                ->column(key: 'number_audits', label: __("Audits"), canBeHidden: false)
+                ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false, sortable: true)
+                ->column(key: 'number_audits', label: __("Audits"), canBeHidden: false, sortable: true)
                 ->column(key: 'total_quantity', label: __("Quantity"), canBeHidden: false, sortable: true);
             if (class_basename($parent) == 'Group') {
                 $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, sortable: true, searchable: true);

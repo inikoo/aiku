@@ -24,6 +24,7 @@ console.log('test')
 const isLoading = ref<string | boolean>(false)
 function storedItemRoute(storedItem) {
     switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
         case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
@@ -36,6 +37,17 @@ function storedItemRoute(storedItem) {
             return route(
                 'grp.org.warehouses.show.inventory.stored_items.current.show',
                 [route().params['organisation'], route().params['warehouse'], storedItem.slug]);
+        
+        case 'retina.fulfilment.itemised_storage.stored_items.index':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                [storedItem.slug]
+            )
+        case 'retina.fulfilment.storage.pallets.show':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                [storedItem.slug]
+            )
         default:
             null
     }
@@ -43,6 +55,7 @@ function storedItemRoute(storedItem) {
 
 const generateLinkPallets = (storedItem: {}) => {
     switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
         case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
@@ -53,6 +66,40 @@ const generateLinkPallets = (storedItem: {}) => {
                     storedItem: storedItem.slug,
                     tab: 'pallets'
                 });
+        case 'retina.fulfilment.storage.pallets.show':
+        case 'retina.fulfilment.itemised_storage.stored_items.index':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                {
+                    storedItem: storedItem.slug,
+                    tab: 'pallets'
+                });
+        default:
+            '#'
+    }
+}
+
+const generateLinkAudits = (storedItem: {}) => {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    storedItem: storedItem.slug,
+                    tab: 'audits'
+                });
+        case 'retina.fulfilment.storage.pallets.show':
+        case 'retina.fulfilment.itemised_storage.stored_items.index':
+            return route(
+                'retina.fulfilment.itemised_storage.stored_items.show',
+                {
+                    storedItem: storedItem.slug,
+                    tab: 'audits'
+                });
         default:
             '#'
     }
@@ -60,7 +107,7 @@ const generateLinkPallets = (storedItem: {}) => {
 </script>
 
 <template>
-    <Table :resource="data" :name="'stored_items'" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: value }">
             {{ tableKey }}
             <Link v-if="route().current() != 'retina.fulfilment.storage.pallet_returns.show'" :href="storedItemRoute(value)"
@@ -78,5 +125,10 @@ const generateLinkPallets = (storedItem: {}) => {
             </Link>
         </template>
 
+        <template #cell(number_audits)="{ item: value }">
+            <Link v-if="generateLinkAudits(value)" :href="generateLinkAudits(value)" class="primaryLink">
+                {{ value.number_audits || 0 }}
+            </Link>
+        </template>
     </Table>
 </template>
