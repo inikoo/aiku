@@ -91,6 +91,8 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 'space_rental',
                 'reference',
                 'fulfilment_customers.status',
+                'fulfilment_customers.number_spaces_state_renting',
+                'fulfilment_customers.number_stored_items_state_active',
                 'customers.id',
                 'customers.name',
                 'fulfilment_customers.slug',
@@ -106,7 +108,7 @@ class IndexFulfilmentCustomersApproved extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_spaces_state_renting', 'number_stored_items_state_active' ,'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -155,6 +157,8 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'number_stored_items_state_active', label: ['type' => 'text', 'data' => __('SKUs'), 'tooltip' => __('Number of SKUs in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'number_spaces_state_renting', label: ['type' => 'text', 'data' => __('Spaces'), 'tooltip' => __('Number of renting spaces')], canBeHidden: false, sortable: true)
                 ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->column(key: 'interest', label: __('interest'), canBeHidden: false);
         };
