@@ -157,7 +157,7 @@ class StoreSupplier extends OrgAction
     {
         if (!$this->get('scope_type')) {
             $this->set('scope_type', 'Group');
-            $this->set('scope_type', $this->group->id);
+            $this->set('scope_id', $this->group->id);
         }
     }
 
