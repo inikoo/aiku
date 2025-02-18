@@ -67,6 +67,7 @@ class UpdateFulfilment extends OrgAction
             'address',
             'registration_number',
             'vat_number',
+            'invoice_footer',
             'image',
         ]);
 
@@ -103,7 +104,7 @@ class UpdateFulfilment extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -165,6 +166,7 @@ class UpdateFulfilment extends OrgAction
             'address'                    => ['sometimes', 'required', new ValidAddress()],
             'registration_number'        => ['sometimes', 'string'],
             'vat_number'                 => ['sometimes', 'string'],
+            'invoice_footer'             => ['sometimes', 'string'],
             'image'                      => [
                 'sometimes',
                 'nullable',

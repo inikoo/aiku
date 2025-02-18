@@ -28,5 +28,6 @@ enum SerialReferenceModelEnum: string
     case STORED_ITEM_AUDIT = 'stored_item_audit';
     case TOP_UP = 'top_up';
     case PURGE = 'purge';
+    case INVOICE = 'invoice';
 
 }

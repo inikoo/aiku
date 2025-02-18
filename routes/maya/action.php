@@ -23,7 +23,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -36,8 +36,13 @@ use App\Actions\Fulfilment\StoredItem\UpdateQuantityStoredItemPalletApp;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
-Route::patch('location/{location:id}/pallet/{pallet:id}', UpdatePalletLocation::class)->name('pallet.location.update')->withoutScopedBindings();
-Route::patch('pallet/{pallet:id}/booked-in', [BookInPallet::class, 'fromApi'])->name('pallet.booked-in');
+Route::patch('pallet/{pallet:id}/location/{location:slug}/move', [UpdatePalletLocation::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
+Route::patch('pallet/{pallet:id}/location/{location:slug}/book-in', [BookInPallet::class,'usingLocationSlug'])->name('bookin_pallet')->withoutScopedBindings();
+
+
+
+
+
 Route::patch('pallet/{pallet:id}/return', ReturnPalletToCustomer::class)->name('pallet.return');
 Route::patch('pallet/{pallet:id}', [UpdatePallet::class, 'fromApi'])->name('pallet.update');
 Route::patch('pallet/{pallet:id}/not-received', SetPalletAsNotReceived::class)->name('pallet.not-received');
@@ -56,7 +61,7 @@ Route::post('profile', UpdateProfile::class)->name('profile.update');
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 
 
-Route::patch('pallet-delivery/{palletDelivery:id}/received', ReceivedPalletDelivery::class)->name('pallet-delivery.received');
+Route::patch('pallet-delivery/{palletDelivery:id}/received', ReceivePalletDelivery::class)->name('pallet-delivery.received');
 Route::patch('pallet-delivery/{palletDelivery:id}/start-booking', StartBookingPalletDelivery::class)->name('pallet-delivery.start_booking');
 Route::patch('pallet-delivery/{palletDelivery:id}/booked-in', SetPalletDeliveryAsBookedIn::class)->name('pallet-delivery.booked-in');
 

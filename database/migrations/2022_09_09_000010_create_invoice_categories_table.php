@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

@@ -17,6 +17,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
+use App\Models\Traits\HasRoles;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
 use App\Models\Web\Website;
@@ -53,8 +54,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property string|null $about
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id
@@ -67,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\CRM\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
@@ -76,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\CRM\WebUserPasswordReset> $passwordResets
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
@@ -88,8 +91,10 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|WebUser onlyTrashed()
  * @method static Builder<static>|WebUser permission($permissions, $without = false)
  * @method static Builder<static>|WebUser query()
+ * @method static Builder<static>|WebUser role($roles, $guard = null, $without = false)
  * @method static Builder<static>|WebUser withTrashed()
  * @method static Builder<static>|WebUser withoutPermission($permissions)
+ * @method static Builder<static>|WebUser withoutRole($roles, $guard = null)
  * @method static Builder<static>|WebUser withoutTrashed()
  * @mixin Eloquent
  */
@@ -100,6 +105,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     use HasEmail;
     use HasImage;
     use InCustomer;
+    use HasRoles;
 
     protected $casts = [
 

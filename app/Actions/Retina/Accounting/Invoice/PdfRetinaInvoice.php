@@ -13,14 +13,10 @@ use App\Actions\RetinaAction;
 use App\Actions\Traits\WithExportData;
 use App\Models\Accounting\Invoice;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\Response;
 
 class PdfRetinaInvoice extends RetinaAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithExportData;
     use WithInvoicesExport;
 

@@ -7,7 +7,7 @@
  */
 
 use App\Actions\Comms\Notifications\GetSnsNotification;
-use App\Actions\Dropshipping\Shopify\Webhook\CreateFulfilmentWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks\StoreFulfilmentFromShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRedactWebhookShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRequestWebhookShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
@@ -23,7 +23,8 @@ Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group
     });
 
     Route::prefix('fulfillments')->as('fulfillments.')->group(function () {
-        Route::post('create', CreateFulfilmentWebhooksShopify::class)->name('create');
+        // Dont change the create to store, its default needed from shopify
+        Route::post('create', StoreFulfilmentFromShopify::class)->name('create');
     });
 });
 

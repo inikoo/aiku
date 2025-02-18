@@ -118,8 +118,21 @@ class EditWebsite extends OrgAction
                 ],
                 "image" => [
                     "type"  => "image_crop_square",
+                    "label" => __("logo"),
+                    "value" => $website->imageSources(320, 320),
+                    'options' => [
+                        "minAspectRatio" => 1 / 1,
+                        "maxAspectRatio" => 12 / 4,
+                     /*    'aspectRatio' =>  12/4 */
+                    ]
+                ],
+                "favicon" => [
+                    "type"  => "image_crop_square",
                     "label" => __("favicon"),
-                    "value" => $website->imageSources(320, 320)
+                    "value" => $website->imageSources(320, 320),
+                    'options' => [
+                        'aspectRatio' =>  1 / 1
+                    ]
                 ],
             ]
         ];

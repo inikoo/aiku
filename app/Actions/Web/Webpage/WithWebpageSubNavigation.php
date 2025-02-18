@@ -9,30 +9,28 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Models\Catalogue\Shop;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Web\Website;
 
 trait WithWebpageSubNavigation
 {
-    protected function getWebpageNavigation(Shop|Website $parent): array
+    protected function getWebpageNavigation(Website $website): array
     {
-        if ($parent instanceof Shop) {
-            $shop    = $parent;
-            $website = $parent->website;
-        } else {
-            $website = $parent;
-            $shop    = $parent->shop;
+        $shop = $website->shop;
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            return $this->getFulfilmentWebpageNavigation($website);
         }
+
 
         return [
             [
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.show",
                     "parameters" => [
                         $shop->organisation->slug,
                         $shop->slug,
-                        $shop->website->slug,
-                        $shop->website->storefront->slug,
+                        $website->slug,
+                        $website->storefront->slug,
                     ],
                 ],
                 "leftIcon" => [
@@ -44,9 +42,9 @@ trait WithWebpageSubNavigation
                 "isAnchor" => true,
                 "label"    => __("Structure"),
 
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.tree",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-code-branch"],
@@ -56,9 +54,9 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_catalogue,
                 "label"    => __("Catalogue"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.catalogue",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-books"],
@@ -68,9 +66,9 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_content,
                 "label"    => __("Content"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.content",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-columns"],
@@ -80,9 +78,9 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_info,
                 "label"    => __("Info"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.info",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-info-circle"],
@@ -92,9 +90,9 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_operations,
                 "label"    => __("Operations"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.operations",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-sign-in-alt"],
@@ -105,9 +103,9 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_blog,
                 "label"    => __("Blog"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.blog",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-newspaper"],
@@ -119,9 +117,9 @@ trait WithWebpageSubNavigation
                 "number"   => $website->webStats->number_webpages,
                 "align"    => "right",
                 "label"    => __("All"),
-                "route"     => [
+                "route"    => [
                     "name"       => "grp.org.shops.show.web.webpages.index",
-                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $website->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-stream"],
@@ -130,4 +128,131 @@ trait WithWebpageSubNavigation
             ],
         ];
     }
+
+    protected function getFulfilmentWebpageNavigation(Website $website): array
+    {
+        $shop       = $website->shop;
+        $fulfilment = $shop->fulfilment;
+
+
+        return [
+            [
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.show",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug,
+                        $website->storefront->slug,
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-home"],
+                    "tooltip" => __("Homepage"),
+                ],
+            ],
+            [
+
+                "label"    => __("Structure (coming soon)"),
+
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.tree",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-code-branch"],
+                    "tooltip" => __("Tree view of the webpages"),
+                ],
+            ],
+
+            [
+                "number"   => $website->webStats->number_webpages_type_content,
+                "label"    => __("Content"),
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.index.type.content",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-columns"],
+                    "tooltip" => __("Content pages"),
+                ],
+            ],
+            [
+                "number"   => $website->webStats->number_webpages_type_info,
+                "label"    => __("Info"),
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.index.type.info",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-info-circle"],
+                    "tooltip" => __("Info pages"),
+                ],
+            ],
+            [
+                "number"   => $website->webStats->number_webpages_type_operations,
+                "label"    => __("Operations"),
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.index.type.operations",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-sign-in-alt"],
+                    "tooltip" => __("Operations webpages"),
+                ],
+            ],
+
+//            [
+//                "number"   => $website->webStats->number_webpages_type_blog,
+//                "label"    => __("Blog"),
+//                "route"    => [
+//                    "name"       => "grp.org.fulfilments.show.web.webpages.index.type.blog",
+//                    "parameters" => [
+//                        $fulfilment->organisation->slug,
+//                        $fulfilment->slug,
+//                        $website->slug
+//                    ],
+//                ],
+//                "leftIcon" => [
+//                    "icon"    => ["fal", "fa-newspaper"],
+//                    "tooltip" => __("Operations blog"),
+//                ],
+//            ],
+
+            [
+                "number"   => $website->webStats->number_webpages,
+                "align"    => "right",
+                "label"    => __("All"),
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.web.webpages.index",
+                    "parameters" => [
+                        $fulfilment->organisation->slug,
+                        $fulfilment->slug,
+                        $website->slug
+                    ],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-stream"],
+                    "tooltip" => __("All Webpages"),
+                ],
+            ],
+        ];
+    }
+
 }

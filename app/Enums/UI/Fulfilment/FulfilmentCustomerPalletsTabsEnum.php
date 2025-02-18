@@ -28,11 +28,11 @@ enum FulfilmentCustomerPalletsTabsEnum: string
     {
         return match ($this) {
             FulfilmentCustomerPalletsTabsEnum::STORING => [
-                'title' => __('Storing'). " ({$fulfilmentCustomer->number_pallets_state_storing})",
+                'title' => __('Storing'). " (" . ($fulfilmentCustomer->number_pallets_status_storing + $fulfilmentCustomer->number_pallets_status_returning) . ")",
                 'icon'  => 'fal fa-warehouse-alt',
             ],
             FulfilmentCustomerPalletsTabsEnum::INCOMING => [
-                'title' => __('In process'). " ({$fulfilmentCustomer->number_pallets_state_in_process})",
+                'title' => __('In process'). " ({$fulfilmentCustomer->number_pallets_status_in_process})",
                 'icon'  => 'fal fa-seedling',
             ],
             FulfilmentCustomerPalletsTabsEnum::INCIDENT => [

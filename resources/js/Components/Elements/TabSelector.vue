@@ -7,6 +7,8 @@ import { faCheckCircle } from '@fas'
 import { faCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
+import { notify } from '@kyvg/vue3-notification'
+import { trans } from 'laravel-vue-i18n'
 library.add(faCheckCircle, faCircle)
 
 interface OptionRadio {
@@ -48,7 +50,14 @@ const onClickRadio = async (value: string) => {
                 router.patch(route(props.updateRoute?.name, props.updateRoute?.parameters), {
                     [value]: false
                 }, {
-                    onFinish: () => radioLoading[value] = false
+                    onFinish: () => radioLoading[value] = false,
+                    onError: (e) => {
+                        notify({
+                            title: trans('Something went wrong'),
+                            text: e.message,
+                            type: 'error',
+                        })
+                    }
                 })
             }
 
@@ -62,7 +71,14 @@ const onClickRadio = async (value: string) => {
             router.patch(route(props.updateRoute?.name, props.updateRoute?.parameters), {
                 [value]: true
             }, {
-                onFinish: () => radioLoading[value] = false
+                onFinish: () => radioLoading[value] = false,
+                onError: (e) => {
+                    notify({
+                        title: trans('Something went wrong'),
+                        text: e.message,
+                        type: 'error',
+                    })
+                }
             })
         }
 
@@ -72,15 +88,15 @@ const onClickRadio = async (value: string) => {
 </script>
 
 <template>
-    <div class="flex flex-wrap md:flex-nowrap gap-y-2 gap-x-1 sm:gap-x-2">
+    <div class="grid md:grid-cols-2 gap-y-2 gap-x-1 sm:gap-x-2">
         <button v-for="radio in optionRadio" @click.prevent="(e) => onClickRadio(radio.value)"
-            class="hover:bg-slate-400/20 text-xs sm:text-sm flex flex-auto items-center text-left gap-x-1.5 sm:gap-x-2 rounded-lg w-fit px-2 sm:px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
+            class="hover:bg-slate-400/20 text-xs w-full sm:text-sm flex flex-auto items-center text-left gap-x-1.5 sm:gap-x-2 rounded-lg px-2 sm:px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
             :disabled="radioLoading[radio.value]">
             <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third'
                 class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
             <FontAwesomeIcon v-else-if="radioValue.includes(radio.value)" icon='fas fa-check-circle'
-                class='text-lime-500' fixed-width aria-hidden='true' />
-            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
+                class='text-green-500' fixed-width aria-hidden='true' />
+            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-green-600' fixed-width aria-hidden='true' />
             <span class="whitespace-nowrap">{{ radio.label }}</span>
         </button>
     </div>

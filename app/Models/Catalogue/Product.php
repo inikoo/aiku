@@ -59,8 +59,8 @@ use Spatie\Tags\HasTags;
  * @property numeric|null $price
  * @property string $units
  * @property string $unit
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property int|null $gross_weight outer weight including packing, grams
@@ -88,6 +88,7 @@ use Spatie\Tags\HasTags;
  * @property-read \App\Models\Catalogue\ProductCategory|null $department
  * @property-read \App\Models\Catalogue\ProductCategory|null $family
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Favourite> $favourites
+ * @property-read \App\Models\Catalogue\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets

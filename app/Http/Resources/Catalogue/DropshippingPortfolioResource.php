@@ -34,30 +34,18 @@ class DropshippingPortfolioResource extends JsonResource
     {
         return [
             'id'                        => $this->id,
-            'slug'                      => $this->slug,
-            'code'                      => $this->code,
-            'name'                      => $this->name,
-            'state'                     => $this->state->stateIcon()[$this->state->value],
+            'slug'                      => $this->item->slug,
+            'code'                      => $this->item->code,
+            'name'                      => $this->item->name,
+            'quantity_left'             => $this->item->total_quantity,
+            'type'                      => $this->item_type,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
-            'shop_slug'                 => $this->shop_slug,
-            'shop_code'                 => $this->shop_code,
-            'shop_name'                 => $this->shop_name,
-            'department_slug'           => $this->department_slug,
-            'department_code'           => $this->department_code,
-            'department_name'           => $this->department_name,
-            'family_slug'               => $this->family_slug,
-            'family_code'               => $this->family_code,
-            'family_name'               => $this->family_name,
-            'current_historic_asset_id' => $this->current_historic_asset_id,
-            'asset_id'                  => $this->asset_id,
-            'stock'                     => $this->available_quantity,
             'delete_product' => [
                 'method' => 'delete',
                 'name'       => 'retina.models.dropshipping.shopify_user.product.delete',
                 'parameters' => [
-                    'shopifyUser' => $this->shopify_user_id,
-                    'product' => $this->portfolio_id
+                    'product' => $this->id
                 ]
             ],
         ];

@@ -77,7 +77,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             })
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -105,7 +105,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
+                $request->user()->authTo('procurement.view')
             );
     }
 

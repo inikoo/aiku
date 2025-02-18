@@ -9,7 +9,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -30,11 +30,11 @@ import { Table as TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import '@vuepic/vue-datepicker/dist/main.css'
 import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStatsPalletDelivery.vue'
-
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 
@@ -44,10 +44,24 @@ import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/
 import { notify } from '@kyvg/vue3-notification'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
 
-
+interface UploadSection {
+    title: {
+        label: string
+        information: string
+    }
+    progressDescription: string
+    upload_spreadsheet: UploadPallet
+    preview_template: {
+        header: string[]
+        rows: {}[]
+    }
+}
 
 const props = defineProps<{
     title: string
@@ -55,6 +69,12 @@ const props = defineProps<{
     pallets?: TableTS
     services?: TableTS
     physical_goods?: TableTS
+    attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
+    can_edit_transactions?: boolean,
     data?: {
         data: PalletDelivery
     }
@@ -88,15 +108,22 @@ const props = defineProps<{
         message: string
     }
     rental_lists?: [],
-    
+
     service_lists?: [],
     service_list_route: routeType
 
     physical_good_lists?: []
     physical_good_list_route: routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
+    upload_pallet: UploadSection
+    upload_stored_item: UploadSection
 }>()
 
-
+const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -122,7 +149,8 @@ const component = computed(() => {
         pallets: TablePalletDeliveryPallets,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 
@@ -141,6 +169,7 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
             closedPopover()
             formAddPallet.reset()
             isLoadingButton.value = false
+            handleTabUpdate('pallets')
         },
         onError: (errors) => {
             isLoadingButton.value = false
@@ -189,7 +218,7 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
 const dataServiceList = ref([])
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0]?.historic_asset_id
-    // console.log('hhh', dataServiceList.value)
+    /*  console.log('hhh', handleTabUpdate) */
     formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
 
@@ -200,6 +229,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -246,6 +276,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset()
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 notify({
@@ -267,7 +298,8 @@ const changeTableKey = () => {
 }
 
 // Section: Upload spreadsheet
-const isModalUploadOpen = ref(false)
+const isModalUploadPallet = ref(false)
+const isModalUploadStoredItemOpen = ref(false)
 
 const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
@@ -280,6 +312,9 @@ const changePalletType=(form,fieldName,value)=>{
 
 // console.log(currentTab.value)
 
+
+const isModalUploadFileOpen = ref(false)
+
 </script>
 
 <template>
@@ -289,16 +324,34 @@ const changePalletType=(form,fieldName,value)=>{
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button
-                v-if="currentTab === 'pallets'"
-                @click="() => isModalUploadOpen = true"
-                :label="action.label"
-                :style="action.style"
-                :icon="action.icon"
-                v-tooltip="action.tooltip"
-                class="rounded-l-md rounded-r-none border-none"
-            />
-            <div v-else></div>
+            <Menu v-slot="{ close }" as="div" class="relative inline-block text-left">
+                <div>
+                    <MenuButton class="">
+                        <Button
+                            v-if="currentTab === 'pallets'"
+                            :label="action.label"
+                            :style="action.style"
+                            :icon="action.icon"
+                            v-tooltip="action.tooltip"
+                            class="rounded-l-ms rounded-r-none border-r-0"
+                        />
+                        <div v-else></div>
+                    </MenuButton>
+                </div>
+
+                <transition name="headlessui2">
+                    <MenuItems class="z-10 absolute right-0 p-1 mt-2 w-fit origin-top-right rounded-md bg-white shadow-lg ring-1 ring-indigo-500/50 focus:outline-none" >
+                        <div @click="() => (isModalUploadPallet = true, close())" class="whitespace-nowrap px-3 py-1 rounded hover:bg-gray-200 cursor-pointer">
+                            <FontAwesomeIcon icon='fal fa-upload' class='' fixed-width aria-hidden='true' />
+                            {{ trans("Upload pallet") }}
+                        </div>
+                        <div @click="() => (isModalUploadStoredItemOpen = true, close())" class="whitespace-nowrap px-3 py-1 rounded hover:bg-gray-200 cursor-pointer">
+                            <FontAwesomeIcon icon='fal fa-upload' class='' fixed-width aria-hidden='true' />
+                            {{ trans("Upload Customer's SKU") }}
+                        </div>
+                    </MenuItems>
+                </transition>
+            </Menu>
         </template>
         
         <!-- Button: delete Delivery -->
@@ -307,6 +360,7 @@ const changePalletType=(form,fieldName,value)=>{
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    isWithMessage
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
@@ -333,7 +387,7 @@ const changePalletType=(form,fieldName,value)=>{
                         :iconRight="action.iconRight"
                         :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="trans('Add multiple pallets')"
-                        class="rounded-none border-none" />
+                        class="rounded-l-sm rounded-r-md border-l-0" />
                     <div v-else></div>
                 </template>
 
@@ -380,7 +434,7 @@ const changePalletType=(form,fieldName,value)=>{
 
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action }">
-            <div class="relative" v-if="currentTab === 'pallets'">
+            <div class="relative">
                 <Popover>
                     <template #button>
                         <Button
@@ -389,7 +443,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r-md border-none"
+                            class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -439,12 +493,11 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
         </template>
 
         <!-- Button: Add service -->
         <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
+            <div class="relative" >
                 <Popover>
                     <template #button="{open}">
                         <Button
@@ -453,6 +506,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
+                             class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -485,7 +539,15 @@ const changePalletType=(form,fieldName,value)=>{
                                     :placeholder="trans('Select Services')"
                                     valueProp="id"
                                     @optionsList="(options) => dataServiceList = options"
-                                />
+                                >
+                                    <template #singlelabel="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                    </template>
+                                </PureMultiselectInfiniteScroll>
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
@@ -521,12 +583,11 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
         </template>
 
         <!-- Button: Add physical good -->
         <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+            <div class="relative" >
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -536,6 +597,7 @@ const changePalletType=(form,fieldName,value)=>{
                             :label="action.label"
                             :icon="action.icon"
                             :tooltip="action.tooltip"
+                            class=" rounded-r-md ml-2"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -605,9 +667,19 @@ const changePalletType=(form,fieldName,value)=>{
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+           
         </template>
-    </PageHeading>
+        
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </PageHeading> 
 
     <!-- Section: Pallet Warning -->
     <div v-if="pallet_limits?.status">
@@ -673,19 +745,49 @@ const changePalletType=(form,fieldName,value)=>{
             :storedItemsRoute="storedItemsRoute"
             :rentalRoute="rentalRoute"
             :rentalList="props.rental_lists"
-        />
+            :detachRoute="attachmentRoutes.detachRoute"
+            :can_edit_transactions="can_edit_transactions"
+        >
+            <template #button-empty-state-attachments="{ action }">
+                <Button
+                    v-if="currentTab === 'attachments'"
+                    @click="() => isModalUploadFileOpen = true"
+                    :label="trans('Attach file')"
+                    icon="fal fa-upload"
+                    type="secondary"
+                />
+            </template>
+        </component>
     </div>
 
     <UploadExcel
-        v-model="isModalUploadOpen"
-        scope="Pallet delivery"
+        v-model="isModalUploadPallet"
+        :title="upload_pallet.title"
+        :progressDescription="upload_pallet.progressDescription"
+        :upload_spreadsheet="upload_pallet.upload_spreadsheet"
+        :preview_template="upload_pallet.preview_template"
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadExcel
+        v-model="isModalUploadStoredItemOpen"
+        :title="upload_stored_item.title"
+        :progressDescription="upload_stored_item.progressDescription"
+        :preview_template="upload_stored_item.preview_template"
+        :upload_spreadsheet="upload_stored_item.upload_spreadsheet"
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
         :title="{
-            label: 'Upload your new pallet deliveries',
+            label: 'Upload your file',
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
-        progressDescription="Adding Pallet Deliveries"        
-        :upload_spreadsheet
-        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>

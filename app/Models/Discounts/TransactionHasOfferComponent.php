@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $order_id
- * @property int $transaction_id
+ * @property int|null $transaction_id
  * @property string|null $model_type
  * @property int|null $model_id
  * @property int $offer_campaign_id
@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $info
  * @property bool $is_pinned
  * @property string|null $precursor
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -40,7 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
  * @property-read \App\Models\Discounts\OfferComponent $offerComponent
- * @property-read Transaction $transaction
+ * @property-read Transaction|null $transaction
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent query()

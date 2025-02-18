@@ -25,6 +25,7 @@ class EditRecurringBill extends OrgAction
             'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $recurringBill,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -64,7 +65,7 @@ class EditRecurringBill extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): Response
@@ -81,10 +82,11 @@ class EditRecurringBill extends OrgAction
         return $this->handle($recurringBill, $request);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(RecurringBill $recurringBill, string $routeName, array $routeParameters): array
     {
         return array_merge(
             ShowRecurringBill::make()->getBreadcrumbs(
+                recurringBill: $recurringBill,
                 routeName: $routeName,
                 routeParameters: $routeParameters,
             ),

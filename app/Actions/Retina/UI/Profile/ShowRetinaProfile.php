@@ -30,7 +30,6 @@ class ShowRetinaProfile extends RetinaAction
     {
         $customer = $webUser->customer;
 
-
         $personalInformationFields = [
             'contact_name' => [
                 'type'  => 'input',
@@ -50,7 +49,7 @@ class ShowRetinaProfile extends RetinaAction
             'image'        => [
                 'type'  => 'avatar',
                 'label' => __('avatar'),
-                'value' => !blank($customer->image_id)
+                'value' => !blank($webUser->image_id)
                     ? $customer->imageSources(320, 320)
                     : [
                         'original' => '/retina-default-user.svg'
@@ -118,19 +117,19 @@ class ShowRetinaProfile extends RetinaAction
             ];
         }
 
-        $sections["language"] = [
-            "label"  => __("Language"),
-            "icon"   => "fal fa-language",
-            "fields" => [
-                "language_id" => [
-                    "type"     => "language",
-                    "label"    => __("language"),
-                    "value"    => $webUser->language_id,
-                    "options"  => GetLanguagesOptions::make()->translated(),
-                    "required" => true,
-                ],
-            ],
-        ];
+        /*  $sections["language"] = [
+             "label"  => __("Language"),
+             "icon"   => "fal fa-language",
+             "fields" => [
+                 "language_id" => [
+                     "type"     => "language",
+                     "label"    => __("language"),
+                     "value"    => $webUser->language_id,
+                     "options"  => GetLanguagesOptions::make()->translated(),
+                     "required" => true,
+                 ],
+             ],
+         ]; */
 
         $currentSection = "properties";
         if ($request->has("section") and Arr::has($sections, $request->get("section"))) {

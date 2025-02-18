@@ -72,7 +72,7 @@ class IndexOrgPostRooms extends OrgAction
         return $queryBuilder
             ->allowedSorts(['name', 'runs', 'number_outboxes', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -125,10 +125,10 @@ class IndexOrgPostRooms extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment) {
-            return $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',

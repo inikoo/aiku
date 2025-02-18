@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $set_as_incident_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property string|null $notes
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property object $incident_report
  * @property bool $with_stored_items
  * @property int $number_stored_items
@@ -86,12 +86,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Location|null $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\MovementPallet> $movements
  * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletStoredItem> $palletStoredItems
  * @property-read Rental|null $rental
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
@@ -156,7 +158,7 @@ class Pallet extends Model implements Auditable
         'status',
         'state',
         'type',
-        'notes',
+        'notes'
     ];
 
     public function getRouteKeyName(): string
@@ -204,9 +206,14 @@ class Pallet extends Model implements Auditable
         return $this->hasMany(MovementPallet::class);
     }
 
+    public function palletStoredItems(): HasMany
+    {
+        return $this->hasMany(PalletStoredItem::class);
+    }
+
     public function storedItems(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(StoredItem::class, 'pallet_stored_items')->withPivot('quantity', 'delivered_quantity')->withTimestamps();
     }
 
     public function storedItemAuditDeltas(): BelongsToMany
@@ -276,7 +283,6 @@ class Pallet extends Model implements Auditable
     {
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
-
 
     public function rentalAgreementClause(): BelongsTo
     {

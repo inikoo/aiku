@@ -57,7 +57,7 @@ class IndexProductFavourites extends OrgAction
             ])
             ->allowedSorts(['reference', 'contact_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -99,9 +99,9 @@ class IndexProductFavourites extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        return $request->user()->authTo("products.{$this->shop->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $favourites): AnonymousResourceCollection

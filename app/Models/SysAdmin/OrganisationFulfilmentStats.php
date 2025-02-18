@@ -115,6 +115,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $number_pallets_state_request_return_submitted
  * @property int $number_pallets_state_request_return_confirmed
+ * @property int $number_spaces
+ * @property int $number_spaces_state_reserved
+ * @property int $number_spaces_state_renting
+ * @property int $number_spaces_state_finished
+ * @property int $number_customers_status_pending_approval
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @method static Builder<static>|OrganisationFulfilmentStats newModelQuery()
  * @method static Builder<static>|OrganisationFulfilmentStats newQuery()

@@ -39,7 +39,7 @@ class IndexPaymentAccounts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('payment_accounts.code', $value)
-                    ->orWhereAnyWordStartWith('payment_accounts.name', 'ILIKE', $value);
+                    ->orWhereAnyWordStartWith('payment_accounts.name', $value);
             });
         });
 
@@ -76,25 +76,21 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_accounts.id as id',
                 'payment_accounts.code as code',
                 'payment_accounts.name',
-                'number_payments',
+                'payment_account_stats.number_payments',
                 'payment_accounts.slug as slug',
                 'payment_service_providers.slug as payment_service_provider_slug',
                 'payment_service_providers.name as payment_service_provider_name',
                 'payment_service_providers.code as payment_service_provider_code',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-                'shops.id as shop_id',
-                'shops.slug as shop_slug',
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
+                'payment_account_stats.number_pas_state_active'
             ])
             ->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id')
-            ->leftJoin('shops', 'payment_account_shop.shop_id', 'shops.id')
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
-            ->allowedSorts(['code', 'name', 'number_payments','payment_service_provider_code'])
+            ->allowedSorts(['code', 'name', 'number_payments','payment_service_provider_code','number_pas_state_active'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -138,7 +134,7 @@ class IndexPaymentAccounts extends OrgAction
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'number_pas_state_active', label: __('shops'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -148,11 +144,11 @@ class IndexPaymentAccounts extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
     }
 
 

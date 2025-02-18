@@ -20,19 +20,19 @@ enum FulfilmentCustomerTabsEnum: string
     case AGREED_PRICES = 'agreed_prices';
     case HISTORY       = 'history';
     /*     case ATTACHMENTS   = 'attachments';
-        case WEBHOOK       = 'webhook'; */
-    case NOTE          = 'note';
-
+        case WEBHOOK       = 'webhook';
+    case NOTE          = 'note'; */
+    case ATTACHMENTS = 'attachments';
 
     public function blueprint(): array
     {
         return match ($this) {
-            /*  FulfilmentCustomerTabsEnum::ATTACHMENTS => [
-                 'align' => 'right',
-                 'title' => __('attachments'),
-                 'icon'  => 'fal fa-paperclip',
-                 'type'  => 'icon'
-             ], */
+            FulfilmentCustomerTabsEnum::ATTACHMENTS => [
+                'align' => 'right',
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon'
+            ],
             FulfilmentCustomerTabsEnum::HISTORY => [
                 'align' => 'right',
                 'type'  => 'icon',
@@ -53,10 +53,10 @@ enum FulfilmentCustomerTabsEnum: string
                 'title' => __('agreed prices'),
                 'icon'  => 'fal fa-usd-circle',
             ],
-            FulfilmentCustomerTabsEnum::NOTE => [
-                'title' => __('note'),
-                'icon'  => 'fal fa-sticky-note',
-            ],
+            //            FulfilmentCustomerTabsEnum::NOTE => [
+            //                'title' => __('note'),
+            //                'icon'  => 'fal fa-sticky-note',
+            //            ],
         };
     }
 }

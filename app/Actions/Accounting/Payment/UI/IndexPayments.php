@@ -110,8 +110,9 @@ class IndexPayments extends OrgAction
             ->when($parent, function ($query) use ($parent) {
             })
             ->allowedSorts(['reference', 'status', 'date'])
+            ->withBetweenDates(['date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -144,6 +145,7 @@ class IndexPayments extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            $table->betweenDates(['date']);
 
             if (!($parent instanceof Order || $parent instanceof Invoice)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -172,11 +174,11 @@ class IndexPayments extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
     }
 
 

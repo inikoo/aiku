@@ -34,16 +34,16 @@ class ShowOutboxWorkshop extends OrgAction
      */
     private Fulfilment|Shop $parent;
 
-    public function handle(Email $email)
+    public function handle(Outbox $outbox): Email
     {
-        if ($email->builder == EmailBuilderEnum::BLADE) {
+        if ($outbox->builder == EmailBuilderEnum::BLADE) {
             throw ValidationException::withMessages([
                 'value' => 'Builder is not supported'
             ]);
         }
-        return $email;
-    }
 
+        return $outbox->emailOngoingRun?->email;
+    }
 
     /**
      * @throws \Illuminate\Validation\ValidationException
@@ -53,7 +53,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     /**
@@ -64,7 +64,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     /**
@@ -75,7 +75,7 @@ class ShowOutboxWorkshop extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($outbox->emailOngoingRun->email);
+        return $this->handle($outbox);
     }
 
     public function htmlResponse(Email $email, ActionRequest $request): Response

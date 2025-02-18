@@ -16,6 +16,9 @@ import Footer from "@/Components/Footer/Footer.vue"
 import { useLayoutStore } from "@/Stores/layout"
 import { useLocaleStore } from "@/Stores/locale"
 
+import "@/Composables/Icon/NavigationImportIcon"
+
+
 
 import TopBar from "@/Layouts/Grp/TopBar.vue"
 import LeftSideBar from "@/Layouts/Grp/LeftSideBar.vue"
@@ -23,10 +26,12 @@ import RightSideBar from "@/Layouts/Grp/RightSideBar.vue"
 // import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import Notification from '@/Components/Utils/Notification.vue'
-import { faTachometerAltFast, faGlobe } from '@fal'
+import { faParking } from '@fal' // Pallet
+import { faUsers } from '@fal' // Navigation
+import { faTachometerAltFast, faGlobe, faParachuteBox } from '@fal'
 import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
+library.add(faUsers, faSearch, faBell, faTachometerAltFast, faGlobe, faParachuteBox, faParking)
 
 provide('layout', useLayoutStore())
 provide('locale', useLocaleStore())

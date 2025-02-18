@@ -85,6 +85,10 @@ class PalletReturnItemResource extends JsonResource
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
                 'parameters' => [$this->id]
             ],
+            'undoConfirmedRoute' => [
+                'name'       => 'grp.models.pallet-return-item.undo-confirmed',
+                'parameters' => [$this->id]
+            ],
             'notPickedRoute' => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.pallet-return-item.not-picked',
@@ -116,8 +120,8 @@ class PalletReturnItemResource extends JsonResource
                     'parameters' => [$this->pallet->pallet_return_id, $this->pallet->id]
                 ],
                 default => [
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->pallet->fulfilment_customer_id, $this->pallet->pallet_return_id, $this->pallet->id]
+                    'name'       => 'grp.models.pallet-return.pallet.detach',
+                    'parameters' => [$this->pallet->pallet_return_id, $this->pallet->id]
                 ]
             },
             'notReceivedRoute' => [

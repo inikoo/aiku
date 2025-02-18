@@ -31,6 +31,8 @@ class ShowRetinaStorageDashboard extends RetinaAction
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
     {
 
+
+
         $clauses = null;
         foreach ($fulfilmentCustomer->rentalAgreementClauses as $clause) {
             $price                                  = $clause->asset->price;
@@ -46,6 +48,48 @@ class ShowRetinaStorageDashboard extends RetinaAction
             ];
         }
 
+        $routeActions = [
+            $fulfilmentCustomer->pallets_storage ? [
+                'type'  => 'button',
+                'style' => 'create',
+                'label' => __('New Delivery'),
+                'fullLoading'   => true,
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-delivery.store',
+                    'parameters' => []
+                ]
+            ] : false,
+        ];
+
+        //        if (!app()->environment('production') && $fulfilmentCustomer->pallets_storage) {
+        //            $routeActions = array_merge($routeActions, [
+        //                $fulfilmentCustomer->number_pallets_status_storing ? [
+        //                    'type'    => 'button',
+        //                    'style'   => 'create',
+        //                    'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+        //                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('New Return (whole pallet)') : __('Return'),
+        //                    'route'   => [
+        //                        'method'     => 'post',
+        //                        'name'       => 'retina.models.pallet-return.store',
+        //                        'parameters' => []
+        //                    ]
+        //                ] : false,
+        //                $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
+        //                    'type'    => 'button',
+        //                    'style'   => 'create',
+        //                    'tooltip' => __('Create new return (Selected SKUs)'),
+        //                    'label'   => __('Return (Selected SKUs)'),
+        //                    'route'   => [
+        //                        'method'     => 'post',
+        //                        'name'       => 'retina.models.pallet-return-stored-items.store',
+        //                        'parameters' => []
+        //                    ]
+        //                ] : false,
+        //            ]);
+        //        }
+        $routeActions = array_filter($routeActions);
+
         return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'        => __('Storage Dashboard'),
             'breadcrumbs'    => $this->getBreadcrumbs(),
@@ -59,6 +103,8 @@ class ShowRetinaStorageDashboard extends RetinaAction
 
             ],
 
+            'route_action' => $routeActions,
+
             'currency'     => CurrencyResource::make($fulfilmentCustomer->fulfilment->shop->currency),
             'storageData'  => $this->getDashboardData($fulfilmentCustomer),
             'rental_agreement' => RetinaRentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
@@ -71,9 +117,12 @@ class ShowRetinaStorageDashboard extends RetinaAction
         $stats = [];
 
         $stats['pallets'] = [
-            'label'         => __('Pallet'),
-            'count'         => $fulfilmentCustomer->number_pallets,
+            'label'         => __('Pallets'),
+            'count'         => $fulfilmentCustomer->number_pallets_status_storing,
             'description'   => __('in warehouse'),
+            'route'         => [
+                'name' => 'retina.fulfilment.storage.pallets.index'
+            ]
         ];
 
         foreach (PalletStateEnum::cases() as $case) {
@@ -86,8 +135,11 @@ class ShowRetinaStorageDashboard extends RetinaAction
         }
 
         $stats['pallet_deliveries'] = [
-            'label' => __('Pallet Delivery'),
-            'count' => $fulfilmentCustomer->number_pallet_deliveries
+            'label' => __('Pallet Deliveries'),
+            'count' => $fulfilmentCustomer->number_pallet_deliveries,
+            'route' => [
+                'name' => 'retina.fulfilment.storage.pallet_deliveries.index'
+            ]
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
             $stats['pallet_deliveries']['cases'][$case->value] = [
@@ -99,8 +151,11 @@ class ShowRetinaStorageDashboard extends RetinaAction
         }
 
         $stats['pallet_returns'] = [
-            'label' => __('Pallet Return'),
-            'count' => $fulfilmentCustomer->number_pallet_returns
+            'label' => __('Pallet Returns'),
+            'count' => $fulfilmentCustomer->number_pallet_returns,
+            'route' => [
+                'name' => 'retina.fulfilment.storage.pallet_returns.index'
+            ]
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
             $stats['pallet_returns']['cases'][$case->value] = [

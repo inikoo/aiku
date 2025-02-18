@@ -44,7 +44,7 @@ class UpdateShop extends OrgAction
             return true;
         }
 
-        return $request->user()->hasAnyPermission(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
+        return $request->user()->authTo(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
     }
 
     public function handle(Shop $shop, array $modelData): Shop
@@ -77,12 +77,12 @@ class UpdateShop extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_name'     => 'settings.shopify.shop_name',
-                    'shopify_api_key'       => 'settings.shopify.api_key',
-                    'shopify_api_secret'    => 'settings.shopify.api_secret',
-                    'shopify_access_token'  => 'settings.shopify.access_token',
-                    'registration_number'   => 'data.registration_number',
-                    'vat_number'            => 'data.vat_number',
+                    'shopify_shop_name' => 'settings.shopify.shop_name',
+                    'shopify_api_key' => 'settings.shopify.api_key',
+                    'shopify_api_secret' => 'settings.shopify.api_secret',
+                    'shopify_access_token' => 'settings.shopify.access_token',
+                    'registration_number' => 'data.registration_number',
+                    'vat_number' => 'data.vat_number',
                     default => $key
                 },
                 $value
@@ -188,7 +188,8 @@ class UpdateShop extends OrgAction
             'shopify_access_token'     => ['sometimes', 'string'],
             'registration_number'      => ['sometimes', 'string'],
             'vat_number'               => ['sometimes', 'string'],
-            'image'       => [
+            'invoice_footer'           => ['sometimes', 'string', 'max:10000'],
+            'image'                    => [
                 'sometimes',
                 'nullable',
                 File::image()

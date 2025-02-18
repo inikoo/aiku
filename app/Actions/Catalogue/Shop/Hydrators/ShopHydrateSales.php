@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
-use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -37,7 +37,7 @@ class ShopHydrateSales
     public function handle(Shop $shop, ?array $intervals = null, $doPreviousIntervals = null): void
     {
         $stats     = [];
-        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $queryBase = Invoice::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
@@ -46,7 +46,7 @@ class ShopHydrateSales
             doPreviousPeriods: $doPreviousIntervals
         );
 
-        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('shop_id', $shop->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
@@ -55,7 +55,7 @@ class ShopHydrateSales
             doPreviousPeriods: $doPreviousIntervals
         );
 
-        $queryBase = InvoiceTransaction::where('shop_id', $shop->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('shop_id', $shop->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,

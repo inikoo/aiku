@@ -35,7 +35,11 @@ const isLoading = ref<string | boolean | number>(false)
 const locale = inject("locale", aikuLocaleStructure)
 
 const isSubNavActive = (subNav: SubNav) => {
-    return layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.route?.name
+    const isRouteIncludeRoot = layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    const isRouteSameAsRoot = layout.currentRoute === subNav.route?.name
+    const isLayoutRootActiveExist = subNav.route?.name?.includes(layout.root_active || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') 
+
+    return  isRouteIncludeRoot || isRouteSameAsRoot || isLayoutRootActiveExist
 }
 
 // const originUrl = location.origin

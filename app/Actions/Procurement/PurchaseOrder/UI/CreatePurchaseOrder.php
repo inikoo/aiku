@@ -60,7 +60,7 @@ class CreatePurchaseOrder extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('procurement.edit');
+        return $request->user()->authTo('procurement.edit');
     }
 
 

@@ -34,16 +34,16 @@ class EditStoredItem extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return
                 (
                     $request->user()->tokenCan('root') or
-                    $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view")
+                    $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view")
                 );
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+            $this->canEdit       = $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
         return false;
@@ -67,7 +67,9 @@ class EditStoredItem extends OrgAction
                 ),
                 'title'       => __("customer's sKUs"),
                 'pageHead'    => [
-                    'title'     => __("customer's sKUs"),
+                    'model'     => __("Customer's SKU"),
+                    'title'     => $storedItem->slug,
+                    'icon'      => 'fal fa-narwhal',
                     'actions'   => [
                         [
                             'type'  => 'button',
@@ -82,8 +84,8 @@ class EditStoredItem extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Item'),
-                            'icon'   => ['fal', 'fa-narwhal'],
+                            'label'  => __('Basic information'),
+                            // 'icon'   => ['fal', 'fa-narwhal'],
                             'fields' => [
                                 'reference' => [
                                     'type'    => 'input',
@@ -91,7 +93,14 @@ class EditStoredItem extends OrgAction
                                     'value'   => $storedItem->reference,
                                     'required' => true
                                 ],
-                            ]
+                                'name' => [
+                                    'type'    => 'input',
+                                    'label'   => __('name'),
+                                    'placeholder'   => __('Customer\'s SKU name'),
+                                    'value'   => $storedItem->name,
+                                    // 'required' => true
+                                ],
+                            ],
                         ]
                     ],
                     'args' => [

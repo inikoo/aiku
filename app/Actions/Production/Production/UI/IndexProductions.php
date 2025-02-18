@@ -30,8 +30,8 @@ class IndexProductions extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
-        return $request->user()->hasAnyPermission(['org-supervisor.'.$this->organisation->id,'productions-view.'.$this->organisation->id]);
+        $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
+        return $request->user()->authTo(['org-supervisor.'.$this->organisation->id,'productions-view.'.$this->organisation->id]);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -75,7 +75,7 @@ class IndexProductions extends OrgAction
             ->leftJoin('production_stats', 'production_stats.production_id', 'productions.id')
             ->allowedSorts(['code', 'name', 'number_raw_materials', 'number_artefacts','number_manufacture_tasks'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -60,23 +60,23 @@ class IndexProducts extends OrgAction
         }
 
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasAnyPermission(
+            $this->canEdit = $request->user()->authTo(
                 [
                     'org-supervisor.'.$this->organisation->id,
                 ]
             );
 
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     'org-supervisor.'.$this->organisation->id,
                     'shops-view'.$this->organisation->id,
                 ]
             );
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } else {
-            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+            $this->canEdit = $request->user()->authTo("products.{$this->shop->id}.edit");
+            return $request->user()->authTo("products.{$this->shop->id}.view");
         }
     }
 
@@ -180,8 +180,10 @@ class IndexProducts extends OrgAction
                     'shopify_user_has_products.shopify_user_id'
                 ];
             } else {
+                $productIds = $parent->customer->portfolios()->where('item_type', class_basename(Product::class))->pluck('item_id');
+
                 $queryBuilder->where('shop_id', $parent->customer->shop_id)
-                ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
+                ->whereNotIn('products.id', $productIds)
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
         } elseif ($parent instanceof Group) {
@@ -226,7 +228,7 @@ class IndexProducts extends OrgAction
 
         return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

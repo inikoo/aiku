@@ -112,6 +112,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property bool $is_vip Indicate if order is for a VIP customer
+ * @property int|null $as_organisation_id Indicate if order is for a organisation in this group
+ * @property int|null $as_employee_id Indicate if order is for a employee
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
@@ -124,6 +127,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, Address> $fixedAddresses
+ * @property-read \App\Models\Ordering\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media

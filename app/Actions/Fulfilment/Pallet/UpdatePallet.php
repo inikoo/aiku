@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
+use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
@@ -43,7 +44,7 @@ class UpdatePallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
 
-
+        $oldLocation = $pallet->location;
         $originalType = $pallet->type;
         $pallet       = $this->update($pallet, $modelData, ['data']);
         $pallet->refresh();
@@ -61,6 +62,12 @@ class UpdatePallet extends OrgAction
             FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer)->delay($this->hydratorsDelay);
             FulfilmentHydratePallets::dispatch($pallet->fulfilment)->delay($this->hydratorsDelay);
             WarehouseHydratePallets::dispatch($pallet->warehouse)->delay($this->hydratorsDelay);
+            if ($oldLocation) {
+                LocationHydratePallets::dispatch($oldLocation)->delay($this->hydratorsDelay); //Hydrate Old Location
+            }
+            if ($pallet->location) {
+                LocationHydratePallets::dispatch($pallet->location)->delay($this->hydratorsDelay); //Hydrate New Location
+            }
         }
 
         if ($originalType !== $pallet->type) {
@@ -81,7 +88,7 @@ class UpdatePallet extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -129,10 +136,14 @@ class UpdatePallet extends OrgAction
                 Rule::Exists('pallet_returns', 'id')->where('fulfilment_id', $this->fulfilment->id)
 
             ],
+            'location_id'        => ['sometimes', 'nullable', Rule::exists('locations', 'id')],
             'notes'              => ['sometimes','nullable', 'string', 'max:1024'],
             'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],
+            'dispatched_at'      => ['sometimes', 'nullable', 'date'],
+            'picking_at'         => ['sometimes', 'nullable', 'date'],
+            'picked_at'          => ['sometimes', 'nullable', 'date'],
             'reference'          => [
                 'sometimes',
                 'nullable',

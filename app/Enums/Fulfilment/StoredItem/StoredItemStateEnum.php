@@ -44,31 +44,31 @@ enum StoredItemStateEnum: string
             'submitted'   => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'class'   => 'text-indigo-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
             'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'class'   => 'text-gray-300',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
             ],
             'active'   => [
                 'tooltip' => __('Active'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'icon'    => 'fal fa-inventory',
+                'class'   => 'text-green-700',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
             'discontinuing'   => [
                 'tooltip' => __('Discontinuing'),
                 'icon'    => 'fal fa-sign-out-alt',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'class'   => 'text-red-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
             'discontinued'   => [
                 'tooltip' => __('Discontinued'),
                 'icon'    => 'fal fa-ghost',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
             ],
         ];

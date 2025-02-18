@@ -37,7 +37,7 @@ const props = defineProps<{
 <template>
     <div>
         <!-- <label :for="fieldName" class="block text-sm font-medium leading-6">{{ fieldData.label }}</label> -->
-        <PureInputWithAddOn
+      <PureInputWithAddOn
             v-model="form[fieldName]"
             @update:modelValue="() => form.errors[fieldName] = null"
             :inputName="fieldName"

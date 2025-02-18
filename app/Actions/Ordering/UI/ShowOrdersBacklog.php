@@ -8,7 +8,6 @@
 
 namespace App\Actions\Ordering\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
@@ -25,7 +24,7 @@ class ShowOrdersBacklog extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("orders.{$this->organisation->id}.view");
+        return $request->user()->authTo("orders.{$this->organisation->id}.view");
     }
 
 
@@ -278,7 +277,7 @@ class ShowOrdersBacklog extends OrgAction
         return match (class_basename($parent)) {
             'Shop' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

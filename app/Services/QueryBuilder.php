@@ -9,6 +9,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 {
@@ -32,6 +33,33 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
             }
         }
 
+
+        if ($elementsData) {
+            $engine($this, $elementsData);
+        }
+
+        return $this;
+    }
+
+    public function whereRadioFilter(
+        string $key,
+        array $allowedElements,
+        string $defaultValue,
+        callable $engine,
+        ?string $prefix = null
+    ): self {
+        $elementsData = null;
+
+        $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
+        if (request()->has($argumentName) or $defaultValue) {
+            $elements               = request()->input("$argumentName") ?? $defaultValue;
+
+            $validatedElements      = array_intersect($allowedElements, [$elements]);
+            $countValidatedElements = count($validatedElements);
+            if ($countValidatedElements > 0 and $countValidatedElements < count($allowedElements)) {
+                $elementsData = $elements;
+            }
+        }
 
         if ($elementsData) {
             $engine($this, $elementsData);
@@ -137,9 +165,45 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return ['start' => $start, 'end' => $end];
     }
 
-    public function withPaginator($prefix, int $numberOfRecords = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function withBetweenDates(array $allowedColumns, ?string $prefix = null): static
     {
-        $perPage = is_null($numberOfRecords) ? config('ui.table.records_per_page') : $numberOfRecords;
+        $table =  $this->getModel()->getTable();
+
+        $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
+        $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
+
+        $filters = request()->input($argumentName, []);
+
+        foreach ($allowedColumns as $column) {
+            if (array_key_exists($column, $filters)) {
+                $range = $filters[$column];
+                $parts = explode('-', $range);
+
+                if (count($parts) === 2) {
+                    [$start, $end] = $parts;
+                    $this->whereBetween($table . '.' . $column, [$start, $end]);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    public function withPaginator($prefix, int $numberOfRecords = null, $tableName = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $userId = auth()->user()->id ?? null;
+
+        // ui_state-user:YYYY;rrp-table:XXXXXXX
+        $keyRppCache = $tableName ? "ui_state-user:{$userId};rrp-table:" . ($prefix ? "{$prefix}." : "") . "{$tableName}" : null;
+
+        if ($numberOfRecords) {
+            $perPage = $numberOfRecords;
+        } elseif ($tableName) {
+            $perPage = Cache::get($keyRppCache) ?? config('ui.table.records_per_page');
+        } else {
+            $perPage = config('ui.table.records_per_page');
+        }
+
 
         $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
         if (request()->has($argumentName)) {
@@ -152,6 +216,11 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
             } else {
                 $perPage = $inputtedPerPage;
             }
+
+            if ($tableName && $userId) {
+                Cache::put($keyRppCache, $perPage, now()->addMonth(6));
+            }
+
         }
 
 

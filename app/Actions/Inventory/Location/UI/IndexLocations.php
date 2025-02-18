@@ -44,20 +44,15 @@ class IndexLocations extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if ($this->maya) {
-            return true; //Idk the auth for this
-        }
-
-
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } elseif ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
-            return  $request->user()->hasPermissionTo("warehouses-view.{$this->organisation->id}");
+            $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
+            return  $request->user()->authTo("warehouses-view.{$this->organisation->id}");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
-        return  $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        $this->canEdit = $request->user()->authTo("locations.{$this->warehouse->id}.edit");
+        return  $request->user()->authTo("locations.{$this->warehouse->id}.edit");
 
     }
 
@@ -176,7 +171,7 @@ class IndexLocations extends OrgAction
             })
             ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

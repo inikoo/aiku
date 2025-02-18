@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Web\WebBlockTypesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -74,9 +75,20 @@ class ShowHeader extends OrgAction
                             'type'  => 'button',
                             'style' => 'exit',
                             'label' => __('Exit workshop'),
-                            'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters()),
+                            'route' => ($website->shop->type === ShopTypeEnum::FULFILMENT) ? [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation,
+                                    'fulfilment' => $website->shop->slug,
+                                    'website' => $website
+                                ],
+                            ] : [
+                                'name'       => 'grp.org.shops.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation->slug,
+                                    'shop' => $website->shop->slug,
+                                    'website' => $website->slug
+                                ],
                             ]
                         ],
                         [
@@ -126,6 +138,7 @@ class ShowHeader extends OrgAction
                     ],
                 ],
                 'state' => $isHeaderActive ?? true,
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopHeader::run($website),
                 'web_block_types' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->orderBy('id', 'asc')->get()
@@ -141,14 +154,14 @@ class ShowHeader extends OrgAction
         }
 
         if ($this->scope instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("shops.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.view");
+        return $request->user()->authTo("shops.{$this->shop->id}.view");
 
     }
 

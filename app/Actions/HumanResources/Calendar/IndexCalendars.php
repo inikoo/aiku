@@ -45,7 +45,7 @@ class IndexCalendars extends OrgAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -70,12 +70,12 @@ class IndexCalendars extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                $request->user()->authTo("human-resources.{$this->organisation->id}.view")
             );
     }
 

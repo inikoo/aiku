@@ -20,7 +20,7 @@ class ShowQuery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('portfolio.banners.view');
+        return $request->user()->authTo('portfolio.banners.view');
     }
 
     public function handle(Query $query): Query

@@ -24,6 +24,7 @@ const props = defineProps<{
 	}
     editable?: boolean
     title?: string
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
 }>()
 
 const emits = defineEmits<{
@@ -119,6 +120,7 @@ const sendToServer = async (data : {}, replaceData?: boolean) => {
                         :stored_items="pallet.stored_items"
                         @closeModal="isModalOpen = false"
                         :title
+                        :prefixQuery
                     />
                 </div>
             </slot>

@@ -83,13 +83,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $end_packing
  * @property string|null $picking_on_hold_time Time when picking was put on hold (seconds)
  * @property string|null $packing_on_hold_time Time when packing was put on hold (seconds)
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property bool $is_vip Indicate if delivery note  is for a VIP customer
+ * @property int|null $as_organisation_id Indicate if delivery note  is for a organisation in this group
+ * @property int|null $as_employee_id Indicate if delivery note is for a employee
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
@@ -98,6 +101,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Dispatching\DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
+ * @property-read \App\Models\Dispatching\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation

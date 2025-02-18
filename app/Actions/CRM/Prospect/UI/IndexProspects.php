@@ -44,15 +44,15 @@ class IndexProspects extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Shop) {
-            $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.edit");
+            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.prospects.edit");
 
-            return $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.view");
+            return $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.prospects.view");
         } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
         return false;
@@ -151,7 +151,7 @@ class IndexProspects extends OrgAction
             ->defaultSort('prospects.name')
             ->allowedSorts(['name', 'email', 'phone', 'contact_website'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -8,6 +8,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -57,6 +58,20 @@ class SetUserAuthorisedModels
                 $authorisedOrganisations[$production->organisation_id] = ['org_id' => $production->organisation_id];
             }
         }
+
+        foreach ($user->group->organisations as $organisation) {
+            if ($user->hasPermissionTo('accounting.'.$organisation->id.'.view')) {
+                foreach ($organisation->shops as $shop) {
+                    if ($shop->type === ShopTypeEnum::FULFILMENT) {
+                        $authorisedFulfilments[$shop->fulfilment->id] = ['org_id' => $organisation->id];
+                    } else {
+                        $authorisedShops[$shop->id] = ['org_id' => $organisation->id];
+                    }
+
+                }
+            }
+        }
+
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);

@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -41,8 +40,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
  * @property RecurringBillStatusEnum|null $status
- * @property string $start_date
- * @property string|null $end_date
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
@@ -56,7 +55,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property int $tax_category_id
  * @property string $tax_amount
  * @property string $total_amount
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -97,7 +96,9 @@ class RecurringBill extends Model implements Auditable
 
     protected $casts = [
         'data'   => 'array',
-        'status' => RecurringBillStatusEnum::class
+        'status' => RecurringBillStatusEnum::class,
+        'start_date' => 'datetime',
+        'end_date'   => 'datetime',
     ];
 
     protected $attributes = [
@@ -152,19 +153,20 @@ class RecurringBill extends Model implements Auditable
         return $this->hasMany(RecurringBillTransaction::class);
     }
 
+
     public function stats(): HasOne
     {
         return $this->hasOne(RecurringBillStats::class);
     }
 
-    public function palletDeliveries(): MorphToMany
+    public function palletDeliveries(): HasMany
     {
-        return $this->morphedByMany(PalletDelivery::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->hasMany(PalletDelivery::class);
     }
 
-    public function palletReturns(): MorphToMany
+    public function palletReturns(): HasMany
     {
-        return $this->morphedByMany(PalletReturn::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->hasMany(PalletReturn::class);
     }
 
     public function invoices(): HasOne

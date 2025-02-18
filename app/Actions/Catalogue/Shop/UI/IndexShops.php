@@ -101,7 +101,7 @@ class IndexShops extends OrgAction
             ->select(['code', 'id', 'name', 'slug', 'type', 'state'])
             ->allowedSorts(['code', 'name', 'type', 'state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

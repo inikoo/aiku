@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -39,17 +40,25 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $received_at
  * @property string|null $booked_in_at
  * @property string|null $settled_at
- * @property array $data
- * @property array $incident_report
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $incident_report
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
+ * @property string|null $name
+ * @property string $total_quantity Total stock of the item in the warehouse
+ * @property int|null $number_pallets
+ * @property int $number_audits
+ * @property string|null $last_audit_at
+ * @property int|null $last_stored_item_audit_delta_id
+ * @property int|null $last_stored_item_audit_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletStoredItem> $palletStoredItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
@@ -112,6 +121,11 @@ class StoredItem extends Model implements Auditable
     public function pallets(): BelongsToMany
     {
         return $this->belongsToMany(Pallet::class, 'pallet_stored_items')->withPivot('quantity', 'id');
+    }
+
+    public function palletStoredItems(): HasMany
+    {
+        return $this->hasMany(PalletStoredItem::class);
     }
 
     public function palletReturns(): BelongsToMany

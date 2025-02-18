@@ -75,7 +75,7 @@ class IndexProspectMailshots extends InertiaAction
             ->defaultSort('mailshots.slug')
             ->allowedSorts(['slug', 'subject', 'date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -132,11 +132,11 @@ class IndexProspectMailshots extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('crm.prospects.edit');
+        $this->canEdit = $request->user()->authTo('crm.prospects.edit');
 
         return
             (
-                $request->user()->hasPermissionTo('crm.prospects.view')
+                $request->user()->authTo('crm.prospects.view')
             );
     }
 

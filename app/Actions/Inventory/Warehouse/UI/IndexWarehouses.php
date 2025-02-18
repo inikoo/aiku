@@ -34,12 +34,12 @@ class IndexWarehouses extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 'org-supervisor.'.$this->organisation->id,
                 'warehouses-view.'.$this->organisation->id]
@@ -127,7 +127,7 @@ class IndexWarehouses extends OrgAction
             ->leftJoin('organisations', 'warehouses.organisation_id', 'organisations.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -10,13 +10,15 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemMovements;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
@@ -44,18 +46,18 @@ class ShowPallet extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
+            return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-            $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+            $this->canEdit       = $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            $this->allowLocation = $request->user()->authTo("locations.{$this->warehouse->id}.view");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
+        $this->canEdit = $request->user()->authTo("fulfilment.{$this->organisation->id}.stored-items.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
+        return $request->user()->authTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -117,9 +119,13 @@ class ShowPallet extends OrgAction
         $model = __('Pallet');
         $title = $this->pallet->reference;
         $iconRight = $pallet->status->statusIcon()[$pallet->status->value];
-        $afterTitle = [
-            'label'     => '(' . $this->pallet->customer_reference . ')'
-        ];
+        $afterTitle = [];
+
+        if ($this->pallet->customer_reference) {
+            $afterTitle = [
+                'label'     => '(' . $this->pallet->customer_reference . ')'
+            ];
+        }
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $icon = [
@@ -132,7 +138,7 @@ class ShowPallet extends OrgAction
         $subNavigation = [];
         $navigation = PalletTabsEnum::navigation($pallet);
 
-        if ($pallet->number_stored_items == 0) {
+        if (!$pallet->fulfilmentCustomer->items_storage) {
             unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
         }
 
@@ -186,12 +192,26 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('edit pallet'),
-                            'label'   => __('Edit'),
+
                             'route'   => [
                                 'name'       => $routeName,
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
+                        [
+                            'type'   => 'button',
+                            'style'  => 'tertiary',
+                            'label'  => 'PDF Label',
+                            'target' => '_blank',
+                            'icon'   => 'fal fa-file-pdf',
+                            'key'    => 'action',
+                            'route'  => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.export',
+                                'parameters' => [...array_values(request()->route()->originalParameters()), [
+                                    'type' => 'pdf'
+                                ]],
+                            ]
+                        ]
                         // [
                         //     'type'    => 'button',
                         //     'style'   => 'delete',
@@ -210,11 +230,15 @@ class ShowPallet extends OrgAction
                     'navigation' => $navigation,
                 ],
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
-                    fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
+                    fn () => PalletResource::make($pallet) : Inertia::lazy(fn () => PalletResource::make($pallet)),
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))),
+
+                PalletTabsEnum::MOVEMENTS->value => $this->tab == PalletTabsEnum::MOVEMENTS->value ?
+                    fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))
+                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -222,7 +246,8 @@ class ShowPallet extends OrgAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
+            ->table(IndexStoredItemMovements::make()->tableStructure($pallet, prefix: PalletTabsEnum::MOVEMENTS->value))
+            ->table(IndexStoredItems::make()->tableStructure($pallet, prefix: PalletTabsEnum::STORED_ITEMS->value));
     }
 
 
@@ -245,7 +270,7 @@ class ShowPallet extends OrgAction
     public function getBreadcrumbsFromWarehouse(Pallet $pallet, $routeName, $suffix = null): array
     {
         return array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',

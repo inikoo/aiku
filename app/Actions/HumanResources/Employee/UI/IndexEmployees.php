@@ -116,9 +116,10 @@ class IndexEmployees extends OrgAction
 
         return $queryBuilder
             ->defaultSort('slug')
+            // ->withBetweenDates(['employment_start_at', 'created_at', 'updated_at'])
             ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -130,6 +131,8 @@ class IndexEmployees extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            // $table->betweenDates(['employment_start_at', 'created_at', 'updated_at']);
 
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
@@ -184,13 +187,13 @@ class IndexEmployees extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if (class_basename($this->parent) == 'Organisation') {
-            $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+            $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
-            return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+            return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
         } elseif (class_basename($this->parent) == 'Group') {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } else {
-            return $request->user()->hasPermissionTo('group-reports');
+            return $request->user()->authTo('group-reports');
         }
     }
 

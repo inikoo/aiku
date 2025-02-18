@@ -54,7 +54,9 @@ class HandleIrisInertiaRequests extends Middleware
                 'ziggy' => [
                     'location' => $request->url(),
                 ],
-
+                "layout" =>   [
+                    'app_theme' => Arr::get($website->published_layout, 'theme'),
+                ],
                 'iris' => [
                     'header' => array_merge(
                         $isHeaderActive == 'active' ? Arr::get($website->published_layout, 'header') : [],

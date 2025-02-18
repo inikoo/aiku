@@ -24,7 +24,7 @@ class CreateShop extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('org-admin.'.$this->organisation->id);
+        return $request->user()->authTo('org-admin.'.$this->organisation->id);
     }
 
     public function handle()

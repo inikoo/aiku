@@ -35,12 +35,12 @@ class IndexManufactureTasks extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+            $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
 
-            return $request->user()->hasAnyPermission(
+            return $request->user()->authTo(
                 [
                     'productions-view.'.$this->organisation->id,
                     'org-supervisor.'.$this->organisation->id
@@ -48,9 +48,9 @@ class IndexManufactureTasks extends OrgAction
             );
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+        $this->canEdit = $request->user()->authTo("productions_rd.{$this->production->id}.edit");
 
-        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.view");
+        return $request->user()->authTo("productions_rd.{$this->production->id}.view");
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
@@ -120,7 +120,7 @@ class IndexManufactureTasks extends OrgAction
             ->leftJoin('productions', 'manufacture_tasks.production_id', 'productions.id')
             ->allowedSorts(['code', 'name', 'organisation_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

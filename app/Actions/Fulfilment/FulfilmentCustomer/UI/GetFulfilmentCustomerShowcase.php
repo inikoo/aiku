@@ -97,6 +97,8 @@ class GetFulfilmentCustomerShowcase
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
             ],
+            'status'                => $fulfilmentCustomer->customer->status,
+            'additional_data'       => $fulfilmentCustomer->data,
             'address_update_route'  => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.fulfilment-customer.address.update',
@@ -157,7 +159,13 @@ class GetFulfilmentCustomerShowcase
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
-            ]
+            ],
+            'approveRoute' => [
+                'name' => 'grp.models.customer.approve',
+                'parameters' => [
+                    'customer' => $fulfilmentCustomer->customer_id
+                ]
+            ],
         ];
     }
 

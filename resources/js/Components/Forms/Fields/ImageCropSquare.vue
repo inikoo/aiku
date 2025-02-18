@@ -16,8 +16,31 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 library.add(faSpinnerThird, faExclamationCircle, faCheckCircle, faSpinnerThird, faUndoAlt)
 
 
-const props = defineProps(['form', 'fieldName', 'options'])
+/* const props = defineProps(['form', 'fieldName', 'options']) */
 
+const props = defineProps<{
+    form: any
+    fieldName: string
+    fieldData: {
+        options: {
+            aspectRatio: {
+                width: Number,
+                height: Number
+            },
+            minAspectRatio: {
+                width: Number,
+                height: Number
+            },
+            maxAspectRatio: {
+                width: Number,
+                height: Number
+            },
+        }
+    }
+    options: Object
+}>()
+
+console.log(props)
 // const temporaryAvatar = ref(props.form[props.fieldName])
 
 const numbKey = ref(0)
@@ -63,6 +86,11 @@ const submitCrop = () => {
     isOpenModalCrop.value = false
 }
 
+const stencilProps =  (props.fieldData?.options?.minAspectRatio && props.fieldData?.options?.maxAspectRatio) ? 
+    {
+    minAspectRatio : props.fieldData?.options?.minAspectRatio,
+    maxAspectRatio : props.fieldData?.options?.maxAspectRatio
+    } : {aspectRatio : props.fieldData?.options?.aspectRatio ? props.fieldData?.options?.aspectRatio : 1/1}
 
 watch(isOpenModalCrop, (value) => {
     _cropper.value?.refresh()
@@ -70,17 +98,15 @@ watch(isOpenModalCrop, (value) => {
 </script>
 
 <template>
-    <div class=" w-fit">        
-        <Modal :isOpen="isOpenModalCrop" @close="isOpenModalCrop = false" width="max-w-xl w-full">
+    <div class="w-fit min-w-32">      
+        <Modal :isOpen="isOpenModalCrop" @close="isOpenModalCrop = false" width="max-w-xl w-full" :zIndex="999">
             <div class="w-full h-[300px] relative bg-gray-700">
                 <Cropper
                     :key="numbKey"
                     ref="_cropper"
                     class="w-full h-full"
                     :src="tempImgToCrop"
-                    :stencil-props="{
-                        aspectRatio: 1/1,
-                    }"
+                    :stencil-props="stencilProps"
                     imageClass="w-full h-full"
                     :auto-zoom="true"
                 />
@@ -101,7 +127,7 @@ watch(isOpenModalCrop, (value) => {
         </Modal>
 
         <!-- Avatar Button: Large view -->
-        <div class="bg-gray-100 relative overflow-hidden h-40 aspect-square rounded lg:inline-block ring-1 ring-gray-500 shadow"
+        <div class="bg-gray-100 relative overflow-hidden h-40 min-w-32 w-auto aspect-ratio rounded lg:inline-block ring-1 ring-gray-500 shadow"
             :class="form.errors[fieldName] ? 'errorShake' : ''"
         >
             <Image class="h-full rounded" :src="imgAfterCrop" alt="" />

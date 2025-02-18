@@ -61,7 +61,7 @@ class IndexPaymentServiceProviders extends GrpAction
             ->with('media')
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -84,7 +84,7 @@ class IndexPaymentServiceProviders extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("group-reports");
+        return $request->user()->authTo("group-reports");
     }
 
 

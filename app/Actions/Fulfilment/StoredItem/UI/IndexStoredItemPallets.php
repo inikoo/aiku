@@ -88,6 +88,7 @@ class IndexStoredItemPallets extends OrgAction
                 'pallets.status',
                 'pallets.rental_id',
                 'pallets.type',
+                'pallets.number_stored_items as quantity',
                 'pallets.received_at',
                 'pallets.location_id',
                 'pallets.fulfilment_customer_id',
@@ -102,7 +103,7 @@ class IndexStoredItemPallets extends OrgAction
         return $query->defaultSort('pallets.id')
             ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -139,12 +140,22 @@ class IndexStoredItemPallets extends OrgAction
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
+
+            if ($this->parent ?? null) {
+                $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
+            }
+
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
-            $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
-                ->column(key: 'stored_items_quantity', label: 'stored items', canBeHidden: false, searchable: true)
-                ->defaultSort('reference');
+            $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
+
+            if ($this->parent ?? null) {
+                $table->column(key: 'stored_items_quantity', label: __('Stored items'), canBeHidden: false, searchable: true);
+            } else {
+                $table->column(key: 'stock', label: __('Stock'), canBeHidden: false, searchable: true);
+            }
+
+            $table->defaultSort('reference');
         };
     }
 

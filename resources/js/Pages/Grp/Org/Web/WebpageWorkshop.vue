@@ -22,13 +22,14 @@ import { Root, Daum } from "@/types/webBlockTypes"
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, } from "@fal"
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink, faBoothCurtain, } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { routeType } from "@/types/route"
+import { faLowVision } from "@far"
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faLowVision)
 
 const props = defineProps<{
 	title: string
@@ -93,7 +94,9 @@ const isSavingBlock = ref(false)
 const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
 // Object to store individual debounce timers for each block
 const debounceTimers = ref({})
-
+const openWebsite = () => {
+  window.open('https://'+ props.webpage.domain + '/' + props.webpage.url, "_blank")
+}
 const debounceSaveWorkshop = (block) => {
 	// If the debounce timer exists, cancel it
 	if (debounceTimers.value[block.id]) {
@@ -350,6 +353,11 @@ watch(openedBlockSideEditor,(newValue)=>{
 		<template #afterTitle v-if="isSavingBlock">
 			<LoadingIcon v-tooltip="trans('Saving..')" />
 		</template>
+		<template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
 	</PageHeading>
 
 	<div class="flex gap-x-2">
@@ -404,7 +412,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						class="py-1 px-2 cursor-pointer"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
-						<FontAwesomeIcon :icon="faExternalLink" fixed-width aria-hidden="true" />
+						<FontAwesomeIcon :icon="faLowVision" fixed-width aria-hidden="true" />
 					</div>
 				</div>
 
@@ -414,7 +422,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						v-model="isPreviewLoggedIn"
 						@update:model-value="(e)=> sendToIframe({ key: 'isPreviewLoggedIn', value: e })"
 					/>
-
+					
 					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
 					<!-- <ButtonPreviewEdit

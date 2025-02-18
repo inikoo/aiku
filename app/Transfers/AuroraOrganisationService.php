@@ -49,6 +49,7 @@ use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraHistory;
 use App\Transfers\Aurora\FetchAuroraIngredient;
 use App\Transfers\Aurora\FetchAuroraInvoice;
+use App\Transfers\Aurora\FetchAuroraInvoiceCategory;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
 use App\Transfers\Aurora\FetchAuroraMailshot;
@@ -66,7 +67,6 @@ use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrderDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
-use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraOrgPaymentServiceProvider;
@@ -401,11 +401,6 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraStockDelivery($this))->fetch($id);
     }
 
-    public function fetchPallet($id): ?array
-    {
-        return (new FetchAuroraPallet($this))->fetch($id);
-    }
-
     public function fetchTimesheet($id): ?array
     {
         return (new FetchAuroraTimesheet($this))->fetch($id);
@@ -614,6 +609,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchMasterAsset($id): ?array
     {
         return (new FetchAuroraMasterAsset($this))->fetch($id);
+    }
+
+    public function fetchInvoiceCategory($id): ?array
+    {
+        return (new FetchAuroraInvoiceCategory($this))->fetch($id);
     }
 
 }

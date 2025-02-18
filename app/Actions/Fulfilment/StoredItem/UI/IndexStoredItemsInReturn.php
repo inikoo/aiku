@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -38,32 +37,33 @@ class IndexStoredItemsInReturn extends OrgAction
     private bool $selectStoredPallets = false;
 
 
-    protected function getElementGroups(PalletReturn $palletReturn): array
-    {
-        return [
-            'option' => [
-                'label'    => __('Option'),
-                'elements' => array_merge_recursive(
-                    StoredItemInReturnOptionEnum::labels(),
-                    StoredItemInReturnOptionEnum::count()
-                ),
-                'engine' => function ($query, $elements) use ($palletReturn) {
-                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
-                        $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
-                            $query->where('pallet_return_id', $palletReturn->id);
-                        });
-                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                        $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
-                            $query->where('pallet_return_id', $palletReturn->id);
-                        });
-                    }
-                }
-            ],
-        ];
-    }
+    //    protected function getElementGroups(PalletReturn $palletReturn): array
+    //    {
+    //        return [
+    //            'option' => [
+    //                'label'    => __('Option'),
+    //                'elements' => array_merge_recursive(
+    //                    StoredItemInReturnOptionEnum::labels(),
+    //                    StoredItemInReturnOptionEnum::count()
+    //                ),
+    //                'engine' => function ($query, $elements) use ($palletReturn) {
+    //                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+    //                        $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
+    //                            $query->where('pallet_return_id', $palletReturn->id);
+    //                        });
+    //                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
+    //                        $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
+    //                            $query->where('pallet_return_id', $palletReturn->id);
+    //                        });
+    //                    }
+    //                }
+    //            ],
+    //        ];
+    //    }
 
     public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('stored_items.reference', $value);
@@ -74,33 +74,64 @@ class IndexStoredItemsInReturn extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(StoredItem::class);
-
-        // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
-
-        $queryBuilder->with(['pallets', 'palletReturns']);
-        $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
+        $queryBuilder = QueryBuilder::for(StoredItem::class)
+            ->leftJoin('pallet_return_items', function ($join) use ($parent) {
+                $join->on('stored_items.id', '=', 'pallet_return_items.stored_item_id')
+                        ->where('pallet_return_items.pallet_return_id', '=', $parent->id);
+            })
+            ->leftJoin('pallet_returns', function ($join) use ($parent) {
+                $join->on('pallet_returns.id', '=', 'pallet_return_items.pallet_return_id')
+                        ->where('pallet_returns.id', '=', $parent->id);
+            })
+            ->leftJoin('pallet_stored_items', function ($join) {
+                $join->on('stored_items.id', '=', 'pallet_stored_items.stored_item_id');
+            })
+            ->leftJoin('pallets', function ($join) {
+                $join->on('pallets.id', '=', 'pallet_stored_items.pallet_id');
+            })
+            ->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
         if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $queryBuilder->whereElementGroup(
-                    key: $key,
-                    allowedElements: array_keys($elementGroup['elements']),
-                    engine: $elementGroup['engine'],
-                    prefix: $prefix
-                );
-            }
+            //            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            //                $queryBuilder->whereElementGroup(
+            //                    key: $key,
+            //                    allowedElements: array_keys($elementGroup['elements']),
+            //                    engine: $elementGroup['engine'],
+            //                    prefix: $prefix
+            //                );
+            //            }
+            $queryBuilder->where('stored_items.total_quantity', '>', 0);
         } else {
-            $queryBuilder->whereHas('palletReturns', function ($query) use ($parent) {
-                $query->where('pallet_return_id', $parent->id);
-            });
+            $queryBuilder->where('pallet_returns.id', $parent->id);
         }
 
-        $queryBuilder->defaultSort('stored_items.id');
+        $queryBuilder->distinct('stored_items.id')
+            ->defaultSort('stored_items.id')
+            ->select([
+                'stored_items.id',
+                'stored_items.reference',
+                'stored_items.slug',
+                'stored_items.name',
+                'stored_items.total_quantity',
+                'pallet_returns.id as pallet_return_id',
+                'pallet_returns.state as pallet_return_state',
+                \DB::raw('(SELECT COALESCE(SUM(quantity_ordered), 0) 
+                FROM pallet_return_items pri 
+                WHERE pri.stored_item_id = stored_items.id 
+                AND pri.pallet_return_id = '.$parent->id.') AS total_quantity_ordered'),
+            ])
+            ->groupBy([
+                'stored_items.id',
+                'stored_items.reference',
+                'stored_items.slug',
+                'stored_items.name',
+                'stored_items.total_quantity',
+                'pallet_returns.id'
+            ]);
 
         return $queryBuilder->allowedSorts(['reference', 'code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -122,15 +153,15 @@ class IndexStoredItemsInReturn extends OrgAction
                 }*/
             ];
 
-            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
-            }
+            //            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
+            //                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
+            //                    $table->elementGroup(
+            //                        key: $key,
+            //                        label: $elementGroup['label'],
+            //                        elements: $elementGroup['elements']
+            //                    );
+            //                }
+            //            }
 
             if ($palletReturn instanceof Fulfilment) {
                 $emptyStateData['description'] = __("There is no stored items this fulfilment shop");
@@ -150,13 +181,10 @@ class IndexStoredItemsInReturn extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'total_quantity', label: __('Current stock'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_items', label: __('Pallets [location]'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
-                $table->column(key: 'total_quantity', label: __('total quantity'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
-
+            $table->column(key: 'total_quantity_ordered', label: __('requested quantity'), canBeHidden: false, sortable: true, searchable: true);
             if ($palletReturn->state === PalletReturnStateEnum::PICKING) {
 
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
@@ -170,9 +198,9 @@ class IndexStoredItemsInReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.' . $this->organisation->id);
+        $this->canEdit = $request->user()->authTo('org-supervisor.' . $this->organisation->id);
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 'org-supervisor.' . $this->organisation->id,
                 'warehouses-view.' . $this->organisation->id

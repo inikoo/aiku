@@ -14,12 +14,10 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Events\BroadcastPalletDeliveryTimeline;
 use App\Models\Fulfilment\PalletDelivery;
-use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePalletDeliveryTimeline extends OrgAction
 {
     use WithActionUpdate;
-
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
@@ -54,10 +52,4 @@ class UpdatePalletDeliveryTimeline extends OrgAction
         return $palletDelivery;
     }
 
-    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
-    {
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
-
-        return $this->handle($palletDelivery, $this->validatedData);
-    }
 }

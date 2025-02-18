@@ -33,7 +33,7 @@ class IndexMasterAssets extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
+        return $request->user()->authTo("goods.{$this->group->id}.view");
     }
 
     public function handle(Group|MasterShop $parent, $prefix = null, $bucket = null): LengthAwarePaginator
@@ -74,7 +74,7 @@ class IndexMasterAssets extends GrpAction
             )
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

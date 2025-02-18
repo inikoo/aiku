@@ -34,8 +34,7 @@ class CreateEmployee extends OrgAction
                     'actions' => [
                         [
                             'type'  => 'button',
-                            'style' => 'cancel',
-                            'label' => __('cancel'),
+                            'style' => 'exitEdit',
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.index',
                                 'parameters' => $request->route()->originalParameters()
@@ -171,7 +170,7 @@ class CreateEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
 

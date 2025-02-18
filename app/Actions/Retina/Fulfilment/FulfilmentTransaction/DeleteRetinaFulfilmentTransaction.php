@@ -8,41 +8,28 @@
 
 namespace App\Actions\Retina\Fulfilment\FulfilmentTransaction;
 
-use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
-use App\Actions\Fulfilment\PalletReturn\CalculatePalletReturnNet;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
+use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
-use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteRetinaFulfilmentTransaction extends RetinaAction
 {
-    use WithActionUpdate;
-
-
-    private Pallet $palletDeliveryTransaction;
-
-    public function handle(FulfilmentTransaction $palletDeliveryTransaction): void
+    public function handle(FulfilmentTransaction $fulfilmentTransaction): void
     {
-        $palletDeliveryTransaction->delete();
-
-        if ($palletDeliveryTransaction->parent_type == 'PalletDelivery') {
-            PalletDeliveryHydrateTransactions::run($palletDeliveryTransaction->parent);
-            CalculatePalletDeliveryNet::run($palletDeliveryTransaction->parent);
-        } else {
-            PalletReturnHydrateTransactions::run($palletDeliveryTransaction->parent);
-            CalculatePalletReturnNet::run($palletDeliveryTransaction->parent);
-        }
+        DeleteFulfilmentTransaction::run($fulfilmentTransaction);
     }
 
-    //todo authorisation
     public function asController(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $request): void
     {
         $this->initialisation($request);
+        $this->handle($fulfilmentTransaction);
+    }
 
+    public function action(FulfilmentTransaction $fulfilmentTransaction): void
+    {
+        $this->asAction = true;
+        $this->initialisationFulfilmentActions($fulfilmentTransaction->fulfilmentCustomer, []);
         $this->handle($fulfilmentTransaction);
     }
 }

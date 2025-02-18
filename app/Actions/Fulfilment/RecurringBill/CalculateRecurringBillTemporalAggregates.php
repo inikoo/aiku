@@ -31,7 +31,7 @@ class CalculateRecurringBillTemporalAggregates extends OrgAction
         }
 
         /** @var RecurringBillTransaction $transactions */
-        $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
+        $transactions = $recurringBill->transactions()->whereIn('item_type', ['Pallet','Space','StoredItem'])->get();
 
         foreach ($transactions as $transaction) {
             $transaction = CalculateRecurringBillTransactionTemporalQuantity::run($transaction);

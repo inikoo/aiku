@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
+ * @property-read \App\Models\Web\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Collection<int, Webpage> $linkedWebpages
  * @property-read Model|\Eloquent|null $model

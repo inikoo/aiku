@@ -58,7 +58,6 @@ const setFirstVisitToFalse = () => {
     firstVisit.value = false
 };
 
-console.log('sdsdsd',usePage().props)
 
 </script>
 
@@ -100,11 +99,7 @@ console.log('sdsdsd',usePage().props)
         <template #body="props">
             <Notification :notification="props" />
         </template>
-    </notifications>
-
-
-
- 
+    </notifications> 
 </template>
 
 <style lang="scss">

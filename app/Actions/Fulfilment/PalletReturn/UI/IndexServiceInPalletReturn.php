@@ -84,6 +84,7 @@ class IndexServiceInPalletReturn extends OrgAction
             'fulfilment_transactions.net_amount',
             'fulfilment_transactions.historic_asset_id',
             'services.slug as asset_slug',
+            'services.edit_type as edit_type',
             'historic_assets.code as code',
             'historic_assets.name as name',
             'historic_assets.price as price',
@@ -101,7 +102,7 @@ class IndexServiceInPalletReturn extends OrgAction
 
         return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

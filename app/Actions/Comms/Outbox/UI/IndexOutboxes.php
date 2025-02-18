@@ -45,13 +45,13 @@ class IndexOutboxes extends OrgAction
     {
 
         if ($this->parent instanceof Fulfilment) {
-            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return    $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',
@@ -115,7 +115,7 @@ class IndexOutboxes extends OrgAction
             ->leftJoin('outbox_intervals', 'outbox_intervals.outbox_id', 'outboxes.id')
             ->allowedSorts(['name', 'runs', 'number_mailshots', 'dispatched_emails_lw', 'opened_emails_lw', 'unsubscribed_lw'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
     public function tableStructure($parent, $prefix = null): Closure

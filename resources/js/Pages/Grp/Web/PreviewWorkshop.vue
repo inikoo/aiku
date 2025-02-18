@@ -113,7 +113,7 @@ provide('isPreviewMode', isPreviewMode)
                     <TransitionGroup tag="div" name="list" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in webpage?.layout?.web_blocks" :key="activityItem.id" class="w-full">
                             <component
-                                v-show="showWebpage(activityItem)"
+                                v-if="showWebpage(activityItem)"
                                 class="w-full"
                                 :is="getIrisComponent(activityItem.type)"
                                 :webpageData="webpage" :blockData="activityItem"

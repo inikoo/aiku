@@ -13,6 +13,7 @@ use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilment;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -117,7 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -125,10 +127,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property int $number_pallets_state_request_return_submitted
  * @property int $number_pallets_state_request_return_confirmed
+ * @property bool $space_rental For customer renting spaces, e.g. storage, parking
+ * @property int|null $previous_recurring_bill_id Safeguard in case consolidation of current bill fails
+ * @property int $number_spaces
+ * @property int $number_spaces_state_reserved
+ * @property int $number_spaces_state_renting
+ * @property int $number_spaces_state_finished
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
@@ -137,6 +147,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Space> $spaces
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAudit> $storedItemAudits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
@@ -149,12 +160,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer withoutTrashed()
  * @mixin \Eloquent
  */
-class FulfilmentCustomer extends Model
+class FulfilmentCustomer extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasUniversalSearch;
     use HasSlug;
     use InFulfilment;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [
@@ -245,5 +257,8 @@ class FulfilmentCustomer extends Model
         return $this->hasMany(StoredItemAudit::class);
     }
 
-
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
+    }
 }

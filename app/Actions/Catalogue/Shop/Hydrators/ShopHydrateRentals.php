@@ -48,8 +48,6 @@ class ShopHydrateRentals
             )
         );
 
-
-
         $shop->stats()->update($stats);
     }
 

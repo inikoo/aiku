@@ -8,15 +8,17 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStock extends InertiaAction
+class EditStock extends OrgAction
 {
+    use WithStockNavigation;
+
     public function handle(Stock $stock): Stock
     {
         return $stock;
@@ -24,21 +26,20 @@ class EditStock extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.stocks.edit');
-        return $request->user()->hasPermissionTo("inventory.stocks.view");
+        $this->canEdit = $request->user()->authTo('goods.edit');
+        return $request->user()->authTo("goods.view");
     }
 
-    public function inOrganisation(Stock $stock, ActionRequest $request): Stock
+    public function asController(Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisation($request);
+        $this->initialisationFromGroup($stock->group, $request);
 
         return $this->handle($stock);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisation($request);
+        $this->initialisationFromGroup($stockFamily->group, $request);
 
         return $this->handle($stock);
     }
@@ -93,7 +94,7 @@ class EditStock extends InertiaAction
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => $stock->code
+                                    'value' => $stock->name
                                 ],
                             ],
                         ]
@@ -121,72 +122,5 @@ class EditStock extends InertiaAction
         );
     }
 
-    public function getPrevious(Stock $stock, ActionRequest $request): ?array
-    {
-        $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
-            }
-        })->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
 
-    public function getNext(Stock $stock, ActionRequest $request): ?array
-    {
-        $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
-            }
-        })->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Stock $stock, string $routeName): ?array
-    {
-        if (!$stock) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.goods.stocks.edit' => [
-                'label' => $stock->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'stock' => $stock->slug
-                    ]
-                ]
-            ],
-            'grp.org.warehouses.show.inventory.org-stocks.edit' => [
-                'label' => $stock->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'stock' => $stock->slug
-                    ]
-                ]
-            ],
-            'grp.goods.stocks.active_stocks.edit' => [
-                'label' => $stock->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'stock' => $stock->slug
-                    ]
-                ]
-            ],
-            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit' => [
-                'label' => $stock->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'stockFamily'   => $stock->stockFamily->slug,
-                        'stock'         => $stock->slug
-                    ]
-
-                ]
-            ]
-        };
-    }
 }

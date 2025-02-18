@@ -62,7 +62,7 @@ class UpdateStockFamily extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
+        return $request->user()->authTo("goods.{$this->group->id}.edit");
     }
 
     public function rules(): array

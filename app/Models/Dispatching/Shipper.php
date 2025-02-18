@@ -41,8 +41,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $website
  * @property string|null $tracking_url
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -50,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Dispatching\TFactory|null $use_factory
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatching\Shipment> $shipments
  * @property-read \App\Models\Dispatching\ShipperStats|null $stats

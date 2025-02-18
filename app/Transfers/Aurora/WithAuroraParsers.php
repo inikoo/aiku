@@ -30,6 +30,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
+use App\Actions\Transfers\Aurora\FetchAuroraInvoiceCategories;
 use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
@@ -39,7 +40,6 @@ use App\Actions\Transfers\Aurora\FetchAuroraOfferComponents;
 use App\Actions\Transfers\Aurora\FetchAuroraOffers;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
 use App\Actions\Transfers\Aurora\FetchAuroraOrgPaymentServiceProviders;
-use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
 use App\Actions\Transfers\Aurora\FetchAuroraPollOptions;
@@ -68,6 +68,7 @@ use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -94,7 +95,6 @@ use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipper;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\Stock;
@@ -364,17 +364,6 @@ trait WithAuroraParsers
         }
 
         return FetchAuroraHistoricSupplierProducts::run($this->organisationSource, $productKey);
-    }
-
-    public function parsePallet(string $sourceId): Pallet
-    {
-        $pallet = Pallet::where('source_id', $sourceId)->first();
-        if (!$pallet) {
-            $sourceData = explode(':', $sourceId);
-            $pallet     = FetchAuroraPallets::run($this->organisationSource, $sourceData[1]);
-        }
-
-        return $pallet;
     }
 
     public function parseSupplierProduct(string $sourceId): ?SupplierProduct
@@ -1141,6 +1130,21 @@ trait WithAuroraParsers
         }
 
         return $query;
+    }
+
+    public function parseInvoiceCategory($sourceId): ?InvoiceCategory
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $invoiceCategory = InvoiceCategory::where('source_id', $sourceId)->first();
+        if (!$invoiceCategory) {
+            $sourceData      = explode(':', $sourceId);
+            $invoiceCategory = FetchAuroraInvoiceCategories::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $invoiceCategory;
     }
 
 

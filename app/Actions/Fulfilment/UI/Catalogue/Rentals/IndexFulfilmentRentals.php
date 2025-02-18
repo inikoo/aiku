@@ -44,7 +44,7 @@ class IndexFulfilmentRentals extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('assets.state', $elements);
                 }
 
             ],
@@ -73,6 +73,7 @@ class IndexFulfilmentRentals extends OrgAction
         }
 
         $queryBuilder->join('assets', 'rentals.asset_id', '=', 'assets.id');
+        $queryBuilder->leftJoin('asset_sales_intervals', 'assets.id', '=', 'asset_sales_intervals.asset_id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
         if ($parent instanceof Fulfilment) {
@@ -100,15 +101,16 @@ class IndexFulfilmentRentals extends OrgAction
                 'assets.name',
                 'assets.code',
                 'assets.price',
+                'asset_sales_intervals.sales_all as sales',
                 'rentals.description',
                 'currencies.code as currency_code',
                 'currencies.id as currency_id',
             ]);
 
 
-        return $queryBuilder->allowedSorts(['code','name','rental_price'])
+        return $queryBuilder->allowedSorts(['code','name','rental_price', 'sales'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -116,13 +118,13 @@ class IndexFulfilmentRentals extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -244,6 +246,7 @@ class IndexFulfilmentRentals extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
+                ->column(key: 'sales', label: __('sales'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
     }

@@ -28,9 +28,9 @@ use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class StorePalletReturn extends OrgAction
 {
@@ -42,6 +42,7 @@ class StorePalletReturn extends OrgAction
     private bool $action = false;
 
     private bool $withStoredItems = false;
+    private bool $withDropshipping = false;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
@@ -51,7 +52,7 @@ class StorePalletReturn extends OrgAction
                 $modelData,
                 'tax_category_id',
                 GetTaxCategory::run(
-                    country: $this->organisation->country,
+                    country: $fulfilmentCustomer->organisation->country,
                     taxNumber: $fulfilmentCustomer->customer->taxNumber,
                     billingAddress: $fulfilmentCustomer->customer->address,
                     deliveryAddress: $fulfilmentCustomer->customer->address,
@@ -99,7 +100,7 @@ class StorePalletReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
 
@@ -112,6 +113,8 @@ class StorePalletReturn extends OrgAction
         }
 
         if ($this->withStoredItems) {
+            $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
+        } elseif ($this->withDropshipping) {
             $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
         } else {
             $this->set('type', PalletReturnTypeEnum::PALLET);
@@ -128,7 +131,8 @@ class StorePalletReturn extends OrgAction
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
-            'customer_notes' => ['sometimes', 'nullable', 'string']
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
+            'platform_id' => ['sometimes', 'nullable', 'integer', 'exists:platforms,id']
         ];
     }
 
@@ -168,6 +172,16 @@ class StorePalletReturn extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    public function actionWithDropshipping(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
+    {
+        $this->action          = true;
+        $this->withDropshipping = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->setRawAttributes($modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
     public function jsonResponse(PalletReturn $palletReturn): array
     {
         return [
@@ -183,20 +197,27 @@ class StorePalletReturn extends OrgAction
         ];
     }
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.store', 'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'grp.models.fulfilment-customer.pallet-return.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'       => $palletReturn->organisation->slug,
                 'fulfilment'         => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                 'palletReturn'       => $palletReturn->slug
-            ])),
-            default => Inertia::location(route('retina.fulfilment.storage.pallet_returns.show', [
+            ]),
+            'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show', [
+                'organisation'       => $palletReturn->organisation->slug,
+                'fulfilment'         => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                'palletReturn'       => $palletReturn->slug
+            ]),
+
+            default => Redirect::route('retina.fulfilment.storage.pallet_returns.show', [
                 'palletReturn' => $palletReturn->slug
-            ]))
+            ])
         };
     }
 

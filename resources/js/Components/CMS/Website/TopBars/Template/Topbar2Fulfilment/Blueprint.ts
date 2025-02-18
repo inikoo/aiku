@@ -55,7 +55,7 @@ export default {
 				},
 				{
 					key: ["container",'properties','text'],
-					label :'Text',
+					label: "Text Styles & Fonts",
 					type: "textProperty",
 				},
 				{
@@ -130,6 +130,46 @@ export default {
             key:['logout'],
 			icon: {
 				icon: "fal fa-sign-out-alt",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container",'properties','text'],
+					label :'Text',
+					type: "textProperty",
+				},
+				{
+					key: ['text'],
+					label :'Button Text',
+					type: "text",
+					props_data: {
+						defaultValue: {
+							color: "rgba(255, 255, 255, 1)",
+						},
+					},
+				},
+				{
+					key: ["container",'properties','border'],
+					label :'Border',
+					type: "border",
+				},
+				{
+					key: ["container",'properties','margin'],
+					label :'Margin',
+					type: "margin",
+				},
+				{
+					key: ["container",'properties','padding'],
+					label :'Padding',
+					type: "padding",
+				},
+			],
+		},
+		{
+			name: "Register",
+            key:["register"],
+			icon: {
+				icon: "fal fa-dot-circle",
 				tooltip: "Action",
 			},
 			replaceForm: [

@@ -31,11 +31,11 @@ class IndexAppointments extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('crm.appointments.edit');
+        $this->canEdit = $request->user()->authTo('crm.appointments.edit');
 
         return
             (
-                $request->user()->hasPermissionTo('crm.appointments.view')
+                $request->user()->authTo('crm.appointments.view')
             );
     }
 
@@ -82,7 +82,7 @@ class IndexAppointments extends InertiaAction
                 }
             })
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
@@ -22,6 +23,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\RecurringBill;
@@ -46,6 +48,19 @@ class StoreInvoice extends OrgAction
      */
     public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
     {
+        data_set($modelData, 'footer', $parent->shop?->invoice_footer);
+
+        if (!Arr::has($modelData, 'reference')) {
+            data_set(
+                $modelData,
+                'reference',
+                GetSerialReference::run(
+                    container: $this->shop,
+                    modelType: SerialReferenceModelEnum::INVOICE
+                )
+            );
+        }
+
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } elseif (class_basename($parent) == 'RecurringBill') {
@@ -150,6 +165,7 @@ class StoreInvoice extends OrgAction
     {
         $rules = [
             'reference'       => [
+                'sometimes',
                 'required',
                 'max:64',
                 'string',
@@ -169,7 +185,7 @@ class StoreInvoice extends OrgAction
             'goods_amount'    => ['sometimes', 'required', 'numeric'],
             'services_amount' => ['sometimes', 'required', 'numeric'],
             'tax_amount'      => ['required', 'numeric'],
-
+            'footer'          => ['sometimes', 'string'],
 
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
@@ -183,13 +199,19 @@ class StoreInvoice extends OrgAction
             ],
         ];
 
+
         if (!$this->strict) {
             $rules['reference'] = [
                 'required',
                 'max:64',
                 'string'
             ];
+            $rules['is_vip'] = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
+            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
 
+
+            $rules['invoice_category_id'] = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
             $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
             $rules['billing_address'] = ['required', new ValidAddress()];
             $rules                    = $this->orderingAmountNoStrictFields($rules);

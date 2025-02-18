@@ -25,8 +25,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $recurring_bill_id
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
- * @property string $start_date
- * @property string|null $end_date
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
  * @property string|null $item_type
  * @property int|null $item_id
  * @property int $asset_id
@@ -38,17 +38,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $grp_net_amount
  * @property string|null $org_net_amount
  * @property int $tax_category_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string $unit_cost
  * @property string $discount_percentage
  * @property string $temporal_quantity
+ * @property int|null $pallet_delivery_id
+ * @property int|null $pallet_return_id
+ * @property int|null $fulfilment_transaction_id
  * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\FulfilmentTransaction|null $fulfilmentTransaction
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset $historicAsset
  * @property-read Model|\Eloquent|null $item
@@ -70,7 +74,9 @@ class RecurringBillTransaction extends Model
     protected $table = 'recurring_bill_transactions';
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
+        'start_date' => 'datetime',
+        'end_date'   => 'datetime',
     ];
 
     protected $attributes = [
@@ -102,6 +108,11 @@ class RecurringBillTransaction extends Model
     public function clause(): BelongsTo
     {
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
+    }
+
+    public function fulfilmentTransaction(): BelongsTo
+    {
+        return $this->belongsTo(FulfilmentTransaction::class);
     }
 
 }

@@ -132,7 +132,7 @@ class EditRentalAgreement extends OrgAction
                                                 'parameters' => [
                                                     'organisation' => $this->organisation->slug,
                                                     'fulfilment'   => $this->fulfilment->slug,
-                                                    'section'      => '3'
+                                                    'section'      => '4'
 
                                                 ]
                                             ]
@@ -180,7 +180,7 @@ class EditRentalAgreement extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     /**

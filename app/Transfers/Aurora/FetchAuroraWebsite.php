@@ -9,6 +9,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Website;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,10 @@ class FetchAuroraWebsite extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Website Store Key'});
+
+        if ($this->parsedData['shop']->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
 
         $state = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,

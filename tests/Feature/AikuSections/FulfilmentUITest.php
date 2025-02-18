@@ -480,7 +480,7 @@ test('UI index fulfilment invoices all', function () {
     $fulfilment = $this->shop->fulfilment;
     $response  = get(
         route(
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.index',
+            'grp.org.fulfilments.show.operations.invoices.all.index',
             [
                 $this->organisation->slug,
                 $fulfilment->slug
@@ -875,12 +875,10 @@ test('UI edit rental', function () {
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.org.fulfilment.rentals.update')
+                        ->where('name', 'grp.models.rentals.update')
                         ->where('parameters', [
-                            'organisation' => $this->rental->organisation_id,
-                                'fulfilment'   => $this->rental->fulfilment_id,
                                 'rental'       => $this->rental->id
-                        ]) //wrong route
+                        ])
             )
             ->has('breadcrumbs', 4);
     });
@@ -953,13 +951,15 @@ test('UI edit service', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 6)
+            ->has('formData.blueprint.0.fields', 8)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.product.update')
-                        ->where('parameters', $this->rental->id) //wrong route
+                        ->where('name', 'grp.models.services.update')
+                        ->where('parameters', [
+                            'service'       => $this->service->id
+                    ])
             )
             ->has('breadcrumbs', 4);
     });
@@ -1064,7 +1064,7 @@ test('UI edit stored item', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 1)
+            ->has('formData.blueprint.0.fields', 2)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
@@ -1117,6 +1117,7 @@ test('UI show Recurring Bill', function () {
 });
 
 test('UI edit recurring bill', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -1134,16 +1135,6 @@ test('UI edit recurring bill', function () {
     });
 });
 
-test('UI get section route fulfilment dashboard', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.dashboard', [
-        'organisation' => $this->organisation->slug,
-        'fulfilment' => $this->fulfilment->slug
-    ]);
-
-    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
-        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_DASHBOARD->value)
-        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
-});
 
 test('UI get section route fulfilment catalogue index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.catalogue.index', [

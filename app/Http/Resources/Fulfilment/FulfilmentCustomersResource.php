@@ -55,6 +55,12 @@ class FulfilmentCustomersResource extends JsonResource
             'sales_grp_currency_all'        => $this->sales_grp_currency_all,
             'currency_code'                 => $this->currency_code,
             'location'                      => $this->location,
+            'interest'                      => [
+                'pallets_storage' => $this->pallets_storage,
+                'items_storage'   => $this->items_storage,
+                'dropshipping'    => $this->dropshipping,
+                'space_rental'    => $this->space_rental,
+            ]
         ];
     }
 }

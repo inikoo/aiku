@@ -14,7 +14,9 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\ActionRequest;
+use OwenIt\Auditing\Events\AuditCustom;
 
 class UpdatePalletLocation extends OrgAction
 {
@@ -25,7 +27,23 @@ class UpdatePalletLocation extends OrgAction
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
-        return $this->update($pallet, ['location_id' => $location->id]);
+        $oldLocation = $pallet->location;
+        $pallet = $this->update($pallet, ['location_id' => $location->id]);
+
+        $pallet->auditEvent    = 'update';
+        $pallet->isCustomEvent = true;
+
+        $pallet->auditCustomOld = [
+            'location' => $oldLocation->code
+        ];
+
+        $pallet->auditCustomNew = [
+            'location' => $location->code
+        ];
+
+        Event::dispatch(AuditCustom::class, [$pallet]);
+
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,14 +53,14 @@ class UpdatePalletLocation extends OrgAction
         }
 
         if ($this->scope instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->scope->id}.edit");
+            $this->canEdit = $request->user()->authTo("locations.{$this->scope->id}.edit");
 
-            return  $request->user()->hasPermissionTo("locations.{$this->scope->id}.edit");
+            return  $request->user()->authTo("locations.{$this->scope->id}.edit");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        $this->canEdit = $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
@@ -53,6 +71,16 @@ class UpdatePalletLocation extends OrgAction
 
         return $this->handle($location, $pallet);
     }
+
+    public function usingLocationSlug(Pallet $pallet, Location $location, ActionRequest $request): Pallet
+    {
+        $this->pallet = $pallet;
+        $this->scope  = $pallet->fulfilment;
+        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
+
+        return $this->handle($location, $pallet);
+    }
+
 
     public function action(Location $location, Pallet $pallet): Pallet
     {

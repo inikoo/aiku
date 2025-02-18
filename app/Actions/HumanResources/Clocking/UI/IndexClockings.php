@@ -73,7 +73,7 @@ class IndexClockings extends OrgAction
             ->leftJoin('media', 'clockings.image_id', 'media.id')
             ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
             ->allowedSorts(['clocked_at'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -138,9 +138,9 @@ class IndexClockings extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $clockings): AnonymousResourceCollection

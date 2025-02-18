@@ -18,6 +18,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faDesktopAlt, faQuestionCircle } from '@far'
 import { faWindows } from '@fortawesome/free-brands-svg-icons'
 import { faServer } from '@fas'
+import Image from '@/Components/Image.vue'
 
 library.add(faReceipt, faCrown,faRoad, faQuestionCircle ,faServer ,faDesktopAlt, faWindows,faUserCircle, faUserSlash, faBlender, faTimes, faCheck, faYinYang)
 
@@ -47,11 +48,19 @@ function webUserRoute(webUser: {}) {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">
+        <!-- Image -->
+        <template #cell(image)="{ item: webUser }">
+            <div class="rounded-full overflow-hidden h-5 w-5 border border-gray-300 mx-auto">
+                <Image :src="webUser.image" :alt="webUser.username" v-tooltip="webUser.username" />
+            </div>
+        </template>
 
+        <!-- Status -->
         <template #cell(status)="{ item: webUser }">
             <Icon :data="webUser.status_icon" class="px-1" />
         </template>
 
+        <!-- Username -->
         <template #cell(username)="{ item: webUser }">
             <Link :href="webUserRoute(webUser)" :class="'primaryLink py-0.5 ' + (!webUser.status ? 'line-through' : '')">
                 {{ webUser.username }}

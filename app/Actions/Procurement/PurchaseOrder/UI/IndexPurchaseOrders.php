@@ -41,10 +41,21 @@ class IndexPurchaseOrders extends OrgAction
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
     use WithOrgSupplierSubNavigation;
+
     private Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct $parent;
 
     public function handle(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct $parent, $prefix = null): LengthAwarePaginator
     {
+        if ($parent instanceof Group) {
+            $organisation = $parent->organisations()->first();
+        }
+        if ($parent instanceof Organisation) {
+            $organisation = $parent;
+        } else {
+            $organisation = $parent->organisation;
+        }
+
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('purchase_orders.reference', $value);
@@ -58,35 +69,38 @@ class IndexPurchaseOrders extends OrgAction
         $query = QueryBuilder::for(PurchaseOrder::class);
         if (class_basename($parent) == 'OrgAgent') {
             $query->where('purchase_orders.parent_type', 'OrgAgent')->where('purchase_orders.parent_id', $parent->id);
-            $query->with('parent');
         } elseif (class_basename($parent) == 'OrgSupplier') {
             $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
-            $query->with('parent');
         } elseif (class_basename($parent) == 'OrgPartner') {
             $query->where('purchase_orders.parent_type', 'OrgPartner')->where('purchase_orders.parent_id', $parent->id);
-            $query->with('parent');
         } elseif (class_basename($parent) == 'Group') {
             $query->where('purchase_orders.group_id', $parent->id);
-            $query->with('parent');
+            $query->leftjoin('organisations', 'purchase_orders.organisation_id', 'organisations.id');
+
         } elseif ($parent instanceof OrgStock) {
             $query->leftJoin('purchase_order_transactions', 'purchase_orders.id', '=', 'purchase_order_transactions.purchase_order_id')
-                    ->where('purchase_order_transactions.org_stock_id', $parent->id)
-                    ->with('purchaseOrderTransactions');
+                ->where('purchase_order_transactions.org_stock_id', $parent->id)
+                ->with('purchaseOrderTransactions');
             $query->distinct('purchase_orders.id');
         } elseif ($parent instanceof OrgSupplierProduct) {
             $query->leftJoin('purchase_order_transactions', 'purchase_orders.id', '=', 'purchase_order_transactions.purchase_order_id')
-                    ->where('purchase_order_transactions.org_supplier_product_id', $parent->id)
-                    ->with('purchaseOrderTransactions');
+                ->where('purchase_order_transactions.org_supplier_product_id', $parent->id)
+                ->with('purchaseOrderTransactions');
             $query->distinct('purchase_orders.id');
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
-            $query->with('parent');
         }
-        $query->leftjoin('organisations', 'purchase_orders.organisation_id', 'organisations.id');
 
-        return $query->defaultSort('purchase_orders.reference')
+
+
+        return $query->defaultSort('-purchase_orders.date')
+            ->select([
+                'purchase_orders.*',
+            ])
+            ->selectRaw('cost_total*org_exchange  as org_total_cost')
+            ->selectRaw('\''.$organisation->currency->code.'\' as org_currency_code')
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -101,27 +115,27 @@ class IndexPurchaseOrders extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, searchable: true);
             }
             $table->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
-            ->defaultSort('reference');
+                ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'org_total_cost', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
+                ->defaultSort('reference');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -134,7 +148,7 @@ class IndexPurchaseOrders extends OrgAction
 
     public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->maya   = true;
+        $this->maya = true;
         $this->initialisation($organisation, $request);
 
         return $this->handle(parent: $organisation);
@@ -148,7 +162,7 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle(group());
     }
 
-    public function inOrgAgent(Organisation $organisation, OrgAgent  $orgAgent, ActionRequest $request): LengthAwarePaginator
+    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $orgAgent;
         $this->initialisation($organisation, $request);
@@ -164,7 +178,7 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle($orgPartner);
     }
 
-    public function inOrgSupplier(Organisation $organisation, OrgSupplier  $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $orgSupplier;
         $this->initialisation($organisation, $request);
@@ -181,108 +195,108 @@ class IndexPurchaseOrders extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request): Response
     {
-        // dd($purchaseOrders);
         $subNavigation = null;
-        $actions = [];
-        $title = __('purchase orders');
-        $model =  __('Procurement');
-        $icon  = [
+        $actions       = [];
+        $title         = __('purchase orders');
+
+        $icon       = [
             'icon'  => ['fal', 'fa-clipboard-list'],
             'title' => __('purchase orders')
         ];
         $afterTitle = null;
-        $iconRight = null;
+        $iconRight  = null;
         if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
-            $actions =
-            [
+            $actions       =
                 [
-                    'type'  => 'button',
-                    'style' => 'create',
-                    'route' => [
-                        'name'       => 'grp.models.org-agent.purchase-order.store',
-                        'parameters' => [
-                            'orgAgent' => $this->parent->id
+                    [
+                        'type'  => 'button',
+                        'style' => 'create',
+                        'route' => [
+                            'name'       => 'grp.models.org-agent.purchase-order.store',
+                            'parameters' => [
+                                'orgAgent' => $this->parent->id
+                            ],
+                            'method'     => 'post'
                         ],
-                        'method'     => 'post'
-                    ],
-                    'label' => __('purchase order')
-                ]
-            ];
-            $title = $this->parent->agent->organisation->name;
-            $model = '';
-            $icon  = [
+                        'label' => __('purchase order')
+                    ]
+                ];
+            $title         = $this->parent->agent->organisation->name;
+
+            $icon       = [
                 'icon'  => ['fal', 'fa-people-arrows'],
                 'title' => __('purchase orders')
             ];
-            $iconRight    = [
+            $iconRight  = [
                 'icon' => 'fal fa-clipboard-list',
             ];
             $afterTitle = [
 
-                'label'     => __('Purchase Orders')
+                'label' => __('Purchase Orders')
             ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
-            $actions =
-            [
+            $actions       =
                 [
-                    'type'  => 'button',
-                    'style' => 'create',
-                    'route' => [
-                        'name'       => 'grp.models.org-partner.purchase-order.store',
-                        'parameters' => [
-                            'orgPartner' => $this->parent->id
+                    [
+                        'type'  => 'button',
+                        'style' => 'create',
+                        'route' => [
+                            'name'       => 'grp.models.org-partner.purchase-order.store',
+                            'parameters' => [
+                                'orgPartner' => $this->parent->id
+                            ],
+                            'method'     => 'post'
                         ],
-                        'method'     => 'post'
-                    ],
-                    'label' => __('purchase order')
-                ]
-            ];
-            $title = $this->parent->partner->name;
-            $model = '';
-            $icon  = [
+                        'label' => __('purchase order')
+                    ]
+                ];
+            $title         = $this->parent->partner->name;
+
+            $icon       = [
                 'icon'  => ['fal', 'fa-users-class'],
                 'title' => __('purchase orders')
             ];
-            $iconRight    = [
+            $iconRight  = [
                 'icon' => 'fal fa-clipboard-list',
             ];
             $afterTitle = [
 
-                'label'     => __('Purchase Orders')
+                'label' => __('Purchase Orders')
             ];
         } elseif ($this->parent instanceof OrgSupplier) {
             $subNavigation = $this->getOrgSupplierNavigation($this->parent);
-            $actions =
-            [
+            $actions       =
                 [
-                    'type'  => 'button',
-                    'style' => 'create',
-                    'route' => [
-                        'name'       => 'grp.models.org-supplier.purchase-order.store',
-                        'parameters' => [
-                            'orgSupplier' => $this->parent->id
+                    [
+                        'type'  => 'button',
+                        'style' => 'create',
+                        'route' => [
+                            'name'       => 'grp.models.org-supplier.purchase-order.store',
+                            'parameters' => [
+                                'orgSupplier' => $this->parent->id
+                            ],
+                            'method'     => 'post'
                         ],
-                        'method'     => 'post'
-                    ],
-                    'label' => __('purchase order')
-                ]
-            ];
-            $title = $this->parent->supplier->name;
-            $model = '';
-            $icon  = [
+                        'label' => __('purchase order')
+                    ]
+                ];
+            $title         = $this->parent->supplier->name;
+
+            $icon       = [
                 'icon'  => ['fal', 'fa-person-dolly'],
                 'title' => __('purchase orders')
             ];
-            $iconRight    = [
+            $iconRight  = [
                 'icon' => 'fal fa-clipboard-list',
             ];
             $afterTitle = [
 
-                'label'     => __('Purchase Orders')
+                'label' => __('Purchase Orders')
             ];
         }
+
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
@@ -291,11 +305,10 @@ class IndexPurchaseOrders extends OrgAction
                 'pageHead'    => [
                     'title'         => $title,
                     'icon'          => $icon,
-                    'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
-                    'actions' => $actions
+                    'actions'       => $actions
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]

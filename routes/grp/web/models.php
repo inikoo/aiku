@@ -11,7 +11,6 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
-use App\Actions\Accounting\PaymentAccountShop\SyncPaymentAccountToShop;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
@@ -41,8 +40,10 @@ use App\Actions\Comms\Outbox\PublishOutbox;
 use App\Actions\Comms\Outbox\ToggleOutbox;
 use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
+use App\Actions\CRM\Customer\ApproveCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
+use App\Actions\CRM\Customer\RejectCustomer;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Customer\UpdateCustomerAddress;
@@ -57,10 +58,12 @@ use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerNote;
+use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
@@ -72,14 +75,16 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
+use App\Actions\Fulfilment\Pallet\UndoNotReceivedPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDeliveryWithStoredItems;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
@@ -87,21 +92,31 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\AddAddressToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletReturnAddress;
+use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturnWithStoredItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\PickNewPalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\UndoPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\UndoStoredItemPick;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
+use App\Actions\Fulfilment\RecurringBillTransaction\DeleteRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
+use App\Actions\Fulfilment\Space\UpdateSpace;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
@@ -175,6 +190,7 @@ use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReorderWebBlocks;
+use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Website\AutosaveWebsiteMarginal;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -275,7 +291,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
-        Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+        Route::patch('{rental:id}', [UpdateRental::class, 'inFulfilment'])->name('update')->withoutScopedBindings();
     });
 
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
@@ -338,6 +354,9 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
     Route::post('transaction/{historicAsset:id}', StoreRecurringBillTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 
+Route::patch('recurring-bill-transaction/{recurringBillTransaction:id}', UpdateRecurringBillTransaction::class)->name('recurring_bill_transaction.update');
+Route::delete('recurring-bill-transaction/{recurringBillTransaction:id}', DeleteRecurringBillTransaction::class)->name('recurring_bill_transaction.delete');
+
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');
     Route::post('/{product:id}/tags', [StoreTag::class, 'inProduct'])->name('tag.store');
@@ -355,17 +374,20 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('cancel', CancelPalletDelivery::class)->name('cancel');
 
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
-    Route::post('received', ReceivedPalletDelivery::class)->name('received');
+    Route::post('received', ReceivePalletDelivery::class)->name('received');
     Route::post('booking', StartBookingPalletDelivery::class)->name('booking');
     Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletDelivery'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletDelivery'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('pallet-upload', ImportPalletsInPalletDelivery::class, )->name('pallet.upload');
+    Route::post('pallet-upload-with-stored-items', ImportPalletsInPalletDeliveryWithStoredItems::class, )->name('pallet.upload.with-stored-items');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletDelivery'])->name('transaction.store');
-    Route::delete('/', DeletePalletDelivery::class)->name('delete');
+    Route::patch('delete', DeletePalletDelivery::class)->name('delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
@@ -374,18 +396,24 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
+    Route::post('pick-all-with-stored-items', PickedPalletReturnWithStoredItems::class)->name('pick_all_with_stored_items');
     Route::post('address', AddAddressToPalletReturn::class)->name('address.store');
     Route::patch('address/update', UpdatePalletReturnDeliveryAddress::class)->name('address.update');
     Route::delete('address/delete', DeletePalletReturnAddress::class)->name('address.delete');
 
     Route::post('dispatch', DispatchPalletReturn::class)->name('dispatch');
-    Route::delete('/', DeletePalletReturn::class)->name('delete');
+    Route::patch('delete', DeletePalletReturn::class)->name('delete');
 
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
+    Route::post('attach-pallet/{pallet:id}', AttachPalletToReturn::class)->name('pallet.attach')->withoutScopedBindings();
+    Route::delete('detach-pallet/{pallet:id}', DetachPalletFromReturn::class)->name('pallet.detach');
     //todo this new action
-    Route::post('stored-item', StoreStoredItemsToReturn::class)->name('stored_item.store');
+    Route::post('pallet-stored-item/{palletStoredItem:id}', AttachStoredItemToReturn::class)->name('stored_item.store')->withoutScopedBindings();
+    Route::post('pallet-stored-item/pick/{palletStoredItem:id}', PickNewPalletReturnItem::class)->name('pallet_return_item.new_pick')->withoutScopedBindings();
     Route::post('stored-item-upload', [ImportPalletReturnItem::class, 'fromGrp'])->name('stored-item.upload');
 
     // This is wrong ImportPalletsInPalletDelivery is used when creating a pallet delivery
@@ -410,7 +438,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('stored-items/reset', ResetAuditStoredItemToPallet::class)->name('stored-items.audit.reset');
     Route::patch('book-in', BookInPallet::class)->name('book_in');
     Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');
-    Route::patch('undo-not-received', UndoBookedInPallet::class)->name('undo-not-received');
+    Route::patch('undo-not-received', UndoNotReceivedPallet::class)->name('undo-not-received');
     Route::patch('undo-booked-in', UndoBookedInPallet::class)->name('undo_book_in');
 
     Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
@@ -420,9 +448,12 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
-    Route::patch('', SetPalletInReturnAsPicked::class)->name('update');
+    Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
+    Route::patch('update', PickPalletReturnItem::class)->name('update');
+    Route::patch('undo-picking-stored-item', UndoStoredItemPick::class)->name('undo-picking-stored-item');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
+    Route::patch('undo', UndoPalletReturnItem::class)->name('undo-confirmed');
 });
 
 Route::patch('{storedItem:id}/stored-items/pallets', SyncStoredItemPallet::class)->name('stored-items.pallets.update');
@@ -472,6 +503,8 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
     Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
     Route::patch('website/{website:id}', [UpdateWebsite::class, 'inFulfilment'])->name('website.update')->withoutScopedBindings();
 
+    Route::post('website/{website:id}/webpage', [StoreWebpage::class, 'inFulfilment'])->name('webpage.store')->withoutScopedBindings();
+
     Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
         Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
         Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
@@ -481,10 +514,14 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
+Route::patch('fulfilment-customer/{fulfilmentCustomer:id}', UpdateFulfilmentCustomer::class)->name('fulfilment_customer.update');
+Route::patch('customer/{customer:id}/approve', ApproveCustomer::class)->name('customer.approve');
+Route::patch('customer/{customer:id}/reject', RejectCustomer::class)->name('customer.reject');
 
-
-
-
+Route::prefix('fulfilment-customer-space/{fulfilmentCustomer:id}')->as('fulfilment_customer_space.')->group(function () {
+    Route::post('', StoreSpace::class)->name('store');
+    Route::patch('spaces/{space:id}', UpdateSpace::class)->name('update')->withoutScopedBindings();
+});
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
@@ -512,6 +549,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('images/footer', [UploadImagesToWebsite::class, 'footer'])->name('footer.images.store');
     Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
 });
+
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
     Route::post('web-block', StoreModelHasWebBlock::class)->name('web_block.store');
@@ -547,7 +585,6 @@ Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
-Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
 Route::name('production.')->prefix('production/{production:id}')->group(function () {
     Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
@@ -633,6 +670,12 @@ Route::name('email.')->prefix('email/')->group(function () {
     Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
         Route::patch('/update', UpdateEmailUnpublishedSnapshot::class)->name('update');
     });
+});
+Route::name('services.')->prefix('serivices/')->group(function () {
+    Route::patch('{service:id}/update', UpdateService::class)->name('update');
+});
+Route::name('rentals.')->prefix('rentals/')->group(function () {
+    Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

@@ -123,7 +123,7 @@ class IndexOrgSuppliers extends OrgAction
 
             ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -171,9 +171,9 @@ class IndexOrgSuppliers extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
 
     public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

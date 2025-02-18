@@ -27,8 +27,8 @@ class IndexRentalAgreementClauses extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
@@ -70,7 +70,7 @@ class IndexRentalAgreementClauses extends OrgAction
             )
             ->allowedSorts(['id','asset_code','asset_type'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

@@ -296,11 +296,6 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchPallet($id): ?array
-    {
-        return null;
-    }
-
     public function fetchTimesheet($id): ?array
     {
         return null;
@@ -522,6 +517,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchMasterAsset($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchInvoiceCategory($id): ?array
     {
         return null;
     }

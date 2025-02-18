@@ -128,7 +128,7 @@ class UpdateCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
     public function rules(): array
@@ -179,6 +179,11 @@ class UpdateCustomer extends OrgAction
 
 
         if (!$this->strict) {
+
+            $rules['is_vip'] = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
+            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
+
             $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
             $rules['email']           = [
                 'sometimes',

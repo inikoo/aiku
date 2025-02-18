@@ -30,12 +30,12 @@ import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
+import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil, faDraftingCompass } from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
 import { faCheck } from '@far'
 import { usePage } from '@inertiajs/vue3';
 
-library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
+library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil, faDraftingCompass)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -56,6 +56,7 @@ import { InvoiceResource } from '@/types/invoice'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
+import EmptyState from '@/Components/Utils/EmptyState.vue'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -99,8 +100,10 @@ const props = defineProps<{
     payments: {}
     details: {}
     history: {}
-    layout: {
-        group: {}
+
+    outbox: {
+        state: string
+        workshop_route: routeType
     }
 }>()
 
@@ -190,6 +193,10 @@ watch(paymentData, () => {
         errorPaymentMethod.value = null
     }
 })
+
+// Section: Send Invoice
+const isVisitWorkshopOutbox = ref(false)
+const isModalSendInvoice = ref(false)
 </script>
 
 
@@ -198,11 +205,25 @@ watch(paymentData, () => {
     <PageHeading :data="pageHead">
 
         <!-- Button: PDF -->
-        <template #other>
+        <template #otherBefore>
             <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank"
-                class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
+                class="mt-4 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
+        </template>
+
+        <!-- Button: delete Refund -->
+        <template v-if="outbox.state === 'in_process'" #button-send-invoice="{ action }">
+            <Button
+                @click="() => isModalSendInvoice = true"
+                :style="action.style"
+                :label="action.label"
+                :icon="action.icon"
+                :loading="isVisitWorkshopOutbox"
+                :iconRight="action.iconRight"
+                :key="`ActionButton${action.label}${action.style}`"
+                :tooltip="action.tooltip"
+            />
         </template>
     </PageHeading>
 
@@ -428,6 +449,29 @@ watch(paymentData, () => {
                     <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
                 </Transition>
             </div>
+        </div>
+    </Modal>
+
+    <Modal :isOpen="isModalSendInvoice" @onClose="isModalSendInvoice = false" width="w-[600px]">
+        <div>
+            <EmptyState
+                :data="{
+                    title: trans('Outbox is still in process'),
+                    description: trans('You can edit it in workshop')
+                }"
+                class="py-7"
+            >
+                <template #button-empty-state>
+                    <Link :href="route(outbox.workshop_route.name, outbox.workshop_route.parameters)" @start="() => isVisitWorkshopOutbox = true" class="mt-4 block w-fit mx-auto">
+                        <Button
+                            label="workshop"
+                            type="secondary"
+                            icon="fal fa-drafting-compass"
+                            :loading="isVisitWorkshopOutbox"
+                        />
+                    </Link>
+                </template>
+            </EmptyState>
         </div>
     </Modal>
 </template>

@@ -11,6 +11,7 @@ import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
 import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 import { Link } from "@inertiajs/vue3"
+import { layoutStructure } from "@/Composables/useLayoutStructure";
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -121,6 +122,7 @@ const widgets = {
 // }
 
 const locale = inject("locale", aikuLocaleStructure)
+const layoutStore = inject("layout", layoutStructure);
 
 const getStatusColor = (status: string) => {
 	switch (status) {
@@ -173,7 +175,6 @@ const printLabelByType = (label?: string) => {
 }
 
 function NumberDashboard(shop: any) {
-	console.log(shop)
 	return route(shop?.name, shop?.parameters)
 }
 
@@ -304,10 +305,10 @@ const setChartOptions = () => ({
 		</div>
 
 		<div v-if="visual?.type === 'number'" class="mt-2">
-			<span class="text-2xl font-bold leading-tight truncate">
+			<span class="text-4xl font-bold leading-tight truncate">
 				<Link :href="NumberDashboard(visual.route)">
 					<CountUp
-						class="primaryLink w-10"
+						class="primaryLink inline-block"
 						v-if="visual.type === 'number'"
 						:endVal="visual.value"
 						:duration="1.5"
@@ -318,15 +319,33 @@ const setChartOptions = () => ({
 				</Link>
 			</span>
 		</div>
+		<div v-if="visual?.type === 'number_with_label'" class="mt-2">
+			<span class="text-4xl font-bold leading-tight truncate ">
+				<Link :href="NumberDashboard(visual.route)">
+					<CountUp
+						:class="'primaryLink inline-block ' + visual?.class"
+						:endVal="visual.value"
+						:duration="1.5"
+						:scrollSpyOnce="true"
+						:options="{
+                    formattingFn: (value: number) => locale.number(value)
+                }" />
+				</Link>
+			</span>
+				<p class="text-base text-gray-500">{{ visual.label }}</p>
+		</div>
 		<div class="flex-grow"></div>
-		<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
-			<div class="w-full h-full">
-				<Chart
-					:type="visual.type"
-					:labels="visual.label"
-					:data="visual.value"
-					:height="300"
-					:options="setChartOptions" />
+		
+		<div>
+			<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
+				<div class="w-full h-full">
+					<Chart
+						:type="visual.type"
+						:labels="visual.label"
+						:data="visual.value"
+						:height="300"
+						:options="setChartOptions" />
+				</div>
 			</div>
 		</div>
 		<!-- <div v-else-if="visual?.type == 'pie'" class="flex-grow relative w-full h-full">

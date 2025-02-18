@@ -26,7 +26,7 @@ class EditProspectTag extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.prospects.edit");
+        return $request->user()->authTo("crm.prospects.edit");
     }
 
     public function inShop(Shop $shop, Tag $tag, ActionRequest $request): Tag

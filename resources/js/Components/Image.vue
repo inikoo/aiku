@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { toRefs, watch, ref, onBeforeMount, Ref } from 'vue'
 import { cloneDeep, get, isNull } from 'lodash'
+import { Image as ImageProxy } from "@/types/Image"
 
 const fallbackPath = '/fallback/fallback.svg'
 
 const props = withDefaults(defineProps<{
-    src?: {
-        original: string
-        original_2x?: string
-        avif?: string
-        avif_2x?: string
-        webp?: string
-        webp_2x?: string
-    }
+    src?: ImageProxy
     imageCover?: boolean
     alt?: string
     class?: string

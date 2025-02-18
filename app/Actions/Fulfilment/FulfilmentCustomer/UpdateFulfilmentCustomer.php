@@ -21,6 +21,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Events\AuditCustom;
 
@@ -38,11 +39,12 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         $oldData = [
             'pallets_storage' => $fulfilmentCustomer->pallets_storage,
-            'items_storage'  => $fulfilmentCustomer->items_storage,
-            'dropshipping'   => $fulfilmentCustomer->dropshipping
+            'items_storage'   => $fulfilmentCustomer->items_storage,
+            'dropshipping'    => $fulfilmentCustomer->dropshipping,
+            'space_rental'    => $fulfilmentCustomer->space_rental
         ];
 
-        if (! blank($contactAddressData)) {
+        if (!blank($contactAddressData)) {
             if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
@@ -56,17 +58,46 @@ class UpdateFulfilmentCustomer extends OrgAction
             }
         }
 
+        foreach ($modelData as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'product' => 'data.product',
+                    'shipments_per_week' => 'data.shipments_per_week',
+                    'size_and_weight' => 'data.size_and_weight',
+                    default => $key
+                },
+                $value
+            );
+        }
+        data_forget($modelData, 'product');
+        data_forget($modelData, 'shipments_per_week');
+        data_forget($modelData, 'size_and_weight');
+
+        if ($fulfilmentCustomer->number_pallets > 0 && Arr::exists($modelData, 'pallets_storage')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have pallets.')]);
+        }
+
+        if ($fulfilmentCustomer->number_spaces > 0 && Arr::exists($modelData, 'space_rental')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have spaces.')]);
+        }
+
+        if ($fulfilmentCustomer->customer->shopifyUser && Arr::exists($modelData, 'dropshipping')) {
+            throw ValidationException::withMessages(['message' => __('You can\'t unselect because you already have platform accounts.')]);
+        }
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
-        if ($fulfilmentCustomer->wasChanged()) {
-
+        $attributes = ['pallets_storage', 'items_storage', 'dropshipping', 'space_rental'];
+        if (collect($attributes)->contains(fn ($attr) => $fulfilmentCustomer->wasChanged($attr))) {
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 
             $newData = [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
-                'items_storage'  => $fulfilmentCustomer->items_storage,
-                'dropshipping'   => $fulfilmentCustomer->dropshipping
+                'items_storage'   => $fulfilmentCustomer->items_storage,
+                'dropshipping'    => $fulfilmentCustomer->dropshipping,
+                'space_rental'    => $fulfilmentCustomer->space_rental
             ];
 
 
@@ -78,6 +109,7 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
         FulfilmentCustomerRecordSearch::dispatch($fulfilmentCustomer);
+
         return $fulfilmentCustomer;
     }
 
@@ -87,20 +119,24 @@ class UpdateFulfilmentCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'contact_name'    => ['sometimes', 'nullable','string'],
-            'company_name'    => ['sometimes', 'nullable','string'],
-            'email'           => ['sometimes', 'nullable','string'],
-            'phone'           => ['sometimes', 'nullable','string'],
-            'pallets_storage' => ['sometimes', 'boolean'],
-            'items_storage'   => ['sometimes', 'boolean'],
-            'dropshipping'    => ['sometimes', 'boolean'],
-            'address'         => ['sometimes'],
+            'contact_name'      => ['sometimes', 'nullable', 'string'],
+            'company_name'      => ['sometimes', 'nullable', 'string'],
+            'email'             => ['sometimes', 'nullable', 'string'],
+            'phone'             => ['sometimes', 'nullable', 'string'],
+            'pallets_storage'   => ['sometimes', 'boolean'],
+            'items_storage'     => ['sometimes', 'boolean'],
+            'dropshipping'      => ['sometimes', 'boolean'],
+            'space_rental'      => ['sometimes', 'boolean'],
+            'address'           => ['sometimes'],
+            'product'           => ['sometimes', 'required', 'string'],
+            'shipments_per_week' => ['sometimes', 'required', 'string'],
+            'size_and_weight'   => ['sometimes', 'required', 'string'],
         ];
     }
 
@@ -112,7 +148,6 @@ class UpdateFulfilmentCustomer extends OrgAction
         FulfilmentCustomer $fulfilmentCustomer,
         ActionRequest $request
     ): FulfilmentCustomer {
-
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -120,11 +155,9 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-
-
-
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 

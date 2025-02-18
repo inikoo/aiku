@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $reference
  * @property string|null $tracking
  * @property string|null $error_message
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string|null $shipped_at
  * @property string|null $tracked_at
  * @property int $number_shipment_trackings
@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_id
  * @property-read Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatching\DeliveryNote> $deliveryNotes
+ * @property-read \App\Models\Dispatching\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Dispatching\Shipper|null $shipper

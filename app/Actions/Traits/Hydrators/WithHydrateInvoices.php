@@ -34,7 +34,7 @@ trait WithHydrateInvoices
         }
 
         // unpaid hydrate
-        $unpaidQuery = $model->invoices()->where('pay_status', InvoicePayStatusEnum::UNPAID);
+        $unpaidQuery = $model->invoices()->where('type', InvoiceTypeEnum::INVOICE)->where('pay_status', InvoicePayStatusEnum::UNPAID);
 
         if ($model instanceof Customer || $model instanceof Shop) {
             $stats = array_merge($stats, [

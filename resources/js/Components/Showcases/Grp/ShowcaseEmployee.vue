@@ -12,6 +12,7 @@ import Image from '@/Components/Image.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { faEye, faEyeSlash } from "@fal";
+import PermissionsPictogram from '@/Components/DataDisplay/PermissionsPictogram.vue'
 
 const props = defineProps<{
   data: {
@@ -164,9 +165,9 @@ function toggleShowPins() {
 
         <div class="h-fit w-fit grid col-span-3 ring-1 ring-gray-300 shadow rounded-2xl p-6 gap-y-6">
         <div class="flex flex-col items-center gap-y-4">
-          <div class="flex flex-wrap justify-center gap-2">
+          <div v-if="data?.pin" class="flex flex-wrap justify-center gap-2">
             <div
-              v-for="(value, index) in Array.from(data.pin)"
+              v-for="(value, index) in Array.from(data?.pin)"
               :key="index"
               class="w-12 h-12 flex items-center justify-center text-lg font-semibold border border-gray-300 rounded-md shadow-sm bg-gray-50"
             >
@@ -183,6 +184,12 @@ function toggleShowPins() {
         </div>
       </div>
 
-
+    </div>
+    <div class="flex py-4 px-8 gap-x-8">
+      <div v-if="data?.permissions_pictogram" class="sm:col-span-2">
+          <PermissionsPictogram
+              :data_pictogram="data?.permissions_pictogram"
+          />
+      </div>
     </div>
 </template>

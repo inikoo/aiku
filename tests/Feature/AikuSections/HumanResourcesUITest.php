@@ -256,7 +256,7 @@ test('UI create employee', function () {
 });
 
 test('UI show employee', function () {
-
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.hr.employees.show', [$this->organisation->slug, $this->employee->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

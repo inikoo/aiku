@@ -59,7 +59,7 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
 
         return $query->allowedSorts(['state', 'reference','date','amount','tax_amount','total_amount','number_pallets','number_stored_items','number_added_stored_items','number_edited_stored_items','number_removed_stored_items'])
             ->allowedFilters([$globalSearch,  'reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
 
     }
@@ -111,13 +111,13 @@ class IndexRetinaStoredItemsAudits extends RetinaAction
             $table
             ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
             ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_audited_pallets', label: __('Audited Pallets'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_audited_stored_items', label: __('Audited Stored Items'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_audited_stored_items_with_additions', label: __('Audited Stored Items(with additions)'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_audited_stored_items_with_with_subtractions', label: __('Audited Stored Items(with subtractions)'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_audited_stored_items_with_with_stock_checked', label: __('Audited Stored Items(with stock checked)'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_associated_stored_items', label: __('Associated Stored Items'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_created_stored_items', label: __('Created Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_audited_pallets', label: __('Audited'), icon: 'fal fa-pallet', tooltip: __('Audited Pallets'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_audited_stored_items', label: __('Audited'), icon: 'fal fa-narwhal', tooltip: __('Audited Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_audited_stored_items_with_additions', label: __('Audited (additions)'), icon: 'fal fa-narwhal', tooltip: __('Audited Stored Items (with additions)'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_audited_stored_items_with_with_subtractions', label: __('Audited (subtractions)'), icon: 'fal fa-narwhal', tooltip: __('Audited Stored Items (with subtractions)'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_audited_stored_items_with_with_stock_checked', label: __('Audited (stock checked)'), icon: 'fal fa-narwhal', tooltip: __('Audited Stored Items (with stock checked)'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_associated_stored_items', label: __('Associated'), icon: 'fal fa-narwhal', tooltip: __('Associated Stored Items'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'number_created_stored_items', label: __('Created'), icon: 'fal fa-narwhal', tooltip: __('Created Stored Items'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'created_at', label: __('Created At'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

@@ -29,8 +29,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property PalletReturnItemStateEnum $state
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $quantity_picked
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\PalletReturn $palletReturn
+ * @property-read \App\Models\Fulfilment\PalletStoredItem|null $palletStoredItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem query()
@@ -60,5 +62,10 @@ class PalletReturnItem extends Model
     public function palletReturn(): BelongsTo
     {
         return $this->belongsTo(PalletReturn::class);
+    }
+
+    public function palletStoredItem(): BelongsTo
+    {
+        return $this->belongsTo(PalletStoredItem::class);
     }
 }

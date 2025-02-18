@@ -42,7 +42,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('products.state', $elements);
                 }
 
             ],
@@ -96,7 +96,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return $queryBuilder->allowedSorts(['id','code','name','price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -107,10 +107,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
             return true;
         }
 
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator

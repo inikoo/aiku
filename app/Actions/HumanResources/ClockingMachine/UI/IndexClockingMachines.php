@@ -73,7 +73,7 @@ class IndexClockingMachines extends OrgAction
             ->leftJoin('workplaces', 'clocking_machines.workplace_id', '=', 'workplaces.id')
             ->allowedSorts(['name', 'type', 'workplace_name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -122,11 +122,11 @@ class IndexClockingMachines extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.view");
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

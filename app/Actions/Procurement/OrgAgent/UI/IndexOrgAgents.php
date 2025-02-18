@@ -54,7 +54,7 @@ class IndexOrgAgents extends OrgAction
             ->leftJoin('org_agent_stats', 'org_agent_stats.org_agent_id', 'org_agents.id')
             ->allowedSorts(['code', 'name', 'number_purchase_orders', 'number_org_suppliers', 'number_org_supplier_products' ])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -88,9 +88,9 @@ class IndexOrgAgents extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+        return $request->user()->authTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

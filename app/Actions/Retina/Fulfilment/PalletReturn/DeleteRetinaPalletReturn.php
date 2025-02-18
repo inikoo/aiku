@@ -10,40 +10,36 @@ namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\DeletePalletReturn;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class DeleteRetinaPalletReturn extends RetinaAction
 {
-    use AsAction;
-    use WithAttributes;
-    use WithActionUpdate;
-
-    public Customer $customer;
-    private bool $action = false;
-
-    public function handle(PalletReturn $palletReturn): void
+    public function handle(PalletReturn $palletReturn, array $modelData = []): void
     {
-        DeletePalletReturn::run($palletReturn);
+        DeletePalletReturn::run($palletReturn, $modelData);
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(): RedirectResponse
     {
-        return Inertia::location(route('retina.fulfilment.storage.pallet_returns.index'));
+        return Redirect::route('retina.fulfilment.storage.pallet_returns.index');
+    }
+
+    public function rules(): array
+    {
+        return [
+            'delete_comment' => ['sometimes', 'nullable']
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->action) {
+        if ($this->asAction) {
             return true;
-        } elseif ($this->customer->id == $request->route()->parameter('palletReturn')->fulfilmentCustomer->customer_id) {
+        } elseif ($this->fulfilmentCustomer->id == $request->route()->parameter('palletReturn')->fulfilment_customer_id) {
             return true;
         }
 
@@ -52,18 +48,14 @@ class DeleteRetinaPalletReturn extends RetinaAction
 
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): void
     {
-        $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
         $this->initialisation($request);
-
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
     public function action(PalletReturn $palletReturn, $modelData): void
     {
-        $this->action = true;
-        $this->fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+        $this->asAction = true;
         $this->initialisationFulfilmentActions($this->fulfilmentCustomer, $modelData);
-
-        $this->handle($palletReturn);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }

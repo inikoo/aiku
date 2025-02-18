@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch, inject } from "vue"
+import { computed, ref, watch, inject, provide } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from '@/Components/Utils/Timeline.vue'
@@ -28,16 +28,19 @@ import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStored
 import RetinaBoxStatsDelivery from "@/Components/Retina/Storage/RetinaBoxStatsDelivery.vue"
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { Table as TableTS } from '@/types/Table'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil, faPaperclip } from '@fal'
 import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { notify } from '@kyvg/vue3-notification'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil, faPaperclip)
 
 const props = defineProps<{
     title: string
@@ -59,12 +62,18 @@ const props = defineProps<{
     }
     upload_spreadsheet: UploadPallet
 
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
+
     storedItemsRoute: {
         index: routeType
         store: routeType
     }
     box_stats: BoxStats
     notes_data: PDRNotes[]
+    public_notes: any
     pallet_limits?: {
         status: string
         message: string
@@ -78,6 +87,12 @@ const props = defineProps<{
 
     physical_goods?: Table
     physical_good_list_route: routeType
+
+    attachments: {}
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -99,7 +114,8 @@ const component = computed(() => {
         stored_items: TableStoredItems,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 
@@ -121,6 +137,10 @@ const onAddMultiplePallet = (data: {route: routeType}, closedPopover: Function) 
             closedPopover()
             formMultiplePallet.reset('number_pallets','type')
             isLoading.value = false
+            const index = deliveryListError.value?.indexOf('number_pallets');
+            if (index > -1) {
+                deliveryListError.value?.splice(index, 1);
+            }  // Delete the error
         },
         onError: (errors) => {
             isLoading.value = false
@@ -155,6 +175,11 @@ const onAddPallet = (data: {route: routeType}, closedPopover: Function) => {
             closedPopover()
             formAddPallet.reset('notes', 'customer_reference','type')
             isLoading.value = false
+            handleTabUpdate('pallets')
+            const index = deliveryListError.value?.indexOf('number_pallets');
+            if (index > -1) {
+                deliveryListError.value?.splice(index, 1);
+            }  // Delete the error
         },
         onError: (errors) => {
             isLoading.value = false
@@ -167,6 +192,11 @@ const onSubmitPallet = async (action: routeType) => {
     router.post(route(action.name, action.parameters), {}, {
         onError: (e) => {
             console.warn('Error on Submit', e)
+            notify({
+                title: trans('Something went wrong.'),
+                text: e?.message,
+                type: 'error',
+            })
         },
         onSuccess: (e) => {
             console.log('on success', e)
@@ -213,6 +243,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset()
+                handleTabUpdate('services')
             },
             onError: (errors) => {
                 notify({
@@ -261,6 +292,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset()
+                handleTabUpdate('physical_goods')
             },
             onError: (errors) => {
                 notify({
@@ -288,6 +320,35 @@ const typePallet = [
     { label : 'Oversize', value : 'oversize'}
 ]
 
+// To set error
+const deliveryListError = ref<string[]>([])
+provide('deliveryListError', deliveryListError.value)
+const onClickDisabledSubmit = () => {
+    if (props.data?.data?.number_pallets < 1) {
+        if (!deliveryListError.value?.includes('number_pallets')) {
+            deliveryListError.value?.push('number_pallets');
+        }
+    } else {
+        const index = deliveryListError.value?.indexOf('number_pallets');
+        if (index > -1) {
+            deliveryListError.value?.splice(index, 1);
+        }
+    }
+
+    if (!props.data?.data?.estimated_delivery_date) {
+        if (!deliveryListError.value?.includes('estimated_delivery_date')) {
+            deliveryListError.value?.push('estimated_delivery_date');
+        }
+    } else {
+        const index = deliveryListError.value?.indexOf('estimated_delivery_date');
+        if (index > -1) {
+            deliveryListError.value?.splice(index, 1);
+        }
+    }
+}
+
+const isModalUploadFileOpen = ref(false)
+
 </script>
 
 <template>
@@ -314,6 +375,10 @@ const typePallet = [
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    :title="action.title"
+                    :isWithMessage="action.ask_why"
+                    :whyLabel="action.why_label"
+                    :description="action.description"
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
@@ -334,7 +399,7 @@ const typePallet = [
 
         <!-- Button: Add multiple pallets -->
         <template #button-group-multiple="{ action }">
-            <Popover v-if="currentTab === 'pallets'" position="-right-32" class="md:relative h-full">
+            <Popover v-if="currentTab === 'pallets'" position="-right-32" class="md:relative h-full" :class="deliveryListError.includes('number_pallets') ? 'errorShake' : ''">
                 <template #button>
                     <Button
                         :style="action.style"
@@ -396,14 +461,14 @@ const typePallet = [
         </template>
 
         <!-- Button: Add pallet (single) -->
-        <template #button-group-add-pallet="{ action }">
-            <div v-if="currentTab === 'pallets'" class="md:relative">
+        <template #button-group-pallet="{ action }">
+            <div v-if="currentTab !== 'cccccccpallets'" class="md:relative" :class="deliveryListError.includes('number_pallets') ? 'errorShake' : ''">
                 <Popover>
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r-md border-none " />
+                            class="rounded-l-none rounded-r-none border-none " />
                     </template>
 
                     <template #content="{ close: closed }">
@@ -462,8 +527,8 @@ const typePallet = [
 
         
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
+        <template #button-group-service="{ action }">
+            <div class="relative" v-if="currentTab !== 'cccccccservices'">
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -536,8 +601,8 @@ const typePallet = [
         </template>
         
         <!-- Button: Add physical good (single) -->
-        <template #button-group-add-physical-good="{ action }">
-            <div class="relative" v-if="currentTab === 'physical_goods'">
+        <template #button-group-physical-good="{ action }">
+            <div class="relative" v-if="currentTab !== 'ccccccphysical_goods'">
                 <Popover>
                     <template #button="{ open }">
                         <Button
@@ -547,7 +612,7 @@ const typePallet = [
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="border-none rounded-sm"
+                            class="border-none rounded-l-none rounded-r-md"
                         />
                     </template>
                     
@@ -616,12 +681,34 @@ const typePallet = [
 
         <!-- Button: Submit -->
         <template #button-submit="{ action }">
+            <div class="relative">
+                <Button
+                    @click="onSubmitPallet(action.route)"
+                    v-bind="action"
+                    :loading="isLoading === 'submitPallet'"
+                />
+
+                <div v-if="action.disabled" v-tooltip="action.tooltip" @click="() => onClickDisabledSubmit()" class="cursor-pointer absolute inset-0">
+
+                </div>
+            </div>
+        </template>
+
+        <template #other>
             <Button
-                @click="onSubmitPallet(action.route)"
-                v-bind="action"
-                :loading="isLoading === 'submitPallet'" />
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
         </template>
     </PageHeading>
+    
+    <!-- Box: Public Notes -->
+    <div v-if="public_notes" class="bg-pink-500 text-white font-bold p-4 rounded flex justify-between items-center">
+        <span class="flex-grow">{{ public_notes || 'public Notes'}}</span>
+    </div>
 
     <!-- Section: Pallet Warning -->
     <div v-if="pallet_limits?.status">
@@ -678,7 +765,18 @@ const typePallet = [
         :tableKey="tableKey"
         :storedItemsRoute="storedItemsRoute"
         @renderTableKey="() => (console.log('emit render', changeTableKey()))"
-    />
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <!-- <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
@@ -696,6 +794,18 @@ const typePallet = [
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 
     <!-- <pre>{{ props.pallets }}</pre> -->

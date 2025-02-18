@@ -24,6 +24,10 @@ Route::prefix("billing")
     ->name("billing.")
     ->group(__DIR__."/billing.php");
 
+Route::prefix("spaces")
+    ->name("spaces.")
+    ->group(__DIR__."/spaces.php");
+
 
 // \Route::get('pricing', IndexRetinaPricing::class)->name('pricing');
 

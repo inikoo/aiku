@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -58,9 +59,20 @@ class ShowFooter extends OrgAction
                             'type'  => 'button',
                             'style' => 'exit',
                             'label' => __('Exit workshop'),
-                            'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters()),
+                            'route' => ($website->shop->type === ShopTypeEnum::FULFILMENT) ? [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation,
+                                    'fulfilment' => $website->shop->slug,
+                                    'website' => $website
+                                ],
+                            ] : [
+                                'name'       => 'grp.org.shops.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation->slug,
+                                    'shop' => $website->shop->slug,
+                                    'website' => $website->slug
+                                ],
                             ]
                         ],
                         [
@@ -93,6 +105,7 @@ class ShowFooter extends OrgAction
                     ]
                 ],
 
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopFooter::run($website),
                 'webBlockTypes' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()
@@ -108,14 +121,14 @@ class ShowFooter extends OrgAction
         }
 
         if ($this->scope instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("shops.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.view");
+        return $request->user()->authTo("shops.{$this->shop->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website

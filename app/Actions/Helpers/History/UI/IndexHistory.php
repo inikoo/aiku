@@ -56,7 +56,7 @@ class IndexHistory
             ->defaultSort('audits.created_at')
             ->allowedSorts(['ip_address','auditable_id', 'auditable_type', 'user_type', 'url','created_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -76,8 +76,7 @@ class IndexHistory
                 ->column(key: 'expand', label: '', type: 'icon')
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
                 ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
-                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: true)
-                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: true)
+                ->column(key: 'values', label: __('Value'), canBeHidden: false, sortable: true)
                 ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
                 ->defaultSort('ip_address');
         };

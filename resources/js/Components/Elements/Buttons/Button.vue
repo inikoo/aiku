@@ -66,7 +66,7 @@ else if (props.style == 'delete' || props.style == 'negative' || props.style == 
 else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
 
 else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white hover:bg-gray-300 text-gray-600'
-else if (props.style == 'red' || props.type == 'red') styleClass = 'bg-red-500 hover:bg-red-600 border border-red-500 hover:border-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+else if (props.style == 'red' || props.type == 'red') styleClass = 'bg-red-500 hover:bg-red-600 border border-red-500 hover:border-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:text-red-300 disabled:bg-red-600'
 else if (props.style == 'green' || props.type == 'green') styleClass = `bg-green-400 ${props.noHover ? '' : 'hover:bg-green-500 hover:border-green-500'}  border border-green-400  text-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2`
 else if (props.style == 'gray' || props.type == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
 else if (props.style == 'black' || props.type == 'black') styleClass = 'bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 border border-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2'
@@ -79,22 +79,22 @@ else styleClass = `buttonPrimary`
 // Styling depends on the 'size' props
 switch (props.size) {
     case 'xxs':
-        sizeClass = 'rounded px-2 py-1 text-xxs'
+        sizeClass = 'rounded px-1 py-0.5 md:px-2 md:py-1 text-xxs'
         break
     case 'xs':
-        sizeClass = 'rounded px-2.5 py-1.5 text-xs'
+        sizeClass = 'rounded px-1.5 md:px-2.5 py-1 md:py-1.5 text-xs'
         break
     case 's':
-        sizeClass = 'rounded-md px-3 py-[7px] text-sm'
+        sizeClass = 'rounded-md px-2 md:px-3 py-[5px] md:py-[7px] text-sm'
         break
     case 'm':
-        sizeClass = 'rounded-md px-4 py-[9px] text-sm'
+        sizeClass = 'rounded-md px-3 md:px-4 py-[7px] md:py-[9px] text-sm'
         break
     case 'l':
-        sizeClass = 'rounded-md px-[18px] py-[11px] text-base'
+        sizeClass = 'rounded-md px-4 md:px-[18px] py-[9px] md:py-[11px] text-base'
         break
     case 'xl':
-        sizeClass = 'rounded-md px-6 py-[13px] text-lg'
+        sizeClass = 'rounded-md px-[18px] md:px-6 py-[11px] md:py-[13px] text-lg'
         break
 }
 

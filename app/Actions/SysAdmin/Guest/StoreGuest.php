@@ -80,7 +80,7 @@ class StoreGuest extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->authTo("sysadmin.edit");
     }
 
     public function prepareForValidation(): void
@@ -96,7 +96,7 @@ class StoreGuest extends GrpAction
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
         }
 
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void

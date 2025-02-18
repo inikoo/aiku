@@ -45,6 +45,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
+use App\Models\Helpers\Language;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
@@ -104,7 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property int|null $address_id
- * @property array $location
+ * @property array<array-key, mixed> $location
  * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
@@ -117,8 +118,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $shipping_zone_schema_id
  * @property int|null $discount_shipping_zone_schema_id
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -128,6 +129,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property string|null $invoice_footer
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
@@ -154,10 +156,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read Fulfilment|null $fulfilment
+ * @property-read \App\Models\Catalogue\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read Language $language
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read MasterShop|null $masterShop
@@ -169,7 +173,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
- * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
+ * @property-read OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read \App\Models\Catalogue\ShopOutboxColdEmailsIntervals|null $outboxColdEmailsIntervals
@@ -180,7 +184,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopOutboxPushIntervals|null $outboxPushIntervals
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, Packing> $packings
- * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
+ * @property-read LaravelCollection<int, PaymentAccountShop> $paymentAccountShops
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, Picking> $pickings
  * @property-read LaravelCollection<int, Poll> $polls
@@ -400,6 +404,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->belongsTo(Country::class);
     }
 
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
     public function timezone(): BelongsTo
     {
         return $this->belongsTo(Timezone::class);
@@ -411,18 +420,14 @@ class Shop extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    public function paymentAccounts(): BelongsToMany
+    public function paymentAccountShops(): HasMany
     {
-        return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)
-            ->withTimestamps();
+        return $this->hasMany(PaymentAccountShop::class);
     }
 
-    public function getAccounts(): PaymentAccount
+    public function getPaymentAccountTypeAccount(): ?PaymentAccount
     {
-        /** @var PaymentAccount $paymentAccount */
-        $paymentAccount = $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
-
-        return $paymentAccount;
+        return $this->paymentAccountShops->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
     }
 
     public function outboxes(): HasMany

@@ -48,6 +48,11 @@ class StoreRetinaProductShopify extends RetinaAction
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return true;
+    }
+
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
         $this->initialisation($request);

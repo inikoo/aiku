@@ -17,6 +17,8 @@ enum RecurringBillTabsEnum: string
     use HasTabs;
 
     case TRANSACTIONS    = 'transactions';
+    case PALLET_DELIVERIES    = 'pallet_deliveries';
+    case PALLET_RETURNS    = 'pallet_returns';
 
     // case DATA    = 'data';
     case HISTORY = 'history';
@@ -26,6 +28,14 @@ enum RecurringBillTabsEnum: string
         return match ($this) {
             RecurringBillTabsEnum::TRANSACTIONS => [
                 'title' => __('transactions'),
+                'icon'  => 'fal fa-ballot',
+            ],
+            RecurringBillTabsEnum::PALLET_DELIVERIES => [
+                'title' => __('pallet deliveries'),
+                'icon'  => 'fal fa-truck',
+            ],
+            RecurringBillTabsEnum::PALLET_RETURNS => [
+                'title' => __('pallet returns'),
                 'icon'  => 'fal fa-ballot',
             ],
             // RecurringBillTabsEnum::DATA => [

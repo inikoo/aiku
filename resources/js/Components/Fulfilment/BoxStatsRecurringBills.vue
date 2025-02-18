@@ -23,6 +23,7 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay, faConciergeBell, faBuilding)
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', null)
 const props = defineProps<{
     boxStats: BoxStats
     currency?: object
@@ -49,14 +50,14 @@ const props = defineProps<{
                     <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
                 </Link>     -->            
                 <!-- Field: Contact name -->
-                <div v-if="boxStats.customer.data.customer.contact_name"
+                <div v-if="boxStats.customer.data.customer.contact_name && layout?.app?.name != 'retina'"
                     class="flex items-center w-full flex-none gap-x-2">
                     <dt v-tooltip="'Contact name'" class="flex-none">
                         <span class="sr-only">Contact name</span>
                         <FontAwesomeIcon icon='fal fa-user' size="xs" class='pl-1 text-gray-400' fixed-width
                             aria-hidden='true' />
                     </dt>
-                    <dd class="text-base text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
+                    <Link :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, route().params.fulfilment, boxStats.customer.data.slug ])" class="text-base text-gray-500 secondaryLink">{{ boxStats.customer.data.customer.contact_name }}</Link>
                 </div>
 
                 <!-- Field: Company name -->

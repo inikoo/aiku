@@ -30,10 +30,10 @@ class CreateWebUser extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         } elseif ($this->parent instanceof Customer) {
             return
-            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            $this->canEdit   = $request->user()->authTo("crm.{$this->shop->id}.edit");
         }
 
         return false;

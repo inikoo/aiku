@@ -10,6 +10,7 @@ const props = withDefaults(defineProps<{
     isOpen: boolean
     closeButton?: boolean
     dialogStyle?: {}
+    zIndex?: number
 }>(), {
     width: 'w-4/5'
 })
@@ -26,7 +27,7 @@ const closeModal = () => {
 
 <template>
     <TransitionRoot appear :show="props.isOpen" as="template">
-        <Dialog as="div" @close="closeModal" class="relative z-[22]">
+        <Dialog as="div" @close="closeModal" class="relative" :style="{ zIndex: props.zIndex || 22}">
             <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100"
                 leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
                 <div class="fixed inset-0 bg-black/40" />

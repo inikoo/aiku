@@ -30,6 +30,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $number_current_portfolios
  * @property mixed $currency_code
  * @property bool $is_dropshipping
+ * @property mixed $organisation_name
+ * @property mixed $phone
+ * @property mixed $state
+ * @property mixed $status
+ * @property mixed $address
+ * @property mixed $shop_name
  */
 class CustomersResource extends JsonResource
 {
@@ -44,6 +50,7 @@ class CustomersResource extends JsonResource
             'email'                           => $this->email,
             'phone'                           => $this->phone,
             'state'                           => $this->state,
+            'status'                          => $this->status,
             'address'                         => AddressResource::make($this->address),
             'is_dropshipping'                 => $this->is_dropshipping,
             'contact_name'                    => $this->contact_name,

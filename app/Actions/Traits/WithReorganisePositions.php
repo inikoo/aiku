@@ -18,21 +18,6 @@ use Illuminate\Support\Arr;
 
 trait WithReorganisePositions
 {
-    public function reorganiseGroupPositionsSlugsToIds($positionsWithSlugs): array
-    {
-        $positions = [];
-        foreach ($positionsWithSlugs as $positionSlug) {
-
-            /** @var JobPosition  $jobPosition */
-            $jobPosition = JobPosition::where('slug', $positionSlug);
-
-            $positions [$jobPosition->id] = $jobPosition->id;
-        }
-
-        return $positions;
-
-    }
-
     public function reorganisePositionsSlugsToIds($positionsWithSlugs): array
     {
         $positions = [];
@@ -40,6 +25,7 @@ trait WithReorganisePositions
         if (count($positionsWithSlugs) == 0) {
             return [];
         }
+
 
 
         foreach ($positionsWithSlugs as $positionData) {

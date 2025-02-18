@@ -68,15 +68,15 @@ class IndexPalletsInStoredItem extends OrgAction
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
 
-        return $request->user()->hasAnyPermission(
+        return $request->user()->authTo(
             [
                 'org-supervisor.'.$this->organisation->id,
                 'warehouses-view.'.$this->organisation->id

@@ -3,7 +3,7 @@ import { trans } from "laravel-vue-i18n"
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { useFormatTime, retinaUseDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import { router } from '@inertiajs/vue3'
 
@@ -31,6 +31,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+const deliveryListError = inject('deliveryListError', [])
 const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 
@@ -51,7 +52,13 @@ const onChangeEstimateDate = async (close: Function) => {
                         type: "error",
                     })
                 },
-                onSuccess: () => close(),
+                onSuccess: () => {
+                    const index = deliveryListError?.indexOf('estimated_delivery_date');
+                    if (index > -1) {
+                        deliveryListError?.splice(index, 1);
+                    }
+                    close()
+                },
                 onFinish: () => isLoadingSetEstimatedDate.value = false,
             })
     } catch (error) {
@@ -86,7 +93,7 @@ const disableBeforeToday = (date: Date) => {
                 <dd class="">{{ box_stats.delivery_state.tooltip }}</dd>
             </div>
 
-            <div class="flex items-center w-full flex-none gap-x-2">
+            <div class="flex items-center w-full flex-none gap-x-2" :class="deliveryListError.includes('estimated_delivery_date') ? 'errorShake' : ''">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_state.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats?.delivery_status?.class'
@@ -96,7 +103,7 @@ const disableBeforeToday = (date: Date) => {
                 <Popover v-if="data_pallet.state === 'in_process'" position="">
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
+                            v-tooltip="retinaUseDaysLeftFromToday(data_pallet.estimated_delivery_date)"
                             class="group text-sm text-gray-500">
                             {{ useFormatTime(data_pallet.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"
@@ -104,14 +111,14 @@ const disableBeforeToday = (date: Date) => {
                         </div>
 
                         <div v-else class="text-sm text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
+                            {{ trans('Set estimated delivery') }}
                         </div>
                     </template>
 
                     <template #content="{ close }">
                         <DatePicker v-model="data_pallet.estimated_delivery_date"
                             @update:modelValue="() => onChangeEstimateDate(close)" inline auto-apply
-                            :disabled-dates="disableBeforeToday" :enable-time-picker="false" />
+                            :xdisabled-dates="disableBeforeToday" :enable-time-picker="false" />
                         
                         <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
                             <LoadingIcon class="text-5xl" />
@@ -121,7 +128,7 @@ const disableBeforeToday = (date: Date) => {
 
                 <div v-else>
                     <dd class="text-sm text-gray-500">{{ data_pallet.estimated_delivery_date ?
-                        useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
+                        useFormatTime(data_pallet.estimated_delivery_date) : trans('Not Set') }}</dd>
                 </div>
 
             </div>

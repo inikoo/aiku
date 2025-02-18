@@ -45,12 +45,14 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        $positions = Arr::get($modelData, 'positions', []);
-        data_forget($modelData, 'positions');
-        $positions = $this->reorganisePositionsSlugsToIds($positions);
 
+        if (Arr::has($modelData, 'job_positions')) {
 
-        SyncEmployeeJobPositions::run($employee, $positions);
+            $jobPositions = Arr::pull($modelData, 'job_positions', []);
+            $jobPositions = $this->reorganisePositionsSlugsToIds($jobPositions);
+            SyncEmployeeJobPositions::run($employee, $jobPositions);
+        }
+
 
         $credentials = Arr::only($modelData, ['username', 'password', 'auth_type', 'user_model_status']);
 
@@ -90,7 +92,7 @@ class UpdateEmployee extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -154,12 +156,12 @@ class UpdateEmployee extends OrgAction
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
-            'positions'                             => ['sometimes', 'array'],
-            'positions.*.slug'                      => ['sometimes', 'string'],
-            'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions'                             => ['sometimes', 'array'],
+            'job_positions.*.slug'                      => ['sometimes', 'string'],
+            'job_positions.*.scopes'                    => ['sometimes', 'array'],
+            'job_positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
             'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)]
 
@@ -217,7 +219,7 @@ class UpdateEmployee extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
         if ($this->has('password')) {
             {
                 $this->set('auth_type', UserAuthTypeEnum::DEFAULT);

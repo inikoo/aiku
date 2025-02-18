@@ -22,7 +22,7 @@ class CreateFulfilmentCustomer extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function handle(Fulfilment $fulfilment, ActionRequest $request): Response
@@ -76,7 +76,7 @@ class CreateFulfilmentCustomer extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexFulfilmentCustomers::make()->getBreadcrumbs(
+            IndexFulfilmentCustomersApproved::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
             ),
             [

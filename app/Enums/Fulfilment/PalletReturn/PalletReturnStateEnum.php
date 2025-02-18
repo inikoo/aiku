@@ -12,6 +12,7 @@ use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -26,7 +27,7 @@ enum PalletReturnStateEnum: string
     case PICKING      = 'picking';
     case PICKED       = 'picked';
     case DISPATCHED   = 'dispatched';
-    case CONSOLIDATED = 'consolidated';
+    // case CONSOLIDATED = 'consolidated';
     case CANCEL       = 'cancel';
 
 
@@ -40,7 +41,7 @@ enum PalletReturnStateEnum: string
             'picked'       => __('Picked'),
             'dispatched'   => __('Dispatched'),
             'cancel'       => __('Cancel'),
-            'consolidated' => __('Consolidated')
+            // 'consolidated' => __('Consolidated')
         ];
     }
 
@@ -52,86 +53,58 @@ enum PalletReturnStateEnum: string
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
-                'app'     => [
-                    'name' => 'seedling',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7CCE00',  // Color for box (Retina)
             ],
             'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
-                'app'     => [
-                    'name' => 'share',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7C86FF',
             ],
             'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
-                'color'   => 'emerald',
-                'app'     => [
-                    'name' => 'spell-check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#00BC7D',
             ],
             'picking'    => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-truck',
                 'class'   => 'text-orange-500',
-                'color'   => 'orange',
-                'app'     => [
-                    'name' => 'truck',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#FF6900',
             ],
             'picked'     => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
-                'color'   => 'slate',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#62748E',
             ],
             'dispatched' => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple',
-                'app'     => [
-                    'name' => 'check-double',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#AD46FF',
             ],
             'cancel'     => [
                 'tooltip' => __('Cancel'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
-                'color'   => 'red',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#FB2C36',
             ],
-            'consolidated'     => [
-                'tooltip' => __('Consolidated'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
-                'color'   => 'red',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
+            // 'consolidated'     => [
+            //     'tooltip' => __('Consolidated'),
+            //     'icon'    => 'fal fa-times',
+            //     'class'   => 'text-red-500',
+            //     'color'   => 'red',
+            //     'app'     => [
+            //         'name' => 'times',
+            //         'type' => 'font-awesome-5'
+            //     ]
+            // ],
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $forElements = false): array
+    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|RecurringBill $parent, $forElements = false): array
     {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
@@ -147,7 +120,7 @@ enum PalletReturnStateEnum: string
             'picked'       => $stats->number_pallet_returns_state_picked,
             'dispatched'   => $stats->number_pallet_returns_state_dispatched,
             'cancel'       => $stats->number_pallet_returns_state_cancel,
-            'consolidated' => $stats->number_pallet_returns_state_consolidated,
+            // 'consolidated' => $stats->number_pallet_returns_state_consolidated,
         ];
     }
 
@@ -182,10 +155,10 @@ enum PalletReturnStateEnum: string
                 'title'    => __("Pallet return :reference cancelled", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been cancelled')
             ],
-            'consolidated'     => [
-                'title'    => __("Pallet return :reference consolidated", ['reference' => $reference]),
-                'subtitle' => __('Pallet return has been consolidated')
-            ],
+            // 'consolidated'     => [
+            //     'title'    => __("Pallet return :reference consolidated", ['reference' => $reference]),
+            //     'subtitle' => __('Pallet return has been consolidated')
+            // ],
         ];
     }
 }

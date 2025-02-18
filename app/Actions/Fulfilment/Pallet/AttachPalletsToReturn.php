@@ -17,7 +17,6 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -56,7 +55,8 @@ class AttachPalletsToReturn extends OrgAction
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
                 'status'           => PalletStatusEnum::RETURNING,
-                'state'            => PalletStateEnum::REQUEST_RETURN_IN_PROCESS
+                'state'            => PalletStateEnum::REQUEST_RETURN_IN_PROCESS,
+                'requested_for_return_at' => now()
             ]);
 
             $pallets = Pallet::findOrFail($palletsToSelect);
@@ -83,6 +83,7 @@ class AttachPalletsToReturn extends OrgAction
             'pallet_return_id' => null,
             'status'           => PalletStatusEnum::STORING,
             'state'            => PalletStateEnum::STORING,
+            'requested_for_return_at' => null
         ]);
 
         $palletReturn->pallets()->detach($palletIds);
@@ -109,7 +110,7 @@ class AttachPalletsToReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array

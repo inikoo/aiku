@@ -65,7 +65,7 @@ class IndexDeliveryNoteItems extends OrgAction
             ])
             ->allowedSorts(['id', 'org_stock_name', 'org_stock_code', 'quantity_required', 'quantity_picked', 'quantity_packed', 'state' ])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -99,8 +99,8 @@ class IndexDeliveryNoteItems extends OrgAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
+        $this->set('canEdit', $request->user()->authTo('hr.edit'));
+        $this->set('canViewUsers', $request->user()->authTo('users.view'));
     }
 
 

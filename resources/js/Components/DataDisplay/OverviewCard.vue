@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import  Chart  from "primevue/chart"
+import Chart from "primevue/chart"
 
 const props = defineProps<{
 	label: string
@@ -33,7 +33,7 @@ const chartOptions = {
 				<p class="text-sm font-medium text-gray-500">{{ label }}</p>
 				<p class="text-2xl font-bold text-gray-900">{{ value }}</p>
 			</div>
-			<div
+			<!-- <div
 				:class="percentageChange < 0 ? 'text-red-500' : 'text-green-500'"
 				class="flex items-center text-sm">
 				<svg
@@ -63,7 +63,7 @@ const chartOptions = {
 						d="M5 14l7 7m0 0l7-7m-7 7V3" />
 				</svg>
 				{{ percentageChange }}%
-			</div>
+			</div> -->
 		</div>
 
 		<!-- Chart -->

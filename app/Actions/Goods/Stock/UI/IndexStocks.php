@@ -176,7 +176,7 @@ class IndexStocks extends GrpAction
 
         return $queryBuilder->allowedSorts(['code', 'family_code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -368,12 +368,22 @@ class IndexStocks extends GrpAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters, ?string $suffix) {
+
+            $label = match ($routeParameters['name']) {
+                'grp.goods.stocks.active_stocks.index' => __('Active SKUs'),
+                'grp.goods.stocks.in_process_stocks.index' => __('In process SKUs'),
+                'grp.goods.stocks.discontinuing_stocks.index' => __('Discontinuing SKUs'),
+                'grp.goods.stocks.discontinued_stocks.index' => __('Discontinued SKUs'),
+                default => __('SKUs')
+            };
+
+
             return [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('SKUs'),
+                        'label' => $label,
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

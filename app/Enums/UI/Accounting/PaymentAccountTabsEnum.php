@@ -16,7 +16,7 @@ enum PaymentAccountTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE         = 'showcase';
+    case OVERVIEW         = 'overview';
     case STATS            = 'stats';
     // case PAYMENTS         = 'payments';
     case HISTORY          = 'history';
@@ -39,7 +39,7 @@ enum PaymentAccountTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            PaymentAccountTabsEnum::SHOWCASE => [
+            PaymentAccountTabsEnum::OVERVIEW => [
                 'title' => __('overview'),
                 'icon'  => 'fal fa-tachometer-alt',
             ],

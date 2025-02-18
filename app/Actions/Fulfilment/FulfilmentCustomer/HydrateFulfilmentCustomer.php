@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateSpaces;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
@@ -33,6 +34,7 @@ class HydrateFulfilmentCustomer extends HydrateModel
         FulfilmentCustomerHydrateStoredItemAudits::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateRecurringBills::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
+        FulfilmentCustomerHydrateSpaces::run($fulfilmentCustomer);
     }
 
     protected function getModel(string $slug): FulfilmentCustomer

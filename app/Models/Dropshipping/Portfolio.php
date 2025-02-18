@@ -28,25 +28,26 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int $customer_id
- * @property int $product_id
+ * @property int|null $item_id
  * @property string|null $reference This is the reference that the customer uses to identify the product
  * @property string $type
  * @property bool $status
  * @property string|null $last_added_at
  * @property string|null $last_removed_at
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property string|null $item_type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Model|\Eloquent|null $item
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dropshipping\Platform> $platforms
- * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read ShopifyUserHasProduct|null $shopifyPortfolio
  * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats
@@ -90,9 +91,9 @@ class Portfolio extends Model implements Auditable
         'removed_at',
     ];
 
-    public function product(): BelongsTo
+    public function item(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphTo();
     }
 
     public function customer(): BelongsTo

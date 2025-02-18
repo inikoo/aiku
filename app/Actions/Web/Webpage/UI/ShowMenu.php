@@ -16,6 +16,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -70,9 +71,20 @@ class ShowMenu extends OrgAction
                             'type'  => 'button',
                             'style' => 'exit',
                             'label' => __('Exit workshop'),
-                            'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters()),
+                            'route' => ($website->shop->type === ShopTypeEnum::FULFILMENT) ? [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation,
+                                    'fulfilment' => $website->shop->slug,
+                                    'website' => $website
+                                ],
+                            ] : [
+                                'name'       => 'grp.org.shops.show.web.websites.workshop',
+                                'parameters' => [
+                                    'organisation' => $website->organisation->slug,
+                                    'shop' => $website->shop->slug,
+                                    'website' => $website->slug
+                                ],
                             ]
                         ],
                         [
@@ -104,7 +116,7 @@ class ShowMenu extends OrgAction
                         'website' => $website->id
                     ]
                 ],
-
+                'domain' => $website->domain,
                 'data' => GetWebsiteWorkshopMenu::run($website),
                 'webBlockTypes' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()
@@ -120,14 +132,14 @@ class ShowMenu extends OrgAction
         }
 
         if ($this->scope instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("shops.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.view");
+        return $request->user()->authTo("shops.{$this->shop->id}.view");
 
     }
 

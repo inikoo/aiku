@@ -20,6 +20,7 @@ use App\Transfers\SourceOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
@@ -27,7 +28,7 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class FetchAction
+class FetchAction implements ShouldBeUnique
 {
     use AsAction;
     use WithOrganisationSource;
@@ -60,9 +61,9 @@ class FetchAction
     protected bool $orderDesc = false;
 
 
-
     public function __construct()
     {
+
         $this->progressBar = null;
         $this->shop        = null;
         $this->with        = [];
@@ -149,11 +150,9 @@ class FetchAction
 
     public function recordError($organisationSource, $e, $modelData, $modelType = null, $errorOn = null): void
     {
-
         if (!$organisationSource) {
             print ">>> $modelType $errorOn\n";
             dd($e->getMessage());
-
         }
 
         $this->number_errors++;
@@ -161,7 +160,6 @@ class FetchAction
         if (!$organisationSource->fetch) {
             print ">>> $modelType $errorOn\n";
             dd($e->getMessage());
-
         }
 
         UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
@@ -177,6 +175,10 @@ class FetchAction
 
     public function recordFetchError($organisationSource, $modelData, $modelType = null, $errorOn = null, $data = []): void
     {
+        if (!$organisationSource->fetch) {
+            return;
+        }
+
         $this->number_errors++;
         UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
         $organisationSource->fetch->records()->create([
@@ -191,6 +193,10 @@ class FetchAction
 
     public function recordChange($organisationSource, $wasChanged): void
     {
+        if (!$organisationSource->fetch) {
+            return;
+        }
+
         if ($wasChanged) {
             $this->number_updates++;
             UpdateFetch::run($organisationSource->fetch, ['number_updates' => $this->number_updates]);
@@ -241,10 +247,17 @@ class FetchAction
 
         if ($command->option('source_id')) {
             $this->handle($this->organisationSource, $command->option('source_id'));
-            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
+
+            if ($this->organisationSource->fetch) {
+                UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
+            }
         } else {
             $numberItems = $this->count() ?? 0;
-            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
+
+            if ($this->organisationSource->fetch) {
+                UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
+            }
+
             if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
                 $info = '✊ '.$command->getName().' '.$organisation->slug;
                 if ($this->shop) {
@@ -261,7 +274,9 @@ class FetchAction
             $this->fetchAll($this->organisationSource, $command);
             $this->progressBar?->finish();
         }
-        UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
+        if ($this->organisationSource->fetch) {
+            UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
+        }
 
         return 0;
     }

@@ -13,6 +13,7 @@ use App\Actions\RetinaAction;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use App\Services\QueryBuilder;
 use Closure;
@@ -25,7 +26,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaStoredItems extends RetinaAction
 {
-    public function handle(FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Pallet $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,11 +43,14 @@ class IndexRetinaStoredItems extends RetinaAction
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == "FulfilmentCustomer") {
                     $query->where('fulfilment_customer_id', $parent->id);
+                } elseif ($parent instanceof Pallet) {
+                    $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id')
+                        ->where('pallet_stored_items.pallet_id', $parent->id);
                 }
             })
             ->allowedSorts(['slug', 'state'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -68,7 +72,7 @@ class IndexRetinaStoredItems extends RetinaAction
                         'description'   => __("No items stored in any pallets")
                     ]
                 )
-                ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');

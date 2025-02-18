@@ -18,11 +18,13 @@ import Tag from '@/Components/Tag.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus, faChevronDown, faTimes, faMinus, faSparkles, faRampLoading } from "@fas"
 import { faTrashAlt, faExclamationTriangle } from "@far"
+import { faAsterisk } from "@fas"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import InputNumber from "primevue/inputnumber"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
+import PureInput from "@/Components/Pure/PureInput.vue"
 
-library.add(faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
+library.add(faAsterisk, faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
 
 const props = defineProps<{
 	storedItemsRoute: {
@@ -33,6 +35,7 @@ const props = defineProps<{
 	form: {}
 	stored_items: {}[]
     title?: string
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
 }>()
 
 const loadingAddStoredItem = ref(false)
@@ -87,6 +90,7 @@ const deleteStoredItems = async (closeModal : boolean) => {
 		props.form.errors = {}
 		props.form.id = null
 		isDeleteStoredItem.value = false
+		newStoredItem.value = null
 		if(closeModal) emits('closeModal')
 		else disabledSelect.value.disabled = false
 	} catch (error: any) {
@@ -128,6 +132,7 @@ const onCancel = () =>{
 }
 
 const onSaved = async () => {
+	onSaveNameForNewStoredItem()
 	let newData = []
 
 	if (props.form.oldData) {
@@ -149,12 +154,36 @@ const onSaved = async () => {
 	emits("onSave", finalData)
 }
 
+// Section: save name for new stored item
+const newStoredItemName = ref('')
+const errorNewStoredItemName = ref('')
+const onSaveNameForNewStoredItem = async () => {
+	if (!newStoredItem.value?.id || !newStoredItemName.value) {
+		return
+	}
+
+	try {
+		const response: any = await axios.patch(
+			route('grp.models.stored-items.update', [newStoredItem.value?.id]),
+			{ name: newStoredItemName.value }
+		)
+	} catch (error: any) {
+		console.log(error)
+		errorNewStoredItemName.value = error?.response?.data?.message
+		
+		notify({
+			title: trans("Something went wrong."),
+			text: error.message ? error.message : trans('Failed to set name for new stored item'),
+			type: "error",
+		})
+	}
+}
 </script>
 
 <template>
 	<div v-if="!messageMode">
 		<div class="text-center font-semibold text-2xl mb-4">
-			{{ title ? title : disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up customer's SKUs") }}
+			{{ title ? title : disabledSelect.edit ? trans("Edit customer's SKUs") : trans("Set up Customer's SKUs") }}
 		</div>
 		<div class="grid grid-cols-3 gap-x-4">
 			<label class="mt-1 block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
@@ -162,7 +191,8 @@ const onSaved = async () => {
 			<div class="mt-1 col-span-2">
 				<SelectQuery ref="_selectQuery"
 					:filterOptions="filterOptionsStoredItems"
-					:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"
+					:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
+					:value="form"
 					:placeholder="'Select or add item'"
 					:required="true"
 					:trackBy="'reference'"
@@ -170,6 +200,7 @@ const onSaved = async () => {
 					:valueProp="'id'"
 					:closeOnSelect="true"
 					:clearOnSearch="false"
+					:prefixQuery
 					:fieldName="'id'"
 					:createOption="false"
 					:onCreate="createStoredItems"
@@ -212,7 +243,7 @@ const onSaved = async () => {
 							<LoadingIcon v-if="isDeleteStoredItem" class="text-red-500 text-sm mr-1" />
 							<font-awesome-icon v-else-if="!disabledSelect.disabled" :icon="['fas', 'chevron-down']"
 								class="text-xs mr-2" />
-							<font-awesome-icon v-else :icon="faTrashAlt" class="text-xs mr-2 text-red-400 hover:text-red-600"
+							<font-awesome-icon v-else :icon="faTrashAlt" class="text-xs mr-2 text-red-300 hover:text-red-600"
 								@click="deleteStoredItems(false)" />
 						</div>
 					</template>
@@ -236,6 +267,27 @@ const onSaved = async () => {
 		</div>
 		<p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-500">
 			{{ form.errors.id }}
+		</p>
+
+		<!-- Section: input Name -->
+		<div v-if="form.id && newStoredItem" class="mt-4 grid grid-cols-3 gap-x-4">
+			<label class="mt-1 text-sm font-medium text-gray-700 inline-flex items-start py-0">
+					<span class="leading-none">{{ trans("Name") }}</span>
+					<FontAwesomeIcon
+						icon="fas fa-asterisk"
+						class="ml-1 font-light text-[8px] text-red-400 mr-1 opacity-75" />
+			</label>
+			
+			<PureInput
+				v-model="newStoredItemName"
+				@update:modelValue="() => errorNewStoredItemName = ''"
+				:class="errorNewStoredItemName ? 'errorShake' : ''"
+				class="col-span-2"
+				:placeholder="trans('Customer\'s SKU name')"
+			/>
+		</div>
+		<p v-if="errorNewStoredItemName" class="mt-2 text-sm text-red-500">
+			{{ errorNewStoredItemName }}
 		</p>
 
 
@@ -284,9 +336,8 @@ const onSaved = async () => {
 					<FontAwesomeIcon icon='fas fa-plus' class='' fixed-width aria-hidden='true' />
 				</div>
 			</div>
-
-
 		</div>
+
 		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
 			{{ form.errors.quantity }}
 		</p>
@@ -302,7 +353,14 @@ const onSaved = async () => {
 
 	<div v-if="!messageMode" class="flex gap-3 mt-5">
 		<Button type="tertiary" :label="trans('Cancel')" @click="onCancel" class="select-none" />
-		<Button full @click="onSaved" type="save" :loading="props.form.processing" :disabled="!(props.form.id || props.form.oldData?.id)" />
+		<Button
+			full
+			@click="onSaved"
+			type="save"
+			:loading="props.form.processing"
+			:disabled="!(props.form.id || props.form.oldData?.id) || (newStoredItem ? !newStoredItemName : false)"
+			v-tooltip="(newStoredItem && !newStoredItemName ? 'Complete name to save' : '')"
+		/>
 	</div>
 
 	<div v-else class="grid grid-cols-2 gap-3">

@@ -39,13 +39,13 @@ class IndexCustomers extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        $this->canCreateShop = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
+        $this->canEdit       = $request->user()->authTo("crm.{$this->shop->id}.edit");
+        $this->canCreateShop = $request->user()->authTo("org-admin.{$this->organisation->id}");
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+        return $request->user()->authTo(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -177,7 +177,7 @@ class IndexCustomers extends OrgAction
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
             ->allowedSorts($allowedSort)
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -297,7 +297,7 @@ class IndexCustomers extends OrgAction
 
         $action = null;
 
-        if (!$scope instanceof Group) {
+        if (!$scope instanceof Group and $this->canEdit) {
             $action = [
                 [
                     'type'    => 'button',

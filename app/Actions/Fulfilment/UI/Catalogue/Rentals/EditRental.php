@@ -28,9 +28,9 @@ class EditRental extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         // dd($this->shop);
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     // public function inOrganisation(Asset $product, ActionRequest $request): Asset
@@ -144,10 +144,8 @@ class EditRental extends OrgAction
                     // Make sure to change the FulfilmentUITest after fixing this
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.org.fulfilment.rentals.update',
+                            'name'       => 'grp.models.rentals.update',
                             'parameters' => [
-                                'organisation' => $rental->organisation_id,
-                                'fulfilment'   => $rental->fulfilment_id,
                                 'rental'       => $rental->id
                             ]
 

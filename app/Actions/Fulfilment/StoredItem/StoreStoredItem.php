@@ -41,6 +41,10 @@ class StoreStoredItem extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
 
+        if ($parent instanceof Pallet) {
+            data_set($modelData, 'fulfilment_customer_id', $parent->fulfilment_customer_id);
+        }
+
         /** @var StoredItem $storedItem */
         $storedItem = $parent->storedItems()->create($modelData);
 
@@ -71,7 +75,7 @@ class StoreStoredItem extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
 
@@ -79,13 +83,14 @@ class StoreStoredItem extends OrgAction
     {
         return [
             'reference'    => ['required', 'max:128',  new AlphaDashDotSpaceSlashParenthesisPlus(),
-             new IUnique(
-                 table: 'stored_items',
-                 extraConditions: [
-                     ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
-                 ]
-             )
-            ]
+                new IUnique(
+                    table: 'stored_items',
+                    extraConditions: [
+                        ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
+                    ]
+                )
+            ],
+            'name'                     => ['sometimes', 'max:250', 'string'],
         ];
     }
 
@@ -134,6 +139,14 @@ class StoreStoredItem extends OrgAction
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
+        $route = $request->all()['referral_route'] ?? null;
+        if ($route) {
+            return Redirect::route(
+                $route['name'],
+                array_merge($route['parameters'], [$storedItem->slug])
+            );
+        }
+
+        return Redirect::back();
     }
 }

@@ -64,7 +64,7 @@ class StoreJobOrder extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
+        return $request->user()->authTo("productions-view.{$this->organisation->id}");
     }
 
 

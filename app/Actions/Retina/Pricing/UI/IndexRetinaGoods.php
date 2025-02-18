@@ -41,7 +41,7 @@ class IndexRetinaGoods extends RetinaAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('products.state', $elements);
                 }
 
             ],
@@ -94,7 +94,7 @@ class IndexRetinaGoods extends RetinaAction
 
         return $queryBuilder->allowedSorts(['id','code','name','price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -102,7 +102,7 @@ class IndexRetinaGoods extends RetinaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
 
@@ -176,7 +176,7 @@ class IndexRetinaGoods extends RetinaAction
             ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
-                ->defaultSort('code');
+            ->defaultSort('code');
         };
     }
 

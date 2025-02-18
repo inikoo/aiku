@@ -45,7 +45,7 @@ const props = defineProps<{
         grant_type: string
     }
 }>()
-console.log(props)
+
 const mergeTags = ref([])
 const comment = ref('')
 const isLoading = ref(false)
@@ -240,7 +240,7 @@ onMounted(()=>{
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other>
-            <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
+         <!--    <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
                 @onPublish="(popover) => onPublish(popover)">
                 <template #button="{ isOpen }">
                     <Button :icon="faClock" class="rounded-r-none" @click="onSchedulePublish" />
@@ -262,7 +262,7 @@ onMounted(()=>{
                         : 'primary'"  :icon="'far fa-rocket-launch'" />
                     <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel"  />
                 </template>
-            </Publish>
+            </Publish> -->
         </template>
         <template #button-toogle="action">
             <div class=" rounded-md px-2 py-1">

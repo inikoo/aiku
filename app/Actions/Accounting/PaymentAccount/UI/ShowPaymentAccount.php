@@ -40,10 +40,10 @@ class ShowPaymentAccount extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
     }
 
     public function inOrganisation(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
@@ -159,6 +159,57 @@ class ShowPaymentAccount extends OrgAction
                 //             prefix: 'payments'
                 //         )
                 //     )),
+                'overview'      => [
+                    'dashboard' => [
+                        // 'interval_options'  => $this->getIntervalOptions(),
+                        // 'settings' => [
+                        //     'db_settings'   => $userSettings,
+                        //     'key_currency'  =>  'grp',
+                        //     'options_currency'  => [
+                        //         [
+                        //             'value' => 'grp',
+                        //             'label' => $group->currency->symbol,
+                        //         ],
+                        //         [
+                        //             'value' => 'org',
+                        //             'label' => $orgCurrenciesSymbol,
+                        //         ]
+                        //     ]
+                        // ],
+                        'table' => [],
+                        'widgets' => [
+                            'column_count'    => 4,
+                            'components' => []
+                        ]
+                    ]
+                ],
+                'stats'      => [
+                    'dashboard' => [
+                        // 'interval_options'  => $this->getIntervalOptions(),
+                        // 'settings' => [
+                        //     'db_settings'   => $userSettings,
+                        //     'key_currency'  =>  'grp',
+                        //     'options_currency'  => [
+                        //         [
+                        //             'value' => 'grp',
+                        //             'label' => $group->currency->symbol,
+                        //         ],
+                        //         [
+                        //             'value' => 'org',
+                        //             'label' => $orgCurrenciesSymbol,
+                        //         ]
+                        //     ]
+                        // ],
+                        'table' => [],
+                        'widgets' => [
+                            'column_count'    => 4,
+                            'components' => []
+                        ]
+                    ]
+                ],
+                // PaymentAccountTabsEnum::OVERVIEW->value  => $this->tab == PaymentAccountTabsEnum::OVERVIEW->value ?
+                //     fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))
+                //     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))),
                 PaymentAccountTabsEnum::HISTORY->value  => $this->tab == PaymentAccountTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($paymentAccount))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentAccount)))

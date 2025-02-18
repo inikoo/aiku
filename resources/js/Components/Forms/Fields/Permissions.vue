@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, Ref, ref, watch } from 'vue'
 import { Collapse } from 'vue-collapsed'
-import CardPermissions from './Components/Permissions/Card.vue'
 import { get, set } from 'lodash'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import { trans } from 'laravel-vue-i18n'
@@ -74,7 +73,7 @@ const groupPositionList = {
         icon: 'fas fa-helmet-battle',
         subDepartment: [
             {
-                slug: "group-admin",
+                slug: "group-admin", // Note, this is not slug is job position code
                 label: trans("Group Administrator"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'group_admin')?.number_employees || 0,
             }
@@ -87,7 +86,7 @@ const groupPositionList = {
         icon: 'fas fa-computer-classic',
         subDepartment: [
             {
-                slug: "sysadmin",
+                slug: "sys-admin", // Note, this is not slug is job position code
                 label: trans("System Administrator"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'system_admin')?.number_employees || 0,
             }
@@ -100,7 +99,7 @@ const groupPositionList = {
         level: 'group_supply_chain',
         subDepartment: [
             {
-                slug: "supply-chain",
+                slug: "gp-sc", // Note, this is not slug is job position code
                 grade: "manager",
                 label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-sc')?.number_employees || 0,
@@ -115,7 +114,7 @@ const groupPositionList = {
         level: 'group_goods',
         subDepartment: [
             {
-                slug: "goods",
+                slug: "gp-g", // Note, this is not slug is job position code
                 grade: "manager",
                 label: trans("Manager"),
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,
@@ -236,7 +235,8 @@ const organisation = [
         slug: 'es'
     },
 ]
-const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
+// const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
+const selectedOrganisation = ref<typeof organisation[number] | null>(null)
 
 const organisationPositionCounts = ref({})
 // watch(props.form, (newValue) => {
@@ -321,10 +321,10 @@ const organisationPositionCounts = ref({})
         <div class="grid max-w-4xl">
             <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
-                    Organisations
+                    {{ trans('Organisations') }}
                 </div>
                 <div>
-                    Access
+                    {{ trans('Access') }}
                 </div>
             </div>
 

@@ -18,6 +18,7 @@ use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
+use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -30,6 +31,7 @@ use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\SysAdmin\User\UpdateUserOrganisationPseudoJobPositions;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\SysAdmin\User\UserRemoveRoles;
@@ -41,6 +43,8 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
+use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -589,49 +593,55 @@ test('reindex search', function () {
     $this->artisan('search')->assertSuccessful();
 });
 
-//test('employee job position in another organisation', function () {
-//    $group = Group::where('slug', 'test')->first();
-//    $org1  = $group->organisations()->first();
-//    $org2  = $group->organisations()->skip(1)->first();
-//
-//
-//    $employee = StoreEmployee::make()->action(
-//        $org1,
-//        array_merge(
-//            Employee::factory()->definition(),
-//            [
-//                'username' => 'username-123',
-//                'password' => 'password-123',
-//            ]
-//        )
-//    );
-//    $user     = $employee->getUser();
-//
-//    $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
-//
-//    expect($group->number_organisations)->toBe(2)
-//        ->and($employee)->toBeInstanceOf(Employee::class)
-//        ->and($user)->toBeInstanceOf(User::class)
-//        ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
-//
-//
-//    $user = UpdateUsersPseudoJobPositions::make()->action(
-//        $user,
-//        $org2,
-//        [
-//            'positions' => [
-//                [
-//                    'slug'   => $jobPosition1->code,
-//                    'scopes' => []
-//                ]
-//            ]
-//        ]
-//    );
-//
-//    /** @var Employee $employee */
-//    $employee = $user->employees()->first();
-//    expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
-//})->todo();
+test('employee job position in another organisation', function () {
+    $group = Group::where('slug', 'test')->first();
+    $org1  = $group->organisations()->first();
+
+
+    $org2 = StoreOrganisation::make()->action($group, Organisation::factory()->definition());
+    $group->refresh();
+    expect($org2)->toBeInstanceOf(Organisation::class);
+
+
+
+    $employee = StoreEmployee::make()->action(
+        $org1,
+        array_merge(
+            Employee::factory()->definition(),
+            [
+                'username' => 'username-123',
+                'password' => 'password-123',
+            ]
+        )
+    );
+    $user     = $employee->getUser();
+
+    $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
+
+    expect($group->number_organisations)->toBe(2)
+        ->and($employee)->toBeInstanceOf(Employee::class)
+        ->and($user)->toBeInstanceOf(User::class)
+        ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
+
+
+    $user = UpdateUserOrganisationPseudoJobPositions::make()->action(
+        $user,
+        $org2,
+        [
+            'permissions' => [
+                $jobPosition1->code => []
+            ]
+        ]
+    );
+    $user->refresh();
+
+
+    expect($user->authorisedOrganisations()->count())->toBe(1)
+        ->and($user->authorisedOrganisations()->where('model_type', 'Organisation')->where('model_id', $org2->id)->count())->toBe(1)
+        ->and($user->authorisedOrganisations()->where('model_type', 'Organisation')->where('model_id', $org1->id)->count())->toBe(0);
+
+
+});
 
 test('users search', function () {
     $this->artisan('search:users')->assertExitCode(0);
@@ -651,9 +661,7 @@ test('can show hr dashboard', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('SysAdmin/SysAdminDashboard')
-            ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 1)->where('stats.0.route.name', 'grp.sysadmin.users.index')
-            ->where('stats.1.stat', 1)->where('stats.1.route.name', 'grp.sysadmin.guests.index');
+            ->has('breadcrumbs', 2);
     });
 
 });

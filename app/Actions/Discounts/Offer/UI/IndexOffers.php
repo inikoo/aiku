@@ -73,7 +73,7 @@ class IndexOffers extends OrgAction
 
         return $query->allowedSorts(['id','code', 'name'])
             ->allowedFilters([$globalSearch, 'code', 'name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -115,11 +115,11 @@ class IndexOffers extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("discounts.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->authTo("discounts.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.view");
+        return $request->user()->authTo("discounts.{$this->shop->id}.view");
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator

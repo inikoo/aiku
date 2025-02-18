@@ -15,6 +15,7 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
@@ -24,8 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -72,20 +73,24 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property string $tax_amount
  * @property string $total_amount
  * @property string $payment_amount
- * @property array|null $data
+ * @property array<array-key, mixed>|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property int|null $invoice_id
+ * @property int|null $recurring_bill_id
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Currency $currency
  * @property-read Address|null $deliveryAddress
  * @property-read mixed $discount_amount
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
  * @property-read TaxCategory $taxCategory
@@ -100,13 +105,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery withoutTrashed()
  * @mixin \Eloquent
  */
-class PalletDelivery extends Model
+class PalletDelivery extends Model implements HasMedia
 {
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasRetinaSearch;
     use InFulfilmentCustomer;
+    use HasAttachments;
 
     protected $guarded = [];
     protected $casts   = [
@@ -179,9 +185,9 @@ class PalletDelivery extends Model
         return $this->belongsTo(TaxCategory::class);
     }
 
-    public function recurringBills(): MorphToMany
+    public function recurringBill(): BelongsTo
     {
-        return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+        return $this->belongsTo(RecurringBill::class);
     }
 
     public function currency(): BelongsTo

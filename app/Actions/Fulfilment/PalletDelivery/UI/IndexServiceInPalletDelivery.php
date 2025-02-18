@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\OrgAction;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -83,6 +82,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'fulfilment_transactions.net_amount',
                 'fulfilment_transactions.historic_asset_id',
                 'services.slug as asset_slug',
+                'services.edit_type as edit_type',
                 'historic_assets.code as code',
                 'historic_assets.name as name',
                 'historic_assets.price as price',
@@ -100,7 +100,7 @@ class IndexServiceInPalletDelivery extends OrgAction
 
         return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -128,11 +128,9 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), type: 'icon', canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
+                ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('code');
-            if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
-                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
-            }
         };
     }
 

@@ -86,7 +86,7 @@ class IndexTimesheets extends OrgAction
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name', 'working_duration', 'breaks_duration'])
             ->allowedFilters([$globalSearch, 'subject_name'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -155,14 +155,14 @@ class IndexTimesheets extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit")
+                $request->user()->authTo("human-resources.{$this->organisation->id}.edit")
             );
     }
 

@@ -12,6 +12,7 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\UI\WithProfile;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -20,6 +21,7 @@ use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -27,17 +29,20 @@ class UpdateWebUser extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithProfile;
 
     private WebUser $webUser;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
+        $webUser = $this->processProfileAvatar($modelData, $webUser);
         if (Arr::exists($modelData, 'password')) {
             data_set($modelData, 'password', Hash::make($modelData['password']));
             data_set($modelData, 'auth_type', WebUserAuthTypeEnum::DEFAULT);
             data_set($modelData, 'data.legacy_password', null);
         }
 
+        data_forget($modelData, 'image');
 
         if ($webUser->is_root) {
             $customerDataToUpdate = [];
@@ -70,9 +75,9 @@ class UpdateWebUser extends OrgAction
         }
 
         if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
-            return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
+            return $request->user()->authTo("fulfilment.{$this->shop->fulfilment->id}.edit");
         } else {
-            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+            return $request->user()->authTo("crm.{$this->shop->id}.edit");
         }
     }
 
@@ -105,6 +110,12 @@ class UpdateWebUser extends OrgAction
                     ]
                 ),
 
+            ],
+            'image'       => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
             ],
             'contact_name' => ['sometimes'],
             'data'       => ['sometimes', 'array'],

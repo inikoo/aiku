@@ -13,7 +13,6 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\SysAdmin\EmployeeHasOtherOrganisationJobPosition;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Task;
@@ -81,14 +80,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
+ * @property-read \App\Models\HumanResources\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read EmployeeHasOtherOrganisationJobPosition|\App\Models\HumanResources\EmployeeHasJobPositions|null $pivot
+ * @property-read \App\Models\HumanResources\EmployeeHasJobPositions|null $pivot
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
- * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $otherOrganisationJobPositions
  * @property-read \App\Models\HumanResources\EmployeeStats|null $stats
  * @property-read Collection<int, Task> $tasks
  * @property-read Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers
@@ -203,13 +202,6 @@ class Employee extends Model implements HasMedia, Auditable
             ->using(EmployeeHasJobPositions::class)->withTimestamps()->withPivot(['share', 'scopes']);
     }
 
-    public function otherOrganisationJobPositions(): BelongsToMany
-    {
-        return $this->belongsToMany(JobPosition::class, 'employee_has_other_organisation_job_positions')
-            ->using(EmployeeHasOtherOrganisationJobPosition::class)->withTimestamps()->withPivot(['share', 'scopes']);
-    }
-
-
     public function getUser(): ?User
     {
         return $this->morphToMany(User::class, 'model', 'user_has_models')->wherePivot('status', true)->withTimestamps()->first();
@@ -253,6 +245,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'assigner');
+    }
+
+    public function getPseudoJobPositions()
+    {
+
     }
 
 

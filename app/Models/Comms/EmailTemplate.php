@@ -34,9 +34,9 @@ use Spatie\Tags\HasTags;
  * @property EmailTemplateStateEnum $state
  * @property bool $is_seeded
  * @property EmailTemplateBuilderEnum $builder
- * @property array $layout
- * @property array $arguments
- * @property array $data
+ * @property array<array-key, mixed> $layout
+ * @property array<array-key, mixed> $arguments
+ * @property array<array-key, mixed> $data
  * @property int|null $screenshot_id
  * @property int $language_id
  * @property \Illuminate\Support\Carbon|null $active_at
@@ -44,6 +44,7 @@ use Spatie\Tags\HasTags;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Comms\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images

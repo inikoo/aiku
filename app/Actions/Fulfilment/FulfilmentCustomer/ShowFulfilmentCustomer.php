@@ -14,8 +14,10 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomerNote;
 use App\Actions\Fulfilment\RentalAgreementClause\UI\IndexRentalAgreementClauses;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
@@ -23,6 +25,7 @@ use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerNoteResource;
 use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -39,19 +42,13 @@ class ShowFulfilmentCustomer extends OrgAction
     use WithWebUserMeta;
     use HasRentalAgreement;
     use WithFulfilmentCustomerSubNavigation;
+    use WithFulfilmentAuthorisation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomer
     {
         return $fulfilmentCustomer;
     }
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
@@ -62,65 +59,83 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-        $additionalActions = [];
-
-
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
         if (!$fulfilmentCustomer->rentalAgreement || $fulfilmentCustomer->rentalAgreement?->clauses()->count() < 1) {
             unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
         }
 
-        if ($fulfilmentCustomer->status == FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT && !$fulfilmentCustomer->rentalAgreement()->exists()) {
-            $additionalActions = [
-                [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => __('Create a Rental Agreement'),
-                    'label'   => __('Rental Agreement'),
-                    'route'   => [
-                        'method'     => 'get',
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
-                        'parameters' => array_values($request->route()->originalParameters())
-                    ]
-                ],
-            ];
-        }
+        $actions = [];
+        if ($this->canEdit) {
+            $additionalActions = [];
 
-        if ($fulfilmentCustomer->rentalAgreement()->exists()) {
-            $additionalActions[] = [
-                'type'          => 'button',
-                'style'         => 'create',
-                'tooltip'       => __('Create a pallet Delivery'),
-                'fullLoading'   => true,
-                'label'         => __('Delivery'),
-                'route'         => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                    'parameters' => [
-                        'fulfilmentCustomer' => $fulfilmentCustomer->id
-                    ]
-                ]
-            ];
-        }
+            if ($fulfilmentCustomer->status == FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT && !$fulfilmentCustomer->rentalAgreement()->exists()) {
+                $additionalActions = [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'create',
+                        'tooltip' => __('Create a Rental Agreement'),
+                        'label'   => __('Rental Agreement'),
+                        'route'   => [
+                            'method'     => 'get',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                            'parameters' => array_values($request->route()->originalParameters())
+                        ]
+                    ],
+                ];
+            }
 
-
-        if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
-            $additionalActions[] =
-                [
-                    'type'          => 'button',
-                    'style'         => 'create',
-                    'tooltip'       => __('Create Return'),
-                    'label'         => __('Return'),
-                    'fullLoading'   => true,
-                    'route'         => [
+            if ($fulfilmentCustomer->rentalAgreement()->exists() && $fulfilmentCustomer->pallets_storage) {
+                $additionalActions[] = [
+                    'type'        => 'button',
+                    'style'       => 'create',
+                    'tooltip'     => __('Create a pallet Delivery'),
+                    'fullLoading' => true,
+                    'label'       => __('Delivery'),
+                    'route'       => [
                         'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                         'parameters' => [
                             'fulfilmentCustomer' => $fulfilmentCustomer->id
                         ]
                     ]
                 ];
+            }
+
+
+            if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
+                $additionalActions[] =
+                    [
+                        'type'        => 'button',
+                        'style'       => 'create',
+                        'tooltip'     => __('Create Return'),
+                        'label'       => __('Return'),
+                        'fullLoading' => true,
+                        'route'       => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                            'parameters' => [
+                                'fulfilmentCustomer' => $fulfilmentCustomer->id
+                            ]
+                        ]
+                    ];
+            }
+
+            $actions = [
+                [
+                    'type'    => 'button',
+                    'style'   => 'edit',
+                    'tooltip' => __('Edit Customer'),
+                    'route'   => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ],
+                [
+                    'type'   => 'buttonGroup',
+                    'button' => $additionalActions
+                ],
+            ];
         }
 
         return Inertia::render(
@@ -143,7 +158,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [
-                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                        'label' => '('.$fulfilmentCustomer->customer->reference.')',
                     ],
                     'edit'          => $this->canEdit ? [
                         'route' => [
@@ -151,27 +166,37 @@ class ShowFulfilmentCustomer extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions'       => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'edit',
-                            'tooltip' => __('Edit Customer'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                        [
-                            'type'   => 'buttonGroup',
-                            'button' => $additionalActions
-                        ],
-                    ]
+                    'actions'       => $actions
                 ],
 
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
+
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.attach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.detach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
+                ],
+
 
                 FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
@@ -181,24 +206,26 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
                     : Inertia::lazy(fn () => RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::AGREED_PRICES->value))),
 
-               /*  FulfilmentCustomerTabsEnum::WEBHOOK->value => $this->tab == FulfilmentCustomerTabsEnum::WEBHOOK->value ?
-                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
-                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)), */
 
                 FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
-                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
-                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
+                FulfilmentCustomerTabsEnum::ATTACHMENTS->value => $this->tab == FulfilmentCustomerTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))),
+                //                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
+                //                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
+                //                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
 
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
-            ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
+            ->table(IndexAttachments::make()->tableStructure(FulfilmentCustomerTabsEnum::ATTACHMENTS->value));
+        ;
+        //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
 

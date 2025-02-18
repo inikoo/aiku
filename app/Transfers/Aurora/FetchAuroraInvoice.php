@@ -12,6 +12,8 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Helpers\Address;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -63,6 +65,45 @@ class FetchAuroraInvoice extends FetchAurora
             $salesChannel = $this->parseSalesChannel($this->organisation->id.':'.$this->auroraModelData->{'Invoice Source Key'});
         }
 
+        $metadata = $this->auroraModelData->{'Invoice Metadata'};
+        if ($metadata) {
+            $metadata = json_decode($metadata, true);
+        } else {
+            $metadata = [];
+        }
+
+        $footer = Arr::get($metadata, 'store_message', '');
+        if (is_null($footer)) {
+            $footer = '';
+        }
+
+        $isVip = $this->auroraModelData->{'Invoice Customer Level Type'} == 'VIP';
+
+        $AsOrganisation = null;
+        if ($this->auroraModelData->{'Invoice Customer Level Type'} == 'Partner') {
+            if (in_array($this->auroraModelData->{'Invoice Customer Name'}, ['Ancient Wisdom Marketing Ltd', 'Ancient Wisdom', 'Ancient Wisdom Marketing Ltd.'])) {
+                $AsOrganisation = Organisation::where('slug', 'aw')->first();
+            } elseif ($this->auroraModelData->{'Invoice Customer Name'} == 'Ancient Wisdom s.r.o.') {
+                $AsOrganisation = Organisation::where('slug', 'sk')->first();
+            } elseif (in_array($this->auroraModelData->{'Invoice Customer Name'}, ['AW Artisan S.L', 'AW Artisan S. L', 'AW-REGALOS SL', 'AW Artisan S.L.'])) {
+                $AsOrganisation = Organisation::where('slug', 'es')->first();
+            } elseif (in_array($this->auroraModelData->{'Invoice Customer Name'}, ['AW Aromatics Ltd','AW Aromatics'])) {
+                $AsOrganisation = Organisation::where('slug', 'aroma')->first();
+            } elseif (in_array($this->auroraModelData->{'Invoice Customer Name'}, ['aw China', 'Yiwu Saikun Import And EXPORT CO., Ltd'])) {
+                $AsOrganisation = Organisation::where('slug', 'china')->first();
+            }
+
+            if (in_array($this->auroraModelData->{'Invoice Customer Key'}, [
+                10362,
+                17032,
+                392469
+            ])) {
+                $isVip = true;
+            }
+        }
+
+
+        $asEmployeeID = null;
 
         $this->parsedData['invoice'] = [
             'reference'        => $this->auroraModelData->{'Invoice Public ID'},
@@ -87,13 +128,18 @@ class FetchAuroraInvoice extends FetchAurora
             'total_amount' => $this->auroraModelData->{'Invoice Total Amount'},
 
 
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
-            'data'            => $data,
-            'billing_address' => new Address($billingAddressData),
-            'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
-            'tax_category_id' => $taxCategory->id,
-            'fetched_at'      => now(),
-            'last_fetched_at' => now()
+            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
+            'data'                => $data,
+            'billing_address'     => new Address($billingAddressData),
+            'currency_id'         => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
+            'tax_category_id'     => $taxCategory->id,
+            'fetched_at'          => now(),
+            'last_fetched_at'     => now(),
+            'footer'              => $footer,
+            'invoice_category_id' => $this->parseInvoiceCategory($this->organisation->id.':'.$this->auroraModelData->{'Invoice Category Key'})?->id,
+            'is_vip'              => $isVip,
+            'as_organisation_id'  => $AsOrganisation?->id,
+            'as_employee_id'      => $asEmployeeID
 
         ];
 
@@ -101,7 +147,6 @@ class FetchAuroraInvoice extends FetchAurora
         if ($salesChannel) {
             $this->parsedData['invoice']['sales_channel_id'] = $salesChannel->id;
         }
-
     }
 
 

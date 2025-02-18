@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 
 import Modal from '@/Components/Utils/Modal.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFile as falFile, faTimes } from '@fal'
 import { faFileDownload, faDownload, faTimesCircle, faCheckCircle } from '@fas'
+import { faEllipsisV } from '@far'
 import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
@@ -21,7 +22,8 @@ import * as XLSX from 'xlsx'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { notify } from '@kyvg/vue3-notification'
 import LoadingIcon from './LoadingIcon.vue'
-library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
+import { set } from 'lodash'
+library.add(falFile, faEllipsisV, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
 const props = defineProps<{
@@ -32,10 +34,20 @@ const props = defineProps<{
     }
     additionalDataToSend?: string[]
     upload_spreadsheet?: Upload
+    preview_template?: {
+        unique_column: {
+            [key: string]: {
+                label: string
+            }
+        }
+        header: string[]
+        rows: {}[]
+    }
 }>()
 
 const model = defineModel()
 
+const selectedEchopersonal = inject('selectedEchopersonal', {})
 
 // const emits = defineEmits();
 
@@ -124,7 +136,8 @@ const submitUpload = async () => {
         csvData.value = []  // Clear the preview table
         
         idRecentUpload.value = aaa.data.id
-        useEchoGrpPersonal().isShowProgress = true
+        // selectedEchopersonal.isShowProgress = true
+        set(selectedEchopersonal, 'isShowProgress', true)
         
 
     } catch (error: any) {
@@ -142,8 +155,8 @@ const clearAll = () => {
 }
 
 const closeModal = () =>{
- /*    useEchoGrpPersonal().isShowProgress = false */
-    useEchoGrpPersonal().isShowProgress = false
+    // selectedEchopersonal.isShowProgress = false
+    set(selectedEchopersonal, 'isShowProgress', false)
     model.value = false
 }
 
@@ -172,7 +185,7 @@ watch(model, async (newVal) => {
 })
 
 // Watch the recently uploaded data, if complete then reload the table
-watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) => upload.id == idRecentUpload.value), (newVal) => {
+watch(() => selectedEchopersonal?.recentlyUploaded?.find((upload: {id: number}) => upload.id == idRecentUpload.value), (newVal) => {
     console.log('newVal', newVal)
 
     if(newVal?.total && (newVal?.done == newVal?.total)) {
@@ -208,22 +221,23 @@ watch(() => useEchoGrpPersonal().recentlyUploaded.find((upload: {id: number}) =>
 
 
 const compHistoryList = computed(() => {
-    return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
+    return [...dataHistoryFileUpload.value, ...selectedEchopersonal.recentlyUploaded]
 })
 
 const isLoadingVisitHistory = ref<string | null>(null)
+
 </script>
 
 <template>
     <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[800px]">
-        <!-- <pre>{{ useEchoGrpPersonal() }}</pre> -->
+        <!-- <pre>{{ selectedEchopersonal }}</pre> -->
         <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-3">
             <div>
                 <!-- Title -->
-                <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
-                    <div>
-                        <div class="flex gap-x-0.5">
-                            {{ title?.label }}
+                <div class="flex justify-center py-2 text-gray-600 mb-3">
+                    <div class="w-full">
+                        <div class="flex gap-x-0.5 justify-center items-center">
+                            <span class="text-lg font-bold">{{ title?.label }}</span>
                             <VTooltip v-if="title?.information" class="w-fit">
                                 <FontAwesomeIcon icon='fad fa-info-circle' size="xs" class='text-gray-500' fixed-width
                                     aria-hidden='true' />
@@ -234,12 +248,44 @@ const isLoadingVisitHistory = ref<string | null>(null)
                                 </template>
                             </VTooltip>
                         </div>
-                        <div class="flex justify-center">
+
+                        <!-- Preview: excel -->
+                        <div v-if="preview_template" class="pb-2 w-full overflow-x-auto">
+                            <table class="mt-2 w-full border border-gray-300">
+                                <thead class="">
+                                    <tr class="bg-gray-200 rounded-t-xl">
+                                        <th v-for="(header, index) in preview_template.header" :key="index"
+                                            class="text-center whitespace-nowrap overflow-ellipsis px-6 font-normal border-r border-gray-300 last:border-0"
+                                        >
+                                            {{ header }}
+                                            <FontAwesomeIcon
+                                                v-if="preview_template?.unique_column && preview_template?.unique_column?.[header]?.label"
+                                                v-tooltip="preview_template?.unique_column[header].label"
+                                                icon='far fa-ellipsis-v'
+                                                class='text-indigo-500'
+                                                fixed-width
+                                                aria-hidden='true'
+                                            />
+                                        </th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody>
+                                    <tr v-for="(row, rowIndex) in preview_template.rows" class="hover:bg-gray-50 border-t first:border-gray-400 border-gray-300 font-semibold">
+                                        <template v-for="(column, columnIndex) in row" key="cellIndex">
+                                            <td class="px-2 border-r border-gray-300 last:border-0">{{ column }}</td>
+                                        </template>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Button: download -->
+                        <div class="flex mt-1" :class="preview_template ? 'justify-end' : 'justify-center'">
                             <a v-if="upload_spreadsheet?.route?.download?.name" :href="route(upload_spreadsheet?.route?.download?.name, upload_spreadsheet?.route?.download?.parameters)"
-                                class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" download>
+                                class="group text-xs text-gray-600 cursor-pointer px-2 -mr-1.5 w-fit" download>
                                 <span class="text-xs text-gray-400 group-hover:text-gray-600">
-                                    <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600'
-                                        aria-hidden='true' />
+                                    <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600' aria-hidden='true' />
                                     {{ upload_spreadsheet?.template?.label || trans(`Download template .xlsx`) }}
                                 </span>
                             </a>
@@ -251,9 +297,9 @@ const isLoadingVisitHistory = ref<string | null>(null)
                 <div class="grid gap-x-3 px-1">
                     <div @drop="(e: any) => (e.preventDefault(), onUploadFile(e.dataTransfer.files[0]))" @dragover.prevent
                         @dragenter.prevent @dragleave.prevent
-                        class="relative max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
+                        class="relative max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 "
                         :class="[
-                            {'hover:bg-gray-400/20': !isLoadingUpload},
+                            {'hover:bg-gray-100': !isLoadingUpload},
                             errorMessage ? 'errorShake' : ''
                         ]">
                         <!-- Section: Upload area -->
@@ -324,7 +370,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
                                                     <th v-if="index != compIndexStoredItemInPreview || isIncludeStoreItems" :key="index"
                                                         class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
                                                         :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
-                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? trans('Correct column') : trans('This column is not match, will not be processed')"
+                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? trans('Correct column') : trans('This column is not match, will not be processed')"
                                                     >
                                                         {{ header }} 
                                                         <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase())" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />

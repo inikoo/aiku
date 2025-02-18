@@ -30,12 +30,12 @@ import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
+import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil ,faFileMinus, faUndoAlt} from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
 import { faCheck } from '@far'
 import { usePage } from '@inertiajs/vue3';
 
-library.add(faCheck, faIdCardAlt, faHandHoldingUsd ,faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
+library.add(faFileMinus, faUndoAlt,faCheck, faIdCardAlt, faHandHoldingUsd ,faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -43,7 +43,8 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 // import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
+import TableInvoiceRefundsTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsTransactions.vue";
+import TableInvoiceRefundsInProcessTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceRefundsInProcessTransactions.vue";
 import { Address } from '@/types/PureComponent/Address'
 import { Icon } from '@/types/Utils/Icon'
 // import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
@@ -57,6 +58,7 @@ import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import { faHandHoldingUsd } from '@fas'
+import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -96,6 +98,7 @@ const props = defineProps<{
     order_summary: FieldOrderSummary[][]
     recurring_bill_route: routeType
     invoice_refund: InvoiceResource
+    items_in_process: {}
     items: {}
     payments: {}
     details: {}
@@ -110,7 +113,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        items: TableInvoiceTransactions,
+        items: TableInvoiceRefundsTransactions,
+        items_in_process: TableInvoiceRefundsInProcessTransactions,
         payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
@@ -199,12 +203,38 @@ watch(paymentData, () => {
     <PageHeading :data="pageHead">
 
         <!-- Button: PDF -->
-        <template #other>
+        <template #otherBefore>
             <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank"
-                class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
+                class="mt-4 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
         </template>
+        
+        <!-- Button: delete Refund -->
+        <template #button-delete-refund="{ action }">
+            <div>
+                <ModalConfirmationDelete
+                    :routeDelete="action.route"
+                    isFullLoading
+                >
+                    <template #default="{ isOpenModal, changeModel, isLoadingdelete }">
+                        <Button
+                            @click="() => changeModel()"
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :loading="isLoadingdelete"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                        />
+
+                    </template>
+                </ModalConfirmationDelete>
+            </div>
+        </template>
+
+
     </PageHeading>
 
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">

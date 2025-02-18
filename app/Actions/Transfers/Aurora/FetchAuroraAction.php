@@ -14,8 +14,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
-use Lorisleiva\Actions\ActionRequest;
 
 class FetchAuroraAction extends FetchAction
 {
@@ -180,26 +178,45 @@ class FetchAuroraAction extends FetchAction
     }
 
 
-    public function rules(): array
+    public function getJobUniqueId(int $organisationID, int $organisationSourceId, array $with): string
     {
-        return [
-            'id' => ['sometimes'],
-        ];
+        return $organisationID.'-'.$organisationSourceId.'-'.implode('-', $with);
     }
-
 
     /**
      * @throws \Exception
      */
-    public function asController(Organisation $organisation, ActionRequest $request): ?Model
+    public function asJob(int $organisationID, int $organisationSourceId, array $with): void
     {
-        $validatedData = $request->validated();
+        $organisation = Organisation::find($organisationID);
+        if (!$organisation) {
+            throw new \Exception('Invalid Organisation ID');
+        }
 
+        $this->with               = $with;
         $this->organisationSource = $this->getOrganisationSource($organisation);
         $this->organisationSource->initialisation($organisation);
 
-        return $this->handle($this->organisationSource, Arr::get($validatedData, 'id'));
+        $this->handle($this->organisationSource, $organisationSourceId);
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function action(int $organisationID, int $organisationSourceId, array $with): ?Model
+    {
+        $organisation = Organisation::find($organisationID);
+        if (!$organisation) {
+            throw new \Exception('Invalid Organisation ID');
+        }
+
+        $this->with               = $with;
+        $this->organisationSource = $this->getOrganisationSource($organisation);
+        $this->organisationSource->initialisation($organisation);
+
+        return $this->handle($this->organisationSource, $organisationSourceId);
+    }
+
 
     public function jsonResponse($model): array
     {

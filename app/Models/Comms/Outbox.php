@@ -48,17 +48,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property OutboxBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property array $sources
+ * @property array<array-key, mixed> $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
  * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
  * @property-read \App\Models\Comms\EmailTemplate|null $emailTemplate
  * @property-read Collection<int, \App\Models\Comms\Email> $emails
  * @property-read Fulfilment|null $fulfilment
+ * @property-read \App\Models\Comms\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Comms\OutboxIntervals|null $intervals
  * @property-read Collection<int, \App\Models\Comms\Mailshot> $mailshots

@@ -9,11 +9,13 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
+use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -30,22 +32,23 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowStoredItem extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
     private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return
                 (
                     $request->user()->tokenCan('root') or
-                    $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                    $request->user()->authTo("human-resources.{$this->organisation->id}.view")
                 );
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-            $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
-            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+            $this->canEdit       = $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            $this->allowLocation = $request->user()->authTo("locations.{$this->warehouse->id}.view");
+            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
         return false;
@@ -75,6 +78,10 @@ class ShowStoredItem extends OrgAction
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
         return Inertia::render(
             'Org/Fulfilment/StoredItem',
             [
@@ -90,17 +97,18 @@ class ShowStoredItem extends OrgAction
                             'icon'  => ['fal', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
-                    'model'  => 'stored item',
+                    'subNavigation' => $subNavigation,
+                    'model'  => __('Customer\'s SKU'),
                     'title'  => $storedItem->slug,
                     'actions' => [
 
 
                         [
                             'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-pencil',
+                            'style'   => 'edit',
+
                             'tooltip' => __('Edit stored items'),
-                            'label'   => __("customer's sKUs"),
+
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -150,12 +158,17 @@ class ShowStoredItem extends OrgAction
                     fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
 
+                StoredItemTabsEnum::MOVEMENTS->value => $this->tab == StoredItemTabsEnum::MOVEMENTS->value ?
+                    fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))
+                    : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem))),
+
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
+            ->table(IndexStoredItemMovements::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
             ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
     }
 
@@ -187,7 +200,7 @@ class ShowStoredItem extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ],
                         'model' => [
                             'route' => [
@@ -206,7 +219,7 @@ class ShowStoredItem extends OrgAction
     public function getBreadcrumbsFromWarehouse(StoredItem $storedItem, $routeName, $suffix = null): array
     {
         return array_merge(
-            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',

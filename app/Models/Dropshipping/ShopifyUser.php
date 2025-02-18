@@ -12,7 +12,7 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
@@ -23,6 +23,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
 use Osiset\ShopifyApp\Traits\ShopModel;
@@ -55,8 +56,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $about
  * @property string|null $password_updated_at
  * @property int|null $theme_support_level
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property bool $reset_password
  * @property int $language_id
  * @property int|null $image_id
@@ -68,13 +69,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\Dropshipping\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, PalletReturn> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
@@ -142,13 +144,13 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'shopify_user_has_products')
+        return $this->morphToMany(Product::class, 'product', 'shopify_user_has_products')
             ->withTimestamps();
     }
 
-    public function orders(): BelongsToMany
+    public function orders(): MorphToMany
     {
-        return $this->belongsToMany(Order::class, 'shopify_user_has_fulfilments')
+        return $this->morphToMany(PalletReturn::class, 'model', 'shopify_user_has_fulfilments', 'model_id', 'model_id')
             ->withTimestamps();
     }
 }

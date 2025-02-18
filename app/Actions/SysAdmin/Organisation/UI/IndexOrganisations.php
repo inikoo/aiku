@@ -74,7 +74,7 @@ class IndexOrganisations extends GrpAction
             ->select(['name', 'slug', 'type','code','number_employees_state_working','number_shops_state_open'])
             ->allowedSorts([ 'name','type','code','number_employees_state_working','number_shops_state_open'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -117,8 +117,8 @@ class IndexOrganisations extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
-        return  $request->user()->hasPermissionTo('sysadmin.view');
+        $this->canEdit = $request->user()->authTo('sysadmin.edit');
+        return  $request->user()->authTo('sysadmin.view');
     }
 
 

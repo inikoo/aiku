@@ -124,7 +124,8 @@ class IndexDeliveryNotes extends OrgAction
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'weight'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withBetweenDates(['date'])
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -138,6 +139,7 @@ class IndexDeliveryNotes extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            $table->betweenDates(['date']);
 
             $noResults = __("No delivery notes found");
             if ($parent instanceof Customer) {
@@ -180,11 +182,11 @@ class IndexDeliveryNotes extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Customer || $this->parent instanceof Shop) {
-            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            return $request->user()->authTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         } else {
-            return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
+            return $request->user()->authTo("dispatching.{$this->warehouse->id}.view");
         }
     }
 

@@ -34,7 +34,6 @@ export const useEchoRetinaPersonal = defineStore("echo-retina-personal", {
              window.Echo.private("retina.personal." + webUserID).listen(
                 ".action-progress",
                 (eventData) => {
-                    // console.log(eventData)
 
                     // Update the state
                     this.$patch({

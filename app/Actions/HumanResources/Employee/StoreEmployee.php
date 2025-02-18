@@ -114,13 +114,13 @@ class StoreEmployee extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->authTo("human-resources.{$this->organisation->id}.edit");
     }
 
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->preparePositionsForValidation();
+        $this->prepareJobPositionsForValidation();
         if (!$this->get('username')) {
             $this->set('username', null);
         }

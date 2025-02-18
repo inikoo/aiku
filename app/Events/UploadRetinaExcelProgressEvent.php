@@ -43,7 +43,7 @@ class UploadRetinaExcelProgressEvent implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
-        return UploadProgressResource::make($this->data)->getArray();
+        return UploadProgressResource::make($this->data, $this->webUser)->getArray();
     }
 
     public function broadcastAs(): string

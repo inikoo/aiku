@@ -75,11 +75,10 @@ class StoreCustomer extends OrgAction
             data_set($modelData, 'reference', GetSerialReference::run(container: $shop, modelType: SerialReferenceModelEnum::CUSTOMER));
         }
 
-
         data_fill(
             $modelData,
             'status',
-            Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only'
+            ((Arr::get($shop->settings, 'registration_type', 'open') == 'approval-only') or ($shop->type === ShopTypeEnum::FULFILMENT))
                 ?
                 CustomerStatusEnum::PENDING_APPROVAL
                 :
@@ -159,7 +158,7 @@ class StoreCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
     private function getCommsBaseValues(): array
@@ -206,9 +205,13 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ],
+            // TODO: Make less
+//            'phone'                    => [
+//                'nullable',
+//                $this->strict ? new Phone() : 'string:32',
+//            ],
             'phone'                    => [
-                'nullable',
-                $this->strict ? new Phone() : 'string:255',
+                'nullable', 'string:32'
             ],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'contact_website'          => ['sometimes', 'nullable', 'active_url'],
@@ -220,6 +223,7 @@ class StoreCustomer extends OrgAction
             'language_id'              => ['nullable', 'exists:languages,id'],
             'data'                     => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'nullable', 'date'],
+            'registered_at'            => ['sometimes', 'nullable', 'date'],
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
@@ -245,6 +249,11 @@ class StoreCustomer extends OrgAction
         ];
 
         if (!$this->strict) {
+
+            $rules['is_vip'] = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
+            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
+
             $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
             $rules['email']           = [
                 'nullable',

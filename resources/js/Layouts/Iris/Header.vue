@@ -62,13 +62,13 @@ provide('onLogout', onLogoutAuth)
         class="hidden md:block" />
 
     <!-- <pre>{{ menu.data }}</pre> -->
- <!--    <component v-if="menu?.code" :is="getIrisComponent(menu?.code)" :navigations="menu.data.fieldValue.navigation"
-        :colorThemed="colorThemed" class="hidden md:block" /> -->
+    <component v-if="menu?.code" :is="getIrisComponent(menu?.code)" :navigations="menu.data.fieldValue.navigation"
+        :colorThemed="colorThemed" class="hidden md:block" />
 
         
     <div class="block md:hidden p-3">
         <div class="flex justify-between items-center">
-            <MobileMenu :header="data.header.data.fieldValue" :menu="menu.data.fieldValue.navigation" />
+            <MobileMenu :header="data.header.data.fieldValue" :menu="menu?.data?.fieldValue?.navigation" />
             <!-- Logo for Mobile -->
             <!-- <pre> {{ data.header.data.fieldValue?.logo.image.source }}</pre>  -->
             <img :src="data.header.data.fieldValue?.logo.image.source.original"

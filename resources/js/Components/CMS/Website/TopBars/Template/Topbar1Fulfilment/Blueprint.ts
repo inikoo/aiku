@@ -8,21 +8,21 @@ export default {
 			},
 			key: ["container", "properties"],
 			replaceForm: [
-                {
-                    key: ["background"],
-                    label: "Background",
-                    type: "background"
-                },
-                {
-                    key: ["text"],
-                    label: "Text",
-                    type: "textProperty"
-                }
-            ]
+				{
+					key: ["background"],
+					label: "Background",
+					type: "background",
+				},
+				{
+					key: ["text"],
+					label: "Text",
+					type: "textProperty",
+				},
+			],
 		},
 		{
 			name: "Title",
-            key : ["main_title"],
+			key: ["main_title"],
 			icon: {
 				icon: "fal fa-text",
 				tooltip: "Text",
@@ -30,91 +30,131 @@ export default {
 			replaceForm: [
 				{
 					key: ["visible"],
-					label :'Visibility',
+					label: "Visibility",
 					type: "VisibleLoggedIn",
 				},
 				{
 					key: ["text"],
-					label :'Text',
+					label: "Text",
 					type: "editorhtml",
 				},
 			],
 		},
 		{
 			name: "Login",
-            key:['login'],
+			key: ["login"],
 			icon: {
 				icon: "fal fa-sign-in-alt",
 				tooltip: "Action",
 			},
 			replaceForm: [
 				{
-					key: ["container",'properties','background'],
-					label :'Background',
+					key: ["container", "properties", "background"],
+					label: "Background",
 					type: "background",
 				},
 				{
-					key: ["container",'properties','text'],
-					label :'Text',
+					key: ["container", "properties", "text"],
+					label: "Text Styles & Fonts",
 					type: "textProperty",
 				},
 				{
-					key: ['text'],
-					label :'Button Text',
+					key: ["text"],
+					label: "Button Text",
 					type: "text",
 				},
 				{
-					key: ["container",'properties','border'],
-					label :'Border',
+					key: ["container", "properties", "border"],
+					label: "Border",
 					type: "border",
 				},
 				{
-					key: ["container",'properties','margin'],
-					label :'Margin',
+					key: ["container", "properties", "margin"],
+					label: "Margin",
 					type: "margin",
 				},
 				{
-					key: ["container",'properties','padding'],
-					label :'Padding',
+					key: ["container", "properties", "padding"],
+					label: "Padding",
 					type: "padding",
 				},
 			],
 		},
 		{
 			name: "Profile",
-            key: ["profile"],
+			key: ["profile"],
 			icon: {
 				icon: "fal fa-user",
 				tooltip: "Profile",
 			},
 			replaceForm: [
 				{
-					key: ['container', 'properties'],
+					key: ["container", "properties"],
 					type: "button",
-					label :'Button',
+					label: "Button",
 				},
 				{
-					key: ['text'],
+					key: ["text"],
 					type: "editorhtml",
-					label :'Text',
+					label: "Text",
 					props_data: {
-						defaultValue: '{{ name }}',
+						defaultValue: "{{ name }}",
 					},
 				},
 			],
 		},
 		{
 			name: "Logout",
-            key:['logout'],
+			key: ["logout"],
 			icon: {
 				icon: "fal fa-sign-out-alt",
 				tooltip: "Action",
 			},
 			replaceForm: [
 				{
-					key: ["container",'properties','text'],
-					label :'Text',
+					key: ["container", "properties", "text"],
+					label: "Text",
 					type: "textProperty",
+				},
+				{
+					key: ["text"],
+					label: "Button Text",
+					type: "text",
+				},
+				{
+					key: ["container", "properties", "border"],
+					label: "Border",
+					type: "border",
+				},
+				{
+					key: ["container", "properties", "margin"],
+					label: "Margin",
+					type: "margin",
+				},
+				{
+					key: ["container", "properties", "padding"],
+					label: "Padding",
+					type: "padding",
+				},
+			],
+		},
+		{
+			name: "Register",
+			key: ["register"],
+			icon: {
+				icon: "fal fa-dot-circle",
+				tooltip: "Action",
+			},
+			replaceForm: [
+				{
+					key: ["container", "properties", "text"],
+					label: "Text",
+					type: "textProperty",
+					props_data: {
+						defaultValue: {
+							color: "rgba(255, 255, 255, 1)",
+						},
+					},
 				},
 				{
 					key: ['text'],
@@ -122,18 +162,18 @@ export default {
 					type: "text",
 				},
 				{
-					key: ["container",'properties','border'],
-					label :'Border',
+					key: ["container", "properties", "border"],
+					label: "Border",
 					type: "border",
 				},
 				{
-					key: ["container",'properties','margin'],
-					label :'Margin',
+					key: ["container", "properties", "margin"],
+					label: "Margin",
 					type: "margin",
 				},
 				{
-					key: ["container",'properties','padding'],
-					label :'Padding',
+					key: ["container", "properties", "padding"],
+					label: "Padding",
 					type: "padding",
 				},
 			],

@@ -57,7 +57,7 @@ class IndexPurgedOrders extends OrgAction
             ])
             ->allowedSorts(['id', 'status', 'purged_at', 'amount', 'number_transactions', 'order_reference'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -94,7 +94,7 @@ class IndexPurgedOrders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        return $request->user()->authTo("orders.{$this->shop->id}.view");
     }
 
 

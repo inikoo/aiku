@@ -54,13 +54,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property numeric $units mirror of asset model
  * @property string|null $unit mirror of asset model
  * @property int $currency_id
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property ProductUnitRelationshipType $unit_relationship_type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property-read Currency $currency
+ * @property-read \App\Models\Catalogue\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets

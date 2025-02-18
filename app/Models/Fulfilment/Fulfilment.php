@@ -37,8 +37,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property string $slug
  * @property int $number_warehouses
- * @property array $data
- * @property array $settings
+ * @property array<array-key, mixed> $data
+ * @property array<array-key, mixed> $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read Shop $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Space> $spaces
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read Shop|null $website
@@ -140,6 +141,11 @@ class Fulfilment extends Model
     public function aikuScopedSections(): MorphToMany
     {
         return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
+
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
     }
 
 

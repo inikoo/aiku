@@ -9,38 +9,36 @@
 
 namespace App\Actions\Retina\CRM;
 
+use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRetinaCustomerDeliveryAddress extends RetinaAction
 {
-    use WithActionUpdate;
-
     public function handle(Customer $customer, array $modelData): Customer
     {
-        if (isset($modelData['delivery_address_id'])) {
-            $customer->delivery_address_id = $modelData['delivery_address_id'];
-            $customer->save();
-        }
-        return $customer;
+        return UpdateCustomerDeliveryAddress::run($customer, $modelData);
+
     }
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'delivery_address_id'         => ['sometimes', 'nullable', 'exists:addresses,id'],
         ];
-
-        return $rules;
     }
 
-    public function fromRetina(Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): Customer
     {
-        $customer = $request->user()->customer;
-
         $this->initialisation($request);
+        return $this->handle($this->customer, $this->validatedData);
+    }
+
+    public function action(Customer $customer, array $modelData): Customer
+    {
+        $this->asAction = true;
+        $this->initialisationFulfilmentActions($customer->fulfilmentCustomer, $modelData);
 
         return $this->handle($customer, $this->validatedData);
     }

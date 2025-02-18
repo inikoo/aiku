@@ -11,6 +11,7 @@ import { capitalize } from '@/Composables/capitalize'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
 import { PalletCustomer, FulfilmentCustomerStats } from '@/types/Pallet'
+import { Link } from "@inertiajs/vue3"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
@@ -25,10 +26,12 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Row from "primevue/row"
+import { routeType } from '@/types/route'
 
 import '@/Composables/Icon/PalletStateEnum'
 import Tag from '@/Components/Tag.vue'
 import { inject } from 'vue'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross)
 
@@ -42,6 +45,12 @@ const props = defineProps<{
         [key: string]: FulfilmentCustomerStats
     }
     discounts: {}
+    route_action: {
+        route: routeType
+        label: string
+        style: string
+        type: string
+    }[]
     currency: {
         code: string
         symbol: string
@@ -77,6 +86,13 @@ const options = {
     }
 }
 
+function routePallet(storageData: any, key: string) {
+    console.log(storageData, key , 'this key');
+    
+    if (storageData[key].route) {
+        return route(storageData[key].route.name)
+    }
+}
 </script>
 
 <template>
@@ -155,10 +171,14 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallets.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallets')">
+                                            <CountUp
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallets.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-400 ">
                                             {{ storageData.pallets.description }}
                                         </span>
@@ -208,10 +228,14 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallet_deliveries.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallet_deliveries')">
+                                            <CountUp 
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallet_deliveries.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-500 ">
                                             {{ storageData.pallet_deliveries.description }}
                                         </span>
@@ -232,16 +256,35 @@ const options = {
                                     class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                     <!-- In Total -->
                                     <div class="flex gap-x-2 items-end">
-                                        <CountUp :endVal="storageData.pallet_returns.count" :duration="1.5"
-                                            :scrollSpyOnce="true" :options="{
-                                            formattingFn: (value: number) => locale.number(value)
-                                        }" />
+                                        <Link :href="routePallet(storageData, 'pallet_returns')">
+                                            <CountUp
+                                            class="primaryLink inline-block"
+                                             :endVal="storageData.pallet_returns.count" :duration="1.5"
+                                                :scrollSpyOnce="true" :options="{
+                                                formattingFn: (value: number) => locale.number(value)
+                                            }" />
+                                        </Link>
                                         <span class="text-sm font-medium leading-4 text-gray-500 ">{{
                                             storageData.pallet_returns.description }}</span>
                                     </div>
                                 </div>
                             </dd>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="route_action" class="mt-4 flex">
+                <div class="w-64 border-gray-300 ">
+                    <div class="p-1" v-for="(btn, index) in route_action" :key="index">
+                    <ButtonWithLink
+                        :label="btn.label"
+                        :bindToLink="{ preserveScroll: true, preserveState: true }"
+                        :type="btn.style"  
+                        full
+                        :routeTarget="btn.route"
+                   
+                    />
                     </div>
                 </div>
             </div>

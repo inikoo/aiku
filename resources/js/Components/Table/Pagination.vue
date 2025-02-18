@@ -143,7 +143,7 @@ const props = withDefaults(defineProps<{
         }
     }
 }>(), {
-    perPageOptions: () => [10, 25, 50, 100, 250],
+    perPageOptions: () => [10, 25, 50, 100, 250, 500, 1000],
     onPerPageChange: () => {}
 })
 

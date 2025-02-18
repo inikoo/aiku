@@ -33,7 +33,7 @@ class ShowProspectQuery extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('crm.view');
+        return $request->user()->authTo('crm.view');
     }
 
     public function handle(Query $query): Query

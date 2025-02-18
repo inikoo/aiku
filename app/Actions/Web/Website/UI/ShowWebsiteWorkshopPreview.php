@@ -9,7 +9,9 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -19,21 +21,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebsiteWorkshopPreview extends OrgAction
 {
-    /**
-     * @var \App\Models\Web\Website
-     */
-    private Website $parent;
+    use HasWebAuthorisation;
 
-    public function authorize(ActionRequest $request): bool
+
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('websites.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('websites.edit');
-
-        return $request->user()->hasPermissionTo("websites.edit");
-    }
-
-    public function asController(Organisation $organisation, Website $website, ActionRequest $request): Website
-    {
+        $this->scope = $shop;
         $this->initialisation($organisation, $request)->withTab(WebsiteWorkshopTabsEnum::values());
 
         return $website;
@@ -41,13 +34,11 @@ class ShowWebsiteWorkshopPreview extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
-        $this->parent = $website;
+        $this->scope = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $website;
     }
-
-
 
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
@@ -96,7 +87,6 @@ class ShowWebsiteWorkshopPreview extends OrgAction
             suffix: '('.__('preview').')'
         );
     }
-
 
 
 }

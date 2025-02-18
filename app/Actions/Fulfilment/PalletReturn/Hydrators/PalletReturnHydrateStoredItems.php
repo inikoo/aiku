@@ -11,9 +11,7 @@ namespace App\Actions\Fulfilment\PalletReturn\Hydrators;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -49,16 +47,7 @@ class PalletReturnHydrateStoredItems extends HydrateModel
                 ->where('stored_items.state', StoredItemStateEnum::DISCONTINUED)->count(),
         ];
 
-        // $stats = array_merge($stats, $this->getEnumStats(
-        //     model: 'stored_items',
-        //     field: 'stored_items.state',
-        //     enum: StoredItemStateEnum::class,
-        //     models: StoredItem::class,
-        //     where: function ($q) use ($palletReturn) {
-        //         $q->join('pallet_return_items', 'stored_items.id', '=', 'pallet_return_items.stored_item_id')
-        //         ->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-        //     }
-        // ));
+
 
         $palletReturn->stats()->update($stats);
     }

@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -36,6 +37,7 @@ class PalletReturnItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $pallet = Pallet::find($this->pallet_id);
         return [
             'id'                               => $this->id,
             'pallet_id'                        => $this->pallet_id,
@@ -58,11 +60,11 @@ class PalletReturnItemsResource extends JsonResource
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
             'is_checked'                       => (bool) $this->pallet_return_id,
-            'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
+            'stored_items'                     => $pallet->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
-            'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
+            'stored_items_quantity' => (int)$pallet->storedItems()->sum('quantity'),
             'syncRoute'             => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.pallet-return-item.update',
@@ -73,18 +75,40 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
+            'attachRoute'             => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-return.pallet.attach',
+                    'parameters' => [
+                        'palletReturn' => null, //add in FE , BE didnt get access to it
+                        'pallet' => $this->pallet_id
+
+                    ]
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet-return.pallet.attach',
+                    'parameters' => [
+                        'palletReturn' => null, //add in FE , BE didnt get access to it
+                        'pallet' => $this->pallet_id
+
+                    ]
+                ]
+            },
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return-item.update',
                     'parameters' => $this->id
                 ],
                 default => [
-                    'name'       => 'grp.models.pallet-return-item.update',
+                    'name'       => 'grp.models.pallet-return-item.set_as_picked',
                     'parameters' => $this->id
                 ]
             },
             'undoPickingRoute' => [
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
+                'parameters' => [$this->id]
+            ],
+            'undoConfirmedRoute' => [
+                'name'       => 'grp.models.pallet-return-item.undo-confirmed',
                 'parameters' => [$this->id]
             ],
             'notPickedRoute' => [
@@ -118,8 +142,8 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => [$this->pallet_return_id, $this->pallet_id]
                 ],
                 default => [
-                    'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->pallet_id]
+                    'name'       => 'grp.models.pallet-return.pallet.detach',
+                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
                 ]
             },
             'notReceivedRoute' => [
@@ -150,6 +174,16 @@ class PalletReturnItemsResource extends JsonResource
                 default => [
                     'name'       => 'grp.models.pallet.stored-items.update',
                     'parameters' => [$this->id]
+                ]
+            },
+            'updatePalletRoute'           => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet.update',
+                    'parameters' => $this->pallet_id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet.update',
+                    'parameters' => $this->pallet_id
                 ]
             },
         ];

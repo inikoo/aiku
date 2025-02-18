@@ -24,7 +24,7 @@ class IndexQuery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('portfolio.banners.view');
+        return $request->user()->authTo('portfolio.banners.view');
     }
 
 
@@ -35,7 +35,7 @@ class IndexQuery extends InertiaAction
         return $queryBuilder
             ->defaultSort('-published_at')
             ->allowedSorts(['published_at', 'published_until'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

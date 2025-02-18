@@ -25,16 +25,22 @@ import findKey from 'lodash-es/findKey'
 import forEach from 'lodash-es/forEach'
 import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
-import { debounce, kebabCase } from 'lodash'
+import { set as setLodash, debounce, kebabCase } from 'lodash'
 import CountUp from 'vue-countup-v3'
 import { useFormatTime } from '@/Composables/useFormatTime'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck, faSquare} from '@fal'
+import { faCheckSquare as fasCheckSquare} from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCheckSquare, faCheck, faSquare)
+import axios from 'axios'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+import TableBetweenFilter from '@/Components/Table/TableBetweenFilter.vue'
+import TableRadioFilter from './TableRadioFilter.vue'
+library.add(faCheckSquare, faCheck, faSquare, fasCheckSquare)
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', layoutStructure)
 
 const props = defineProps(
     {
@@ -157,6 +163,7 @@ const props = defineProps(
 const emits = defineEmits<{
     (e: 'onSelectRow', value: {[key: string]: boolean}): void
     (e: 'onCheked', value: {[key: string]: boolean}, checked : {[key: string]: boolean}): void
+    (e: 'onChecked', value: {}): void
 }>()
 
 const app = getCurrentInstance();
@@ -346,7 +353,7 @@ function changeSearchInputValue(key, value) {
 
 const changeGlobalSearchValue = debounce((value?: string) => {
     changeSearchInputValue('global', value);
-}, 1000)
+}, 400)
 
 // function changeFilterValue(key, value) {
 //     const intKey = findDataKey('filters', key);
@@ -360,6 +367,21 @@ function onPerPageChange(value) {
     queryBuilderData.value.cursor = null
     queryBuilderData.value.perPage = value
     queryBuilderData.value.page = 1
+
+    // axios.patch(
+    //     route("grp.models.user.update", layout.user?.id),
+    //     {
+    //         settings: {
+    //             records_per_page: value,
+    //         },
+    //     }
+    // )
+    // .then((response) => {
+    //     console.log('success');
+    // })
+    // .catch((error) => {
+    //     console.error('Error:', error);
+    // });
 }
 
 function findDataKey(dataKey, key) {
@@ -430,6 +452,7 @@ function dataForNewQueryString() {
     const perPage = queryBuilderData.value.perPage;
     const elementFilter = queryBuilderData.value.elementFilter
     const period = queryBuilderData.value.periodFilter
+    const radioFilter = queryBuilderData.value.radioFilter
 
 
     if (cursor) {
@@ -453,6 +476,9 @@ function dataForNewQueryString() {
     if (period) {
         queryData.period = period // period[type]=year&period[date]=2024
     }
+    if (radioFilter) {
+        queryData.radioFilter = radioFilter // radioFilter=selected
+    }
 
     return queryData;
 }
@@ -462,7 +488,7 @@ function generateNewQueryString() {
     const queryStringData = qs.parse(location.search.substring(1))
     const prefix = props.name === 'default' ? '' : props.name + '_'
 
-    // To exclude filter, columns, cursor, and sort that received from the URL
+    // To exclude 'filter', 'columns', 'cursor', and 'sort' that received from the URL
     forEach(['filter', 'columns', 'cursor', 'sort'], (key) => {
         delete queryStringData[prefix + key];
     });
@@ -592,14 +618,16 @@ function sortBy(column) {
 function show(key) {
     const intKey = findDataKey('columns', key);
 
-    return !queryBuilderData.value.columns[intKey].hidden;
+    return !queryBuilderData?.value?.columns?.[intKey]?.hidden;
 }
 
 function header(key) {
     const intKey = findDataKey('columns', key);
     const columnData = clone(queryBuilderProps.value.columns[intKey]);
 
-    columnData.onSort = sortBy;
+    if (columnData) {
+        columnData.onSort = sortBy;
+    }
 
     return columnData;
 }
@@ -630,10 +658,12 @@ const onClickSelectAll = (state: boolean) => {
     }
 }
 
-const onSelectCheckbox = (item : Any) => {
+const onSelectCheckbox = async (item : Any) => {
     emits('onCheked', item , !selectRow[item[props.checkboxKey]])
-    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
-   
+    // selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+    item.is_checked = !item.is_checked
+    emits('onChecked', item)
+
 }
 
 watch(selectRow, () => {
@@ -657,24 +687,26 @@ const isLoading = ref<string | boolean>(false)
             v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
-                    <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
-                    <div> <!-- div to replace in case v-if empty  -->
-                        <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
-                            as="div"
-                            :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
-                            :method="queryBuilderProps.emptyState?.action?.route?.method"
-                            class="mt-4 block"
-                            @start="() => isLoading = 'loadingEmptyState'"
-                            @finish="() => isLoading = false"
-                        >
-                            <Button
-                                :style="queryBuilderProps.emptyState?.action.style"
-                                :icon="queryBuilderProps.emptyState?.action.icon"
-                                :label="queryBuilderProps.emptyState?.action.tooltip"
-                                :loading="isLoading === 'loadingEmptyState'"
-                            />
-                        </Link>
-                    </div>
+                    <slot name="button-empty-state" :action="queryBuilderProps.emptyState?.action">
+                        <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
+                        <div> <!-- div to replace in case v-if empty  -->
+                            <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length"
+                                as="div"
+                                :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
+                                :method="queryBuilderProps.emptyState?.action?.route?.method"
+                                class="mt-4 block"
+                                @start="() => isLoading = 'loadingEmptyState'"
+                                @finish="() => isLoading = false"
+                            >
+                                <Button
+                                    :style="queryBuilderProps.emptyState?.action.style"
+                                    :icon="queryBuilderProps.emptyState?.action.icon"
+                                    :label="queryBuilderProps.emptyState?.action.tooltip"
+                                    :loading="isLoading === 'loadingEmptyState'"
+                                />
+                            </Link>
+                        </div>
+                    </slot>
                 </template>
             </EmptyState>
 
@@ -699,9 +731,9 @@ const isLoading = ref<string | boolean>(false)
                                             formattingFn: (number) => locale.number(number)
                                         }" />
                                     </span>
-                                    
+
                                     <span class="font-light">
-                                        {{ 
+                                        {{
                                             compResourceMeta.total > 1
                                             ? queryBuilderProps.labelRecord?.[1] || queryBuilderProps.labelRecord?.[0] || trans('records')
                                             : queryBuilderProps.labelRecord?.[0] || trans('record')
@@ -780,6 +812,14 @@ const isLoading = ref<string | boolean>(false)
                             </slot>
                         </div> -->
 
+                        <!-- Filter: date between -->
+                        <div v-if="queryBuilderProps?.betweenDates?.length" class="w-fit flex gap-x-2">
+                            <TableBetweenFilter
+                                :optionsList="queryBuilderProps?.betweenDates"
+                                :tableName="props.name"
+                            />
+                        </div>
+
                         <!-- Filter: Period -->
                         <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">
                         <!-- <pre>{{ queryBuilderProps?.period_filter }}</pre> -->
@@ -790,12 +830,23 @@ const isLoading = ref<string | boolean>(false)
                             />
                         </div>
 
-                        <!-- Filter: Element -->
+                        <!-- Filter: Checkbox element -->
                         <div v-if="Object.keys(queryBuilderProps?.elementGroups || [])?.length" class="w-fit">
                             <TableElements
                                 :elements="queryBuilderProps.elementGroups"
                                 @checkboxChanged="(data) => queryBuilderData.elementFilter = data"
                                 :tableName="props.name" />
+                        </div>
+
+                        <!-- Filter: Radio element -->
+                        <div v-if="queryBuilderProps.radioFilter" class="w-fit">
+                            <TableRadioFilter
+                                :value="queryBuilderProps.radioFilter.radio?.value"
+                                :options="queryBuilderProps.radioFilter?.radio?.options"
+                                @onSelectRadio="(value: string) => setLodash(queryBuilderData, ['radioFilter'], value)"
+                                :tableName="props.name"
+                                :isVisiting
+                            />
                         </div>
 
 
@@ -851,7 +902,7 @@ const isLoading = ref<string | boolean>(false)
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
-                                    <div v-if="isCheckBox"
+                                    <!-- <div v-if="isCheckBox"
                                         @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
                                         class="py-1.5 cursor-pointer">
                                         <FontAwesomeIcon
@@ -860,7 +911,7 @@ const isLoading = ref<string | boolean>(false)
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
                                             fixed-width aria-hidden='true' />
-                                    </div>
+                                    </div> -->
 
                                     <slot v-for="column in queryBuilderProps.columns" :name="`header(${column.key})`" :header="column">
                                         <HeaderCell
@@ -873,23 +924,32 @@ const isLoading = ref<string | boolean>(false)
 
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <slot name="body" :show="show">
-                                    <template v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`">
-                                        <tr class="" :class="[{
-                                            'bg-gray-50': striped && key % 2,
-                                        },
-                                        striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
-                                        ]">
+                                    <template v-for="(item, key) in compResourceData"
+                                        :key="`table-${name}-row-${key}-${item[checkboxKey]}-${item.id}-${item.slug}`"
+                                    >
+                                        <tr class=""
+                                            :class="[
+                                                {
+                                                    'bg-gray-50': striped && key % 2,
+                                                },
+                                                selectRow[item[checkboxKey]] || item.is_checked
+                                                    ? 'bg-green-100/70'
+                                                    : striped ? 'bg-gray-200 hover:bg-gray-300' : 'hover:bg-gray-50'
+                                            ]"
+                                        >
                                             <!-- Column: Check box -->
-                                            <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
+                                            <td v-if="isCheckBox" key="checkbox" class="">
+                                                <!--
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
-                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]] === true"
-                                                    @click="onSelectCheckbox(item)"
-                                                    icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
+                                                -->
+                                                <FontAwesomeIcon v-show="item.is_checked || selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
+                                                    icon='fas fa-check-square' class='text-green-500 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
-                                                <FontAwesomeIcon v-else
-                                                    @click="onSelectCheckbox(item)"
-                                                    icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
+                                                <FontAwesomeIcon v-show="!item.is_checked && !selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
+                                                    icon='fal fa-square' class='text-gray-400 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
                                             </td>
 
@@ -993,7 +1053,7 @@ const isLoading = ref<string | boolean>(false)
                             </tbody>
                         </table>
                     </slot>
-                    
+
                     <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
                         :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">

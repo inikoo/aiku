@@ -54,6 +54,7 @@ class MoveStoredItem extends OrgAction
                 ]
             ]);
             StoredItemRecordSearch::dispatch($storedItem);
+            // TODO: Fix this action and call store stored item movement here (in and out)
         }
     }
 
@@ -64,7 +65,7 @@ class MoveStoredItem extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array

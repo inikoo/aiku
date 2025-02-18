@@ -9,12 +9,46 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue";
 import { capitalize } from "@/Composables/capitalize"
+import {library} from '@fortawesome/fontawesome-svg-core';
+import Tabs from '@/Components/Navigation/Tabs.vue'
+import { computed, ref } from 'vue'
+import {
+  faFileMinus,
+  faHandHoldingUsd
+} from "@fal";
+import { useTabChange } from '@/Composables/tab-change'
+import { PageHeading as TSPageHeading } from "@/types/PageHeading";
+import TableRefunds from '@/Components/Tables/Grp/Org/Accounting/TableRefunds.vue'
+
+library.add(faFileMinus, faHandHoldingUsd);
 
 const props = defineProps<{
-  pageHead: object
+  pageHead: TSPageHeading
   data: object
   title: string
+  tabs?: {
+    current: string;
+    navigation: object;
+  }
+  invoices?: object
+  refunds?: object
 }>()
+
+
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref();
+let component = ref();
+
+if (props.tabs) {
+  currentTab = ref(props.tabs.current);
+  component = computed(() => {
+      const components = {
+        invoices: TableInvoices,
+        refunds: TableRefunds,
+      };
+      return components[currentTab.value];
+  });
+}
 
 
 </script>
@@ -22,6 +56,12 @@ const props = defineProps<{
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableInvoices :data="data" />
+    <template v-if="props.tabs">
+        <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+        <component :is="component" :data="props[currentTab]" :resource="props[currentTab]" :tab="currentTab" :name="currentTab"></component>
+    </template>
+    <template v-else>
+        <TableInvoices :data="data" />
+    </template>
 </template>
 

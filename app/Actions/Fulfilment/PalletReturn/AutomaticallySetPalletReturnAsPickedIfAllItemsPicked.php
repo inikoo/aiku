@@ -17,10 +17,10 @@ class AutomaticallySetPalletReturnAsPickedIfAllItemsPicked extends HydrateModel
 {
     use WithActionUpdate;
 
-    public function handle(PalletReturn $palletReturn): void
+    public function handle(PalletReturn $palletReturn): PalletReturn
     {
-        if ($palletReturn->state != PalletReturnItemStateEnum::PICKING) {
-            return;
+        if ($palletReturn->state == PalletReturnItemStateEnum::PICKING) {
+            return $palletReturn;
         }
 
         $palletCount = $palletReturn->pallets()->count();
@@ -29,9 +29,10 @@ class AutomaticallySetPalletReturnAsPickedIfAllItemsPicked extends HydrateModel
             ->wherePivot('state', PalletReturnItemStateEnum::PICKED)->count();
         $palletNotPickedCount = $palletReturn->pallets()
             ->wherePivot('state', PalletReturnItemStateEnum::NOT_PICKED)->count();
-
         if (($palletPickedCount + $palletNotPickedCount) == $palletCount) {
-            PickedPalletReturn::run($palletReturn);
+            $palletReturn = SetPalletReturnAsPicked::run($palletReturn);
         }
+
+        return $palletReturn;
     }
 }

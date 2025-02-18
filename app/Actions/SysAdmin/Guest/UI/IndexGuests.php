@@ -91,7 +91,7 @@ class IndexGuests extends GrpAction
             ->select(['guests.id', 'guests.slug', 'guests.code', 'guests.contact_name', 'guests.email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedSorts(['code', 'contact_name', 'email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -148,19 +148,19 @@ class IndexGuests extends GrpAction
     public function htmlResponse(LengthAwarePaginator $guests, ActionRequest $request): Response
     {
         $subNavigation = $this->getGuestsNavigation($this->group, $request);
-        $title = __('Active guests');
+        $title = __('Active');
         $icon  = [
             'icon'  => ['fal', 'fa-user-alien'],
-            'title' => __('active guests')
+            'title' => __('Active')
         ];
         if ($this->scope == 'inactive') {
-            $title = __('Inactive guests');
+            $title = __('Inactive');
             $icon  = [
                 'icon'  => ['fal', 'fa-user-slash'],
                 'title' => __('inactive guests')
             ];
         } elseif ($this->scope == 'all') {
-            $title = __('Guests');
+            $title = __('All');
             $icon  = [
                 'icon'  => ['fal', 'fa-users'],
                 'title' => __('all guests')
@@ -173,6 +173,7 @@ class IndexGuests extends GrpAction
                 'title'       => __('guests'),
                 'pageHead'    => [
                     'title'         => $title,
+                    'model'         => __('guests'),
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
                     'actions' => [

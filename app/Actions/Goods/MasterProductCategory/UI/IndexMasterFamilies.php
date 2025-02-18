@@ -73,7 +73,7 @@ class IndexMasterFamilies extends GrpAction
             ->where('master_product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

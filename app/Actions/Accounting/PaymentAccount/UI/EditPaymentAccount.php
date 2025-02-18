@@ -28,9 +28,9 @@ class EditPaymentAccount extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->authTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount

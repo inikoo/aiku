@@ -20,7 +20,9 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -38,17 +40,19 @@ class ConfirmPalletReturn extends OrgAction
         $modelData['confirmed_at'] = now();
         $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
 
-        foreach ($palletReturn->pallets as $pallet) {
-            UpdatePallet::run($pallet, [
-                'state'  => PalletStateEnum::REQUEST_RETURN_CONFIRMED,
-                'status' => PalletStatusEnum::RETURNING
-            ]);
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            foreach ($palletReturn->pallets as $pallet) {
+                UpdatePallet::run($pallet, [
+                    'state'  => PalletStateEnum::REQUEST_RETURN_CONFIRMED,
+                    'status' => PalletStatusEnum::RETURNING
+                ]);
 
-            $palletReturn->pallets()->syncWithoutDetaching([
-                $pallet->id => [
-                    'state' => PalletStateEnum::REQUEST_RETURN_CONFIRMED
-                ]
-            ]);
+                $palletReturn->pallets()->syncWithoutDetaching([
+                    $pallet->id => [
+                        'state' => PalletReturnItemStateEnum::CONFIRMED
+                    ]
+                ]);
+            }
         }
 
         $palletReturn = $this->update($palletReturn, $modelData);
@@ -69,7 +73,7 @@ class ConfirmPalletReturn extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource

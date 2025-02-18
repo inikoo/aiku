@@ -8,44 +8,58 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFulfilmentTransaction extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(FulfilmentTransaction $palletDeliveryTransaction, array $modelData): FulfilmentTransaction
+
+    public function handle(FulfilmentTransaction $fulfilmentTransaction, array $modelData, bool $isRecurringBillTransactionUpdated = false): FulfilmentTransaction
     {
-        $palletDeliveryTransaction =  $this->update($palletDeliveryTransaction, $modelData, ['data']);
+        if (Arr::exists($modelData, 'net_amount')) {
+            $netAmount = Arr::get($modelData, 'net_amount');
+            $quantity = $netAmount / $fulfilmentTransaction->asset->price;
+            data_set($modelData, 'quantity', $quantity);
+        } else {
+            $fulfilmentTransaction->refresh();
+            $netAmount = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
+        }
 
-        $palletDeliveryTransaction->refresh();
+        $fulfilmentTransaction = $this->update($fulfilmentTransaction, $modelData, ['data']);
 
-        $netAmount = $palletDeliveryTransaction->asset->price * $palletDeliveryTransaction->quantity;
+        if ($fulfilmentTransaction->recurringBillTransaction && !$isRecurringBillTransactionUpdated) {
+            UpdateRecurringBillTransaction::make()->action($fulfilmentTransaction->recurringBillTransaction, $modelData, true);
+        }
 
         $this->update(
-            $palletDeliveryTransaction,
+            $fulfilmentTransaction,
             [
-            'net_amount'              => $netAmount,
-            'gross_amount'            => $netAmount,
-            'grp_net_amount'          => $netAmount * $palletDeliveryTransaction->grp_exchange,
-            'org_net_amount'          => $netAmount * $palletDeliveryTransaction->org_exchange
-        ]
+                'net_amount'     => $netAmount,
+                'gross_amount'   => $netAmount,
+                'grp_net_amount' => $netAmount * $fulfilmentTransaction->grp_exchange,
+                'org_net_amount' => $netAmount * $fulfilmentTransaction->org_exchange
+            ]
         );
 
-        $palletDeliveryTransaction->refresh();
+        $fulfilmentTransaction->refresh();
 
-        SetClausesInFulfilmentTransaction::run($palletDeliveryTransaction);
+        if (!Arr::exists($modelData, 'net_amount')) {
+            SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
+        }
 
-        return $palletDeliveryTransaction;
+        return $fulfilmentTransaction;
     }
-
     public function rules(): array
     {
         return [
-            'quantity' => ['required', 'numeric', 'min:0'],
+            'quantity' => ['sometimes', 'numeric', 'min:0'],
+            'net_amount' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
@@ -63,13 +77,12 @@ class UpdateFulfilmentTransaction extends OrgAction
         $this->handle($fulfilmentTransaction, $this->validatedData);
     }
 
-    public function action(FulfilmentTransaction $palletDeliveryTransaction, array $modelData): FulfilmentTransaction
+    public function action(FulfilmentTransaction $palletDeliveryTransaction, array $modelData, bool $isRecurringBillTransactionUpdated = false): FulfilmentTransaction
     {
 
         $this->asAction       = true;
         $this->initialisationFromFulfilment($palletDeliveryTransaction->fulfilment, $modelData);
 
-        return $this->handle($palletDeliveryTransaction, $this->validatedData);
+        return $this->handle($palletDeliveryTransaction, $this->validatedData, $isRecurringBillTransactionUpdated);
     }
-
 }

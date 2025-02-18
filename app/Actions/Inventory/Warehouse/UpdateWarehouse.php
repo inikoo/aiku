@@ -54,7 +54,7 @@ class UpdateWarehouse extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        return $request->user()->authTo("inventory.{$this->warehouse->id}.edit");
     }
 
     public function rules(): array

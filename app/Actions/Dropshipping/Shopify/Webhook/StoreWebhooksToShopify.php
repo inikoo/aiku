@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Route;
@@ -54,17 +55,24 @@ class StoreWebhooksToShopify extends OrgAction
             ];
         }
 
-        foreach ($webhooks as $webhook) {
-            $webhook = $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/webhooks.json', $webhook);
+        DB::transaction(function () use ($webhooks, $shopifyUser) {
+            DeleteWebhooksFromShopify::run($shopifyUser);
 
-            if (!$webhook['errors'] && is_array($webhook['body']['webhook'])) {
-                $this->update($shopifyUser, [
-                    'settings' => [
-                        'webhooks' => array_merge($shopifyUser->settings, $webhook['body']['webhook'])
-                    ]
-                ]);
+            $webhooksData = [];
+            foreach ($webhooks as $webhook) {
+                $webhook = $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/webhooks.json', $webhook);
+
+                if (!$webhook['errors'] && is_array($webhook['body']['webhook']['container'])) {
+                    $webhooksData[] = $webhook['body']['webhook']['container'];
+                }
             }
-        }
+
+            $this->update($shopifyUser, [
+                'settings' => [
+                    'webhooks' => $webhooksData
+                ]
+            ]);
+        });
     }
 
     public function asController(ShopifyUser $shopifyUser)
@@ -74,7 +82,7 @@ class StoreWebhooksToShopify extends OrgAction
 
     public function asCommand(Command $command)
     {
-        $shopifyUser = ShopifyUser::where('name', $command->argument('shopify'))->first();
+        $shopifyUser = ShopifyUser::where('name', $command->argument('shopify'))->firstOrFail();
 
         $this->handle($shopifyUser);
     }

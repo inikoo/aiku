@@ -21,10 +21,17 @@ class ShowRetinaRegister
 
     public function handle(ActionRequest $request): Response
     {
+        $fulfilment = $request->website->shop->fulfilment;
         return Inertia::render(
             'Auth/Register',
             [
-            'countriesAddressData' => GetAddressData::run()
+            'countriesAddressData' => GetAddressData::run(),
+            'registerRoute' => [
+                'name' => 'retina.register.store',
+                'parameters' => [
+                    'fulfilment' => $fulfilment->id
+                ]
+            ]
         ]
         );
     }

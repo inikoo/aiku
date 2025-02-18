@@ -26,6 +26,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailAddresses;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmailsBulkRuns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFulfilmentCustomers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoiceIntervals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterShops;
@@ -65,6 +66,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePurchaseOrders;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePurges;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRedirects;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSpaces;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockDeliveries;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
@@ -167,6 +169,8 @@ class HydrateGroup extends HydrateModel
         GroupHydrateStoredItemAudits::run($group);
         GroupHydrateStoredItems::run($group);
         GroupHydrateRecurringBills::run($group);
+        GroupHydrateSpaces::run($group);
+        GroupHydrateFulfilmentCustomers::run($group);
 
         GroupHydrateTopUps::run($group);
         GroupHydrateCreditTransactions::run($group);

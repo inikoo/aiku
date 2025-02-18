@@ -35,12 +35,13 @@ class UpdateOutbox extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("mail.edit");
+        return $request->user()->authTo("mail.edit");
     }
 
     public function rules(): array
     {
         return [
+            'fulfilment_id' => ['sometimes', 'required', 'integer'],
             'state'    => ['sometimes', 'required', Rule::Enum(OutboxStateEnum::class)],
             'model_id' => ['sometimes', 'required', 'integer'],
             'name'     => [

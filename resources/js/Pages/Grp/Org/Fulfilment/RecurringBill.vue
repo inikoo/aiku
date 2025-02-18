@@ -5,7 +5,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, defineAsyncComponent, inject, ref } from 'vue'
 import type { Component } from 'vue'
 import Popover from '@/Components/Popover.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
@@ -35,6 +35,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faWaveSine } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
+import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue"
+import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 library.add(faWaveSine)
 
 
@@ -45,6 +48,8 @@ const props = defineProps<{
     // showcase: {}
     // pallets: {}
     transactions: {}
+    pallet_deliveries: {}
+    pallet_returns: {}
     status_rb: string
     updateRoute: routeType
     timeline_rb: {
@@ -55,7 +60,6 @@ const props = defineProps<{
     consolidateRoute: routeType
     history: {}
     currency:{}
-
     service_lists?: [],
     service_list_route: routeType
 
@@ -63,7 +67,8 @@ const props = defineProps<{
     physical_good_list_route: routeType
 
 }>()
-console.log(props)
+
+const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -72,6 +77,8 @@ const component = computed(() => {
     const components: Component = {
         transactions: RecurringBillTransactions,
         history: TableHistories,
+        pallet_deliveries: TablePalletDeliveries,
+        pallet_returns: TablePalletReturns,
         // pallets: TablePallets
     }
 
@@ -168,6 +175,7 @@ const isLoading = ref(false)
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- Button: Add service -->
         <template #button-add-service="{ action }">
             <div class="relative">
                 <Popover>
@@ -190,7 +198,15 @@ const isLoading = ref(false)
                                     :placeholder="trans('Select Services')"
                                     valueProp="id"
                                     @optionsList="(options) => dataServiceList = options"
-                                />
+                                >
+                                    <template #singlelabel="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                    </template>
+                                </PureMultiselectInfiniteScroll>
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
@@ -217,7 +233,7 @@ const isLoading = ref(false)
                                     full
                                 />
                             </div>
-                            
+
                             <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
@@ -306,7 +322,7 @@ const isLoading = ref(false)
                         <FontAwesomeIcon icon='far fa-wave-sine' class='' fixed-width aria-hidden='true' />
                     </div>
                     <div v-if="status_rb === 'current'" class="flex gap-x-1 text-xs italic text-green-700/70">
-                        <div>End date is</div>
+                        <div>Today is invoice day</div>
                         <div>
                             <Transition name="spin-to-down">
                                 <span :key="timeline_rb.end_date">{{ useDaysLeftFromToday(timeline_rb.end_date) }}</span>
@@ -314,9 +330,10 @@ const isLoading = ref(false)
                         </div>
                     </div>
                 </div>
-                
+
+<!--                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""-->
                 <component
-                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
+                    v-if="timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
                     :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
                     @start="() => isLoading = true"
@@ -326,7 +343,7 @@ const isLoading = ref(false)
                     <Button label="Consolidate now" :loading="isLoading" />
                 </component>
             </div>
-            
+
             <div class="sm:pl-6 pr-0">
                 <StartEndDate
                     :startDate="timeline_rb.start_date"
@@ -337,11 +354,11 @@ const isLoading = ref(false)
             </div>
 
         </div>
-        
+
     </div>
 
     <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"  :status="status_rb" />
 </template>

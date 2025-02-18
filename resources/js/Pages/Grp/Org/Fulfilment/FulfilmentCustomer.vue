@@ -21,6 +21,7 @@ import TableHistoryNotes from '@/Components/Tables/Grp/Org/Fulfilment/TableHisto
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 
 import { Action } from '@/types/Action'
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
 
 import { trans } from 'laravel-vue-i18n'
 import {
@@ -37,7 +38,8 @@ import {
     faShare,
     faTruckLoading,
     faFileInvoice,
-    faExclamationTriangle, faUsdCircle
+    faExclamationTriangle, faUsdCircle,
+    faParking
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
@@ -45,7 +47,10 @@ import type { Navigation } from "@/types/Tabs";
 import Modal from "@/Components/Utils/Modal.vue"
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { routeType } from '@/types/route'
+import TableAttachments from '@/Components/Tables/Grp/Helpers/TableAttachments.vue'
+library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle, faParking)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -60,7 +65,15 @@ const props = defineProps<{
     agreed_prices?: {}
     note:{},
     history:{},
-    attachments:{}
+    attachments: {}
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -73,7 +86,7 @@ const component = computed(() => {
         agreed_prices: TableRentalAgreementClauses,
         history : TableHistories,
         note:TableHistoryNotes,
-        attachments : TableRentalAgreementClauses,
+        attachments : TableAttachments,
         webhook:TableRentalAgreementClauses,
     }
 
@@ -131,16 +144,43 @@ onUnmounted(() => {
     window.Echo.private(`grp.${layout.group?.id}.fulfilmentCustomer.${layout.user.id}`).stopListening('.PalletDelivery')
 })
 
+const isModalUploadFileOpen = ref(false)
 
 </script>
 
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </PageHeading>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :tab="currentTab"
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/4">
         <div class="text-center">
@@ -151,6 +191,18 @@ onUnmounted(() => {
             </div>
         </div>
     </Modal>
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
+    />
 
 </template>
 

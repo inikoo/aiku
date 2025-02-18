@@ -50,7 +50,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property numeric $amount
  * @property numeric $grp_amount
  * @property numeric $org_amount
- * @property array $data
+ * @property array<array-key, mixed> $data
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at
  * @property string|null $cancelled_at
@@ -64,6 +64,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Customer $customer
+ * @property-read \App\Models\Accounting\TFactory|null $use_factory
  * @property-read Group $group
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider $orgPaymentServiceProvider
  * @property-read Organisation $organisation

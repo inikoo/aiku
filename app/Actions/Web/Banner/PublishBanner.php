@@ -107,7 +107,7 @@ class PublishBanner extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("portfolio.banners.edit");
+        return $request->user()->authTo("portfolio.banners.edit");
     }
 
     public function rules(): array

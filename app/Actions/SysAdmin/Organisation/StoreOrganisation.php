@@ -12,6 +12,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedOrganisationOutboxes;
@@ -184,6 +185,7 @@ class StoreOrganisation extends GrpAction
             );
 
             SeedAikuScopedSections::make()->seedOrganisationAikuScopedSection($organisation);
+            GroupHydrateOrganisations::dispatch($group);
 
             return $organisation;
         });

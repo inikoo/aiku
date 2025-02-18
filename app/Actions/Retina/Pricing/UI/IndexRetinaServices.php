@@ -42,7 +42,7 @@ class IndexRetinaServices extends RetinaAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('services.state', $elements);
                 }
 
             ],
@@ -101,7 +101,7 @@ class IndexRetinaServices extends RetinaAction
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -109,7 +109,7 @@ class IndexRetinaServices extends RetinaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
 

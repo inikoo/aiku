@@ -12,15 +12,13 @@ use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
-use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
-use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -49,10 +47,10 @@ class ShowOutbox extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Fulfilment) {
-            return    $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return    $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
-        return $request->user()->hasAnyPermission([
+        return $request->user()->authTo([
             'shop-admin.'.$this->shop->id,
             'marketing.'.$this->shop->id.'.view',
             'web.'.$this->shop->id.'.view',
@@ -98,69 +96,14 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
-        $navigation = OutboxTabsEnum::navigation();
-        if (!$outbox->model_type != 'Mailshot') {
-            unset($navigation[OutboxTabsEnum::MAILSHOTS->value]);
-        }
-
-        if ($outbox->state == OutboxStateEnum::IN_PROCESS) {
-
-            if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION) {
-                dd('Error this should be set up already in the seeder');
-            }
-
-            return Inertia::render(
-                'Comms/Outbox',
-                [
-                    'title'       => __('Set up your outbox'),
-                    'breadcrumbs' => $this->getBreadcrumbs(
-                        $request->route()->getName(),
-                        $request->route()->originalParameters()
-                    ),
-                    'pageHead'    => [
-                        'title'   => $outbox->name,
-                        'icon'    =>
-                            [
-                                'icon'  => ['fal', 'fa-inbox-out'],
-                                'title' => __('outbox')
-                            ],
-
-                    ],
-                    'tabs'        => [
-                        'current'    => $this->tab,
-                        'navigation' => $navigation
-                    ],
-
-
-                    OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
-                        fn () => GetOutboxShowcase::run($outbox)
-                        : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
-
-                        OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
-                    fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
-                    : Inertia::lazy(fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))),
-
-
-                ]
-            )->table(IndexEmailBulkRuns::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::EMAIL_BULK_RUNS->value));
-
-
-        }
-
-
-
-
-        $this->canEdit = true;
-        // $actions       = $this->workshopActions($request);
         $actions = [];
-
-        if ($outbox->type === OutboxTypeEnum::CUSTOMER_NOTIFICATION && $outbox->builder !== EmailBuilderEnum::BLADE->value && $outbox->model_type === class_basename(EmailOngoingRun::class)) {
+        if ($outbox->builder !== OutboxBuilderEnum::BLADE) {
             $actions = [
                 [
                     'type'  => 'button',
                     'style' => 'secondary',
                     'label' => __('workshop'),
-                    'icon'  => ["fal", "fa-drafting-compass"],
+                    'icon'  => 'fal fa-drafting-compass',
                     'route' => [
                         'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
                         'parameters' => array_values($request->route()->originalParameters())
@@ -168,21 +111,27 @@ class ShowOutbox extends OrgAction
                 ]
             ];
         }
-        // dd($actions);
+
+        $navigation = OutboxTabsEnum::navigation();
+        if (!$outbox->model_type != 'Mailshot') {
+            unset($navigation[OutboxTabsEnum::MAILSHOTS->value]);
+        }
+
+        if ($outbox->state == OutboxStateEnum::IN_PROCESS) {
+            unset($navigation[OutboxTabsEnum::EMAIL_BULK_RUNS->value]);
+        }
+
         return Inertia::render(
             'Comms/Outbox',
             [
-                'title'       => __('outbox'),
+                'title'       => __('Set up your outbox'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($outbox, $request),
-                    'next'     => $this->getNext($outbox, $request),
-                ],
                 'pageHead'    => [
                     'title'   => $outbox->name,
+                    'model'   => __('Outbox'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-inbox-out'],
@@ -192,7 +141,7 @@ class ShowOutbox extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => OutboxTabsEnum::navigation()
+                    'navigation' => $navigation
                 ],
 
 
@@ -204,17 +153,16 @@ class ShowOutbox extends OrgAction
                     fn () => MailshotResource::collection(IndexMailshots::run($outbox))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($outbox))),
 
-                OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
-                    fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
-                    : Inertia::lazy(fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))),
-
+                    OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
+                fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
+                : Inertia::lazy(fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))),
 
 
             ]
         )->table(IndexEmailBulkRuns::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::EMAIL_BULK_RUNS->value))
-        ->table(IndexMailshots::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::MAILSHOTS->value));
-    }
+            ->table(IndexMailshots::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::MAILSHOTS->value));
 
+    }
 
     public function jsonResponse(Outbox $outbox): OutboxesResource
     {

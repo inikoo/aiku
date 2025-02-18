@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateStoredItems;
 use App\Actions\OrgAction;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -75,6 +76,7 @@ class StoreStoredItemsToReturn extends OrgAction
         $palletReturn->refresh();
 
         PalletReturnHydratePallets::run($palletReturn);
+        PalletReturnHydrateStoredItems::run($palletReturn);
 
         return $palletReturn;
     }
@@ -113,7 +115,7 @@ class StoreStoredItemsToReturn extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array

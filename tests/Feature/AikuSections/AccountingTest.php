@@ -26,11 +26,12 @@ use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
 use App\Actions\Accounting\TopUp\UpdateTopUp;
 use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
-use App\Actions\Catalogue\Shop\StoreShop;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
@@ -43,8 +44,8 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
 use App\Models\Analytics\AikuScopedSection;
-use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Testing\AssertableInertia;
@@ -442,7 +443,10 @@ test('delete credit transaction', function (CreditTransaction $creditTransaction
 test('store invoice category', function () {
     $invoiceCategory = StoreInvoiceCategory::make()->action($this->group, [
         'name'  => 'Test Inv Cate',
-        'state' => InvoiceCategoryStateEnum::ACTIVE
+        'state' => InvoiceCategoryStateEnum::ACTIVE,
+        'type'  => InvoiceCategoryTypeEnum::IS_ORGANISATION,
+        'currency_id' => $this->organisation->currency_id,
+        'priority' => 1
     ]);
 
     $invoiceCategory->refresh();
@@ -816,7 +820,7 @@ test('UI show list payments', function () {
 });
 
 test('UI show list invoices', function () {
-    $response = get(route('grp.org.accounting.invoices.all_invoices.index', $this->organisation->slug));
+    $response = get(route('grp.org.accounting.invoices.index', $this->organisation->slug));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -836,7 +840,7 @@ test('UI show list invoices', function () {
 });
 
 test('UI show invoice', function () {
-
+    $this->withoutExceptionHandling();
     $shop = StoreShop::run(
         $this->organisation,
         Shop::factory()->definition()

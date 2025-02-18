@@ -94,7 +94,7 @@ class IndexDispatchedEmails extends OrgAction
             })
             ->allowedSorts(['dispatched_emails.state', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -121,13 +121,13 @@ class IndexDispatchedEmails extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
-        $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
+        $this->canEdit = $request->user()->authTo('mail.edit');
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('mail.view')
+                $request->user()->authTo('mail.view')
             );
     }
 

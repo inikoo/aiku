@@ -61,13 +61,28 @@ const form = useForm(
 const isLoading = ref(false)
 const handleFormSubmit = async () => {
     if (!props.formData.submitButton) {
-        form.post(route(
-            props.formData.route.name,
-            props.formData.route.parameters
-        ), {
-            onStart: () => isLoading.value = true,
-            onError: () => isLoading.value = false
-        })
+        if (props.formData?.route?.body) {
+            form
+            .transform((data) => ({
+                ...data,
+                ...props.formData.route.body
+            }))
+            .post(route(
+                props.formData.route.name,
+                props.formData.route.parameters
+            ), {
+                onStart: () => isLoading.value = true,
+                onError: () => isLoading.value = false
+            })
+        } else {
+            form.post(route(
+                props.formData.route.name,
+                props.formData.route.parameters
+            ), {
+                onStart: () => isLoading.value = true,
+                onError: () => isLoading.value = false
+            })
+        }
     } else {
         form.post(route(
             ButtonActive.value.name,
@@ -238,13 +253,13 @@ const onSelectSubmitChange = (value) => {
                                 <dl v-if="!fieldData.hidden" class="mt-1 pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
                                     :class="fieldData.full ? '' : 'max-w-3xl'">
                                     <!-- Title of Field -->
-                                    <dt class="text-sm font-medium text-gray-500 capitalize">
+                                    <dt class="text-sm font-medium text-gray-500" :class="fieldData.label_no_capitalize ? '' : 'capitalize'">
                                         <div class="inline-flex items-start leading-none">
                                             <span>{{ fieldData.label }}</span>
                                             <!-- Icon: Required -->
                                             <FontAwesomeIcon v-if="fieldData.required"
                                                 :icon="['fas', 'asterisk']"
-                                                class="font-light text-[12px] text-red-400 mr-1" />
+                                                class="ml-1 font-light text-[8px] text-red-400 mr-1 opacity-75" />
                                         </div>
                                     </dt>
                                     

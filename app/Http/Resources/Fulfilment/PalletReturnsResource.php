@@ -16,9 +16,10 @@ class PalletReturnsResource extends JsonResource
     {
         /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
         $palletReturn = $this;
-
+        // dd($palletReturn);
         return [
             'id'                    => $palletReturn->id,
+            'created_at'            => $palletReturn->created_at,
             'slug'                  => $palletReturn->slug,
             'reference'             => $palletReturn->reference,
             'state'                 => $palletReturn->state,
@@ -28,10 +29,13 @@ class PalletReturnsResource extends JsonResource
             'type_label'            => $palletReturn->type->labels()[$palletReturn->type->value],
             'type_icon'             => $palletReturn->type->stateIcon()[$palletReturn->type->value],
             'customer_reference'    => $palletReturn->customer_reference,
-            'number_pallets'        => $palletReturn->number_pallets,
+            'number_pallets'        => $palletReturn->stats->number_pallets,
             'number_services'       => $palletReturn->stats->number_services,
             'number_physical_goods' => $palletReturn->stats->number_physical_goods,
-            'dispatched_date'       => $palletReturn->dispatched_at
+            'dispatched_at'         => $palletReturn->dispatched_at,
+            'total_amount'          => $palletReturn->total_amount,
+            'currency_code'         => $palletReturn->currency->code,
+            'customer'              => $palletReturn->fulfilmentCustomer->customer,
         ];
     }
 }

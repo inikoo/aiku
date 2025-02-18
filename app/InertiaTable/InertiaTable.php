@@ -13,16 +13,18 @@ class InertiaTable
 {
     private string $name          = 'default';
     private string $pageName      = 'page';
-    private array $perPageOptions = [10, 25, 50, 100, 250];
+    private array $perPageOptions = [10, 25, 50, 100, 250, 500, 1000];
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
     private Collection $elementGroups;
+    private Collection $radioFilter;
     private array $periodFilters;
     private Collection $filters;
     private string $defaultSort = '';
 
     private array $title = [];
+    private array $betweenDates = [];
 
     private Collection $emptyState;
     private Collection $modelOperations;
@@ -41,6 +43,7 @@ class InertiaTable
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
         $this->elementGroups   = new Collection();
+        $this->radioFilter     = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
         $this->exportLinks     = new Collection();
@@ -101,6 +104,12 @@ class InertiaTable
         return $this;
     }
 
+    public function betweenDates(array $betweenDates): self
+    {
+        $this->betweenDates = $betweenDates;
+
+        return $this;
+    }
 
     public function perPageOptions(array $perPageOptions): self
     {
@@ -141,13 +150,15 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
+            'radioFilter'                     => $this->transformRadioFilter(),
             'period_filter'                   => $this->transformPeriodFilters(),
             'modelOperations'                 => $this->modelOperations,
             'exportLinks'                     => $this->exportLinks,
             'emptyState'                      => $this->emptyState,
             'labelRecord'                     => $this->labelRecord,
             'title'                           => $this->title,
-            'footerRows'                      => $this->footerRows
+            'footerRows'                      => $this->footerRows,
+            'betweenDates'                    => $this->betweenDates,
         ];
     }
 
@@ -213,6 +224,21 @@ class InertiaTable
         });
     }
 
+    protected function transformRadioFilter(): Collection
+    {
+        $radioFilter = $this->radioFilter;
+        $queryElements = $this->query('radioFilter', '');
+
+        if (empty($queryElements)) {
+            return $radioFilter;
+        }
+
+        return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
+            $elementRadioGroup->value = $queryElements;
+
+            return $elementRadioGroup;
+        });
+    }
 
     protected function transformSearchInputs(): Collection
     {
@@ -231,6 +257,19 @@ class InertiaTable
         });
     }
 
+    public function radioFilterGroup(string $key, array $elements, string $default): self
+    {
+        $this->radioFilter->put(
+            $key,
+            new RadioFilterGroup(
+                key: $key,
+                options: $elements,
+                value: $default
+            )
+        );
+
+        return $this;
+    }
 
     public function elementGroup(string $key, array|string $label, array $elements): self
     {

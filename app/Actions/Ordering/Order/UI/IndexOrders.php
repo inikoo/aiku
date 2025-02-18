@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
+use App\Actions\Ordering\Order\WithOrdersSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -41,7 +42,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOrders extends OrgAction
 {
     use WithCustomerSubNavigation;
-    // use WithOrderSubNavigation;
+    use WithOrdersSubNavigation;
 
     private Group|Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent;
     private string $bucket;
@@ -183,8 +184,9 @@ class IndexOrders extends OrgAction
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->allowedSorts(['reference', 'date'])
+            ->withBetweenDates(['date'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
@@ -214,6 +216,7 @@ class IndexOrders extends OrgAction
                 $stats = $parent->orderingStats;
             }
 
+            $table->betweenDates(['date']);
 
             $table
                 ->withGlobalSearch()
@@ -253,17 +256,17 @@ class IndexOrders extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
+            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.view");
 
-            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
+            return $request->user()->authTo(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         }
         if ($this->parent instanceof Group) {
-            return $request->user()->hasPermissionTo("group-overview");
+            return $request->user()->authTo("group-overview");
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        $this->canEdit = $request->user()->authTo("orders.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        return $request->user()->authTo(["orders.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
     }
 
     public function jsonResponse(LengthAwarePaginator $orders): AnonymousResourceCollection
@@ -286,6 +289,8 @@ class IndexOrders extends OrgAction
             } else {
                 $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getOrdersNavigation($this->parent);
         }
         $title      = __('Orders');
         $model      = '';

@@ -18,7 +18,7 @@ import { inject, reactive, ref, onBeforeMount } from 'vue'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Popover from '@/Components/Popover.vue'
-import { isNull } from 'lodash'
+import { debounce, isNull } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -28,6 +28,8 @@ import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification";
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
+import axios from "axios"
 
 const layout = inject('layout', layoutStructure)
 
@@ -38,6 +40,7 @@ const props = defineProps<{
     tab?: string
     state?: string
     route_checkmark : routeType
+    palletReturn: {}
 }>()
 
 console.log(props)
@@ -92,7 +95,7 @@ const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNo
     })
 }
 
-const SetSelected = () => {
+const SetSelected = debounce(() => {
     const finalValue: Record<string, { quantity: number }> = [];
 
     for(const key in selectedRow.value){
@@ -117,7 +120,7 @@ const SetSelected = () => {
             },
         }
     );
-};
+}, 500);
 
 const onChangeCheked = (value) => {
     selectedRow.value = value;
@@ -135,23 +138,142 @@ const setUpChecked = () => {
     }
 };
 
+const debounceReloadBoxStats = debounce(() => {
+    router.reload({
+        only: ['box_stats'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
+    })
+}, 500)
+
+const onCheckTable = async (item: {}) => {
+    if (item.is_checked) {
+        try {
+            if(!item.attachRoute?.name) {
+                throw new Error('Attach route is not defined')
+            }
+            axios.post(
+                route(item.attachRoute.name, {
+                    ...item.attachRoute.parameters,
+                    palletReturn: props.palletReturn.id
+                }),
+                {},
+            )
+
+            debounceReloadBoxStats()
+        } catch (error) {
+            notify({
+                title: 'Something went wrong',
+                text: 'Failed to select the data',
+                type: 'error',
+            })
+            
+        }
+        
+    } else {
+        try {
+            if(!item.deleteFromReturnRoute?.name) {
+                throw new Error('Delete route is not defined')
+            }
+            axios.delete(
+                route(item.deleteFromReturnRoute.name, item.deleteFromReturnRoute.parameters)   
+            )
+
+            debounceReloadBoxStats()
+        } catch (error) {
+            notify({
+                title: 'Something went wrong',
+                text: 'Failed to select the data',
+                type: 'error',
+            })
+            
+        }
+    }
+    
+}
+
+const onSaved = async (pallet: { form: {} }, fieldName: string) => {
+	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
+		pallet.form.processing = true
+		try {
+			await axios.patch(route(pallet.updatePalletRoute.name, pallet.updatePalletRoute.parameters), {
+				[fieldName]: pallet.form.data()[fieldName],
+			})
+			onSavedSuccess(pallet, fieldName)
+
+		} catch (error: any) {
+			onSavedError(error, pallet, fieldName)
+		}
+
+		setTimeout(() => {
+			pallet.form.wasSuccessful = false
+		}, 3000)
+	}
+}
+
+
+const onSavedSuccess = (pallet: { form: {} }, fieldName: string) => {
+	pallet.form.processing = false
+	pallet.form.wasSuccessful = true
+	pallet.form.hasErrors = false
+	pallet.form.clearErrors()
+	pallet[fieldName] = pallet.form.data()[fieldName]
+}
+
+const onSavedError = (error: {}, pallet: { form: {} }) => {
+	pallet.form.processing = false
+	pallet.form.wasSuccessful = false
+	pallet.form.hasErrors = true
+	if (error.response && error.response.data && error.response.data.errors) {
+		const errors = error.response.data.errors
+		const setErrors = {}
+		for (const er in errors) {
+			setErrors[er] = errors[er][0]
+		}
+		pallet.form.setError(setErrors)
+	} else {
+		if (error.response.data.message)
+			notify({
+				title: "Failed to update",
+				text: error.response.data.message,
+				type: "error",
+			})
+	}
+}
 
 onBeforeMount(() => {
     setUpChecked();
 });
 
+// Generate link to pallet
+const generateLinkPallet = (pallet: {}) => {
+    if (!pallet.slug) {
+        return null
+    }
 
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                {
+                    organisation: route().params['organisation'],
+                    fulfilment: route().params['fulfilment'],
+                    fulfilmentCustomer: route().params['fulfilmentCustomer'],
+                    pallet: pallet.slug,
+                });
+        default:
+            null
+    }
+}
 </script>
 
 <template>
-    <!-- <pre>{{data}}</pre> -->
+    <!-- <pre>{{ data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in_process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
+        @onSelectRow="onChangeCheked" checkboxKey='pallet_id'
+        @onChecked="(item) => onCheckTable(item)"
     >
 
         <!-- Column: Type Icon -->
 		<template #cell(type_icon)="{ item: palletDelivery }">
-
             <div class="space-x-1 space-y-1">
                 <!-- Icon: Type -->
                 <div v-if="layout.app.name == 'retina'" class="px-3">
@@ -167,19 +289,16 @@ onBeforeMount(() => {
 
 		</template>
 
-        <!-- Column: Pallet Reference -->
 
-		<template #cell(customer_reference)="{ item }">
-        
-			<div class="space-x-1 space-y-2">
-				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
-				<span v-if="item.notes" class="text-gray-400 text-xs">
-					<FontAwesomeIcon v-tooltip="trans('note')" icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
-					{{ item.notes }}
-				</span>
-                <span v-else class="text-gray-400 text-xs">-</span>
-			</div>
-		</template>
+        <!-- Column: Rental -->
+        <template #cell(reference)="{ item }">
+            <Link v-if="generateLinkPallet(item)" :href="generateLinkPallet(item)" class="primaryLink">
+                {{ item.reference }}
+            </Link>
+            <div v-else>
+                {{ item.reference || '-' }}
+            </div>
+        </template>
 
         <!-- Column: Rental -->
         <template #cell(rental)="{ item }">

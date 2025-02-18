@@ -57,7 +57,7 @@ class IndexPolls extends OrgAction
 
         return $queryBuilder
             ->allowedSorts(['name', 'type'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

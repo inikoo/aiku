@@ -28,8 +28,8 @@ class IndexAgents extends GrpAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
-        return $request->user()->hasPermissionTo('supply-chain.view');
+        $this->canEdit = $request->user()->authTo('supply-chain.edit');
+        return $request->user()->authTo('supply-chain.view');
     }
 
     protected function getElementGroups(Group $group): array
@@ -91,7 +91,7 @@ class IndexAgents extends GrpAction
             ->select(['organisations.code', 'agents.name', 'agents.slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
-            ->withPaginator($prefix)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 

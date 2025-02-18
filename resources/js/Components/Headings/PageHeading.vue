@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet, faMoneyBillWave } from "@fal"
+import { faMapSigns, faPallet, faTruckCouch, faFilePdf, faUpload, faWarehouse, faEmptySet, faMoneyBillWave } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
@@ -23,7 +23,7 @@ import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faReceipt, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
+library.add(faTruckCouch, faUpload, faFilePdf, faMapSigns, faNarwhal, faReceipt, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
 
 const props = defineProps<{
     data: PageHeadingTypes
@@ -143,8 +143,8 @@ const layout = inject('layout', layoutStructure)
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup' && action.button?.length"
                             :name="`button-group-${action.key}`" :action="action">
-                            <div class="rounded-md flex" :class="[
-                                (action.button?.length || 0) > 1 ? 'shadow' : '',
+                            <div class="rounded-md flex flex-wrap justify-end gap-y-1" :class="[
+                                (action.button?.length || 0) > 1 ? '' : '',
                             ]" :style="{
                                 // border: `1px solid ${action?.button?.length > 1 ? layout?.app?.theme[4] + '88' : 'transparent'}`
                             }">

@@ -16,6 +16,7 @@ use App\Http\Resources\Catalogue\ShopResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
@@ -31,7 +32,7 @@ class EditUser extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("sysadmin.view");
+        return $request->user()->authTo("sysadmin.view");
     }
 
     public function asController(User $user, ActionRequest $request): User
@@ -44,8 +45,6 @@ class EditUser extends OrgAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-
-
 
         $jobPositionsOrganisationsData = [];
         foreach ($this->group->organisations as $organisation) {
@@ -77,6 +76,10 @@ class EditUser extends OrgAction
         })->toArray();
 
         $organisationList = OrganisationsResource::collection($organisations);
+
+        /** @var Employee $employee */
+        $employee = $user->employees()->first();
+
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),
@@ -144,17 +147,25 @@ class EditUser extends OrgAction
                                 "current_organisation"  => $user->getOrganisation(),
                                 'updatePseudoJobPositionsRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.permissions.update",
+                                    "name"       => "grp.models.user.group_permissions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                     ]
                                 ],
                                 'updateJobPositionsRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.organisation.permissions.update",
+                                    "name"       => "grp.models.user.organisation_pseudo_job_positions.update",
                                     'parameters' => [
                                         'user' => $user->id,
                                         'organisation' => null // fill in the organisation id in the frontend
+                                    ]
+                                ],
+                                'updateEmployeeJobPositionsRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.employee.update",
+                                    //todo support case user has employed in 2 organisations
+                                    'parameters' => [
+                                        'employee' => $employee ? $employee->id : null
                                     ]
                                 ],
 

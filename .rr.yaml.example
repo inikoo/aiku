@@ -1,0 +1,18 @@
+version: '3'
+http:
+  address: 127.0.0.1:8000
+  pool:
+    num_workers: 2
+    allocate_timeout: 60s
+    destroy_timeout: 1s
+    dynamic_allocator:
+      max_workers: 25
+      spawn_rate: 10
+      idle_timeout: 10s
+rpc:
+  listen: 'tcp://127.0.0.1:6001'
+metrics:
+  address: '127.0.0.1:2112'
+logs:
+  mode: development
+  level: debug

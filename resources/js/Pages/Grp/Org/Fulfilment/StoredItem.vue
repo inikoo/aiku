@@ -18,9 +18,10 @@ import { routeType } from '@/types/route'
 import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFragile, faNarwhal } from '@fal'
+import { faFragile, faNarwhal, faExchange, faYinYang } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faFragile, faNarwhal)
+import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
+library.add(faFragile, faNarwhal, faExchange, faYinYang)
 
 
 const props = defineProps<{
@@ -31,6 +32,7 @@ const props = defineProps<{
     }
     pallets?: {}
     showcase?: {}
+    movements?: {}
     history?: {}
     pageHead: {}
     palletRoute: {
@@ -49,7 +51,8 @@ const component = computed(() => {
     const components = {
         showcase: StoredItemShowcase,
         pallets: TablePalletStoredItem,
-        history: TableHistories
+        history: TableHistories,
+        movements: StockItemsMovements
     }
     return components[currentTab.value]
 

@@ -10,6 +10,8 @@ namespace App\Http;
 
 use App\Http\Middleware\AddSentryBrowserProfilingHeader;
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\CorneaAuthenticate;
+use App\Http\Middleware\HandleCorneaInertiaRequests;
 use App\Http\Middleware\HandlePupilInertiaRequests;
 use App\Http\Middleware\RetinaPreparingAccount;
 use App\Http\Middleware\SameSiteSession;
@@ -53,12 +55,19 @@ use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Inspector\Laravel\Middleware\InspectorOctaneMiddleware;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 class Kernel extends HttpKernel
 {
+    public function __construct(\Illuminate\Contracts\Foundation\Application $app, \Illuminate\Routing\Router $router)
+    {
+        parent::__construct($app, $router);
+
+    }
+
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
         TrustProxies::class,
@@ -82,6 +91,7 @@ class Kernel extends HttpKernel
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
+            InspectorOctaneMiddleware::class
         ],
 
         'han' => [
@@ -89,12 +99,14 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             SetHanAsAppScope::class,
             SubstituteBindings::class,
+            InspectorOctaneMiddleware::class
         ],
 
         'maya' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
+            InspectorOctaneMiddleware::class
         ],
 
         'api' => [
@@ -114,8 +126,8 @@ class Kernel extends HttpKernel
             LogUserRequestMiddleware::class,
             HandleInertiaGrpRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            InspectorOctaneMiddleware::class
         ],
-
         'web_errors' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -125,7 +137,6 @@ class Kernel extends HttpKernel
             BindGroupInstance::class,
             SetLocale::class,
         ],
-
         'aiku-public' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
@@ -135,6 +146,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleAikuPublicInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            InspectorOctaneMiddleware::class
         ],
         'iris'        => [
             DetectWebsite::class,
@@ -147,7 +159,8 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleIrisInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            LogWebUserRequestMiddleware::class
+            LogWebUserRequestMiddleware::class,
+            InspectorOctaneMiddleware::class
         ],
         'retina'      => [
             DetectWebsite::class,
@@ -160,7 +173,8 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            LogWebUserRequestMiddleware::class
+            LogWebUserRequestMiddleware::class,
+            InspectorOctaneMiddleware::class
         ],
         'pupil'      => [
             EncryptCookies::class,
@@ -171,7 +185,20 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandlePupilInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            SameSiteSession::class
+            SameSiteSession::class,
+            InspectorOctaneMiddleware::class
+        ],
+
+        'cornea'      => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            HandleCorneaInertiaRequests::class,
+            //AddLinkHeadersForPreloadedAssets::class,
+            InspectorOctaneMiddleware::class
         ],
 
         //==== Other Middleware Groups
@@ -201,6 +228,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth'                   => Authenticate::class,
         'retina-auth'            => RetinaAuthenticate::class,
+        'cornea-auth'            => CorneaAuthenticate::class,
         'iris-auth'              => IrisAuthenticate::class,
         'auth.basic'             => AuthenticateWithBasicAuth::class,
         'auth.session'           => AuthenticateSession::class,

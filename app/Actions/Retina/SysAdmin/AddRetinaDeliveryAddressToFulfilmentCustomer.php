@@ -11,7 +11,7 @@ namespace App\Actions\Retina\SysAdmin;
 
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\FulfilmentCustomerRecordSearch;
-use App\Actions\InertiaAction;
+use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -20,11 +20,12 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
-class AddRetinaDeliveryAddressToFulfilmentCustomer extends InertiaAction
+class AddRetinaDeliveryAddressToFulfilmentCustomer extends RetinaAction
 {
     use WithActionUpdate;
     use WithModelAddressActions;
 
+    private bool $action = false;
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
 
@@ -40,7 +41,7 @@ class AddRetinaDeliveryAddressToFulfilmentCustomer extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->action) {
             return true;
         }
 
@@ -64,6 +65,14 @@ class AddRetinaDeliveryAddressToFulfilmentCustomer extends InertiaAction
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
 
         $this->initialisation($request);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
+    {
+        $this->action = true;
+        $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData); // TODO: Raul please do the permission for the web user($request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

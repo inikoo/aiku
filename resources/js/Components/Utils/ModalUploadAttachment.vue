@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { trans } from "laravel-vue-i18n"
 
 import Modal from "@/Components/Utils/Modal.vue"
@@ -38,15 +38,19 @@ const props = defineProps<{
 	}
 	additionalDataToSend?: string[]
 	attachmentRoutes?: object
+	options?: {
+		name: string
+		code: string
+	}[]
 }>()
 
 const model = defineModel()
 
-const typeEmployee = ref([
-	{ name: "Other", code: "Other" },
-	{ name: "CV", code: "CV" },
-	{ name: "Contract", code: "Contract" },
-])
+const typeEmployee = props.options?.length ? props.options :  [
+	{ name: trans("Other"), code: "Other" },
+	{ name: trans("CV"), code: "CV" },
+	{ name: trans("Contract"), code: "Contract" },
+]
 
 // const emits = defineEmits();
 
@@ -102,7 +106,7 @@ const submitUpload = async () => {
 				props.attachmentRoutes?.attachRoute?.parameters
 			),
 			{
-				attachment: selectedFile.value,
+				attachments: [selectedFile.value],
 				scope: selectedType.value.code,
 			},
 			{
@@ -114,9 +118,16 @@ const submitUpload = async () => {
 			text: "The upload has successfully",
 			type: "success",
 		})
-		router.reload()  // To reload the table to show new data
+		router.reload({
+			// onSuccess: () => {
+			// 	console.log("reload")
+			// },
+			// onError: () => {
+			// 	console.log("errorrrrrrrrr")
+			// }
+		})  // To reload the table to show new data
 		closeModal()
-		useEchoGrpPersonal().isShowProgress = true
+		// useEchoGrpPersonal().isShowProgress = true
 	} catch (error: any) {
 		console.error(error)
 		errorMessage.value = error?.response?.data?.message
@@ -136,11 +147,17 @@ const closeModal = () => {
 	model.value = false
 	console.log("model")
 }
+
+onMounted(() => {
+	if (typeEmployee.length === 1) {
+		selectedType.value = typeEmployee[0]
+	}
+})
 </script>
 
 <template>
 	<Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[500px]">
-		<div class="flex flex-col justify-between overflow-y-auto pb-4 px-3">
+		<div class="flex flex-col justify-between pb-4 px-3">
 			<div>
 				<!-- Title -->
 				<div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
@@ -153,14 +170,16 @@ const closeModal = () => {
 
 				<!-- Section: Upload box -->
 				<div class="grid gap-x-3 px-1">
-					<div class="mb-2 card flex justify-end">
+					<div class="mb-2 w-full flex justify-end">
 						<Select
 							v-model="selectedType"
 							:options="typeEmployee"
 							optionLabel="name"
 							fluid
 							placeholder="Select a type"
-							class="w-full md:w-40">
+							class="w-full md:w-40"
+							:dropdownIcon="typeEmployee.length === 1 ? 's' : 'pi pi-chevron-down'"
+							disabled>
 							<template #optiongroup="slotProps">
 								<div class="flex items-center">
 									<div>{{ slotProps.option.label }}</div>
@@ -173,7 +192,7 @@ const closeModal = () => {
 						@dragover.prevent
 						@dragenter.prevent
 						@dragleave.prevent
-						class="relative max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
+						class="overflow-hidden relative w-full max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
 						:class="[
 							{ 'hover:bg-gray-400/20': !isLoadingUpload },
 							errorMessage ? 'errorShake' : '',
@@ -181,11 +200,11 @@ const closeModal = () => {
 						<!-- Section: Upload area -->
 						<div
 							v-if="selectedFile"
-							class="text-gray-500 flex flex-col items-center gap-y-2">
-							<div class="flex items-center gap-x-1">
+							class="text-gray-500 flex flex-col items-center gap-y-2 w-full">
+							<div class="max-w-lg w-full text-center mx-auto overflow-hidden text-ellipsis">
 								<FontAwesomeIcon
 									icon="fal fa-file"
-									class="mx-auto h-5 w-5 text-gray-300"
+									class="h-5 w-5 text-gray-300"
 									aria-hidden="true" />
 								{{ selectedFile?.name }}
 							</div>
@@ -211,7 +230,7 @@ const closeModal = () => {
 								<div
 									v-if="isDraggedFile"
 									class="text-2xl text-gray-500 h-full flex justify-center items-center">
-									Drop your file here
+									{{ trans("Drop your file here") }}
 								</div>
 							</label>
 
@@ -233,21 +252,30 @@ const closeModal = () => {
 					</div>
 
 					<!-- Section: Attachment preview -->
-					<Transition name="headlessui">
-						<div v-if="selectedFile" class="text-xxs mt-3 max-w-3xl overflow-x-hidden">
-							<div class="flex justify-end mt-3">
+					<!-- <Transition name="headlessui"> -->
+						<!-- <div v-if="selectedFile" class="text-xxs mt-3 max-w-3xl overflow-x-hidden"> -->
+							<div class="flex justify-end mt-4">
 								<Button
 									@click="() => submitUpload()"
 									label="Submit"
-									size="s"
+									size="l"
 									full
+									:disabled="!selectedFile || !selectedType"
 									:loading="isLoadingUpload" />
 							</div>
-						</div>
-						<div v-else />
-					</Transition>
+						<!-- </div> -->
+						<!-- <div v-else /> -->
+					<!-- </Transition> -->
 				</div>
 			</div>
 		</div>
 	</Modal>
 </template>
+
+<style scoped>
+/* Adjust the selector based on the rendered DOM of PrimeVue's Select.
+   This example assumes the arrow is contained in an element with the class `.p-dropdown-trigger` */
+.no-arrow .p-dropdown-trigger {
+  display: none;
+}
+</style>

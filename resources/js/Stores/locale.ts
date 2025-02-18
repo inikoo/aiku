@@ -48,22 +48,43 @@ export const useLocaleStore = defineStore("locale", () => {
 		}).format(amount || 0)
 	}
 
-	const CurrencyShort = (currencyCode: string, number: number) => {
-
-		let formattedNumber = new Intl.NumberFormat(language.value.code, {
-			notation: "compact",
-			compactDisplay: "short",
-			style: "currency",
+	const currencySymbol = (currencyCode: string) => {
+		if(!currencyCode) return '-'
+		
+		return new Intl.NumberFormat('en', {
+			style: 'currency',
 			currency: currencyCode,
-		}).format(number)
-
-		formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
-			return `${p1} ${p2.toLowerCase()}`
-		})
-
-		return formattedNumber
+			currencyDisplay: 'symbol'
+		}).formatToParts(123).find(part => part.type === 'currency')?.value || '';
 	}
 
-	return { language, languageOptions, number, currencyFormat, CurrencyShort }
+	const CurrencyShort = (currencyCode: string, number: number, useShort: boolean) => {
+		console.log(useShort,'asdasd');
+		
+		if (useShort) {
+			return new Intl.NumberFormat("en", {
+				style: "currency",
+				currency: currencyCode,
+				minimumFractionDigits: 0,
+				maximumFractionDigits: 0
+			}).format(number);
+		} else {
+			let formattedNumber = new Intl.NumberFormat("en", {
+				notation: "compact",
+				compactDisplay: "short",
+				style: "currency",
+				currency: currencyCode,
+			}).format(number);
+	
+			formattedNumber = formattedNumber.replace(/(\d)([KMGTPE])/g, (match, p1, p2) => {
+				return `${p1} ${p2.toLowerCase()}`;
+			});
+	
+			return formattedNumber;
+			
+		}
+	}
+
+	return { language, languageOptions, number, currencyFormat, CurrencyShort, currencySymbol }
 })
 //make same class for all dashboard font size wight and all

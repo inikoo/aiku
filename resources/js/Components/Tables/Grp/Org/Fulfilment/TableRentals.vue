@@ -41,9 +41,30 @@ function rentalRoute(rental: {}) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: rental }">
-            <Link :href="rentalRoute(rental)" class="primaryLink">
+            <Link v-if="rentalRoute(rental)" :href="rentalRoute(rental)" class="primaryLink">
                 {{ rental['code'] }}
             </Link>
+        </template>
+
+        <!-- Column: Sales -->
+        <template #cell(sales)="{ item: rental }">
+            
+            <div
+                v-tooltip="
+                    useLocaleStore().currencyFormat(
+                        rental.currency_code,
+                        rental?.sales || 0
+                    )
+                "
+                :key="rental?.sales">
+                {{
+                    useLocaleStore().currencyFormat(
+                        rental.currency_code,
+                        rental?.sales || 0
+                    )
+                }}
+            </div>
+            
         </template>
 
         <!-- Column: Shop Code -->

@@ -127,7 +127,7 @@ class IndexPallets extends OrgAction
 
         return $query->allowedSorts(['organisation_name', 'customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
-            ->withPaginator($prefix, 1000)
+            ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
