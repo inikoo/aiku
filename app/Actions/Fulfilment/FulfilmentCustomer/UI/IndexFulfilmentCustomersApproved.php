@@ -157,7 +157,7 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
-                ->column(key: 'number_stored_items_state_active', label: ['type' => 'text', 'data' => __('Stored Items'), 'tooltip' => __('Number of stored items in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'number_stored_items_state_active', label: ['type' => 'text', 'data' => __('SKUs'), 'tooltip' => __('Number of SKUs in warehouse')], canBeHidden: false, sortable: true)
                 ->column(key: 'number_spaces', label: ['type' => 'text', 'data' => __('Spaces'), 'tooltip' => __('Number of spaces')], canBeHidden: false, sortable: true) // there is no active or avalaible state
                 ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->column(key: 'interest', label: __('interest'), canBeHidden: false);
