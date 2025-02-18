@@ -9,21 +9,21 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Models\SysAdmin\Organisation;
+use App\Models\Accounting\InvoiceCategory;
 
-trait WithInvoiceCategoriesSubNavigation
+trait WithInvoiceCategorySubNavigation
 {
-    protected function getInvoiceCategoriesNavigation(Organisation $parent): array
+    protected function getInvoiceCategoryNavigation(InvoiceCategory $invoiceCategory): array
     {
         return [
             [
-                "number"   => 0,
                 "isAnchor" => true,
-                "label"    => __('Invoice Categories'),
+                "label"    => __($invoiceCategory->name),
                 "route"     => [
-                    "name"       => 'grp.org.accounting.invoice-categories.index',
+                    "name"       => 'grp.org.accounting.invoice-categories.show',
                     "parameters" => [
-                        'organisation' => $parent->slug
+                        'organisation' => $invoiceCategory->organisation->slug,
+                        'invoiceCategory' => $invoiceCategory->slug
                     ],
                 ],
             ],
