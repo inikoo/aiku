@@ -24,11 +24,11 @@ class DeleteRetinaShopifyUser extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser)
     {
-        $shopifyUser->products()->detach();
-        $shopifyUser->orders()->detach();
-        $shopifyUser->customer->platforms()->detach();
-
-        $shopifyUser->forceDelete();
+        $this->update($shopifyUser, [
+            'name' => $shopifyUser->name . '-deleted-' . rand(00, 99),
+            'slug' => $shopifyUser->slug . '-deleted-' . rand(00, 99),
+            'status' => false
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool

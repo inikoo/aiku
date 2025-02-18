@@ -62,17 +62,25 @@ class GetApiProductsFromShopify extends OrgAction
         foreach ($products as $product) {
             foreach ($product['variants'] as $variant) {
                 DB::transaction(function () use ($variant, $product, $shopifyUser, $shopType) {
-                    if (!StoredItem::where('reference', $product['handle'])->exists() && $shopType === ShopTypeEnum::FULFILMENT) {
-                        $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
-                            'reference' => $product['handle']
-                        ]);
+                    $storedItem = StoredItem::where('reference', $product['handle'])->first();
+                    $storedItemShopify = $storedItem->shopifyPortfolio;
 
-                        $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
-                            'stored_item_id' => $storedItem->id,
-                            'type' => PortfolioTypeEnum::SHOPIFY
-                        ]);
+                    if ($shopType === ShopTypeEnum::FULFILMENT && !$storedItemShopify) {
+                        if (!$storedItem) {
+                            $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
+                                'reference' => $product['handle']
+                            ]);
+                        }
 
-                        $shopifyUser->products()->attach([$storedItem->id => [
+                        $portfolio = $storedItem->portfolio;
+                        if (!$portfolio) {
+                            $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
+                                'stored_item_id' => $storedItem->id,
+                                'type' => PortfolioTypeEnum::SHOPIFY
+                            ]);
+                        }
+
+                        $shopifyUser->products()->sync([$storedItem->id => [
                             'shopify_user_id' => $shopifyUser->id,
                             'product_type' => class_basename($storedItem),
                             'product_id' => $storedItem->id,
