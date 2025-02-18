@@ -2,18 +2,18 @@
 
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 11 Feb 2025 11:47:12 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 18 Feb 2025 10:56:59 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks;
+namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
-use App\Actions\Dropshipping\Shopify\Fulfilment\CancelFulfilmentOrderShopify;
-use App\Actions\Dropshipping\Shopify\Fulfilment\StoreShopifyOrderFulfilment;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\ShopifyUserHasProduct;
@@ -59,13 +59,17 @@ class StoreFulfilmentFromShopify extends OrgAction
             ]);
 
             $storedItems = [];
-            $itemsComplete = true;
-            $orderCancelled = true;
+            $allComplete = true;
+            $someComplete = false;
 
             foreach ($shopifyProducts as $shopifyProduct) {
                 $shopifyUserHasProduct = ShopifyUserHasProduct::where('shopify_user_id', $shopifyUser->id)
                     ->where('shopify_product_id', $shopifyProduct['product_id'])
                     ->first();
+
+                if (!$shopifyUserHasProduct) {
+                    return false;
+                }
 
                 $storedItems[$shopifyUserHasProduct->portfolio->item_id] = [
                     'quantity' => $shopifyProduct['quantity']
@@ -74,11 +78,20 @@ class StoreFulfilmentFromShopify extends OrgAction
                 $itemQuantity = $shopifyUserHasProduct->portfolio->item->total_quantity;
                 $requiredQuantity = $shopifyProduct['quantity'];
 
-                if ($itemQuantity < $requiredQuantity) {
-                    $itemsComplete = false;
+                if ($itemQuantity >= $requiredQuantity) {
+                    $someComplete = true;
                 } else {
-                    $orderCancelled = false;
+                    $allComplete = false;
+
                 }
+            }
+
+            if ($allComplete) {
+                $status = ShopifyFulfilmentStateEnum::OPEN;
+            } elseif ($someComplete) {
+                $status = ShopifyFulfilmentStateEnum::HOLD;
+            } else {
+                $status = ShopifyFulfilmentStateEnum::INCOMPLETE;
             }
 
             StoreStoredItemsToReturn::make()->action($palletReturn, [
@@ -87,11 +100,14 @@ class StoreFulfilmentFromShopify extends OrgAction
 
             $shopifyOrder = StoreShopifyOrderFulfilment::run($shopifyUser, $palletReturn, [
                 'shopify_order_id' => Arr::get($modelData, 'order_id'),
-                'shopify_fulfilment_id' => Arr::get($modelData, 'id')
+                'shopify_fulfilment_id' => Arr::get($modelData, 'id'),
+                'state' => $status->value
             ]);
 
-            if ($shopifyOrder && $orderCancelled) {
+            if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::INCOMPLETE) {
                 CancelFulfilmentOrderShopify::run($shopifyOrder, $shopifyUser);
+            } elseif ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::OPEN) {
+                SubmitAndConfirmPalletReturn::make()->action($palletReturn);
             }
 
             return true;

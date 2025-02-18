@@ -81,16 +81,6 @@ class ShowOrgAgent extends OrgAction
                         ],
                         'label' => __('purchase order')
                     ] : false,
-                    'actions'       => [
-                        // $this->canDelete ? [
-                        //     'type'  => 'button',
-                        //     'style' => 'delete',
-                        //     'route' => [
-                        //         'name'       => 'grp.org.procurement.org_agents.remove',
-                        //         'parameters' => array_values($request->route()->originalParameters())
-                        //     ]
-                        // ] : false,
-                    ],
 
                     // 'meta' => [
                     //     [

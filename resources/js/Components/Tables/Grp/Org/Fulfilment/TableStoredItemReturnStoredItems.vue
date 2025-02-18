@@ -248,7 +248,7 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 <NumberWithButtonSave
                                     v-if="palletReturn.state === 'in_process'"
                                     noUndoButton
-                                    v-model="pallet_stored_item.selected_quantity"
+                                    :modelValue="pallet_stored_item.selected_quantity"
                                     saveOnForm
                                     :routeSubmit="{
                                         name: pallet_stored_item.syncRoute.name,
@@ -275,7 +275,7 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 <template v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'">
                                     <NumberWithButtonSave
                                         noUndoButton
-                                        v-model="pallet_stored_item.selected_quantity"
+                                        :modelValue="pallet_stored_item.selected_quantity"
                                         saveOnForm
                                         :routeSubmit="
                                             pallet_stored_item.pallet_return_item_id

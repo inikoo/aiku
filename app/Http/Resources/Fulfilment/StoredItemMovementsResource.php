@@ -44,66 +44,104 @@ class StoredItemMovementsResource extends JsonResource
         $desc_after_title = '';
         $route = null;
         $icon = null;
-
+        $retina = str_starts_with($request->route()->getName(), 'retina.');
         if ($this->stored_item_audit_reference) {
             $storedItem = StoredItemAudit::where('reference', $this->stored_item_audit_reference)->first();
             if ($storedItem) {
                 $desc_title = $storedItem->reference;
                 $desc_model = __('Stored Item Audit');
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
-                    'parameters' => [
-                        'organisation' => $storedItem->organisation->slug,
-                            'fulfilment' => $storedItem->fulfilment->slug,
-                            'fulfilmentCustomer' => $storedItem->fulfilmentCustomer->slug,
+                if ($retina) {
+                    $route = [
+                        'name' => 'retina.fulfilment.storage.stored-items-audits.show',
+                        'parameters' => [
                             'storedItemAudit' => $storedItem->slug
-                    ]
-                ];
-                $icon = 'fa-narwhal';
+                        ]
+                    ];
+                } else {
+                    $route = [
+                        'name' => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                        'parameters' => [
+                            'organisation' => $storedItem->organisation->slug,
+                                'fulfilment' => $storedItem->fulfilment->slug,
+                                'fulfilmentCustomer' => $storedItem->fulfilmentCustomer->slug,
+                                'storedItemAudit' => $storedItem->slug
+                        ]
+                    ];
+                }
+
+                $icon = 'fal fa-narwhal';
             }
         } elseif ($this->pallet_delivery_reference) {
             $palletDelivery = PalletDelivery::where('reference', $this->pallet_delivery_reference)->first();
             if ($palletDelivery) {
                 $desc_title = $palletDelivery->reference;
                 $desc_model = __('Pallet Delivery');
-                $route = [
-                    'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
-                    'parameters' => [
-                        'organisation' => $palletDelivery->organisation->slug,
-                            'fulfilment' => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                if ($retina) {
+                    $route = [
+                        'name' => 'retina.fulfilment.storage.pallet_deliveries.show',
+                        'parameters' => [
                             'palletDelivery' => $palletDelivery->slug
-                    ]
-                ];
-                $icon = 'fa-truck-couch';
+                        ]
+                    ];
+                } else {
+                    $route = [
+                        'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                        'parameters' => [
+                            'organisation' => $palletDelivery->organisation->slug,
+                                'fulfilment' => $palletDelivery->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                                'palletDelivery' => $palletDelivery->slug
+                        ]
+                    ];
+                }
+                $icon = 'fal fa-truck-couch';
             }
         } elseif ($this->pallet_returns_reference) {
             $palletReturn = PalletReturn::where('reference', $this->pallet_returns_reference)->first();
             if ($palletReturn) {
                 $desc_title = $palletReturn->reference;
                 $desc_model = __('Pallet Return');
-                if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
-                    $route = [
-                        'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
-                        'parameters' => [
-                            'organisation' => $palletReturn->organisation->slug,
-                            'fulfilment' => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn' => $palletReturn->slug
-                        ]
-                    ];
+
+                if ($retina) {
+                    if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+                        $route = [
+                            'name' => '	retina.fulfilment.storage.pallet_returns.show',
+                            'parameters' => [
+                                'palletReturn' => $palletReturn->slug
+                            ]
+                        ];
+                    } else {
+                        $route = [
+                            'name' => 'retina.fulfilment.storage.pallet_returns.with-stored-items.show',
+                            'parameters' => [
+                                'palletReturn' => $palletReturn->slug
+                            ]
+                        ];
+                    }
                 } else {
-                    $route = [
-                        'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show',
-                        'parameters' => [
-                            'organisation' => $palletReturn->organisation->slug,
-                            'fulfilment' => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn' => $palletReturn->slug
-                        ]
-                    ];
+                    if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+                        $route = [
+                            'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+                            'parameters' => [
+                                'organisation' => $palletReturn->organisation->slug,
+                                'fulfilment' => $palletReturn->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                                'palletReturn' => $palletReturn->slug
+                            ]
+                        ];
+                    } else {
+                        $route = [
+                            'name' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show',
+                            'parameters' => [
+                                'organisation' => $palletReturn->organisation->slug,
+                                'fulfilment' => $palletReturn->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                                'palletReturn' => $palletReturn->slug
+                            ]
+                        ];
+                    }
                 }
-                $icon = 'fa-sign-out-alt';
+                $icon = 'fal fa-sign-out-alt';
             }
         } else {
             $desc_title = '-';

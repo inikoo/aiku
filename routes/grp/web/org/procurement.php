@@ -8,7 +8,6 @@
 
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
-use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgPartner\UI\IndexOrgPartners;
@@ -37,7 +36,6 @@ Route::get('/', ShowProcurementDashboard::class)->name('dashboard');
 Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('', IndexOrgAgents::class)->name('index');
     Route::get('export', ExportOrgAgents::class)->name('export');
-    Route::get('{orgAgent}/edit', EditOrgAgent::class)->name('edit');
 
     Route::prefix('{orgAgent}')->as('show')->group(function () {
         Route::get('', ShowOrgAgent::class);

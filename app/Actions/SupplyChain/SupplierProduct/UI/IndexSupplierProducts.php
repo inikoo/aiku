@@ -186,6 +186,7 @@ class IndexSupplierProducts extends GrpAction
         ];
         $afterTitle = null;
         $iconRight = null;
+        $actions = null;
 
         if ($this->scope instanceof Agent) {
             $subNavigation = $this->getAgentNavigation($this->scope);
@@ -217,6 +218,18 @@ class IndexSupplierProducts extends GrpAction
 
                 'label'     => __('Supplier Products')
             ];
+            $actions = [
+                [
+                    'type'    =>    'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new supplier product'),
+                                    'label'   => __('new supplier product'),
+                                    'route'   => [
+                                        'name'       => 'grp.supply-chain.suppliers.supplier_products.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                ]
+            ];
         }
         return Inertia::render(
             'SupplyChain/SupplierProducts',
@@ -234,6 +247,7 @@ class IndexSupplierProducts extends GrpAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
+                    'actions'       => $actions
                 ],
                 'data'        => SupplierProductsResource::collection($supplier_products),
 

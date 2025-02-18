@@ -14,6 +14,7 @@ use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -107,6 +108,8 @@ class UpdateOrganisation extends OrgAction
             'language_id'             => ['sometimes', 'exists:languages,id'],
             'timezone_id'             => ['sometimes', 'exists:timezones,id'],
             'currency_id'             => ['sometimes', 'exists:currencies,id'],
+            'email'        => ['sometimes', 'nullable', 'email'],
+            'phone'        => ['sometimes', 'nullable', new Phone()],
             'logo'                    => [
                 'sometimes',
                 'nullable',
