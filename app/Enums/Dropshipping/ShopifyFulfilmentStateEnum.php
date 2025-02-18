@@ -33,7 +33,7 @@ enum ShopifyFulfilmentStateEnum: string
     {
         return [
             'open' => [
-                'tooltip' => __('Other'),
+                'tooltip' => __('Open'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',
                 'color'   => 'lime'
@@ -47,7 +47,7 @@ enum ShopifyFulfilmentStateEnum: string
             'incomplete'  => [
                 'tooltip' => __('Incomplete'),
                 'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-emerald-500',
+                'class'   => 'text-red-500',
                 'color'   => 'emerald'
             ],
             'dispatched'  => [
