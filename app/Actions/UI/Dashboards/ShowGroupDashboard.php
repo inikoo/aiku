@@ -70,7 +70,17 @@ class ShowGroupDashboard extends OrgAction
                         'value' => 'org',
                         'label' => $orgCurrenciesSymbol,
                     ]
-                ]
+                ],
+                'options_shop'         => [
+                    [
+                        'value' => 'open',
+                        'label' => __('Open')
+                    ],
+                    [
+                        'value' => 'closed',
+                        'label' => __('Closed')
+                    ]
+                ],
             ],
             'current'          => $this->tabDashboardInterval,
             'table'            => [
