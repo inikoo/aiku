@@ -9,7 +9,6 @@
 
 namespace App\Actions\Accounting\InvoiceCategory\UI;
 
-use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategoriesSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoiceCategoriesResource;
@@ -27,7 +26,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoiceCategories extends OrgAction
 {
-    use WithInvoiceCategoriesSubNavigation;
     private Organisation $parent;
 
     public function handle(Organisation $parent, $prefix = null): LengthAwarePaginator
@@ -100,7 +98,6 @@ class IndexInvoiceCategories extends OrgAction
                 ),
                 'title'       => __('Payment Account Shops'),
                 'pageHead'    => [
-                    'subNavigation' => $this->getInvoiceCategoriesNavigation($this->parent),
                     'icon'      => ['fal', 'fa-store-alt'],
                     'title'     => __('Payment Account Shops'),
                     'actions'   => [
@@ -108,7 +105,7 @@ class IndexInvoiceCategories extends OrgAction
                             'type'    =>    'button',
                                             'style'   => 'create',
                                             'tooltip' => __('new invoice category'),
-                                            'label'   => __('invoice catagory'),
+                                            'label'   => __('invoice category'),
                                             'route'   => [
                                                 'name'       => 'grp.org.accounting.invoice-categories.create',
                                                 'parameters' => $request->route()->originalParameters()
