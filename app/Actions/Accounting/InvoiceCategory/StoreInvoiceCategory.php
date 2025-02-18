@@ -13,10 +13,12 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -60,6 +62,11 @@ class StoreInvoiceCategory extends OrgAction
         if ($this->parent instanceof Organisation) {
             $this->set('currency_id', $this->parent->currency_id);
         }
+    }
+
+    public function htmlResponse(InvoiceCategory $invoiceCategory)
+    {
+        return Redirect::route('grp.org.accounting.invoice-categories.show', ['organisation' => $invoiceCategory->organisation->slug, 'invoiceCategory' => $invoiceCategory->slug]);
     }
 
     public function rules(): array
