@@ -51,71 +51,43 @@ enum PalletDeliveryStateEnum: string
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
-                'app'     => [
-                    'name' => 'seedling',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7CCE00',  // Color for box (Retina)
             ],
             'submitted'    => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
-                'app'     => [
-                    'name' => 'share',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7C86FF',
             ],
             'confirmed'    => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
-                'color'   => 'emerald',
-                'app'     => [
-                    'name' => 'spell-check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#00BC7D',
             ],
             'received'     => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
-                'color'   => 'slate',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#62748E',
             ],
             'not_received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
-                'color'   => 'slate',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#FB2C36',
             ],
             'booking_in'   => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#AD46FF',
             ],
             'booked_in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple',
-                'app'     => [
-                    'name' => 'check-double',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#AD46FF',
             ],
         ];
     }

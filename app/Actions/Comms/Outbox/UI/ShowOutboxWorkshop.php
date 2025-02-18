@@ -34,7 +34,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     private Fulfilment|Shop $parent;
 
-    public function handle(Outbox $outbox)
+    public function handle(Outbox $outbox): Email
     {
         if ($outbox->builder == EmailBuilderEnum::BLADE) {
             throw ValidationException::withMessages([

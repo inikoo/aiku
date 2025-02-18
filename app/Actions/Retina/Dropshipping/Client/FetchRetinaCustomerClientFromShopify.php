@@ -63,6 +63,10 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
         }
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return true;
+    }
 
     /**
      * @throws \Throwable

@@ -46,6 +46,7 @@ class ShowOrganisationDashboard extends OrgAction
     public function getDashboardInterval(Organisation $organisation, array $userSettings): array
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
+        $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
         $shops            = $organisation->shops;
         $shopCurrencies   = [];
         foreach ($shops as $shop) {
@@ -59,6 +60,7 @@ class ShowOrganisationDashboard extends OrgAction
                 'db_settings'          => $userSettings,
                 'key_currency'         => 'org',
                 'key_shop'             => 'open',
+                'selected_amount'      => $selectedAmount,
                 'selected_shop_closed' => Arr::get($userSettings, 'selected_shop_closed', 'closed'),
                 'selected_shop_open'   => Arr::get($userSettings, 'selected_shop_open', 'open'),
                 'options_shop'         => [

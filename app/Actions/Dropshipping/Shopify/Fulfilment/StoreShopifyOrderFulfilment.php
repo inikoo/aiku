@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\ShopifyUserHasFulfilment;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -22,7 +23,7 @@ class StoreShopifyOrderFulfilment extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(ShopifyUser $shopifyUser, PalletReturn $model, array $modelData): void
+    public function handle(ShopifyUser $shopifyUser, PalletReturn $model, array $modelData)
     {
         $shopifyUser->orders()->attach($model->id, [
             'shopify_user_id' => $shopifyUser->id,
@@ -31,5 +32,7 @@ class StoreShopifyOrderFulfilment extends OrgAction
             'shopify_order_id' => Arr::get($modelData, 'shopify_order_id'),
             'shopify_fulfilment_id' => Arr::get($modelData, 'shopify_fulfilment_id')
         ]);
+
+        return ShopifyUserHasFulfilment::where('shopify_fulfilment_id', Arr::get($modelData, 'shopify_fulfilment_id'))->first();
     }
 }

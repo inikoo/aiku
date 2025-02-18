@@ -15,9 +15,10 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class StoreRetinaPalletDelivery extends RetinaAction
 {
@@ -55,7 +56,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
 
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RedirectResponse
     {
         $this->asAction = true;
         $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);
@@ -65,9 +66,9 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return Inertia::location(route('retina.fulfilment.storage.pallet_deliveries.show', [
+        return  Redirect::route('retina.fulfilment.storage.pallet_deliveries.show', [
             'palletDelivery' => $palletDelivery->slug
-        ]));
+        ]);
     }
 
 

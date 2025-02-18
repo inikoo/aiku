@@ -15,7 +15,6 @@ use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
