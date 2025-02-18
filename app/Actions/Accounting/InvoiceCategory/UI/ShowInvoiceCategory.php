@@ -9,6 +9,7 @@
 
 namespace App\Actions\Accounting\InvoiceCategory\UI;
 
+use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceCategoryTabsEnum;
@@ -23,6 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowInvoiceCategory extends OrgAction
 {
+    use WithInvoiceCategorySubNavigation;
     private Organisation|Group $parent;
 
 
@@ -60,6 +62,7 @@ class ShowInvoiceCategory extends OrgAction
                     'next'     => $this->getNext($invoiceCategory, $request),
                 ],
                 'pageHead'    => [
+                    'subNavigation' => $this->getInvoiceCategoryNavigation($invoiceCategory),
                     'model'     => __('Invoice Category'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-money-check-alt'],
