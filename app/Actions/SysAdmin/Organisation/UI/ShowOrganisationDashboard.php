@@ -106,6 +106,7 @@ class ShowOrganisationDashboard extends OrgAction
             'total_invoices' => 0,
             'total_invoices_percentages' => 0,
             'total_refunds'  => 0,
+            'total_refunds_percentages' => 0,
         ];
 
         $visualData = [];
@@ -200,6 +201,7 @@ class ShowOrganisationDashboard extends OrgAction
                     $selectedInterval,
                 );
                 $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
+                $total['total_refunds_percentages'] += $responseData['interval_percentages']['refunds']['percentage'] ?? 0;
                 $total['total_invoices']                              += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds']                               += $responseData['interval_percentages']['refunds']['amount'];
                 $visualData['invoices_data']['labels'][]              = $shop->code;
