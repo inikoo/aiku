@@ -227,7 +227,7 @@ class InertiaTable
     protected function transformRadioFilter(): Collection
     {
         $radioFilter = $this->radioFilter;
-        $queryElements = $this->query('radioFilter', []);
+        $queryElements = $this->query('radioFilter', '');
 
         if (empty($queryElements)) {
             return $radioFilter;
