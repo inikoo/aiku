@@ -21,9 +21,6 @@ const layout = inject("layout")
 const locale = inject("locale")
 const checked = ref(props.checked || false)
 
-const onToggleChecked = (value: boolean) => {
-	checked.value = value
-}
 
 const isOrganisation = ref(false)
 /* .filter((org) => {
@@ -68,10 +65,6 @@ const isOrganisation = ref(false)
     }
 }); */
 
-const toggleCurrency = () => {
-	isOrganisation.value = !isOrganisation.value
-}
-
 /* const dashboardTable = [
 	{
 		tab_label: "Overview",
@@ -93,17 +86,13 @@ const toggleCurrency = () => {
 	<div>
 		<DashboardSettings
 			v-if="props.dashboard?.settings"
-			@toggle-currency="toggleCurrency"
-			@update-checked="onToggleChecked"
 			:intervalOptions="props.dashboard?.interval_options"
-			:checked="checked"
 			:tableType="tableType"
 			:settings="props.dashboard?.settings" />
 
 		<DashboardTable
 			v-if="props.dashboard?.table"
 			:dashboardTable="props.dashboard.table"
-			
 			:locale="locale"
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
