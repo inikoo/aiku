@@ -34,7 +34,14 @@ class UpdateInvoiceCategory extends OrgAction
             return true;
         }
 
-        return false;
+        return $request->user()->authTo("accounting.{$this->organisation->id}.edit"); //TODO: Review this
+    }
+
+    public function asController(InvoiceCategory $invoiceCategory, ActionRequest $request)
+    {
+        $this->initialisation($invoiceCategory->organisation, $request);
+
+        return $this->handle($invoiceCategory, $this->validatedData);
     }
 
 

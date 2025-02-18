@@ -66,9 +66,24 @@ class ShowInvoiceCategory extends OrgAction
                     'model'     => __('Invoice Category'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-money-check-alt'],
-                        'title' => __('payment account')
+                        'title' => __('invoice category')
                     ],
                     'title'     => $invoiceCategory->name,
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit invoice category'),
+                            'label'   => __('Edit Invoice Category'),
+                            'route'   => [
+                                'name' => 'grp.org.accounting.invoice-categories.edit',
+                                'parameters' => [
+                                    'organisation' => $invoiceCategory->organisation->slug,
+                                    'invoiceCategory' => $invoiceCategory->slug
+                                ]
+                            ]
+                        ]
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
