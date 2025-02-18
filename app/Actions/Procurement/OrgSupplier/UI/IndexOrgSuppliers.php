@@ -116,7 +116,10 @@ class IndexOrgSuppliers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders', 'org_suppliers.status as status', 'org_suppliers.slug as org_supplier_slug'])
+            ->select([
+                'suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products',
+                'number_purchase_orders_delivery_state_in_process',
+                'number_purchase_orders', 'org_suppliers.status as status', 'org_suppliers.slug as org_supplier_slug'])
             ->leftJoin('suppliers', 'org_suppliers.supplier_id', 'suppliers.id')
 
             ->leftJoin('org_supplier_stats', 'org_supplier_stats.org_supplier_id', 'org_suppliers.id')
@@ -165,6 +168,7 @@ class IndexOrgSuppliers extends OrgAction
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_org_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders_delivery_state_in_process', label: __('orders delivery'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
     }
