@@ -47,13 +47,13 @@ class ShowOrganisationDashboard extends OrgAction
     {
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
         $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
-        $shops            = $organisation->shops;
+        $selectedShopState = Arr::get($userSettings, 'selected_shop_state', 'open');
+        $shops            = $organisation->shops->where('state', $selectedShopState);
         $shopCurrencies   = [];
         foreach ($shops as $shop) {
             $shopCurrencies[] = $shop->currency->symbol;
         }
         $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
-
         $dashboard = [
             'interval_options' => $this->getIntervalOptions(),
             'settings'         => [
@@ -61,8 +61,6 @@ class ShowOrganisationDashboard extends OrgAction
                 'key_currency'         => 'org',
                 'key_shop'             => 'open',
                 'selected_amount'      => $selectedAmount,
-                'selected_shop_closed' => Arr::get($userSettings, 'selected_shop_closed', 'closed'),
-                'selected_shop_open'   => Arr::get($userSettings, 'selected_shop_open', 'open'),
                 'options_shop'         => [
                     [
                         'value' => 'open',
