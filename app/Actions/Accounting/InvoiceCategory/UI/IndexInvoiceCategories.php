@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\InvoiceCategory\UI;
 
+use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategoriesSubNavigation;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
@@ -39,6 +40,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexInvoiceCategories extends OrgAction
 {
     private Group $parent;
+
+    use WithInvoiceCategoriesSubNavigation;
 
     public function handle(Group $parent, $prefix = null): LengthAwarePaginator
     {
@@ -110,7 +113,7 @@ class IndexInvoiceCategories extends OrgAction
                 ),
                 'title'       => __('Payment Account Shops'),
                 'pageHead'    => [
-                    'subNavigation' => '',
+                    'subNavigation' => $this->getInvoiceCategoriesNavigation($this->organisation, $this->parent),
                     'icon'      => ['fal', 'fa-store-alt'],
                     'title'     => __('Payment Account Shops'),
                 ],
