@@ -8,9 +8,11 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemNoSetReasonStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
@@ -133,6 +135,7 @@ class PalletReturn extends Model implements HasMedia
     protected $casts   = [
         'state'              => PalletReturnStateEnum::class,
         'type'               => PalletReturnTypeEnum::class,
+        'not_setup_reason'   => PalletReturnItemNoSetReasonStateEnum::class,
         'in_process_at'      => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
@@ -242,6 +245,11 @@ class PalletReturn extends Model implements HasMedia
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function platform(): BelongsTo
+    {
+        return $this->belongsTo(Platform::class);
     }
 
     public function shopifyFulfilment(): MorphOne

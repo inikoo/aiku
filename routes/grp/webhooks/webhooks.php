@@ -7,7 +7,8 @@
  */
 
 use App\Actions\Comms\Notifications\GetSnsNotification;
-use App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks\StoreFulfilmentFromShopify;
+use App\Actions\Dropshipping\Shopify\Fulfilment\StoreFulfilmentFromShopify;
+use App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks\CatchFulfilmentOrderFromShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRedactWebhookShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRequestWebhookShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
@@ -22,9 +23,14 @@ Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group
         Route::post('delete', DeleteProductWebhooksShopify::class)->name('delete');
     });
 
-    Route::prefix('fulfillments')->as('fulfillments.')->group(function () {
+    //    Route::prefix('fulfillments')->as('fulfillments.')->group(function () {
+    //        // Dont change the create to store, its default needed from shopify
+    //        Route::post('create', StoreFulfilmentFromShopify::class)->name('create');
+    //    });
+
+    Route::prefix('orders')->as('orders.')->group(function () {
         // Dont change the create to store, its default needed from shopify
-        Route::post('create', StoreFulfilmentFromShopify::class)->name('create');
+        Route::post('create', CatchFulfilmentOrderFromShopify::class)->name('create');
     });
 });
 
