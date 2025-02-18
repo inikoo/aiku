@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
+use App\Actions\Accounting\InvoiceCategory\UI\CreateInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UI\IndexInvoiceCategories;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
@@ -33,6 +34,7 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use Google\Service\DriveActivity\Create;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ShowAccountingDashboard::class, 'inOrganisation'])->name('dashboard');
@@ -89,6 +91,7 @@ Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_i
 Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
 
 Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
+Route::get('/invoice-categories/create', CreateInvoiceCategory::class)->name('invoice-categories.create');
 
 
 //Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');

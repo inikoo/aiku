@@ -13,6 +13,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -595,6 +596,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function invoiceCategories(): HasMany
+    {
+        return $this->hasMany(InvoiceCategory::class);
     }
 
     public function orders(): HasMany

@@ -19,7 +19,9 @@ class InvoiceCategoriesResource extends JsonResource
             'slug'   => $this->slug,
             'name'   => $this->name,
             'state'  => $this->state,
+            'state_label'   => $this->state->labels()[$this->state->value],
             'type'   => $this->type,
+            'type_label'    => $this->type->labels()[$this->type->value],
         ];
     }
 }

@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 
 trait WithInvoiceCategoriesSubNavigation
 {
-    protected function getInvoiceCategoriesNavigation(Organisation $parent, Group $group): array
+    protected function getInvoiceCategoriesNavigation(Organisation $parent): array
     {
         return [
             [
