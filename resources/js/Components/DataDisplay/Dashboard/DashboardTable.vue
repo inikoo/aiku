@@ -37,9 +37,7 @@ function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
-function ShopInvoiceDashboard(shop: any) {
-	console.log(shop.route_invoice,'hahahahaha');
-	
+function ShopInvoiceDashboard(shop: any) {	
 	return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
 }
 
@@ -156,7 +154,6 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Refunds: Diff 1y -->
 				<Column
-					hidden
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
@@ -194,18 +191,23 @@ function useTabChangeDashboard(tab_slug: string) {
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="data.interval_percentages?.refunds?.percentage"
-										:icon="
-											data.interval_percentages.refunds.percentage < 0
-												? 'fas fa-sort-down'
-												: 'fas fa-sort-up'
+										v-if="
+											data.interval_percentages?.invoices?.percentage
 										"
-										style="font-size: 20px; margin-top: 6px"
+										:icon="
+											data.interval_percentages.invoices?.percentage <
+											0
+												? 'fas fa-play'
+												: 'fas fa-play'
+										"
+										style="font-size: 16px"
 										:class="
-											data.interval_percentages.refunds.percentage < 0
-												? 'text-red-500'
-												: 'text-green-500'
+											data.interval_percentages.invoices?.percentage <
+											0
+												? 'text-[#ff6347] rotate-90'
+												: 'text-[#26a65b] rotate-[-90deg]'
 										" />
+									<div v-else style="width: 60px"></div>
 								</div>
 							</Transition>
 						</div>
@@ -408,7 +410,35 @@ function useTabChangeDashboard(tab_slug: string) {
 						<Column
 							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
-						<Column hidden footer="" footerStyle="text-align:right" />
+						<Column footerStyle="text-align:right" >
+							<template #footer>
+								<span style="font-size: 16px; font-weight: 500" class="pr-1">
+									{{
+										totalAmount.total_refunds_percentages
+											? `${
+													totalAmount.total_refunds_percentages > 0
+														? "+"
+														: ""
+											  }${totalAmount.total_refunds_percentages.toFixed(2)}%`
+											: "0.0%"
+									}}
+								</span>
+								<FontAwesomeIcon
+									v-if="totalAmount.total_refunds_percentages"
+									:icon="
+										totalAmount.total_refunds_percentages < 0
+											? 'fas fa-play'
+											: 'fas fa-play'
+									"
+									style="font-size: 16px"
+									:class="
+										totalAmount.total_refunds_percentages < 0
+											? 'text-red-500 rotate-90'
+											: 'text-green-500 rotate-[-90deg]'
+									" />
+								<div v-else style="width: 60px"></div>
+							</template>
+						</Column>
 						<Column
 							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
 							footerStyle="text-align:right" />
@@ -438,7 +468,7 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 16px"></div>
+								<div v-else style="width: 60px"></div>
 							</template>
 						</Column>
 						<Column
@@ -456,7 +486,7 @@ function useTabChangeDashboard(tab_slug: string) {
 								)
 							"
 							footerStyle="text-align:right" />
-						<Column footerStyle="text-align:right">
+						<Column footerStyle="text-align:right ">
 							<template #footer>
 								<span style="font-size: 16px; font-weight: 500" class="pr-1">
 									{{
