@@ -20,6 +20,7 @@
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faExchange, faFragile, faNarwhal } from '@fal'
+import TableStoredItemsInWarehouse from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsInWarehouse.vue'
 library.add(faFragile, faNarwhal, faExchange)
 
   const props = defineProps<{
@@ -37,7 +38,7 @@ library.add(faFragile, faNarwhal, faExchange)
   const component = computed(() => {
       const components: Component = {
           showcase: RetinaPalletShowcase,
-          stored_items: TableStoredItems,
+          stored_items: TableStoredItemsInWarehouse,
           movements: StockItemsMovements,
           history: TableHistories
       }

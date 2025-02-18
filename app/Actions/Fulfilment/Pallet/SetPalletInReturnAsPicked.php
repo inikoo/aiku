@@ -64,7 +64,7 @@ class SetPalletInReturnAsPicked extends OrgAction
                     SetPalletStoredItemStateToReturned::run($palletStoredItem); //TODO: Review pls
                 }
             } else {
-                // TODO: check this, not working
+                // TODO: check this, not working //Note: this no longer needed
                 $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)
                     ->where('stored_item_id', $palletReturnItem->stored_item_id)
                     ->get();

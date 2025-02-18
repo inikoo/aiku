@@ -18,11 +18,27 @@ defineProps<{
     tab?: string
 }>()
 
+function invoiceCategoryRoute(invoiceCategory: {}) {
+    switch (route().current()) {
+        case "grp.org.accounting.invoice-categories.index":
+            return route(
+                "grp.org.accounting.invoice-categories.show",
+                [route().params["organisation"], invoiceCategory.slug])
+        default:
+            return ''
+    }
+}
+
 </script>
 
 
 <template>
     <!-- {{ props.shopsList }} -->
     <Table :resource="data" :name="tab" class="mt-5">
+      <template #cell(name)="{ item: invoiceCategory }">
+            <Link :href="invoiceCategoryRoute(invoiceCategory)" class="primaryLink">
+                {{ invoiceCategory["name"] }}
+            </Link>
+        </template>
     </Table>
 </template>

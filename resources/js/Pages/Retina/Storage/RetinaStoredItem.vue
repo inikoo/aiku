@@ -21,6 +21,7 @@ import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vu
 import { faExchange, faFragile, faNarwhal } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
+import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
 library.add(faFragile, faNarwhal, faExchange)
 
 
@@ -35,6 +36,7 @@ const props = defineProps<{
     history?: {}
     stored_items?: {}
     movements?: {}
+    audits?: {}
     pageHead: {}
     palletRoute: {
         index: routeType
@@ -53,6 +55,7 @@ const component = computed(() => {
         showcase: StoredItemShowcase,
         pallets: TablePalletStoredItem,
         movements: StockItemsMovements,
+        audits: TableStoredItemAuditDeltas,
         history: TableHistories
     }
     return components[currentTab.value]

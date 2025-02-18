@@ -34,9 +34,9 @@ class EditAgent extends OrgAction
         return $request->user()->authTo('supply-chain.edit');
     }
 
-    public function asController(Organisation $organisation, Agent $agent, ActionRequest $request): RedirectResponse|Agent
+    public function asController(Agent $agent, ActionRequest $request): RedirectResponse|Agent
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromGroup($agent->group, $request);
 
         return $this->handle($agent);
     }
@@ -88,6 +88,11 @@ class EditAgent extends OrgAction
                                     'label' => __('Name'),
                                     'value' => $agent->organisation->name
                                 ],
+                                'contact_name' => [
+                                    'type'  => 'input',
+                                    'label' => __('Contact Name'),
+                                    'value' => $agent->organisation->contact_name
+                                ],
                                 'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
@@ -95,6 +100,11 @@ class EditAgent extends OrgAction
                                     'options' => [
                                         'inputType' => 'email'
                                     ]
+                                ],
+                                'phone'        => [
+                                    'type'    => 'phone',
+                                    'label'   => __('phone'),
+                                    'value'   => $agent->organisation->phone,
                                 ],
                                 'address'      => [
                                     'type'    => 'address',

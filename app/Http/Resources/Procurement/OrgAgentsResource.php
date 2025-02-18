@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property numeric $number_org_suppliers
  * @property numeric $number_org_supplier_products
  * @property numeric $number_purchase_orders
+ * @property numeric $number_stock_deliveries
  */
 class OrgAgentsResource extends JsonResource
 {
@@ -30,7 +31,8 @@ class OrgAgentsResource extends JsonResource
             'location'                     => json_decode($this->location),
             'number_org_suppliers'         => $this->number_org_suppliers,
             'number_org_supplier_products' => $this->number_org_supplier_products,
-            'number_purchase_orders'       => $this->number_purchase_orders
+            'number_purchase_orders'       => $this->number_purchase_orders,
+            'number_stock_deliveries'       => $this->number_stock_deliveries
         ];
     }
 }

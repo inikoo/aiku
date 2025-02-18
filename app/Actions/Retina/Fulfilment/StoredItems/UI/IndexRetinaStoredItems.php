@@ -39,16 +39,26 @@ class IndexRetinaStoredItems extends RetinaAction
         }
 
         return QueryBuilder::for(StoredItem::class)
-            ->defaultSort('slug')
+            ->select(
+                'stored_items.id',
+                'stored_items.slug',
+                'stored_items.reference',
+                'stored_items.state',
+                'stored_items.name',
+                'stored_items.total_quantity',
+                'stored_items.number_pallets',
+                'stored_items.number_audits',
+            )
+            ->defaultSort('reference')
             ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == "FulfilmentCustomer") {
+                if ($parent instanceof FulfilmentCustomer) {
                     $query->where('fulfilment_customer_id', $parent->id);
                 } elseif ($parent instanceof Pallet) {
                     $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id')
                         ->where('pallet_stored_items.pallet_id', $parent->id);
                 }
             })
-            ->allowedSorts(['slug', 'state'])
+            ->allowedSorts(['reference', 'total_quantity', 'name', 'number_pallets', 'number_audits', 'pallet_reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -74,8 +84,12 @@ class IndexRetinaStoredItems extends RetinaAction
                 )
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true)
+                ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false, sortable: true)
+                ->column(key: 'number_audits', label: __("Audits"), canBeHidden: false, sortable: true)
+                ->column(key: 'total_quantity', label: __("Quantity"), canBeHidden: false, sortable: true);
+
+            $table->defaultSort('reference');
         };
     }
 

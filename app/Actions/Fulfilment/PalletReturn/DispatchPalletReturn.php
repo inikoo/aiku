@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Dropshipping\Shopify\Fulfilment\DispatchFulfilmentOrderShopify;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
@@ -22,6 +23,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -77,6 +79,10 @@ class DispatchPalletReturn extends OrgAction
             $this->update($palletReturn, [
                 'recurring_bill_id' => $recurringBill->id
             ]);
+        }
+
+        if ($palletReturn->platform?->type === PlatformTypeEnum::SHOPIFY) {
+            DispatchFulfilmentOrderShopify::run($palletReturn);
         }
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);

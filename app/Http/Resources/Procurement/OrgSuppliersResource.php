@@ -44,6 +44,7 @@ class OrgSuppliersResource extends JsonResource
             'agent_name'                   => $this->agent_name,
             'number_org_supplier_products' => $this->number_org_supplier_products,
             'number_purchase_orders'       => $this->number_purchase_orders,
+            'number_purchase_orders_delivery_state_in_process'       => $this->number_purchase_orders_delivery_state_in_process,
             'slug'                         => $this->slug,
             'location'                     => json_decode($this->location),
             'created_at'                   => $this->created_at,

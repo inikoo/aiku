@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-10h-21m
@@ -8,24 +9,21 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
+use App\Models\Accounting\InvoiceCategory;
 
-trait WithInvoiceCategoriesSubNavigation
+trait WithInvoiceCategorySubNavigation
 {
-    protected function getInvoiceCategoriesNavigation(Organisation $parent, Group $group): array
+    protected function getInvoiceCategoryNavigation(InvoiceCategory $invoiceCategory): array
     {
         return [
             [
-                "number"   => 0,
                 "isAnchor" => true,
-                "label"    => __('Invoice Categories'),
+                "label"    => __($invoiceCategory->name),
                 "route"     => [
-                    "name"       => 'grp.org.accounting.invoice-categories.index',
+                    "name"       => 'grp.org.accounting.invoice-categories.show',
                     "parameters" => [
-                        'organisation' => $parent->slug
+                        'organisation' => $invoiceCategory->organisation->slug,
+                        'invoiceCategory' => $invoiceCategory->slug
                     ],
                 ],
             ],

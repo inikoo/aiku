@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
-use App\Actions\Accounting\PaymentAccountShop\AttachPaymentAccountToShop;
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOfferCampaigns;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopPermissions;
@@ -27,6 +27,7 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithStoreShopRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
@@ -208,8 +209,20 @@ class StoreShop extends OrgAction
             $paymentAccount->slug = 'accounts-'.$shop->slug;
             $paymentAccount->save();
 
-            return AttachPaymentAccountToShop::run($shop, $paymentAccount);
+            StorePaymentAccountShop::make()->action(
+                $paymentAccount,
+                $shop,
+                [
+                   'currency_id' => $shop->currency_id,
+                   'state'       => PaymentAccountShopStateEnum::ACTIVE
+                ]
+            );
+            $shop->refresh();
+            return $shop;
+
         });
+
+
 
         GroupHydrateShops::dispatch($organisation->group)->delay($this->hydratorsDelay);
         OrganisationHydrateShops::dispatch($organisation)->delay($this->hydratorsDelay);

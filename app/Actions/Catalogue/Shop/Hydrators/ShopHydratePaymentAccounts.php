@@ -33,7 +33,7 @@ class ShopHydratePaymentAccounts
     {
         $stats = [
             'number_org_payment_service_providers' => $shop->orgPaymentServiceProviders()->count(),
-            'number_payment_accounts'              => $shop->paymentAccounts()->count(),
+            'number_payment_accounts'              => $shop->paymentAccountShops()->count(),
         ];
 
         $shop->accountingStats()->update($stats);
