@@ -507,6 +507,10 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                 :editable="true"
                 :saveRoute="route_list.stored_item_audit_delta.store"
                 class="mt-2"
+                :sendToServerOptions="{
+                    preserveScroll: true,
+                    preserveState: true,
+                }"
             >
                 <template #default="{ openModal }">
                     <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll
