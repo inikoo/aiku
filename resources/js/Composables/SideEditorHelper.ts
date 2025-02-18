@@ -25,7 +25,7 @@ import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
 
 
-import { set } from 'lodash'
+import { set } from "lodash-es"
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 
 // Field list of SideEditor

@@ -16,7 +16,7 @@ import { PageHeading as PageHeadingTS } from '@/types/PageHeading'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 import BackgroundBox from '@/Components/BackgroundBox.vue'
 import Icon from '@/Components/Icon.vue'
 import { trans } from 'laravel-vue-i18n'

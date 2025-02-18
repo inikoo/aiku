@@ -2,7 +2,7 @@
 import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
 import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
-import { isArray } from 'lodash'
+import { isArray } from "lodash-es"
 import "@/../css/iris_styling.css"
 
 import Footer from '@/Layouts/Iris/Footer.vue'

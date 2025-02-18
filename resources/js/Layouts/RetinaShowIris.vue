@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
-import { isArray } from 'lodash'
+import { isArray } from "lodash-es"
 
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'

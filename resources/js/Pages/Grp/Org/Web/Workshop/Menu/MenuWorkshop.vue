@@ -12,7 +12,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import axios from "axios"
 import { Head } from "@inertiajs/vue3"
 import ScreenView from "@/Components/ScreenView.vue"
-import { debounce } from "lodash"
+import { debounce } from "lodash-es"
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 import { setIframeView } from "@/Composables/Workshop"

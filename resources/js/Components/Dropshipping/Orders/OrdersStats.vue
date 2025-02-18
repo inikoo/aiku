@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { inject } from 'vue'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDollarSign } from '@fal'

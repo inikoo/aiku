@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle, faCheck } from '@fal'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 import index from "@/Components/Banners/SlidesWorkshop/Fields/index.vue"
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faCheck)
 

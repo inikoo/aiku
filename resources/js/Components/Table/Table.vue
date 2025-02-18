@@ -25,8 +25,8 @@ import findKey from 'lodash-es/findKey'
 import forEach from 'lodash-es/forEach'
 import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
-import { set as setLodash, debounce, kebabCase } from 'lodash'
-import CountUp from 'vue-countup-v3'
+import { set as setLodash, debounce, kebabCase } from "lodash-es"
+import * as CountUp from "vue-countup-v3"
 import { useFormatTime } from '@/Composables/useFormatTime'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

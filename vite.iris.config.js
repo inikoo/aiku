@@ -25,7 +25,7 @@ export default defineConfig(
                 hotFile       : "public/iris.hot",
                 buildDirectory: "iris",
                 input         : "resources/js/app-iris.js",
-                ssr           : "resources/js/ssr-iris.js",
+                ssr           : "resources/js/ssr-iris.ts",
                 refresh       : true
               }),
       vue({
@@ -45,7 +45,7 @@ export default defineConfig(
                         })
     ],
     ssr    : {
-      noExternal: ["@inertiajs/server"]
+      noExternal: ["@inertiajs/server", "vue-countup-v3", "floating-vue"]
     },
     resolve: {
       alias: {
@@ -77,7 +77,9 @@ export default defineConfig(
                 split("node_modules/")[1].split(
                 "/")[0].toString();
             }
-          }
+          },
+          entryFileNames: 'ssr-iris.mjs',
+          format: 'esm'
         }
       }
     },

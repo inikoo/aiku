@@ -45,7 +45,6 @@ const showWebpage = (activityItem) => {
   </Head>
 
   <Head :title="title" />
-
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"

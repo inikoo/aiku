@@ -39,6 +39,7 @@ class ShowHome
                 ],
                 'blocks' => $webpage?->published_layout ?? $home->published_layout,
                 'data' => $website ,
+                'hello' => 'xxxxx'
             ]
         );
     }

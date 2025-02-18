@@ -3,7 +3,6 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import { router } from '@inertiajs/vue3'
 
-import 'https://cdn.luigisbox.com/autocomplete.js'  // For autocomplete
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSearch } from '@far'
@@ -19,65 +18,6 @@ const _inputRef = ref(null)
 // const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
 const listFieldsRemoved = ['price']
 
-const LBInitAutocomplete = () => {
-    AutoComplete({
-        Layout: 'heromobile',
-        TrackerId: luigiTrackerId,
-        Locale: 'en',
-        Translations: {
-            en: {
-                showBuyTitle: 'Shop Today', // Top Product: Button label
-                priceFilter: {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2,
-                    locale: 'en',
-                    prefixed: true,
-                    symbol: '£'
-                }
-            }
-        },
-        RemoveFields: listFieldsRemoved,
-        Types: [
-            {
-                name: "Item",
-                type: "item",
-                size: 7,  // Item list will appear 7 items
-                // attributes: ['product_code', 'description', 'formatted_price.last'],
-                attributes: ['product_code', 'formatted_price'],
-            },
-            {
-                name: "Query",
-                type: "query",
-            },
-            {
-                name: "Category",
-                type: "category",
-            },
-        ],
-        Actions: [
-            {
-                forRow: function(row) {
-                    // console.log('row', row)
-                    // if(row['data-autocomplete-id'] == 1 && row.type === 'item') {
-                    //     console.log('aaaa', row.attributes['title.untouched'])
-                    // }
-                    return row['data-autocomplete-id'] == 1 && row.type === 'item'
-                },
-                iconUrl: 'https://cdn-icons-png.freepik.com/256/275/275790.png',
-                title: "Visit product's page",
-                // action: function(e, result) {
-                //     console.log(e, result)
-                //     e.preventDefault();
-                //     alert("Product added to cart");
-                // }
-            }
-        ]
-    }, '#inputLuigi')
-}
-
-onMounted(() => {
-    LBInitAutocomplete()
-})
 
 const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
 
@@ -124,7 +64,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-@import 'https://cdn.luigisbox.com/autocomplete.css'; /* For autocomplete */
 
 $luigiColor1: #4b5058;
 $luigiColor2: #957a65;

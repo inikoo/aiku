@@ -15,7 +15,7 @@ import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import Dialog from 'primevue/dialog';
-import { get } from 'lodash'
+import { get } from "lodash-es"
 import ButtonPrimeVue from 'primevue/button';
 
 
@@ -26,7 +26,7 @@ import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalL
 // import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
 // import ModalAddress from '@/Components/Utils/ModalAddress.vue'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'

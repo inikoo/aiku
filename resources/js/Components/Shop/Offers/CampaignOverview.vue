@@ -5,7 +5,7 @@ import { faDollarSign } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 library.add(faDollarSign)
 
 const props = defineProps<{

@@ -12,7 +12,7 @@ import { Link, router } from "@inertiajs/vue3"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
 import { ref } from "vue"
 import { routeType } from "@/types/route"
-import { values } from "lodash"
+import { values } from "lodash-es"
 library.add(faIdCardAlt, faEnvelope, faPhone, faGift, faBoxFull, faWeight)
 
 const props = defineProps<{

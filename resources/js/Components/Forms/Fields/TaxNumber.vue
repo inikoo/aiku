@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import PureInput from "@/Components/Pure/PureInput.vue"
-import { set, get } from "lodash"
-import { checkVAT, countries } from 'jsvat-next';
+import { set, get } from "lodash-es"
+import * as jsVAT from 'jsvat-next';
 import { ref, watch } from "vue"
-import { debounce } from "lodash"
+import { debounce } from "lodash-es"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from '@fas'
 import { faCopy } from '@fal'
@@ -49,7 +49,7 @@ const validateVAT = (vat: string) => {
         return;
     }
 
-    const validation = checkVAT(vat.value, countries);
+    const validation = jsVAT.checkVAT(vat.value, jsVAT.countries);
     vatValidationResult.value = validation.isValid ? "Valid VAT" : "Invalid VAT";
 
     // Handle invalid VAT

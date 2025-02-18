@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { inject, ref } from "vue"
-import CountUp from "vue-countup-v3"
+import * as CountUp from "vue-countup-v3"
 import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { routeType } from "@/types/route"

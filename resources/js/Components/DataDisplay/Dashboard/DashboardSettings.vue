@@ -4,7 +4,7 @@ import { router } from "@inertiajs/vue3"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import ToggleSwitch from "primevue/toggleswitch"
-import { get } from "lodash"
+import { get } from "lodash-es"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 const props = defineProps<{

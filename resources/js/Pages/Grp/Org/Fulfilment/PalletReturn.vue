@@ -29,7 +29,7 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 
 import { trans } from "laravel-vue-i18n"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
-import { get } from "lodash"
+import { get } from "lodash-es"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Popover from "@/Components/Popover.vue"

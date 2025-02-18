@@ -4,7 +4,7 @@ import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
 import { ref, watch, onBeforeMount,reactive, inject, onMounted} from 'vue';
 import { notify } from "@kyvg/vue3-notification";
-import { debounce, set, get } from 'lodash';
+import { debounce, set, get } from "lodash-es";
 import { Link, router } from "@inertiajs/vue3"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'

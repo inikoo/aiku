@@ -13,9 +13,9 @@ import { useForm } from "@inertiajs/vue3"
 import { faCheckCircle, faTimesCircle } from "@fas"
 import { faTrashAlt } from "@far"
 import { faSignOutAlt } from "@fal"
-import { get, isNull } from 'lodash'
+import { get, isNull } from "lodash-es"
 import { faSpinnerThird } from '@fad'
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "lodash-es"
 import PureMultiselect from "./Pure/PureMultiselect.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 

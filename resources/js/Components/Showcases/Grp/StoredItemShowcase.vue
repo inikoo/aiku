@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 import { Pie } from 'vue-chartjs'
 import { useLayoutStore } from "@/Stores/layout"
 import TableStoredItemEdit from '@/Components/StoredItemMovement/TableStoredItemEdit.vue'

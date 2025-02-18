@@ -18,7 +18,7 @@ import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
 import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import CountUp from 'vue-countup-v3'
+import * as CountUp from "vue-countup-v3"
 import { Head } from '@inertiajs/vue3'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
