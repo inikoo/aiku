@@ -53,8 +53,6 @@ class SetPalletReturnDate extends OrgAction
             case PalletReturnStateEnum::CANCEL:
                 $date = $palletReturn->cancel_at;
                 break;
-            default:
-                break;
         }
 
         if ($date) {

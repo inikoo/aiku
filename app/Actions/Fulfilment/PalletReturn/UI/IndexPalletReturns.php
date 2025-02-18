@@ -203,6 +203,8 @@ class IndexPalletReturns extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletReturn::class);
+        $queryBuilder->leftJoin('pallet_return_stats', 'pallet_return_stats.pallet_return_id', '=', 'pallet_returns.id');
+        $queryBuilder->leftJoin('currencies', 'currencies.id', '=', 'pallet_returns.currency_id');
 
         if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
@@ -253,9 +255,10 @@ class IndexPalletReturns extends OrgAction
             }
         }
 
-        $queryBuilder->defaultSort('-created_at');
+        $queryBuilder->defaultSort('-date');
         return $queryBuilder
-            ->allowedSorts(['reference'])
+            ->select('pallet_returns.id', 'state', 'slug', 'reference', 'customer_reference', 'number_pallets', 'number_services', 'number_physical_goods', 'date', 'dispatched_at', 'type', 'total_amount', 'currencies.code as currency_code')
+            ->allowedSorts(['reference','customer_reference','number_pallets','date','state'])
             ->allowedFilters([$globalSearch, 'type'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -305,11 +308,10 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                // ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'dispatched_at', label: __('dispatched'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
         };
     }
 

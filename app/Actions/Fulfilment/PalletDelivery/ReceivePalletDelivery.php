@@ -139,6 +139,7 @@ class ReceivePalletDelivery extends OrgAction
                 skipHydrators: true
             );
         }
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         CalculateRecurringBillTotals::run($currentRecurringBill);
         RecurringBillHydrateTransactions::run($currentRecurringBill);
 

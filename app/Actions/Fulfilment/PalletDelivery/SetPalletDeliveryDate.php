@@ -57,8 +57,6 @@ class SetPalletDeliveryDate extends OrgAction
             case PalletDeliveryStateEnum::BOOKED_IN:
                 $date = $palletDelivery->booked_in_at;
                 break;
-            default:
-                break;
         }
 
         if ($date) {

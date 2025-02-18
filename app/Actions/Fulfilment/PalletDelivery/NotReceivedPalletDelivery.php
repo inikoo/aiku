@@ -36,7 +36,7 @@ class NotReceivedPalletDelivery extends OrgAction
         $modelData['state']           = PalletDeliveryStateEnum::NOT_RECEIVED;
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
-
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
