@@ -13,6 +13,7 @@ use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\Accounting\InvoiceCategory\UI\CreateInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UI\EditInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UI\IndexInvoiceCategories;
 use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
@@ -92,6 +93,7 @@ Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoice
 Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
 Route::get('/invoice-categories/create', CreateInvoiceCategory::class)->name('invoice-categories.create');
 Route::get('/invoice-categories/{invoiceCategory}', ShowInvoiceCategory::class)->name('invoice-categories.show');
+Route::get('/invoice-categories/{invoiceCategory}/edit', EditInvoiceCategory::class)->name('invoice-categories.edit');
 
 
 //Route::get('/invoices/all/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.all_invoices.show');
