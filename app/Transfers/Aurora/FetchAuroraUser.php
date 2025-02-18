@@ -71,7 +71,7 @@ class FetchAuroraUser extends FetchAurora
                 'auth_type'         => 'aurora',
                 'language_id'       => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
                 'reset_password'    => false,
-                'password'          => Str::random(64),
+                //'password'          => Str::random(64),
                 'fetched_at'        => now(),
                 'last_fetched_at'   => now(),
                 // Positions do not fetched from Aurora, use aiku UI instead
