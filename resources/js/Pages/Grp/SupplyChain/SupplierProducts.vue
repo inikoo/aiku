@@ -20,7 +20,7 @@ const props = defineProps <{
     pageHead: TSPageHeading
     title: string
     data: object
-    importRoutes: object
+    upload_spreadsheet: object
 }>()
 
 const isModalUploadOpen = ref(false)
@@ -39,17 +39,17 @@ const isModalUploadOpen = ref(false)
           />
       </template>
     </PageHeading>
-    <TableSupplierProducts :data="data" />
 
+    <TableSupplierProducts :data="data" />
     <UploadExcel
         v-model="isModalUploadOpen"
-        scope="Pallet delivery"
+        scope="Supplier Product"
         :title="{
-            label: 'Upload your new pallet deliveries',
+            label: 'Upload your new products',
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
-        progressDescription="Adding Pallet Deliveries"        
-        :importRoutes
+        progressDescription="Adding Products to Supplier"        
+        :upload_spreadsheet="upload_spreadsheet"
         
     />
     

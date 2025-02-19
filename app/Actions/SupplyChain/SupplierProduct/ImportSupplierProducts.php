@@ -34,7 +34,7 @@ class ImportSupplierProducts extends GrpAction
                 'parent_id' => $supplier->id,
             ]
         );
-
+        
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
@@ -77,5 +77,5 @@ class ImportSupplierProducts extends GrpAction
         return $this->handle($supplier, $file, []);
     }
 
-    public string $commandSignature = 'pallet:import {--g|g_drive} {filename} {supplier?}';
+    public string $commandSignature = 'supplier-products:import {--g|g_drive} {filename} {supplier?}';
 }
