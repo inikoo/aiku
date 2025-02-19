@@ -98,7 +98,6 @@ class IndexPayments extends OrgAction
                 'payments.reference',
                 'payments.status',
                 'payments.date',
-                'payments.slug',
                 'payments.amount',
                 'payment_accounts.slug as payment_accounts_slug',
                 'payment_service_providers.slug as payment_service_providers_slug',
