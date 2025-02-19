@@ -49,7 +49,7 @@ const isModalUploadOpen = ref(false)
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
         progressDescription="Adding Pallet Deliveries"        
-        :importRoutes
+        :upload_spreadsheet="importRoutes"
         
     />
     

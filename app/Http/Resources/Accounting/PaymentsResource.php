@@ -40,7 +40,7 @@ class PaymentsResource extends JsonResource
                 'name' => 'grp.org.accounting.payment-accounts.show.payments.show',
                 'params' => [
                     'organisation' => $this->organisation_slug,
-                    'account' => $this->payment_accounts_slug,
+                    'paymentAccount' => $this->payment_accounts_slug,
                     'payment' => $this->id
                 ]
             ],
