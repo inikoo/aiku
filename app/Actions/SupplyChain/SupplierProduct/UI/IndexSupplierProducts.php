@@ -231,7 +231,7 @@ class IndexSupplierProducts extends GrpAction
                                     ]
                 ]
             ];
-            $attachRoutes =[
+            $attachRoutes = [
                 'importRoute' => [
                     'name'       => 'grp.models.supplier.supplier-product.import',
                     'parameters' => [
