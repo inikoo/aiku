@@ -11,7 +11,7 @@ import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupp
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
 import { ref } from 'vue';
-import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import UploadSpreadsheet from '@/Components/Upload/UploadSpreadsheet.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { trans } from 'laravel-vue-i18n'
 
@@ -40,9 +40,9 @@ const isModalUploadOpen = ref(false)
     </PageHeading>
     <TableSupplierProducts :data="data" />
 
-    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+    <UploadSpreadsheet v-model="isModalUploadOpen" scope="attachment" :title="{
         label: 'Upload your file',
         information: 'The list of column file: customer_reference, notes, stored_items'
-    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="importRoutes" :isSelected="false" />
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="importRoutes"  />
 </template>
 

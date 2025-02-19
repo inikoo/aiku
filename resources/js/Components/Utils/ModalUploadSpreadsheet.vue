@@ -46,12 +46,6 @@ const props = defineProps<{
 
 const model = defineModel()
 
-const typeEmployee = props.options?.length ? props.options :  [
-	{ name: trans("Other"), code: "Other" },
-	{ name: trans("CV"), code: "CV" },
-	{ name: trans("Contract"), code: "Contract" },
-]
-
 // const emits = defineEmits();
 
 // const { isUploaded } = toRefs(props)
@@ -70,7 +64,21 @@ const onUploadFile = async (fileUploaded: File) => {
 	errorMessage.value = null
 
 	if (fileExtention) {
-		selectedFile.value = fileUploaded
+		selectedFile.value = fileUploaded;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
+            csvData.value = json;
+            // console.log('xlsx', json);
+        };
+        reader.onerror = (error) => {
+            console.error('Error reading Excel file:', error);
+        };
+        reader.readAsArrayBuffer(fileUploaded)
 	} else {
 		errorMessage.value = trans("File extension is not one of these:")
 	}
@@ -78,16 +86,8 @@ const onUploadFile = async (fileUploaded: File) => {
 
 // Method: submit the selected file to server
 const submitUpload = async () => {
-	if (!selectedType.value) {
-		notify({
-			title: "Type not selected",
-			text: "Please select a type before uploading.",
-			type: "error",
-		})
-		return
-	}
 
-	if (!props.attachmentRoutes?.attachRoute?.name) {
+	if (!props.attachmentRoutes?.importRoute?.name) {
 		notify({
 			title: "Something went wrong.",
 			text: "Route is not set yet.",
@@ -102,12 +102,11 @@ const submitUpload = async () => {
 	try {
 		await axios.post(
 			route(
-				props.attachmentRoutes?.attachRoute?.name,
-				props.attachmentRoutes?.attachRoute?.parameters
+				props.attachmentRoutes?.importRoute?.name,
+				props.attachmentRoutes?.importRoute?.parameters
 			),
 			{
-				attachments: [selectedFile.value],
-				scope: selectedType.value.code,
+				file: selectedFile.value,
 			},
 			{
 				headers: { "Content-Type": "multipart/form-data" },
@@ -147,12 +146,6 @@ const closeModal = () => {
 	model.value = false
 	console.log("model")
 }
-
-onMounted(() => {
-	if (typeEmployee.length === 1) {
-		selectedType.value = typeEmployee[0]
-	}
-})
 </script>
 
 <template>
@@ -170,23 +163,7 @@ onMounted(() => {
 
 				<!-- Section: Upload box -->
 				<div class="grid gap-x-3 px-1">
-					<div class="mb-2 w-full flex justify-end">
-						<Select
-							v-model="selectedType"
-							:options="typeEmployee"
-							optionLabel="name"
-							fluid
-							placeholder="Select a type"
-							class="w-full md:w-40"
-							:dropdownIcon="typeEmployee.length === 1 ? 's' : 'pi pi-chevron-down'"
-							disabled>
-							<template #optiongroup="slotProps">
-								<div class="flex items-center">
-									<div>{{ slotProps.option.label }}</div>
-								</div>
-							</template>
-						</Select>
-					</div>
+					
 					<div
 						@drop="(e: any) => (e.preventDefault(), onUploadFile(e.dataTransfer.files[0]))"
 						@dragover.prevent
@@ -224,6 +201,7 @@ onMounted(() => {
 									type="file"
 									name="file"
 									id="fileInput"
+							
 									class="sr-only"
 									@change="(e: any) => onUploadFile(e.target.files[0])"
 									ref="fileInput" />
@@ -260,7 +238,7 @@ onMounted(() => {
 									label="Submit"
 									size="l"
 									full
-									:disabled="!selectedFile || !selectedType"
+									
 									:loading="isLoadingUpload" />
 							</div>
 						<!-- </div> -->

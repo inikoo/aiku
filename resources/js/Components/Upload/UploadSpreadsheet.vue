@@ -2,7 +2,7 @@
 
 
 import { Upload } from '@/types/Upload'
-import ModalUploadAttachment from '../Utils/ModalUploadAttachment.vue';
+import ModalUploadSpreadsheet from '../Utils/ModalUploadSpreadsheet.vue';
 
 const props = defineProps<{
     title: {
@@ -29,7 +29,7 @@ const emits = defineEmits<{
 
 <template>
     <KeepAlive>
-        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options />
+        <ModalUploadSpreadsheet v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options  />
     </KeepAlive>
 
 </template>
