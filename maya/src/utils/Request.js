@@ -127,7 +127,7 @@ const request = async ({
     if (!useCustomErrorMessage && error.response?.data.message) {
       errorMessage = error.response.data;
     }
-    const errorObj = { status, detail: errorMessage };
+    const errorObj = { status, data: errorMessage };
     onFailed(errorObj, extra);
     onBoth(false, errorObj, extra);
     return defaultValue;

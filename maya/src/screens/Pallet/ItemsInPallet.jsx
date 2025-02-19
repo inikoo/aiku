@@ -1,14 +1,43 @@
-import React, {useContext} from 'react';
-import {Text, View, Button} from 'react-native';
-import {AuthContext} from '@/src/components/Context/context';
+import React from 'react';
+import { View, FlatList, TouchableOpacity, Text } from 'react-native';
+import globalStyles from '@/globalStyles';
+import Empty from '@/src/components/Empty'
 
-const ItemsInPallets = () => {
-  const {userData} = useContext(AuthContext);
-
+const ItemsInPallets = ({navigation, route, data }) => {
   return (
-    <View className='flex-1 justify-center items-center'>
-      <Text className="text-2xl text-purple-500 font-bold">Home</Text>
+    <View style={globalStyles.container}>
+      <FlatList
+        data={data.items}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={(
+          <Empty />
+        )}
+        renderItem={({ item }) => (
+          <GroupItem item={item} navigation={navigation}  />
+        )}
+      />
     </View>
+  );
+};
+
+
+const GroupItem = ({ item, navigation }) => {
+  return (
+    <TouchableOpacity
+      style={[
+        globalStyles.list.card,
+        isActive && globalStyles.list.activeCard,
+      ]}
+      activeOpacity={0.7}
+    >
+      <View style={globalStyles.list.container}>
+        <View style={globalStyles.list.textContainer}>
+          <Text style={globalStyles.list.title}>{item.name}</Text>
+          <Text style={globalStyles.list.description}>{item.code || 'No code available'}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

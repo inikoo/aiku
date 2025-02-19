@@ -11,18 +11,18 @@ import request from '@/src/utils/Request';
 import globalStyles from '@/globalStyles';
 import {SearchIcon} from '@/src/components/ui/icon';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
-import {Button, ButtonText} from '@/src/components/ui/button';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Badge, BadgeText} from '@/src/components/ui/badge';
+import Empty from '@/src/components/Empty'
+
 import {
   Input,
   InputField,
   InputSlot,
   InputIcon,
 } from '@/src/components/ui/input';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+/* import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faBarcodeScan} from '@/private/fa/pro-regular-svg-icons';
-import {faTimes} from '@/private/fa/pro-light-svg-icons';
+import {faTimes} from '@/private/fa/pro-light-svg-icons'; */
 
 const BaseList = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
@@ -79,7 +79,7 @@ const BaseList = forwardRef((props, ref) => {
 
   const fetchMoreData = (isLoadMore = false) => {
     if (isLoadMore) {
-      if (meta.last_page != page) setPage(prevPage => prevPage + 1);
+      if (meta?.last_page != page) setPage(prevPage => prevPage + 1);
     } else {
       setPage(1);
       getDataFromServer(false);
@@ -151,6 +151,7 @@ const BaseList = forwardRef((props, ref) => {
             showsVerticalScrollIndicator={false}
             onEndReached={() => fetchMoreData(true)}
             onEndReachedThreshold={1}
+            ListEmptyComponent={(<Empty />)}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
