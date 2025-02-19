@@ -36,25 +36,27 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
     public function storeModel($row, $uploadRecord): void
     {
         $sanitizedData = $this->processExcelData([$row]);
+        $fields =
+            array_merge(
+                array_keys(
+                    $this->rules()
+                )
+            );
 
-        $fields = array_keys($this->rules());
-
-        $validatedData = Arr::only($sanitizedData, $fields);
-
-        if ($validatedData['availability'] == 'Available') {
+        if ($sanitizedData['availability'] == 'Available') {
             $availability = true;
         } else {
             $availability = false;
         }
 
         $modelData = [
-            'code' => $validatedData['suppliers_product_code'],
-            'name' => $validatedData['suppliers_unit_description'],
+            'code' => $sanitizedData['suppliers_product_code'],
+            'name' => $sanitizedData['suppliers_unit_description'],
             'is_available' => $availability,
-            'cost' => $validatedData['unit_cost'],
-            'units_per_pack' => $validatedData['units_per_sko'],
-            'units_per_carton' => $validatedData['skos_per_carton'],
-            'cbm' => $validatedData['carton_cbm'],
+            'cost' => $sanitizedData['unit_cost'],
+            'units_per_pack' => $sanitizedData['units_per_sko'],
+            'units_per_carton' => $sanitizedData['skos_per_carton'],
+            'cbm' => $sanitizedData['carton_cbm'],
         ];
         dd($modelData);
         try {
@@ -73,20 +75,17 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
 
     protected function processExcelData($data)
     {
-        $mappedData = [];
-
+        $mappedRow = [];
+    
         foreach ($data as $row) {
-            $mappedRow = [];
-
             foreach ($row as $key => $value) {
                 $mappedKey = str_replace([' ', ':', "'"], '_', strtolower($key));
                 $mappedRow[$mappedKey] = $value;
             }
-
-            $mappedData[] = $mappedRow;
+            break; 
         }
-
-        return $mappedData;
+    
+        return $mappedRow;
     }
 
     public function rules(): array
