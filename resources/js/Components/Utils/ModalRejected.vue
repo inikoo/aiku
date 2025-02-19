@@ -7,6 +7,8 @@ const model = defineModel()
 
 const props = defineProps<{
 	customer?: any
+	customerID?: number
+	customerName?: string
 }>()
 
 const emit = defineEmits<{
@@ -49,9 +51,9 @@ const onReject = () => {
 		payload.rejected_notes = otherText.value.trim()
 	}
 
-	if (props.customer && props.customer.id) {
+	if (props.customerName && props.customerID) {
 		router.patch(
-			route("grp.models.customer.reject", { customer: props.customer.id }),
+			route("grp.models.customer.reject", { customer: props.customerID }),
 			payload,
 			{
 				onStart: () => {
@@ -79,11 +81,13 @@ const onReject = () => {
 
 <template>
 	<Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-[800px]">
+	{{  customerID, 
+	customerName }}
 		<div class="flex flex-col h-full p-8 space-y-6">
 			<div class="border-b pb-4">
 				<h2 class="text-3xl font-bold mb-2">Reject Customer</h2>
 				<p class="text-gray-500">
-					Customer Name: <span class="font-medium">{{ customer.name }}</span>
+					Customer Name: <span class="font-medium">{{ customerName }}</span>
 				</p>
 			</div>
 

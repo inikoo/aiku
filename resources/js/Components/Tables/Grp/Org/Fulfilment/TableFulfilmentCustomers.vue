@@ -46,10 +46,12 @@ function customerRoute(customer: FulfilmentCustomer) {
 }
 
 const isModalUploadOpen = ref(false)
-const currentCustomer = ref([])
+const customerID = ref()
+const customerName = ref()
 
 function openRejectedModal(customer: any) {
-  currentCustomer.value = customer
+  customerID.value = customer.id
+  customerName.value = customer.name
   isModalUploadOpen.value = true
 }
 </script>
@@ -79,7 +81,9 @@ function openRejectedModal(customer: any) {
       <template #cell(sales_all)="{ item: customer }">
         <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
       </template>
-
+      <template #cell(registered_at)="{ item: customer }">
+            <div class="text-gray-500 text-right">{{ useFormatTime(customer["registered_at"], { localeCode: locale.language.code, formatTime: "hm" }) }}</div>
+        </template>
       <template #cell(action)="{ item: customer }">
         <div class="flex gap-4">
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'approved' }">
@@ -135,6 +139,7 @@ function openRejectedModal(customer: any) {
 
     <ModalRejected
     v-model="isModalUploadOpen"
-    :customer="currentCustomer"
+      :customerID="customerID"
+      :customerName="customerName"
   />
 </template>
