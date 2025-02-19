@@ -10,7 +10,7 @@
 namespace App\Actions\Retina\Fulfilment\StoredItemsAudit\Deltas\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -27,7 +27,7 @@ use App\Services\QueryBuilder;
 
 class IndexRetinaStoredItemAuditDeltas extends RetinaAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
     private StoredItemAudit $storedItemAudit;
 

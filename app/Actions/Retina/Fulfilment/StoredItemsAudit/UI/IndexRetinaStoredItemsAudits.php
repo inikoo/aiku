@@ -11,7 +11,7 @@ namespace App\Actions\Retina\Fulfilment\StoredItemsAudit\UI;
 
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -26,7 +26,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaStoredItemsAudits extends RetinaAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {

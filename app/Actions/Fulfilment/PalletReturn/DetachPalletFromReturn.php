@@ -58,8 +58,4 @@ class DetachPalletFromReturn extends OrgAction
         return $this->handle($pallet->palletReturn, $pallet);
     }
 
-    // public function jsonResponse(Pallet $pallet): PalletResource
-    // {
-    //     return new PalletResource($pallet);
-    // }
 }

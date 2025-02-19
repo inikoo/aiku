@@ -100,7 +100,6 @@ class ShowFulfilmentCustomer extends OrgAction
                 ];
             }
 
-
             if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
                 $additionalActions[] =
                     [
@@ -172,7 +171,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
-                'attachmentRoutes' => [
+                'attachmentRoutes'   => [
                     'attachRoute' => [
                         'name'       => 'grp.models.customer.attachment.attach',
                         'parameters' => [
@@ -212,18 +211,12 @@ class ShowFulfilmentCustomer extends OrgAction
                 FulfilmentCustomerTabsEnum::ATTACHMENTS->value => $this->tab == FulfilmentCustomerTabsEnum::ATTACHMENTS->value ?
                     fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))
                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))),
-                //                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
-                //                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-                //                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
-
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
             ->table(IndexAttachments::make()->tableStructure(FulfilmentCustomerTabsEnum::ATTACHMENTS->value));
-        ;
-        //  ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
     }
 
 

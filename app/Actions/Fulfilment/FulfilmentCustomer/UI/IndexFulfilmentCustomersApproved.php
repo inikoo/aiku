@@ -34,15 +34,14 @@ class IndexFulfilmentCustomersApproved extends OrgAction
     use WithFulfilmentCustomersSubNavigation;
 
 
-
-    protected function getElementGroups(Fulfilment $parent): array
+    protected function getElementGroups(Fulfilment $fulfilment): array
     {
         return [
             'status' => [
                 'label'    => __('Status'),
                 'elements' => array_merge_recursive(
                     FulfilmentCustomerStatusEnum::labels(),
-                    FulfilmentCustomerStatusEnum::count($parent)
+                    FulfilmentCustomerStatusEnum::count($fulfilment)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -108,7 +107,9 @@ class IndexFulfilmentCustomersApproved extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_spaces_state_renting', 'number_stored_items_state_active' ,'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+            ->allowedSorts(
+                ['reference', 'name', 'number_pallets', 'slug', 'number_spaces_state_renting', 'number_stored_items_state_active', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at']
+            )
             ->allowedFilters([$globalSearch])
             ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -123,15 +124,15 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$this->pending_approval) {
-                foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
+
+            foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
             }
+
 
             $table
                 ->withModelOperations($modelOperations)
@@ -172,7 +173,6 @@ class IndexFulfilmentCustomersApproved extends OrgAction
     }
 
 
-
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
         return FulfilmentCustomersResource::collection($customers);
@@ -208,13 +208,12 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title'   => __('customers'),
-                    'model'   => __('Fulfilment'),
-                    'icon'    => [
+                    'title'         => __('customers'),
+                    'icon'          => [
                         'icon'    => ['fal', 'fa-user'],
-                        'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
+                        'tooltip' => $this->fulfilment->shop->name.' '.__('Fulfilment customers')
                     ],
-                    'actions' => $actions,
+                    'actions'       => $actions,
                     'subNavigation' => $navigation
                 ],
                 'data'        => FulfilmentCustomersResource::collection($customers)

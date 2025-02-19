@@ -26,6 +26,9 @@ class PickPalletReturnItem extends OrgAction
     use WithActionUpdate;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
     {
         return DB::transaction(function () use ($palletReturnItem, $modelData) {
@@ -54,6 +57,9 @@ class PickPalletReturnItem extends OrgAction
         ];
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);

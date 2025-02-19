@@ -13,7 +13,6 @@ use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithAccountingAuthorisation;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;

@@ -112,7 +112,7 @@ class StoreStoredItemAudit extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);

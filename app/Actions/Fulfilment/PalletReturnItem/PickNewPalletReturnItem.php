@@ -24,7 +24,10 @@ class PickNewPalletReturnItem extends OrgAction
     use WithFulfilmentAuthorisation;
     use WithActionUpdate;
 
-    public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData)
+    /**
+     * @throws \Throwable
+     */
+    public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData): void
     {
         DB::transaction(function () use ($modelData, $palletReturn, $palletStoredItem) {
             $quantityOrdered = Arr::pull($modelData, 'quantity_ordered');
@@ -56,7 +59,10 @@ class PickNewPalletReturnItem extends OrgAction
         ];
     }
 
-    public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request)
+    /**
+     * @throws \Throwable
+     */
+    public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request): void
     {
         $this->initialisationFromFulfilment($palletStoredItem->pallet->fulfilment, $request);
 

@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\CRM\Customer;
@@ -33,7 +33,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemPallets extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     private Warehouse|Fulfilment|Customer $parent;
     /**
      * @var true

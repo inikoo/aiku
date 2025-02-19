@@ -128,13 +128,10 @@ class IndexStoredItems extends OrgAction
     }
 
 
-
-
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
         return StoredItemResource::collection($storedItems);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
@@ -271,7 +268,6 @@ class IndexStoredItems extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        // dd($routeParameters);
         $headCrumb = function (array $routeParameters) {
             return [
                 [
