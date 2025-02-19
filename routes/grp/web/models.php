@@ -169,6 +169,7 @@ use App\Actions\Production\RawMaterial\StoreRawMaterial;
 use App\Actions\Production\RawMaterial\UpdateRawMaterial;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
+use App\Actions\SupplyChain\SupplierProduct\ImportSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
@@ -631,6 +632,7 @@ Route::name('collection.')->prefix('collection/{collection:id}')->group(function
 
 Route::name('supplier.')->prefix('supplier/{supplier:id}')->group(function () {
     Route::post('supplier-product', StoreSupplierProduct::class)->name('supplier-product.store');
+    Route::post('supplier-product/import', ImportSupplierProducts::class)->name('supplier-product.import');
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inSupplier'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inSupplier'])->name('attachment.detach')->withoutScopedBindings();
 });
