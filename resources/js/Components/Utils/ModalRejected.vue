@@ -81,13 +81,11 @@ const onReject = () => {
 
 <template>
 	<Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-[800px]">
-	{{  customerID, 
-	customerName }}
 		<div class="flex flex-col h-full p-8 space-y-6">
 			<div class="border-b pb-4">
 				<h2 class="text-3xl font-bold mb-2">Reject Customer</h2>
 				<p class="text-gray-500">
-					Customer Name: <span class="font-medium">{{ customerName }}</span>
+					<span class="font-medium">{{ customerName }}</span>
 				</p>
 			</div>
 
