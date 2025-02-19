@@ -27,7 +27,7 @@ Route::prefix('pallets')->as('pallets.')->group(function () {
 });
 
 Route::prefix('stored-items')->as('stored-items.')->group(function () {
-    Route::get('/', IndexStoredItemsInWarehouse::class)->name('inde');
+    Route::get('/', IndexStoredItemsInWarehouse::class)->name('index');
     Route::get('{storedItem:id}', ShowStoredItem::class)->name('show')->withoutScopedBindings();
-    Route::get('{storedItem:id}/pallets', [IndexStoredItemPallets::class, 'inWarehouse'])->name('pallets.index')->withoutScopedBindings();
+    Route::get('{storedItem:id}/pallets', [IndexStoredItemPallets::class, 'inStoredItem'])->name('pallets.index')->withoutScopedBindings();
 });
