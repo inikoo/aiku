@@ -14,6 +14,7 @@ import { ref } from 'vue';
 import UploadSpreadsheet from '@/Components/Upload/UploadSpreadsheet.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { trans } from 'laravel-vue-i18n'
+import UploadExcel from '@/Components/Upload/UploadExcel.vue';
 
 const props = defineProps <{
     pageHead: TSPageHeading
@@ -40,9 +41,17 @@ const isModalUploadOpen = ref(false)
     </PageHeading>
     <TableSupplierProducts :data="data" />
 
-    <UploadSpreadsheet v-model="isModalUploadOpen" scope="attachment" :title="{
-        label: 'Upload your file',
-        information: 'The list of column file: customer_reference, notes, stored_items'
-    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="importRoutes"  />
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"        
+        :importRoutes
+        
+    />
+    
 </template>
 
