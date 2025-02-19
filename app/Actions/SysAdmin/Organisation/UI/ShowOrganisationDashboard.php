@@ -87,7 +87,7 @@ class ShowOrganisationDashboard extends OrgAction
             'current' => $this->tabDashboardInterval,
             'table' => [
                 [
-                    'tab_label' => __('Invoices'),
+                    'tab_label' => __('Invoice per store'),
                     'tab_slug'  => 'invoices',
                     'tab_icon'  => 'fal fa-file-invoice-dollar',
                     'type'     => 'table',
@@ -108,14 +108,6 @@ class ShowOrganisationDashboard extends OrgAction
         ];
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
-        // $total            = [
-        //     'total_sales'    => $organisation->shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0),
-        //     'total_sales_percentages' => 0,
-        //     'total_invoices' => 0,
-        //     'total_invoices_percentages' => 0,
-        //     'total_refunds'  => 0,
-        //     'total_refunds_percentages' => 0,
-        // ];
 
         $total = [
             'total_sales'                => 0,
@@ -136,7 +128,6 @@ class ShowOrganisationDashboard extends OrgAction
             $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
         }
 
-        // dd($dashboard);
 
         return $dashboard;
     }
@@ -318,6 +309,40 @@ class ShowOrganisationDashboard extends OrgAction
             ]
         );
 
+        $averageInvoices = [];
+        $totalAvg = 0;
+        for ($i = 0; $i < count($combined); $i++) {
+            $amount = 0;
+            if ($combinedInvoices[$i][2] != 0) {
+                $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+            }
+            $averageInvoices[$i] = [
+                'name' => $combined[$i][0],
+                'currency_code' => $combined[$i][1],
+                'amount' => $amount,
+            ];
+            $totalAvg += $amount;
+        }
+
+
+        $dashboard['widgets']['components'][] = $this->getWidget(
+            type: 'chart_display',
+            data: [
+                'description' => __('Average invoices')
+            ],
+            visual: [
+                'type'  => 'bar',
+                'value' => [
+                    'labels'         => Arr::pluck($averageInvoices, 'name'),
+                    'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                    'datasets'       => [
+                        [
+                            'data' => Arr::pluck($averageInvoices, 'amount')
+                        ]
+                    ]
+                ],
+            ]
+        );
 
         return $data;
     }

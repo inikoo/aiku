@@ -70,6 +70,9 @@ Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
 Route::get('returns/confirmed', [IndexPalletReturns::class, 'inFulfilmentConfirmed'])->name('pallet-returns.confirmed.index');
 Route::get('returns/picking', [IndexPalletReturns::class, 'inFulfilmentPicking'])->name('pallet-returns.picking.index');
 Route::get('returns/picked', [IndexPalletReturns::class, 'inFulfilmentPicked'])->name('pallet-returns.picked.index');
+Route::get('returns/dispatched', [IndexPalletReturns::class, 'inFulfilmentDispatched'])->name('pallet-returns.dispatched.index');
+Route::get('returns/cancelled', [IndexPalletReturns::class, 'inFulfilmentCancelled'])->name('pallet-returns.cancelled.index');
+Route::get('returns/new', [IndexPalletReturns::class, 'inFulfilmentNew'])->name('pallet-returns.new.index');
 
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
 Route::get('return-with-stored-items/{palletReturn}', ShowStoredItemReturn::class)->name('pallet-return-with-stored-items.show');

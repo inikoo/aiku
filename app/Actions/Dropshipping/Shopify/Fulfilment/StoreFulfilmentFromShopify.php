@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dropshipping\ShopifyFulfilmentReasonEnum;
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
@@ -86,8 +87,14 @@ class StoreFulfilmentFromShopify extends OrgAction
                 }
             }
 
+            $reasons = [
+                'reason' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK,
+                'reason_notes' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->notes()[ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->value],
+            ];
+
             if ($allComplete) {
                 $status = ShopifyFulfilmentStateEnum::OPEN;
+                $reasons = [];
             } elseif ($someComplete) {
                 $status = ShopifyFulfilmentStateEnum::HOLD;
             } else {
@@ -102,7 +109,8 @@ class StoreFulfilmentFromShopify extends OrgAction
                 'shopify_order_id' => Arr::get($modelData, 'order_id'),
                 'shopify_fulfilment_id' => Arr::get($modelData, 'id'),
                 'state' => $status->value,
-                'customer' => Arr::get($modelData, 'customer')
+                'customer' => Arr::get($modelData, 'customer'),
+                ...$reasons
             ]);
 
             if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::INCOMPLETE) {

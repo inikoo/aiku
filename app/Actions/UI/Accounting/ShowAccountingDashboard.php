@@ -130,7 +130,7 @@ class ShowAccountingDashboard extends OrgAction
                                         'parameters' => $parameters
                                     ],
                                     'index' => [
-                                        'number' => $this->scope->accountingStats->number_invoices
+                                        'number' => $this->scope->orderingStats->number_invoices
                                     ]
 
                                 ],
@@ -183,7 +183,7 @@ class ShowAccountingDashboard extends OrgAction
                                         'parameters' => $parameters
                                     ],
                                     'index' => [
-                                        'number' => $this->scope->accountingStats->number_invoices
+                                        'number' => $this->scope->orderingStats->number_invoices
                                     ],
                                     'rightSubLink' => [
                                         'tooltip'    => __('invoice categories'),

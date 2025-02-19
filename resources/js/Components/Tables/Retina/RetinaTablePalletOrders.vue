@@ -34,8 +34,6 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
-        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
-        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-returns.show',
                 [
@@ -47,9 +45,6 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-returns.show',
                 [
@@ -81,8 +76,6 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
-        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
-        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show',
                 [
@@ -94,9 +87,6 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
-        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show',
                 [
@@ -158,6 +148,18 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             </div>
         </template>
 
+        <template #cell(shopify_order_id)="{ item: palletReturn }">
+            <div class="tabular-nums">
+                {{ palletReturn.shopify_order_id }}
+            </div>
+        </template>
+
+        <template #cell(shopify_fulfilment_id)="{ item: palletReturn }">
+            <div class="tabular-nums">
+                {{ palletReturn.shopify_fulfilment_id }}
+            </div>
+        </template>
+
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
             <Icon :data="palletReturn['type_icon']" class="px-1"/>
@@ -184,15 +186,15 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             {{ useFormatTime(palletReturn.dispatched_at) }}
         </template>
 
-        <template #buttonreturns="{ linkButton: linkButton }">
+        <template #cell(actions)="{ item: palletReturn }">
             <Link
-                v-if="linkButton?.route?.name"
+                v-if="palletReturn?.release_hold_route?.name && palletReturn.state == 'hold'"
                 method="post"
-                :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+                :href="route(palletReturn?.release_hold_route?.name, palletReturn?.release_hold_route?.parameters)"
                 class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
                 <Button
-                    :style="linkButton.style"
-                    :label="linkButton.label"
+                    :style="'primary'"
+                    :label="'Release Hold'"
                     class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
                 </Button>
             </Link>
