@@ -234,7 +234,7 @@ class InertiaTable
         }
 
         return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
-            $elementRadioGroup->value = $queryElements;
+            $elementRadioGroup->value = (string) $queryElements;
 
             return $elementRadioGroup;
         });
