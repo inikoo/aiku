@@ -26,9 +26,7 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
      */
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
-        $fulfilmentCustomer = RegisterFulfilmentCustomer::make()->action($fulfilment, $modelData);
-
-        return $fulfilmentCustomer;
+        return RegisterFulfilmentCustomer::make()->action($fulfilment, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -36,7 +34,7 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
         return true;
     }
 
-    public function htmlResponse()
+    public function htmlResponse(): \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
     {
         return Redirect::route('retina.login.show');
     }

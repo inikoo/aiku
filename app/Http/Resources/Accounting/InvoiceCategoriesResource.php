@@ -20,9 +20,12 @@ class InvoiceCategoriesResource extends JsonResource
             'slug'   => $this->slug,
             'name'   => $this->name,
             'state'  => $this->state,
+            'state_icon' => $this->state->stateIcon()[$this->state->value],
+            'number_type_invoices' => $this->number_type_invoices,
+            'number_type_refunds' => $this->number_type_refunds,
+            'amount' => $this->amount,
+            'currency_code' => $this->currency_code,
             'state_label'   => $this->state->labels()[$this->state->value],
-            'type'   => $this->type,
-            'type_label'    => $this->type->labels()[$this->type->value],
         ];
     }
 }

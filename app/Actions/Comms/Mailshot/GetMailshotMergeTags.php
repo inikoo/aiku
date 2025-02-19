@@ -9,7 +9,6 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Enums\Comms\Outbox\OutboxMergeTagsEnum;
-use App\Models\Comms\Mailshot;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -19,13 +18,13 @@ class GetMailshotMergeTags
     use WithAttributes;
 
 
-    public function handle(Mailshot $mailshot): array
+    public function handle(): array
     {
         return OutboxMergeTagsEnum::tags();
     }
 
-    public function asController(Mailshot $mailshot): array
+    public function asController(): array
     {
-        return $this->handle($mailshot);
+        return $this->handle();
     }
 }

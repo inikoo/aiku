@@ -11,7 +11,6 @@
 namespace App\Actions\Accounting\InvoiceCategory\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -41,21 +40,21 @@ class InvoiceCategoryHydrateSalesIntervals
 
         $stats = [];
 
-        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('sum(net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_'
         );
 
-        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_grp_currency_'
         );
 
-        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
