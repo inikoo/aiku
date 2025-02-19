@@ -10,7 +10,7 @@
 namespace App\Actions\Ordering\ShippingZone\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ShippingZonesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Ordering\ShippingZone;
@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexShippingZones extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private ShippingZoneSchema $parent;
 

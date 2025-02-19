@@ -100,7 +100,7 @@ class ShowGroupDashboard extends OrgAction
                 ]
             ],
             'widgets'          => [
-                'column_count' => 4,
+                'column_count' => 5,
                 'components'   => []
             ]
         ];

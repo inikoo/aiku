@@ -21,6 +21,8 @@ import { faCheck, faUndoAlt, faArrowDown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 import { Collapse } from 'vue-collapsed'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import axios from 'axios'
 library.add(faCheck, faUndoAlt, faArrowDown)
 
 const props = defineProps<{
@@ -35,6 +37,11 @@ const props = defineProps<{
     }
 }>();
 
+const emits = defineEmits<{
+    (e: 'isStoredItemAdded', value: boolean): void
+}>()
+
+const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 const selectedRow = ref({});
 const _table = ref(null);
@@ -190,6 +197,25 @@ const generateLinkPalletLocation = (pallet: any) => {
     }
 }
 
+// Button: undo pick
+const isLoadingUndoPick = reactive({})
+const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadingKey: string) => {
+    try {
+        pallet_stored_item.isLoadingUndo = true
+        set(isLoadingUndoPick, loadingKey, true)
+        await axios[routeTarget.method || 'get'](
+            route(routeTarget.name, routeTarget.parameters)
+        )
+        pallet_stored_item.state = 'picking'
+        // console.log('qqqqq', pallet_stored_item)
+    } catch (error) {
+        console.error('hehehe', error)
+        
+    } finally {
+        set(isLoadingUndoPick, loadingKey, false)
+    }
+    
+}
 </script>
 
 <template>
@@ -210,12 +236,12 @@ const generateLinkPalletLocation = (pallet: any) => {
             </Link>
         </template>
         
-        <!-- Column: Stored items -->
+        <!-- Column: Pallet of Stored items -->
         <template #cell(pallet_stored_items)="{ item: value, proxyItem }">
             <div class="grid gap-y-1">
                 <template v-for="pallet_stored_item in value.pallet_stored_items" :key="pallet_stored_item.id">
                     <Teleport v-if="isMounted" :to="`#row-${value.id}`" :disabled="palletReturn.state == 'in_process' || pallet_stored_item.selected_quantity > 0">
-                        <div class="rounded p-1 flex justify-between gap-x-4 items-center">
+                        <div class="rounded p-1 flex justify-between gap-x-6 items-center">
                             <!-- <Tag :label="pallet_stored_item.reference" stringToColor>
                                 <template #label>
                                     <div class="">
@@ -233,6 +259,7 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 </span>
                                 <span v-else class="text-gray-400 italic">({{ trans('No reference') }})</span>
                                 <span v-if="pallet_stored_item.location?.code" v-tooltip="trans('Location code of the pallet')" class="text-gray-400"> [{{ pallet_stored_item.location?.code }}]</span>
+                                <FontAwesomeIcon v-if="pallet_stored_item.selected_quantity && palletReturn.state === 'in_process'" v-tooltip="trans('Will be picked')" icon='fas fa-circle' class='text-[7px] ml-1 mb-1 text-blue-500 animate-pulse' fixed-width aria-hidden='true' />
                                 <div v-if="palletReturn.state === 'picking'"
                                     @xxclick="() => pallet_stored_item.picked_quantity = pallet_stored_item.quantity_in_pallet"
                                     v-tooltip="trans('Total Customer\'s SKU in this pallet')"
@@ -245,9 +272,20 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                                 <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="trans('Quantity of Customer\'s SKU that should be picked')" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
     
+                                <!-- Button: input number (in_process) -->
                                 <NumberWithButtonSave
                                     v-if="palletReturn.state === 'in_process'"
+                                    key="in_process"
                                     noUndoButton
+                                    isUseAxios
+                                    @onSuccess="(newVal: number, oldVal: number) => {
+                                        proxyItem.total_quantity_ordered += newVal - oldVal
+                                        pallet_stored_item.selected_quantity = newVal
+                                        emits('isStoredItemAdded', newVal > 0 ? true : false)
+                                        // router.reload({
+                                        //     only: ['box_stats.order_summary'],
+                                        // })
+                                    }"
                                     :modelValue="pallet_stored_item.selected_quantity"
                                     saveOnForm
                                     :routeSubmit="{
@@ -267,69 +305,76 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 >
                                 </NumberWithButtonSave>
 
-                                <div v-else-if="palletReturn.state === 'submitted'" class="flex flex-nowrap gap-x-1 items-center">
-                                    {{ pallet_stored_item.selected_quantity }}
+                                <div v-else-if="palletReturn.state === 'submitted' || palletReturn.state === 'confirmed'" class="flex flex-nowrap gap-x-1 items-center">
+                                    {{ locale.number(pallet_stored_item.selected_quantity) }}
                                 </div>
     
-                                <!-- Picking: input number -->
+                                <!-- Button: input number (picking) -->
                                 <template v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'">
-                                    <NumberWithButtonSave
-                                        noUndoButton
-                                        :modelValue="pallet_stored_item.selected_quantity"
-                                        saveOnForm
-                                        :routeSubmit="
-                                            pallet_stored_item.pallet_return_item_id
-                                                ? pallet_stored_item.updateRoute
-                                                : pallet_stored_item.newPickRoute
-                                        "
-                                        :keySubmit="
-                                            pallet_stored_item.pallet_return_item_id
-                                                ? 'quantity_picked'
-                                                : 'quantity_ordered'
-                                        "
-                                        :bindToTarget="{
-                                            step: 1,
-                                            min: 0,
-                                            max: pallet_stored_item.max_quantity
-                                        }"
-                                        :xxcolorTheme="
-                                            pallet_stored_item.selected_quantity == pallet_stored_item.picked_quantity
-                                                ? '#374151'
-                                                : pallet_stored_item.selected_quantity < pallet_stored_item.picked_quantity
-                                                    ? '#22c55e'
-                                                    : '#ff0000'
-                                        "
-                                    >
-                                        <template #save="{ isProcessing, isDirty, onSaveViaForm }">
-                                            <Button
-                                                v-if="pallet_stored_item.selected_quantity > 0"
-                                                @click="() => onSaveViaForm()"
-                                                icon="fal fa-save"
-                                                :label="trans('pick')"
-                                                size="xs"
-                                                :xdisabled="!isDirty"
-                                                type="secondary"
-                                                :loading="isProcessing"
-                                                class="py-0"
-                                            />
-                                            <Button
-                                                v-else
-                                                @click="() => onSaveViaForm()"
-                                                icon="fal fa-save"
-                                                :label="trans('pick')"
-                                                size="xs"
-                                                :xdisabled="!isDirty"
-                                                type="secondary"
-                                                :loading="isProcessing"
-                                                class="py-0"
-                                            />
-                                        </template>
-                                    </NumberWithButtonSave>
+                                    <div>
+                                        <NumberWithButtonSave
+                                            key="pickingpicked"
+                                            noUndoButton
+                                            isUseAxios
+                                            @onSuccess="(newVal: number, oldVal: number) => {
+                                                pallet_stored_item.state = 'picked',
+                                                pallet_stored_item.picked_quantity = newVal
+                                            }"
+                                            @xxonError="(error: any) => {
+                                                pallet_stored_item.error = error.message
+                                            }"
+                                            :modelValue="pallet_stored_item.selected_quantity"
+                                            saveOnForm
+                                            :routeSubmit="
+                                                pallet_stored_item.pallet_return_item_id
+                                                    ? pallet_stored_item.updateRoute
+                                                    : pallet_stored_item.newPickRoute
+                                            "
+                                            :keySubmit="
+                                                pallet_stored_item.pallet_return_item_id
+                                                    ? 'quantity_picked'
+                                                    : 'quantity_ordered'
+                                            "
+                                            :bindToTarget="{
+                                                step: 1,
+                                                min: 0,
+                                                max: pallet_stored_item.max_quantity
+                                            }"
+                                            :xxcolorTheme="
+                                                pallet_stored_item.selected_quantity == pallet_stored_item.picked_quantity
+                                                    ? '#374151'
+                                                    : pallet_stored_item.selected_quantity < pallet_stored_item.picked_quantity
+                                                        ? '#22c55e'
+                                                        : '#ff0000'
+                                            "
+                                            :xxparentClass="''
+                                                // pallet_stored_item.error ? 'errorShake' : ''
+                                            "
+                                        >
+                                            <template #save="{ isProcessing, isDirty, onSaveViaForm }">
+                                                <Button
+                                                    v-if="pallet_stored_item.selected_quantity > 0"
+                                                    @click="() => (
+                                                        // pallet_stored_item.error = null,  // make slow a little bit
+                                                        onSaveViaForm()
+                                                    )"
+                                                    icon="fal fa-save"
+                                                    :label="trans('pick')"
+                                                    size="xs"
+                                                    :xdisabled="!isDirty"
+                                                    type="secondary"
+                                                    :loading="isProcessing"
+                                                    class="py-0"
+                                                />
+                                            </template>
+                                        </NumberWithButtonSave>
+                                        <!-- <p v-if="pallet_stored_item.error" class="text-xs text-red-500 italic">*{{ pallet_stored_item.error }}</p> -->
+                                    </div>
                                 </template>
     
                                 <div v-else class="flex flex-nowrap gap-x-1 items-center tabular-nums">
-                                    <ButtonWithLink
-                                        v-if="palletReturn.state == 'picking' && pallet_stored_item.state == 'picked'"
+                                    <!-- <ButtonWithLink
+                                        
                                         icon="fal fa-undo-alt"
                                         :label="trans('Undo pick')"
                                         size="xs"
@@ -337,14 +382,24 @@ const generateLinkPalletLocation = (pallet: any) => {
                                         :key="2"
                                         class="py-0 mr-1"
                                         :routeTarget="pallet_stored_item.undoRoute"
+                                    /> -->
+                                    <Button
+                                        v-if="palletReturn.state == 'picking' && pallet_stored_item.state == 'picked'"
+                                        @click="() => onUndoPick(pallet_stored_item.undoRoute, pallet_stored_item, `row${value.rowIndex}.id${pallet_stored_item.id}`)"
+                                        icon="fal fa-undo-alt"
+                                        :label="trans('Undo pick')"
+                                        size="xs"
+                                        :loading="get(isLoadingUndoPick, [`row${value.rowIndex}`, `id${pallet_stored_item.id}`], false)"
+                                        type="tertiary"
                                     />
-                                    {{ pallet_stored_item.picked_quantity }}/{{ pallet_stored_item.selected_quantity }}
+                                    {{ locale.number(pallet_stored_item.picked_quantity) }}/{{ locale.number(pallet_stored_item.selected_quantity) }}
                                     <FontAwesomeIcon v-if="pallet_stored_item.state == 'picked'" v-tooltip="trans('Picked')" icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
                                 </div>
     
                                 
                             </div>
-                            <!-- {{ pallet_stored_item.pallet_return_item_id }} -->
+                            <!-- {{ get(isLoadingUndoPick, [`row${value.rowIndex}.id${pallet_stored_item.id}`], '000') }} --  -->
+                            <!-- {{ pallet_stored_item.isLoadingUndo }} -->
                             
                         </div>
                     </Teleport>
@@ -362,7 +417,12 @@ const generateLinkPalletLocation = (pallet: any) => {
                         </div>
                     </Collapse>
                     <div class="w-full mt-2">
-                        <Button v-if="!value.pallet_stored_items.every(val => {return val.selected_quantity > 0})" @click="() => set(proxyItem, ['is_open_collapsed'], !get(proxyItem, ['is_open_collapsed'], false))" type="dashed" full size="sm">
+                        <Button
+                            v-if="!value.pallet_stored_items.every(val => {return val.selected_quantity > 0})" @click="() => set(proxyItem, ['is_open_collapsed'], !get(proxyItem, ['is_open_collapsed'], false))"
+                            type="dashed"
+                            full
+                            size="sm"
+                        >
                             <div class="py-1 text-gray-500">
                                 <FontAwesomeIcon icon='fal fa-arrow-down' class="transition-all" :class="get(proxyItem, ['is_open_collapsed'], false) ? 'rotate-180' : ''" fixed-width aria-hidden='true' />
                                 {{ get(proxyItem, ['is_open_collapsed'], false) ? 'Close' : 'Open hidden pallets' }}
@@ -402,6 +462,14 @@ const generateLinkPalletLocation = (pallet: any) => {
                     
                     <div v-else class="py-3">{{ item.data.quantity }}</div>
                 </div>
+            </div>
+        </template>
+
+        <template #cell(total_quantity_ordered)="{ item }">
+            <div class="">
+                <Transition name="spin-to-right">
+                    <span :key="item.total_quantity_ordered">{{ locale.number(item.total_quantity_ordered) }}</span>
+                </Transition>
             </div>
         </template>
 

@@ -13,7 +13,7 @@ use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\UI\Catalogue\ProductCategoryTabsEnum;
@@ -36,7 +36,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexDepartments extends OrgAction
 {
     use WithCollectionSubNavigation;
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     private Group|Shop|ProductCategory|Organisation|Collection $parent;
 
     private bool $sales = true;

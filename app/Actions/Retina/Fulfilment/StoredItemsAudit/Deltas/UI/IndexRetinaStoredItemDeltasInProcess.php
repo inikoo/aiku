@@ -10,7 +10,7 @@ namespace App\Actions\Retina\Fulfilment\StoredItemsAudit\Deltas\UI;
 
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\InertiaTable\InertiaTable;
@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaStoredItemDeltasInProcess extends RetinaAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
 

@@ -10,8 +10,8 @@
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Models\Fulfilment\PalletReturnItem;
@@ -27,7 +27,7 @@ class UndoStoredItemPick extends OrgAction
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
         $this->update($palletReturnItem, [
-            'state' => PalletReturnItemStateEnum::PICKING,
+            'state'           => PalletReturnItemStateEnum::PICKING,
             'quantity_picked' => 0
         ]);
 
@@ -43,6 +43,6 @@ class UndoStoredItemPick extends OrgAction
     {
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturnItem, $this->validatedData);
+        return $this->handle($palletReturnItem);
     }
 }

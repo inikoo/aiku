@@ -9,14 +9,13 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
-use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingAuthorisation;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
@@ -32,19 +31,14 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPaymentAccount extends OrgAction
 {
     use WithPaymentAccountSubNavigation;
+    use WithAccountingAuthorisation;
 
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
-    }
 
     public function inOrganisation(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
@@ -130,8 +124,8 @@ class ShowPaymentAccount extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
-                            'tooltip' => __('edit payment account'),
-                            'label'   => __('Edit Payment Account'),
+                            'tooltip' => __('Edit payment account'),
+                            'label'   => __('Edit'),
                             'route'   => [
                                 'name'       => 'grp.org.accounting.payment-accounts.edit',
                                 'parameters' => array_values($request->route()->originalParameters())

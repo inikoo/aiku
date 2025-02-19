@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStoredItemAudits extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private FulfilmentCustomer|Fulfilment $parent;

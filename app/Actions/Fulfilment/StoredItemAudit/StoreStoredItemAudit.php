@@ -12,12 +12,12 @@ use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\Fulfilment\StoredItemAudit\Search\StoredItemAuditRecordSearch;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -112,7 +112,7 @@ class StoreStoredItemAudit extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);

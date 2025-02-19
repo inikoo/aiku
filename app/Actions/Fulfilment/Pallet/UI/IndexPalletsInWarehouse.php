@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Pallet;
@@ -28,7 +28,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInWarehouse extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithPalletsSubNavigation;
 
     private bool $selectStoredPallets = false;

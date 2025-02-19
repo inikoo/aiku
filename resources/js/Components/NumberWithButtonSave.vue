@@ -18,6 +18,8 @@ import { useForm } from "@inertiajs/vue3"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 import { routeType } from "@/types/route"
 import { trans } from "laravel-vue-i18n"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
 
 library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner, fasMinus, fasPlus )
 
@@ -37,11 +39,15 @@ const props = defineProps<{
         step?: number
     }
     colorTheme?: string  // '#374151'
+    isUseAxios?: boolean
+    parentClass?: string
 }>()
 
 const emits = defineEmits<{
     (e: 'onSave', value: string | number): void
     (e: 'update:modelValue', value: number): void
+    (e: 'onSuccess', newValue: number, oldValue: number): void
+    (e: 'onError', value: {}): void
 }>()
 
 const model = defineModel()
@@ -49,21 +55,47 @@ const model = defineModel()
 const form = useForm({
     quantity: props.modelValue,
 })
+const formDefaultValue = ref({
+    quantity: props.modelValue,
+})
 
-const onSaveViaForm = () => {
+const onSaveViaForm = async () => {
     if(!props.routeSubmit?.name) return
-    
-    form
-    .transform((data) => ({
-        [props.keySubmit || 'quantity']: data.quantity
-    }))
-    .submit(
-        props.routeSubmit?.method || 'post',
-        route(props.routeSubmit?.name, props.routeSubmit?.parameters),
-        {
-            preserveScroll: true,
+
+    if (props.isUseAxios) {
+        try {
+            form.processing = true
+            await axios[props.routeSubmit?.method || 'post'](route(props.routeSubmit?.name, props.routeSubmit?.parameters), {
+                [props.keySubmit || 'quantity']: form.quantity
+            })
+
+            form.defaults('quantity', form.quantity)
+            emits('onSuccess', form.quantity, formDefaultValue.value.quantity)
+            formDefaultValue.value.quantity = form.quantity
+            // console.log('ee axios', form.processing)
+        } catch (error) {
+            emits('onError', error?.response?.data)
+            notify({
+                title: trans('Something went wrong'),
+                text: error?.response?.data?.message || error?.response?.data,
+                type: 'error',
+            })
+        } finally {
+            form.processing = false
         }
-    )
+    } else {
+        form
+        .transform((data) => ({
+            [props.keySubmit || 'quantity']: data.quantity
+        }))
+        .submit(
+            props.routeSubmit?.method || 'post',
+            route(props.routeSubmit?.name, props.routeSubmit?.parameters),
+            {
+                preserveScroll: true,
+            }
+        )
+    }
 }
 
 const keyIconUndo = ref(0)
@@ -98,7 +130,7 @@ const onClickPlusButton = () => {
 </script>
 
 <template>
-    <div class="relative w-full">
+    <div class="relative w-full" :class="parentClass">
         <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1 py-0.5">
             <!-- Button: Save -->
             <button v-if="!noUndoButton"

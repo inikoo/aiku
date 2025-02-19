@@ -15,7 +15,7 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -41,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStoredItemReturn extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
@@ -105,7 +105,7 @@ class ShowStoredItemReturn extends OrgAction
             'type'    => 'button',
             'style'   => 'save',
             'tooltip' => $tooltipSubmit,
-            'label'   => __('Confirm') . ' (' . $palletReturn->storedItems()->count() . ')',
+            // 'label'   => __('Confirm') . ' (' . $palletReturn->storedItems()->count() . ')',
             'key'     => 'submit',
             'route'   => [
                 'method'     => 'post',
@@ -624,6 +624,7 @@ class ShowStoredItemReturn extends OrgAction
                         'code' => 'Other'
                     ]
                 ],
+                'stored_items_count' => $palletReturn->storedItems()->count(),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
                     fn () => PalletReturnItemsWithStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right

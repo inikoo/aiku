@@ -11,14 +11,11 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -33,12 +30,13 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemPallets extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
-    private Warehouse|Fulfilment|Customer $parent;
-    /**
-     * @var true
-     */
+    use WithFulfilmentAuthorisation;
+
     private bool $selectStoredPallets = false;
+
+    private Fulfilment|Warehouse $parent;
+
+    private StoredItem $storedItem;
 
     protected function getElementGroups(): array
     {
@@ -59,8 +57,9 @@ class IndexStoredItemPallets extends OrgAction
         ];
     }
 
-    public function handle(StoredItem $parent, $prefix = null): LengthAwarePaginator
+    public function handle(StoredItem $storedItem, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
@@ -72,7 +71,7 @@ class IndexStoredItemPallets extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for($parent->pallets());
+        $query = QueryBuilder::for($storedItem->pallets());
 
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
@@ -107,9 +106,9 @@ class IndexStoredItemPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(StoredItem $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(StoredItem $storedItem, $prefix = null, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $storedItem) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -124,15 +123,6 @@ class IndexStoredItemPallets extends OrgAction
             ];
 
 
-            if ($parent instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            }
-            if ($parent instanceof Warehouse) {
-                $emptyStateData['description'] = __("There isn't any fulfilment pallet in this warehouse");
-            }
-            if ($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
-            }
 
             $table->withGlobalSearch()
                 ->withEmptyState($emptyStateData)
@@ -141,31 +131,28 @@ class IndexStoredItemPallets extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($this->parent ?? null) {
-                $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
-            }
+            //  if ($storedItem) {
+            //      $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
+            //  }
 
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
 
-            if ($this->parent ?? null) {
-                $table->column(key: 'stored_items_quantity', label: __('Stored items'), canBeHidden: false, searchable: true);
-            } else {
-                $table->column(key: 'stock', label: __('Stock'), canBeHidden: false, searchable: true);
-            }
+            //   if ($this->parent ?? null) {
+            $table->column(key: 'stored_items_quantity', label: __('Stored items'), canBeHidden: false, searchable: true);
+            // } else {
+            //      $table->column(key: 'stock', label: __('Stock'), canBeHidden: false, searchable: true);
+            //  }
 
             $table->defaultSort('reference');
         };
     }
 
-
-
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
         return PalletsResource::collection($pallets);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
@@ -199,42 +186,21 @@ class IndexStoredItemPallets extends OrgAction
 
                 'data'        => PalletsResource::collection($pallets),
             ]
-        )->table($this->tableStructure($this->parent, 'pallets'));
+        )->table($this->tableStructure($this->storedItem, 'pallets'));
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($organisation, 'pallets');
-    }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    public function inStoredItem(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer, 'pallets');
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): LengthAwarePaginator
-    {
+        // parent is used in authorisation
         $this->parent = $warehouse;
+
+        $this->storedItem = $storedItem;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($storedItem, 'pallets');
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Location $location, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $location;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($location);
+        return $this->handle($storedItem);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

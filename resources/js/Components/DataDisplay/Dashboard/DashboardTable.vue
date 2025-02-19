@@ -159,7 +159,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle=" width: 130px">
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-semibold">
@@ -250,7 +250,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle=" width: 130px">
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">
@@ -353,7 +353,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle=" width: 130px">
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold text-gray-700">

@@ -11,7 +11,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\SubDepartmentsResource;
@@ -30,7 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexSubDepartment extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
 
     private Shop|ProductCategory|Organisation $parent;
