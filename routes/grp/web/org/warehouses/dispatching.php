@@ -24,5 +24,7 @@ Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-
 Route::get('returns/confirmed', [IndexPalletReturns::class, 'inWarehouseConfirmed'])->name('pallet-returns.confirmed.index');
 Route::get('returns/picking', [IndexPalletReturns::class, 'inWarehousePicking'])->name('pallet-returns.picking.index');
 Route::get('returns/picked', [IndexPalletReturns::class, 'inWarehousePicked'])->name('pallet-returns.picked.index');
+Route::get('returns/dispatched', [IndexPalletReturns::class, 'inWarehouseDispatched'])->name('pallet-returns.dispatched.index');
+Route::get('returns/cancelled', [IndexPalletReturns::class, 'inWarehouseCancelled'])->name('pallet-returns.cancelled.index');
 Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');
 Route::get('return-stored-items/{palletReturn}', [ShowStoredItemReturn::class, 'inWarehouse'])->name('pallet-return-with-stored-items.show');

@@ -22,10 +22,13 @@ trait WithPalletReturnSubNavigation
             'isAnchor' => true,
             'route' => [
                 'name' => match (class_basename($parent)) {
-                    'Fulfilment' => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
+                    'Fulfilment' => 'grp.org.fulfilments.show.operations.pallet-returns.new.index',
                     'Warehouse' => 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index'
                 },
-                'parameters' => $request->route()->originalParameters()
+                'parameters' => match (class_basename($parent)) {
+                    'Fulfilment' => array_merge($request->route()->originalParameters(), ['returns_elements[state]' => 'confirmed']),
+                    'Warehouse' => $request->route()->originalParameters()
+                }
 
             ],
 
@@ -74,6 +77,42 @@ trait WithPalletReturnSubNavigation
         $subNavigation[] = [
             'route' => [
                 'name' => match (class_basename($parent)) {
+                    'Fulfilment' => 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index',
+                    'Warehouse' => 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index'
+                },
+                'parameters' => $request->route()->originalParameters()
+            ],
+
+            'label' => __("Dispatched"),
+            "align"    => "right",
+            'leftIcon' => [
+                'icon' => 'fal fa-parking',
+                'tooltip' => __("Dispatched"),
+            ],
+            'number' => $parent->stats->number_pallet_returns_state_dispatched
+        ];
+
+        $subNavigation[] = [
+            'route' => [
+                'name' => match (class_basename($parent)) {
+                    'Fulfilment' => 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index',
+                    'Warehouse' => 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index'
+                },
+                'parameters' => $request->route()->originalParameters()
+            ],
+
+            'label' => __("Cancelled"),
+            "align"    => "right",
+            'leftIcon' => [
+                'icon' => 'fal fa-parking',
+                'tooltip' => __("Cancelled"),
+            ],
+            'number' => $parent->stats->number_pallet_returns_state_cancel
+        ];
+
+        $subNavigation[] = [
+            'route' => [
+                'name' => match (class_basename($parent)) {
                     'Fulfilment' => 'grp.org.fulfilments.show.operations.pallet-returns.index',
                     'Warehouse' => 'grp.org.warehouses.show.dispatching.pallet-returns.index'
                 },
@@ -81,6 +120,7 @@ trait WithPalletReturnSubNavigation
             ],
 
             'label' => __("All"),
+            "align"    => "right",
             'leftIcon' => [
                 'icon' => 'fal fa-parking',
                 'tooltip' => __("All"),
