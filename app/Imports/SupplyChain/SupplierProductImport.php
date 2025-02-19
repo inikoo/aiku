@@ -58,7 +58,6 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
             'units_per_carton' => $sanitizedData['skos_per_carton'],
             'cbm' => $sanitizedData['carton_cbm'],
         ];
-        dd($modelData);
         try {
             StoreSupplierProduct::run(
                 $this->scope,
