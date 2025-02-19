@@ -231,12 +231,17 @@ class IndexSupplierProducts extends GrpAction
                                     ]
                 ]
             ];
-            $attachRoutes =[
-                'importRoute' => [
-                    'name'       => 'grp.models.supplier.supplier-product.import',
-                    'parameters' => [
-                        'supplier' => $this->scope->id,
-                    ]
+            //'grp.models.supplier.supplier-product.import' import route
+            $spreadsheetRoute = [
+                'event'           => 'action-progress',
+                'channel'         => 'grp.personal.'.$this->group->id,
+                'route'           => [
+                    'upload'   => [
+                        'name'       => 'grp.models.supplier.supplier-product.import',
+                        'parameters' => [
+                            'supplier' => $this->scope->id
+                        ]
+                    ],
                 ],
             ];
         }
@@ -258,7 +263,7 @@ class IndexSupplierProducts extends GrpAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
-                'importRoutes' => $attachRoutes,
+                'upload_spreadsheet' => $spreadsheetRoute,
                 'data'        => SupplierProductsResource::collection($supplier_products),
             ]
         )->table($this->tableStructure());
