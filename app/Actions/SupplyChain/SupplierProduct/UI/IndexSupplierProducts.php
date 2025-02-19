@@ -231,8 +231,8 @@ class IndexSupplierProducts extends GrpAction
                                     ]
                 ]
             ];
-            $attachRoutes = [
-                'attachRoute' => [
+            $attachRoutes =[
+                'importRoute' => [
                     'name'       => 'grp.models.supplier.supplier-product.import',
                     'parameters' => [
                         'supplier' => $this->scope->id,
@@ -258,7 +258,7 @@ class IndexSupplierProducts extends GrpAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
-                'attachmentRoutes' => $attachRoutes,
+                'importRoutes' => $attachRoutes,
                 'data'        => SupplierProductsResource::collection($supplier_products),
             ]
         )->table($this->tableStructure());

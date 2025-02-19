@@ -11,6 +11,7 @@ import { PaymentAccount } from "@/types/payment-account"
 import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Shop } from '@/types/shop'
+import { useLocaleStore } from '@/Stores/locale'
 library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 defineProps<{
@@ -18,6 +19,8 @@ defineProps<{
     tab?: string
     shopsList?: Shop[]
 }>()
+
+const locale = useLocaleStore();
 
 function paymentAccountRoute(paymentAccount: PaymentAccount) {
     switch (route().current()) {
@@ -99,17 +102,19 @@ function shopsRoute(paymentAccount: PaymentAccount) {
         <!-- Column: Payment -->
         <template #cell(number_payments)="{ item: paymentAccount }">
             <Link :href="paymentsRoute(paymentAccount)" class="secondaryLink">
-                {{ paymentAccount['number_payments'] }}
+                {{ useLocaleStore().number(paymentAccount['number_payments']) }}
             </Link>
         </template>
 
         <!-- Column: Payment -->
         <template #cell(number_pas_state_active)="{ item: paymentAccount }">
             <Link :href="shopsRoute(paymentAccount)" class="secondaryLink">
-                {{ paymentAccount['number_pas_state_active'] }}
+                {{ useLocaleStore().number(paymentAccount['number_pas_state_active']) }}
             </Link>
         </template>
 
-
+        <template #cell(org_amount_successfully_paid)="{ item: paymentAccount }">
+            <div class="text-gray-500">{{ useLocaleStore().currencyFormat( paymentAccount.org_currency_code, paymentAccount.org_amount_successfully_paid)  }}</div>
+        </template>
     </Table>
 </template>

@@ -85,15 +85,15 @@ class ShowGroupDashboard extends OrgAction
             'current'          => $this->tabDashboardInterval,
             'table'            => [
                 [
-                    'tab_label' => __('Sales'),
-                    'tab_slug'  => 'sales',
+                    'tab_label' => __('Invoice per organisation'),
+                    'tab_slug'  => 'invoice_organisations',
                     'tab_icon'  => 'fas fa-chart-line',
                     'type'      => 'table',
                     'data'      => null
                 ],
                 [
-                    'tab_label' => __('Shops'),
-                    'tab_slug'  => 'shops',
+                    'tab_label' => __('Invoice per store'),
+                    'tab_slug'  => 'invoice_shops',
                     'tab_icon'  => 'fal fa-shopping-cart',
                     'type'      => 'table',
                     'data'      => null
@@ -115,10 +115,10 @@ class ShowGroupDashboard extends OrgAction
             'total_refunds_percentages'  => 0,
         ];
 
-        if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
+        if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_ORGANISATIONS->value) {
             $total['total_sales']          = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
-        } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
+        } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_SHOPS->value) {
             $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray())->where('state', $selectedShopState);
             $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
