@@ -66,12 +66,14 @@ class InvoiceCategoryHydrateSalesIntervals
         $invoiceCategory->salesIntervals->update($stats);
     }
 
-    public string $commandSignature = 'invoicecategory:hydrate_sales_intervals';
+    public string $commandSignature = 'invoice_category:hydrate_sales_intervals';
 
     public function asCommand($command)
     {
-        $f = InvoiceCategory::find(1);
-        $this->handle($f);
+        $f = InvoiceCategory::all();
+        foreach ($f as $key => $value) {
+            $this->handle($value);
+        }
     }
 
 }

@@ -55,15 +55,17 @@ class InvoiceCategoryHydrateOrderingIntervals
             statField: 'refunds_'
         );
 
-        $invoiceCategory->salesIntervals->update($stats);
+        $invoiceCategory->orderingIntervals->update($stats);
     }
 
-    public string $commandSignature = 'invoicecategory:hydrate_ordering_intervals';
+    public string $commandSignature = 'invoice_category:hydrate_ordering_intervals';
 
     public function asCommand($command)
     {
-        $f = InvoiceCategory::find(1);
-        $this->handle($f);
+        $f = InvoiceCategory::all();
+        foreach ($f as $key => $value) {
+            $this->handle($value);
+        }
     }
 
 }
