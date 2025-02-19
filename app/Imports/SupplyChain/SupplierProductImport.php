@@ -14,7 +14,6 @@ use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\SupplyChain\Supplier;
 use Exception;
-use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -75,15 +74,15 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
     protected function processExcelData($data)
     {
         $mappedRow = [];
-    
+
         foreach ($data as $row) {
             foreach ($row as $key => $value) {
                 $mappedKey = str_replace([' ', ':', "'"], '_', strtolower($key));
                 $mappedRow[$mappedKey] = $value;
             }
-            break; 
+            break;
         }
-    
+
         return $mappedRow;
     }
 
