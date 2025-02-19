@@ -56,6 +56,7 @@ const beeConfig = () => {
             token.value = response.data;
 
             console.log(token)
+            console.log('vdv',props.mergeTags)
 
             const config = {
                 uid: 'CmsUserName', // Do not modify this
@@ -99,7 +100,7 @@ const beeConfig = () => {
                 },
                 onAutoSave: function (jsonFile) {
                     /* onSaveEmail(jsonFile, null) */
-                    emits('autoSave',jsonFile) 
+                    emits('autoSave',jsonFile)
                 }
             };
             beeInstance.value
@@ -109,14 +110,14 @@ const beeConfig = () => {
                     getCatalog()
                 })
         })
-        .catch((error) => { 
+        .catch((error) => {
             if(error.message == "Network Error") location.reload();
             console.error("Error authenticating:", error);
         });
 }
 
 
-onMounted(() => { 
+onMounted(() => {
     if (!token.value) {
         if (props.apiKey.client_id && props.apiKey.client_secret) {
             showBee.value = true
@@ -125,7 +126,7 @@ onMounted(() => {
             showBee.value = false
         }
     }else{
-        token.value = beeInstance.value.updateToken() 
+        token.value = beeInstance.value.updateToken()
     }
 });
 

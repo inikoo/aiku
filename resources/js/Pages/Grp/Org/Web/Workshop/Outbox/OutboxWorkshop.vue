@@ -36,6 +36,7 @@ const props = defineProps<{
     imagesUploadRoute: routeType
     updateRoute: routeType
     snapshot: routeType
+    mergeTags: Array<any>
     status: string
     publishRoute: routeType
     sendTestRoute : routeType
@@ -46,7 +47,7 @@ const props = defineProps<{
     }
 }>()
 
-const mergeTags = ref([])
+// const mergeTags = ref([])
 const comment = ref('')
 const isLoading = ref(false)
 const openTemplates = ref(false)
@@ -218,7 +219,7 @@ const schedulePublish = async () =>{
     }
 }
 
-const getMergeTagData = async () => {
+/*const getMergeTagData = async () => {
     return axios.get(route('grp.json.mailshot.merge-tags', { id: 1 }))
         .then(response => {
             mergeTags.value = response.data
@@ -227,11 +228,11 @@ const getMergeTagData = async () => {
             console.error(error);
             return mergeTags.value = [];
         });
-}
+}*/
 
-onMounted(()=>{
+/*onMounted(()=>{
     getMergeTagData()
-})
+})*/
 
 </script>
 

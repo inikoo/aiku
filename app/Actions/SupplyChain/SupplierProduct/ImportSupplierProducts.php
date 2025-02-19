@@ -34,7 +34,7 @@ class ImportSupplierProducts extends GrpAction
                 'parent_id' => $supplier->id,
             ]
         );
-        
+
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
