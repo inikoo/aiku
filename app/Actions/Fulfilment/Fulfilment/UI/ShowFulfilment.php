@@ -161,6 +161,22 @@ class ShowFulfilment extends OrgAction
                                 ]
                             ],
                         ),
+                        $this->getWidget(
+                            rowSpan: 1,
+                            data: [
+                                'value'       => $fulfilment->stats->number_pallet_returns_state_confirmed + $fulfilment->stats->number_pallet_returns_state_picking + $fulfilment->stats->number_pallet_returns_state_picked,
+                                'description' => __('New Orders'),
+                                'type'        => 'number',
+                                'route'       => [
+                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                                    'parameters' => [
+                                        'organisation' => $fulfilment->organisation->slug,
+                                        'fulfilment' => $fulfilment->slug,
+                                        'returns_elements[state]' => 'confirmed,picking,picked,cancel',
+                                    ]
+                                ]
+                            ],
+                        ),
 
                         //                            $this->getWidget(
                         //                                colSpan: 2,
