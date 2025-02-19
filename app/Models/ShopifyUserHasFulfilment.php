@@ -41,7 +41,7 @@ class ShopifyUserHasFulfilment extends Pivot
 
     protected $casts = [
         'state' => ShopifyFulfilmentStateEnum::class,
-        'reason' => ShopifyFulfilmentReasonEnum::class
+        'no_fulfilment_reason' => ShopifyFulfilmentReasonEnum::class
     ];
 
     public function shopifyUser(): BelongsTo

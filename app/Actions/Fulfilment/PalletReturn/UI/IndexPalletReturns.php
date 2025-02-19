@@ -222,7 +222,7 @@ class IndexPalletReturns extends OrgAction
         if ($this->restriction === 'new') {
             $allowedStates = array_filter($allowedStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
             $countStates   = array_filter($countStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
-        } elseif ($this->parent instanceof Warehouse && $this->restriction === 'all') {
+        } elseif ($parent instanceof Warehouse && $this->restriction === 'all') {
             $allowedStates = array_filter($allowedStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
             $countStates   = array_filter($countStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
         }
@@ -332,7 +332,7 @@ class IndexPalletReturns extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if ($restriction == 'all' || $this->parent instanceof Fulfilment && $restriction == 'new') {
+            if ($restriction == 'all' || ($parent instanceof Fulfilment && $restriction == 'new')) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
