@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::table('shopify_user_has_fulfilments', function (Blueprint $table) {
-            $table->string('reason')->nullable();
-            $table->string('reason_notes')->nullable();
+            $table->string('no_fulfilment_reason')->nullable();
+            $table->string('no_fulfilment_reason_notes')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class () extends Migration {
     public function down()
     {
         Schema::table('shopify_user_has_fulfilments', function (Blueprint $table) {
-            $table->dropColumn(['reason', 'reason_notes']);
+            $table->dropColumn(['no_fulfilment_reason', 'no_fulfilment_reason_notes']);
         });
     }
 };
