@@ -38,9 +38,7 @@ class IndexDispatchedEmails extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('dispatched_emails.state', '~*', "\y$value\y")
-                    ->orWhere('dispatched_emails.number_reads', '=', $value)
-                    ->orWhere('dispatched_emails.number_clicks', '=', $value);
+                $query->orWhereWith('dispatched_emails.email_address', $value);
             });
         });
 
@@ -50,7 +48,8 @@ class IndexDispatchedEmails extends OrgAction
 
         $queryBuilder = QueryBuilder::for(DispatchedEmail::class);
         $queryBuilder->leftJoin('organisations', 'dispatched_emails.organisation_id', '=', 'organisations.id')
-            ->leftJoin('shops', 'dispatched_emails.shop_id', '=', 'shops.id');
+            ->leftJoin('shops', 'dispatched_emails.shop_id', '=', 'shops.id')
+            ->leftJoin('email_addresses', 'dispatched_emails.email_address_id', '=', 'email_addresses.id');
 
         if (is_array($this->elementGroups) || is_object($this->elementGroups) && !($parent instanceof Group)) {
             foreach ($this->elementGroups as $key => $elementGroup) {
@@ -64,9 +63,13 @@ class IndexDispatchedEmails extends OrgAction
         }
 
         return $queryBuilder
-            ->defaultSort('dispatched_emails.state')
-            ->select(['dispatched_emails.state',
+            ->defaultSort('-sent_at')
+            ->select([
                 'dispatched_emails.id',
+                'dispatched_emails.state',
+                'dispatched_emails.mask_as_spam',
+                'email_addresses.email as email_address',
+                'dispatched_emails.sent_at as sent_at',
                 'dispatched_emails.number_reads',
                 'dispatched_emails.number_clicks',
                 'outboxes.slug as outbox_id',
@@ -83,7 +86,8 @@ class IndexDispatchedEmails extends OrgAction
                     $query->where('outboxes.post_room_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Outbox') {
-                    $query->where('dispatched_emails.post_room_id', $parent->id);
+                    // $query->where('dispatched_emails.post_room_id', $parent->id);
+                    $query->where('dispatched_emails.outbox_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Mailshot') {
                     $query->where('dispatched_emails.mailshot_id', $parent->id);
@@ -92,7 +96,7 @@ class IndexDispatchedEmails extends OrgAction
                     $query->where('dispatched_emails.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['dispatched_emails.state', 'dispatched_emails.number_reads', 'dispatched_emails.number_clicks'])
+            ->allowedSorts(['dispatched_emails.state', 'sent_at' ,'dispatched_emails.number_reads', 'mask_as_spam' ,'dispatched_emails.number_clicks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -109,13 +113,19 @@ class IndexDispatchedEmails extends OrgAction
             }
 
             $table
-                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false);
+                ->withGlobalSearch()
+                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false)
+                ->column(key: 'mask_as_spam', label: __('Spam'), type: 'icon', canBeHidden: false, sortable: true);
+            $table->column(key: 'email_address', label: __('Email'), canBeHidden: false, sortable: true);
+
+            $table->column(key: 'sent_at', label: __('Send Date'), canBeHidden: false, sortable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
+            $table->defaultSort('-sent_at');
         };
     }
     public function authorize(ActionRequest $request): bool

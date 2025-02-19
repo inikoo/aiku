@@ -29,6 +29,20 @@ class DispatchedEmailResource extends JsonResource
             'state'                          => $this->state->stateIcon()[$this->state->value],
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,
+            'sent_at'                       => $this->sent_at,
+            'email_address'                       => $this->email_address,
+            'mask_as_spam'              => $this->mask_as_spam ?
+                [
+                    'tooltip' => __('Spam'),
+                    'icon'    => 'fal fa-check',
+                    'class'   => 'text-green-500'
+                ] :
+                [
+                    'tooltip' => __('Not spam'),
+                    'icon'    => 'fal fa-times-circle',
+                    'class'   => 'text-red-500'
+                ],
+
             'shop_code'                 => $this->shop_code,
             'shop_name'                 => $this->shop_name,
             'organisation_name'         => $this->organisation_name,
