@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Fulfilment\PalletImport;
 use App\Models\Fulfilment\Fulfilment;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ImportPalletsInPalletDelivery extends OrgAction
 {
     use WithImportModel;
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
     private Fulfilment $parent; // needed for authorisation
 

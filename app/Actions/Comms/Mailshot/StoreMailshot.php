@@ -12,7 +12,7 @@ use App\Actions\Comms\Mailshot\UI\HasUIMailshots;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMailshots;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
@@ -30,7 +30,7 @@ class StoreMailshot extends OrgAction
     use AsAction;
     use WithAttributes;
     use HasUIMailshots;
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     use WithNoStrictRules;
 
     /**

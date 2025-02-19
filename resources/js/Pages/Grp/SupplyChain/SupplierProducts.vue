@@ -10,17 +10,48 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading";
+import { ref } from 'vue';
+import UploadSpreadsheet from '@/Components/Upload/UploadSpreadsheet.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import { trans } from 'laravel-vue-i18n'
+import UploadExcel from '@/Components/Upload/UploadExcel.vue';
 
 const props = defineProps <{
     pageHead: TSPageHeading
     title: string
-    data:object
+    data: object
+    importRoutes: object
 }>()
+
+const isModalUploadOpen = ref(false)
+
 </script>
 
 <template>
     <Head :title="capitalize(title)"/>
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+      <template #other>
+          <Button
+              @click="() => isModalUploadOpen = true"
+              :label="trans('Attach file')"
+              icon="fal fa-upload"
+              type="secondary"
+          />
+      </template>
+    </PageHeading>
     <TableSupplierProducts :data="data" />
+
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"        
+        :importRoutes
+        
+    />
+    
 </template>
 

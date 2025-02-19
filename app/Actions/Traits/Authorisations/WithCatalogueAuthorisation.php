@@ -12,7 +12,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-trait HasCatalogueAuthorisation
+trait WithCatalogueAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {

@@ -11,6 +11,8 @@ import GoodsOutStackScreen from '@/src/screens/routes/GoodsOutStackScreen';
 import LocationStackScreen from '@/src/screens/routes/LocationStackScreen';
 import DeliveryStackScreen from '@/src/screens/routes/DeliveryStackScreens';
 import RetrunStackScreen from '@/src/screens/routes/RetrunsStackScreens';
+import PalletStackScreen from '@/src/screens/routes/PalletStackScreen';
+import ItemStackScreens from '@/src/screens/routes/ItemStackScreens'
 import Settings from '@/src/screens/Settings';
 import Organisation from '@/src/screens/Organisation';
 import Warehouse from '@/src/screens/Warehouse'
@@ -18,7 +20,6 @@ import Fulfilment from '@/src/screens/Fulfilment';
 import ShowDeliveryNote from '@/src/screens/DeliveryNote/ShowDeliveryNote';
 import ShowLocation from '@/src/screens/Location/ShowLocation';
 import ShowArea from '@/src/screens/Area/ShowArea';
-import ShowPallet from '@/src/screens/Pallet/ShowPallet';
 import ShowStockDelivery from '@/src/screens/Stock/ShowStockDelivery';
 import ShowStoredItem from '@/src/screens/StoredItem/ShowStoredItem';
 import SessionExpired from '@/src/screens/SessionExpired';
@@ -259,6 +260,30 @@ const HomeStack = () => {
             <Stack.Screen name="home-drawer" component={DrawerNavigator} />
             <Stack.Screen name="setting" component={Settings} />
             <Stack.Screen
+                name="show-pallet"
+                component={PalletStackScreen}
+                options={{
+                    headerShown: true,
+                    title: 'Pallet',
+                }}
+            />
+             <Stack.Screen
+                name="show-fulfilment-delivery"
+                component={DeliveryStackScreen}
+                options={{
+                    headerShown: true,
+                    title: 'Fulfilment Delivery',
+                }}
+            />
+            <Stack.Screen
+                name="show-fulfilment-return"
+                component={RetrunStackScreen}
+                options={{
+                    headerShown: true,
+                    title: 'Fulfilment Returns',
+                }}
+            />
+            <Stack.Screen
                 name="organisation"
                 component={Organisation}
                 options={{
@@ -292,22 +317,6 @@ const HomeStack = () => {
                 }}
             />
             <Stack.Screen
-                name="show-fulfilment-return"
-                component={RetrunStackScreen}
-                options={{
-                    headerShown: true,
-                    title: 'Fulfilment Returns',
-                }}
-            />
-            <Stack.Screen
-                name="show-fulfilment-delivery"
-                component={DeliveryStackScreen}
-                options={{
-                    headerShown: true,
-                    title: 'Fulfilment Delivery',
-                }}
-            />
-            <Stack.Screen
                 name="show-location"
                 component={ShowLocation}
                 options={{
@@ -324,14 +333,6 @@ const HomeStack = () => {
                 }}
             />
             <Stack.Screen
-                name="show-pallet"
-                component={ShowPallet}
-                options={{
-                    headerShown: true,
-                    title: 'Pallet',
-                }}
-            />
-            <Stack.Screen
                 name="show-stock-delivery"
                 component={ShowStockDelivery}
                 options={{
@@ -341,7 +342,7 @@ const HomeStack = () => {
             />
             <Stack.Screen
                 name="show-stored-item"
-                component={ShowStoredItem}
+                component={ItemStackScreens}
                 options={{
                     headerShown: true,
                     title: 'SKU',

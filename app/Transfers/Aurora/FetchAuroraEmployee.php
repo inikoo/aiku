@@ -179,7 +179,7 @@ class FetchAuroraEmployee extends FetchAurora
                 'user_model_status' => $status,
                 'created_at'        => $auroraUserData->{'User Created'},
                 'legacy_password'   => $legacyPassword,
-                'password'          => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
+                //'password'          => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
                 'language_id'       => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
                 'reset_password'    => false,
                 'fetched_at'        => now(),

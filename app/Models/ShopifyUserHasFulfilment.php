@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Dropshipping\ShopifyFulfilmentReasonEnum;
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\ShopifyUser;
@@ -21,7 +22,12 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $model_type
- * @property string $state
+ * @property ShopifyFulfilmentStateEnum $state
+ * @property int|null $customer_client_id
+ * @property string|null $no_fulfilment_reason
+ * @property string|null $no_fulfilment_reason_notes
+ * @property ShopifyFulfilmentReasonEnum $reason
+ * @property-read CustomerClient|null $customerClient
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @property-read ShopifyUser $shopifyUser
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasFulfilment newModelQuery()
@@ -34,7 +40,8 @@ class ShopifyUserHasFulfilment extends Pivot
     protected $table = 'shopify_user_has_fulfilments';
 
     protected $casts = [
-        'state' => ShopifyFulfilmentStateEnum::class
+        'state' => ShopifyFulfilmentStateEnum::class,
+        'reason' => ShopifyFulfilmentReasonEnum::class
     ];
 
     public function shopifyUser(): BelongsTo

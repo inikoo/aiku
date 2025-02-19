@@ -8,11 +8,10 @@
 
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithDashboard;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Actions\UI\WithInertia;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentResource;
@@ -23,12 +22,9 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowFulfilment extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
     use WithDashboard;
     use WithFulfilmentAuthorisation;
 
@@ -37,7 +33,6 @@ class ShowFulfilment extends OrgAction
     {
         return $fulfilment;
     }
-
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
@@ -49,7 +44,6 @@ class ShowFulfilment extends OrgAction
 
     private function getDashboard(Fulfilment $fulfilment): array
     {
-
         $classApprovalVisual = 'text-black';
 
         if ($fulfilment->shop->crmStats->number_customers_status_pending_approval > 5) {
@@ -67,7 +61,6 @@ class ShowFulfilment extends OrgAction
                     'components'   => [
 
                         $this->getWidget(
-                            colSpan: 1,
                             data: [
                                 'value'       => $fulfilment->shop->orderingStats->number_invoices,
                                 'description' => __('invoices'),
@@ -103,7 +96,6 @@ class ShowFulfilment extends OrgAction
 
 
                         $this->getWidget(
-                            colSpan: 1,
                             data: [
                                 'value'         => $fulfilment->stats->current_recurring_bills_amount,
                                 'description'   => __('Next Bills'),
@@ -133,7 +125,6 @@ class ShowFulfilment extends OrgAction
                         ),
 
                         $this->getWidget(
-                            rowSpan: 1,
                             data: [
                                 'value'       => $fulfilment->stats->number_customers_status_active,
                                 'description' => __('Active Customers'),
@@ -141,8 +132,8 @@ class ShowFulfilment extends OrgAction
                                 'route'       => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
                                     'parameters' => [
-                                        'organisation' => $fulfilment->organisation->slug,
-                                        'fulfilment' => $fulfilment->slug,
+                                        'organisation'     => $fulfilment->organisation->slug,
+                                        'fulfilment'       => $fulfilment->slug,
                                         'elements[status]' => 'active'
                                     ]
                                 ]
@@ -161,151 +152,26 @@ class ShowFulfilment extends OrgAction
                                 ]
                             ],
                         ),
+                        $this->getWidget(
+                            data: [
+                                'value'       => $fulfilment->stats->number_pallet_returns_state_confirmed + $fulfilment->stats->number_pallet_returns_state_picking + $fulfilment->stats->number_pallet_returns_state_picked,
+                                'description' => __('New Orders'),
+                                'type'        => 'number',
+                                'route'       => [
+                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
+                                    'parameters' => [
+                                        'organisation' => $fulfilment->organisation->slug,
+                                        'fulfilment'   => $fulfilment->slug,
+                                    ]
+                                ]
+                            ],
+                        ),
 
-                        //                            $this->getWidget(
-                        //                                colSpan: 2,
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->current_recurring_bills_amount,
-                        //                                    'description'   => __('Amount Bills'),
-                        //                                    'type'          => 'currency',
-                        //                                    'status'        => $fulfilment->stats->current_recurring_bills_amount < 0 ? 'danger' : '',
-                        //                                    'currency_code' => $fulfilment->shop->currency->code,
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_customers_status_inactive,
-                        //                                    'description'   => __('Inactive Customers'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->shop->orderingStats->number_unpaid_invoices,
-                        //                                    'description'   => __('Total Unpaid Invoices'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->shop->orderingStats->unpaid_invoices_amount,
-                        //                                    'description'   => __('Amount Unpaid Invoices'),
-                        //                                    'type'          => 'currency',
-                        //                                    'status'        => $fulfilment->shop->orderingStats->unpaid_invoices_amount < 0 ? 'danger' : '',
-                        //                                    'currency_code' => $fulfilment->shop->currency->code,
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                colSpan: 2,
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallet_deliveries,
-                        //                                    'description'   => __('Deliveries'),
-                        //                                    'type'          => 'number',
-                        //                                ],
-                        //                                visual: [
-                        //                                    'type' => 'MeterGroup',
-                        //                                    'value' => 382,
-                        //                                    'max' => 500,
-                        //                                    'color' => 'bg-blue-500',
-                        //                                ],
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallet_returns,
-                        //                                    'description'   => __('Returns'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallets,
-                        //                                    'description'   => __('Pallets'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallets_with_stored_items,
-                        //                                    'description'   => __('Pallets with items'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallets_type_pallet,
-                        //                                    'description'   => __('Pallets type pallet'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallets_type_box,
-                        //                                    'description'   => __('Pallets type box'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_pallets_type_oversize,
-                        //                                    'description'   => __('Pallets type oversize'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_stored_items,
-                        //                                    'description'   => __('Stored items'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_recurring_bills,
-                        //                                    'description'   => __('Recurring Bills'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_recurring_bills_status_current,
-                        //                                    'description'   => __('Current Recurring Bills'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->stats->number_recurring_bills_status_former,
-                        //                                    'description'   => __('Former Recurring Bills'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
-                        //
-                        //                            $this->getWidget(
-                        //                                data: [
-                        //                                    'value'         => $fulfilment->shop->orderingStats->number_invoices,
-                        //                                    'description'   => __('Total Invoices'),
-                        //                                    'type'          => 'number',
-                        //                                ]
-                        //                            ),
+
                     ]
                 ]
             ],
             'flatTreeMaps'        => [
-
-
                 [
 
                     [

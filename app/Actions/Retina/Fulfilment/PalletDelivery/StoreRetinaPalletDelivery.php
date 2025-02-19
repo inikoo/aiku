@@ -18,7 +18,6 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\RedirectResponse;
 
 class StoreRetinaPalletDelivery extends RetinaAction
 {
@@ -56,7 +55,7 @@ class StoreRetinaPalletDelivery extends RetinaAction
 
 
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RedirectResponse
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
         $this->asAction = true;
         $this->initialisationFulfilmentActions($fulfilmentCustomer, $modelData);

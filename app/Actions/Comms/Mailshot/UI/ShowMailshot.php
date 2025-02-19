@@ -9,7 +9,7 @@
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
@@ -29,7 +29,7 @@ use App\Models\Web\Website;
 class ShowMailshot extends OrgAction
 {
     use HasUIMailshots;
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     public function handle(Mailshot $mailshot): Mailshot
     {

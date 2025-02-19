@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
@@ -26,7 +26,7 @@ use Spatie\LaravelOptions\Options;
 
 class EditProduct extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 

@@ -41,9 +41,8 @@ class CancelPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         SendPalletDeliveryNotification::dispatch($palletDelivery);
-
-
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);

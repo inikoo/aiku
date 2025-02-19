@@ -10,16 +10,16 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
-use App\Http\Resources\Fulfilment\StoredItemsInWarehouseResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Fulfilment\StoredItemsInWarehouseResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -128,13 +128,10 @@ class IndexStoredItems extends OrgAction
     }
 
 
-
-
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
         return StoredItemResource::collection($storedItems);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
@@ -271,7 +268,6 @@ class IndexStoredItems extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        // dd($routeParameters);
         $headCrumb = function (array $routeParameters) {
             return [
                 [
