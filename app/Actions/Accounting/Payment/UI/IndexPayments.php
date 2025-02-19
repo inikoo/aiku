@@ -78,6 +78,7 @@ class IndexPayments extends OrgAction
 
         $queryBuilder->leftjoin('organisations', 'payments.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'payments.shop_id', '=', 'shops.id');
+        $queryBuilder->leftJoin('currencies', 'payments.currency_id', 'currencies.id');
 
         if (!($parent instanceof Order || $parent instanceof Invoice)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -97,6 +98,7 @@ class IndexPayments extends OrgAction
                 'payments.reference',
                 'payments.status',
                 'payments.date',
+                'payments.slug',
                 'payments.amount',
                 'payment_accounts.slug as payment_accounts_slug',
                 'payment_service_providers.slug as payment_service_providers_slug',
@@ -104,6 +106,7 @@ class IndexPayments extends OrgAction
                 'shops.slug as shop_slug',
                 'organisations.name as organisation_name',
                 'organisations.slug as organisation_slug',
+                'currencies.code as currency_code',
             ])
             ->leftJoin('payment_accounts', 'payments.payment_account_id', 'payment_accounts.id')
             ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
