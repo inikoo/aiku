@@ -30,7 +30,7 @@ library.add(
 	faInfoCircle
 )
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	scope?: string
 	title?: {
 		label?: string
@@ -38,11 +38,14 @@ const props = defineProps<{
 	}
 	additionalDataToSend?: string[]
 	attachmentRoutes?: object
+	isSelected?:boolean
 	options?: {
 		name: string
 		code: string
 	}[]
-}>()
+}>(), {
+	isSelected: true
+})
 
 const model = defineModel()
 
@@ -78,16 +81,8 @@ const onUploadFile = async (fileUploaded: File) => {
 
 // Method: submit the selected file to server
 const submitUpload = async () => {
-	if (!selectedType.value) {
-		notify({
-			title: "Type not selected",
-			text: "Please select a type before uploading.",
-			type: "error",
-		})
-		return
-	}
 
-	if (!props.attachmentRoutes?.attachRoute?.name) {
+	if (!props.attachmentRoutes?.importRoute?.name) {
 		notify({
 			title: "Something went wrong.",
 			text: "Route is not set yet.",
@@ -102,12 +97,11 @@ const submitUpload = async () => {
 	try {
 		await axios.post(
 			route(
-				props.attachmentRoutes?.attachRoute?.name,
-				props.attachmentRoutes?.attachRoute?.parameters
+				props.attachmentRoutes?.importRoute?.name,
+				props.attachmentRoutes?.importRoute?.parameters
 			),
 			{
-				attachments: [selectedFile.value],
-				scope: selectedType.value.code,
+				file: selectedFile.value,
 			},
 			{
 				headers: { "Content-Type": "multipart/form-data" },
@@ -170,7 +164,7 @@ onMounted(() => {
 
 				<!-- Section: Upload box -->
 				<div class="grid gap-x-3 px-1">
-					<div class="mb-2 w-full flex justify-end">
+					<div v-if="isSelected" class="mb-2 w-full flex justify-end">
 						<Select
 							v-model="selectedType"
 							:options="typeEmployee"
@@ -224,6 +218,7 @@ onMounted(() => {
 									type="file"
 									name="file"
 									id="fileInput"
+							
 									class="sr-only"
 									@change="(e: any) => onUploadFile(e.target.files[0])"
 									ref="fileInput" />
@@ -260,7 +255,7 @@ onMounted(() => {
 									label="Submit"
 									size="l"
 									full
-									:disabled="!selectedFile || !selectedType"
+									
 									:loading="isLoadingUpload" />
 							</div>
 						<!-- </div> -->

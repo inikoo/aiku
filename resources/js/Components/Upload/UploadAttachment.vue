@@ -12,6 +12,7 @@ const props = defineProps<{
     scope?: string
     additionalDataToSend?: string[]
     attachmentRoutes?: object
+    isSelected?: boolean
     options?: {
 		name: string
 		code: string
@@ -29,7 +30,7 @@ const emits = defineEmits<{
 
 <template>
     <KeepAlive>
-        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options />
+        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes :options :isSelected="isSelected" />
     </KeepAlive>
 
 </template>
