@@ -19,6 +19,7 @@ import LoadingIcon from "./Utils/LoadingIcon.vue"
 import { routeType } from "@/types/route"
 import { trans } from "laravel-vue-i18n"
 import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
 
 library.add( faRobot, faPlus, faMinus, faUndoAlt, faAsterisk, faQuestion, falSave, faInfoCircle, fadSave, faSpinner, fasMinus, fasPlus )
 
@@ -39,6 +40,7 @@ const props = defineProps<{
     }
     colorTheme?: string  // '#374151'
     isUseAxios?: boolean
+    parentClass?: string
 }>()
 
 const emits = defineEmits<{
@@ -70,9 +72,14 @@ const onSaveViaForm = async () => {
             form.defaults('quantity', form.quantity)
             emits('onSuccess', form.quantity, formDefaultValue.value.quantity)
             formDefaultValue.value.quantity = form.quantity
-            // console.log('ee', form.processing)
+            // console.log('ee axios', form.processing)
         } catch (error) {
-            emits('onError', error)
+            emits('onError', error?.response?.data)
+            notify({
+                title: trans('Something went wrong'),
+                text: error?.response?.data?.message || error?.response?.data,
+                type: 'error',
+            })
         } finally {
             form.processing = false
         }
@@ -123,7 +130,7 @@ const onClickPlusButton = () => {
 </script>
 
 <template>
-    <div class="relative w-full">
+    <div class="relative w-full" :class="parentClass">
         <div class="flex items-center justify-center border border-gray-300 rounded gap-y-1 px-1 py-0.5">
             <!-- Button: Save -->
             <button v-if="!noUndoButton"
