@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { API_URL } from "@env"
+/* import { API_URL } from "@env" */
+import Config from 'react-native-config';
 import urlConfig from '@/config/url';
 import { logout } from '@/src/user';
 import { getData } from "@/src/utils/AsyncStorage";
@@ -22,7 +23,7 @@ let isRefreshingToken = false;
 let refreshSubscribers: ((token) => void)[] = [];
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: Config.API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
