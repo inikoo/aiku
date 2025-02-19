@@ -512,7 +512,7 @@ test('index stored items', function () {
 });
 
 test('index stored item audits', function () {
-    // $this->withoutExceptionHandling();
+    $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.index'));
     $response->assertInertia(function (AssertableInertia $page) {
