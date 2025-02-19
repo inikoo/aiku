@@ -140,7 +140,7 @@ class IndexPaymentAccounts extends OrgAction
             $table->column(key: 'number_pas_state_active', label: __('shops'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'org_amount_successfully_paid', label: __('amount'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'org_amount_successfully_paid', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type:'number');
 
             $table->defaultSort('code');
         };

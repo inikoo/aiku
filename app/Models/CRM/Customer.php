@@ -111,7 +111,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $rejected_notes
  * @property \Illuminate\Support\Carbon|null $rejected_at
  * @property bool $is_vip VIP customer
- * @property int|null $as_organisation_id Indicate if customer is a organisation in this group
+ * @property int|null $as_organisation_id Indicate customer is a organisation in this group
  * @property int|null $as_employee_id Indicate customer is a employee
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
