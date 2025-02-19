@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-15h-46m
@@ -9,11 +10,7 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\SupplyChain\HasSupplyChainFields;
-use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
-use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
-use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

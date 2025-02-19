@@ -51,6 +51,7 @@ const selectedTab = computed(() => {
 	return props.dashboardTable.find((tab) => tab.tab_slug === activeIndexTab.value)
 })
 function useTabChangeDashboard(tab_slug: string) {
+
 	if (tab_slug === activeIndexTab.value) {
 		return
 	}
