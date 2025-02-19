@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
+use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
@@ -69,27 +70,30 @@ class StoreFulfilmentFromShopify extends OrgAction
                     ->first();
 
                 if (!$shopifyUserHasProduct) {
-                    return false;
+                    continue;
                 }
 
                 $storedItems[$shopifyUserHasProduct->portfolio->item_id] = [
                     'quantity' => $shopifyProduct['quantity']
                 ];
 
-                $itemQuantity = $shopifyUserHasProduct->portfolio->item->total_quantity;
+                $itemQuantity = (int) $shopifyUserHasProduct->portfolio->item->total_quantity;
                 $requiredQuantity = $shopifyProduct['quantity'];
 
                 if ($itemQuantity >= $requiredQuantity) {
                     $someComplete = true;
                 } else {
                     $allComplete = false;
-
                 }
             }
 
+            if (blank($storedItems)) {
+                return false;
+            }
+
             $reasons = [
-                'reason' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK,
-                'reason_notes' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->notes()[ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->value],
+                'no_fulfilment_reason' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK,
+                'no_fulfilment_reason_notes' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->notes()[ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->value],
             ];
 
             if ($allComplete) {
@@ -113,10 +117,12 @@ class StoreFulfilmentFromShopify extends OrgAction
                 ...$reasons
             ]);
 
-            if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::INCOMPLETE) {
-                CancelFulfilmentOrderShopify::run($shopifyOrder, $shopifyUser);
+            if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::HOLD) {
+                HoldFulfilmentOrderShopify::run($shopifyOrder, $shopifyUser);
             } elseif ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::OPEN) {
                 SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+            } else {
+                CancelPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
             }
 
             return true;

@@ -10,14 +10,14 @@ namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
+use App\Enums\Dropshipping\ShopifyFulfilmentReasonEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\ShopifyUserHasFulfilment;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class CancelFulfilmentOrderShopify extends OrgAction
+class HoldFulfilmentOrderShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -29,16 +29,12 @@ class CancelFulfilmentOrderShopify extends OrgAction
     public function handle(ShopifyUserHasFulfilment $shopifyUserHasFulfilment, ShopifyUser $shopifyUser): void
     {
         $client = $shopifyUser->api()->getRestClient();
-        $response = $client->request('POST', "/admin/api/2024-04/orders/$shopifyUserHasFulfilment->shopify_order_id/cancel.json", [
-            'email' => true,
-            'reason' => 'inventory'
+        $response = $client->request('POST', "/admin/api/2024-04/fulfillment_orders/$shopifyUserHasFulfilment->shopify_fulfilment_id/hold.json", [
+            'fulfillment_hold' => [
+                'reason' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->value,
+                'reason_notes' => ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->notes()[ShopifyFulfilmentReasonEnum::INVENTORY_OUT_OF_STOCK->value]
+            ]
         ]);
-
-        if (!$response['errors']) {
-            $this->update($shopifyUserHasFulfilment, [
-                'state' => ShopifyFulfilmentStateEnum::INCOMPLETE
-            ]);
-        }
 
         if ($response['body'] == 'Not Found') {
             throw ValidationException::withMessages(['messages' => __('You dont have any products')]);

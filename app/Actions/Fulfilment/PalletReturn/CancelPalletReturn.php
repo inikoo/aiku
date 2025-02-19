@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Dropshipping\Shopify\Fulfilment\CancelFulfilmentOrderShopify;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
@@ -20,6 +21,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -43,6 +45,10 @@ class CancelPalletReturn extends OrgAction
         ]);
 
         $palletReturn = $this->update($palletReturn, $modelData);
+
+        if ($palletReturn->platform?->type === PlatformTypeEnum::SHOPIFY) {
+            CancelFulfilmentOrderShopify::run($palletReturn->shopifyFulfilment, $palletReturn->shopifyFulfilment->shopifyUser);
+        }
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);

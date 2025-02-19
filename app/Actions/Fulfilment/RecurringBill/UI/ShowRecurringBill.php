@@ -232,7 +232,7 @@ class ShowRecurringBill extends OrgAction
         )
             ->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value))
             ->table(IndexPalletDeliveries::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PALLET_DELIVERIES->value))
-            ->table(IndexPalletReturns::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PALLET_RETURNS->value));
+            ->table(IndexPalletReturns::make()->tableStructure(parent:$recurringBill, prefix: RecurringBillTabsEnum::PALLET_RETURNS->value));
     }
 
 

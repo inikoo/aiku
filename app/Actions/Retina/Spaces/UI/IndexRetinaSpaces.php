@@ -9,17 +9,12 @@
 
 namespace App\Actions\Retina\Spaces\UI;
 
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Http\Resources\Fulfilment\SpacesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
-use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,10 +26,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaSpaces extends RetinaAction
 {
-    use WithFulfilmentCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
-
-    public function handle(Fulfilment|Organisation|Group|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,19 +39,9 @@ class IndexRetinaSpaces extends RetinaAction
         }
 
         $query = QueryBuilder::for(Space::class);
+        $query->where('spaces.fulfilment_customer_id', $fulfilmentCustomer->id);
 
 
-        if ($parent instanceof Fulfilment) {
-            $query->where('spaces.fulfilment_id', $parent->id);
-        } elseif ($parent instanceof Group) {
-            $query->where('spaces.group_id', $parent->id);
-        } elseif ($parent instanceof Organisation) {
-            $query->where('spaces.organisation_id', $parent->id);
-        } elseif ($parent instanceof FulfilmentCustomer) {
-            $query->where('spaces.fulfilment_customer_id', $parent->id);
-        } else {
-            abort(419);
-        }
         $query->leftjoin('rentals', 'spaces.rental_id', '=', 'rentals.id');
         $query->leftjoin('currencies', 'rentals.currency_id', '=', 'currencies.id');
         $query->leftjoin('recurring_bills', 'spaces.current_recurring_bill_id', '=', 'recurring_bills.id');
@@ -86,9 +68,9 @@ class IndexRetinaSpaces extends RetinaAction
     }
 
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($fulfilmentCustomer, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -107,11 +89,11 @@ class IndexRetinaSpaces extends RetinaAction
                 );
 
 
-            $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
-            $table->column(key: 'reference', label: __('reference'), sortable: false, canBeHidden: false, searchable: false);
-            $table->column(key: 'rental', label: __('rental'), sortable: false, canBeHidden: false, searchable: false);
-            $table->column(key: 'start_at', label: __('start'), sortable: true, canBeHidden: false, searchable: true);
-            $table->column(key: 'end_at', label: __('end'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false);
+            $table->column(key: 'rental', label: __('rental'), canBeHidden: false);
+            $table->column(key: 'start_at', label: __('start'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'end_at', label: __('end'), canBeHidden: false, sortable: true, searchable: true);
 
         };
     }
@@ -123,7 +105,6 @@ class IndexRetinaSpaces extends RetinaAction
 
     public function htmlResponse(LengthAwarePaginator $spaces, ActionRequest $request): Response
     {
-        $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->fulfilmentCustomer, $request);
         $icon = ['fal', 'fa-parking'];
         $title = __('Spaces');
 
@@ -131,31 +112,17 @@ class IndexRetinaSpaces extends RetinaAction
         return Inertia::render(
             'Space/RetinaSpaces',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                ),
+                'breadcrumbs' => $this->getBreadcrumbs(),
                 'title' => $title,
                 'pageHead' => [
                     'title' => $title,
                     'icon' => $icon,
-                   /*  'subNavigation' => $subNavigation,
-                    'actions' => [
-                        [
-                            'type' => 'button',
-                            'style' => 'create',
-                            'label' => __('space'),
-                            'route' => [
-                                'name' => 'grp.org.fulfilments.show.crm.customers.show.spaces.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                        ]
-                    ], */
                 ],
                 'data' => SpacesResource::collection($spaces)
             ]
         )->table(
             $this->tableStructure(
-                parent: $this->fulfilmentCustomer,
+                fulfilmentCustomer: $this->fulfilmentCustomer,
             )
         );
     }
@@ -164,10 +131,10 @@ class IndexRetinaSpaces extends RetinaAction
     {
         $this->initialisation($request);
 
-        return $this->handle(parent: $this->fulfilmentCustomer);
+        return $this->handle(fulfilmentCustomer: $this->fulfilmentCustomer);
     }
 
-    public function getBreadcrumbs(string $routeName): array
+    public function getBreadcrumbs(): array
     {
         return
             array_merge(
