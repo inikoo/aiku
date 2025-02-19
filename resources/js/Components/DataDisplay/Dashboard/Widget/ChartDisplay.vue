@@ -174,8 +174,8 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
-		<p class="text-4xl font-bold leading-tight truncate">
+	<div :class="['rounded-lg p-4 shadow-md relative h-full', getStatusColor(widget.status)]">
+		<p class="text-2xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
 			<!-- Render CountUp if widget.type is 'number' -->
 			<template v-if="widget?.type === 'number'">
@@ -214,7 +214,7 @@ const setChartOptions = () => ({
 			</template>
 		</p>
 
-		<p class="text-base text-gray-500">{{ widget.description }}</p>
+		<p class="text-sm text-gray-500">{{ widget.description }}</p>
 
 		<div>
 			<div
@@ -225,7 +225,7 @@ const setChartOptions = () => ({
 						:type="visual.type"
 						:labels="visual.label"
 						:data="visual.value"
-						:height="300"
+						:height="200"
 						:options="setChartOptions()" />
 				</div>
 			</div>
