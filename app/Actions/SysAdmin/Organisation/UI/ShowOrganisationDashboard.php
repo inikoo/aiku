@@ -312,7 +312,10 @@ class ShowOrganisationDashboard extends OrgAction
         $averageInvoices = [];
         $totalAvg = 0;
         for ($i = 0; $i < count($combined); $i++) {
-            $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+            $amount = 0;
+            if ($combinedInvoices[$i][2] != 0) {
+                $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+            }
             $averageInvoices[$i] = [
                 'name' => $combined[$i][0],
                 'currency_code' => $combined[$i][1],
