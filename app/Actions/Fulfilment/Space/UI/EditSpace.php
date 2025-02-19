@@ -8,8 +8,8 @@
 
 namespace App\Actions\Fulfilment\Space\UI;
 
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;

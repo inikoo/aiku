@@ -6,7 +6,7 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\UI;
+namespace App\Actions\Traits\Authorisations;
 
 use Lorisleiva\Actions\ActionRequest;
 

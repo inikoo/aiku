@@ -11,7 +11,7 @@ namespace App\Actions\Billables\Charge\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ChargesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Charge;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCharges extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private Group|Shop|Organisation $parent;
 

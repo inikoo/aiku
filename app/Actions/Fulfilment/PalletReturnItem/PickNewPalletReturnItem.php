@@ -9,8 +9,8 @@
 
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;

@@ -12,7 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\InertiaTable\InertiaTable;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexCollection extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     use WithCollectionSubNavigation;
 
     private Group|Shop|Organisation|Collection $parent;

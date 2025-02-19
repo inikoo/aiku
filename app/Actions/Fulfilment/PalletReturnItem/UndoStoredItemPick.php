@@ -10,8 +10,8 @@
 namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Models\Fulfilment\PalletReturnItem;

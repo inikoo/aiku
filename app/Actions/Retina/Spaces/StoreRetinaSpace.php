@@ -9,16 +9,16 @@
 namespace App\Actions\Retina\Spaces;
 
 use App\Actions\Fulfilment\Space\StoreSpace;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\RetinaAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Redirect;
 
 class StoreRetinaSpace extends RetinaAction
 {

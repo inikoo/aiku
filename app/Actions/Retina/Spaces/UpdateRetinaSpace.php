@@ -8,8 +8,8 @@
 
 namespace App\Actions\Retina\Spaces;
 
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\RetinaAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Fulfilment\Space;

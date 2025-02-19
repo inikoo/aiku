@@ -9,8 +9,8 @@
 namespace App\Actions\Fulfilment\UI\Catalogue;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
