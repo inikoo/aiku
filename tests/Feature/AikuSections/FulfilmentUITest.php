@@ -769,6 +769,7 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 // Pallet Return
 
 test('UI Index pallet returns', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-returns.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {

@@ -253,7 +253,7 @@ class IndexSupplierProducts extends GrpAction
                     $request->route()->originalParameters(),
                     $this->scope
                 ),
-                'title'       => __('supplier_products'),
+                'title'       => __('supplier products'),
                 'pageHead'    => [
                     'title'         => $title,
                     'icon'          => $icon,

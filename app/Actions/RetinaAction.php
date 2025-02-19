@@ -107,7 +107,6 @@ class RetinaAction
         if ($this->asAction) {
             return true;
         }
-
         // Define the segments or route names that should always be accessible
         $publicRoutes = ['login', 'register', 'profile', 'logout', 'home', 'dashboard', 'password', 'reset-password'];
 
@@ -122,6 +121,7 @@ class RetinaAction
                 return true;
             }
         }
+
 
         if ($this->shop->type === ShopTypeEnum::FULFILMENT && $this->webUser->customer->status === CustomerStatusEnum::APPROVED
             && $this->fulfilmentCustomer->rentalAgreement) {
