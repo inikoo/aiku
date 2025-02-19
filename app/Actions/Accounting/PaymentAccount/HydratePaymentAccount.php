@@ -8,28 +8,27 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
-use App\Actions\HydrateModel;
+use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePAS;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Accounting\PaymentAccount;
-use Illuminate\Support\Collection;
 
-class HydratePaymentAccount extends HydrateModel
+class HydratePaymentAccount
 {
-    public string $commandSignature = 'hydrate:payment_account {slugs?*} {--o|org=*}  {--g|group=*}   ';
+    use WithHydrateCommand;
+
+    public string $commandSignature = 'hydrate:payment_accounts {organisations?*} {--S|shop= shop slug} {--s|slug=} ';
+
+    public function __construct()
+    {
+        $this->model = PaymentAccount::class;
+    }
 
     public function handle(PaymentAccount $paymentAccount): void
     {
         PaymentAccountHydratePayments::run($paymentAccount);
+        PaymentAccountHydratePAS::run($paymentAccount);
     }
 
 
-    protected function getModel(string $slug): PaymentAccount
-    {
-        return PaymentAccount::where('slug', $slug)->first();
-    }
-
-    protected function getAllModels(): Collection
-    {
-        return PaymentAccount::withTrashed()->get();
-    }
 }
