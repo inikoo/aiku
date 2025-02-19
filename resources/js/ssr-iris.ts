@@ -94,6 +94,8 @@ createServer(
                         },
                     })
 
+                return app
+
             },
             progress: {
                 color: '#4B5563',
