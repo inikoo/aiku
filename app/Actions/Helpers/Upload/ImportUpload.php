@@ -21,9 +21,11 @@ class ImportUpload
 
     public function handle(UploadedFile|string $file, $import): void
     {
+        $realPath = storage_path('app/' . $file); //my pc cant run it without this
+
         Excel::import(
             $import,
-            is_string($file) ? $file : $file->path()
+            is_string($file) ? $realPath : $file->path()
         );
 
         if (is_string($file)) {

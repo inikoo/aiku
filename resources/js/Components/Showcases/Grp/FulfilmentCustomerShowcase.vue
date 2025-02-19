@@ -35,6 +35,8 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
 import { faCheck, faTimes } from '@fas'
+import ModalRejected from '@/Components/Utils/ModalRejected.vue'
+import { id } from 'date-fns/locale';
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck)
 
 const props = defineProps<{
@@ -147,6 +149,16 @@ const sendUpdateInformation = () => {
     _CustomerDataForm?.value.form.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
         onSuccess: () => (visible.value = false)
     })
+}
+
+const isModalUploadOpen = ref(false)
+const customerID = ref()
+const customerName = ref()
+
+function openRejectedModal(customer: any) {
+    customerID.value = customer.id
+    customerName.value = customer.name
+    isModalUploadOpen.value = true
 }
 
 </script>
@@ -451,16 +463,14 @@ const sendUpdateInformation = () => {
                     
                     </Link>
 
-                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
-                        :data="{ status: 'rejected' }">
-                        <ButtonPrimeVue class="fixed-width-btn" severity="danger" size="small" variant="outlined" >
-                            <FontAwesomeIcon  :icon="faTimes" @click="visible = false" />
-                            <span>
-                                Reject
-                            </span>
-                        </ButtonPrimeVue>
+                    <ButtonPrimeVue class="fixed-width-btn" severity="danger" size="small" variant="outlined"  @click="() => openRejectedModal(data.fulfilment_customer.customer)" >
+                        <FontAwesomeIcon  :icon="faTimes" @click="visible = false" />
+                        <span>
+                            Reject
+                        </span>
+                    </ButtonPrimeVue>
                
-                    </Link>
+                   
                 </div>
             </div>
         </div>
@@ -478,4 +488,10 @@ const sendUpdateInformation = () => {
             <!--     </Link> -->
         </div>
     </Dialog>
+
+    <ModalRejected
+        v-model="isModalUploadOpen"
+        :customerID="customerID"
+        :customerName="customerName"
+    />
 </template>
