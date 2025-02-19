@@ -168,11 +168,10 @@ class ShowFulfilment extends OrgAction
                                 'description' => __('New Orders'),
                                 'type'        => 'number',
                                 'route'       => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
                                     'parameters' => [
                                         'organisation' => $fulfilment->organisation->slug,
                                         'fulfilment' => $fulfilment->slug,
-                                        'returns_elements[state]' => 'confirmed,picking,picked',
                                     ]
                                 ]
                             ],
