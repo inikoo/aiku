@@ -102,24 +102,6 @@ const widgets = {
 		},
 	],
 }
-/* const value = ref([
-    { label: 'Apps', color: '#34d399', value: 16 },
-    { label: 'Messages', color: '#fbbf24', value: 8 },
-    { label: 'Media', color: '#60a5fa', value: 24 },
-    { label: 'System', color: '#c084fc', value: 10 }
-]); */
-// const getTypeVisualComponent = (type: string) => {
-// 	switch (type) {
-// 		case "chart":
-// 			return Chart
-// 		// case "percentage":
-// 		// 	return FontAwesomeIcon
-// 		// case "chart":
-// 		// 	return ChartDashboardDynamic
-// 		default:
-// 			return null
-// 	}
-// }
 
 const locale = inject("locale", aikuLocaleStructure)
 const layoutStore = inject("layout", layoutStructure);
@@ -159,10 +141,22 @@ const setChartOptions = () => ({
 	maintainAspectRatio: false,
     
 	plugins: {
-        legend: {
-            display: false,  
+    legend: {
+      display: false,
+    },
+	tooltip: {
+      callbacks: {
+        label: (context) => {
+          const value = parseFloat(context.parsed as string) || 0;
+          const currencyCode =
+            props.visual?.value?.currency_codes?.[context.dataIndex] ||
+            props.widget.currency_code ||
+            "usd";
+          return locale.currencyFormat(currencyCode, value);
         },
-	},
+      },
+    },
+  },
 })
 
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]

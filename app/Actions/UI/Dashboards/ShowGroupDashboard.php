@@ -259,7 +259,6 @@ class ShowGroupDashboard extends OrgAction
                 'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
                     'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
 
                 ],
@@ -436,7 +435,6 @@ class ShowGroupDashboard extends OrgAction
                 'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
                     'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
 
                 ],
