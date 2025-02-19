@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\Redirect;
 
 class StoreSupplierProduct extends GrpAction
 {

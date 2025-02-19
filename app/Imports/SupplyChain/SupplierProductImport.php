@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 18-02-2025-16h-25m
@@ -8,17 +9,12 @@
 
 namespace App\Imports\SupplyChain;
 
-use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Imports\WithImport;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\SupplyChain\Supplier;
-use App\Rules\IUnique;
 use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -45,7 +41,7 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
 
         $validatedData = Arr::only($sanitizedData, $fields);
 
-        if($validatedData['availability'] == 'Available') {
+        if ($validatedData['availability'] == 'Available') {
             $availability = true;
         } else {
             $availability = false;
@@ -81,7 +77,7 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
 
         foreach ($data as $row) {
             $mappedRow = [];
-            
+
             foreach ($row as $key => $value) {
                 $mappedKey = str_replace([' ', ':', "'"], '_', strtolower($key));
                 $mappedRow[$mappedKey] = $value;
