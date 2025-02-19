@@ -153,21 +153,21 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
-//            if ($employee->getUser()) {
-//                foreach ($employeeData['photo'] ?? [] as $profileImage) {
-//                    if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-//                        SaveModelImage::run(
-//                            $employee->getUser(),
-//                            [
-//                                'path'         => $profileImage['image_path'],
-//                                'originalName' => $profileImage['filename'],
-//
-//                            ],
-//                            'avatar'
-//                        );
-//                    }
-//                }
-//            }
+            //            if ($employee->getUser()) {
+            //                foreach ($employeeData['photo'] ?? [] as $profileImage) {
+            //                    if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+            //                        SaveModelImage::run(
+            //                            $employee->getUser(),
+            //                            [
+            //                                'path'         => $profileImage['image_path'],
+            //                                'originalName' => $profileImage['filename'],
+            //
+            //                            ],
+            //                            'avatar'
+            //                        );
+            //                    }
+            //                }
+            //            }
 
 
             $this->processFetchAttachments($employee, 'Staff', $employeeData['employee']['source_id']);

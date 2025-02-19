@@ -18,7 +18,6 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\RedirectResponse;
 
 class StoreRetinaPalletDelivery extends RetinaAction
 {
