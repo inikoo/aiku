@@ -9,9 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -56,7 +54,7 @@ class EditPallet extends OrgAction
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
 
-        $fields=[
+        $fields = [
             'reference' => [
                 'type'    => 'input',
                 'label'   => __('reference'),
@@ -81,8 +79,8 @@ class EditPallet extends OrgAction
 
         ];
 
-        if($pallet->state==PalletStatusEnum::STORING){
-            $fields['location_id']= [
+        if ($pallet->state == PalletStatusEnum::STORING) {
+            $fields['location_id'] = [
                 'type'    => 'select_infinite',
                 'label'   => __('location'),
                 'options'   => [

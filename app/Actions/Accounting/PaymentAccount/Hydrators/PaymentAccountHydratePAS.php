@@ -47,12 +47,13 @@ class PaymentAccountHydratePAS
             $stats,
             $this->getEnumStats(
                 model: 'pas',
-                field: 'state',
+                field: 'payment_account_shop.state',
                 enum: PaymentAccountShopStateEnum::class,
                 models: PaymentAccountShop::class,
                 where: function ($q) use ($paymentAccount) {
                     $q->where('payment_account_id', $paymentAccount->id);
-                }
+                },
+                fieldStatsLabel: 'state'
             )
         );
 
