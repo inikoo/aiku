@@ -171,7 +171,7 @@ class ShowFulfilment extends OrgAction
                                     'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
                                     'parameters' => [
                                         'organisation' => $fulfilment->organisation->slug,
-                                        'fulfilment' => $fulfilment->slug
+                                        'fulfilment' => $fulfilment->slug,
                                     ]
                                 ]
                             ],
