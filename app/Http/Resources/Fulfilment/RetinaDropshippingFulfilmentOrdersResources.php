@@ -35,12 +35,14 @@ class RetinaDropshippingFulfilmentOrdersResources extends JsonResource
             'model' => class_basename($this->model),
             'client_name' => $this->customerClient?->contact_name,
             'state' => $this->state,
+            'reason' => $this->reason,
+            'reason_notes' => $this->reason_notes,
             'type' => $this->model->type,
             'slug' => $this->model->slug,
             'state_label'           => $this->state->labels()[$this->state->value],
             'state_icon'            => $this->state->stateIcon()[$this->state->value],
             /*'release_hold_route' => [
-                'name' => '',
+                'name' => 'retina.dropshipping.orders.index',
                 'parameters' => [
                     'shopifyHasFulfilmentId' => $this->id
                 ]

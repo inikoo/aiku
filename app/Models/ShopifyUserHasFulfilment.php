@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Dropshipping\ShopifyFulfilmentReasonEnum;
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\ShopifyUser;
@@ -34,7 +35,8 @@ class ShopifyUserHasFulfilment extends Pivot
     protected $table = 'shopify_user_has_fulfilments';
 
     protected $casts = [
-        'state' => ShopifyFulfilmentStateEnum::class
+        'state' => ShopifyFulfilmentStateEnum::class,
+        'reason' => ShopifyFulfilmentReasonEnum::class
     ];
 
     public function shopifyUser(): BelongsTo

@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -28,7 +28,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class IndexStoredItemsInReturn extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
 
     private PalletReturn $palletReturn;

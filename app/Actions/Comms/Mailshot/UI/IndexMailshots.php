@@ -9,7 +9,7 @@
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -30,7 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexMailshots extends OrgAction
 {
     use HasUIMailshots;
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     public Outbox|PostRoom|OrgPostRoom|Organisation $parent;
 

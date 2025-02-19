@@ -9,8 +9,8 @@
 namespace App\Actions\Fulfilment\UI\Catalogue;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -33,14 +33,14 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
 {
     use WithFulfilmentAuthorisation;
 
-    protected function getElementGroups(Fulfilment $parent): array
+    protected function getElementGroups(Fulfilment $fulfilment): array
     {
         return [
             'type'  => [
                 'label'    => __('Type'),
                 'elements' => array_merge_recursive(
-                    AssetTypeEnum::labels($parent->shop),
-                    AssetTypeEnum::count($parent->shop)
+                    AssetTypeEnum::labels($fulfilment->shop),
+                    AssetTypeEnum::count($fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -52,7 +52,7 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     AssetStateEnum::labels(),
-                    AssetStateEnum::count($parent->shop)
+                    AssetStateEnum::count($fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -63,7 +63,7 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -77,9 +77,9 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Asset::class);
-        $queryBuilder->where('assets.shop_id', $parent->shop_id);
+        $queryBuilder->where('assets.shop_id', $fulfilment->shop_id);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -146,26 +146,26 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
             ]
         )->table(
             $this->tableStructure(
-                parent: $this->fulfilment,
+                fulfilment: $this->fulfilment,
                 prefix: FulfilmentAssetsTabsEnum::ASSETS->value
             )
         );
     }
 
     public function tableStructure(
-        Fulfilment $parent,
+        Fulfilment $fulfilment,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
     ): Closure {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($fulfilment, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -177,10 +177,10 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
+                    match (class_basename($fulfilment)) {
                         'Fulfilment' => [
                             'title' => __("No assets found"),
-                            'count' => $parent->shop->stats->number_assets,
+                            'count' => $fulfilment->shop->stats->number_assets,
                         ],
                         default => null
                     }

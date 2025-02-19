@@ -11,12 +11,12 @@ namespace App\Actions\Fulfilment\Space\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\UI\Fulfilment\SpaceTabsEnum;
 use App\Http\Resources\Fulfilment\SpaceResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -25,18 +25,16 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSpace extends OrgAction
 {
-    private Fulfilment|Organisation|Group|FulfilmentCustomer $parent;
+    use WithFulfilmentAuthorisation;
 
     public function handle(Space $space): Space
     {
         return $space;
     }
 
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
     {
-        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(SpaceTabsEnum::values());
-
         return $this->handle($space);
     }
 
@@ -62,16 +60,16 @@ class ShowSpace extends OrgAction
                             'icon'  => ['fal', 'fa-parking'],
                             'title' => __('space')
                         ],
-                    // 'actions' => [
-                    //     [
-                    //         'type'  => 'button',
-                    //         'style' => 'edit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                    //             'parameters' => array_values($request->route()->originalParameters())
-                    //         ]
-                    //     ]
-                    // ],
+                     'actions' => [
+                         [
+                             'type'  => 'button',
+                             'style' => 'edit',
+                             'route' => [
+                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                 'parameters' => array_values($request->route()->originalParameters())
+                             ]
+                         ]
+                     ],
                     // 'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
                 'tabs' => [
@@ -116,7 +114,8 @@ class ShowSpace extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.spaces.show' =>
+            'grp.org.fulfilments.show.crm.customers.show.spaces.show',
+            'grp.org.fulfilments.show.crm.customers.show.spaces.edit' =>
             array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])

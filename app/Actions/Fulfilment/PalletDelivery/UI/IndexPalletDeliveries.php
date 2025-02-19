@@ -16,7 +16,7 @@ use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Helpers\Upload\UI\IndexPalletUploads;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
@@ -43,7 +43,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletDeliveries extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use HasRentalAgreement;
     use WithFulfilmentCustomerSubNavigation;
     private ?string $restriction = null;
