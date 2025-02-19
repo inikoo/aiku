@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryDate;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\RetinaAction;
@@ -48,6 +49,7 @@ class SubmitRetinaPalletDelivery extends RetinaAction
             }
         }
 
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);

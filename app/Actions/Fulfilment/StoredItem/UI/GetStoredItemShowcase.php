@@ -19,6 +19,9 @@ class GetStoredItemShowcase
 
     public function handle(StoredItem $storedItem): array
     {
+
+        $lastAudit = $storedItem->fulfilmentCustomer->storedItemAudits->last();
+
         return [
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
             'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) {
@@ -43,7 +46,7 @@ class GetStoredItemShowcase
                     'fulfilmentCustomer'   => $storedItem->fulfilmentCustomer->slug
                 ]
             ],
-            'last_audit_slug'         => $storedItem->fulfilmentCustomer->storedItemAudits->last()->slug,
+            'last_audit_slug'         => $lastAudit?->slug,
             'route_update_stored_item' => [
                 'name'       => 'grp.models.stored-items.pallets.update',
                 'parameters' => [
@@ -55,19 +58,7 @@ class GetStoredItemShowcase
 
     public function getDashboardData(StoredItem $parent): array
     {
-        // $stats = [];
 
-        // $stats['pallets'] = [
-        //     'label' => __('Pallet'),
-        //     'count' => $parent->pallets()->count()
-        // ];
-
-        // $stats['pallets']['data'] = $parent->pallets->map(function (Pallet $pallet) {
-        //     return [
-        //         'label' => $pallet->reference,
-        //         'value' => (int) $pallet->pivot->quantity
-        //     ];
-        // });
 
         $stats          = [];
         $stats['stats'] = $parent->pallets->map(function (Pallet $pallet) {

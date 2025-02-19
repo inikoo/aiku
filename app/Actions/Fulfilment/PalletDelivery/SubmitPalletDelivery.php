@@ -57,7 +57,7 @@ class SubmitPalletDelivery extends OrgAction
         if ($totalPallets < $palletLimits && !(request()->user() instanceof WebUser)) {
             $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);
         }
-
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);

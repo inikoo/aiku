@@ -170,8 +170,7 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             </div>
         </template>
 
-        <!-- Cell: Dispatched at -->
-        <template #cell(dispatched_at)="{ item: palletReturn }">
+        <template #cell(date)="{ item: palletReturn }">
             {{ useFormatTime(palletReturn.dispatched_at) }}
         </template>
 

@@ -10,32 +10,41 @@ namespace App\Http\Resources\Fulfilment;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $id
+ * @property mixed $slug
+ * @property mixed $reference
+ * @property mixed $state
+ * @property mixed $type
+ * @property mixed $customer_reference
+ * @property mixed $number_pallets
+ * @property mixed $number_services
+ * @property mixed $number_physical_goods
+ * @property mixed $total_amount
+ * @property mixed $currency_code
+ * @property mixed $date
+ */
 class PalletReturnsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
-        $palletReturn = $this;
-        // dd($palletReturn);
         return [
-            'id'                    => $palletReturn->id,
-            'created_at'            => $palletReturn->created_at,
-            'slug'                  => $palletReturn->slug,
-            'reference'             => $palletReturn->reference,
-            'state'                 => $palletReturn->state,
-            'state_label'           => $palletReturn->state->labels()[$palletReturn->state->value],
-            'state_icon'            => $palletReturn->state->stateIcon()[$palletReturn->state->value],
-            'type'                  => $palletReturn->type,
-            'type_label'            => $palletReturn->type->labels()[$palletReturn->type->value],
-            'type_icon'             => $palletReturn->type->stateIcon()[$palletReturn->type->value],
-            'customer_reference'    => $palletReturn->customer_reference,
-            'number_pallets'        => $palletReturn->stats->number_pallets,
-            'number_services'       => $palletReturn->stats->number_services,
-            'number_physical_goods' => $palletReturn->stats->number_physical_goods,
-            'dispatched_at'         => $palletReturn->dispatched_at,
-            'total_amount'          => $palletReturn->total_amount,
-            'currency_code'         => $palletReturn->currency->code,
-            'customer'              => $palletReturn->fulfilmentCustomer->customer,
+            'id'                    => $this->id,
+            'slug'                  => $this->slug,
+            'reference'             => $this->reference,
+            'state'                 => $this->state,
+            'state_label'           => $this->state->labels()[$this->state->value],
+            'state_icon'            => $this->state->stateIcon()[$this->state->value],
+            'type'                  => $this->type,
+            'type_label'            => $this->type->labels()[$this->type->value],
+            'type_icon'             => $this->type->stateIcon()[$this->type->value],
+            'customer_reference'    => $this->customer_reference,
+            'number_pallets'        => $this->number_pallets,
+            'number_services'       => $this->number_services,
+            'number_physical_goods' => $this->number_physical_goods,
+            'date'                  => $this->date,
+            'total_amount'          => $this->total_amount,
+            'currency_code'         => $this->currency_code,
         ];
     }
 }

@@ -44,6 +44,7 @@ class ShowGroupDashboard extends OrgAction
         $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
         $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_grp', 'grp');
+        $selectedShopState = Arr::get($userSettings, 'selected_shop_state', 'open');
 
         $organisations = $group->organisations()->where('type', '!=', OrganisationTypeEnum::AGENT->value)->get();
         $orgCurrencies = [];
@@ -59,6 +60,7 @@ class ShowGroupDashboard extends OrgAction
                 'selected_amount'  => $selectedAmount,
                 'db_settings'      => $userSettings,
                 'key_currency'     => 'grp',
+                'selected_shop_state' => $selectedShopState,
                 'options_currency' => [
                     [
                         'value' => 'grp',
@@ -68,7 +70,17 @@ class ShowGroupDashboard extends OrgAction
                         'value' => 'org',
                         'label' => $orgCurrenciesSymbol,
                     ]
-                ]
+                ],
+                'options_shop'         => [
+                    [
+                        'value' => 'open',
+                        'label' => __('Open')
+                    ],
+                    [
+                        'value' => 'closed',
+                        'label' => __('Closed')
+                    ]
+                ],
             ],
             'current'          => $this->tabDashboardInterval,
             'table'            => [
@@ -100,17 +112,16 @@ class ShowGroupDashboard extends OrgAction
             'total_invoices'             => 0,
             'total_invoices_percentages' => 0,
             'total_refunds'              => 0,
+            'total_refunds_percentages'  => 0,
         ];
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SALES->value) {
             $total['total_sales']          = $organisations->sum(fn ($organisation) => $organisation->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getSales($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
         } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::SHOPS->value) {
-            $selectedShopState = Arr::get($userSettings, 'selected_shop_state', 'open');
             $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray())->where('state', $selectedShopState);
             $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
-            $dashboard['settings']['selected_shop_state'] = $selectedShopState;
         }
 
         return $dashboard;
@@ -179,6 +190,7 @@ class ShowGroupDashboard extends OrgAction
                     $selectedInterval,
                 );
                 $total['total_invoices_percentages']              += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
+                $total['total_refunds_percentages']              += $responseData['interval_percentages']['refunds']['percentage'] ?? 0;
 
                 $total['total_invoices'] += $responseData['interval_percentages']['invoices']['amount'];
                 $total['total_refunds']  += $responseData['interval_percentages']['refunds']['amount'];
@@ -247,7 +259,6 @@ class ShowGroupDashboard extends OrgAction
                 'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
                     'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
 
                 ],
@@ -355,6 +366,8 @@ class ShowGroupDashboard extends OrgAction
                 $total['total_invoices']             += $responseData['interval_percentages']['invoices']['amount'];
 
                 $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
+                $total['total_refunds_percentages']              += $responseData['interval_percentages']['refunds']['percentage'] ?? 0;
+
 
                 // visual data
                 $visualData['invoices_data']['labels'][]              = $shop->code;
@@ -422,7 +435,6 @@ class ShowGroupDashboard extends OrgAction
                 'type'  => 'doughnut',
                 'value' => [
                     'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'currency_codes' => Arr::get($visualData, 'invoices_data.currency_codes'),
                     'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
 
                 ],

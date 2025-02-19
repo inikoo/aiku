@@ -66,6 +66,7 @@ class StorePalletDelivery extends OrgAction
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
         $palletDelivery->stats()->create();
         $palletDelivery->refresh();
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
 
         GroupHydratePalletDeliveries::dispatch($fulfilmentCustomer->group);

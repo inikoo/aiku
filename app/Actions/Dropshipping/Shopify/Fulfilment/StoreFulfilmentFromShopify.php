@@ -16,6 +16,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Helpers\Country;
 use App\Models\ShopifyUserHasProduct;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -32,26 +33,25 @@ class StoreFulfilmentFromShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser, array $modelData): bool
     {
         return DB::transaction(function () use ($shopifyUser, $modelData) {
-            // $deliveryAddress        = Arr::get($modelData, 'destination');
-            // $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
-
             if ($shopifyUser->orders()->where('shopify_fulfilment_id', Arr::get($modelData, 'id'))->exists()) {
                 return false;
             }
 
             $shopifyProducts = collect($modelData['line_items']);
+            $deliveryAddress = Arr::get($modelData, 'shipping_address');
+            $country = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
 
-            /*        $deliveryAddress = [
-                        'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
-                        'address_line_2'      => Arr::get($deliveryAddress, 'address2'),
-                        'sorting_code'        => null,
-                        'postal_code'         => Arr::get($deliveryAddress, 'zip'),
-                        'dependent_locality'  => null,
-                        'locality'            => Arr::get($deliveryAddress, 'city'),
-                        'administrative_area' => Arr::get($deliveryAddress, 'province'),
-                        'country_code'        => Arr::get($deliveryAddress, 'country_code'),
-                        'country_id'          => $countryDeliveryAddress->id
-                    ];*/
+            $deliveryAddress = [
+                'address_line_1' => Arr::get($deliveryAddress, 'address1'),
+                'address_line_2' => Arr::get($deliveryAddress, 'address2'),
+                'sorting_code' => null,
+                'postal_code' => Arr::get($deliveryAddress, 'zip'),
+                'dependent_locality' => null,
+                'locality' => Arr::get($deliveryAddress, 'city'),
+                'administrative_area' => Arr::get($deliveryAddress, 'province'),
+                'country_code'        => Arr::get($deliveryAddress, 'country_code'),
+                'country_id'          => $country?->id
+            ];
 
             $palletReturn = StorePalletReturn::make()->actionWithDropshipping($shopifyUser->customer->fulfilmentCustomer, [
                 'type' => PalletReturnTypeEnum::DROPSHIPPING,
@@ -101,7 +101,8 @@ class StoreFulfilmentFromShopify extends OrgAction
             $shopifyOrder = StoreShopifyOrderFulfilment::run($shopifyUser, $palletReturn, [
                 'shopify_order_id' => Arr::get($modelData, 'order_id'),
                 'shopify_fulfilment_id' => Arr::get($modelData, 'id'),
-                'state' => $status->value
+                'state' => $status->value,
+                'customer' => Arr::get($modelData, 'customer')
             ]);
 
             if ($shopifyOrder && $status === ShopifyFulfilmentStateEnum::INCOMPLETE) {

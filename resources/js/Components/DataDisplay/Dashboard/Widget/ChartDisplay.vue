@@ -11,7 +11,7 @@ import ChartDashboardDynamic from "../../ChartDashboardDynamic.vue"
 import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 import { Link } from "@inertiajs/vue3"
-import { layoutStructure } from "@/Composables/useLayoutStructure";
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -102,27 +102,9 @@ const widgets = {
 		},
 	],
 }
-/* const value = ref([
-    { label: 'Apps', color: '#34d399', value: 16 },
-    { label: 'Messages', color: '#fbbf24', value: 8 },
-    { label: 'Media', color: '#60a5fa', value: 24 },
-    { label: 'System', color: '#c084fc', value: 10 }
-]); */
-// const getTypeVisualComponent = (type: string) => {
-// 	switch (type) {
-// 		case "chart":
-// 			return Chart
-// 		// case "percentage":
-// 		// 	return FontAwesomeIcon
-// 		// case "chart":
-// 		// 	return ChartDashboardDynamic
-// 		default:
-// 			return null
-// 	}
-// }
 
 const locale = inject("locale", aikuLocaleStructure)
-const layoutStore = inject("layout", layoutStructure);
+const layoutStore = inject("layout", layoutStructure)
 
 const getStatusColor = (status: string) => {
 	switch (status) {
@@ -138,7 +120,6 @@ const getStatusColor = (status: string) => {
 			return "bg-white border border-gray-200"
 	}
 }
-
 
 const printLabelByType = (label?: string) => {
 	switch (props.widget.type) {
@@ -157,11 +138,24 @@ function NumberDashboard(shop: any) {
 const setChartOptions = () => ({
 	responsive: true,
 	maintainAspectRatio: false,
-    
+
 	plugins: {
-        legend: {
-            display: false,  
-        },
+		legend: {
+			display: false,
+		},
+		tooltip: {
+			callbacks: {
+				label: (context) => {
+					const value = parseFloat(context.parsed.y ?? context.parsed) || 0
+					const currencyCode = props.visual?.value?.currency_codes?.[context.dataIndex]
+			
+					if (currencyCode) {
+						return locale.currencyFormat(currencyCode, value)
+					}
+					return locale.number(value);
+				},
+			},
+		},
 	},
 })
 
@@ -181,8 +175,7 @@ const setChartOptions = () => ({
 
 <template>
 	<div :class="['rounded-lg p-6 shadow-md relative h-full', getStatusColor(widget.status)]">
-		<p
-			class="text-4xl font-bold leading-tight truncate">
+		<p class="text-4xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
 			<!-- Render CountUp if widget.type is 'number' -->
 			<template v-if="widget?.type === 'number'">
@@ -222,9 +215,11 @@ const setChartOptions = () => ({
 		</p>
 
 		<p class="text-base text-gray-500">{{ widget.description }}</p>
-		
+
 		<div>
-			<div v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)" class="mt-4 h-full flex items-end">
+			<div
+				v-if="visual && ['line', 'bar', 'pie', 'doughnut'].includes(visual.type)"
+				class="mt-4 h-full flex items-end">
 				<div class="w-full h-full">
 					<Chart
 						:type="visual.type"

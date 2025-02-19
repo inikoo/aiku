@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -53,7 +53,57 @@ class EditPallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
-        // dd($pallet->warehouse);
+
+        $fields = [
+            'reference' => [
+                'type'    => 'input',
+                'label'   => __('reference'),
+                'value'   => $pallet->reference,
+                'required' => true
+            ],
+            'customer_reference' => [
+                'type'    => 'input',
+                'placeholder'   => __('add customer reference'),
+                'label'   => __('customer_reference'),
+                'value'   => $pallet->customer_reference,
+                'required' => true
+            ],
+            'notes' => [
+                'type'    => 'textarea',
+                'placeholder'   => __('Add note to pallet'),
+                'label'   => __('notes'),
+                'value'   => $pallet->notes,
+                // 'required' => true
+            ],
+
+
+        ];
+
+        if ($pallet->state == PalletStatusEnum::STORING) {
+            $fields['location_id'] = [
+                'type'    => 'select_infinite',
+                'label'   => __('location'),
+                'options'   => [
+                    [
+                        'id' => $pallet->location?->id,
+                        'code' => $pallet->location?->code
+                    ]
+                ],
+                'fetchRoute'    => [
+                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'warehouse'    => $pallet->warehouse->slug
+                    ]
+                ],
+                'valueProp' => 'id',
+                'labelProp' => 'code',
+                'required' => true,
+                'value'   => $pallet->location->id,
+            ];
+        }
+
+
         return Inertia::render(
             'EditModel',
             [
@@ -82,63 +132,7 @@ class EditPallet extends OrgAction
                         [
                             'label'  => __('Item'),
                             'icon'   => ['fal', 'fa-narwhal'],
-                            'fields' => [
-                                'reference' => [
-                                    'type'    => 'input',
-                                    'label'   => __('reference'),
-                                    'value'   => $pallet->reference,
-                                    'required' => true
-                                ],
-                                'customer_reference' => [
-                                    'type'    => 'input',
-                                    'placeholder'   => __('add customer reference'),
-                                    'label'   => __('customer_reference'),
-                                    'value'   => $pallet->customer_reference,
-                                    'required' => true
-                                ],
-                                'notes' => [
-                                    'type'    => 'textarea',
-                                    'placeholder'   => __('Add note to pallet'),
-                                    'label'   => __('notes'),
-                                    'value'   => $pallet->notes,
-                                    // 'required' => true
-                                ],
-                                'location_id'  => [
-                                    'type'    => 'select_infinite',
-                                    'label'   => __('location'),
-                                    'options'   => [
-                                        [
-                                            'id' => $pallet->location->id,
-                                            'code' => $pallet->location->code
-                                        ]
-                                        ],
-                                    'fetchRoute'    => [
-                                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                                        'parameters' => [
-                                            'organisation' => $this->organisation->slug,
-                                            'warehouse'    => $pallet->warehouse->slug
-                                        ]
-                                    ],
-                                    'valueProp' => 'id',
-                                    'labelProp' => 'code',
-                                    'required' => true,
-                                    'value'   => $pallet->location->id,
-                                ]
-                                // 'type' => [
-                                //     'type'    => 'select',
-                                //     'label'   => __('type'),
-                                //     'value'   => $storedItem->type,
-                                //     'required'=> true,
-                                //     'options' => PalletTypeEnum::values()
-                                // ],
-                                // 'location' => [
-                                //     'type'     => 'combobox',
-                                //     'label'    => __('location'),
-                                //     'value'    => '',
-                                //     'required' => true,
-                                //     'apiUrl'   => route('grp.json.locations') . '?filter[slug]=',
-                                // ]
-                            ]
+                            'fields' => $fields
                         ]
                     ],
                     'args' => [

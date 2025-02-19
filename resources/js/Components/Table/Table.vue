@@ -902,16 +902,16 @@ const isLoading = ref<string | boolean>(false)
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
-                                    <!-- <div v-if="isCheckBox"
-                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
+                                    <div v-if="isCheckBox"
+                                        @xxclick="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
                                         class="py-1.5 cursor-pointer">
-                                        <FontAwesomeIcon
+                                        <!-- <FontAwesomeIcon
                                             v-if="Object.values(selectRow).every((value) => value === true)"
                                             icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
-                                            fixed-width aria-hidden='true' />
-                                    </div> -->
+                                            fixed-width aria-hidden='true' /> -->
+                                    </div>
 
                                     <slot v-for="column in queryBuilderProps.columns" :name="`header(${column.key})`" :header="column">
                                         <HeaderCell

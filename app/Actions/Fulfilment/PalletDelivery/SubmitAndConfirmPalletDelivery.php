@@ -28,7 +28,8 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
     {
 
         $palletDelivery = SubmitPalletDelivery::make()->action($palletDelivery);
-        return ConfirmPalletDelivery::make()->action($palletDelivery);
+        $palletDelivery = ConfirmPalletDelivery::make()->action($palletDelivery);
+        return SetPalletDeliveryDate::run($palletDelivery);
     }
 
     public function authorize(ActionRequest $request): bool
