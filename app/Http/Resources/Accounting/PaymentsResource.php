@@ -36,6 +36,14 @@ class PaymentsResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'amount'     => $this->amount,
+            'route' => [
+                'name' => 'grp.org.accounting.payment-accounts.show.payments.show',
+                'params' => [
+                    'organisation' => $this->organisation_slug,
+                    'account' => $this->payment_accounts_slug,
+                    'payment' => $this->id
+                ]
+            ],
             'currency_code' => $this->currency_code,
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
