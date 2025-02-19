@@ -71,6 +71,7 @@ function useTabChangeDashboard(tab_slug: string) {
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
 		<div class="">
+	
 			<Tabs :value="activeIndexTab">
 				<TabList>
 					<Tab
@@ -176,7 +177,7 @@ function useTabChangeDashboard(tab_slug: string) {
 								<div
 									:key="`${data.interval_percentages?.refunds?.difference}_${data.interval_percentages?.refunds?.percentage}`"
 									style=" align-items: center">
-									<span style="font-size: 16px; font-weight: 500">
+									<span style="font-size: 16px; font-weight: 500" class="pr-1">
 										{{
 											data.interval_percentages?.refunds?.percentage
 												? `${
