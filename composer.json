@@ -19,7 +19,7 @@
         "ext-soap": "*",
         "ext-zlib": "*",
         "alibabacloud/dm-20151123": "^1.0",
-        "aws/aws-php-sns-message-validator": "^1.8",
+        "aws/aws-php-sns-message-validator": "^1.1",
         "aws/aws-sdk-php": "^3.255",
         "aws/aws-sdk-php-laravel": "^3.8",
         "carlos-meneses/laravel-mpdf": "^2.1",
