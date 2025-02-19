@@ -10,6 +10,7 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
 use App\Actions\Comms\Email\SendCustomerApprovedEmail;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -27,9 +28,13 @@ class ApproveCustomer extends OrgAction
             'approved_at' => now()
         ]);
 
-        SendCustomerApprovedEmail::run($customer);
+        SendCustomerApprovedEmail::dispatch($customer);
 
-        ShopHydrateCrmStats::run($customer->shop);
+        if ($customer->fulfilmentCustomer) {
+            FulfilmentHydrateCustomers::dispatch($customer->fulfilmentCustomer->fulfilment);
+        }
+
+        ShopHydrateCrmStats::dispatch($customer->shop);
         return $customer;
     }
 
