@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
+use App\Actions\Accounting\InvoiceCategory\Hydrators\InvoiceCategoryHydrateSalesIntervals;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
@@ -151,10 +152,14 @@ class StoreInvoice extends OrgAction
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
+        /** @var InvoiceCategory */
+        if ($invoice->invoiceCategory) {
+            InvoiceCategoryHydrateSalesIntervals::dispatch($invoice->invoiceCategory)->delay($this->hydratorsDelay);
+        }
+
         ShopHydrateSales::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateSales::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
-
         InvoiceRecordSearch::dispatch($invoice);
 
         return $invoice;

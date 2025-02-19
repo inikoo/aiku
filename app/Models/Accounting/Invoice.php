@@ -256,4 +256,9 @@ class Invoice extends Model implements Auditable
         return $this->hasMany(Invoice::class, 'invoice_id');
     }
 
+    public function invoiceCategory(): BelongsTo
+    {
+        return $this->belongsTo(InvoiceCategory::class);
+    }
+
 }

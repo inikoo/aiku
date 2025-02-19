@@ -10,6 +10,7 @@ namespace App\Actions\Traits\Hydrators;
 
 use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
@@ -17,7 +18,7 @@ use App\Models\SysAdmin\Organisation;
 
 trait WithHydrateInvoices
 {
-    public function getInvoicesStats(Group|Organisation|Shop|Customer $model): array
+    public function getInvoicesStats(Group|Organisation|Shop|Customer|InvoiceCategory $model): array
     {
         $numberInvoices = $model->invoices()->count();
         $stats          = [
@@ -31,6 +32,10 @@ trait WithHydrateInvoices
             $stats['sales_org_currency_all'] = $model->invoices()->sum('org_net_amount');
             $stats['sales_grp_currency_all'] = $model->invoices()->sum('grp_net_amount');
 
+        }
+
+        if ($model instanceof InvoiceCategory) {
+            $stats['number_invoiced_customers'] = $model->invoices()->distinct('customer_id')->count('customer_id');
         }
 
         // unpaid hydrate
