@@ -23,7 +23,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  *
  * @property int $id
  * @property int $group_id
- * @property int $organisation_id
+ * @property int|null $organisation_id
  * @property int|null $shop_id
  * @property int|null $user_id
  * @property string $model
@@ -47,7 +47,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\TFactory|null $use_factory
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read User|null $user
