@@ -40,6 +40,7 @@ class FulfilmentCustomerResource extends JsonResource
                 'name' => $fulfilmentCustomer->fulfilment->shop->name,
             ],
             'customer' => [
+                'id'           => $fulfilmentCustomer->customer->id,
                 'slug'         => $fulfilmentCustomer->customer->slug,
                 'reference'    => $fulfilmentCustomer->customer->reference,
                 'name'         => $fulfilmentCustomer->customer->name,
