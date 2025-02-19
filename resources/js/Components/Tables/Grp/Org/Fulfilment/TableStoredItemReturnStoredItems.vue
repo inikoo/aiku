@@ -210,7 +210,7 @@ const generateLinkPalletLocation = (pallet: any) => {
             </Link>
         </template>
         
-        <!-- Column: Stored items -->
+        <!-- Column: Pallet of Stored items -->
         <template #cell(pallet_stored_items)="{ item: value, proxyItem }">
             <div class="grid gap-y-1">
                 <template v-for="pallet_stored_item in value.pallet_stored_items" :key="pallet_stored_item.id">
@@ -245,9 +245,18 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                                 <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="trans('Quantity of Customer\'s SKU that should be picked')" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
     
+                                <!-- Button: input number (in_process) -->
                                 <NumberWithButtonSave
                                     v-if="palletReturn.state === 'in_process'"
+                                    key="in_process"
                                     noUndoButton
+                                    isUseAxios
+                                    @onSuccess="(newVal: number, oldVal: number) => {
+                                        proxyItem.total_quantity_ordered += newVal - oldVal
+                                        // router.reload({
+                                        //     only: ['box_stats.order_summary'],
+                                        // })
+                                    }"
                                     :modelValue="pallet_stored_item.selected_quantity"
                                     saveOnForm
                                     :routeSubmit="{
@@ -267,14 +276,16 @@ const generateLinkPalletLocation = (pallet: any) => {
                                 >
                                 </NumberWithButtonSave>
 
-                                <div v-else-if="palletReturn.state === 'submitted'" class="flex flex-nowrap gap-x-1 items-center">
+                                <div v-else-if="palletReturn.state === 'submitted' || palletReturn.state === 'confirmed'" class="flex flex-nowrap gap-x-1 items-center">
                                     {{ pallet_stored_item.selected_quantity }}
                                 </div>
     
-                                <!-- Picking: input number -->
+                                <!-- Button: input number (picking) -->
                                 <template v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'">
                                     <NumberWithButtonSave
+                                        key="pickingpicked"
                                         noUndoButton
+                                        xisUseAxios
                                         :modelValue="pallet_stored_item.selected_quantity"
                                         saveOnForm
                                         :routeSubmit="
@@ -402,6 +413,14 @@ const generateLinkPalletLocation = (pallet: any) => {
                     
                     <div v-else class="py-3">{{ item.data.quantity }}</div>
                 </div>
+            </div>
+        </template>
+
+        <template #cell(total_quantity_ordered)="{ item }">
+            <div class="">
+                <Transition name="spin-to-right">
+                    <span :key="item.total_quantity_ordered">{{ item.total_quantity_ordered }}</span>
+                </Transition>
             </div>
         </template>
 

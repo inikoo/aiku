@@ -25,7 +25,7 @@ const props = defineProps<{
     disabled?: boolean
     noHover?: boolean
     routeTarget?: routeType
-    bindToLink: {
+    bindToLink?: {
         preserveScroll?: boolean
         preserveState?: boolean
     }
