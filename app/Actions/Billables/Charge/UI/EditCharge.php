@@ -9,7 +9,7 @@
 namespace App\Actions\Billables\Charge\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Models\Billables\Charge;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditCharge extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     public function handle(Charge $charge): Charge
     {

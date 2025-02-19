@@ -9,8 +9,8 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersPendingApprovalResource;
@@ -18,6 +18,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +26,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexFulfilmentCustomersPendingApproval extends OrgAction
 {
@@ -100,7 +100,7 @@ class IndexFulfilmentCustomersPendingApproval extends OrgAction
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
-                ->column(key: 'registered_at', label: ['type' => 'text', 'data' => __('Date'), 'tooltip' => __('Registered at')], canBeHidden: false, sortable: true)
+                ->column(key: 'registered_at', label: ['type' => 'text', 'data' => __('Date'), 'tooltip' => __('Registered at')], canBeHidden: false, sortable: true, align:'right')
                 ->column(key: 'action', label: __('Actions'));
         };
     }

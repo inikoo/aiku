@@ -11,9 +11,9 @@ namespace App\Actions\Fulfilment\RecurringBill\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\RecurringBill\WithRecurringBillsSubNavigation;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
@@ -162,7 +162,7 @@ class IndexRecurringBills extends OrgAction
                         ]
                     }
                 );
-            $table->column(key: 'status_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon');
+            $table->column(key: 'status_icon', label: '', canBeHidden: false, type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);

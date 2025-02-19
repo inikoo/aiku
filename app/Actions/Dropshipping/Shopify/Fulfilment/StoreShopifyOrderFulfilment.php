@@ -45,6 +45,8 @@ class StoreShopifyOrderFulfilment extends OrgAction
             'shopify_order_id' => Arr::get($modelData, 'shopify_order_id'),
             'shopify_fulfilment_id' => Arr::get($modelData, 'shopify_fulfilment_id'),
             'state' => Arr::get($modelData, 'state'),
+            'no_fulfilment_reason' => Arr::get($modelData, 'no_fulfilment_reason'),
+            'no_fulfilment_reason_notes' => Arr::get($modelData, 'no_fulfilment_reason_notes'),
             'customer_client_id' => $customerClient->id
         ]);
 

@@ -13,7 +13,7 @@ use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\CRM\CustomersResource;
@@ -27,7 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowDepartment extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
 
 

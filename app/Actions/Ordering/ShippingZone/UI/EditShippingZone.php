@@ -10,7 +10,7 @@
 namespace App\Actions\Ordering\ShippingZone\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
@@ -21,7 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditShippingZone extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     public function handle(ShippingZone $shippingZone): ShippingZone
     {

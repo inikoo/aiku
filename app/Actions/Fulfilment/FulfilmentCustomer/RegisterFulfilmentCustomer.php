@@ -14,13 +14,13 @@ use App\Actions\Comms\Email\SendCustomerWelcomeEmail;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\OrgAction;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Password;
-use Lorisleiva\Actions\ActionRequest;
 
 class RegisterFulfilmentCustomer extends OrgAction
 {
@@ -29,23 +29,24 @@ class RegisterFulfilmentCustomer extends OrgAction
      */
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
-
-        $product = Arr::pull($modelData, 'product');
-        $shipment = Arr::pull($modelData, 'shipments_per_week');
+        $product       = Arr::pull($modelData, 'product');
+        $shipment      = Arr::pull($modelData, 'shipments_per_week');
         $sizeAndWeight = Arr::pull($modelData, 'size_and_weight');
-        $password = Arr::pull($modelData, 'password');
+        $password      = Arr::pull($modelData, 'password');
 
-        $customer = StoreCustomer::make()->action($fulfilment->shop, array_merge($modelData, [
-            'registered_at' => now()
-        ]));
+        data_set($modelData, 'registered_at', now());
+        data_set($modelData, 'status', CustomerStatusEnum::PENDING_APPROVAL);
+
+
+        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
 
 
         $webUser = StoreWebUser::make()->action($customer, [
             'contact_name' => Arr::get($modelData, 'contact_name'),
-            'username' => Arr::get($modelData, 'email'),
-            'email' => Arr::get($modelData, 'email'),
-            'password' => $password,
-            'is_root'   => true,
+            'username'     => Arr::get($modelData, 'email'),
+            'email'        => Arr::get($modelData, 'email'),
+            'password'     => $password,
+            'is_root'      => true,
         ]);
 
         data_set($fulfilmmentCustomerModelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
@@ -67,21 +68,14 @@ class RegisterFulfilmentCustomer extends OrgAction
         return $fulfilmentCustomer;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
 
-        return true;
-    }
 
     public function rules(): array
     {
         return [
-            'contact_name'             => ['required', 'string', 'max:255'],
-            'company_name'             => ['required', 'string', 'max:255'],
-            'email'                    => [
+            'contact_name'       => ['required', 'string', 'max:255'],
+            'company_name'       => ['required', 'string', 'max:255'],
+            'email'              => [
                 'required',
                 'string',
                 'max:255',
@@ -94,31 +88,24 @@ class RegisterFulfilmentCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['required', 'max:255'],
-            'contact_address'          => ['required', new ValidAddress()],
-            'interest'                 => ['required', 'required'],
-            'password'                 =>
+            'phone'              => ['required', 'max:255'],
+            'contact_address'    => ['required', new ValidAddress()],
+            'interest'           => ['required', 'required'],
+            'password'           =>
                 [
                     'sometimes',
                     'required',
                     app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
-            'product'                           => ['required', 'string'],
-            'shipments_per_week'                 => ['required', 'string'],
-            'size_and_weight'                   => ['required', 'string'],
+            'product'            => ['required', 'string'],
+            'shipments_per_week' => ['required', 'string'],
+            'size_and_weight'    => ['required', 'string'],
 
         ];
     }
 
     /**
-     * @throws \Throwable
-     */
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, $this->validatedData);
-    }
 
     /**
      * @throws \Throwable

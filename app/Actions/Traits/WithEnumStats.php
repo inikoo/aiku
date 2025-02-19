@@ -17,7 +17,8 @@ trait WithEnumStats
         string $field,
         $enum,
         $models,
-        $where = false
+        $where = false,
+        $fieldStatsLabel = null
     ): array {
         $stats = [];
 
@@ -25,10 +26,13 @@ trait WithEnumStats
         if ($this->is_closure($where)) {
             $applyWhere = true;
         } else {
-            $where = function ($q) {};
+            $where = function ($q) {
+            };
         }
 
-
+        if (is_null($fieldStatsLabel)) {
+            $fieldStatsLabel = $field;
+        }
 
         $count = $models::selectRaw("$field, count(*) as total")
             ->when(
@@ -38,7 +42,7 @@ trait WithEnumStats
             ->groupBy($field)
             ->pluck('total', $field)->all();
         foreach ($enum::cases() as $case) {
-            $stats["number_{$model}_{$field}_".$case->snake()] = Arr::get($count, $case->value, 0);
+            $stats["number_{$model}_{$fieldStatsLabel}_".$case->snake()] = Arr::get($count, $case->value, 0);
         }
 
         return $stats;

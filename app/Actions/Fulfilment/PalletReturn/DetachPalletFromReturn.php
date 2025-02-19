@@ -10,12 +10,11 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
@@ -59,8 +58,4 @@ class DetachPalletFromReturn extends OrgAction
         return $this->handle($pallet->palletReturn, $pallet);
     }
 
-    // public function jsonResponse(Pallet $pallet): PalletResource
-    // {
-    //     return new PalletResource($pallet);
-    // }
 }

@@ -134,7 +134,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('spaces')->as('.spaces.')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('create', CreateSpace::class)->name('create');
-        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{space}', ShowSpace::class)->name('show');
         Route::get('{space}/edit', EditSpace::class)->name('edit');
     });
 

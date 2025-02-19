@@ -11,6 +11,10 @@ import { PaymentAccount } from "@/types/payment-account"
 import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Shop } from '@/types/shop'
+import { useLocaleStore } from '@/Stores/locale'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { inject } from 'vue'
+import Icon from '@/Components/Icon.vue'
 library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 defineProps<{
@@ -29,16 +33,57 @@ function invoiceCategoryRoute(invoiceCategory: {}) {
     }
 }
 
+function invoiceRoute(invoiceCategory: {}) {
+    switch (route().current()) {
+        case "grp.org.accounting.invoice-categories.index":
+            return route(
+                "grp.org.accounting.invoices.index",
+                [route().params["organisation"]])
+        default:
+            return ''
+    }
+}
+
+function refundRoute(invoiceCategory: {}) {
+    switch (route().current()) {
+        case "grp.org.accounting.invoice-categories.index":
+            return route(
+                "grp.org.accounting.refunds.index",
+                [route().params["organisation"]])
+        default:
+            return ''
+    }
+}
+
+const locale = inject('locale', aikuLocaleStructure)
+
+
 </script>
 
 
 <template>
     <!-- {{ props.shopsList }} -->
     <Table :resource="data" :name="tab" class="mt-5">
+      <template #cell(state_icon)="{ item: invoiceCategory }">
+            <Icon :data="invoiceCategory.state_icon" />
+        </template>
       <template #cell(name)="{ item: invoiceCategory }">
             <Link :href="invoiceCategoryRoute(invoiceCategory)" class="primaryLink">
                 {{ invoiceCategory["name"] }}
             </Link>
+        </template>
+      <template #cell(number_type_invoices)="{ item: invoiceCategory }">
+            <Link :href="invoiceRoute(invoiceCategory)" class="primaryLink">
+                {{ invoiceCategory["number_type_invoices"] }}
+            </Link>
+        </template>
+      <template #cell(number_type_refunds)="{ item: invoiceCategory }">
+            <Link :href="refundRoute(invoiceCategory)" class="primaryLink">
+                {{ invoiceCategory["number_type_refunds"] }}
+            </Link>
+        </template>
+      <template #cell(amount)="{ item: invoiceCategory }">
+            {{ locale.currencyFormat(invoiceCategory.currency_code, invoiceCategory["amount"]) }}
         </template>
     </Table>
 </template>

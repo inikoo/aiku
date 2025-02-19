@@ -11,7 +11,7 @@ namespace App\Actions\Ordering\ShippingZone\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingZoneTabsEnum;
 use App\Http\Resources\Catalogue\ShippingZoneResource;
 use App\Models\Catalogue\Shop;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowShippingZone extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     public function handle(ShippingZone $shippingZone): ShippingZone
     {

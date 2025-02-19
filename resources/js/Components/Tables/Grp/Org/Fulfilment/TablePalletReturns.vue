@@ -34,6 +34,8 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-returns.show',
                 [
@@ -45,6 +47,9 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-returns.show',
                 [
@@ -76,6 +81,8 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
         case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show',
                 [
@@ -87,6 +94,9 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
         case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
         case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show',
                 [

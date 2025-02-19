@@ -41,7 +41,8 @@ class IndexInvoiceCategories extends OrgAction
 
         $queryBuilder->where('invoice_categories.organisation_id', $parent->id);
         $queryBuilder->leftjoin('currencies', 'invoice_categories.currency_id', 'currencies.id');
-
+        $queryBuilder->leftjoin('invoice_category_stats', 'invoice_categories.id', 'invoice_category_stats.invoice_category_id');
+        $queryBuilder->leftjoin('invoice_category_sales_intervals', 'invoice_categories.id', 'invoice_category_sales_intervals.invoice_category_id');
         return $queryBuilder
             ->defaultSort('invoice_categories.id')
             ->select([
@@ -49,9 +50,12 @@ class IndexInvoiceCategories extends OrgAction
                 'invoice_categories.slug',
                 'invoice_categories.name',
                 'invoice_categories.state',
-                'invoice_categories.type',
+                'currencies.code as currency_code',
+                'invoice_category_sales_intervals.sales_all as amount',
+                'invoice_category_stats.number_invoices_type_invoice as number_type_invoices',
+                'invoice_category_stats.number_invoices_type_refund as number_type_refunds',
             ])
-            ->allowedSorts(['name', 'state'])
+            ->allowedSorts(['name', 'state', 'number_type_invoices', 'amount', 'number_type_refunds'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -74,9 +78,11 @@ class IndexInvoiceCategories extends OrgAction
                         'count'       => 0,
                     ]
                 )
-                ->column(key: 'state_label', label: __('state'), canBeHidden: false, type:'icon', sortable: true, searchable: true)
+                ->column(key: 'state_icon', label: '', canBeHidden: false, type:'icon')
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type_label', label: __('type'), canBeHidden: false, type:'icon', sortable: true, searchable: true)
+                ->column(key: 'number_type_invoices', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_type_refunds', label: __('refunds'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
                 ->defaultSort('id');
         };
     }
@@ -96,10 +102,10 @@ class IndexInvoiceCategories extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('Payment Account Shops'),
+                'title'       => __('Invoice Categories'),
                 'pageHead'    => [
-                    'icon'      => ['fal', 'fa-store-alt'],
-                    'title'     => __('Payment Account Shops'),
+                    'icon'      => ['fal', 'fa-sitemap'],
+                    'title'     => __('Invoice Categories'),
                     'actions'   => [
                         [
                             'type'    =>    'button',

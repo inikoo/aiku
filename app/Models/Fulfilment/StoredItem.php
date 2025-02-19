@@ -63,7 +63,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletStoredItem> $palletStoredItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read Portfolio|null $portfolio
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read ShopifyUserHasProduct|null $shopifyPortfolio
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static Builder<static>|StoredItem newModelQuery()

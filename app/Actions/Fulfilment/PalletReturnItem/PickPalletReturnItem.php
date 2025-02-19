@@ -12,8 +12,8 @@ namespace App\Actions\Fulfilment\PalletReturnItem;
 use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
 use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemStateToReturned;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Support\Arr;
@@ -26,6 +26,9 @@ class PickPalletReturnItem extends OrgAction
     use WithActionUpdate;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
     {
         return DB::transaction(function () use ($palletReturnItem, $modelData) {
@@ -54,6 +57,9 @@ class PickPalletReturnItem extends OrgAction
         ];
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);

@@ -21,6 +21,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Events\AuditCustom;
@@ -127,7 +128,7 @@ class UpdateFulfilmentCustomer extends OrgAction
         return [
             'contact_name'      => ['sometimes', 'nullable', 'string'],
             'company_name'      => ['sometimes', 'nullable', 'string'],
-            'email'             => ['sometimes', 'nullable', 'string'],
+            'email'             => ['sometimes', 'nullable', 'string', Rule::unique('customers')->where('shop_id', $this->shop->id)],
             'phone'             => ['sometimes', 'nullable', 'string'],
             'pallets_storage'   => ['sometimes', 'boolean'],
             'items_storage'     => ['sometimes', 'boolean'],

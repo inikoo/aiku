@@ -8,7 +8,6 @@
 
 namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
-use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
@@ -30,19 +29,12 @@ class CancelFulfilmentOrderShopify extends OrgAction
     public function handle(ShopifyUserHasFulfilment $shopifyUserHasFulfilment, ShopifyUser $shopifyUser): void
     {
         $client = $shopifyUser->api()->getRestClient();
-
-        $response = $client->request('POST', "/admin/api/2024-04/fulfillment_orders/$shopifyUserHasFulfilment->shopify_fulfilment_id/hold.json", [
-            'fulfillment_hold' => [
-                'reason' => 'inventory_out_of_stock',
-                'reason_notes' => __('Not enough inventory to complete this work.')
-            ]
+        $response = $client->request('POST', "/admin/api/2024-04/orders/$shopifyUserHasFulfilment->shopify_order_id/cancel.json", [
+            'email' => true,
+            'reason' => 'inventory'
         ]);
-        /** @var \App\Models\Fulfilment\PalletReturn $palletReturn */
-        $palletReturn = $shopifyUserHasFulfilment->model;
 
         if (!$response['errors']) {
-            CancelPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
-
             $this->update($shopifyUserHasFulfilment, [
                 'state' => ShopifyFulfilmentStateEnum::INCOMPLETE
             ]);
