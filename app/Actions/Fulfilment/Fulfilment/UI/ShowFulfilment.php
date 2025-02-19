@@ -172,7 +172,7 @@ class ShowFulfilment extends OrgAction
                                     'parameters' => [
                                         'organisation' => $fulfilment->organisation->slug,
                                         'fulfilment' => $fulfilment->slug,
-                                        'returns_elements[state]' => 'confirmed,picking,picked,cancel',
+                                        'returns_elements[state]' => 'confirmed,picking,picked',
                                     ]
                                 ]
                             ],
