@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { FulfilmentCustomer } from "@/types/Customer"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -21,6 +21,7 @@ import { trans } from 'laravel-vue-i18n'
 import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 import ModalRejected from '@/Components/Utils/ModalRejected.vue'
 import { ref } from 'vue'
+import ModalApproveConfirmation from '@/Components/Utils/ModalApproveConfirmation.vue'
 
 
 library.add(faCheck, faTimes, faCheckCircle, faTimesCircle)
@@ -54,6 +55,27 @@ function openRejectedModal(customer: any) {
   customerName.value = customer.name
   isModalUploadOpen.value = true
 }
+
+const approvedCustomer = ref([]);
+const isModalApproveOpen = ref(false);
+
+function approveCustomer(customer: any) {
+  router.patch(
+        route('grp.models.customer.approve', { customer: customer.id }),
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+              approvedCustomer.value = customer;
+              isModalApproveOpen.value = true;
+            },
+            onError: (errors) => {
+                console.error("Approval error:", errors);
+            }
+        }
+    ); 
+}
+
 </script>
 
 <template>
@@ -98,11 +120,7 @@ function openRejectedModal(customer: any) {
                 }"
                 type="positive"
                 size="xs"
-                :routeTarget="{
-                    name: 'grp.models.customer.approve',
-                    parameters: { customer : customer.id },
-                    method: 'patch',
-                }"
+                @click="() => approveCustomer(customer)"
             />
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'rejected' }"> -->
             <ButtonWithLink
@@ -142,4 +160,8 @@ function openRejectedModal(customer: any) {
       :customerID="customerID"
       :customerName="customerName"
   />
+    <ModalApproveConfirmation
+      v-model="isModalApproveOpen"
+      :approvedCustomer
+    />
 </template>
