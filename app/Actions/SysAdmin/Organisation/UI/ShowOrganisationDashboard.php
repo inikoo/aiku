@@ -130,7 +130,7 @@ class ShowOrganisationDashboard extends OrgAction
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
             $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
-        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES_CATEGORIES->value) {
+        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
             $invoiceCategories = $organisation->invoiceCategories;
             $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
