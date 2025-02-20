@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\SesNotification;
 
+use App\Actions\Comms\EmailTrackingEvent\PostProcessingEmailTrackingEvent;
 use App\Actions\Comms\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Utils\IsGoogleIp;
@@ -107,7 +108,7 @@ class ProcessSesNotification
                     'last_clicked_at' => now()
                 ];
 
-                if (!$dispatchedEmail->first_read_at) {
+                if (!$dispatchedEmail->first_clicked_at) {
                     $additionalData = [
                         'first_clicked_at' => now(),
                         'last_clicked_at' => now()
@@ -127,8 +128,7 @@ class ProcessSesNotification
                 return $sesNotification->data;
         }
 
-        StoreEmailTrackingEvent::make()->action($dispatchedEmail, [
-            'provider_reference' => $sesNotification->message_id,
+        $emailProcessingTrackingEvent = StoreEmailTrackingEvent::make()->action($dispatchedEmail, [
             'type' => $type,
             'data' => $data
         ]);
@@ -139,6 +139,8 @@ class ProcessSesNotification
         ]);
 
         $sesNotification->delete();
+
+        PostProcessingEmailTrackingEvent::run($emailProcessingTrackingEvent);
 
         return null;
     }
