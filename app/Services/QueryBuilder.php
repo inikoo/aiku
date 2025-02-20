@@ -8,6 +8,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -42,7 +43,6 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
     }
 
     public function whereRadioFilter(
-        string $key,
         array $allowedElements,
         string $defaultValue,
         callable $engine,
@@ -53,6 +53,10 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
         if (request()->has($argumentName) or $defaultValue) {
             $elements               = request()->input("$argumentName") ?? $defaultValue;
+            if(is_array($elements)){
+                $elements = Arr::get($elements, 'radio.value');
+            }
+
 
             $validatedElements      = array_intersect($allowedElements, [$elements]);
             $countValidatedElements = count($validatedElements);
