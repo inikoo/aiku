@@ -9,8 +9,8 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
@@ -26,7 +26,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInReturn extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
     private PalletReturn $palletReturn;
 
@@ -110,13 +110,7 @@ class IndexPalletsInReturn extends OrgAction
 
 
             $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-
-
-            /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
-
-
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-
 
             $customersReferenceLabel = __("Pallet reference (customer's), notes");
 
@@ -149,7 +143,7 @@ class IndexPalletsInReturn extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletsResource::collection($pallets);
+        return PalletReturnItemsUIResource::collection($pallets);
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator

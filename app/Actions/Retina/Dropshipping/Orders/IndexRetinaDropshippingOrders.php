@@ -106,8 +106,12 @@ class IndexRetinaDropshippingOrders extends RetinaAction
                 ->withModelOperations($modelOperations);
 
             $table ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'model', label: __('model'), canBeHidden: false, searchable: true);
+            // $table->column(key: 'model', label: __('model'), canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, searchable: true);
+            $table->column(key: 'shopify_order_id', label: __('shopify order id'), canBeHidden: false, searchable: true);
+            // $table->column(key: 'client_name', label: __('client'), canBeHidden: false, searchable: true);
+            $table->column(key: 'reason_notes', label: __('reason message'), canBeHidden: false, searchable: true);
+            // $table->column(key: 'actions', label: __('actions'), canBeHidden: false, searchable: true);
         };
     }
 

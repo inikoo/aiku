@@ -9,8 +9,8 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithFulfilmentCustomersSubNavigation;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
@@ -19,6 +19,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,7 +27,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexFulfilmentCustomersApproved extends OrgAction
 {
@@ -34,15 +34,14 @@ class IndexFulfilmentCustomersApproved extends OrgAction
     use WithFulfilmentCustomersSubNavigation;
 
 
-
-    protected function getElementGroups(Fulfilment $parent): array
+    protected function getElementGroups(Fulfilment $fulfilment): array
     {
         return [
             'status' => [
                 'label'    => __('Status'),
                 'elements' => array_merge_recursive(
                     FulfilmentCustomerStatusEnum::labels(),
-                    FulfilmentCustomerStatusEnum::count($parent)
+                    FulfilmentCustomerStatusEnum::count($fulfilment)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -91,6 +90,8 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 'space_rental',
                 'reference',
                 'fulfilment_customers.status',
+                'fulfilment_customers.number_spaces_state_renting',
+                'fulfilment_customers.number_stored_items_state_active',
                 'customers.id',
                 'customers.name',
                 'fulfilment_customers.slug',
@@ -106,7 +107,9 @@ class IndexFulfilmentCustomersApproved extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at'])
+            ->allowedSorts(
+                ['reference', 'name', 'number_pallets', 'slug', 'number_spaces_state_renting', 'number_stored_items_state_active', 'number_pallets_status_storing', 'status', 'sales_all', 'sales_org_currency_all', 'sales_grp_currency_all', 'customers.created_at']
+            )
             ->allowedFilters([$globalSearch])
             ->withPaginator(prefix: $prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -121,15 +124,15 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$this->pending_approval) {
-                foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
+
+            foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
             }
+
 
             $table
                 ->withModelOperations($modelOperations)
@@ -155,6 +158,8 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type' => 'text', 'data' => __('Pallets'), 'tooltip' => __('Number of pallets in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'number_stored_items_state_active', label: ['type' => 'text', 'data' => __('SKUs'), 'tooltip' => __('Number of SKUs in warehouse')], canBeHidden: false, sortable: true)
+                ->column(key: 'number_spaces_state_renting', label: ['type' => 'text', 'data' => __('Spaces'), 'tooltip' => __('Number of renting spaces')], canBeHidden: false, sortable: true)
                 ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->column(key: 'interest', label: __('interest'), canBeHidden: false);
         };
@@ -166,7 +171,6 @@ class IndexFulfilmentCustomersApproved extends OrgAction
 
         return $this->handle($fulfilment);
     }
-
 
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
@@ -204,13 +208,12 @@ class IndexFulfilmentCustomersApproved extends OrgAction
                 ),
                 'title'       => __('customers'),
                 'pageHead'    => [
-                    'title'   => __('customers'),
-                    'model'   => __('Fulfilment'),
-                    'icon'    => [
+                    'title'         => __('customers'),
+                    'icon'          => [
                         'icon'    => ['fal', 'fa-user'],
-                        'tooltip' => $this->fulfilment->shop->name.' '.__('customers')
+                        'tooltip' => $this->fulfilment->shop->name.' '.__('Fulfilment customers')
                     ],
-                    'actions' => $actions,
+                    'actions'       => $actions,
                     'subNavigation' => $navigation
                 ],
                 'data'        => FulfilmentCustomersResource::collection($customers)

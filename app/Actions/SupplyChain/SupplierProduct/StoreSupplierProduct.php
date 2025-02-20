@@ -144,4 +144,12 @@ class StoreSupplierProduct extends GrpAction
 
         return $this->handle($supplier, $this->validatedData);
     }
+
+    public function asController(Supplier $supplier, ActionRequest $request)
+    {
+        $this->supplier_id    = $supplier->id;
+        $this->initialisation($supplier->group, $request);
+
+        return $this->handle($supplier, $this->validatedData);
+    }
 }

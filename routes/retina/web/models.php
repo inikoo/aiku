@@ -20,6 +20,7 @@ use App\Actions\Retina\Fulfilment\FulfilmentTransaction\StoreRetinaFulfilmentTra
 use App\Actions\Retina\Fulfilment\FulfilmentTransaction\UpdateRetinaFulfilmentTransaction;
 use App\Actions\Retina\Fulfilment\Pallet\DeleteRetinaPallet;
 use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPallet;
+use App\Actions\Retina\Fulfilment\Pallet\ImportRetinaPalletsInPalletDeliveryWithStoredItems;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaMultiplePalletsFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Retina\Fulfilment\Pallet\UpdateRetinaPallet;
@@ -29,6 +30,7 @@ use App\Actions\Retina\Fulfilment\PalletDelivery\SubmitRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletDelivery\UpdateRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletReturn\AddRetinaAddressToPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\AttachRetinaPalletsToReturn;
+use App\Actions\Retina\Fulfilment\PalletReturn\AttachRetinaPalletToReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\CancelRetinaPalletReturn;
 use App\Actions\Retina\Fulfilment\PalletReturn\DeleteRetinaPalletReturnAddress;
 use App\Actions\Retina\Fulfilment\PalletReturn\DetachRetinaPalletFromReturn;
@@ -72,11 +74,12 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
     Route::post('stored-item-upload', ImportRetinaPalletReturnItem::class)->name('stored-item.upload');
     Route::post('stored-item', StoreRetinaStoredItemsToReturn::class)->name('stored_item.store');
-    Route::post('pallet', AttachRetinaPalletsToReturn::class)->name('pallet.store');
+    Route::post('pallet', AttachRetinaPalletsToReturn::class)->name('pallet.store'); //No longer used (free to delete) but idk
     Route::patch('update', UpdateRetinaPalletReturn::class)->name('update');
     Route::post('submit', SubmitRetinaPalletReturn::class)->name('submit');
     Route::post('cancel', CancelRetinaPalletReturn::class)->name('cancel');
-    Route::delete('pallet/{pallet:id}', DetachRetinaPalletFromReturn::class)->name('pallet.delete')->withoutScopedBindings();
+    Route::post('pallet/{pallet:id}/attach', AttachRetinaPalletToReturn::class)->name('pallet.attach')->withoutScopedBindings();
+    Route::delete('pallet/{pallet:id}/detach', DetachRetinaPalletFromReturn::class)->name('pallet.delete')->withoutScopedBindings();
     Route::post('transaction', [StoreRetinaFulfilmentTransaction::class, 'fromRetinaInPalletReturn'])->name('transaction.store');
     Route::patch('/', DeleteRetinaPalletReturn::class)->name('delete');
 });
@@ -89,6 +92,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::delete('attachment/{attachment:id}/detach', [DetachRetinaAttachmentFromModel::class, 'inPalletDelivery'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('pallet-upload', ImportRetinaPallet::class)->name('pallet.upload');
+    Route::post('pallet-upload-with-stored-items', ImportRetinaPalletsInPalletDeliveryWithStoredItems::class)->name('pallet.upload.with-stored-items');
     Route::post('pallet', StoreRetinaPalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreRetinaMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::patch('update', UpdateRetinaPalletDelivery::class)->name('update');
@@ -123,6 +127,7 @@ Route::name('fulfilment_customer.')->prefix('fulfilment-customer/{fulfilmentCust
 Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer-client.store');
 
 Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
+    //     Route::post('orders/{shopifyHasFulfilmentId:id}/release-hold', StoreRetinaProductShopify::class)->name('orders.release_hold')->withoutScopedBindings();
     Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
 

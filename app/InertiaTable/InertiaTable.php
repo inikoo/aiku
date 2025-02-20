@@ -227,14 +227,18 @@ class InertiaTable
     protected function transformRadioFilter(): Collection
     {
         $radioFilter = $this->radioFilter;
-        $queryElements = $this->query('radioFilter', []);
+        $queryElements = $this->query('radioFilter', '');
 
         if (empty($queryElements)) {
             return $radioFilter;
         }
 
+        if (is_array($queryElements)) {
+            $queryElements = Arr::get($queryElements, 'radio.value', '');
+        }
+
         return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
-            $elementRadioGroup->value = $queryElements;
+            $elementRadioGroup->value = (string) $queryElements;
 
             return $elementRadioGroup;
         });

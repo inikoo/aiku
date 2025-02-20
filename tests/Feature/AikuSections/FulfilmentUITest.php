@@ -589,6 +589,7 @@ test('UI show pallet (Stored Items Tab)', function () {
 });
 
 test('UI edit pallet', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.operations.pallets.current.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -768,6 +769,7 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 // Pallet Return
 
 test('UI Index pallet returns', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-returns.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -1041,6 +1043,7 @@ test('UI Index stored items', function () {
 });
 
 test('UI show stored item', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug, $this->storedItem->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

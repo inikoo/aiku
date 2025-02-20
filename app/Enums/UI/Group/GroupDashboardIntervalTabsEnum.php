@@ -16,7 +16,8 @@ enum GroupDashboardIntervalTabsEnum: string
 {
     use EnumHelperTrait;
 
-    case SALES      = 'sales';
-    case SHOPS      = 'shops';
+    case INVOICE_ORGANISATIONS      = 'invoice_organisations';
+    case INVOICE_SHOPS      = 'invoice_shops';
+    case INVOICE_CATEGORY_ORGANISATIONS = 'invoice_category_organisations';
 
 }

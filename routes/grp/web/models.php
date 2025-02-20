@@ -6,7 +6,8 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-
+use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
@@ -70,7 +71,7 @@ use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
+use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -100,7 +101,7 @@ use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnDeliveryAddress;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\PickNewPalletReturnItem;
-use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItemInPalletReturnWithStoredItem;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
@@ -168,6 +169,8 @@ use App\Actions\Production\RawMaterial\StoreRawMaterial;
 use App\Actions\Production\RawMaterial\UpdateRawMaterial;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
+use App\Actions\SupplyChain\SupplierProduct\ImportSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
@@ -282,6 +285,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('position', StoreJobPosition::class)->name('jon_position.store');
     Route::post('working-place', StoreWorkplace::class)->name('workplace.store');
     Route::post('clocking-machine', [StoreClockingMachine::class, 'inOrganisation'])->name('clocking-machine.store');
+
+    Route::post('invoice-category', StoreInvoiceCategory::class)->name('invoice-category.store');
 
 
     Route::post('shop', StoreShop::class)->name('shop.store');
@@ -448,8 +453,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
-    Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
-    Route::patch('update', PickPalletReturnItem::class)->name('update');
+    Route::patch('', PickWholePalletInPalletReturn::class)->name('set_as_picked');
+    Route::patch('pick', PickPalletReturnItemInPalletReturnWithStoredItem::class)->name('pick');
     Route::patch('undo-picking-stored-item', UndoStoredItemPick::class)->name('undo-picking-stored-item');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
@@ -626,6 +631,8 @@ Route::name('collection.')->prefix('collection/{collection:id}')->group(function
 });
 
 Route::name('supplier.')->prefix('supplier/{supplier:id}')->group(function () {
+    Route::post('supplier-product', StoreSupplierProduct::class)->name('supplier-product.store');
+    Route::post('supplier-product/import', ImportSupplierProducts::class)->name('supplier-product.import');
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inSupplier'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inSupplier'])->name('attachment.detach')->withoutScopedBindings();
 });
@@ -676,6 +683,11 @@ Route::name('services.')->prefix('serivices/')->group(function () {
 });
 Route::name('rentals.')->prefix('rentals/')->group(function () {
     Route::patch('{rental:id}/update', UpdateRental::class)->name('update');
+});
+
+
+Route::name('invoice-category.')->prefix('invoice-category/')->group(function () {
+    Route::patch('{invoiceCategory:id}/update', UpdateInvoiceCategory::class)->name('update');
 });
 
 require __DIR__."/models/inventory/warehouse.php";

@@ -28,6 +28,54 @@ function agentRoute(agent: Agent) {
     }
 }
 
+function suppliersRoute(agent: Agent) {
+    switch (route().current()) {
+        case "grp.org.procurement.org_agents.index":
+            return route(
+                "grp.org.procurement.org_agents.show.suppliers.index",
+                [route().params["organisation"], agent.slug])
+        
+        default:
+            return ''
+    }
+}
+
+function productsRoute(agent: Agent) {
+    switch (route().current()) {
+        case "grp.org.procurement.org_agents.index":
+            return route(
+                "grp.org.procurement.org_agents.show.supplier_products.index",
+                [route().params["organisation"], agent.slug])
+        
+        default:
+            return ''
+    }
+}
+
+function purchaseOrdersRoute(agent: Agent) {
+    switch (route().current()) {
+        case "grp.org.procurement.org_agents.index":
+            return route(
+                "grp.org.procurement.org_agents.show.purchase-orders.index",
+                [route().params["organisation"], agent.slug])
+        
+        default:
+            return ''
+    }
+}
+
+function stockDeliveriesRoute(agent: Agent) {
+    switch (route().current()) {
+        case "grp.org.procurement.org_agents.index":
+            return route(
+                "grp.org.procurement.org_agents.show.stock-deliveries.index",
+                [route().params["organisation"], agent.slug])
+        
+        default:
+            return ''
+    }
+}
+
 </script>
 
 <template>
@@ -46,22 +94,28 @@ function agentRoute(agent: Agent) {
 
         <!-- Column: PO -->
         <template #cell(number_purchase_orders)="{ item: agent }">
-            <Link href="" class="secondaryLink">
+            <Link :href=purchaseOrdersRoute(agent) class="secondaryLink">
                 {{ agent.number_purchase_orders }}
             </Link>
         </template>
 
         <!-- Column: Supplier -->
         <template #cell(number_org_supplier_products)="{ item: agent }">
-            <Link href="" class="secondaryLink">
+            <Link :href=productsRoute(agent) class="secondaryLink">
                 {{ agent.number_org_supplier_products }}
             </Link>
         </template>
 
         <!-- Column: SP -->
         <template #cell(number_org_suppliers)="{ item: agent }">
-            <Link href="" class="secondaryLink">
+            <Link :href=suppliersRoute(agent) class="secondaryLink">
                 {{ agent.number_org_suppliers }}
+            </Link>
+        </template>
+        <!-- Column: SD -->
+        <template #cell(number_stock_deliveries)="{ item: agent }">
+            <Link :href=stockDeliveriesRoute(agent) class="secondaryLink">
+                {{ agent.number_stock_deliveries }}
             </Link>
         </template>
         

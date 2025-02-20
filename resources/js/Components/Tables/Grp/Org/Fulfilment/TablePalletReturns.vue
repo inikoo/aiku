@@ -31,6 +31,11 @@ const layout = inject('layout', layoutStructure)
 function palletReturnRoute(palletReturn: PalletDelivery) {
     switch (route().current()) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-returns.show',
                 [
@@ -39,6 +44,12 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     palletReturn.slug
                 ]);
         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-returns.show',
                 [
@@ -67,6 +78,11 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
 function storedItemReturnRoute(palletReturn: PalletDelivery) {
     switch (route().current()) {
         case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.picking.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.picked.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index':
             return route(
                 'grp.org.warehouses.show.dispatching.pallet-return-with-stored-items.show',
                 [
@@ -75,6 +91,12 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
                     palletReturn.slug
                 ]);
         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.picking.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.picked.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index':
+        case 'grp.org.fulfilments.show.operations.pallet-returns.new.index':
             return route(
                 'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show',
                 [
@@ -158,8 +180,7 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             </div>
         </template>
 
-        <!-- Cell: Dispatched at -->
-        <template #cell(dispatched_at)="{ item: palletReturn }">
+        <template #cell(date)="{ item: palletReturn }">
             {{ useFormatTime(palletReturn.dispatched_at) }}
         </template>
 

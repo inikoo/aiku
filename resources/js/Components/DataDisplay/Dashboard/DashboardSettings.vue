@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { inject, ref } from "vue"
-import { router } from "@inertiajs/vue3"
+import { computed, inject, ref, watch } from "vue"
+import { router, usePage } from "@inertiajs/vue3"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import ToggleSwitch from "primevue/toggleswitch"
@@ -20,6 +20,7 @@ const props = defineProps<{
 			selected_shop_open?: string
 			selected_shop_closed?: string
 		}
+		selected_shop_state?: string
 		key_currency?: string
 		key_shop?: string
 		options_currency: {
@@ -34,14 +35,27 @@ const props = defineProps<{
 	tableType?: string
 }>()
 
+
 const layout = inject("layout", layoutStructure)
 const isSectionVisible = ref(false)
+const page = usePage();
+const tabDashboardInterval = computed(() => {
+	const currentUrl = new URL(page.url, window.location.origin)
+	return currentUrl.searchParams.get('tab_dashboard_interval')
+})
 
+watch(
+  tabDashboardInterval,
+  (newVal, oldVal) => {
+    console.log('tab_dashboard_interval changed from', oldVal, 'to', newVal)
+  },
+  { immediate: true }
+)
 // Section: Interval
 const isLoadingInterval = ref<string | null>(null)
 const updateInterval = (interval_code: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				selected_interval: interval_code,
@@ -63,7 +77,7 @@ const updateInterval = (interval_code: string) => {
 const isLoadingCurrency = ref<boolean>(false)
 const updateCurrency = (currency_scope: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				[`selected_currency_in_${props.settings?.key_currency || "grp"}`]: currency_scope,
@@ -83,10 +97,10 @@ const updateCurrency = (currency_scope: string) => {
 
 const updateShop = (shop_scope: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
-				[`selected_shop_open`]: shop_scope,
+				[`selected_shop_state`]: shop_scope,
 			},
 		},
 		{
@@ -102,10 +116,8 @@ const updateShop = (shop_scope: string) => {
 }
 
 const updateAmountFormat = (amountFormat: string) => {
-	console.log(amountFormat, "haha")
-
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				[`selected_amount`]: amountFormat,
@@ -140,7 +152,7 @@ const updateAmountFormat = (amountFormat: string) => {
 				v-show="isSectionVisible"
 				class="flex flex-wrap justify-between items-center gap-4 lg:gap-8 mb-2">
 				<!-- Shop Toggle (for tableType === 'org') -->
-				<div v-if="tableType === 'org'" class="flex items-center space-x-4">
+				<div v-if="tableType === 'org' || tabDashboardInterval === 'shops'" class="flex items-center space-x-4">
 					<p
 						class="font-medium"
 						:class="[
@@ -154,10 +166,9 @@ const updateAmountFormat = (amountFormat: string) => {
 
 					<!-- Shop Toggle Switch -->
 					<ToggleSwitch
-						:modelValue="settings.db_settings.selected_shop_open === 'open'"
+						:modelValue="settings.selected_shop_state === 'open'"
 						@update:modelValue="(value) => updateShop(value ? 'open' : 'closed')"
-						:trueValue="'true'"
-						:falseValue="'false'" />
+						 />
 
 					<p
 						class="font-medium"

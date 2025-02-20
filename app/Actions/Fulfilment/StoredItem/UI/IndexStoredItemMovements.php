@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -25,7 +25,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemMovements extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     private Warehouse|Fulfilment|Customer $parent;
     /**
      * @var true
@@ -78,7 +78,7 @@ class IndexStoredItemMovements extends OrgAction
         $query->defaultSort('stored_item_movements.id')
             ->select(
                 'stored_item_movements.id',
-                'stored_item_movements.quantity',
+                'stored_item_movements.quantity as delta',
                 'stored_item_movements.type',
                 'stored_items.id as stored_item_id',
                 'stored_items.reference as stored_item_reference',
@@ -92,7 +92,7 @@ class IndexStoredItemMovements extends OrgAction
                 'pallet_returns.reference as pallet_returns_reference'
             );
 
-        $allowedSort = ['id'];
+        $allowedSort = ['id', 'description', 'delta'];
 
         if ($parent instanceof Pallet) {
             $allowedSort = array_merge($allowedSort, ['stored_item_reference']);
@@ -130,7 +130,6 @@ class IndexStoredItemMovements extends OrgAction
                 ->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'description', label: __('parent'), canBeHidden: false, sortable: false, searchable: false);
             if ($parent instanceof StoredItem) {
                 $table->column(key: 'pallet_reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true)->defaultSort('pallet_reference');
@@ -143,7 +142,7 @@ class IndexStoredItemMovements extends OrgAction
 
             $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
-            $table->column(key: 'quantity', label: 'quantity', canBeHidden: false, searchable: true);
+            $table->column(key: 'delta', label: __('Delta'), canBeHidden: false, searchable: true, sortable: true);
         };
     }
 }

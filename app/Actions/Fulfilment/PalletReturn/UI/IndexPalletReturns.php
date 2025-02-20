@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Fulfilment\WithPalletReturnSubNavigation;
 use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -39,12 +40,12 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexPalletReturns extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
+    use WithPalletReturnSubNavigation;
 
 
     private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
     private ?string $restriction = null;
     private ?string $type = null;
-
 
 
     public function authorize(ActionRequest $request): bool
@@ -65,7 +66,68 @@ class IndexPalletReturns extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilment;
+        $this->parent      = $fulfilment;
+        $this->restriction = 'all';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentConfirmed(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'confirmed';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentNew(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'new';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentPicking(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'picking';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentPicked(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'picked';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentDispatched(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'dispatched';
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCancelled(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $fulfilment;
+        $this->restriction = 'cancelled';
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($fulfilment, PalletReturnsTabsEnum::RETURNS->value);
@@ -74,7 +136,8 @@ class IndexPalletReturns extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilmentCustomer;
+        $this->parent      = $fulfilmentCustomer;
+        $this->restriction = 'all';
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer, PalletReturnsTabsEnum::RETURNS->value);
@@ -83,7 +146,8 @@ class IndexPalletReturns extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $warehouse;
+        $this->parent      = $warehouse;
+        $this->restriction = 'all';
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
         return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
@@ -101,6 +165,36 @@ class IndexPalletReturns extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseConfirmed(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'confirmed';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehousePicking(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'picking';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehousePicked(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'picked';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseDispatched(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent      = $warehouse;
@@ -110,22 +204,37 @@ class IndexPalletReturns extends OrgAction
         return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseCancelled(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent      = $warehouse;
+        $this->restriction = 'cancelled';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
+
+        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
+    }
+
     protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
     {
+        $allowedStates = PalletReturnStateEnum::labels(forElements: true);
+        $countStates   = PalletReturnStateEnum::count($parent, forElements: true);
+
+        if ($this->restriction === 'new') {
+            $allowedStates = array_filter($allowedStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
+            $countStates   = array_filter($countStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
+        } elseif ($parent instanceof Warehouse && $this->restriction === 'all') {
+            $allowedStates = array_filter($allowedStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
+            $countStates   = array_filter($countStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
+        }
+
         return [
             'state' => [
                 'label'    => __('State'),
-                'elements' => array_merge_recursive(
-                    PalletReturnStateEnum::labels(forElements: true),
-                    PalletReturnStateEnum::count($parent, forElements: true)
-                ),
-
-                'engine' => function ($query, $elements) {
+                'elements' => array_merge_recursive($allowedStates, $countStates),
+                'engine'   => function ($query, $elements) {
                     $query->whereIn('pallet_returns.state', $elements);
                 }
             ],
-
-
         ];
     }
 
@@ -144,6 +253,8 @@ class IndexPalletReturns extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletReturn::class);
+        $queryBuilder->leftJoin('pallet_return_stats', 'pallet_return_stats.pallet_return_id', '=', 'pallet_returns.id');
+        $queryBuilder->leftJoin('currencies', 'currencies.id', '=', 'pallet_returns.currency_id');
 
         if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
@@ -159,19 +270,36 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('type', $this->type);
         }
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($this->restriction == 'all' || $this->restriction == 'new') {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
         if ($this->restriction) {
             switch ($this->restriction) {
                 case 'dispatched':
                     $queryBuilder->where('state', PalletReturnStateEnum::DISPATCHED);
+                    break;
+                case 'confirmed':
+                    $queryBuilder->where('state', PalletReturnStateEnum::CONFIRMED);
+                    break;
+                case 'picking':
+                    $queryBuilder->where('state', PalletReturnStateEnum::PICKING);
+                    break;
+                case 'picked':
+                    $queryBuilder->where('state', PalletReturnStateEnum::PICKED);
+                    break;
+                case 'cancelled':
+                    $queryBuilder->where('state', PalletReturnStateEnum::CANCEL);
+                    break;
+                case 'new':
+                    $queryBuilder->whereIn('state', [PalletReturnStateEnum::CONFIRMED, PalletReturnStateEnum::SUBMITTED, PalletReturnStateEnum::IN_PROCESS]);
                     break;
                 case 'handling':
                     $queryBuilder->whereIn(
@@ -185,29 +313,33 @@ class IndexPalletReturns extends OrgAction
             }
         }
 
-        $queryBuilder->defaultSort('-created_at');
+        $queryBuilder->defaultSort('-date');
+
         return $queryBuilder
-            ->allowedSorts(['reference'])
+            ->select('pallet_returns.id', 'state', 'slug', 'reference', 'customer_reference', 'number_pallets', 'number_services', 'number_physical_goods', 'date', 'dispatched_at', 'type', 'total_amount', 'currencies.code as currency_code')
+            ->allowedSorts(['reference', 'customer_reference', 'number_pallets', 'date', 'state'])
             ->allowedFilters([$globalSearch, 'type'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null, string $restriction = 'all'): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $restriction) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if ($restriction == 'all' || ($parent instanceof Fulfilment && $restriction == 'new')) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
             $table
@@ -237,11 +369,10 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                // ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'dispatched_at', label: __('dispatched'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
         };
     }
 
@@ -276,18 +407,17 @@ class IndexPalletReturns extends OrgAction
                 'label' => __('returns')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
-            $model = __('Operations');
+            $model         = __('Operations');
+            $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Warehouse) {
-            $icon      = ['fal', 'fa-arrow-from-left'];
-            $model     = __('Goods Out');
-            $iconRight = ['fal', 'fa-sign-out-alt'];
+            $icon          = ['fal', 'fa-arrow-from-left'];
+            $model         = __('Goods Out');
+            $iconRight     = ['fal', 'fa-sign-out-alt'];
+            $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
         }
 
 
         $actions = [];
-
-
-
 
 
         if ($this->parent->number_pallets_status_storing) {
@@ -354,7 +484,7 @@ class IndexPalletReturns extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnItemUploadsResource::collection(IndexPalletReturnItemUploads::run($this->parent, PalletReturnsTabsEnum::UPLOADS->value))),
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: PalletReturnsTabsEnum::RETURNS->value))
+        )->table($this->tableStructure(parent: $this->parent, prefix: PalletReturnsTabsEnum::RETURNS->value, restriction: $this->restriction))
             ->table(IndexPalletReturnItemUploads::make()->tableStructure(prefix: PalletReturnsTabsEnum::UPLOADS->value));
     }
 
@@ -374,7 +504,12 @@ class IndexPalletReturns extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.warehouses.show.dispatching.pallet-returns.index' => array_merge(
+            'grp.org.warehouses.show.dispatching.pallet-returns.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.picking.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index',
+            'grp.org.warehouses.show.dispatching.pallet-returns.picked.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
@@ -397,7 +532,13 @@ class IndexPalletReturns extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.operations.pallet-returns.index' => array_merge(
+            'grp.org.fulfilments.show.operations.pallet-returns.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.picking.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.dispatched.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.cancelled.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.new.index',
+            'grp.org.fulfilments.show.operations.pallet-returns.picked.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters
                 ),

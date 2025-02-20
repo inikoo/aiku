@@ -12,7 +12,7 @@ namespace App\Actions\Fulfilment\Space\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Http\Resources\Fulfilment\SpacesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexSpaces extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     private Fulfilment|Organisation|Group|FulfilmentCustomer $parent;
 
     public function handle(Fulfilment|Organisation|Group|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator

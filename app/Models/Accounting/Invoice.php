@@ -103,6 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read \App\Models\Accounting\TFactory|null $use_factory
  * @property-read Group $group
+ * @property-read \App\Models\Accounting\InvoiceCategory|null $invoiceCategory
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
@@ -254,6 +255,11 @@ class Invoice extends Model implements Auditable
     public function refunds(): HasMany
     {
         return $this->hasMany(Invoice::class, 'invoice_id');
+    }
+
+    public function invoiceCategory(): BelongsTo
+    {
+        return $this->belongsTo(InvoiceCategory::class);
     }
 
 }

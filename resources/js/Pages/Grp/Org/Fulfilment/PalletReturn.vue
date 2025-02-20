@@ -26,9 +26,9 @@ import Tag from "@/Components/Tag.vue"
 import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
-
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 import { trans } from "laravel-vue-i18n"
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
+import TableStoredItemReturnStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import { get } from "lodash"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
@@ -88,9 +88,11 @@ const props = defineProps<{
 		name: string
 		code: string
 	}[]
+    stored_items_count?: number
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
+const xstored_items_count = ref(props.stored_items_count || 0)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -108,7 +110,7 @@ const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_
 const component = computed(() => {
     const components: Component = {
         pallets: TablePalletReturnPallets,
-        stored_items: TableStoredItems,
+        stored_items: TableStoredItemReturnStoredItems,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
         history: TableHistories,
@@ -441,6 +443,20 @@ const isModalUploadFileOpen = ref(false)
        
         </template>
 
+        <template #button-submit-stored-items="{ action }">
+            <ButtonWithLink
+                :routeTarget="action.route"
+                :label="`${trans('Submit')} (${xstored_items_count})`"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :style="action.style"
+                :tooltip="xstored_items_count ? '' : action.tooltip"
+                :disabled="
+                    !xstored_items_count  // Need to improve
+                "   
+            />
+        </template>
+
         <template #other>
             <Button
                 v-if="currentTab === 'attachments'"
@@ -476,6 +492,7 @@ const isModalUploadFileOpen = ref(false)
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
         :palletReturn="data?.data"
         :detachRoute="attachmentRoutes.detachRoute"
+        @isStoredItemAdded="(e: boolean) => (console.log(e), e ? xstored_items_count++ : xstored_items_count--)"
     >
         <template #button-empty-state-attachments="{ action }">
             <Button

@@ -109,7 +109,7 @@ class FetchAuroraShops extends FetchAuroraAction
                 ->where('Payment Account Store Store Key', $sourceData[1])
                 ->first();
             if ($accountData) {
-                $accounts = $shop->getAccounts();
+                $accounts = $shop->getPaymentAccountTypeAccount();
                 $accounts->update(
                     [
                         'source_id' => $shop->organisation->id.':'.$accountData->{'Payment Account Key'}

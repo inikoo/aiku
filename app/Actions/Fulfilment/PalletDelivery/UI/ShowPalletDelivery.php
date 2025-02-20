@@ -16,7 +16,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -41,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletDelivery extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
@@ -460,11 +460,10 @@ class ShowPalletDelivery extends OrgAction
                     ] : null,
                 ],
                 PalletDeliveryStateEnum::BOOKED_IN => [
-                    [
+                    $palletDelivery->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            $palletDelivery->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
                                 [
                                     'type'    => 'button',
                                     'style'   => 'secondary',
@@ -493,9 +492,8 @@ class ShowPalletDelivery extends OrgAction
                                         ]
                                     ]
                                 ]
-                            ] : []
                         ]
-                    ]
+                    ] : []
                 ],
                 default => []
             };

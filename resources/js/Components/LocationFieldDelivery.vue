@@ -26,6 +26,9 @@ library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading
 const props = defineProps<{
     pallet: Pallet
     locationRoute?: routeType
+    noButton?: boolean
+    noFetchOnMounted?: boolean
+    initOptions?: {}[]
 }>()
 
 const emits = defineEmits<{
@@ -48,7 +51,7 @@ const error = ref({})
 // }
 
 const isLoading = ref<string | boolean>(false)
-const onChangeLocation = (closeModal: Function) => {
+const onChangeLocation = (closeModal?: Function) => {
     router.patch(
         route(props.pallet['bookInRoute'].name, props.pallet['bookInRoute'].parameters),
         { location_id: location.data().location_id},
@@ -56,7 +59,9 @@ const onChangeLocation = (closeModal: Function) => {
             preserveScroll: true,
             onStart: () => { isLoading.value = true },
             onSuccess: () => {
-                closeModal()
+                if (closeModal) { 
+                    closeModal()
+                }
                 emits('renderTableKey')
                 error.value = {}
             },
@@ -76,9 +81,27 @@ const onChangeLocation = (closeModal: Function) => {
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative w-64">
     <!-- <pre>{{ pallet.state }}</pre> -->
-        <Popover >
+        <SelectQuery
+            v-if="props.noButton"
+            :urlRoute="route(locationRoute?.name, locationRoute?.parameters)"
+            :value="location"
+            :placeholder="'Select location'"
+            :required="true"
+            :trackBy="'code'"
+            :label="'code'"
+            :valueProp="'id'"
+            :closeOnSelect="true"
+            :clearOnSearch="false"
+            :fieldName="'location_id'"
+            @updateVModel="() => (onChangeLocation(), error.location_id = '')"
+            :loadingCaret="!!isLoading"
+            noFetchOnMounted
+            :initOptions="initOptions"
+        />
+
+        <Popover v-else >
             <template #button>
                 <!-- <Button :type="pallet.state == 'booked_in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
                     tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->

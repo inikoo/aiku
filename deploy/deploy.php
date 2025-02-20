@@ -82,7 +82,6 @@ task('deploy', [
     'deploy:build',
     'deploy:publish',
     'artisan:horizon:terminate',
-    'artisan:pulse:restart',
     'deploy:sync-octane-anchor',
     'artisan:octane:reload',
 ]);

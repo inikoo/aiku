@@ -64,7 +64,7 @@ const getImageSlots = (layoutType: string): number => {
 </script>
 
 <template>
-    <div class="flex flex-wrap">
+    <div :style="getStyles(modelValue?.container?.properties)" class="flex flex-wrap">
         <div v-for="index in getImageSlots(modelValue?.value?.layout_type)"
             :key="`${index}-${modelValue?.value?.images?.[index - 1]}`"
             class="group relative p-2 hover:bg-white/40"

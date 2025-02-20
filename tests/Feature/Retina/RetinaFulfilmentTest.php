@@ -226,6 +226,7 @@ test('Update Retina Profile', function () {
 });
 
 test('Create Retina Pallet Delivery', function () {
+    $this->withoutExceptionHandling();
     $fulfilmentCustomer = $this->fulfilmentCustomer;
     $palletDelivery     = StoreRetinaPalletDelivery::make()->action($fulfilmentCustomer, []);
 

@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\ProductCategory\Json;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Models\Catalogue\Collection;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetDepartments extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
     private Shop $parent;
 
     public function asController(Shop $shop, Collection $scope, ActionRequest $request): LengthAwarePaginator

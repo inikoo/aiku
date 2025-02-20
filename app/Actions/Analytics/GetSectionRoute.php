@@ -212,7 +212,7 @@ class GetSectionRoute extends OrgAction
         }
 
         if ($routeParameters) {
-            return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['group'])->first();
+            return AikuScopedSection::where('code', $sectionCode)->where('model_slug', group()->slug)->first();
         } else {
             return AikuScopedSection::where('code', $sectionCode)->first();
         }

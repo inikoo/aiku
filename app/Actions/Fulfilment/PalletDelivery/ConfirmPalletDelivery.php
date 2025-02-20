@@ -79,6 +79,7 @@ class ConfirmPalletDelivery extends OrgAction
             SendPalletDeliveryNotification::dispatch($palletDelivery);
         }
 
+        $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);

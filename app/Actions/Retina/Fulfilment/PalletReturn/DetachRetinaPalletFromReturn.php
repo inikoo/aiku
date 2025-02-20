@@ -10,7 +10,6 @@ namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\RetinaAction;
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
@@ -50,10 +49,5 @@ class DetachRetinaPalletFromReturn extends RetinaAction
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
         return $this->handle($palletReturn, $pallet);
-    }
-
-    public function jsonResponse(Pallet $pallet): PalletResource
-    {
-        return new PalletResource($pallet);
     }
 }

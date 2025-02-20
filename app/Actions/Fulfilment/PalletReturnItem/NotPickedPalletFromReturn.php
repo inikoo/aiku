@@ -15,7 +15,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Http\Resources\Fulfilment\PalletReturnItemResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -98,8 +98,8 @@ class NotPickedPalletFromReturn extends OrgAction
         return $this->handle($palletReturnItem, $this->validatedData);
     }
 
-    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemUIResource
     {
-        return new PalletReturnItemResource($palletReturnItem);
+        return new PalletReturnItemUIResource($palletReturnItem);
     }
 }

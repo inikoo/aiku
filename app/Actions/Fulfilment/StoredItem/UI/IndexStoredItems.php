@@ -10,16 +10,16 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
-use App\Http\Resources\Fulfilment\StoredItemsInWarehouseResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Fulfilment\StoredItemsInWarehouseResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -65,6 +65,7 @@ class IndexStoredItems extends OrgAction
                 'stored_items.name',
                 'stored_items.total_quantity',
                 'stored_items.number_pallets',
+                'stored_items.number_audits',
             )
             ->defaultSort('reference')
             ->when($parent, function ($query) use ($parent) {
@@ -77,7 +78,7 @@ class IndexStoredItems extends OrgAction
                     $query->where('stored_items.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['reference', 'state', 'total_quantity', 'name', 'number_pallets', 'pallet_reference'])
+            ->allowedSorts(['reference', 'total_quantity', 'name', 'number_pallets', 'number_audits', 'pallet_reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -114,7 +115,8 @@ class IndexStoredItems extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true)
-                ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false)
+                ->column(key: 'number_pallets', label: __("Pallets"), canBeHidden: false, sortable: true)
+                ->column(key: 'number_audits', label: __("Audits"), canBeHidden: false, sortable: true)
                 ->column(key: 'total_quantity', label: __("Quantity"), canBeHidden: false, sortable: true);
             if (class_basename($parent) == 'Group') {
                 $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, sortable: true, searchable: true);
@@ -126,13 +128,10 @@ class IndexStoredItems extends OrgAction
     }
 
 
-
-
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
         return StoredItemResource::collection($storedItems);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
@@ -269,7 +268,6 @@ class IndexStoredItems extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        // dd($routeParameters);
         $headCrumb = function (array $routeParameters) {
             return [
                 [

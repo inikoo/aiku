@@ -9,7 +9,9 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Inventory\Warehouse;
+use App\Models\ShopifyUserHasProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -60,7 +63,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletStoredItem> $palletStoredItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read Portfolio|null $portfolio
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read ShopifyUserHasProduct|null $shopifyPortfolio
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static Builder<static>|StoredItem newModelQuery()
@@ -126,6 +131,16 @@ class StoredItem extends Model implements Auditable
     public function palletStoredItems(): HasMany
     {
         return $this->hasMany(PalletStoredItem::class);
+    }
+
+    public function shopifyPortfolio(): MorphOne
+    {
+        return $this->morphOne(ShopifyUserHasProduct::class, 'product');
+    }
+
+    public function portfolio(): MorphOne
+    {
+        return $this->morphOne(Portfolio::class, 'item');
     }
 
     public function palletReturns(): BelongsToMany

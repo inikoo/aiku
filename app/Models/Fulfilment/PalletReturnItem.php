@@ -9,6 +9,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
+use App\Models\Inventory\Location;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -30,9 +31,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $quantity_picked
+ * @property string|null $not_setup_reason
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\PalletReturn $palletReturn
  * @property-read \App\Models\Fulfilment\PalletStoredItem|null $palletStoredItem
+ * @property-read Location|null $pickingLocation
+ * @property-read \App\Models\Fulfilment\StoredItem|null $storedItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem query()
@@ -68,4 +72,15 @@ class PalletReturnItem extends Model
     {
         return $this->belongsTo(PalletStoredItem::class);
     }
+
+    public function storedItem(): BelongsTo
+    {
+        return $this->belongsTo(StoredItem::class);
+    }
+
+    public function pickingLocation(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'picking_location_id');
+    }
+
 }

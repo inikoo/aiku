@@ -53,71 +53,43 @@ enum PalletReturnStateEnum: string
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
-                'app'     => [
-                    'name' => 'seedling',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7CCE00',  // Color for box (Retina)
             ],
             'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
-                'app'     => [
-                    'name' => 'share',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#7C86FF',
             ],
             'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
-                'color'   => 'emerald',
-                'app'     => [
-                    'name' => 'spell-check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#00BC7D',
             ],
             'picking'    => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-truck',
                 'class'   => 'text-orange-500',
-                'color'   => 'orange',
-                'app'     => [
-                    'name' => 'truck',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#FF6900',
             ],
             'picked'     => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
-                'color'   => 'slate',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#62748E',
             ],
             'dispatched' => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple',
-                'app'     => [
-                    'name' => 'check-double',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#AD46FF',
             ],
             'cancel'     => [
                 'tooltip' => __('Cancel'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
-                'color'   => 'red',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
+                'color'   => '#FB2C36',
             ],
             // 'consolidated'     => [
             //     'tooltip' => __('Consolidated'),

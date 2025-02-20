@@ -4,6 +4,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+import { BrowserAgent } from "@newrelic/browser-agent/loaders/browser-agent";
 import './bootstrap';
 import '../css/app.css';
 
@@ -20,6 +21,32 @@ import IrisLayout from '@/Layouts/Iris.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+
+if (import.meta.env.VITE_NEW_RELIC_BROWSER_IRIS_AGENT_ID) {
+  const options = {
+    init         : {
+      distributed_tracing: { enabled: true },
+      privacy            : { cookies_enabled: true },
+      ajax               : { deny_list: ["bam.nr-data.net"] }
+    },
+    info         : {
+      beacon       : "bam.nr-data.net",
+      errorBeacon  : "bam.nr-data.net",
+      licenseKey   : import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
+      applicationID: import.meta.env.VITE_NEW_RELIC_BROWSER_IRIS_AGENT_ID,
+      sa           : 1
+    },
+    loader_config: {
+      accountID    : import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
+      trustKey     : import.meta.env.VITE_NEW_RELIC_BROWSER_ACCOUNT_ID,
+      agentID      : import.meta.env.VITE_NEW_RELIC_BROWSER_IRIS_AGENT_ID,
+      licenseKey   : import.meta.env.VITE_NEW_RELIC_BROWSER_LICENCE_KEY,
+      applicationID: import.meta.env.VITE_NEW_RELIC_BROWSER_IRIS_AGENT_ID
+    }
+  };
+
+  new BrowserAgent(options);
+}
 
 const MyPreset = definePreset(Aura, {
   semantic: {

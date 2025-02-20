@@ -36,10 +36,13 @@ class StoredItemResource extends JsonResource
             'created_at'     => $storedItem->created_at,
             'reference'      => $storedItem->reference,
             'slug'           => $storedItem->slug,
+            'audit_slug'     => $storedItem->audit_slug,
             'customer_name'  => $storedItem->fulfilmentCustomer?->customer['name'],
             'organisation_name'  => $storedItem->organisation?->name,
             'location'       => $storedItem->location ? $storedItem->location['slug'] : '-',
             'state'          => $storedItem->state,
+            'number_pallets' => $storedItem->number_pallets,
+            'number_audits' => $storedItem->number_audits,
             'notes'          => $storedItem->notes ?? '-',
             'status'         => $storedItem->status,
             'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
@@ -69,7 +72,7 @@ class StoredItemResource extends JsonResource
                 default => [
                     'name'       => 'grp.models.stored-items.delete',
                     'parameters' => [
-                       'storedItem' => $storedItem->id
+                        'storedItem' => $storedItem->id
                     ]
                 ]
             }

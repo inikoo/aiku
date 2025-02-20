@@ -8,9 +8,11 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemNoSetReasonStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
@@ -87,6 +89,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $invoice_id
  * @property int|null $recurring_bill_id
  * @property int|null $shopify_user_id
+ * @property int|null $platform_id
+ * @property PalletReturnItemNoSetReasonStateEnum $not_setup_reason
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
@@ -100,6 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read Platform|null $platform
  * @property-read \App\Models\Fulfilment\RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read ShopifyUserHasFulfilment|null $shopifyFulfilment
@@ -132,6 +137,7 @@ class PalletReturn extends Model implements HasMedia
     protected $casts   = [
         'state'              => PalletReturnStateEnum::class,
         'type'               => PalletReturnTypeEnum::class,
+        'not_setup_reason'   => PalletReturnItemNoSetReasonStateEnum::class,
         'in_process_at'      => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
@@ -241,6 +247,11 @@ class PalletReturn extends Model implements HasMedia
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function platform(): BelongsTo
+    {
+        return $this->belongsTo(Platform::class);
     }
 
     public function shopifyFulfilment(): MorphOne

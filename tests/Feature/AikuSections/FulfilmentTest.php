@@ -2540,7 +2540,8 @@ test('pay invoice (full)', function ($fulfilmentCustomer) {
     $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
     $invoice          = $oldRecurringBill->invoices;
 
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 312,
         'status' => PaymentStatusEnum::SUCCESS->value,
@@ -2579,7 +2580,10 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
+
     $payment        = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
@@ -2596,7 +2600,8 @@ test('pay invoice (half)', function ($invoice) {
 })->depends('consolidate 2nd recurring bill');
 
 test('pay invoice (other half)', function ($invoice) {
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
@@ -2636,7 +2641,8 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
 
 test('pay invoice (exceed)', function ($invoice) {
     $customer           = $invoice->customer;
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 200,

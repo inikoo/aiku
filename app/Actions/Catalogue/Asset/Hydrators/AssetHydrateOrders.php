@@ -83,6 +83,7 @@ class AssetHydrateOrders
 
         $stats = [];
 
+        // TODO: #1446 refactor remove the with
         foreach ($dateRanges as $key => $range) {
             if ($key === 'all') {
                 $orders = $asset->transactions()

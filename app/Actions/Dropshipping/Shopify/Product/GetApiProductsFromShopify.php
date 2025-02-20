@@ -14,11 +14,13 @@ use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -37,6 +39,7 @@ class GetApiProductsFromShopify extends OrgAction
     {
         $client = $shopifyUser->api()->getRestClient();
         $shopName = $shopifyUser->customer->shop->name;
+        $shopType = $shopifyUser->customer->shop->type;
         $products = [];
         $nextPage = null;
 
@@ -47,31 +50,40 @@ class GetApiProductsFromShopify extends OrgAction
                 'vendor' => $shopName
             ]);
 
+            if ($response['body'] == 'Not Found') {
+                throw ValidationException::withMessages(['messages' => __('You dont have any products')]);
+            }
+
             $products = array_merge($products, $response['body']['products']['container']);
             $nextPage = $response['link']['next'] ?? null;
 
         } while ($nextPage);
 
-        if ($response['body'] == 'Not Found') {
-            abort(404, 'You dont have any products');
-        }
-
         foreach ($products as $product) {
             foreach ($product['variants'] as $variant) {
-                DB::transaction(function () use ($variant, $product, $shopifyUser) {
-                    if (!StoredItem::where('reference', $product['handle'])->exists()) {
-                        $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
-                            'reference' => $product['handle']
-                        ]);
+                DB::transaction(function () use ($variant, $product, $shopifyUser, $shopType) {
+                    $storedItem = StoredItem::where('reference', $product['handle'])->first();
+                    $storedItemShopify = $storedItem->shopifyPortfolio;
 
-                        $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
-                            'stored_item_id' => $storedItem->id,
-                            'type' => PortfolioTypeEnum::SHOPIFY
-                        ]);
+                    if ($shopType === ShopTypeEnum::FULFILMENT && !$storedItemShopify) {
+                        if (!$storedItem) {
+                            $storedItem = StoreStoredItem::make()->action($shopifyUser->customer->fulfilmentCustomer, [
+                                'reference' => $product['handle']
+                            ]);
+                        }
+
+                        $portfolio = $storedItem->portfolio;
+                        if (!$portfolio) {
+                            $portfolio = StorePortfolio::make()->action($shopifyUser->customer, [
+                                'stored_item_id' => $storedItem->id,
+                                'type' => PortfolioTypeEnum::SHOPIFY
+                            ]);
+                        }
 
                         $shopifyUser->products()->sync([$storedItem->id => [
                             'shopify_user_id' => $shopifyUser->id,
                             'product_type' => class_basename($storedItem),
+                            'product_id' => $storedItem->id,
                             'shopify_product_id' => $variant['product_id'],
                             'portfolio_id' => $portfolio->id
                         ]]);

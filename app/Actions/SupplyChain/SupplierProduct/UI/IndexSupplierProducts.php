@@ -123,7 +123,7 @@ class IndexSupplierProducts extends GrpAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -186,6 +186,8 @@ class IndexSupplierProducts extends GrpAction
         ];
         $afterTitle = null;
         $iconRight = null;
+        $actions = null;
+        $attachRoutes = null;
 
         if ($this->scope instanceof Agent) {
             $subNavigation = $this->getAgentNavigation($this->scope);
@@ -217,6 +219,32 @@ class IndexSupplierProducts extends GrpAction
 
                 'label'     => __('Supplier Products')
             ];
+            $actions = [
+                [
+                    'type'    =>    'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new supplier product'),
+                                    'label'   => __('new supplier product'),
+                                    'route'   => [
+                                        'name'       => 'grp.supply-chain.suppliers.supplier_products.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                ]
+            ];
+            //'grp.models.supplier.supplier-product.import' import route
+            $spreadsheetRoute = [
+                'event'           => 'action-progress',
+                'channel'         => 'grp.personal.'.$this->group->id,
+                'required_fields' => ["id:_supplier_part_key", "supplier's_product_code", "units_per_sko", "skos_per_carton", "carton_cbm", "unit_cost", "availability", "supplier's_unit_description"],
+                'route'           => [
+                    'upload'   => [
+                        'name'       => 'grp.models.supplier.supplier-product.import',
+                        'parameters' => [
+                            'supplier' => $this->scope->id
+                        ]
+                    ],
+                ],
+            ];
         }
         return Inertia::render(
             'SupplyChain/SupplierProducts',
@@ -226,7 +254,7 @@ class IndexSupplierProducts extends GrpAction
                     $request->route()->originalParameters(),
                     $this->scope
                 ),
-                'title'       => __('supplier_products'),
+                'title'       => __('supplier products'),
                 'pageHead'    => [
                     'title'         => $title,
                     'icon'          => $icon,
@@ -234,10 +262,10 @@ class IndexSupplierProducts extends GrpAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
+                    'actions'       => $actions
                 ],
+                'upload_spreadsheet' => $spreadsheetRoute,
                 'data'        => SupplierProductsResource::collection($supplier_products),
-
-
             ]
         )->table($this->tableStructure());
     }

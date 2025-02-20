@@ -16,5 +16,6 @@ enum OrgDashboardIntervalTabsEnum: string
 {
     use EnumHelperTrait;
 
-    case SALES      = 'sales';
+    case INVOICES      = 'invoices';
+    case INVOICE_CATEGORIES      = 'invoice_categories';
 }

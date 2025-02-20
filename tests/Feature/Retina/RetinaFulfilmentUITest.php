@@ -163,7 +163,7 @@ test('show dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.dashboard.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Dashboard/RetinaDashboard');
+        $page->component('Dashboard/RetinaFulfilmentDashboard');
     });
 });
 
@@ -512,7 +512,7 @@ test('index stored items', function () {
 });
 
 test('index stored item audits', function () {
-    // $this->withoutExceptionHandling();
+    $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.index'));
     $response->assertInertia(function (AssertableInertia $page) {

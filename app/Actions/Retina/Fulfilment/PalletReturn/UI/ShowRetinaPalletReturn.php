@@ -20,7 +20,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Helpers\AddressResource;
@@ -103,6 +103,10 @@ class ShowRetinaPalletReturn extends RetinaAction
                     'icon'    => 'fal fa-upload',
                     'label'   => __('upload'),
                     'tooltip' => __('Upload file')
+                ],
+                [
+                    'type'    => 'button',
+                    'key'     => 'modal-add-pallet',
                 ],
                 $palletReturn->pallets()->count() > 0 ? [
                     'type'    => 'button',
@@ -448,7 +452,13 @@ class ShowRetinaPalletReturn extends RetinaAction
                         $palletReturn->id
                     ]
                 ],
-
+                'pallets_route' => [
+                    'method'     => 'get',
+                    'name'       => 'retina.json.pallet-return.pallets.index',
+                    'parameters' => [
+                        'palletReturn'  => $palletReturn->slug
+                    ]
+                ],
                 'option_attach_file' => [
                     [
                         'name' => __('Other'),
@@ -458,8 +468,8 @@ class ShowRetinaPalletReturn extends RetinaAction
                 'data'               => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn, PalletReturnTabsEnum::SERVICES->value))

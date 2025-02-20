@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetProducts extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private Shop $parent;
 

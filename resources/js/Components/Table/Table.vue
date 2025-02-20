@@ -6,14 +6,9 @@ import TableFilterSearch from '@/Components/Table/TableFilterSearch.vue'
 import TableElements from '@/Components/Table/TableElements.vue'
 import TablePeriodFilter from '@/Components/Table/TablePeriodFilter.vue'
 import TableWrapper from '@/Components/Table/TableWrapper.vue'
-// import TableFilterColumn from '@/Components/Table/TableFilterColumn.vue';
-// import TableColumns from '@/Components/Table/TableColumns.vue';
-// import TableAdvancedFilter from '@/Components/Table/TableAdvancedFilter.vue';
-// import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
-// import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import { Link } from "@inertiajs/vue3"
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { trans } from 'laravel-vue-i18n'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
@@ -163,15 +158,16 @@ const props = defineProps(
 const emits = defineEmits<{
     (e: 'onSelectRow', value: {[key: string]: boolean}): void
     (e: 'onCheked', value: {[key: string]: boolean}, checked : {[key: string]: boolean}): void
+    (e: 'onChecked', value: {}): void
 }>()
 
-const app = getCurrentInstance();
-const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
+// const app = getCurrentInstance();
+// const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
 const updates = ref(0);
 
 const queryBuilderProps = computed(() => {
-    let data = $inertia.page.props.queryBuilderProps
-        ? $inertia.page.props.queryBuilderProps[props.name] || {}
+    let data = usePage().props.queryBuilderProps
+        ? usePage().props.queryBuilderProps[props.name] || {}
         : {};
 
     data._updates = updates.value;
@@ -180,14 +176,14 @@ const queryBuilderProps = computed(() => {
 
 
 const queryBuilderData = ref(queryBuilderProps.value);
-queryBuilderData.value.elementFilter = {
-    // 'state': ['left'],
-    // 'type': ['volunteer', 'employee']
-}
-queryBuilderData.value.periodFilter = {
-    // 'type': 'today',
-    // 'date': 202405
-}
+// queryBuilderData.value.elementFilter = {
+//     // 'state': ['left'],
+//     // 'type': ['volunteer', 'employee']
+// }
+// queryBuilderData.value.periodFilter = {
+//     // 'type': 'today',
+//     // 'date': 202405
+// }
 
 
 const pageName = computed(() => {
@@ -527,16 +523,16 @@ function generateNewQueryString() {
 }
 
 const isVisiting = ref(false);
-const visitCancelToken = ref(null);
+const visitCancelToken = ref<{ cancel: Function } | null>(null);
 
-const visit = (url) => {
+const visit = (url?: string) => {
     // Visit new generate URL, run on watch queryBuilderData
 
     if (!url) {
         return;
     }
 
-    $inertia.get(
+    router.get(
         url,
         {},
         {
@@ -553,7 +549,7 @@ const visit = (url) => {
                 isVisiting.value = false;
             },
             onSuccess() {
-                if ('queryBuilderProps' in $inertia.page.props) {
+                if ('queryBuilderProps' in usePage().props) {
                     queryBuilderData.value.cursor = queryBuilderProps.value.cursor;
                     queryBuilderData.value.page = queryBuilderProps.value.page;
                 }
@@ -657,9 +653,11 @@ const onClickSelectAll = (state: boolean) => {
     }
 }
 
-const onSelectCheckbox = (item : Any) => {
+const onSelectCheckbox = async (item : Any) => {
     emits('onCheked', item , !selectRow[item[props.checkboxKey]])
-    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+    // selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+    item.is_checked = !item.is_checked
+    emits('onChecked', item)
 
 }
 
@@ -900,14 +898,14 @@ const isLoading = ref<string | boolean>(false)
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
                                     <div v-if="isCheckBox"
-                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
+                                        @xxclick="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
                                         class="py-1.5 cursor-pointer">
-                                        <FontAwesomeIcon
+                                        <!-- <FontAwesomeIcon
                                             v-if="Object.values(selectRow).every((value) => value === true)"
                                             icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
-                                            fixed-width aria-hidden='true' />
+                                            fixed-width aria-hidden='true' /> -->
                                     </div>
 
                                     <slot v-for="column in queryBuilderProps.columns" :name="`header(${column.key})`" :header="column">
@@ -929,7 +927,7 @@ const isLoading = ref<string | boolean>(false)
                                                 {
                                                     'bg-gray-50': striped && key % 2,
                                                 },
-                                                selectRow[item[checkboxKey]]
+                                                selectRow[item[checkboxKey]] || item.is_checked
                                                     ? 'bg-green-100/70'
                                                     : striped ? 'bg-gray-200 hover:bg-gray-300' : 'hover:bg-gray-50'
                                             ]"
@@ -940,12 +938,12 @@ const isLoading = ref<string | boolean>(false)
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
                                                 -->
-                                                <FontAwesomeIcon v-if="item.is_checked || selectRow[item[checkboxKey]]"
-                                                    @click="onSelectCheckbox(item)"
+                                                <FontAwesomeIcon v-show="item.is_checked || selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
                                                     icon='fas fa-check-square' class='text-green-500 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
-                                                <FontAwesomeIcon v-else
-                                                    @click="onSelectCheckbox(item)"
+                                                <FontAwesomeIcon v-show="!item.is_checked && !selectRow[item[checkboxKey]]"
+                                                    @click="async () => (setLodash(item, ['is_checked'], !item.is_checked), emits('onChecked', item))"
                                                     icon='fal fa-square' class='text-gray-400 hover:text-gray-700 p-2 cursor-pointer text-lg mx-auto block' fixed-width
                                                     aria-hidden='true' />
                                             </td>

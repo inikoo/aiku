@@ -17,13 +17,14 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -40,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletReturn extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
@@ -111,7 +112,7 @@ class ShowPalletReturn extends OrgAction
                 'style'   => 'save',
                 'tooltip' => $tooltipSubmit,
                 'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
-                'key'     => 'submit',
+                'key'     => 'submit-pallet',
                 'route'   => [
                     'method'     => 'post',
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
@@ -286,6 +287,40 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ] : [],
+                $palletReturn->state == PalletReturnStateEnum::DISPATCHED && $palletReturn->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
+                        'type'   => 'buttonGroup',
+                        'key'    => 'upload-add',
+                        'button' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add service'),
+                                'key'     => 'add-service',
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-return.transaction.store',
+                                    'parameters' => [
+                                        'palletReturn' => $palletReturn->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'key'     => 'add-physical-good',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-return.transaction.store',
+                                    'parameters' => [
+                                        'palletReturn' => $palletReturn->id
+                                    ]
+                                ]
+                            ],
+                        ]
+                ] : []
             ];
 
             $pdfButton    = [
@@ -675,6 +710,14 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
+                'pallets_route' => [
+                    'method'     => 'get',
+                    'name'       => 'grp.json.pallet-return.pallets.index',
+                    'parameters' => [
+                        $palletReturn->slug
+                    ]
+                ],
+
                 'route_check_stored_items'   => [
                     'method'     => 'post',
                     'name'       => 'grp.models.pallet-return.stored_item.store',
@@ -693,8 +736,8 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?

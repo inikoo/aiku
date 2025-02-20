@@ -60,6 +60,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
                 try {
+
+                    $employeeData['employee']['password'] = wordwrap(Str::random(), 4, '-', true);
                     $employee = StoreEmployee::make()->action(
                         parent: $workplace,
                         modelData: $employeeData['employee'],
@@ -151,21 +153,21 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
-            if ($employee->getUser()) {
-                foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                    if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                        SaveModelImage::run(
-                            $employee->getUser(),
-                            [
-                                'path'         => $profileImage['image_path'],
-                                'originalName' => $profileImage['filename'],
-
-                            ],
-                            'avatar'
-                        );
-                    }
-                }
-            }
+            //            if ($employee->getUser()) {
+            //                foreach ($employeeData['photo'] ?? [] as $profileImage) {
+            //                    if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+            //                        SaveModelImage::run(
+            //                            $employee->getUser(),
+            //                            [
+            //                                'path'         => $profileImage['image_path'],
+            //                                'originalName' => $profileImage['filename'],
+            //
+            //                            ],
+            //                            'avatar'
+            //                        );
+            //                    }
+            //                }
+            //            }
 
 
             $this->processFetchAttachments($employee, 'Staff', $employeeData['employee']['source_id']);

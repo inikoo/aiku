@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
+use App\Actions\Comms\Mailshot\GetMailshotMergeTags;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\Comms\Email\EmailBuilderEnum;
@@ -34,7 +35,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     private Fulfilment|Shop $parent;
 
-    public function handle(Outbox $outbox)
+    public function handle(Outbox $outbox): Email
     {
         if ($outbox->builder == EmailBuilderEnum::BLADE) {
             throw ValidationException::withMessages([
@@ -174,6 +175,7 @@ class ShowOutboxWorkshop extends OrgAction
                     ],
                     'method' => 'post'
                 ],
+                'mergeTags' => GetMailshotMergeTags::run(),
                 'status' => $email->outbox->state,
                 // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
                 //     'name'       => 'grp.models.email-templates.content.show',

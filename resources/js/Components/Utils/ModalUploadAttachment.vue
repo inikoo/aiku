@@ -177,7 +177,9 @@ onMounted(() => {
 							optionLabel="name"
 							fluid
 							placeholder="Select a type"
-							class="w-full md:w-40">
+							class="w-full md:w-40"
+							:dropdownIcon="typeEmployee.length === 1 ? 's' : 'pi pi-chevron-down'"
+							disabled>
 							<template #optiongroup="slotProps">
 								<div class="flex items-center">
 									<div>{{ slotProps.option.label }}</div>
@@ -269,3 +271,11 @@ onMounted(() => {
 		</div>
 	</Modal>
 </template>
+
+<style scoped>
+/* Adjust the selector based on the rendered DOM of PrimeVue's Select.
+   This example assumes the arrow is contained in an element with the class `.p-dropdown-trigger` */
+.no-arrow .p-dropdown-trigger {
+  display: none;
+}
+</style>

@@ -12,7 +12,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletsInPalletReturnWholePalletsOptionEnum;
-use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Pallet;
@@ -72,7 +72,12 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         });
 
         if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
-            $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
+            $query->whereNotIn('pallets.status', [
+                PalletStatusEnum::RETURNED,
+                PalletStatusEnum::IN_PROCESS,
+                PalletStatusEnum::RECEIVING,
+                PalletStatusEnum::NOT_RECEIVED
+            ]);
         } elseif ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             $query->where('pallets.status', PalletStatusEnum::STORING);
         }
@@ -87,7 +92,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementRadioFilters($palletReturn) as $key => $elementFilter) {
                 $query->whereRadioFilter(
-                    key: $key,
                     allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
                     defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value,
                     engine: $elementFilter['engine'],
@@ -139,10 +143,15 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletsResource::collection($pallets);
+        return PalletReturnItemsUIResource::collection($pallets);
     }
 
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
+        return $this->handle($palletReturn);
+    }
     public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $request, $palletReturn) {
@@ -181,7 +190,7 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
             /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
 
 
-            $table->column(key: 'reference', label: __('pallet id'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('pallet ID'), canBeHidden: false, sortable: true, searchable: true);
 
 
             $customersReferenceLabel = __("Pallet reference (customer's), notes");
