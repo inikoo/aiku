@@ -47,12 +47,20 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
         );
 
         $rowData = $row->only($fields)->all();
+        $convertedData = [
+            'customer_reference' => $rowData['pallet_customer_reference'],
+            'notes' => $rowData['pallet_notes'],
+            'type' => $rowData['pallet_type'],
+            'stored_item_reference' => $rowData['sku_reference'],
+            'quantity' => $rowData['sku_quantity'],
+            'stored_item_name' => $rowData['sku_name']
+        ];
 
-        $currentCustomerRef = $rowData['customer_reference'] ?? null;
+        $currentCustomerRef = $convertedData['customer_reference'] ?? null;
         $prevPallet = $this->scope->pallets()->where('customer_reference', $currentCustomerRef)->first();
         $existingStoredItem = $this->scope->fulfilmentCustomer
             ->storedItems()
-            ->where('reference', $rowData['stored_item_reference'])
+            ->where('reference', $convertedData['stored_item_reference'])
             ->first();
 
         if ($prevPallet) {
@@ -61,18 +69,18 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                 : null;
 
             if ($existingStoredItem && !$existingStoredItemInPallet) {
-                AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $rowData['quantity']);
+                AttachStoredItemToPallet::run($prevPallet, $existingStoredItem, $convertedData['quantity']);
             } elseif (!$existingStoredItem) {
                 $storedItemData = [
-                    'reference' => $rowData['stored_item_reference'],
-                    'name' => $rowData['stored_item_name'],
+                    'reference' => $convertedData['stored_item_reference'],
+                    'name' => $convertedData['stored_item_name'],
                 ];
 
                 $storedItem = StoreStoredItem::run($prevPallet, $storedItemData);
-                AttachStoredItemToPallet::run($prevPallet, $storedItem, $rowData['quantity']);
+                AttachStoredItemToPallet::run($prevPallet, $storedItem, $convertedData['quantity']);
             }
         } else {
-            $type = strtolower(str_replace(' ', '', trim($rowData['type'])));
+            $type = strtolower(str_replace(' ', '', trim($convertedData['type'])));
 
             $type = match ($type) {
                 'oversize' => PalletTypeEnum::OVERSIZE->value,
@@ -86,8 +94,8 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
             ]);
 
             $modelData = [
-                'customer_reference' => $rowData['customer_reference'],
-                'notes' => $rowData['notes'],
+                'customer_reference' => $convertedData['customer_reference'],
+                'notes' => $convertedData['notes'],
                 'type' => $type,
             ];
 
@@ -99,15 +107,15 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
                     : null;
 
                 if ($existingStoredItem && !$existingStoredItemInPallet) {
-                    AttachStoredItemToPallet::run($pallet, $existingStoredItem, $rowData['quantity']);
+                    AttachStoredItemToPallet::run($pallet, $existingStoredItem, $convertedData['quantity']);
                 } elseif (!$existingStoredItem) {
                     $storedItemData = [
-                        'reference' => $rowData['stored_item_reference'],
-                        'name' => $rowData['stored_item_name'],
+                        'reference' => $convertedData['stored_item_reference'],
+                        'name' => $convertedData['stored_item_name'],
                     ];
 
                     $storedItem = StoreStoredItem::run($pallet, $storedItemData);
-                    AttachStoredItemToPallet::run($pallet, $storedItem, $rowData['quantity']);
+                    AttachStoredItemToPallet::run($pallet, $storedItem, $convertedData['quantity']);
                 }
 
                 $this->setRecordAsCompleted($uploadRecord);
@@ -119,7 +127,7 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
     public function rules(): array
     {
         return [
-            'customer_reference' => [
+            'pallet_customer_reference' => [
                 'sometimes',
                 'nullable',
                 'max:64',
@@ -135,11 +143,11 @@ class PalletImportWithStoredItems implements ToCollection, WithHeadingRow, Skips
 
 
             ],
-            'notes'                 => ['nullable'],
-            'type'                  => ['nullable'],
-            'stored_item_reference' => ['nullable'],
-            'quantity'              => ['nullable'],
-            'stored_item_name'      => ['nullable'],
+            'pallet_notes'                 => ['nullable'],
+            'pallet_type'                  => ['nullable'],
+            'sku_reference' => ['nullable'],
+            'sku_quantity'              => ['nullable'],
+            'sku_name'      => ['nullable'],
         ];
     }
 }
