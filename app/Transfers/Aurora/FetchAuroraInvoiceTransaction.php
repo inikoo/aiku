@@ -69,7 +69,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
                 'date'            => $this->auroraModelData->{'Invoice Date'},
             ];
         } else {
-            print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
+            print "Warning Asset Key missing in invoice transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
     }
 
