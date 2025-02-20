@@ -71,7 +71,7 @@ use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
+use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -453,7 +453,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
-    Route::patch('', SetPalletInReturnAsPicked::class)->name('set_as_picked');
+    Route::patch('', PickWholePalletInPalletReturn::class)->name('set_as_picked');
     Route::patch('update', PickPalletReturnItem::class)->name('update');
     Route::patch('undo-picking-stored-item', UndoStoredItemPick::class)->name('undo-picking-stored-item');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
