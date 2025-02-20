@@ -23,6 +23,7 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
@@ -46,10 +47,10 @@ class IndexRefunds extends OrgAction
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
 
-    private Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
+    private Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop $parent;
     private string $bucket;
 
-    public function handle(Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -84,6 +85,8 @@ class IndexRefunds extends OrgAction
             $queryBuilder->where('invoices.group_id', $parent->id);
         } elseif ($parent instanceof Invoice) {
             $queryBuilder->where('invoices.invoice_id', $parent->id);
+        } elseif ($parent instanceof InvoiceCategory) {
+            $queryBuilder->where('invoices.invoice_category_id', $parent->id);
         } else {
             abort(422);
         }
@@ -133,7 +136,7 @@ class IndexRefunds extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Invoice|Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -156,6 +159,9 @@ class IndexRefunds extends OrgAction
             } elseif ($parent instanceof Group) {
                 $stats     = $parent->orderingStats;
                 $noResults = __("This group hasn't been invoiced");
+            } elseif ($parent instanceof InvoiceCategory) {
+                $stats     = $parent->stats;
+                $noResults = __("This invoice category hasn't been invoiced");
             } else {
                 $stats = $parent->salesStats;
             }
@@ -220,6 +226,8 @@ class IndexRefunds extends OrgAction
             return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
         } elseif ($this->parent instanceof Group) {
             return $request->user()->authTo("group-overview");
+        } elseif ($this->parent instanceof InvoiceCategory) {
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         }
 
         return false;
