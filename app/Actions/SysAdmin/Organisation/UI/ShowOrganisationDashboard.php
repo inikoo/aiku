@@ -112,7 +112,9 @@ class ShowOrganisationDashboard extends OrgAction
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
 
         if ($selectedCurrency == 'shop') {
-            data_forget($dashboard, 'currency_code');
+            if ($organisation->currency->symbol != $shopCurrenciesSymbol) {
+                data_forget($dashboard, 'currency_code');
+            }
         }
 
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
@@ -205,7 +207,7 @@ class ShowOrganisationDashboard extends OrgAction
             return $data;
         }
 
-        if (Arr::get($visualData, 'sales_data.datasets.0.data')) {
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
             $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
             usort($combined, function ($a, $b) {
