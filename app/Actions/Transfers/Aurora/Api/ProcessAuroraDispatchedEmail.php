@@ -18,6 +18,8 @@ class ProcessAuroraDispatchedEmail extends OrgAction
 {
     use WithProcessAurora;
 
+    public string $jobQueue = 'low-priority';
+
     public function __construct()
     {
         $this->fetcher = FetchAuroraDispatchedEmails::class;

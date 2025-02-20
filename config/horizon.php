@@ -295,7 +295,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'low-priority'     => [
-                'maxProcesses'    => env('HORIZON_LOW_PRIORITY_WORKERS', 2),
+                'maxProcesses'    => env('HORIZON_LOW_PRIORITY_WORKERS', 5),
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
