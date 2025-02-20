@@ -20,9 +20,11 @@ export default {
 	"get-location" : { url: "maya/org/{}/warehouses/{}/locations/{}" },
 	"get-area" : { url: "maya/org/{}/warehouses/{}/areas/{}" },
 
-	//Inventory
+	//stored items
 	'get-stored-items' :  { url: "maya/org/{}/warehouses/{}/inventory/stored-items" },
 	'get-stored-item' :  { url: "maya/org/{}/warehouses/{}/inventory/stored-items/{}" },
+	"set-stored-item-pick" : { url: "maya/action/pallet-return-item/{}/pick" },
+	"set-stored-item-undo-pick" : { url: "" },
 
 	//scanner
 	'get-scanner' : { url: "maya/org/{}/warehouses/{}/scanners/{}" },
@@ -57,6 +59,7 @@ export default {
 	"set-return-picking" : { url: "maya/action/pallet-return/{}/start-picking" },
 	"set-return-picked" : { url: "maya/action/pallet-return/{}/picked" },
 	"set-return-dispatch" : { url: "maya/action/pallet-return/{}/dispatch" },
+	
 
 
 	//goods in
