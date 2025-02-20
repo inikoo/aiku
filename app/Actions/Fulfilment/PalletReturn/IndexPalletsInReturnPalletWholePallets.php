@@ -92,7 +92,6 @@ class IndexPalletsInReturnPalletWholePallets extends OrgAction
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementRadioFilters($palletReturn) as $key => $elementFilter) {
                 $query->whereRadioFilter(
-                    key: $key,
                     allowedElements: collect($elementFilter['options'])->pluck('value')->toArray(),
                     defaultValue: PalletsInPalletReturnWholePalletsOptionEnum::ALL_STORED_PALLETS->value,
                     engine: $elementFilter['engine'],

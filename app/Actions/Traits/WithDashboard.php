@@ -11,6 +11,7 @@
 namespace App\Actions\Traits;
 
 use App\Enums\DateIntervals\DateIntervalEnum;
+use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Number;
@@ -195,6 +196,7 @@ trait WithDashboard
                     'refunds',
                     $selectedInterval,
                 );
+                // visual invoices and refunds
                 $visualData['invoices_data']['labels'][]              = $child->code;
                 $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
@@ -207,7 +209,53 @@ trait WithDashboard
             $data[] = $responseData;
         }
 
+        $parentSalesType = 'grp';
+
+        if ($parent instanceof Organisation) {
+            $parentSalesType = 'org';
+        }
+
+        $totalSales = $parent->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval"} ?? 0;
+        $totalInvoices = $parent->orderingIntervals->{"invoices_$selectedInterval"} ?? 0;
+        $totalRefunds = $parent->orderingIntervals->{"refunds_$selectedInterval"} ?? 0;
+
+        $totalSalesPercentage = $this->calculatePercentageIncrease(
+            $totalSales,
+            $parent->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval" . '_ly'} ?? 0
+        );
+
+        $totalInvoicePercentage = $this->calculatePercentageIncrease(
+            $totalInvoices,
+            $parent->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0
+        );
+
+        $totalRefundsPercentage = $this->calculatePercentageIncrease(
+            $totalRefunds,
+            $parent->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0
+        );
+
+        $dashboard['total'] = [
+            'total_sales'    => $totalSales,
+            'total_sales_percentages' => $totalSalesPercentage,
+            'total_invoices' => $totalInvoices,
+            'total_invoices_percentages' => $totalInvoicePercentage,
+            'total_refunds'  => $totalRefunds,
+            'total_refunds_percentages' => $totalRefundsPercentage,
+        ];
+
+        $dashboard['total_tooltip'] = [
+            'total_sales'    => __("Last year sales") . ": " . Number::currency($dashboard['total']['total_sales'], $parent->currency->code),
+            'total_invoices' => __("Last year invoices") . ": " . Number::currency($dashboard['total']['total_invoices'], $parent->currency->code),
+            'total_refunds'  => __("Last year refunds") . ": " . Number::currency($dashboard['total']['total_refunds'], $parent->currency->code),
+        ];
 
     }
+
+    // public function setDashboardVisualData(&$dashboard): void
+    // {
+
+    //     $total = $dashboard['total'];
+
+    // }
 
 }
