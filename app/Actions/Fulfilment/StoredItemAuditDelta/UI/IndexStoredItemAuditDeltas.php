@@ -34,13 +34,15 @@ class IndexStoredItemAuditDeltas extends OrgAction
 
     private StoredItemAudit $storedItemAudit;
 
+    private Fulfilment $parent;
+
 
     public function handle(StoredItemAudit|StoredItem $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('stored_item_audit_deltas.state', $value)
-                    ->orWhereWith('stored_item_audit_deltas.audit_type', $value);
+                $query->whereAnyWordStartWith('pallets.customer_reference', $value)->orWhereStartWith('pallets.customer_reference', $value)
+                    ->orWhereAnyWordStartWith('stored_items.reference', $value);
             });
         });
 
@@ -54,15 +56,15 @@ class IndexStoredItemAuditDeltas extends OrgAction
 
         $query->leftjoin('pallets', 'stored_item_audit_deltas.pallet_id', '=', 'pallets.id');
         $query->leftjoin('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id');
+        $query->leftJoin('stored_item_audits', 'stored_item_audits.id', 'stored_item_audit_deltas.stored_item_audit_id');
+        $query->leftJoin('stored_item_movements', 'stored_item_movements.stored_item_audit_delta_id', 'stored_item_audit_deltas.id');
+        $query->leftJoin('pallet_deliveries', 'pallet_deliveries.id', 'stored_item_movements.pallet_delivery_id');
+        $query->leftJoin('pallet_returns', 'pallet_returns.id', 'stored_item_movements.pallet_return_id');
+
 
         if ($parent instanceof StoredItem) {
             $query->where('stored_item_audit_deltas.stored_item_id', $parent->id)
-            ->where('stored_item_audit_deltas.state', StoredItemAuditDeltaStateEnum::COMPLETED->value);
-            $query->leftJoin('stored_item_audits', 'stored_item_audits.id', 'stored_item_audit_deltas.stored_item_audit_id');
-            $query->leftJoin('stored_item_movements', 'stored_item_movements.stored_item_audit_delta_id', 'stored_item_audit_deltas.id');
-            $query->leftJoin('pallet_deliveries', 'pallet_deliveries.id', 'stored_item_movements.pallet_delivery_id');
-            $query->leftJoin('pallet_returns', 'pallet_returns.id', 'stored_item_movements.pallet_return_id');
-
+                ->where('stored_item_audit_deltas.state', StoredItemAuditDeltaStateEnum::COMPLETED->value);
         } else {
             $query->where('stored_item_audit_deltas.stored_item_audit_id', $parent->id);
         }
@@ -85,7 +87,7 @@ class IndexStoredItemAuditDeltas extends OrgAction
             );
 
 
-        return $query->allowedSorts(['id', 'audited_at', 'original_quantity','audited_quantity', 'state', 'audit_type'])
+        return $query->allowedSorts(['id', 'audited_at', 'original_quantity', 'audited_quantity', 'state', 'audit_type'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -129,7 +131,7 @@ class IndexStoredItemAuditDeltas extends OrgAction
             $table->column(key: 'original_quantity', label: __('original quantity'), canBeHidden: false, searchable: true)
                 ->column(key: 'audited_quantity', label: __('audited quantity'), canBeHidden: false, searchable: true)
                 ->column(key: 'audit_type_label', label: __('audit type'), canBeHidden: false, searchable: true)
-                ->column(key: 'audited_at', label: __('audited at'), canBeHidden: false, searchable: true, sortable: true);
+                ->column(key: 'audited_at', label: __('audited at'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
