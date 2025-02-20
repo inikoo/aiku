@@ -137,7 +137,7 @@ class UpdatePallet extends OrgAction
 
             ],
             'location_id'        => ['sometimes', 'nullable', Rule::exists('locations', 'id')],
-            'notes'              => ['sometimes','nullable', 'string', 'max:1024'],
+            'notes'              => ['sometimes','nullable', 'string', 'max:16384'],
             'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],

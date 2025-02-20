@@ -9,33 +9,17 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\StoredItem;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class IndexStoredItemsInReturn extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
-
-
-    private PalletReturn $palletReturn;
-
-    private bool $selectStoredPallets = false;
-
-
     public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -117,12 +101,6 @@ class IndexStoredItemsInReturn extends OrgAction
             ];
 
 
-            if ($palletReturn instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is no stored items this fulfilment shop");
-            }
-            if ($palletReturn instanceof FulfilmentCustomer) {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
-            }
 
             $table->withGlobalSearch();
 
@@ -142,23 +120,10 @@ class IndexStoredItemsInReturn extends OrgAction
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-
             $table->defaultSort('reference');
         };
     }
 
 
-
-    public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromWarehouse($warehouse, $request);
-
-        return $this->handle($palletReturn);
-    }
-
-    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
-    {
-        return PalletReturnStoredItemsResource::collection($storedItems);
-    }
 
 }
