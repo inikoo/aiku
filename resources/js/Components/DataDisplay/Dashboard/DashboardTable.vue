@@ -100,7 +100,7 @@ function useTabChangeDashboard(tab_slug: string) {
 				<Column sortable field="code">
 					<template #header>
 						<div class="flex items-center justify-between">
-							<span class="font-bold">Code</span>
+							<span class="font-bold">Name</span>
 						</div>
 					</template>
 					<template #body="{ data }" v-if="tableType == 'org' || current == 'shops'">
@@ -118,7 +118,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
-									{{ data.code }}
+									{{ data.name }}
 								</div>
 							</Transition>
 						</div>
