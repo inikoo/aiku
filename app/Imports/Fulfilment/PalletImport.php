@@ -44,7 +44,13 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
                 )
             );
 
-        $modelData = $row->only($fields)->all();
+        $validatedData = $row->only($fields)->all();
+        
+        $modelData = [
+            'type' => $validatedData['pallet_type'],
+            'customer_reference' => $validatedData['pallet_customer_reference'],
+            'notes' => $validatedData['pallet_notes']
+        ];
 
         if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
@@ -64,8 +70,6 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
             'type' => 'Upload',
         ]);
 
-
-
         try {
             StorePalletFromDelivery::run(
                 $this->scope,
@@ -83,7 +87,7 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     public function rules(): array
     {
         return [
-            'customer_reference' => [
+            'pallet_customer_reference' => [
                 'sometimes',
                 'nullable',
                 'max:64',
@@ -99,8 +103,8 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
 
             ],
-            'notes'              => ['nullable'],
-            'type'               => ['nullable'],
+            'pallet_notes'              => ['nullable'],
+            'pallet_type'               => ['nullable'],
         ];
     }
 }

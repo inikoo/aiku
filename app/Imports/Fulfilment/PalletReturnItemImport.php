@@ -91,7 +91,6 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
     {
         return [
             'reference' => ['required'],
-            'quantity'  => ['sometimes']
         ];
     }
 }
