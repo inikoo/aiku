@@ -105,7 +105,7 @@ class ShowPalletReturn extends OrgAction
             } else {
                 $tooltipSubmit = __('Submit');
             }
-            
+
             $buttonSubmit = [
                 'type'    => 'button',
                 'style'   => 'save',

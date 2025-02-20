@@ -123,7 +123,7 @@ class IndexSupplierProducts extends GrpAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };

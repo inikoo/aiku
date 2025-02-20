@@ -10,6 +10,7 @@
 namespace App\Imports\SupplyChain;
 
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\SupplyChain\Supplier;
@@ -35,33 +36,44 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
     public function storeModel($row, $uploadRecord): void
     {
         $sanitizedData = $this->processExcelData([$row]);
-        $fields =
-            array_merge(
-                array_keys(
-                    $this->rules()
-                )
-            );
+        $validatedData = array_intersect_key($sanitizedData, array_flip(array_keys($this->rules())));
 
-        if ($sanitizedData['availability'] == 'Available') {
+        if ($validatedData['availability'] == 'Available') {
             $availability = true;
         } else {
             $availability = false;
         }
 
         $modelData = [
-            'code' => $sanitizedData['suppliers_product_code'],
-            'name' => $sanitizedData['suppliers_unit_description'],
+            'code' => $validatedData['suppliers_product_code'],
+            'name' => $validatedData['suppliers_unit_description'],
             'is_available' => $availability,
-            'cost' => $sanitizedData['unit_cost'],
-            'units_per_pack' => $sanitizedData['units_per_sko'],
-            'units_per_carton' => $sanitizedData['skos_per_carton'],
-            'cbm' => $sanitizedData['carton_cbm'],
+            'cost' => $validatedData['unit_cost'],
+            'units_per_pack' => $validatedData['units_per_sko'],
+            'units_per_carton' => $validatedData['skos_per_carton'],
+            'cbm' => $validatedData['carton_cbm'],
         ];
+
         try {
-            StoreSupplierProduct::run(
-                $this->scope,
-                $modelData
-            );
+            $partKey = $validatedData['id_supplier_part_key'];
+            $existingProduct = null;
+            if (is_numeric($partKey)) {
+                $partKey = (int) $partKey;
+                $existingProduct = $this->scope->supplierProducts()
+                ->where('id', $partKey)
+                ->first();
+            }
+
+            $isNew = is_string($validatedData['id_supplier_part_key'])
+                && strtolower($validatedData['id_supplier_part_key']) === 'new';
+
+            if ($existingProduct) {
+                UpdateSupplierProduct::run($existingProduct, $modelData);
+            } elseif ($isNew) {
+                StoreSupplierProduct::run($this->scope, $modelData);
+            } else {
+                throw new Exception("Part key not found");
+            }
 
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {

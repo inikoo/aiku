@@ -147,7 +147,7 @@ const BaseList = forwardRef((props, ref) => {
         ) : (
           <FlatList
             data={data}
-            keyExtractor={(item, index) => item.slug + index}
+            keyExtractor={(item, index) => item.id}
             showsVerticalScrollIndicator={false}
             onEndReached={() => fetchMoreData(true)}
             onEndReachedThreshold={1}
