@@ -100,6 +100,11 @@ class StoredItemAudit extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(128);
     }
 
+    public function scope()
+    {
+        return $this->morphTo();
+    }
+    
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

@@ -185,6 +185,10 @@ class Pallet extends Model implements Auditable
         return $query->whereNull('location_id');
     }
 
+    public function storedItemAudits()
+    {
+        return $this->morphMany(StoredItemAudit::class, 'scope');
+    }
 
     public function warehouse(): BelongsTo
     {
