@@ -53,7 +53,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
         if (request()->has($argumentName) or $defaultValue) {
             $elements               = request()->input("$argumentName") ?? $defaultValue;
-            if(is_array($elements)){
+            if (is_array($elements)) {
                 $elements = Arr::get($elements, 'radio.value');
             }
 

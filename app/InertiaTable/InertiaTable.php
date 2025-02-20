@@ -233,8 +233,8 @@ class InertiaTable
             return $radioFilter;
         }
 
-        if(is_array($queryElements)){
-            $queryElements=Arr::get($queryElements,'radio.value','');
+        if (is_array($queryElements)) {
+            $queryElements = Arr::get($queryElements, 'radio.value', '');
         }
 
         return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {

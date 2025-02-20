@@ -42,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $organisation_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Invoice> $invoices
  * @property-read \App\Models\Accounting\InvoiceCategoryOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Accounting\InvoiceCategorySalesIntervals|null $salesIntervals

@@ -16,13 +16,10 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Http\Resources\Fulfilment\PalletReturnItemResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -118,13 +115,6 @@ class SetPalletInReturnAsPicked extends OrgAction
     }
 
 
-    public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
-    {
-        $this->pallet = $palletReturnItem;
-        $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
-
-        return $this->handle($palletReturnItem);
-    }
 
     public function action(PalletReturnItem $palletReturnItem, array $modelData, int $hydratorsDelay = 0): PalletReturnItem
     {
@@ -136,8 +126,8 @@ class SetPalletInReturnAsPicked extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
-    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemUIResource
     {
-        return new PalletReturnItemResource($palletReturnItem);
+        return new PalletReturnItemUIResource($palletReturnItem);
     }
 }

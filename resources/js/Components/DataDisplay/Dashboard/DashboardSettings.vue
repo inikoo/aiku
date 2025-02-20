@@ -55,7 +55,7 @@ watch(
 const isLoadingInterval = ref<string | null>(null)
 const updateInterval = (interval_code: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				selected_interval: interval_code,
@@ -77,7 +77,7 @@ const updateInterval = (interval_code: string) => {
 const isLoadingCurrency = ref<boolean>(false)
 const updateCurrency = (currency_scope: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				[`selected_currency_in_${props.settings?.key_currency || "grp"}`]: currency_scope,
@@ -97,7 +97,7 @@ const updateCurrency = (currency_scope: string) => {
 
 const updateShop = (shop_scope: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				[`selected_shop_state`]: shop_scope,
@@ -117,7 +117,7 @@ const updateShop = (shop_scope: string) => {
 
 const updateAmountFormat = (amountFormat: string) => {
 	router.patch(
-		route("grp.models.user.update", layout.user?.id),
+		route("grp.models.profile.update"),
 		{
 			settings: {
 				[`selected_amount`]: amountFormat,
