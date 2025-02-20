@@ -24,7 +24,9 @@ let refreshSubscribers: ((token) => void)[] = [];
 
 const api = axios.create({
   baseURL: Config.API_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json', 
+   },
 });
 
 // **Token Refresh Handler**
@@ -115,10 +117,14 @@ const request = async ({
       params,
       data,
       responseType,
-      headers,
+      headers: {
+        'App-Type': 'maya', // Always include this header
+        ...headers, // Merge with additional headers
+      },
     });
     onSuccess(response.data, extra);
     onBoth(true, response.data, extra)
+    console.log(response)
     return response.data;
   } catch (error) {
     console.log(error)
