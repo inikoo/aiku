@@ -35,21 +35,20 @@ const props = defineProps<{
 	tableType?: string
 }>()
 
-
 const layout = inject("layout", layoutStructure)
 const isSectionVisible = ref(false)
-const page = usePage();
+const page = usePage()
 const tabDashboardInterval = computed(() => {
 	const currentUrl = new URL(page.url, window.location.origin)
-	return currentUrl.searchParams.get('tab_dashboard_interval')
+	return currentUrl.searchParams.get("tab_dashboard_interval")
 })
 
 watch(
-  tabDashboardInterval,
-  (newVal, oldVal) => {
-    console.log('tab_dashboard_interval changed from', oldVal, 'to', newVal)
-  },
-  { immediate: true }
+	tabDashboardInterval,
+	(newVal, oldVal) => {
+		console.log("tab_dashboard_interval changed from", oldVal, "to", newVal)
+	},
+	{ immediate: true }
 )
 // Section: Interval
 const isLoadingInterval = ref<string | null>(null)
@@ -152,7 +151,9 @@ const updateAmountFormat = (amountFormat: string) => {
 				v-show="isSectionVisible"
 				class="flex flex-wrap justify-between items-center gap-4 lg:gap-8 mb-2">
 				<!-- Shop Toggle (for tableType === 'org') -->
-				<div v-if="tableType === 'org' || tabDashboardInterval === 'shops'" class="flex items-center space-x-4">
+				<div
+					v-if="tableType === 'org' || tabDashboardInterval === 'shops'"
+					class="flex items-center space-x-4">
 					<p
 						class="font-medium"
 						:class="[
@@ -167,8 +168,7 @@ const updateAmountFormat = (amountFormat: string) => {
 					<!-- Shop Toggle Switch -->
 					<ToggleSwitch
 						:modelValue="settings.selected_shop_state === 'open'"
-						@update:modelValue="(value) => updateShop(value ? 'open' : 'closed')"
-						 />
+						@update:modelValue="(value) => updateShop(value ? 'open' : 'closed')" />
 
 					<p
 						class="font-medium"
@@ -186,11 +186,7 @@ const updateAmountFormat = (amountFormat: string) => {
 				<div class="flex items-center justify-end space-x-4">
 					<p
 						class="font-medium"
-						:class="[
-							settings.selected_amount === false
-								? ''
-								: 'opacity-50',
-						]">
+						:class="[settings.selected_amount === false ? '' : 'opacity-50']">
 						Minified
 					</p>
 					<ToggleSwitch
@@ -202,15 +198,15 @@ const updateAmountFormat = (amountFormat: string) => {
 
 					<p
 						class="font-medium"
-						:class="[
-							settings.selected_amount ===
-							true
-								? ''
-								: 'opacity-50',
-						]">
+						:class="[settings.selected_amount === true ? '' : 'opacity-50']">
 						Full
 					</p>
+
 					<p
+						v-if="
+							settings.options_currency[0].label !==
+							settings.options_currency[1].label
+						"
 						class="font-medium"
 						:class="[
 							settings.options_currency[0].value ===
@@ -226,6 +222,10 @@ const updateAmountFormat = (amountFormat: string) => {
 					</p>
 
 					<ToggleSwitch
+						v-if="
+							settings.options_currency[0].label !==
+							settings.options_currency[1].label
+						"
 						:modelValue="
 							get(
 								settings,
@@ -241,6 +241,10 @@ const updateAmountFormat = (amountFormat: string) => {
 						v-tooltip="'currency'" />
 
 					<p
+						v-if="
+							settings.options_currency[0].label !==
+							settings.options_currency[1].label
+						"
 						class="font-medium"
 						:class="[
 							settings.options_currency[1].value ===
