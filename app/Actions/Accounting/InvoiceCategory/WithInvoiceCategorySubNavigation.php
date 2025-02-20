@@ -27,6 +27,20 @@ trait WithInvoiceCategorySubNavigation
                     ],
                 ],
             ],
+            [
+                "label"    => __('Invoices'),
+                "route"     => [
+                    "name"       => 'grp.org.accounting.invoice-categories.show.invoices.index',
+                    "parameters" => [
+                        'organisation' => $invoiceCategory->organisation->slug,
+                        'invoiceCategory' => $invoiceCategory->slug
+                    ],
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-file-invoice-dollar'],
+                    'tooltip' => __('Invoices')
+                ]
+            ],
 
             // [
             //     "number"   => $numberUnpaid,

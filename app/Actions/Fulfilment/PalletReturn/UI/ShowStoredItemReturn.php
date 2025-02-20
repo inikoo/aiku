@@ -106,7 +106,7 @@ class ShowStoredItemReturn extends OrgAction
             'style'   => 'save',
             'tooltip' => $tooltipSubmit,
             // 'label'   => __('Confirm') . ' (' . $palletReturn->storedItems()->count() . ')',
-            'key'     => 'submit',
+            'key'     => 'submit-stored-items',
             'route'   => [
                 'method'     => 'post',
                 'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',

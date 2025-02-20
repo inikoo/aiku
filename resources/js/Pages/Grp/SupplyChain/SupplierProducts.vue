@@ -39,7 +39,6 @@ const isModalUploadOpen = ref(false)
           />
       </template>
     </PageHeading>
-
     <TableSupplierProducts :data="data" />
     <UploadExcel
         v-model="isModalUploadOpen"

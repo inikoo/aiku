@@ -10,11 +10,11 @@
 namespace App\Imports\SupplyChain;
 
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\SupplyChain\Supplier;
 use Exception;
-use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -36,10 +36,7 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
     public function storeModel($row, $uploadRecord): void
     {
         $sanitizedData = $this->processExcelData([$row]);
-
-        $fields = array_keys($this->rules());
-
-        $validatedData = Arr::only($sanitizedData, $fields);
+        $validatedData = array_intersect_key($sanitizedData, array_flip(array_keys($this->rules())));
 
         if ($validatedData['availability'] == 'Available') {
             $availability = true;
@@ -56,12 +53,27 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
             'units_per_carton' => $validatedData['skos_per_carton'],
             'cbm' => $validatedData['carton_cbm'],
         ];
-        dd($modelData);
+
         try {
-            StoreSupplierProduct::run(
-                $this->scope,
-                $modelData
-            );
+            $partKey = $validatedData['id_supplier_part_key'];
+            $existingProduct = null;
+            if (is_numeric($partKey)) {
+                $partKey = (int) $partKey;
+                $existingProduct = $this->scope->supplierProducts()
+                ->where('id', $partKey)
+                ->first();
+            }
+
+            $isNew = is_string($validatedData['id_supplier_part_key'])
+                && strtolower($validatedData['id_supplier_part_key']) === 'new';
+
+            if ($existingProduct) {
+                UpdateSupplierProduct::run($existingProduct, $modelData);
+            } elseif ($isNew) {
+                StoreSupplierProduct::run($this->scope, $modelData);
+            } else {
+                throw new Exception("Part key not found");
+            }
 
             $this->setRecordAsCompleted($uploadRecord);
         } catch (Exception $e) {
@@ -73,20 +85,17 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
 
     protected function processExcelData($data)
     {
-        $mappedData = [];
+        $mappedRow = [];
 
         foreach ($data as $row) {
-            $mappedRow = [];
-
             foreach ($row as $key => $value) {
                 $mappedKey = str_replace([' ', ':', "'"], '_', strtolower($key));
                 $mappedRow[$mappedKey] = $value;
             }
-
-            $mappedData[] = $mappedRow;
+            break;
         }
 
-        return $mappedData;
+        return $mappedRow;
     }
 
     public function rules(): array

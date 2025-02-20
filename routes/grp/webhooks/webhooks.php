@@ -15,7 +15,7 @@ use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\ShopRedactWebhookShopify;
 
 Route::name('webhooks.')->group(function () {
-    Route::any('sns', GetSnsNotification::class)->name('sns');
+    Route::post('sns', GetSnsNotification::class)->name('sns');
 });
 
 Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group(function () {

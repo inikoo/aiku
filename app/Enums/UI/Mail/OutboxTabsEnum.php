@@ -18,7 +18,8 @@ enum OutboxTabsEnum: string
 
     case SHOWCASE = 'showcase';
     case MAILSHOTS = 'mailshots';
-    case EMAIL_BULK_RUNS = 'email_bulk_runs';
+    case DISPATCHED_EMAILS = 'dispatched_emails';
+    // case EMAIL_BULK_RUNS = 'email_bulk_runs';
 
     public function blueprint(): array
     {
@@ -31,10 +32,14 @@ enum OutboxTabsEnum: string
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-mail-bulk',
             ],
-            OutboxTabsEnum::EMAIL_BULK_RUNS => [
-                'title' => __('Runs'),
-                'icon'  => 'fal fa-rabbit-fast',
+            OutboxTabsEnum::DISPATCHED_EMAILS => [
+                'title' => __('dispatched emails'),
+                'icon'  => 'far fa-paper-plane',
             ],
+            // OutboxTabsEnum::EMAIL_BULK_RUNS => [
+            //     'title' => __('Runs'),
+            //     'icon'  => 'fal fa-rabbit-fast',
+            // ],
         };
     }
 }

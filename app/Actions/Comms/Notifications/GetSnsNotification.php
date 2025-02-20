@@ -14,14 +14,15 @@ use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Psr\Http\Message\ServerRequestInterface;
 
 class GetSnsNotification
 {
     use AsAction;
 
-    public function asController(): string
+    public function asController(ServerRequestInterface $request): string
     {
-        $message   = Message::fromRawPostData();
+        $message   = Message::fromPsrRequest($request);
         $validator = new MessageValidator();
 
         if ($validator->isValid($message)) {
@@ -44,14 +45,9 @@ class GetSnsNotification
                         ]
                     );
 
-                    ProcessSesNotification::dispatch($sesNotification);
+                    // ProcessSesNotification::dispatch($sesNotification);
 
                 }
-
-
-
-
-
             }
         }
         return 'ok';
