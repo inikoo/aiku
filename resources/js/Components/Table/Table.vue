@@ -6,14 +6,9 @@ import TableFilterSearch from '@/Components/Table/TableFilterSearch.vue'
 import TableElements from '@/Components/Table/TableElements.vue'
 import TablePeriodFilter from '@/Components/Table/TablePeriodFilter.vue'
 import TableWrapper from '@/Components/Table/TableWrapper.vue'
-// import TableFilterColumn from '@/Components/Table/TableFilterColumn.vue';
-// import TableColumns from '@/Components/Table/TableColumns.vue';
-// import TableAdvancedFilter from '@/Components/Table/TableAdvancedFilter.vue';
-// import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
-// import SearchReset from '@/Components/Table/SearchReset.vue';
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import { Link } from "@inertiajs/vue3"
+import { Link, router, usePage } from "@inertiajs/vue3";
 import { trans } from 'laravel-vue-i18n'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
@@ -166,13 +161,13 @@ const emits = defineEmits<{
     (e: 'onChecked', value: {}): void
 }>()
 
-const app = getCurrentInstance();
-const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
+// const app = getCurrentInstance();
+// const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
 const updates = ref(0);
 
 const queryBuilderProps = computed(() => {
-    let data = $inertia.page.props.queryBuilderProps
-        ? $inertia.page.props.queryBuilderProps[props.name] || {}
+    let data = usePage().props.queryBuilderProps
+        ? usePage().props.queryBuilderProps[props.name] || {}
         : {};
 
     data._updates = updates.value;
@@ -181,14 +176,14 @@ const queryBuilderProps = computed(() => {
 
 
 const queryBuilderData = ref(queryBuilderProps.value);
-queryBuilderData.value.elementFilter = {
-    // 'state': ['left'],
-    // 'type': ['volunteer', 'employee']
-}
-queryBuilderData.value.periodFilter = {
-    // 'type': 'today',
-    // 'date': 202405
-}
+// queryBuilderData.value.elementFilter = {
+//     // 'state': ['left'],
+//     // 'type': ['volunteer', 'employee']
+// }
+// queryBuilderData.value.periodFilter = {
+//     // 'type': 'today',
+//     // 'date': 202405
+// }
 
 
 const pageName = computed(() => {
@@ -528,16 +523,16 @@ function generateNewQueryString() {
 }
 
 const isVisiting = ref(false);
-const visitCancelToken = ref(null);
+const visitCancelToken = ref<{ cancel: Function } | null>(null);
 
-const visit = (url) => {
+const visit = (url?: string) => {
     // Visit new generate URL, run on watch queryBuilderData
 
     if (!url) {
         return;
     }
 
-    $inertia.get(
+    router.get(
         url,
         {},
         {
@@ -554,7 +549,7 @@ const visit = (url) => {
                 isVisiting.value = false;
             },
             onSuccess() {
-                if ('queryBuilderProps' in $inertia.page.props) {
+                if ('queryBuilderProps' in usePage().props) {
                     queryBuilderData.value.cursor = queryBuilderProps.value.cursor;
                     queryBuilderData.value.page = queryBuilderProps.value.page;
                 }

@@ -91,7 +91,9 @@ const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNo
         },
         onFinish: () => {
             isSubmitNotPickedLoading.value = false
-        }
+        },
+        only: ['pallets', 'pageHead'],
+        preserveScroll: true
     })
 }
 
@@ -352,8 +354,10 @@ const generateLinkPallet = (pallet: {}) => {
                     :data="{ state: 'picked' }"
                     @start="() => isPickingLoading = pallet.id"
                     @finish="() => isPickingLoading = false"
+                    preserveScroll
+                    :only="['pallets', 'pageHead']"
                     method="patch"
-                    v-tooltip="`Set as picked`"
+                    v-tooltip="trans(`Set as picked`)"
                 >
                     <!-- <div class="border border-green-500 rounded py-2 px-6 hover:bg-green-500/10 cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-check' class='flex items-center justify-center text-green-500' fixed-width aria-hidden='true' />
@@ -368,6 +372,8 @@ const generateLinkPallet = (pallet: {}) => {
                     @start="() => isUndoLoading = pallet.id"
                     @finish="() => isUndoLoading = false"
                     method="patch"
+                    preserveScroll
+                    :only="['pallets', 'pageHead']"
                     v-tooltip="`Undo`"
                 >
                     <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
