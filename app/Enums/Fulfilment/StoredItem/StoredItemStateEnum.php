@@ -45,31 +45,31 @@ enum StoredItemStateEnum: string
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => '#7CCE00',  // Color for box (Retina)
             ],
             'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-gray-300',  // Color for normal icon (Aiku)
-                'color'   => 'gray',  // Color for box (Retina)
+                'color'   => '#E5E7EB',  // Color for box (Retina)
             ],
             'active'   => [
                 'tooltip' => __('Active'),
                 'icon'    => 'fal fa-inventory',
                 'class'   => 'text-green-700',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => '#008236',  // Color for box (Retina)
             ],
             'discontinuing'   => [
                 'tooltip' => __('Discontinuing'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-red-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => '#FB2C36',  // Color for box (Retina)
             ],
             'discontinued'   => [
                 'tooltip' => __('Discontinued'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'color'   => '#6A7282',  // Color for box (Retina)
             ],
         ];
     }
