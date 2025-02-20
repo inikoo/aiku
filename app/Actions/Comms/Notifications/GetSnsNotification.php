@@ -24,7 +24,6 @@ class GetSnsNotification
     {
         $message   = Message::fromPsrRequest($request);
         $validator = new MessageValidator();
-
         if ($validator->isValid($message)) {
             if ($message['Type'] == 'SubscriptionConfirmation') {
                 file_get_contents($message['SubscribeURL']);
@@ -45,7 +44,7 @@ class GetSnsNotification
                         ]
                     );
 
-                    // ProcessSesNotification::dispatch($sesNotification);
+                    ProcessSesNotification::run($sesNotification);
 
                 }
             }

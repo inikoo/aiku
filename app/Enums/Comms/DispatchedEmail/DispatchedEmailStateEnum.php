@@ -31,6 +31,8 @@ enum DispatchedEmailStateEnum: string
     case SPAM = 'spam';
     case UNSUBSCRIBED = 'unsubscribed';
 
+    case DELAY = 'delay';
+
 
     public static function labels(): array
     {
@@ -47,6 +49,7 @@ enum DispatchedEmailStateEnum: string
             'clicked'              => __('Clicked'),
             'spam'                 => __('Spam'),
             'unsubscribed'         => __('Unsubscribed'),
+            'delay'                => __('Delay'),
         ];
     }
 
@@ -130,6 +133,12 @@ enum DispatchedEmailStateEnum: string
 
             'unsubscribed' => [
                 'tooltip' => __('Unsubscribed'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-red-500'
+            ],
+
+            'delay' => [
+                'tooltip' => __('Delay'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-red-500'
             ],

@@ -23,4 +23,5 @@ enum EmailTrackingEventTypeEnum: string
     case HARD_BOUNCE          = 'hard_bounce';
     case MARKED_AS_SPAM       = 'marked_as_spam';
     case ERROR                = 'error';
+    case DELAY                = 'delay';
 }
