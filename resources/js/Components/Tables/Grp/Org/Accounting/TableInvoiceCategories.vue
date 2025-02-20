@@ -37,8 +37,8 @@ function invoiceRoute(invoiceCategory: {}) {
     switch (route().current()) {
         case "grp.org.accounting.invoice-categories.index":
             return route(
-                "grp.org.accounting.invoices.index",
-                [route().params["organisation"]])
+                "grp.org.accounting.invoice-categories.show.invoices.index",
+                [route().params["organisation"],invoiceCategory.slug])
         default:
             return ''
     }
@@ -47,9 +47,13 @@ function invoiceRoute(invoiceCategory: {}) {
 function refundRoute(invoiceCategory: {}) {
     switch (route().current()) {
         case "grp.org.accounting.invoice-categories.index":
-            return route(
-                "grp.org.accounting.refunds.index",
-                [route().params["organisation"]])
+        return route(
+                "grp.org.accounting.invoice-categories.show.invoices.index",
+                {
+                    "organisation": route().params["organisation"],
+                    "invoiceCategory": invoiceCategory.slug,
+                    'tab': 'refunds'
+                })
         default:
             return ''
     }
