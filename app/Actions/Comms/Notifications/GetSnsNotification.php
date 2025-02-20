@@ -45,7 +45,7 @@ class GetSnsNotification
                         ]
                     );
 
-                    ProcessSesNotification::dispatch($sesNotification);
+                    // ProcessSesNotification::dispatch($sesNotification);
 
                 }
             }

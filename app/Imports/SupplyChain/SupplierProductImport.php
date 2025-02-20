@@ -64,7 +64,7 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
                 ->first();
             }
 
-            $isNew = is_string($validatedData['id_supplier_part_key']) 
+            $isNew = is_string($validatedData['id_supplier_part_key'])
                 && strtolower($validatedData['id_supplier_part_key']) === 'new';
 
             if ($existingProduct) {
