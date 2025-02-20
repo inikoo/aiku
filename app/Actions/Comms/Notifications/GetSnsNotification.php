@@ -13,16 +13,16 @@ use App\Models\Comms\SesNotification;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Psr\Http\Message\ServerRequestInterface;
 
 class GetSnsNotification
 {
     use AsAction;
 
-    public function asController(ActionRequest $request): string
+    public function asController(ServerRequestInterface $request): string
     {
-        $message   = new Message($request->all());
+        $message   = Message::fromPsrRequest($request);
         $validator = new MessageValidator();
 
         if ($validator->isValid($message)) {
