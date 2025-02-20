@@ -13,7 +13,7 @@ namespace App\Actions\Billables\Service\UI;
 use App\Actions\Billables\UI\ShowBillablesDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexServices extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     protected function getElementGroups(Shop $parent): array
     {

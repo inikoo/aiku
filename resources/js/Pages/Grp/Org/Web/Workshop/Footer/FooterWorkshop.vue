@@ -25,12 +25,12 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faIcons, faMoneyBill, faUpload, faDownload, faThLarge } from '@fas';
-import { faLineColumns } from '@far';
+import { faLineColumns, faLowVision } from '@far';
 import { faBoothCurtain, faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 
-library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faThLarge, faBoothCurtain)
+library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faThLarge, faLowVision)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -206,6 +206,11 @@ onMounted(() => {
                     </div>
                 </template></Publish>
         </template>
+        <template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
     </PageHeading>
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
@@ -238,7 +243,7 @@ onMounted(() => {
                             <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
                             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                                 @click="openFullScreenPreview">
-                                <FontAwesomeIcon :icon='faBoothCurtain' aria-hidden='true' />
+                                <FontAwesomeIcon :icon='faLowVision' aria-hidden='true' />
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -255,9 +260,7 @@ onMounted(() => {
                             </Switch>
 
                           
-                            <div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
-                                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-                            </div>
+                           
                         </div>
                     </div>
 

@@ -41,7 +41,7 @@ class IndexRetinaRentals extends RetinaAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('rentals.state', $elements);
                 }
 
             ],
@@ -106,7 +106,7 @@ class IndexRetinaRentals extends RetinaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle();
     }
 
 
@@ -179,7 +179,7 @@ class IndexRetinaRentals extends RetinaAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, align: 'right', className: 'text-right font-mono')
                 ->defaultSort('code');
         };
     }

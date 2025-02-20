@@ -11,19 +11,19 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomerNote;
 use App\Actions\Fulfilment\RentalAgreementClause\UI\IndexRentalAgreementClauses;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\Fulfilment\FulfilmentCustomerNoteResource;
 use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -48,7 +48,6 @@ class ShowFulfilmentCustomer extends OrgAction
     }
 
 
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerTabsEnum::values());
@@ -58,9 +57,6 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-
-
-
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
         if (!$fulfilmentCustomer->rentalAgreement || $fulfilmentCustomer->rentalAgreement?->clauses()->count() < 1) {
@@ -87,7 +83,7 @@ class ShowFulfilmentCustomer extends OrgAction
                 ];
             }
 
-            if ($fulfilmentCustomer->rentalAgreement()->exists()) {
+            if ($fulfilmentCustomer->rentalAgreement()->exists() && $fulfilmentCustomer->pallets_storage) {
                 $additionalActions[] = [
                     'type'        => 'button',
                     'style'       => 'create',
@@ -103,7 +99,6 @@ class ShowFulfilmentCustomer extends OrgAction
                     ]
                 ];
             }
-
 
             if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
                 $additionalActions[] =
@@ -138,7 +133,6 @@ class ShowFulfilmentCustomer extends OrgAction
                     'button' => $additionalActions
                 ],
             ];
-
         }
 
         return Inertia::render(
@@ -161,7 +155,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [
-                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                        'label' => '('.$fulfilmentCustomer->customer->reference.')',
                     ],
                     'edit'          => $this->canEdit ? [
                         'route' => [
@@ -175,6 +169,29 @@ class ShowFulfilmentCustomer extends OrgAction
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
+                ],
+
+                'attachmentRoutes'   => [
+                    'attachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.attach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'grp.models.customer.attachment.detach',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+                'option_attach_file' => [
+                    [
+                        'name' => __('Other'),
+                        'code' => 'Other'
+                    ]
                 ],
 
 
@@ -191,16 +208,15 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
-                FulfilmentCustomerTabsEnum::NOTE->value => $this->tab == FulfilmentCustomerTabsEnum::NOTE->value ?
-                    fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => FulfilmentCustomerNoteResource::collection(IndexFulfilmentCustomerNote::run($fulfilmentCustomer))),
-
+                FulfilmentCustomerTabsEnum::ATTACHMENTS->value => $this->tab == FulfilmentCustomerTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($fulfilmentCustomer->customer, FulfilmentCustomerTabsEnum::ATTACHMENTS->value))),
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
             ->table(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value))
-            ->table(IndexFulfilmentCustomerNote::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::NOTE->value));
+            ->table(IndexAttachments::make()->tableStructure(FulfilmentCustomerTabsEnum::ATTACHMENTS->value));
     }
 
 

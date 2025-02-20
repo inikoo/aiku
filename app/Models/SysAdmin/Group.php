@@ -160,6 +160,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Email> $emails
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
+ * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\TFactory|null $use_factory

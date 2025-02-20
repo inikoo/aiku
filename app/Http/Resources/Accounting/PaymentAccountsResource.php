@@ -12,37 +12,34 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int $number_payments
- * @property \App\Models\Catalogue\Shop $shops
- * @property string $payment_service_provider_slug
- * @property string $payment_service_provider_code
- * @property string $payment_service_provider_name
  * @property string $id
  * @property string $slug
  * @property string $name
  * @property string $code
- * @property string $shop_name
- * @property string $shop_id
+ * @property mixed $number_pas_state_active
+ * @property mixed $org_amount_successfully_paid
+ * @property mixed $payment_service_provider_slug
+ * @property mixed $payment_service_provider_name
+ * @property mixed $payment_service_provider_code
+ * @property mixed $org_currency_code
  *
  */
 class PaymentAccountsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        return [
+        return array(
             'id'                            => $this->id,
             'slug'                          => $this->slug,
             'name'                          => $this->name,
-            'payment_service_provider_slug' => $this->payment_service_provider_slug,
-            'payment_service_provider_code' => $this->payment_service_provider_code,
-            'payment_service_provider_name' => $this->payment_service_provider_name,
             'number_payments'               => $this->number_payments,
+            'number_pas_state_active'       => $this->number_pas_state_active,
             'code'                          => $this->code,
-            'shop_name'                     => $this->shop_name,
-            'shop_code'                     => $this->shop_code,
-            'shop_id'                       => $this->shop_id,
-            'shop_slug'                     => $this->shop_slug,
-            'organisation_name'             => $this->organisation_name,
-            'organisation_slug'             => $this->organisation_slug,
-        ];
+            'org_amount_successfully_paid'  => $this->org_amount_successfully_paid,
+            'org_currency_code'             => $this->org_currency_code,
+            'payment_service_provider_slug' => $this->payment_service_provider_slug,
+            'payment_service_provider_name' => $this->payment_service_provider_name,
+            'payment_service_provider_code' => $this->payment_service_provider_code,
+        );
     }
 }

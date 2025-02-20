@@ -117,13 +117,13 @@ class ShowWebsite extends OrgAction
                         ),
 
                 ],
-               "layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website),
+                // "website_layout" =>  GetWebsiteWorkshopLayout::run($this->scope, $website),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteTabsEnum::navigation()
                 ],
 
-                WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? array_merge(WebsiteResource::make($website)->getArray(), ['layout' => GetWebsiteWorkshopLayout::run($website->shop, $website)['routeList']]) : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
+                WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? array_merge(WebsiteResource::make($website)->getArray(), ['layout' => GetWebsiteWorkshopLayout::run($this->parent, $website)['routeList']]) : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
 
                 WebsiteTabsEnum::WEB_USERS->value     => $this->tab == WebsiteTabsEnum::WEB_USERS->value
                     ?

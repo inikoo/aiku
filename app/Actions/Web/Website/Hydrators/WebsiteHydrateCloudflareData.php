@@ -80,7 +80,7 @@ class WebsiteHydrateCloudflareData
         return;
     }
 
-    public string $commandSignature = 'hydrate:website-data-cloudflare {website?}';
+    public string $commandSignature = 'hydrate:website_data_cloudflare {website?}';
 
     public function asCommand($command)
     {

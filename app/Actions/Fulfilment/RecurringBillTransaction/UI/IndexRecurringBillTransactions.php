@@ -110,7 +110,7 @@ class IndexRecurringBillTransactions extends OrgAction
                 ->column(key: 'asset_code', label: __('billable'), canBeHidden: false, sortable: true, searchable: true)
              //   ->column(key: 'asset_name', label: __('rental name'))
                 ->column(key: 'asset_price', label: __('base price'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'quantity', label: __('quantity'))
+                ->column(key: 'quantity', label: __('quantity'), align: 'right')
                 ->column(key: 'total', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('id');
             if ($recurringBill->status == RecurringBillStatusEnum::CURRENT) {

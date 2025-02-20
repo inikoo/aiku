@@ -51,7 +51,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
     {
         $this->initialisation($request)->withTab(PalletDeliveriesTabsEnum::values());
 
-        return $this->handle($this->customer->fulfilmentCustomer);
+        return $this->handle($this->customer->fulfilmentCustomer, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
@@ -102,7 +102,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
 
         return $queryBuilder
             ->defaultSort('reference')
-            ->allowedSorts(['reference', 'customer_reference', 'number_pallets'])
+            ->allowedSorts(['reference', 'customer_reference', 'number_pallets', 'date'])
             ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -129,22 +129,23 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('Id'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'customer_reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->column(key: 'number_pallets', label: __('total pallets'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
         };
     }
 
     public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
-        $actions = [];
 
         $navigation = PalletDeliveriesTabsEnum::navigation();
 
+        $fulfilmentCustomer = auth()->user()->customer->fulfilmentCustomer;
 
         $actions = [
-                [
+            $fulfilmentCustomer->pallets_storage ? [
                     'type'  => 'button',
                     'style' => 'create',
                     'label' => __('New Delivery'),
@@ -154,7 +155,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'name'       => 'retina.models.pallet-delivery.store',
                         'parameters' => []
                     ]
-                ]
+                ] : false
             ];
 
         return Inertia::render(
@@ -168,7 +169,7 @@ class IndexRetinaPalletDeliveries extends RetinaAction
                         'icon'  => ['fal', 'fa-truck'],
                         'title' => __('delivery')
                     ],
-                    'actions' => $actions
+                    'actions' => array_filter($actions)
                 ],
                 'data'        => PalletDeliveriesResource::collection($deliveries),
                 'tabs' => [

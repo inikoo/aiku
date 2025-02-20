@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
@@ -31,7 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPallets extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithPalletsSubNavigation;
 
 
@@ -125,7 +125,13 @@ class IndexPallets extends OrgAction
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->addSelect('locations.code as location_code', 'locations.slug as location_slug');
 
-        return $query->allowedSorts(['organisation_name', 'customer_reference', 'reference', 'fulfilment_customer_name'])
+        return $query->allowedSorts([
+            'organisation_name',
+            'customer_reference',
+            'reference',
+            'fulfilment_customer_name',
+            'datw'
+        ])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();

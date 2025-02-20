@@ -9,24 +9,23 @@
 
 namespace App\Actions\Accounting\InvoiceCategory;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Models\Accounting\InvoiceCategory;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateInvoiceCategory extends GrpAction
+class UpdateInvoiceCategory extends OrgAction
 {
     use WithNoStrictRules;
     use WithActionUpdate;
 
     public function handle(InvoiceCategory $invoiceCategory, array $modelData): InvoiceCategory
     {
-        $invoiceCategory = $this->update($invoiceCategory, $modelData);
-
-        return $invoiceCategory;
+        return $this->update($invoiceCategory, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -35,28 +34,47 @@ class UpdateInvoiceCategory extends GrpAction
             return true;
         }
 
-        return false;
+        return $request->user()->authTo("accounting.{$this->organisation->id}.edit"); //TODO: Review this
+    }
+
+    public function asController(InvoiceCategory $invoiceCategory, ActionRequest $request)
+    {
+        $this->initialisation($invoiceCategory->organisation, $request);
+
+        return $this->handle($invoiceCategory, $this->validatedData);
     }
 
 
     public function rules(): array
     {
         $rules = [
-            'name' => ['sometimes', 'string'],
-            'state' => ['sometimes', Rule::enum(InvoiceCategoryStateEnum::class)]
+            'name'               => ['sometimes', 'string'],
+            'state'              => ['sometimes', Rule::enum(InvoiceCategoryStateEnum::class)],
+            'data'               => ['sometimes', 'array'],
+            'settings'           => ['sometimes', 'array'],
+            'priority'           => ['sometimes', 'integer'],
+            'show_in_dashboards' => ['sometimes', 'boolean'],
+            'organisation_id'    => ['nullable', 'integer', Rule::exists('organisations', 'id')->where('group_id', $this->group->id)],
+
         ];
         if (!$this->strict) {
-            $rules             = $this->noStrictUpdateRules($rules);
+            $rules                = $this->noStrictUpdateRules($rules);
+            $rules['type']        = ['sometimes', Rule::enum(InvoiceCategoryTypeEnum::class)];
+            $rules['currency_id'] = ['sometimes', 'integer', 'exists:currencies,id'];
         }
+
         return $rules;
     }
 
-    public function action(InvoiceCategory $invoiceCategory, array $modelData, int $hydratorsDelay = 0, bool $strict = true): InvoiceCategory
+    public function action(InvoiceCategory $invoiceCategory, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): InvoiceCategory
     {
         $this->asAction = true;
-        $this->strict   = $strict;
+        if (!$audit) {
+            InvoiceCategory::disableAuditing();
+        }
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($invoiceCategory->group, $modelData);
+        $this->initialisationFromGroup($invoiceCategory->group, $modelData);
 
         return $this->handle($invoiceCategory, $this->validatedData);
     }

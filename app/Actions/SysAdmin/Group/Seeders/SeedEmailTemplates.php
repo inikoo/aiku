@@ -35,7 +35,6 @@ class SeedEmailTemplates
 
             $filePath = database_path($basePath.'/'.Arr::get($template, 'content'));
 
-
             $languageCode = Arr::get($template, 'language', 'en');
             /** @var Language $language */
             $language = Language::where('code', $languageCode)->firstOrFail();

@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
@@ -30,7 +30,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemsInWarehouse extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
 
@@ -128,7 +128,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'name'       => 'grp.org.hr.employees.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __("customer's sKUs")
+                            'label' => __("Customer's SKUs")
                         ]
                     ],
                 ],
@@ -178,7 +178,7 @@ class IndexStoredItemsInWarehouse extends OrgAction
                                 'warehouse'    => $routeParameters['warehouse'],
                             ]
                         ],
-                        'label' => __("Customer's sKUs"),
+                        'label' => __("Customer's SKUs"),
                         'icon'  => 'fal fa-bars',
                     ],
 

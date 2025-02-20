@@ -135,9 +135,9 @@ onMounted(() => {
     <!--     <pre>{{ data.data }}</pre>-->
     <div
         class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
-        <div class="col-span-2 w-full pb-4 border-b border-gray-300 overflow-x-auto whitespace-nowrap">
-            <Timeline :options="data.data.timeline" :slidesPerView="8" :state="data.data.state" />
-        </div>
+<!--        <div class="col-span-2 w-full pb-4 border-b border-gray-300 overflow-x-auto whitespace-nowrap">-->
+<!--            <Timeline :options="data.data.timeline" :slidesPerView="8" :state="data.data.state" />-->
+<!--        </div>-->
 
 
         <!-- Section: field data -->
@@ -178,12 +178,8 @@ onMounted(() => {
             <div class="border-gray-200 pt-4 border-t">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <Link v-if="blueprint.location.value.route?.name"
-                        :href="route(blueprint.location.value.route.name, blueprint.location.value.route.parameters)"
-                        class="primaryLink">
-                    {{ blueprint.location.value.resource.code }}
-                    </Link>
-                    <span v-else>{{ blueprint?.location?.value?.resource?.code }}</span>
+                  {{ blueprint?.location?.value?.code }}
+
                 </dd>
             </div>
 

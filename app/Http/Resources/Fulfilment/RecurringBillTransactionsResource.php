@@ -40,6 +40,7 @@ use Illuminate\Support\Carbon;
  * @property mixed $end_date
  * @property mixed $pallet_delivery_id
  * @property mixed $pallet_return_id
+ * @property mixed $fulfilment_transaction_id
  */
 class RecurringBillTransactionsResource extends JsonResource
 {
@@ -52,18 +53,20 @@ class RecurringBillTransactionsResource extends JsonResource
         // dump($this);
         if ($this->item_type == 'Pallet') {
             $pallet = Pallet::find($this->item_id);
-            $desc_title = $pallet->reference;
+            if ($pallet) {
+                $desc_title = $pallet->reference;
 
-            $desc_model = __('Storage');
-            $desc_route = [
-                'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                'parameters'    => [
-                    'organisation'         => $request->route()->originalParameters()['organisation'],
-                    'fulfilment'           => $request->route()->originalParameters()['fulfilment'],
-                    'fulfilmentCustomer'   => $pallet->fulfilmentCustomer->slug,
-                    'pallet'               => $pallet->slug
-                ]
-            ];
+                $desc_model = __('Storage');
+                $desc_route = [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                    'parameters' => [
+                        'organisation'       => $request->route()->originalParameters()['organisation'],
+                        'fulfilment'         => $request->route()->originalParameters()['fulfilment'],
+                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+                        'pallet'             => $pallet->slug
+                    ]
+                ];
+            }
 
         } elseif ($this->pallet_delivery_id) {
             $palletDelivery = PalletDelivery::find($this->pallet_delivery_id);
@@ -111,7 +114,7 @@ class RecurringBillTransactionsResource extends JsonResource
                     ]
                 ];
             }
-        };
+        }
 
         if ($this->start_date) {
             $desc_after_title .= Carbon::parse($this->start_date)->format('d M Y') . '-';
@@ -126,7 +129,7 @@ class RecurringBillTransactionsResource extends JsonResource
         $editType = null;
         if ($this->item_type == 'Service') {
             $service = Service::find($this->item_id);
-            $editType = $service->edit_type;
+            $editType = $service->edit_type ?? null;
         }
 
         return [
@@ -143,7 +146,10 @@ class RecurringBillTransactionsResource extends JsonResource
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
             'unit_label'         => $this->asset_unit,
-            'quantity'           => $this->quantity * $this->temporal_quantity,
+            'quantity'           => match ($this->item_type) {
+                'Pallet', 'Space' => $this->temporal_quantity,
+                default => $this->quantity
+            },
             'total'              => $this->net_amount,
             'discount'           => (int) $this->discount,
             'edit_type'          => $editType,

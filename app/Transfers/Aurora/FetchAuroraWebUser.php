@@ -8,6 +8,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,11 @@ class FetchAuroraWebUser extends FetchAurora
         $data = [];
 
         $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
+
+        if ($customer->shop->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
 
         if (!$customer) {
             return;

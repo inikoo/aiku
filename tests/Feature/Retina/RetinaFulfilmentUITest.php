@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -46,6 +47,7 @@ beforeEach(function () {
         LaunchWebsite::make()->action($this->website);
     }
     $this->customer = createCustomer($this->fulfilment->shop);
+    $this->customer->update(['status' => CustomerStatusEnum::APPROVED]);
 
     $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
     if (!$rentalAgreement) {
@@ -161,7 +163,7 @@ test('show dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.dashboard.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Dashboard/RetinaDashboard');
+        $page->component('Dashboard/RetinaFulfilmentDashboard');
     });
 });
 
@@ -186,8 +188,26 @@ test('show profile', function () {
     });
 });
 
+test('create rental agreement', function () {
+
+    $rentalAgreement = StoreRentalAgreement::make()->action(
+        $this->webUser->customer->fulfilmentCustomer,
+        [
+             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
+             'state'         => RentalAgreementStateEnum::ACTIVE,
+             'username'      => 'test',
+             'email'         => 'hello@aiku.io',
+         ]
+    );
+
+    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
+
+
+});
+
 test('index pallets', function () {
     actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
     $response = $this->get(route('retina.fulfilment.storage.pallets.index'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -492,7 +512,7 @@ test('index stored items', function () {
 });
 
 test('index stored item audits', function () {
-    // $this->withoutExceptionHandling();
+    $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.index'));
     $response->assertInertia(function (AssertableInertia $page) {

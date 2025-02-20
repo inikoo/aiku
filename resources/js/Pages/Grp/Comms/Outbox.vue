@@ -17,8 +17,10 @@ import { faInboxOut, faMailBulk, faRabbitFast } from "@fal";
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import OutboxShowcase from "@/Components/Showcases/Grp/OutboxShowcase.vue";
 import TableEmailBulkRuns from "@/Components/Tables/TableEmailBulkRuns.vue";
+import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
+import { faPaperPlane } from "@far"
 
-library.add(faInboxOut, faMailBulk, faRabbitFast);
+library.add(faInboxOut, faMailBulk, faRabbitFast, faPaperPlane);
 
 const props = defineProps<{
   title: string,
@@ -26,7 +28,8 @@ const props = defineProps<{
   tabs: TSTabs
   history: {}
   mailshots: {}
-  email_bulk_runs: {}
+  email_bulk_runs?: {}
+  dispatched_emails?: {}
   showcase: any
 }>();
 
@@ -40,7 +43,8 @@ const component = computed(() => {
     history: TableHistories,
     mailshots: TableMailshots,
     showcase: OutboxShowcase,
-    email_bulk_runs: TableEmailBulkRuns
+    // email_bulk_runs: TableEmailBulkRuns
+    dispatched_emails: TableDispatchedEmails
   };
 
   return components[currentTab.value];

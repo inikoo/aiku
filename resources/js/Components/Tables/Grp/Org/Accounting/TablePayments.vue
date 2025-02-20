@@ -15,23 +15,16 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheck, faSeedling, faTimes } from "@fal"
 
 library.add(faSeedling, faCheck, faTimes)
+const locale = useLocaleStore();
 
 defineProps<{
 	data: object
 	tab?: string
 }>()
 
-const locale = useLocaleStore()
-
 function paymentsRoute(payment: Payment) {
-	console.log(route().current())
-	switch (route().current()) {
-		case "grp.org.accounting.payments.index":
-			return route("grp.org.accounting.payments.show", [
-				route().params["organisation"],
-				payment.id,
-			])
-	}
+	return route(payment.route.name, payment.route.params )
+	
 }
 </script>
 
@@ -52,6 +45,9 @@ function paymentsRoute(payment: Payment) {
 		<template #cell(status)="{ item }">
 			<Icon :data="item.state_icon" class="" />
 		</template>
+		<template #cell(amount)="{ item: item }">
+            <div class="text-gray-500">{{ useLocaleStore().currencyFormat( item.currency_code, item.amount)  }}</div>
+        </template>
 		<template #cell(date)="{ item }">
 			<div class="text-gray-500 text-right">
 				{{

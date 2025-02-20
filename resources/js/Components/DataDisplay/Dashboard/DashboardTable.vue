@@ -37,9 +37,7 @@ function ShopDashboard(shop: any) {
 	return route(shop?.route?.name, shop?.route?.parameters)
 }
 
-function ShopInvoiceDashboard(shop: any) {
-	console.log(shop.route_invoice,'hahahahaha');
-	
+function ShopInvoiceDashboard(shop: any) {	
 	return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
 }
 
@@ -53,6 +51,7 @@ const selectedTab = computed(() => {
 	return props.dashboardTable.find((tab) => tab.tab_slug === activeIndexTab.value)
 })
 function useTabChangeDashboard(tab_slug: string) {
+
 	if (tab_slug === activeIndexTab.value) {
 		return
 	}
@@ -73,6 +72,7 @@ function useTabChangeDashboard(tab_slug: string) {
 <template>
 	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
 		<div class="">
+	
 			<Tabs :value="activeIndexTab">
 				<TabList>
 					<Tab
@@ -101,7 +101,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
-									<Link :href="ShopDashboard(data)" class="primaryLink">
+									<Link :href="ShopDashboard(data)" class="hover-underline">
 										{{ data.name }}
 									</Link>
 								</div>
@@ -119,7 +119,11 @@ function useTabChangeDashboard(tab_slug: string) {
 					</template>
 				</Column>
 				<!-- Refunds -->
-				<Column sortable headerClass="align-right">
+				<Column 
+				field="interval_percentages.refunds.amount"
+				sortField="interval_percentages.refunds.amount"
+				sortable 
+				headerClass="align-right">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Refunds</span>
@@ -129,7 +133,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
                                 <div :key="data?.refunds || 0">
-									<Link :href="ShopRefundDashboard(data)" class="primaryLink">
+									<Link :href="ShopRefundDashboard(data)" class="hover-underline">
 										{{
 											locale.number(
 												data?.interval_percentages?.refunds?.amount || 0
@@ -152,10 +156,10 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Refunds: Diff 1y -->
 				<Column
-					hidden
 					sortable
 					class="overflow-hidden transition-all"
-					headerClass="align-right">
+					headerClass="align-right"
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-semibold">
@@ -173,8 +177,8 @@ function useTabChangeDashboard(tab_slug: string) {
 							<Transition name="spin-to-down" mode="out-in">
 								<div
 									:key="`${data.interval_percentages?.refunds?.difference}_${data.interval_percentages?.refunds?.percentage}`"
-									style="display: flex; align-items: center">
-									<span style="font-size: 16px; font-weight: 500">
+									style=" align-items: center">
+									<span style="font-size: 16px; font-weight: 500" class="pr-1">
 										{{
 											data.interval_percentages?.refunds?.percentage
 												? `${
@@ -189,18 +193,23 @@ function useTabChangeDashboard(tab_slug: string) {
 										}}
 									</span>
 									<FontAwesomeIcon
-										v-if="data.interval_percentages?.refunds?.percentage"
-										:icon="
-											data.interval_percentages.refunds.percentage < 0
-												? 'fas fa-sort-down'
-												: 'fas fa-sort-up'
+										v-if="
+											data.interval_percentages?.invoices?.percentage
 										"
-										style="font-size: 20px; margin-top: 6px"
+										:icon="
+											data.interval_percentages.invoices?.percentage <
+											0
+												? 'fas fa-play'
+												: 'fas fa-play'
+										"
+										style="font-size: 16px"
 										:class="
-											data.interval_percentages.refunds.percentage < 0
-												? 'text-red-500'
-												: 'text-green-500'
+											data.interval_percentages.invoices?.percentage <
+											0
+												? 'text-[#ff6347] rotate-90'
+												: 'text-[#26a65b] rotate-[-90deg]'
 										" />
+									<div v-else style="width: 60px"></div>
 								</div>
 							</Transition>
 						</div>
@@ -209,7 +218,8 @@ function useTabChangeDashboard(tab_slug: string) {
 				<!-- Invoice -->
 				<Column
 					sortable
-					field="invoices"
+					field="interval_percentages.invoices.amount"
+					sortField="interval_percentages.invoices.amount"
 					class="overflow-hidden transition-all"
 					headerClass="align-right">
 					<template #header>
@@ -221,7 +231,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
-									<Link :href="ShopInvoiceDashboard(data)" class="primaryLink">
+									<Link :href="ShopInvoiceDashboard(data)" class="hover-underline" >
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
@@ -235,11 +245,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Invoice: Diff 1y -->
 				<Column
-					field="invoices_percentage"
+					field="interval_percentages.invoices.percentage"
+					sortField="interval_percentages.invoices.percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="width: 200px">
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">
@@ -259,8 +270,8 @@ function useTabChangeDashboard(tab_slug: string) {
 									<Transition name="spin-to-down" mode="out-in">
 										<div
 											:key="`${data.interval_percentages?.invoices?.difference}_${data.interval_percentages?.invoices?.percentage}`"
-											style="display: flex; align-items: center">
-											<span style="font-size: 16px; font-weight: 500">
+											style="align-items: center">
+											<span style="font-size: 16px; font-weight: 500" class="pr-1">
 												{{
 													data.interval_percentages?.invoices?.percentage
 														? `${
@@ -284,14 +295,14 @@ function useTabChangeDashboard(tab_slug: string) {
 														? 'fas fa-play'
 														: 'fas fa-play'
 												"
-												style="font-size: 20px"
+												style="font-size: 16px"
 												:class="
 													data.interval_percentages.invoices?.percentage <
 													0
-														? 'text-red-500 rotate-90'
-														: 'text-green-500 rotate-[-90deg]'
+														? 'text-[#ff6347] rotate-90'
+														: 'text-[#26a65b] rotate-[-90deg]'
 												" />
-											<div v-else style="width: 20px"></div>
+											<div v-else style="width: 60px"></div>
 										</div>
 									</Transition>
 								</div>
@@ -301,11 +312,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Sales -->
 				<Column
-					field="sales"
+					field="interval_percentages.sales.amount"
+					sortField="interval_percentages.sales.amount"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 250px">
+					>
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold">Sales</span>
@@ -336,11 +348,12 @@ function useTabChangeDashboard(tab_slug: string) {
 				</Column>
 				<!-- Sales: Diff 1y -->
 				<Column
-					field="sales_percentage"
+					field="interval_percentages.sales.percentage"
+					sortField="interval_percentages.sales.percentage"
 					sortable
 					class="overflow-hidden transition-all"
 					headerClass="align-right"
-					headerStyle="text-align: green; width: 270px">
+					headerStyle=" width: 140px">
 					<template #header>
 						<div class="flex justify-end items-end">
 							<span class="font-bold text-gray-700">
@@ -358,8 +371,8 @@ function useTabChangeDashboard(tab_slug: string) {
 							<Transition name="spin-to-down" mode="out-in">
 								<div
 									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
-									style="display: flex; align-items: center">
-									<span style="font-size: 16px; font-weight: 500">
+									style="align-items: center">
+									<span style="font-size: 16px; font-weight: 500" class="pr-1">
 										{{
 											data.interval_percentages?.sales?.percentage
 												? `${
@@ -380,13 +393,13 @@ function useTabChangeDashboard(tab_slug: string) {
 												? 'fas fa-play'
 												: 'fas fa-play'
 										"
-										style="font-size: 20px"
+										style="font-size: 16px"
 										:class="
 											data.interval_percentages.sales?.percentage < 0
 												? 'text-red-500 rotate-90'
 												: 'text-green-500 rotate-[-90deg]'
 										" />
-									<div v-else style="width: 20px"></div>
+									<div v-else style="width: 60px"></div>
 								</div>
 							</Transition>
 						</div>
@@ -399,13 +412,41 @@ function useTabChangeDashboard(tab_slug: string) {
 						<Column
 							:footer="totalAmount.total_refunds.toString()"
 							footerStyle="text-align:right" />
-						<Column hidden footer="" footerStyle="text-align:right" />
+						<Column footerStyle="text-align:right" >
+							<template #footer>
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_refunds_percentages ? 'pr-1' : 'pr-5'">
+									{{
+										totalAmount.total_refunds_percentages
+											? `${
+													totalAmount.total_refunds_percentages > 0
+														? "+"
+														: ""
+											  }${totalAmount.total_refunds_percentages.toFixed(2)}%`
+											: "0.0%"
+									}}
+								</span>
+								<FontAwesomeIcon
+									v-if="totalAmount.total_refunds_percentages"
+									:icon="
+										totalAmount.total_refunds_percentages < 0
+											? 'fas fa-play'
+											: 'fas fa-play'
+									"
+									style="font-size: 16px"
+									:class="
+										totalAmount.total_refunds_percentages < 0
+											? 'text-red-500 rotate-90'
+											: 'text-green-500 rotate-[-90deg]'
+									" />
+								<div v-else style="width: 60px"></div>
+							</template>
+						</Column>
 						<Column
 							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500">
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_invoices_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_invoices_percentages
 											? `${
@@ -423,13 +464,13 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'fas fa-play'
 											: 'fas fa-play'
 									"
-									style="font-size: 20px"
+									style="font-size: 16px"
 									:class="
 										totalAmount.total_invoices_percentages < 0
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 20px"></div>
+								<div v-else style="width: 60px"></div>
 							</template>
 						</Column>
 						<Column
@@ -447,9 +488,9 @@ function useTabChangeDashboard(tab_slug: string) {
 								)
 							"
 							footerStyle="text-align:right" />
-						<Column footerStyle="text-align:right">
+						<Column footerStyle="text-align:right ">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500">
+								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_sales_percentages
 											? `${
@@ -467,13 +508,13 @@ function useTabChangeDashboard(tab_slug: string) {
 											? 'fas fa-play'
 											: 'fas fa-play'
 									"
-									style="font-size: 20px"
+									style="font-size: 16px"
 									:class="
 										totalAmount.total_sales_percentages < 0
 											? 'text-red-500 rotate-90'
 											: 'text-green-500 rotate-[-90deg]'
 									" />
-								<div v-else style="width: 20px"></div>
+								<div v-else style="width: 60px;"></div>
 							</template>
 						</Column>
 					</Row>
@@ -484,4 +525,9 @@ function useTabChangeDashboard(tab_slug: string) {
 		</div>
 	</div>
 </template>
-<style scoped></style>
+<style scoped>
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+</style>

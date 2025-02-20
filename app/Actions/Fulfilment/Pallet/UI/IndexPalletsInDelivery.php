@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -29,7 +29,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInDelivery extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
 
     private PalletDelivery $palletDelivery;
 
@@ -72,7 +72,7 @@ class IndexPalletsInDelivery extends OrgAction
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
                 'locations.slug as location_slug',
-                'locations.slug as location_code',
+                'locations.code as location_code',
             );
 
 

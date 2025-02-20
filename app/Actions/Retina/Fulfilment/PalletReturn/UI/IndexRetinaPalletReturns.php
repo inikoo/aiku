@@ -72,9 +72,12 @@ class IndexRetinaPalletReturns extends RetinaAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), canBeHidden: false, type: 'icon')
+                ->column(key: 'created_at', label: __('Created at'), canBeHidden: false, type: 'date')
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'customer_reference', label: __('Your reference'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'customer', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
+                ->column(key: 'total_amount', label: __('total amount'), canBeHidden: false, sortable: false, searchable: false, type: 'currency');
         };
     }
 
@@ -86,32 +89,32 @@ class IndexRetinaPalletReturns extends RetinaAction
 
         $actions = [];
 
-        if (!app()->environment('production')) {
-            $actions = [
-                $fulfilmentCustomer->number_pallets_status_storing ? [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                    'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'retina.models.pallet-return.store',
-                        'parameters' => []
-                    ]
-                ] : false,
-                $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => __('Create new return (Selected SKUs)'),
-                    'label'   => __('Return (Selected SKUs)'),
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'retina.models.pallet-return-stored-items.store',
-                        'parameters' => []
-                    ]
-                ] : false,
-            ];
-        }
+        // if (!app()->environment('production')) {
+        $actions = [
+            $fulfilmentCustomer->number_pallets_status_storing ? [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                'label'   => $fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? __('Return (whole pallet)') : __('Return'),
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return.store',
+                    'parameters' => []
+                ]
+            ] : false,
+            $this->customer->fulfilmentCustomer->number_pallets_with_stored_items_state_storing ? [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create new return (Selected SKUs)'),
+                'label'   => __('Return (Selected SKUs)'),
+                'route'   => [
+                    'method'     => 'post',
+                    'name'       => 'retina.models.pallet-return-stored-items.store',
+                    'parameters' => []
+                ]
+            ] : false,
+        ];
+        // }
 
         return Inertia::render(
             'Storage/RetinaPalletReturns',
@@ -120,6 +123,7 @@ class IndexRetinaPalletReturns extends RetinaAction
                 'title'    => __('returns'),
                 'pageHead' => [
                     'title'     => __('returns'),
+                    'model'     => __('storage'),
                     'icon' => [
                         'icon'  => ['fal', 'fa-truck-ramp'],
                         'title' => __('return')

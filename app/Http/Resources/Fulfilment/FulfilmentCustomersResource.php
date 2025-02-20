@@ -49,12 +49,20 @@ class FulfilmentCustomersResource extends JsonResource
             'phone'                         => $this->phone,
             'status_label'                  => $this->status->labels()[$this->status->value],
             'status_icon'                   => $this->status->statusIcon()[$this->status->value],
+            'number_spaces_state_renting'                 => $this->number_spaces_state_renting,
+            'number_stored_items_state_active'                 => $this->number_stored_items_state_active,
             'number_pallets_status_storing' => $this->number_pallets_status_storing,
             'sales_all'                     => $this->sales_all,
             'sales_org_currency_all'        => $this->sales_org_currency_all,
             'sales_grp_currency_all'        => $this->sales_grp_currency_all,
             'currency_code'                 => $this->currency_code,
             'location'                      => $this->location,
+            'interest'                      => [
+                'pallets_storage' => $this->pallets_storage,
+                'items_storage'   => $this->items_storage,
+                'dropshipping'    => $this->dropshipping,
+                'space_rental'    => $this->space_rental,
+            ]
         ];
     }
 }

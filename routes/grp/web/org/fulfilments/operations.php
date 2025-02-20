@@ -7,8 +7,8 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
@@ -21,6 +21,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
@@ -66,7 +67,15 @@ Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pall
 Route::get('deliveries/{palletDelivery}/edit', EditPalletDelivery::class)->name('pallet-deliveries.edit');
 
 Route::get('returns', IndexPalletReturns::class)->name('pallet-returns.index');
+Route::get('returns/confirmed', [IndexPalletReturns::class, 'inFulfilmentConfirmed'])->name('pallet-returns.confirmed.index');
+Route::get('returns/picking', [IndexPalletReturns::class, 'inFulfilmentPicking'])->name('pallet-returns.picking.index');
+Route::get('returns/picked', [IndexPalletReturns::class, 'inFulfilmentPicked'])->name('pallet-returns.picked.index');
+Route::get('returns/dispatched', [IndexPalletReturns::class, 'inFulfilmentDispatched'])->name('pallet-returns.dispatched.index');
+Route::get('returns/cancelled', [IndexPalletReturns::class, 'inFulfilmentCancelled'])->name('pallet-returns.cancelled.index');
+Route::get('returns/new', [IndexPalletReturns::class, 'inFulfilmentNew'])->name('pallet-returns.new.index');
+
 Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-returns.show');
+Route::get('return-with-stored-items/{palletReturn}', ShowStoredItemReturn::class)->name('pallet-return-with-stored-items.show');
 
 Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');

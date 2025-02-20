@@ -179,6 +179,11 @@ class UpdateCustomer extends OrgAction
 
 
         if (!$this->strict) {
+
+            $rules['is_vip'] = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
+            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
+
             $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
             $rules['email']           = [
                 'sometimes',

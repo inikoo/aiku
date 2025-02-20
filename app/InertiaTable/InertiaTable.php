@@ -18,6 +18,7 @@ class InertiaTable
     private Collection $columns;
     private Collection $searchInputs;
     private Collection $elementGroups;
+    private Collection $radioFilter;
     private array $periodFilters;
     private Collection $filters;
     private string $defaultSort = '';
@@ -42,6 +43,7 @@ class InertiaTable
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
         $this->elementGroups   = new Collection();
+        $this->radioFilter     = new Collection();
         $this->filters         = new Collection();
         $this->modelOperations = new Collection();
         $this->exportLinks     = new Collection();
@@ -148,6 +150,7 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
+            'radioFilter'                     => $this->transformRadioFilter(),
             'period_filter'                   => $this->transformPeriodFilters(),
             'modelOperations'                 => $this->modelOperations,
             'exportLinks'                     => $this->exportLinks,
@@ -155,7 +158,7 @@ class InertiaTable
             'labelRecord'                     => $this->labelRecord,
             'title'                           => $this->title,
             'footerRows'                      => $this->footerRows,
-            'betweenDates'                    => $this->betweenDates
+            'betweenDates'                    => $this->betweenDates,
         ];
     }
 
@@ -221,6 +224,21 @@ class InertiaTable
         });
     }
 
+    protected function transformRadioFilter(): Collection
+    {
+        $radioFilter = $this->radioFilter;
+        $queryElements = $this->query('radioFilter', '');
+
+        if (empty($queryElements)) {
+            return $radioFilter;
+        }
+
+        return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
+            $elementRadioGroup->value = (string) $queryElements;
+
+            return $elementRadioGroup;
+        });
+    }
 
     protected function transformSearchInputs(): Collection
     {
@@ -239,6 +257,19 @@ class InertiaTable
         });
     }
 
+    public function radioFilterGroup(string $key, array $elements, string $default): self
+    {
+        $this->radioFilter->put(
+            $key,
+            new RadioFilterGroup(
+                key: $key,
+                options: $elements,
+                value: $default
+            )
+        );
+
+        return $this;
+    }
 
     public function elementGroup(string $key, array|string $label, array $elements): self
     {

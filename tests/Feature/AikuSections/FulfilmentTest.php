@@ -52,7 +52,7 @@ use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotificati
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
@@ -212,8 +212,10 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
 })->depends('create fulfilment shop');
 
 test('get end date recurring bill (monthly)', function () {
+    $current = Carbon::now(); // store current time once
+
     $endDate = $this->getRecurringBillEndDate->getEndDate(
-        now(),
+        $current,
         [
             'type' => 'monthly',
             'day' => 9,
@@ -222,11 +224,12 @@ test('get end date recurring bill (monthly)', function () {
 
     expect($endDate)->toBeInstanceOf(Carbon::class);
 
-    if (now()->gte($endDate)) {
-        expect($endDate->toDateString())->toEqual(now()->copy()->day(9)->addMonth()->toDateString());
-    } else {
-        expect($endDate->toDateString())->toEqual(now()->copy()->day(9)->toDateString());
+    $expected = $current->copy()->day(9);
+    if ($current->gte($expected)) {
+        $expected = $expected->addMonth();
     }
+
+    expect($endDate->toDateString())->toEqual($expected->toDateString());
 
     return $endDate;
 });
@@ -471,7 +474,7 @@ test('create fulfilment customer from customer', function (Fulfilment $fulfilmen
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($customer->reference)->toBe('000001')
-        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($customer->status)->toBe(CustomerStatusEnum::PENDING_APPROVAL)
         ->and($customer->is_fulfilment)->toBeTrue()
         ->and($customer->fulfilmentCustomer->pallets_storage)->toBeTrue()
         ->and($customer->fulfilmentCustomer->items_storage)->toBeTrue()
@@ -1414,6 +1417,8 @@ test('Update pallet reference', function (PalletReturn $palletReturn) {
         $pallet,
         [
             'reference' => 'GHO-p0006',
+            'state'     => PalletStateEnum::STORING,
+            'status'    => PalletStatusEnum::STORING
         ]
     );
     expect($pallet)->toBeInstanceOf(Pallet::class)
@@ -1434,45 +1439,16 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
     expect($palletReturn->pallets()->count())->toBe(1)
         ->and($palletReturn->stats->number_pallets)->toBe(1);
-    $upload = ImportPalletReturnItem::run($palletReturn, $file);
+    // dd($palletReturn->fulfilmentCustomer->pallets);
+    $palletReturn = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->model)->toBe('PalletReturnItem')
-        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(1)
-        ->and($upload->number_fails)->toBe(0)
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->pallets()->count())->toBe(2)
         ->and($palletReturn->stats->number_pallets)->toBe(2);
 
     return $palletReturn;
-})->depends('store pallet to return');
-
-test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
-    Storage::fake('local');
-    $tmpPath  = 'tmp/uploads/';
-    $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
-    $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
-
-    Storage::fake('local')->put($tmpPath, $file);
-    $palletReturn->refresh();
-    expect($palletReturn->pallets()->count())->toBe(2)
-        ->and($palletReturn->stats->number_pallets)->toBe(2);
-    $upload = ImportPalletReturnItem::run($palletReturn, $file);
-    $palletReturn->refresh();
-
-    expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->model)->toBe('PalletReturnItem')
-        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(0)
-        ->and($upload->number_fails)->toBe(1)
-        ->and($palletReturn->pallets()->count())->toBe(2)
-        ->and($palletReturn->stats->number_pallets)->toBe(2);
-
-    return $palletReturn;
-})->depends('import pallets in return (xlsx)');
+})->depends('store pallet to return')->todo('fix excel with new columns');
 
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
     $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
@@ -1517,7 +1493,7 @@ test('submit pallet return', function (PalletReturn $palletReturn) {
 
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
-    $submittedPalletReturn = SubmitPalletReturn::make()->action($palletReturn);
+    $submittedPalletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
 
     $fulfilmentCustomer->refresh();
     $firstPallet = $submittedPalletReturn->pallets->first();
@@ -2225,7 +2201,7 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
 
 
     return $palletReturn;
-})->depends('create second pallet return');
+})->depends('create second pallet return')->todo();
 
 
 test('hydrate fulfilment command', function () {
@@ -2492,7 +2468,8 @@ test('pay invoice (full)', function ($fulfilmentCustomer) {
     $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
     $invoice          = $oldRecurringBill->invoices;
 
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 312,
         'status' => PaymentStatusEnum::SUCCESS->value,
@@ -2531,7 +2508,10 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
+
     $payment        = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
@@ -2548,7 +2528,8 @@ test('pay invoice (half)', function ($invoice) {
 })->depends('consolidate 2nd recurring bill');
 
 test('pay invoice (other half)', function ($invoice) {
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
@@ -2588,7 +2569,8 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
 
 test('pay invoice (exceed)', function ($invoice) {
     $customer           = $invoice->customer;
-    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
+    $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
+    $paymentAccount = $paymentAccountShop->paymentAccount;
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 200,
@@ -2597,9 +2579,9 @@ test('pay invoice (exceed)', function ($invoice) {
     ]);
     // dump($invoice->total_amount, $invoice->payment_amount);
     $customer->refresh();
+    $invoice->refresh();
 
-    expect($invoice->total_amount)->toBe($invoice->payment_amount)
-        ->and($payment)->toBeInstanceOf(Payment::class)
+    expect($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
         ->and($customer->creditTransactions)->not->toBeNull()

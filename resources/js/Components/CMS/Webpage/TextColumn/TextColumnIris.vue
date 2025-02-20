@@ -2,6 +2,7 @@
 import { faCube, faStar, faImage } from "@fas"
 import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { getStyles } from "@/Composables/styles";
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -73,7 +74,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-    <div class="flex flex-wrap">
+    <div class="flex flex-wrap" :style="getStyles(fieldValue?.container?.properties)">
         <div v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
             :key="`${index}-${fieldValue?.value?.images?.[index - 1]}`"
             class="group relative p-2 hover:bg-white/40"

@@ -48,11 +48,11 @@ class IndexOrgAgents extends OrgAction
 
         return $queryBuilder
             ->defaultSort('organisations.code')
-            ->select(['organisations.code','organisations.name', 'org_agents.slug', 'organisations.location', 'number_org_suppliers', 'number_purchase_orders', 'number_org_supplier_products'])
+            ->select(['organisations.code','organisations.name', 'org_agents.slug', 'organisations.location', 'number_org_suppliers', 'number_stock_deliveries', 'number_purchase_orders', 'number_org_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
             ->leftJoin('organisations', 'organisations.id', 'agents.organisation_id')
             ->leftJoin('org_agent_stats', 'org_agent_stats.org_agent_id', 'org_agents.id')
-            ->allowedSorts(['code', 'name', 'number_purchase_orders', 'number_org_suppliers', 'number_org_supplier_products' ])
+            ->allowedSorts(['code', 'name', 'number_purchase_orders', 'number_org_suppliers', 'number_stock_deliveries', 'number_org_supplier_products' ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -78,10 +78,11 @@ class IndexOrgAgents extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'number_org_supplier_products', label: __('supplier products'), shortLabel: 'SP', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), shortLabel: 'PO', canBeHidden: false, sortable: true, searchable: true)
 
                 ->column(key: 'number_org_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_org_supplier_products', label: __('supplier products'), shortLabel: 'SP', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_stock_deliveries', label: __('delivery stocks'), shortLabel: 'DS', canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

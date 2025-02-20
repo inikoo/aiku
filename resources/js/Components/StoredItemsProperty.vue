@@ -24,6 +24,11 @@ const props = defineProps<{
 	}
     editable?: boolean
     title?: string
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
+    sendToServerOptions?: {
+        preserveScroll?: boolean
+        preserveState?: boolean
+    }
 }>()
 
 const emits = defineEmits<{
@@ -55,6 +60,7 @@ const onDelete = (data : { id : ''}) => {
 const sendToServer = async (data : {}, replaceData?: boolean) => {
     // console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
     router.post(route(props.saveRoute.name, props.saveRoute.parameters), replaceData ? data : { stored_item_ids: data }, {
+        ...props.sendToServerOptions,
         onError: (e) => {
             form.errors = {
                 id: get(e, [`stored_item_ids`])
@@ -119,6 +125,7 @@ const sendToServer = async (data : {}, replaceData?: boolean) => {
                         :stored_items="pallet.stored_items"
                         @closeModal="isModalOpen = false"
                         :title
+                        :prefixQuery
                     />
                 </div>
             </slot>

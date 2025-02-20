@@ -25,7 +25,7 @@ class WebpageResource extends JsonResource
             'id'                  => $webpage->id,
             'slug'                => $webpage->slug,
             'level'               => $webpage->level,
-            'domain'              => $webpage->website->domain,
+            'domain'              => $webpage->website->domain ?? null,
             'code'                => $webpage->code,
             'url'                 => $webpage->url,
             'type'                => $webpage->type,

@@ -8,12 +8,14 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
+use App\Actions\Fulfilment\StoredItem\Hydrators\StoreItemHydratePallets;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,6 +32,7 @@ class SyncStoredItemToPallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): void
     {
+        //todo do this in rules!!!
         Arr::map(Arr::get($modelData, 'stored_item_ids'), function (array $item, int|string $key) {
             if ($key == 'null') {
                 throw ValidationException::withMessages(['stored_item_ids' => __('The stored item is required')]);
@@ -37,6 +40,15 @@ class SyncStoredItemToPallet extends OrgAction
         });
 
         $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
+
+        PalletHydrateStoredItems::dispatch($pallet);
+        // dd(Arr::get($modelData, 'stored_item_ids'));
+        foreach (Arr::get($modelData, 'stored_item_ids') as $storedItemId => $storedItemData) {
+            $storedItem = StoredItem::find($storedItemId);
+            StoreItemHydratePallets::dispatch($storedItem);
+        }
+
+
     }
 
     public function authorize(ActionRequest $request): bool
@@ -45,10 +57,6 @@ class SyncStoredItemToPallet extends OrgAction
             return true;
         }
 
-        if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
-            return true;
-        }
 
         return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }

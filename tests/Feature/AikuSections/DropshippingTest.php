@@ -274,7 +274,7 @@ test('get dropshipping access token', function () {
 
 
 test('UI Index customer clients', function () {
-
+    $this->withoutExceptionHandling();
     $customer = Customer::first();
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$this->organisation->slug, $this->shop->slug, $customer->slug]));
 

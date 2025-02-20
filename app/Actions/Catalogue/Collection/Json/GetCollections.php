@@ -9,7 +9,7 @@
 namespace App\Actions\Catalogue\Collection\Json;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetCollections extends OrgAction
 {
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private Shop $parent;
 

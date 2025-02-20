@@ -1,5 +1,6 @@
 <?php
 
+use App\Listeners\PrepareViteForNextOperation;
 use Laravel\Octane\Contracts\OperationTerminated;
 use Laravel\Octane\Events\RequestHandled;
 use Laravel\Octane\Events\RequestReceived;
@@ -73,6 +74,7 @@ return [
         RequestReceived::class => [
             ...Octane::prepareApplicationForNextOperation(),
             ...Octane::prepareApplicationForNextRequest(),
+            PrepareViteForNextOperation::class,
             //
         ],
 
@@ -220,5 +222,9 @@ return [
     */
 
     'max_execution_time' => 300,
+
+    'roadrunner' => [
+        'command' => env('OCTANE_ROADRUNNER_WORKER_PATH', base_path('vendor/bin/roadrunner-worker')),
+    ]
 
 ];

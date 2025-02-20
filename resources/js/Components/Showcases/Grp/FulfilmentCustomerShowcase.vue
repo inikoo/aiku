@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
@@ -20,6 +20,7 @@ import Tag from '@/Components/Tag.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import Dialog from 'primevue/dialog';
 import { get } from 'lodash'
+import ButtonPrimeVue from 'primevue/button';
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -33,8 +34,10 @@ import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import CustomerDataForm from '@/Components/CustomerDataForm.vue'
 import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
-import { faCheckCircle, faTimesCircle } from '@fas'
-library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
+import { faCheck, faTimes } from '@fas'
+import ModalRejected from '@/Components/Utils/ModalRejected.vue'
+import { id } from 'date-fns/locale';
+library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck)
 
 const props = defineProps<{
     data: {
@@ -111,7 +114,10 @@ const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 
 // Tabs radio: v-model
-const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
+// const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
+const radioValue = computed(() => {
+    return Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key])
+})
 
 // Tabs radio: options
 const optionRadio = [
@@ -145,12 +151,21 @@ const sendUpdateInformation = () => {
     })
 }
 
+const isModalUploadOpen = ref(false)
+const customerID = ref()
+const customerName = ref()
+
+function openRejectedModal(customer: any) {
+    customerID.value = customer.id
+    customerName.value = customer.name
+    isModalUploadOpen.value = true
+}
+
 </script>
 
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
-
         <div class="space-y-3">
             <!-- Section: Radio -->
             <div class="space-y-3 relative w-full max-w-[500px]">
@@ -248,32 +263,33 @@ const sendUpdateInformation = () => {
                         </div>
                     </div>
                 </div>
-                <!-- </Transition> -->
-                <div class="col-span-2 grid">
+
+                <!-- Information -->
+                <div v-if="get(data, ['additional_data', 'product'], false) || get(data, ['additional_data', 'size_and_weight'], false) || get(data, ['additional_data', 'shipments_per_week'], false)" class="col-span-2 grid">
                     <div class="w-full">
                         <div class="rounded-lg shadow-lg ring-1 ring-gray-300 bg-white p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-xl font-semibold text-gray-900">Information</h2>
-                                <Button label="edit" size="xs" @click="visible = true" />
+                                <!-- <Button label="edit" size="xs" @click="visible = true" /> -->
                             </div>
                             <div
                                 class="relative px-5 py-2 ring-1 ring-gray-300 rounded-lg bg-gray-50 shadow-sm space-y-2">
                                 <!-- Field: Product -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Product:</strong> {{
-                                        get(data, ["additional_data", "product"], " - ") }}
+                                        get(data, ["additional_data", "product"], false) }}
                                 </div>
 
                                 <!-- Field: Size and Weight -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Size & Weight:</strong> {{
-                                        get(data, ['additional_data', 'size_and_weight'], " - ") }}
+                                        get(data, ['additional_data', 'size_and_weight'], false) }}
                                 </div>
 
                                 <!-- Field: Shipments Per Week -->
                                 <div class="text-gray-600">
                                     <strong class="text-gray-500">Shipments Per Week:</strong> {{
-                                        get(data, ['additional_data', 'shipments_per_week'], " - ") }}
+                                        get(data, ['additional_data', 'shipments_per_week'], false) }}
                                 </div>
                             </div>
                         </div>
@@ -294,7 +310,7 @@ const sendUpdateInformation = () => {
         </div>
 
         <!-- Section: Radiobox, Recurring bills balance, Rental agreement-->
-        <div v-if="data.status != 'pending_approval'" class="w-full max-w-lg space-y-4 justify-self-end">
+        <div v-if="data.status == 'approved'" class="w-full max-w-lg space-y-4 justify-self-end">
             <div v-if="data.balance.current > 0"
                 class="bg-indigo-50 border border-indigo-300 text-gray-700 flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
                 <div class="w-full flex justify-between items-center">
@@ -336,7 +352,7 @@ const sendUpdateInformation = () => {
                     <div class="pl-2 leading-none text-lg" :style="{
                         borderLeft: `4px solid ${layout.app.theme[0]}`
                     }">
-                        <div class="block text-lg font-semibold">Recurring Bills</div>
+                        <div class="block text-lg font-semibold">{{ trans("Current Bill") }}</div>
                         <div class="text-sm flex items-center gap-x-1">
                             {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0)
                             }}
@@ -346,7 +362,7 @@ const sendUpdateInformation = () => {
                     <!-- State Date & End Date -->
                     <div class="pl-1 mt-4 w-80 lg:w-96 grid grid-cols-9 gap-x-3">
                         <div class="col-span-4 text-sm">
-                            <div class="text-gray-400">Start date</div>
+                            <div class="text-gray-400">{{ trans("Start date") }}</div>
                             <div class="font-medium">{{ useFormatTime(data.recurring_bill.start_date) }}</div>
                         </div>
 
@@ -356,14 +372,14 @@ const sendUpdateInformation = () => {
                         </div>
 
                         <div class="col-span-4 text-sm">
-                            <div class="text-gray-400">End date</div>
+                            <div class="text-gray-400">{{ trans("End date") }}</div>
                             <div class="font-medium">{{ useFormatTime(data.recurring_bill.end_date) }}</div>
                         </div>
                     </div>
 
                     <div class="pl-1 mt-6 w-full flex items-end justify-between">
                         <div class="flex h-fit">
-                            <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
+                            <!-- <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
                                 <template #label>
                                     <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'"
                                         icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width
@@ -371,7 +387,7 @@ const sendUpdateInformation = () => {
                                     <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' :
                                         'Past' }}</span>
                                 </template>
-                            </Tag>
+                            </Tag> -->
                         </div>
 
                         <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"
@@ -428,25 +444,33 @@ const sendUpdateInformation = () => {
             </div>
         </div>
 
-        <div v-if="data.status === 'pending_approval'" class="w-full max-w-lg justify-self-end">
+        <div v-if="data.status === 'pending_approval'" class="w-full max-w-md justify-self-end">
             <div class="p-5 border rounded-lg shadow-md bg-white">
                 <div class="flex flex-col items-center text-center gap-2">
                     <h3 class="text-lg font-semibold text-gray-800">Pending Application</h3>
                     <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
                 </div>
 
-                <div class="mt-5 flex flex-col gap-3">
+                <div class="mt-5 flex justify-center gap-3">
                     <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
                         :data="{ status: 'approved' }">
-                    <Button label="Approve Application" :icon="faCheckCircle" full>
-                    </Button>
+                        <ButtonPrimeVue class="fixed-width-btn" severity="success"  size="small" variant="outlined" >
+                            <FontAwesomeIcon  :icon="faCheck" @click="visible = false" />
+                            <span>
+                                Approve
+                            </span>
+                        </ButtonPrimeVue>
+                    
                     </Link>
 
-                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
-                        :data="{ status: 'rejected' }">
-                    <Button label="Reject Application" type="dashed" :icon="faTimesCircle" severity="danger" full>
-                    </Button>
-                    </Link>
+                    <ButtonPrimeVue class="fixed-width-btn" severity="danger" size="small" variant="outlined"  @click="() => openRejectedModal(data.fulfilment_customer.customer)" >
+                        <FontAwesomeIcon  :icon="faTimes" @click="visible = false" />
+                        <span>
+                            Reject
+                        </span>
+                    </ButtonPrimeVue>
+               
+                   
                 </div>
             </div>
         </div>
@@ -464,4 +488,10 @@ const sendUpdateInformation = () => {
             <!--     </Link> -->
         </div>
     </Dialog>
+
+    <ModalRejected
+        v-model="isModalUploadOpen"
+        :customerID="customerID"
+        :customerName="customerName"
+    />
 </template>

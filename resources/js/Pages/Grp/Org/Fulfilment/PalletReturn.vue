@@ -26,9 +26,9 @@ import Tag from "@/Components/Tag.vue"
 import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
-
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 import { trans } from "laravel-vue-i18n"
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
+import TableStoredItemReturnStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import { get } from "lodash"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
@@ -39,14 +39,16 @@ import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 import { notify } from "@kyvg/vue3-notification"
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
-
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
+import { Table as TableTS } from '@/types/Table'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
+import { faIdCardAlt, faUser, faPaperclip, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
+library.add(faIdCardAlt, faUser, faPaperclip, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal, faUndo )
 
 const props = defineProps<{
     title: string
@@ -56,6 +58,11 @@ const props = defineProps<{
     services?: {}
     service_list_route: routeType
     physical_goods?: {}
+    attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     physical_good_list_route: routeType
     data: {
         data: PalletReturn
@@ -72,21 +79,20 @@ const props = defineProps<{
     
     upload_spreadsheet: UploadPallet
     can_edit_transactions: boolean,
-    palletRoute: {
-        index: routeType
-        store: routeType
-    }
-    storedItemRoute: {
-        index: routeType
-        store: routeType
-    }
     box_stats: BoxStats
     notes_data: PDRNotes[]
     route_check_stored_items : routeType
     routeStorePallet : routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
+    stored_items_count?: number
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
+const xstored_items_count = ref(props.stored_items_count || 0)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -104,10 +110,11 @@ const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_
 const component = computed(() => {
     const components: Component = {
         pallets: TablePalletReturnPallets,
-        stored_items: TableStoredItems,
+        stored_items: TableStoredItemReturnStoredItems,
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
         history: TableHistories,
+        attachments: TableAttachments
     }
     return components[currentTab.value]
 })
@@ -217,6 +224,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     )
 }
 
+const isModalUploadFileOpen = ref(false)
 
 </script>
 
@@ -237,6 +245,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    isWithMessage
                 >
                     <template #default="{ isOpenModal, changeModel }">
 
@@ -433,6 +442,30 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             </div>
        
         </template>
+
+        <template #button-submit-stored-items="{ action }">
+            <ButtonWithLink
+                :routeTarget="action.route"
+                :label="`${trans('Submit')} (${xstored_items_count})`"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :style="action.style"
+                :tooltip="xstored_items_count ? '' : action.tooltip"
+                :disabled="
+                    !xstored_items_count  // Need to improve
+                "   
+            />
+        </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
 
     <!-- Section: Note -->
@@ -457,38 +490,21 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :tab="currentTab" 
         :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
-    />
+        :palletReturn="data?.data"
+        :detachRoute="attachmentRoutes.detachRoute"
+        @isStoredItemAdded="(e: boolean) => (console.log(e), e ? xstored_items_count++ : xstored_items_count--)"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
-    <!-- Modal: Add Pallet -->
-    <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="">
-            <TablePalletReturn
-				:dataRoute="palletRoute.index"
-                :saveRoute="palletRoute.store"
-				@onClose="() => openModal = false"
-				:descriptor="palletReturnDescriptor"
-			>
-                <template #column-stored_items="{data}">
-                    <div class="flex gap-x-1 flex-wrap">
-                        <template v-if="data.columnData.stored_items.length">
-                            <Tag v-for="item of data.columnData.stored_items"
-                                :label="`${item.reference} (${item.quantity})`"
-                                :closeButton="false"
-                                :stringToColor="true">
-                                <template #label>
-                                    <div class="whitespace-nowrap text-xs">
-                                        {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                                    </div>
-                                </template>
-                            </Tag>
-                        </template>
-                        <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
-                    </div>
-                </template>
-
-            </TablePalletReturn>
-        </div>
-    </Modal>
 
     <UploadExcel
         v-model="isModalUploadOpen"
@@ -500,5 +516,17 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
+
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
     />
 </template>

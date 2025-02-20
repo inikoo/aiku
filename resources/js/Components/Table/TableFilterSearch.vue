@@ -32,8 +32,13 @@ const querySearch = ref(props.value)
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
-        document.addEventListener('keydown', (e) => e.key == '/' ? document.getElementById("tableinput")?.focus() : false)
-        document.addEventListener('keydown', (e) => e.key == 'Escape' ? document.getElementById("tableinput")?.blur() : false)
+        // document.addEventListener('keydown', (e) => e.key == '/' ? document.getElementById("tableinput")?.focus() : false)
+        document.addEventListener('keydown', (e) => {
+            if (e.key == '/' && e.altKey) {
+                document.getElementById("tableinput")?.focus();
+            }
+        });
+        document.addEventListener('keydown', (e) => e.key == 'Escape' ? document.getElementById("tableinput")?.blur() : false);
     }
 })
 

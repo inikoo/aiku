@@ -9,7 +9,8 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
+use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -26,6 +27,7 @@ use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -49,12 +51,15 @@ class IndexInvoices extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
+    use WithInvoiceCategorySubNavigation;
 
-    private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
+
+    private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop $parent;
     private string $bucket = '';
 
-    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereWith('invoices.reference', $value);
@@ -93,6 +98,8 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.order_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('invoices.group_id', $parent->id);
+        } elseif ($parent instanceof InvoiceCategory) {
+            $queryBuilder->where('invoices.invoice_category_id', $parent->id);
         } else {
             abort(422);
         }
@@ -142,7 +149,7 @@ class IndexInvoices extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -163,6 +170,9 @@ class IndexInvoices extends OrgAction
             } elseif ($parent instanceof Group) {
                 $stats     = $parent->orderingStats;
                 $noResults = __("This group hasn't been invoiced");
+            } elseif ($parent instanceof InvoiceCategory) {
+                $stats     = $parent->stats;
+                $noResults = __("This invoice category hasn't been invoiced");
             } else {
                 $stats = $parent->salesStats;
             }
@@ -226,6 +236,8 @@ class IndexInvoices extends OrgAction
             );
         } elseif ($this->parent instanceof Group) {
             return $request->user()->authTo("group-overview");
+        } elseif ($this->parent instanceof InvoiceCategory) {
+            return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         }
 
         return false;
@@ -252,6 +264,8 @@ class IndexInvoices extends OrgAction
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Shop || $this->parent instanceof Fulfilment || $this->parent instanceof Organisation) {
             $subNavigation = $this->getInvoicesNavigation($this->parent);
+        } elseif ($this->parent instanceof InvoiceCategory) {
+            $subNavigation = $this->getInvoiceCategoryNavigation($this->parent);
         }
 
 
@@ -274,7 +288,6 @@ class IndexInvoices extends OrgAction
                 'icon' => 'fal fa-file-invoice-dollar',
             ];
             $afterTitle = [
-
                 'label' => __('invoices')
             ];
         } elseif ($this->parent instanceof CustomerClient) {
@@ -298,6 +311,14 @@ class IndexInvoices extends OrgAction
             $icon       = [
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
+            ];
+        } elseif ($this->parent instanceof InvoiceCategory) {
+            $iconRight  = null;
+            $model = __('Invoices');
+            $title      = $this->parent->name;
+            $icon       = [
+                'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                'title' => __('invoice category')
             ];
         }
 
@@ -441,6 +462,14 @@ class IndexInvoices extends OrgAction
         $this->initialisationFromGroup(group(), $request);
 
         return $this->handle(group());
+    }
+
+    public function inInvoiceCategory(Organisation $organisation, InvoiceCategory $invoiceCategory, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $invoiceCategory;
+        $this->initialisation($invoiceCategory->organisation, $request)->withTab(InvoicesTabsEnum::values());
+
+        return $this->handle($invoiceCategory, InvoicesTabsEnum::INVOICES->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -614,6 +643,16 @@ class IndexInvoices extends OrgAction
                         'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index',
                         'parameters' => $routeParameters
                     ]
+                )
+            ),
+            'grp.org.accounting.invoice-categories.show.invoices.index' =>
+            array_merge(
+                ShowInvoiceCategory::make()->getBreadcrumbs($this->parent, $routeName, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
                 )
             ),
 

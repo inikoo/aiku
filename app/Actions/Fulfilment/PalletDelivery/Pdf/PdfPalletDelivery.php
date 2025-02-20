@@ -54,6 +54,7 @@ class PdfPalletDelivery
         $filename = 'pallet-delivery-' . $palletDelivery->slug . '.pdf';
 
         $pdf = $this->handle($palletDelivery);
+
         return $pdf->stream($filename);
 
     }

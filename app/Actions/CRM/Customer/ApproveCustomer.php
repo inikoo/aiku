@@ -9,43 +9,46 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
+use App\Actions\Comms\Email\SendCustomerApprovedEmail;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\CRM\Customer;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class ApproveCustomer extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Customer $customer, array $modelData): Customer
+    public function handle(Customer $customer): Customer
     {
-        $customer = $this->update($customer, $modelData);
-        ShopHydrateCrmStats::run($customer->shop);
+        $customer = $this->update($customer, [
+            'status' => CustomerStatusEnum::APPROVED,
+            'approved_at' => now()
+        ]);
+
+        SendCustomerApprovedEmail::dispatch($customer);
+
+        if ($customer->fulfilmentCustomer) {
+            FulfilmentHydrateCustomers::dispatch($customer->fulfilmentCustomer->fulfilment);
+        }
+
+        ShopHydrateCrmStats::dispatch($customer->shop);
         return $customer;
     }
-
-    public function rules(): array
-    {
-        return [
-            'status' => ['required', 'string', Rule::enum(CustomerStatusEnum::class)],
-        ];
-    }
-
 
     public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $this->initialisation($customer->organisation, $request);
 
-        return $this->handle($customer, $this->validatedData);
+        return $this->handle($customer);
     }
 
     public function action(Customer $customer, array $modelData): Customer
     {
         $this->initialisation($customer->organisation, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
+        return $this->handle($customer);
     }
 }

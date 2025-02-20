@@ -6,9 +6,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\UI\CreateRefund;
+use App\Actions\Accounting\Invoice\UI\DeleteRefund;
 use App\Actions\Accounting\InvoiceTransaction\StoreRefundInvoiceTransaction;
-use App\Actions\Accounting\Refund\UI\CreateRefund;
-use App\Actions\Accounting\Refund\UI\DeleteRefund;
 use Illuminate\Support\Facades\Route;
 
 Route::post(

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import Tag from '@/Components/Tag.vue'
@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from "laravel-vue-i18n"
 import LoadingIcon from "./Utils/LoadingIcon.vue"
 import LoadingText from "./Utils/LoadingText.vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 library.add(faChevronDown)
 
@@ -40,6 +41,9 @@ const props = withDefaults(defineProps<{
     isSelected?: Function
     loadingCaret?:boolean
     disabled?: boolean
+    noFetchOnMounted?: boolean
+    prefixQuery?: string   // from filter[global] to stored_items_filter[global]
+    initOptions?: {}[]
 }>(), {
     required: false,
     placeholder: 'select',
@@ -67,8 +71,10 @@ const emits = defineEmits<{
     (e: 'filerOption', value : String): void
 }>()
 
+const layout = inject('layout', layoutStructure)
+
 let timeoutId: any
-const optionData = ref([])
+const optionData = ref(props.initOptions || [])
 const q = ref('')
 const page = ref(1)
 const loading = ref(false)
@@ -78,12 +84,13 @@ const lastPage = ref(2)
 
 // Method: retrieve locations list
 const getOptions = async () => {
+    const filterQuery = props.prefixQuery ? `${props.prefixQuery}_filter[global]` : 'filter[global]'
     console.log(props.urlRoute)
     loading.value = true
     try {
         const response = await axios.get(props.urlRoute, {
             params: {
-                [`filter[global]`]: q.value,
+                [filterQuery]: q.value,
                 page: page.value,
                   
             }
@@ -112,7 +119,7 @@ const onGetOptionsSuccess = async (response) => {
 
 
 const SearchChange = (value: any) => {
-    if(value === '') return // ==========================
+    if(value === null) return // ==========================
     q.value = value
     page.value = 1
     clearTimeout(timeoutId)
@@ -160,7 +167,11 @@ onMounted(() => {
     if (dropdown) {
         dropdown.addEventListener('scroll', onScrollMultiselect)
     }
-    getOptions()
+
+    if (props.noFetchOnMounted) {
+    } else {
+        getOptions()
+    }
 
 })
 
@@ -212,7 +223,7 @@ defineExpose({
         @change="((e)=>{props.onChange(e), getOptions()})"
         :closeOnDeselect="closeOnDeselect"
         :isSelected="isSelected"
-        :loading="loadingCaret"
+        :loading="loadingCaret || loading"
     >
         
         <template #tag="{ option, handleTagRemove, disabled }">

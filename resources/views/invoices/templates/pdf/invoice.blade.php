@@ -22,6 +22,7 @@
             background-color ...
             background-gradient: ... */
         }
+
         body {
             font-family: sans-serif;
             font-size: 10pt;
@@ -232,7 +233,7 @@
 
         <td style="text-align:left">{{ __('Qty') }}</td>
 
-        <td style="width:10%;text-align:right">{{ __('Amount') }}</td>
+        <td style="width:14%;text-align:right">{{ __('Amount') }}</td>
     </tr>
     </thead>
     <tbody>
@@ -306,7 +307,7 @@
         <td style="text-align:right">{{ __('Date') }}</td>
         <td style="text-align:left">{{ __('Status') }}</td>
         <td style="text-align:left">{{ __('Reference') }}</td>
-        <td style="text-align:right">{{ __('Amount') }}</td>
+        <td style="text-align:right; width:14%;">{{ __('Amount') }}</td>
     </tr>
 
     <tbody>
@@ -352,7 +353,7 @@
                 </small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
-                {{ __('Page') }} 1 {{ __('of') }} 1
+                {{ __('Page') }} {PAGENO} {{ __('of') }} {nbpg}
             </td>
             <td width="34%" style="text-align: right;">
                 <small>{{$shop->phone}}<br>

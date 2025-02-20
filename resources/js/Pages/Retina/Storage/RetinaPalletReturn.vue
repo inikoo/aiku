@@ -20,8 +20,9 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Action } from '@/types/Action'
 import { BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
-
-
+import { Table as TableTS } from '@/types/Table'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
 import '@/Composables/Icon/PalletReturnStateEnum'
 import '@/Composables/Icon/Pallet/PalletType'
 
@@ -39,10 +40,10 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
-import { faStickyNote, faConciergeBell, faCube } from '@fal'
+import { faStickyNote, faPaperclip, faConciergeBell, faCube } from '@fal'
 import { faNarwhal } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird, faStickyNote)
+library.add(faCube, faConciergeBell, faPaperclip, faNarwhal, faSpinnerThird, faStickyNote)
 
 // import '@/Composables/Icon/PalletStateEnum.ts'
 // import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
@@ -54,6 +55,8 @@ import { notify } from "@kyvg/vue3-notification"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
+import ModalAddPalletReturn from "@/Components/Segmented/ModalAddPalletReturn.vue"
+import Modal from "@/Components/Utils/Modal.vue"
 
 const props = defineProps<{
 	title: string
@@ -61,7 +64,11 @@ const props = defineProps<{
 	data?: {}
 	history?: {}
 	pageHead: PageHeadingTypes
-    
+    attachments?: TableTS
+    attachmentRoutes: {
+        attachRoute: routeType
+        detachRoute: routeType
+    }
     interest: {
         pallets_storage: boolean
         items_storage: boolean
@@ -95,10 +102,14 @@ const props = defineProps<{
     stored_items_add_route : routeType
     routeStorePallet : routeType
     route_check_stored_items : routeType
+
+    option_attach_file?: {
+		name: string
+		code: string
+	}[]
+    pallets_route: routeType
 }>()
 
-// console.log('box stats', props.box_stats)
-// console.log('notes data', props.notes_data)
 
 
 const layout = inject('layout', layoutStructure)
@@ -122,6 +133,7 @@ const component = computed(() => {
         services: TableFulfilmentTransactions,
         physical_goods: TableFulfilmentTransactions,
 		history: TableHistories,
+        attachments: TableAttachments
 	}
 	return components[currentTab.value]
 })
@@ -227,6 +239,12 @@ watch(
 
 // Method: open modal Upload
 const isModalUploadOpen = ref(false)
+
+const isModalUploadFileOpen = ref(false)
+
+
+// Section: add pallet
+const openModalAddPallet = ref(false)
 </script>
 
 <template>
@@ -258,6 +276,10 @@ const isModalUploadOpen = ref(false)
                 <ModalConfirmationDelete
                     :routeDelete="action.route"
                     isFullLoading
+                    :title="action.title"
+                    :isWithMessage="action.ask_why"
+                    :whyLabel="action.why_label"
+                    :description="action.description"
                 >
                     <template #default="{ isOpenModal, changeModel }">
                         <Button
@@ -278,6 +300,21 @@ const isModalUploadOpen = ref(false)
         <template #button-upload="{ action }">
             <Button v-if="currentTab === 'pallets' || currentTab === 'stored_items'" @click="() => isModalUploadOpen = true"
                 :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
+            />
+            <div v-else></div>
+        </template>
+
+        <!-- Button: Upload -->
+        <template #button-modal-add-pallet="{ action }">
+            
+            <Button
+                v-if="currentTab == 'pallets'"
+                :label="trans('Add pallet')"
+                type="secondary"
+                icon="fal fa-plus"
+                :tooltip="'action.tooltip'"
+                @click="() => openModalAddPallet = true"
+                class="border-none rounded-[4px]"
             />
             <div v-else></div>
         </template>
@@ -467,6 +504,16 @@ const isModalUploadOpen = ref(false)
             </div>
             <div v-else />
         </template>
+
+        <template #other>
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
     </PageHeading>
 
     <div class="border-b border-gray-200">
@@ -493,7 +540,19 @@ const isModalUploadOpen = ref(false)
         :state="timeline.state"
         :tab="currentTab"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"
-    />
+        :palletReturn="data?.data"
+        :detachRoute="attachmentRoutes.detachRoute"
+    >
+        <template #button-empty-state-attachments="{ action }">
+            <Button
+                v-if="currentTab === 'attachments'"
+                @click="() => isModalUploadFileOpen = true"
+                :label="trans('Attach file')"
+                icon="fal fa-upload"
+                type="secondary"
+            />
+        </template>
+    </component>
 
     <UploadExcel
         v-model="isModalUploadOpen"
@@ -506,4 +565,26 @@ const isModalUploadOpen = ref(false)
         :upload_spreadsheet
         :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
     />
+    
+    <UploadAttachment
+        v-model="isModalUploadFileOpen"
+        scope="attachment"
+        :title="{
+            label: 'Upload your file',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"
+        :attachmentRoutes
+        :options="props.option_attach_file"
+    />
+    
+    <Modal :isOpen="openModalAddPallet" @onClose="openModalAddPallet = false">
+        <ModalAddPalletReturn
+            :fetchRoute="pallets_route"
+            :palletReturn="data?.data"
+        >
+
+        </ModalAddPalletReturn>
+
+    </Modal>
 </template>

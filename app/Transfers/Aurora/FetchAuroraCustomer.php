@@ -8,8 +8,10 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,6 +21,11 @@ class FetchAuroraCustomer extends FetchAurora
     protected function parseModel(): void
     {
         $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Customer Store Key'});
+
+        if ($this->parsedData['shop']->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
+
 
         $status = CustomerStatusEnum::APPROVED->value;
         $state  = CustomerStateEnum::ACTIVE->value;
@@ -114,6 +121,35 @@ class FetchAuroraCustomer extends FetchAurora
 
         ];
 
+        $isVip = $this->auroraModelData->{'Customer Level Type'} == 'VIP';
+
+        $AsOrganisation = null;
+        if ($this->auroraModelData->{'Customer Level Type'} == 'Partner') {
+            if (in_array($this->auroraModelData->{'Customer Name'}, ['Ancient Wisdom Marketing Ltd', 'Ancient Wisdom', 'Ancient Wisdom Marketing Ltd.'])) {
+                $AsOrganisation = Organisation::where('slug', 'aw')->first();
+            } elseif ($this->auroraModelData->{'Customer Name'} == 'Ancient Wisdom s.r.o.') {
+
+                $AsOrganisation = Organisation::where('slug', 'sk')->first();
+            } elseif (in_array($this->auroraModelData->{'Customer Name'}, ['AW Artisan S.L', 'AW Artisan S. L', 'AW-REGALOS SL', 'AW Artisan S.L.'])) {
+                $AsOrganisation = Organisation::where('slug', 'es')->first();
+            } elseif (in_array($this->auroraModelData->{'Customer Name'}, ['AW Aromatics Ltd','AW Aromatics'])) {
+                $AsOrganisation = Organisation::where('slug', 'aroma')->first();
+            } elseif (in_array($this->auroraModelData->{'Customer Name'}, ['aw China', 'Yiwu Saikun Import And EXPORT CO., Ltd','Yiwu Saikun Import And Export CO., Ltd'])) {
+                $AsOrganisation = Organisation::where('slug', 'china')->first();
+            }
+
+            if (in_array($this->auroraModelData->{'Customer Key'}, [
+                10362,
+                17032,
+                392469
+            ])) {
+                $isVip = true;
+            }
+        }
+
+        $asEmployeeID = null;
+
+
         $this->parsedData['customer'] =
             [
                 'reference'           => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
@@ -126,6 +162,9 @@ class FetchAuroraCustomer extends FetchAurora
                 'email_subscriptions' => $emailSubscriptions,
                 'fetched_at'          => now(),
                 'last_fetched_at'     => now(),
+                'is_vip'              => $isVip,
+                'as_organisation_id'  => $AsOrganisation?->id,
+                'as_employee_id'      => $asEmployeeID
             ];
 
 

@@ -125,7 +125,18 @@ class GetOutboxShowcase
                 'state' => $outbox->state,
                 'builder' => $outbox->builder,
                 'compiled_layout' => $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout,
-                'stats' => $stats
+                'dashboard_stats' => [
+                    'widgets' => [
+                        'column_count' => 2,
+                        'components' => [
+                            [
+                                'type' => 'circle_display',
+
+                                'data' => $stats
+                            ]
+                        ]
+                    ]
+                ]
         ];
     }
 }

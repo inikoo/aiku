@@ -19,7 +19,8 @@ trait WithProcessAurora
         return [
             'id'   => ['required', 'integer'],
             'with' => ['sometimes', 'string'],
-            'bg'   => ['sometimes', 'present'],
+            'bg'   => ['sometimes', 'boolean'],
+            'delay' => ['sometimes', 'integer']
         ];
     }
 
@@ -32,26 +33,33 @@ trait WithProcessAurora
         $this->initialisation($organisation, $request);
         $validatedData = $this->validatedData;
 
-        if ($with = Arr::get($validatedData, 'with', '')) {
-            $with = explode(',', $with);
+        $with = [];
+        if ($withArgs = Arr::get($validatedData, 'with', '')) {
+            $with = explode(',', $withArgs);
         }
 
 
-        if (Arr::has($validatedData, 'bg')) {
-            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with);
+        if (Arr::get($validatedData, 'bg', false)) {
+
+
+            $delay = (int) Arr::get($validatedData, 'delay', 30);
+
+            (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay($delay);
 
             return [
-                'status' => 'ok',
-                'type'   => 'background'
+                'organisation' => $organisation->slug,
+                'class'        => class_basename($this->fetcher),
+                'id'           => Arr::get($validatedData, 'id'),
+                'date'         => now('Asia/Kuala_Lumpur')->format('Y-m-d H:i:s')
             ];
         } else {
-
             $model = (new $this->fetcher())::make()->action($organisation->id, Arr::get($validatedData, 'id'), $with);
 
             if ($model) {
                 return [
                     'status' => 'ok',
                     'type'   => 'foreground',
+                    'model'  => class_basename($model),
                     'id'     => $model->id
                 ];
             } else {

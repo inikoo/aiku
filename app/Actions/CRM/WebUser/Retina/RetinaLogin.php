@@ -10,7 +10,6 @@ namespace App\Actions\CRM\WebUser\Retina;
 
 use App\Actions\CRM\WebUser\LogWebUserFailLogin;
 use App\Actions\CRM\WebUser\LogWebUserLogin;
-use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\CRM\WebUser;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
@@ -59,8 +58,6 @@ class RetinaLogin
         }
 
 
-
-
         RateLimiter::clear($this->throttleKey($request));
 
         /** @var WebUser $webUser */
@@ -86,8 +83,6 @@ class RetinaLogin
         $retinaHome = 'app/dashboard';
         if ($ref = $request->get('ref')) {
             $retinaHome = $ref;
-        } elseif ($request->get('website')->type == WebsiteTypeEnum::FULFILMENT) {
-            $retinaHome = 'app/fulfilment/storage/dashboard';
         }
 
         return redirect()->intended($retinaHome);

@@ -35,29 +35,6 @@ const emits = defineEmits<{
 }>()
 
 
-/* const onSaveEmail = (jsonFile, htmlFile) => {
-    axios
-        .patch(
-            route(props.updateRoute.name, props.updateRoute.parameters),
-            {
-                layout: JSON.parse(jsonFile),
-            },
-        )
-        .then((response) => {
-            console.log("autosave successful:", response.data);
-        })
-        .catch((error) => {
-            console.error("autosave failed:", error);
-            notify({
-                title: "Failed to save",
-			    type: "error",   
-            })
-        })
-        .finally(() => {
-            console.log("autosave finished.");
-        });
-} */
-
 const getCatalog = () => {
     console.log(beeInstance.value)
 };
@@ -70,15 +47,19 @@ const beeConfig = () => {
         client_secret: props.apiKey.client_secret,
     };
     var headers = {
-        Authorization: token.value ? `Bearer ${token.value.access_token}` : null,
+        /* Authorization: token.value ? `Bearer ${token.value.access_token}` : null, */
         'Content-Type': 'application/json',
     }
     axios
         .post(endpoint,payload,headers)
         .then((response) => {
             token.value = response.data;
+
+            console.log(token)
+            console.log('vdv',props.mergeTags)
+
             const config = {
-                uid: token.value.userName,
+                uid: 'CmsUserName', // Do not modify this
                 container: "bee-plugin-container",
                 language: "en-US",
                 loadingSpinnerDisableOnDialog: true,
@@ -119,7 +100,7 @@ const beeConfig = () => {
                 },
                 onAutoSave: function (jsonFile) {
                     /* onSaveEmail(jsonFile, null) */
-                    emits('autoSave',jsonFile) 
+                    emits('autoSave',jsonFile)
                 }
             };
             beeInstance.value
@@ -129,14 +110,14 @@ const beeConfig = () => {
                     getCatalog()
                 })
         })
-        .catch((error) => { 
+        .catch((error) => {
             if(error.message == "Network Error") location.reload();
             console.error("Error authenticating:", error);
         });
 }
 
 
-onMounted(() => { 
+onMounted(() => {
     if (!token.value) {
         if (props.apiKey.client_id && props.apiKey.client_secret) {
             showBee.value = true
@@ -145,7 +126,7 @@ onMounted(() => {
             showBee.value = false
         }
     }else{
-        token.value = beeInstance.value.updateToken() 
+        token.value = beeInstance.value.updateToken()
     }
 });
 

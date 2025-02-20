@@ -1221,6 +1221,8 @@
     "auth.password": "auth.password",
     "auth.throttle": "auth.throttle",
     "authorisation": "authorisation",
+    "rejected.duplicated": "Our records indicate that you already have an existing account with us.",
+    "rejected.spam": "Your registration has been identified as potentially automated or containing suspicious information.",
     "avatar": "avatar",
     "back": "back",
     "back to profile": "back to profile",
@@ -2000,5 +2002,9 @@
     "workplace": "workplace",
     "workshop": "workshop",
     "y": "y",
-    "yes": "yes"
+    "yes": "yes",
+    "Member since": "Member since",
+    "Spaces": "Spaces",
+    "Channels": "Channels",
+    "account settings": "account settings"
 }

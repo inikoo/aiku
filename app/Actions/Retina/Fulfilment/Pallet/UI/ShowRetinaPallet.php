@@ -9,12 +9,14 @@
 
 namespace App\Actions\Retina\Fulfilment\Pallet\UI;
 
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemMovements;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Retina\Fulfilment\StoredItems\UI\IndexRetinaStoredItems;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\RetinaPalletResource;
+use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Pallet;
@@ -58,7 +60,6 @@ class ShowRetinaPallet extends RetinaAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
-        // dd($pallet->status->statusIcon()[$pallet->status->value]);
         $icon = [
             'icon'    => ['fal', 'fa-pallet'],
             'tooltip' => __('Pallet')
@@ -66,17 +67,20 @@ class ShowRetinaPallet extends RetinaAction
         $model = __('Pallet');
         $title = $this->pallet->reference;
         $iconRight = $pallet->status->statusIcon()[$pallet->status->value];
-        $afterTitle = [
-            'label'     => '(' . $this->pallet->customer_reference . ')'
-        ];
+        $afterTitle = [];
+
+        if ($this->pallet->customer_reference) {
+            $afterTitle = [
+                'label'     => '(' . $this->pallet->customer_reference . ')'
+            ];
+        }
 
         $navigation = PalletTabsEnum::navigation($pallet);
 
-        if ($pallet->number_stored_items == 0) {
+        if (!$pallet->fulfilmentCustomer->items_storage) {
             unset($navigation[PalletTabsEnum::STORED_ITEMS->value]);
         }
 
-        $routeName = null;
 
         return Inertia::render(
             'Storage/RetinaPallet',
@@ -98,17 +102,6 @@ class ShowRetinaPallet extends RetinaAction
                     'noCapitalise'  => true,
                     'afterTitle'    => $afterTitle,
                     'actions'       => [
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'cancel',
-                        //     'tooltip' => __('return to customer'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setReturn',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
-                        // ],
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
@@ -119,17 +112,6 @@ class ShowRetinaPallet extends RetinaAction
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'delete',
-                        //     'tooltip' => __('set as damaged'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
-                        // ],
                     ],
                 ],
                 'tabs'                          => [
@@ -140,8 +122,12 @@ class ShowRetinaPallet extends RetinaAction
                     fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
+                    fn () => StoredItemResource::collection(IndexRetinaStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexRetinaStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value))),
+
+                PalletTabsEnum::MOVEMENTS->value => $this->tab == PalletTabsEnum::MOVEMENTS->value ?
+                fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))
+                : Inertia::lazy(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($pallet, PalletTabsEnum::MOVEMENTS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -149,7 +135,8 @@ class ShowRetinaPallet extends RetinaAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
+            ->table(IndexStoredItemMovements::make()->tableStructure($pallet, prefix: PalletTabsEnum::MOVEMENTS->value))
+            ->table(IndexRetinaStoredItems::make()->tableStructure($pallet, prefix: PalletTabsEnum::STORED_ITEMS->value));
     }
 
 

@@ -4,12 +4,16 @@ import CountUp from 'vue-countup-v3'
 import { Pie } from 'vue-chartjs'
 import { useLayoutStore } from "@/Stores/layout"
 import TableStoredItemEdit from '@/Components/StoredItemMovement/TableStoredItemEdit.vue'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import Message from 'primevue/message';
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
+import { routeType } from "@/types/route";
+import Icon from '@/Components/Icon.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
@@ -30,6 +34,9 @@ const props = defineProps<{
         route_update_stored_item : routeType
     }
 }>()
+
+const locale = inject('locale', aikuLocaleStructure)
+
 const environment = useLayoutStore().app.environment
 const isLoading = ref(false)
 const _editTable = ref(null)
@@ -75,13 +82,118 @@ const onChangeStoredItem = (data) => {
         })
 }
 
+// Generate link to pallet
+const generateLinkPallet = () => {
+
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                {
+                    ...route().params,
+                    tab: 'pallets',
+                });
+        default:
+            null
+    }
+}
+
+// Generate link to audit
+const generateLinkAudit = (data) => {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
+            return route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
+                    data.last_audit_slug
+                ]
+            );
+        case 'retina.fulfilment.itemised_storage.stored_items.show':
+            return route('retina.fulfilment.storage.stored-items-audits.show',
+                [
+                    data.last_audit_slug
+                ]
+            );
+        default:
+            return null
+    }
+}
+
 
 </script>
 
 <template>
-    <div class="px-8 py-6 grid grid-cols-6 gap-x-4">
+    <div class="px-8 py-6 grid grid-cols-2 gap-x-4">
+
+        <div class="max-w-xl mt-1 grid grid-cols-1 gap-x-6 gap-y-8 xl:gap-x-8 h-fit ">
+            <div class="w-full overflow-hidden rounded-xl border border-gray-300">
+                <div class=" flex flex-col justify-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
+                    <div class="space-x-1">
+                        <Icon :data="data.stored_item?.state_icon" />
+                        <span v-if="data.stored_item?.name">{{ data.stored_item.name }}</span>
+                        <span v-else class="text-gray-500 italic">({{ trans('No name') }})</span>
+                    </div>
+                    <div v-tooltip="trans('Date created')" class="text-sm/6 text-gray-500 w-fit">{{ useFormatTime(data.stored_item?.created_at) }}</div>
+                </div>
+                
+                <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm/6">                    
+                    <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">{{ trans("Reference") }}</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <div class="font-medium">{{ data.stored_item.reference || '-' }}</div>
+                        </dd>
+                    </div>
+
+                    <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">{{ trans("Customer") }}</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <div class="font-medium">{{ data.stored_item?.customer_name || '-' }}</div>
+                        </dd>
+                    </div>
+                    
+                    <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">{{ trans("Quantity warehouse") }}</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <div class="font-medium">{{ locale.number(data.stored_item?.total_quantity || 0) }}</div>
+                        </dd>
+                    </div>
+                    
+                    <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">{{ trans("Pallet") }}</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <Link v-if="generateLinkPallet()" :href="generateLinkPallet()" class="primaryLink">
+                                {{ locale.number(data.stored_item?.pallets?.length || 0) }}
+                            </Link>
+                            <div v-else class="font-medium">{{ locale.number(data.stored_item?.pallets?.length || 0) }}</div>
+                        </dd>
+                    </div>
+                    
+                    <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">{{ trans("Last audit") }}</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <Link v-if="generateLinkAudit(data) && data.stored_item?.last_audit_at" :href="generateLinkAudit(data)" class="primaryLink">
+                                {{ useFormatTime(data.stored_item?.last_audit_at) }}
+                            </Link>
+                            <div v-else class="font-medium">{{ useFormatTime(data.stored_item?.last_audit_at) }}</div>
+                        </dd>
+                    </div>
+
+                    <!-- <div class="flex justify-between gap-x-4 py-3">
+                        <dt class="text-gray-500">Stok saat ini</dt>
+                        <dd class="flex items-start gap-x-2">
+                            <div class="font-medium">{{ useFormatNumber(data.stored_item.quantity || 0) }} pcs</div>
+                        </dd>
+                    </div> -->
+                </dl>
+            </div>
+        </div>
+        <!-- <pre>{{ data.stored_item }}</pre> -->
+
+
         <!-- Box: Pie chart -->
-        <div class="h-fit flex flex-col col-span-2 justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
+        <div v-if="false" class="h-fit flex flex-col col-span-2 justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
                     <h1 class="font-semibold leading-6">
@@ -114,8 +226,8 @@ const onChangeStoredItem = (data) => {
         </div>
 
         <!-- Mini Table -->
-        <div v-if="environment != 'production'" class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
-            <Message  severity="warn">!!! this Component is hidden in production</Message>
+        <div  v-if="false" class="flex flex-col col-span-4 gap-x-5 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+
             <TableStoredItemEdit 
                 :data="data.pallets" 
                 :route_pallets="data.route_pallets" 

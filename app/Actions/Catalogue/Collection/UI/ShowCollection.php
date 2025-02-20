@@ -15,7 +15,7 @@ use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\Http\Resources\Catalogue\CollectionsResource;
@@ -32,7 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowCollection extends OrgAction
 {
     use WithCollectionSubNavigation;
-    use HasCatalogueAuthorisation;
+    use WithCatalogueAuthorisation;
 
     private Organisation|Shop $parent;
 

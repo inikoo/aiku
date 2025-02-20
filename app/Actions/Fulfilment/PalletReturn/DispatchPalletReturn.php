@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Dropshipping\Shopify\Fulfilment\DispatchFulfilmentOrderShopify;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
@@ -21,6 +22,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -49,31 +52,37 @@ class DispatchPalletReturn extends OrgAction
             ->whereNot('status', PalletStatusEnum::INCIDENT->value)
             ->get();
 
-        $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
-            /** @var Pallet $pallet */
-            foreach ($pallets as $pallet) {
-                $pallet = UpdatePallet::make()->action($pallet, [
-                    'state'  => PalletStateEnum::DISPATCHED,
-                    'status' => PalletStatusEnum::RETURNED,
-                    'dispatched_at' => now()
-                ]);
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
+                /** @var Pallet $pallet */
+                foreach ($pallets as $pallet) {
+                    $pallet = UpdatePallet::make()->action($pallet, [
+                        'state'  => PalletStateEnum::DISPATCHED,
+                        'status' => PalletStatusEnum::RETURNED,
+                        'dispatched_at' => now()
+                    ]);
 
 
-                $palletReturn->pallets()->syncWithoutDetaching([
-                    $pallet->id => [
-                        'state' => PalletReturnStateEnum::DISPATCHED
-                    ]
-                ]);
-            }
-            return $this->update($palletReturn, $modelData);
-        });
-
+                    $palletReturn->pallets()->syncWithoutDetaching([
+                        $pallet->id => [
+                            'state' => PalletReturnStateEnum::DISPATCHED
+                        ]
+                    ]);
+                }
+                return $palletReturn;
+            });
+        }
+        $this->update($palletReturn, $modelData);
         if ($palletReturn->fulfilmentCustomer->currentRecurringBill) {
             $recurringBill = $palletReturn->fulfilmentCustomer->currentRecurringBill;
 
             $this->update($palletReturn, [
                 'recurring_bill_id' => $recurringBill->id
             ]);
+        }
+
+        if ($palletReturn->platform?->type === PlatformTypeEnum::SHOPIFY) {
+            DispatchFulfilmentOrderShopify::run($palletReturn);
         }
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);

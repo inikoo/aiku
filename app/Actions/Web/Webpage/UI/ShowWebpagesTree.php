@@ -12,6 +12,7 @@ namespace App\Actions\Web\Webpage\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Inertia\Response;
@@ -30,7 +31,7 @@ class ShowWebpagesTree extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Devel/Dummy',
+            'Org/Web/Structure',
             [
 
                 'title'    => __('dummy'),
@@ -45,6 +46,14 @@ class ShowWebpagesTree extends OrgAction
     {
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($website, $request);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    {
+        $this->scope  = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($website, $request);
     }

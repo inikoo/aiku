@@ -17,12 +17,18 @@
     import RetinaPalletShowcase from './RetinaPalletShowcase.vue'
   import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
   import { Tabs as TSTabs } from '@/types/Tabs'
-  
+import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.vue'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faExchange, faFragile, faNarwhal } from '@fal'
+import TableStoredItemsInWarehouse from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsInWarehouse.vue'
+library.add(faFragile, faNarwhal, faExchange)
+
   const props = defineProps<{
       title: string
       pageHead: PageHeadingTypes
       tabs: TSTabs
       stored_items?: {}
+      movements?: {}
       history?: {}
       showcase: {}
   }>()
@@ -32,7 +38,8 @@
   const component = computed(() => {
       const components: Component = {
           showcase: RetinaPalletShowcase,
-          stored_items: TableStoredItems,
+          stored_items: TableStoredItemsInWarehouse,
+          movements: StockItemsMovements,
           history: TableHistories
       }
       return components[currentTab.value]

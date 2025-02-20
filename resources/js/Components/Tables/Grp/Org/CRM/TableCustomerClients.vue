@@ -27,6 +27,10 @@ function customerRoute(customer: FulfilmentCustomer) {
             return route(
                 "grp.org.shops.show.crm.customers.show.customer-clients.show",
                 [route().params["organisation"], route().params["shop"], route().params["customer"], customer.ulid])
+        case "grp.org.fulfilments.show.crm.customers.show.customer-clients.index":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.customer-clients.show",
+                [route().params["organisation"], route().params["fulfilment"], route().params["fulfilmentCustomer"], customer.ulid])
         case "grp.fulfilment.customers.index":
             return route(
                 "grp.fulfilment.customers.show",
@@ -61,9 +65,7 @@ function customerRoute(customer: FulfilmentCustomer) {
         </template>
 
         <template #cell(created_at)="{ item: customer }">
-            <div class="text-gray-500">{{ useFormatTime(customer["created_at"], {
-                localeCode: locale.language.code,
-                formatTime: "Ymd" }) }}</div>
+            <div class="text-gray-500">{{ useFormatTime(customer["created_at"]) }}</div>
         </template>
     </Table>
 </template>

@@ -9,6 +9,7 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {DispatchedEmail} from "@/types/dispatched-email";
 import {
+    faCheck,
     faDumpster,
     faEnvelopeOpen,
     faExclamationCircle,
@@ -19,10 +20,14 @@ import {
   faPaperPlane,
   faSpellCheck,
   faSquare,
+  faTimesCircle,
   faVirus,
 } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import Icon from '../Icon.vue'
+import { inject } from 'vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 library.add(
     faSpellCheck,
@@ -37,6 +42,8 @@ library.add(
     faMousePointer,
     faDumpster,
     faHandPaper,
+    faCheck,
+    faTimesCircle
 );
 const props = defineProps<{
     data: object,
@@ -57,6 +64,7 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
     }
 }
 
+const locale = inject('locale', aikuLocaleStructure)
 
 
 </script>
@@ -65,6 +73,12 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
     <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(state)="{ item: dispatchedEmail }">
             <Icon :data="dispatchedEmail.state" />
+        </template>
+        <template #cell(mask_as_spam)="{ item: dispatchedEmail }">
+            <Icon :data="dispatchedEmail.mask_as_spam" />
+        </template>
+        <template #cell(sent_at)="{ item: dispatchedEmail }">
+            {{ useFormatTime(dispatchedEmail.sent_at, { localeCode: locale.language.code, formatTime: "aiku" }) }}
         </template>
         <template #cell(name)="{ item: dispatchedEmail }">
             <Link :href="route(dispatchedEmailRoute(dispatchedEmail))">

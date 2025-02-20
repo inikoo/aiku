@@ -8,8 +8,8 @@
 
 namespace App\Actions\Fulfilment\Space\UI;
 
-use App\Actions\Fulfilment\UI\WithFulfilmentAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
@@ -38,14 +38,14 @@ class EditSpace extends OrgAction
                 'pageHead'    => [
                     'title'   => __('edit space'),
                     'icon'    => [
-                        'icon'  => ['fal', 'fa-user'],
+                        'icon'  => ['fal', 'fa-parking'],
                         'title' => __('space')
                     ],
                     'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
-                            'label' => __('cancel'),
+                            'label' => __('Exit edit'),
                             'route' => [
                                 'name'       => preg_replace('/edit$/', 'index', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -66,30 +66,30 @@ class EditSpace extends OrgAction
                                         'label'    => __('reference')
                                     ],
 
-                                    'start_at'        => [
-                                        'type'     => 'date',
-                                        'required' => true,
-                                        'value' => $space->start_at,
-                                        'label'    => __('start rent at')
-                                    ],
-                                    'end_at'          => [
-                                        'type'  => 'date',
-                                        'value' => $space->end_at,
-                                        'label' => __('end rent at')
-                                    ],
-                                    'rental_id'       => [
-                                        'type'     => 'select',
-                                        'required' => true,
-                                        'label'    => __('rental'),
-                                        'value' => $space->rental_id,
-                                        'options'  => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value))
-                                    ],
-                                    'exclude_weekend' => [
-                                        'type'     => 'toggle',
-                                        'required' => true,
-                                        'value'    => $space->exclude_weekend,
-                                        'label'    => __('exclude weekend')
-                                    ],
+//                                    'start_at'        => [
+//                                        'type'     => 'date',
+//                                        'required' => true,
+//                                        'value' => $space->start_at,
+//                                        'label'    => __('start rent at')
+//                                    ],
+//                                    'end_at'          => [
+//                                        'type'  => 'date',
+//                                        'value' => $space->end_at,
+//                                        'label' => __('end rent at')
+//                                    ],
+//                                    'rental_id'       => [
+//                                        'type'     => 'select',
+//                                        'required' => true,
+//                                        'label'    => __('rental'),
+//                                        'value' => $space->rental_id,
+//                                        'options'  => Options::forModels(Rental::where('type', RentalTypeEnum::SPACE->value))
+//                                    ],
+//                                    'exclude_weekend' => [
+//                                        'type'     => 'toggle',
+//                                        'required' => true,
+//                                        'value'    => $space->exclude_weekend,
+//                                        'label'    => __('exclude weekend')
+//                                    ],
                                 ]
                             ]
                         ],

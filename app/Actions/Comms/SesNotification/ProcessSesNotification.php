@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\SesNotification;
 
 use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
+use App\Actions\Comms\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
 use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
 use App\Actions\CRM\Prospect\UpdateProspectEmailOpened;
@@ -161,22 +162,27 @@ class ProcessSesNotification
 
                 break;
             case 'Click':
-                $type = DispatchedEmailEventTypeEnum::CLICK;
-                $date = Arr::get($sesNotification->data, 'click.timestamp');
-                $data = Arr::only($sesNotification->data['click'], ['ipAddress', 'userAgent', 'link', 'linkTags']);
+                StoreEmailTrackingEvent::make()->action($dispatchedEmail, [
+                    'provider_reference' => $sesNotification->message_id
+                ]);
+                /*       $type = DispatchedEmailEventTypeEnum::CLICK;
+                       $date = Arr::get($sesNotification->data, 'click.timestamp');
+                       $data = Arr::only($sesNotification->data['click'], ['ipAddress', 'userAgent', 'link', 'linkTags']);
 
-                if ($dispatchedEmail->recipient_type == 'Prospect') {
-                    UpdateProspectEmailClicked::run($dispatchedEmail->recipient, new Carbon($date));
-                }
+                       if ($dispatchedEmail->recipient_type == 'Prospect') {
+                           UpdateProspectEmailClicked::run($dispatchedEmail->recipient, new Carbon($date));
+                       }*/
 
-                UpdateDispatchedEmail::run(
-                    $dispatchedEmail,
-                    [
-                        'state'      => DispatchedEmailStateEnum::CLICKED,
-                        'date'       => $date,
-                        'is_clicked' => true
-                    ]
-                );
+                // Create storetracking event and call hydrators
+
+                /*         UpdateDispatchedEmail::run(
+                             $dispatchedEmail,
+                             [
+                                 'state'      => DispatchedEmailStateEnum::CLICKED,
+                                 'date'       => $date,
+                                 'is_clicked' => true
+                             ]
+                         );*/
 
                 break;
 

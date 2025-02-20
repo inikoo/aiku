@@ -9,10 +9,12 @@
 
 use App\Actions\Accounting\Invoice\UI\EditInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Refund\UI\IndexRefunds;
-use App\Actions\Accounting\Refund\UI\ShowRefund;
+use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\CRM\Customer\UI\EditCustomer;
+use App\Actions\CRM\Customer\UI\IndexCustomerClients;
+use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
@@ -21,8 +23,11 @@ use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\EditFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersApproved;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersPendingApproval;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersRejected;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
+use App\Actions\Fulfilment\Pallet\PdfPallet;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInStoredItem;
@@ -34,6 +39,7 @@ use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
@@ -43,6 +49,7 @@ use App\Actions\Fulfilment\Space\UI\CreateSpace;
 use App\Actions\Fulfilment\Space\UI\EditSpace;
 use App\Actions\Fulfilment\Space\UI\IndexSpaces;
 use App\Actions\Fulfilment\Space\UI\ShowSpace;
+use App\Actions\Fulfilment\StoredItem\UI\CreateStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -53,8 +60,9 @@ use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
-Route::get('', IndexFulfilmentCustomers::class)->name('index');
-Route::get('pending-approval', [IndexFulfilmentCustomers::class, 'inPendingApproval'])->name('pending_approval.index');
+Route::get('', IndexFulfilmentCustomersApproved::class)->name('index');
+Route::get('pending-approval', IndexFulfilmentCustomersPendingApproval::class)->name('pending_approval.index');
+Route::get('rejected', IndexFulfilmentCustomersRejected::class)->name('rejected.index');
 Route::get('create', CreateFulfilmentCustomer::class)->name('create');
 
 Route::get('{fulfilmentCustomer}/edit', [EditCustomer::class, 'inShop'])->name('edit');
@@ -82,6 +90,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
 
     Route::get('stored-items', [IndexStoredItems::class, 'inFulfilmentCustomer'])->name('.stored-items.index');
+    Route::get('stored-items/create', CreateStoredItem::class)->name('.stored-items.create');
     Route::get('stored-items/{storedItem}', [ShowStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.show');
     Route::get('stored-items/{storedItem}/edit', [EditStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.edit');
 
@@ -90,6 +99,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('stored-item/{storedItem}', IndexPalletsInStoredItem::class)->name('stored-item.index');
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{pallet}/edit', [EditPallet::class, 'inFulfilmentCustomer'])->name('edit');
+
+        Route::get('{pallet}/export', [PdfPallet::class, 'inFulfilmentCustomer'])->name('export');
     });
 
     Route::prefix('pallet-deliveries')->as('.pallet_deliveries.')->group(function () {
@@ -105,6 +116,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('pallet-returns')->as('.pallet_returns.')->group(function () {
         Route::get('', [IndexPalletReturns::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('stored-item/{palletReturn}', [ShowStoredItemReturn::class, 'inFulfilmentCustomer'])->name('with_stored_items.show');
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('{palletReturn}/pallets-histories', [IndexRecentUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
@@ -122,7 +134,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('spaces')->as('.spaces.')->group(function () {
         Route::get('', [IndexSpaces::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('create', CreateSpace::class)->name('create');
-        Route::get('{space}', [ShowSpace::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{space}', ShowSpace::class)->name('show');
         Route::get('{space}/edit', EditSpace::class)->name('edit');
     });
 
@@ -137,7 +149,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         });
     });
 
-
+    Route::prefix('customer-clients')->as('.customer-clients')->group(function () {
+        Route::get('', [IndexCustomerClients::class, 'inFulfilmentCustomer'])->name('.index');
+        Route::get('{customerClient}', [ShowCustomerClient::class, 'inFulfilmentCustomer'])->name('.show');
+    });
 
     Route::get('/stored-item-audits', [IndexStoredItemAudits::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.index');
     Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.create');

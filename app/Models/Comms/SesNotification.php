@@ -9,7 +9,6 @@
 namespace App\Models\Comms;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Comms\SesNotification
@@ -30,8 +29,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class SesNotification extends Model
 {
-    use SoftDeletes;
-
     protected $casts = [
         'data' => 'array',
     ];

@@ -15,11 +15,14 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
-use Inertia\Inertia;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Symfony\Component\HttpFoundation\Response;
+use OwenIt\Auditing\Events\AuditCustom;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\RedirectResponse;
 
 class DeletePalletDelivery extends OrgAction
 {
@@ -31,22 +34,51 @@ class DeletePalletDelivery extends OrgAction
     private bool $action = false;
     private FulfilmentCustomer $fulfilmentCustomer;
 
-    public function handle(PalletDelivery $palletDelivery): void
+    public function handle(PalletDelivery $palletDelivery, array $modelData = []): void
     {
         if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED])) {
             $palletDelivery->pallets()->delete();
             $palletDelivery->transactions()->delete();
+
+            $this->update($palletDelivery, [
+                'delete_comment' => Arr::get($modelData, 'delete_comment')
+            ]);
+
+            $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+            $fulfilmentCustomer->customer->auditEvent    = 'delete';
+            $fulfilmentCustomer->customer->isCustomEvent = true;
+
+            $fulfilmentCustomer->customer->auditCustomOld = [
+                'delivery' => $palletDelivery->reference
+            ];
+
+            $fulfilmentCustomer->customer->auditCustomNew = [
+                'delivery' => __("The delivery has been deleted due to: $palletDelivery->delete_comment.")
+            ];
+
+            Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
+
             $palletDelivery->delete();
+        } else {
+            abort(401);
         }
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(): RedirectResponse
     {
-        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index', [
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index', [
             'organisation' => $this->organisation->slug,
             'fulfilment' => $this->fulfilment->slug,
             'fulfilmentCustomer' => $this->fulfilmentCustomer->slug
-        ]));
+        ]);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'delete_comment' => ['sometimes', 'required']
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -63,7 +95,7 @@ class DeletePalletDelivery extends OrgAction
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
-        $this->handle($palletDelivery);
+        $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function action(PalletDelivery $palletDelivery, $modelData): void
@@ -72,6 +104,6 @@ class DeletePalletDelivery extends OrgAction
         $this->fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
 
-        $this->handle($palletDelivery);
+        $this->handle($palletDelivery, $this->validatedData);
     }
 }

@@ -12,6 +12,7 @@ namespace App\Providers;
 use Gnikyt\BasicShopifyAPI\BasicShopifyAPI;
 use Gnikyt\BasicShopifyAPI\Options;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
 
@@ -54,6 +55,9 @@ class AppServiceProvider extends ServiceProvider
             Actions::registerCommands();
         }
 
+        Vite::macro('flushPreloadedAssets', function () {
+            $this->preloadedAssets = [];
+        });
 
         Relation::morphMap(
             [

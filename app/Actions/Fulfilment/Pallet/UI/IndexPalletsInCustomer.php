@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
@@ -32,7 +32,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInCustomer extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
 
@@ -202,7 +202,6 @@ class IndexPalletsInCustomer extends OrgAction
                 $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
             }
 
-            $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
             if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
                 $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
             }
@@ -256,8 +255,8 @@ class IndexPalletsInCustomer extends OrgAction
             $actions[] = [
                 'type'    => 'button',
                 'style'   => 'create',
-                'tooltip' => __('Create new return (stored items)'),
-                'label'   => __('Return (Stored items)'),
+                'tooltip' => __('Create new return (Customer SKUs)'),
+                'label'   => __('Return (Customer SKUs)'),
                 'fullLoading'   => true,
                 'route'   => [
                     'method'     => 'post',

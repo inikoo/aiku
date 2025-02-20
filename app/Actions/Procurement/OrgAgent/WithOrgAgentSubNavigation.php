@@ -65,20 +65,20 @@ trait WithOrgAgentSubNavigation
                     "tooltip" => __("Purchase Orders"),
                 ],
             ],
+            // [
+            //     "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
+            //     "label"    => __("Org Stocks"),
+            //     "route"     => [
+            //         "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
+            //         "parameters" => [$parent->organisation->slug, $parent->slug],
+            //     ],
+            //     "leftIcon" => [
+            //         "icon"    => ["fal", "fa-box"],
+            //         "tooltip" => __("Org Stocks"),
+            //     ],
+            // ],
             [
-                "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
-                "label"    => __("Org Stocks"),
-                "route"     => [
-                    "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
-                    "parameters" => [$parent->organisation->slug, $parent->slug],
-                ],
-                "leftIcon" => [
-                    "icon"    => ["fal", "fa-box"],
-                    "tooltip" => __("Org Stocks"),
-                ],
-            ],
-            [
-                "number"   => $parent->agent->organisation->inventoryStats->number_deliveries,
+                "number"   => $parent->stats->number_stock_deliveries,
                 "label"    => __("Stock Deliveries"),
                 "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.stock-deliveries.index",

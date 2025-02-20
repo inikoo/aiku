@@ -34,6 +34,7 @@ class CreateSupplier extends GrpAction
                 'name'  => 'grp.models.supplier.store',
             ];
         }
+
         return Inertia::render(
             'CreateModel',
             [

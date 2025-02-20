@@ -132,7 +132,7 @@ class StorePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'notes'              => ['sometimes', 'nullable', 'string', 'max:16384'],
 
 
             'warehouse_id'       => [

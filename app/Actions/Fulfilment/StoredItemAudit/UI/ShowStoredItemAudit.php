@@ -12,7 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
@@ -31,10 +31,10 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStoredItemAudit extends OrgAction
 {
-    use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private Fulfilment|Location $parent;
+    private Fulfilment|Location|FulfilmentCustomer $parent;
 
     private bool $selectStoredPallets = false;
 
@@ -87,6 +87,9 @@ class ShowStoredItemAudit extends OrgAction
         }
 
 
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
 
 
         $render = Inertia::render(
@@ -191,6 +194,7 @@ class ShowStoredItemAudit extends OrgAction
         } else {
             $render->table(
                 IndexStoredItemAuditDeltas::make()->tableStructure(
+                    $storedItemAudit,
                     prefix: 'stored_item_deltas',
                 )
             );
@@ -213,7 +217,7 @@ class ShowStoredItemAudit extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
-        $this->parent = $fulfilment;
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($storedItemAudit);

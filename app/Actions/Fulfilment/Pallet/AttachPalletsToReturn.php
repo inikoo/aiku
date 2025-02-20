@@ -83,6 +83,7 @@ class AttachPalletsToReturn extends OrgAction
             'pallet_return_id' => null,
             'status'           => PalletStatusEnum::STORING,
             'state'            => PalletStateEnum::STORING,
+            'requested_for_return_at' => null
         ]);
 
         $palletReturn->pallets()->detach($palletIds);

@@ -27,8 +27,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { routeType } from "@/types/route"
+import { faLowVision } from "@far"
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faBoothCurtain)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faLowVision)
 
 const props = defineProps<{
 	title: string
@@ -352,6 +353,11 @@ watch(openedBlockSideEditor,(newValue)=>{
 		<template #afterTitle v-if="isSavingBlock">
 			<LoadingIcon v-tooltip="trans('Saving..')" />
 		</template>
+		<template #other>
+            <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+                <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+            </div>
+        </template>
 	</PageHeading>
 
 	<div class="flex gap-x-2">
@@ -406,7 +412,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						class="py-1 px-2 cursor-pointer"
 						v-tooltip="'Preview'"
 						@click="openFullScreenPreview">
-						<FontAwesomeIcon :icon="faBoothCurtain" fixed-width aria-hidden="true" />
+						<FontAwesomeIcon :icon="faLowVision" fixed-width aria-hidden="true" />
 					</div>
 				</div>
 
@@ -416,9 +422,7 @@ watch(openedBlockSideEditor,(newValue)=>{
 						v-model="isPreviewLoggedIn"
 						@update:model-value="(e)=> sendToIframe({ key: 'isPreviewLoggedIn', value: e })"
 					/>
-					<div class="py-1 px-2 cursor-pointer" title="go to website" @click="openWebsite" >
-						<FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-					</div>
+					
 					<!-- <div class="h-6 w-px bg-gray-400 mx-2"></div> -->
 
 					<!-- <ButtonPreviewEdit

@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
+use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
@@ -43,7 +44,7 @@ class UpdatePallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
 
-
+        $oldLocation = $pallet->location;
         $originalType = $pallet->type;
         $pallet       = $this->update($pallet, $modelData, ['data']);
         $pallet->refresh();
@@ -61,6 +62,12 @@ class UpdatePallet extends OrgAction
             FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer)->delay($this->hydratorsDelay);
             FulfilmentHydratePallets::dispatch($pallet->fulfilment)->delay($this->hydratorsDelay);
             WarehouseHydratePallets::dispatch($pallet->warehouse)->delay($this->hydratorsDelay);
+            if ($oldLocation) {
+                LocationHydratePallets::dispatch($oldLocation)->delay($this->hydratorsDelay); //Hydrate Old Location
+            }
+            if ($pallet->location) {
+                LocationHydratePallets::dispatch($pallet->location)->delay($this->hydratorsDelay); //Hydrate New Location
+            }
         }
 
         if ($originalType !== $pallet->type) {
@@ -129,7 +136,8 @@ class UpdatePallet extends OrgAction
                 Rule::Exists('pallet_returns', 'id')->where('fulfilment_id', $this->fulfilment->id)
 
             ],
-            'notes'              => ['sometimes','nullable', 'string', 'max:1024'],
+            'location_id'        => ['sometimes', 'nullable', Rule::exists('locations', 'id')],
+            'notes'              => ['sometimes','nullable', 'string', 'max:16384'],
             'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],

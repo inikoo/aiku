@@ -208,12 +208,62 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item }">
 			<StoredItemProperty
+				v-if="props.state == 'in_process'"
                 :pallet="item"
 				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :editable="props.state == 'in_process'"
                 @renderTable="() => emits('renderTableKey')"
+				prefixQuery="stored_items"
             />
+
+			<!-- State: Submitted and Confirmed -->
+			<div v-else-if="props.state == 'submitted' || props.state == 'confirmed'" class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
+                <template v-if="item?.stored_items?.length">
+					<Tag
+						v-for="item of item.stored_items"
+						:key="item.id"
+						:theme="item.id"
+						:label="`${item.reference}`"
+						v-tooltip="item.name"
+						stringToColor
+					>
+						<template #label>
+							<div class="whitespace-nowrap text-xs">
+								{{ item.reference }} <span v-if="item.delivered_quantity" class="font-light">({{ item.quantity }})</span>
+							</div>
+						</template>
+					</Tag>
+                </template>
+                
+				<div v-else class="pl-2.5 text-gray-400">
+					-
+				</div>
+            </div>
+
+			<div v-else class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
+                <template v-if="item?.stored_items?.length">
+					<Tag
+						v-for="item of item.stored_items"
+						:key="item.id"
+						:theme="item.id"
+						:label="`${item.reference}`"
+						v-tooltip="item.name"
+						stringToColor
+					>
+						<template #label>
+							<div class="whitespace-nowrap text-xs">
+								{{ item.reference }} <span v-if="item.delivered_quantity" class="font-light">({{ item.delivered_quantity }})</span>
+							</div>
+						</template>
+					</Tag>
+                </template>
+                
+				<div v-else class="pl-2.5 text-gray-400">
+					-
+				</div>
+            </div>
+			<!-- <pre>{{ item.stored_items }}</pre> -->
 		</template>
 
 
@@ -221,10 +271,13 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<template #cell(location)="{ item: pallet }">
 			<div v-if="pallet.state == 'received' || pallet.state == 'booked_in' || pallet.state == 'booking_in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery
+					noButton
+					noFetchOnMounted
                     :key="pallet.state"
                     :pallet="pallet"
 					@renderTableKey="() => emits('renderTableKey')"
                     :locationRoute="locationRoute"
+					:initOptions="pallet.location_id ? [{ id: pallet.location_id, code: pallet.location_code }] : []"
                 />
 			</div>
             

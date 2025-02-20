@@ -237,7 +237,10 @@ class HydrateModels extends HydrateModel
         $command->call('hydrate:rental_agreements');
         $command->call('hydrate:pallet_deliveries');
         $command->call('hydrate:recurring_bills');
+        $command->call('hydrate:stored_items');
+        $command->call('hydrate:pallet_stored_items');
         $command->call('hydrate:pallet_returns'); // not yet tested
+        $command->call('stored_item:run_quantity');
 
         /** @var Shop $shop */
         foreach (Shop::where('type', ShopTypeEnum::FULFILMENT)->get() as $shop) {

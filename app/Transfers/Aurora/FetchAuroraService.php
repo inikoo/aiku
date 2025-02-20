@@ -13,6 +13,7 @@ use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -27,6 +28,10 @@ class FetchAuroraService extends FetchAurora
         $this->parsedData['shop'] = $this->parseShop(
             $this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'}
         );
+
+        if ($this->parsedData['shop']->type == ShopTypeEnum::FULFILMENT) {
+            return;
+        }
 
         $data     = [];
         $settings = [];

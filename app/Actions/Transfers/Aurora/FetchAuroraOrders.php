@@ -33,6 +33,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--T|only_orders_no_transactions : Fetch only orders with no transactions} {--D|days= : fetch last n days} {--O|order= : order asc|desc}';
 
     private bool $errorReported = false;
+    private string $fingerPrint;
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
@@ -232,7 +233,6 @@ class FetchAuroraOrders extends FetchAuroraAction
             //
         }
     }
-
 
     private function fetchTransactions($organisationSource, Order $order): void
     {

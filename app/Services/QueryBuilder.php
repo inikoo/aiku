@@ -41,6 +41,33 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         return $this;
     }
 
+    public function whereRadioFilter(
+        string $key,
+        array $allowedElements,
+        string $defaultValue,
+        callable $engine,
+        ?string $prefix = null
+    ): self {
+        $elementsData = null;
+
+        $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
+        if (request()->has($argumentName) or $defaultValue) {
+            $elements               = request()->input("$argumentName") ?? $defaultValue;
+
+            $validatedElements      = array_intersect($allowedElements, [$elements]);
+            $countValidatedElements = count($validatedElements);
+            if ($countValidatedElements > 0 and $countValidatedElements < count($allowedElements)) {
+                $elementsData = $elements;
+            }
+        }
+
+        if ($elementsData) {
+            $engine($this, $elementsData);
+        }
+
+        return $this;
+    }
+
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
         $periodType = array_key_first(request()->input(($prefix ? $prefix.'_' : '').'period') ?? []);

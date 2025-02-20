@@ -17,15 +17,18 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Upload;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class ImportPalletReturnItem
 {
+    use AsAction;
     use WithImportModel;
 
     private string $origin = 'grp';
 
-    public function handle(PalletReturn $palletReturn, $file): Upload
+    public function handle(PalletReturn $palletReturn, $file): PalletReturn
     {
 
         $upload = StoreUpload::make()->fromFile(
@@ -52,7 +55,19 @@ class ImportPalletReturnItem
             );
         }
 
-        return $upload;
+        $palletReturn->refresh();
+
+        return $palletReturn;
+    }
+
+    public function htmlResponse(PalletReturn $palletReturn)
+    {
+        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'organisation'       => $palletReturn->organisation->slug,
+            'fulfilment'         => $palletReturn->fulfilment->slug,
+            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+            'palletReturn'       => $palletReturn->slug,
+        ]));
     }
 
     public function rules(): array
@@ -72,7 +87,7 @@ class ImportPalletReturnItem
         return true;
     }
 
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): Upload
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $request->validate();
         $file = $request->file('file');
@@ -81,7 +96,7 @@ class ImportPalletReturnItem
         return $this->handle($palletReturn, $file, $request->input('with_stored_item'));
     }
 
-    public function fromGrp(PalletReturn $palletReturn, ActionRequest $request): Upload
+    public function fromGrp(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $request->validate();
         $file = $request->file('file');

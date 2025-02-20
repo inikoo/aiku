@@ -36,8 +36,8 @@ import {
   faBars,
   faExclamationTriangle
 } from "@fas"
-import { faHeart, faExternalLink } from "@far"
-import { faBoothCurtain } from "@fal"
+import { faHeart, faLowVision } from "@far"
+import { faBoothCurtain, faExternalLink } from "@fal"
 
 
 library.add(
@@ -50,7 +50,7 @@ library.add(
   faTimes,
   faPlusCircle,
   faBars,
-  faBoothCurtain
+  faLowVision
 )
 
 const props = defineProps<{
@@ -209,6 +209,11 @@ const onChangeNavigation = (setData) =>{
         v-model="comment"
         @onPublish="(popover) => onPublish(action.route, popover)" />
     </template>
+    <template #other>
+        <div class=" px-2 cursor-pointer" v-tooltip="'go to website'" @click="openWebsite" >
+            <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" size="xl" />
+        </div>
+    </template>
   </PageHeading>
 
   <div v-if="Navigation?.data?.fieldValue" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
@@ -268,7 +273,7 @@ const onChangeNavigation = (setData) =>{
             <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
               @click="openFullScreenPreview">
-              <FontAwesomeIcon :icon="faBoothCurtain" aria-hidden="true" />
+              <FontAwesomeIcon :icon="faLowVision" aria-hidden="true" />
             </div>
           </div>
           <div class="flex items-center justify-center">
@@ -281,9 +286,6 @@ const onChangeNavigation = (setData) =>{
               <span aria-hidden="true" :class="previewMode ? 'translate-x-3' : 'translate-x-0'"
                 class="pointer-events-none inline-block h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out" />
             </Switch>
-            <div class="py-1 px-2 cursor-pointer" title="go to website"  @click="openWebsite">
-              <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />
-            </div>
           </div>
         </div>
 

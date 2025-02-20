@@ -18,6 +18,8 @@ enum StoredItemTabsEnum: string
 
     case SHOWCASE = 'showcase';
     case PALLETS  = 'pallets';
+    case MOVEMENTS  = 'movements';
+    case AUDITS  = 'audits';
 
     case DATA    = 'data';
     case HISTORY = 'history';
@@ -32,6 +34,14 @@ enum StoredItemTabsEnum: string
             StoredItemTabsEnum::PALLETS => [
                 'title' => __('pallets'),
                 'icon'  => 'fal fa-pallet',
+            ],
+            StoredItemTabsEnum::MOVEMENTS => [
+                'title' => __('movements'),
+                'icon'  => 'fal fa-exchange',
+            ],
+            StoredItemTabsEnum::AUDITS => [
+                'title' => __('audits'),
+                'icon'  => 'fal fa-ballot-check',
             ],
             StoredItemTabsEnum::DATA => [
                 'align' => 'right',

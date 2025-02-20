@@ -5,6 +5,7 @@ import Topbar1Blueprint from "@/Components/CMS/Website/TopBars/Template/Topbar1/
 import Topbar2Blueprint from "@/Components/CMS/Website/TopBars/Template/Topbar2/Blueprint"
 import Topbar3Blueprint from "@/Components/CMS/Website/TopBars/Template/Topbar3/Blueprint"
 import Header1Blueprint from'@/Components/CMS/Website/Headers/Header1/Blueprint'
+import Header2Blueprint from'@/Components/CMS/Website/Headers/Header2/Blueprint'
 import BentoGridBlueprint from '@/Components/CMS/Webpage/BentoGrid/Blueprint'
 import CTA2Blueprint from '@/Components/CMS/Webpage/CTA2/Blueprint'
 import CategoriesBlueprint from '@/Components/CMS/Webpage/Categories/Blueprint'
@@ -34,6 +35,7 @@ export const getBlueprint = (componentName: string) => {
         'top-bar-2': Topbar2Blueprint.blueprint,
         'top-bar-3': Topbar3Blueprint.blueprint,
         'header-1' : Header1Blueprint.blueprint,
+        'header-2' : Header2Blueprint.blueprint,
         'banner': WowsbarBannerBlueprint.blueprint,
         "bento-grid-1": BentoGridBlueprint.blueprint,
         "bricks": GalleryBlueprint.blueprint,
