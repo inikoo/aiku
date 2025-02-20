@@ -171,8 +171,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withBetweenDates(array $allowedColumns, ?string $prefix = null): static
     {
-        $table =  $this->getModel()->getTable();
-
+        $table = $this->getModel()->getTable();
         $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
         $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
 
@@ -185,13 +184,19 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
                 if (count($parts) === 2) {
                     [$start, $end] = $parts;
-                    $this->whereBetween($table . '.' . $column, [$start, $end]);
+
+                    // Normalize the start and end dates
+                    $start = trim($start) . ' 00:00:00';
+                    $end = trim($end) . ' 23:59:59';
+
+                    $this->whereBetween("$table.$column", [$start, $end]);
                 }
             }
         }
 
         return $this;
     }
+
 
     public function withPaginator($prefix, int $numberOfRecords = null, $tableName = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import Modal from "@/Components/Utils/Modal.vue"
 import { Link } from "@inertiajs/vue3"
+import Button from "../Elements/Buttons/Button.vue";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faArrowAltRight, faExternalLink } from "@fal";
+import Dialog from 'primevue/dialog';
 
+library.add(faExternalLink, faArrowAltRight)
+  
 const model = defineModel<boolean>()
 
 const props = defineProps<{
@@ -40,13 +45,18 @@ function directCustomer(customer: any) {
 </script>
 
 <template>
-	<Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-[400px]">
+	<Dialog
+		v-model:visible="model"
+		:modal="true"
+		:closable="true"
+		
+		@hide="closeModal">
 		<!-- Main Content -->
-		<div class="flex flex-col items-center p-4 space-y-4">
+		<div class="flex flex-col items-center justify-center p-2 sm:p-8 space-y-6">
 			<!-- Header with icon and title -->
-			<div class="flex flex-col items-center space-y-1">
+			<div class="flex flex-col items-center space-y-3">
 				<svg
-					class="h-10 w-10 text-green-500"
+					class="h-12 sm:h-16 w-12 sm:w-16 text-green-500"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24">
@@ -56,29 +66,19 @@ function directCustomer(customer: any) {
 						stroke-width="2"
 						d="M5 13l4 4L19 7" />
 				</svg>
-				<h2 class="text-xl font-bold text-gray-800">Customer Approved!</h2>
+				<h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center">Customer Approved!</h2>
 			</div>
 			<!-- Informational message -->
-			<p class="text-center text-gray-600 text-sm">
+			<p class="text-center text-gray-600 text-sm sm:text-base max-w-md">
 				The customer has been approved. You can now view their details.
 			</p>
-			<!-- Centered button for viewing customer details -->
-			<div class="w-full flex justify-center">
-				<Link
-					:href="directCustomer(props.approvedCustomer)"
-					class="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full text-center transition shadow-sm">
-					View Details
-
-				</Link>
-			</div>
+			<!-- Responsive Side-by-Side Buttons -->
+			<div class="w-full flex flex-col sm:flex-row justify-center items-center sm:space-x-4 space-y-4 sm:space-y-0">
+				 <Link :href="directCustomer(props.approvedCustomer)">
+                    <Button label="View Details" iconRight="fal fa-external-link" type="primary" size="l" />
+				</Link> 
+				<Button @click="closeModal" label="Continue Approving"  type="secondary" size="l" />
+			</div>  
 		</div>
-		<!-- Footer with continue button -->
-		<div class="px-4 py-3 border-t border-gray-200 flex justify-end">
-			<Button
-				@click="closeModal"
-				class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-full text-center transition shadow-xs">
-				Continue Approve
-			</Button>
-		</div>
-	</Modal>
+	</Dialog>
 </template>

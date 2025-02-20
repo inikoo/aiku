@@ -103,6 +103,7 @@ trait WithDashboard
     {
         $result = [];
 
+        // dd($intervalData->{$prefix . '_' . $key . '_ly'});
         if ($key == 'all') {
             $result = [
                 'amount' => $intervalData->{$prefix . '_all'} ?? null,
@@ -121,7 +122,7 @@ trait WithDashboard
             'difference' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
                 ? $intervalData->{$prefix . '_' . $key} - $intervalData->{$prefix . '_' . $key . '_ly'}
                 : null,
-            'tooltip'  =>  "$tooltip" . Number::currency($intervalData->{$prefix . '_' . $key . '_ly'}, $currencyCode),
+            'tooltip'  =>  "$tooltip" . Number::currency($intervalData->{$prefix . '_' . $key . '_ly'} ?? 0, $currencyCode),
         ];
 
         return $result;
@@ -161,7 +162,14 @@ trait WithDashboard
         foreach ($childs as $child) {
             $keyCurrency   = $dashboard['settings']['key_currency'];
             $currencyCode  = $selectedCurrency === $keyCurrency ? $parent->currency->code : $child->currency->code;
+
             $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
+
+            if ($parent instanceof Organisation) {
+                if ($selectedCurrency == 'shop') {
+                    $salesCurrency = 'sales';
+                }
+            }
             $responseData  = array_merge([
                 'name'          => $child->name,
                 'slug'          => $child->slug,

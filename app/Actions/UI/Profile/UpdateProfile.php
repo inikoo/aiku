@@ -47,7 +47,8 @@ class UpdateProfile extends GrpAction
                 'nullable',
                 File::image()
                     ->max(12 * 1024)
-            ]
+            ],
+            'settings'       => ['sometimes'],
         ];
     }
 

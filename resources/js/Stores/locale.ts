@@ -64,10 +64,8 @@ export const useLocaleStore = defineStore("locale", () => {
 		if (useShort) {
 			return new Intl.NumberFormat("en", {
 				style: "currency",
-				currency: currencyCode,
-				minimumFractionDigits: 0,
-				maximumFractionDigits: 0
-			}).format(number);
+				currency: currencyCode
+			}).format(number || 0);
 		} else {
 			let formattedNumber = new Intl.NumberFormat("en", {
 				notation: "compact",

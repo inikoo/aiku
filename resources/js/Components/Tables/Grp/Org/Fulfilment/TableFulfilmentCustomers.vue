@@ -112,7 +112,7 @@ function approveCustomer(customer: any) {
                <Button label="Approved" :icon="faCheckCircle" size="xs"></Button>
           </Link> -->
           <ButtonWithLink
-                label="Approved"
+                label="Approve"
                 icon="fal fa-check"
                 :bindToLink="{
                     preserveScroll: true,
@@ -124,7 +124,7 @@ function approveCustomer(customer: any) {
             />
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'rejected' }"> -->
             <ButtonWithLink
-                label="Rejected"
+                label="Reject"
                 icon="fal fa-times"
                 :bindToLink="{
                     preserveScroll: true,

@@ -59,6 +59,7 @@ const beeConfig = () => {
             console.log('vdv',props.mergeTags)
 
             const config = {
+                /* uid: token.value.userName, */
                 uid: 'CmsUserName', // Do not modify this
                 container: "bee-plugin-container",
                 language: "en-US",
