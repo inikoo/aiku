@@ -103,13 +103,21 @@ trait WithDashboard
     {
         $result = [];
 
-        // dd($intervalData->{$prefix . '_' . $key . '_ly'});
         if ($key == 'all') {
             $result = [
                 'amount' => $intervalData->{$prefix . '_all'} ?? null,
             ];
             return $result;
         }
+
+        if (!str_starts_with($prefix, 'sales')) {
+            $tooltips = "$tooltip" . $intervalData->{$prefix . '_' . $key . '_ly'} ?? 0;
+        } else {
+            $tooltips = "$tooltip" . Number::currency($intervalData->{$prefix . '_' . $key . '_ly'} ?? 0, $currencyCode);
+        }
+
+
+
 
         $result = [
             'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
@@ -122,7 +130,7 @@ trait WithDashboard
             'difference' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
                 ? $intervalData->{$prefix . '_' . $key} - $intervalData->{$prefix . '_' . $key . '_ly'}
                 : null,
-            'tooltip'  =>  "$tooltip" . Number::currency($intervalData->{$prefix . '_' . $key . '_ly'} ?? 0, $currencyCode),
+            'tooltip'  =>  $tooltips,
         ];
 
         return $result;
@@ -198,11 +206,13 @@ trait WithDashboard
                     $child->orderingIntervals,
                     'invoices',
                     $selectedInterval,
+                    __("Last year invoices") . ": ",
                 );
                 $responseData['interval_percentages']['refunds']  = $this->getIntervalPercentage(
                     $child->orderingIntervals,
                     'refunds',
                     $selectedInterval,
+                    __("Last year refunds") . ": ",
                 );
                 // visual invoices and refunds
                 $visualData['invoices_data']['labels'][]              = $child->code;
@@ -271,9 +281,9 @@ trait WithDashboard
         ];
 
         $dashboard['total_tooltip'] = [
-            'total_sales'    => __("Last year sales") . ": " . Number::currency($dashboard['total']['total_sales'], $parent->currency->code),
-            'total_invoices' => __("Last year invoices") . ": " . Number::currency($dashboard['total']['total_invoices'], $parent->currency->code),
-            'total_refunds'  => __("Last year refunds") . ": " . Number::currency($dashboard['total']['total_refunds'], $parent->currency->code),
+            'total_sales'    => __("Last year sales") . ": " . Number::currency($totalSalesLy, $parent->currency->code),
+            'total_invoices' => __("Last year invoices") . ": " . $totalInvoicesLy,
+            'total_refunds'  => __("Last year refunds") . ": " . $totalRefundsLy,
         ];
 
     }

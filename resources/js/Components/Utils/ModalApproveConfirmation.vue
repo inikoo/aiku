@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
 import { Link } from "@inertiajs/vue3"
-import Button from "../Elements/Buttons/Button.vue";
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faArrowAltRight, faExternalLink } from "@fal";
 import Dialog from 'primevue/dialog';
@@ -49,10 +49,11 @@ function directCustomer(customer: any) {
 		v-model:visible="model"
 		:modal="true"
 		:closable="true"
+		dismissable-mask
 		
 		@hide="closeModal">
 		<!-- Main Content -->
-		<div class="flex flex-col items-center justify-center p-2 sm:p-8 space-y-6">
+		<div class="w-72 md:w-full md:max-w-xl flex flex-col items-center justify-center p-2 sm:p-8 space-y-6">
 			<!-- Header with icon and title -->
 			<div class="flex flex-col items-center space-y-3">
 				<svg

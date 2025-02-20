@@ -485,14 +485,14 @@ function useTabChangeDashboard(tab_slug: string) {
 								props.currency_code,
 								Number(totalAmount.total_sales)
 							)"
-							:footer="props.currency_code ? useLocaleStore().CurrencyShort(
+							:footer="props.currency_code || settings.options_currency[0].label == settings.options_currency[1].label ? useLocaleStore().CurrencyShort(
 								props.currency_code,
 								Number(totalAmount.total_sales),
 								props.settings.selected_amount
 							) : ''"
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right ">
-							<template #footer v-if="props.currency_code">
+							<template #footer v-if="props.currency_code || settings.options_currency[0].label == settings.options_currency[1].label">
 								<span v-tooltip="total_tooltip.total_sales" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_sales_percentages
