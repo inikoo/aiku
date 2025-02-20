@@ -45,4 +45,9 @@ class UndoStoredItemPick extends OrgAction
 
         return $this->handle($palletReturnItem);
     }
+
+    public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
+    {
+       return $palletReturnItem;
+    }
 }
