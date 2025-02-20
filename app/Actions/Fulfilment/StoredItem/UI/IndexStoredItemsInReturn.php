@@ -55,7 +55,7 @@ class IndexStoredItemsInReturn extends OrgAction
             $queryBuilder->where('pallet_returns.id', $parent->id);
         }
 
-        $queryBuilder->distinct('stored_items.id')
+        $queryBuilder
             ->defaultSort('stored_items.id')
             ->select([
                 'stored_items.id',
