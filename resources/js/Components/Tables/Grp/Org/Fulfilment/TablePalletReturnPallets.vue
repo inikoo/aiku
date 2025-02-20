@@ -140,9 +140,9 @@ const setUpChecked = () => {
 
 const debounceReloadBoxStats = debounce(() => {
     router.reload({
-        only: ['box_stats'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
+        only: ['pageHead', 'box_stats'],
     })
-}, 500)
+}, 700)
 
 const onCheckTable = async (item: {}) => {
     if (item.is_checked) {

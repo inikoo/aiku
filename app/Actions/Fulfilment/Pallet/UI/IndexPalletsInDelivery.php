@@ -72,7 +72,7 @@ class IndexPalletsInDelivery extends OrgAction
                 'pallets.pallet_delivery_id',
                 'pallets.pallet_return_id',
                 'locations.slug as location_slug',
-                'locations.slug as location_code',
+                'locations.code as location_code',
             );
 
 
