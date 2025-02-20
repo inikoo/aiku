@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faChartLine, faCoins, faInfoCircle, faMoneyCheckAlt } from '@fal'
+import { faChartLine, faCoins, faInfoCircle, faSitemap } from '@fal'
 
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { computed, defineAsyncComponent, ref } from "vue"
@@ -22,7 +22,7 @@ import PaymentAccountOverview from "@/Components/Tables/Grp/Org/Accounting/Payme
 import PaymentAccountStats from "@/Components/Tables/Grp/Org/Accounting/PaymentAccountStats.vue"
 import Dashboard from '@/Components/DataDisplay/Dashboard/Dashboard.vue'
 
-library.add(faCoins, faChartLine, faInfoCircle, faMoneyCheckAlt)
+library.add(faCoins, faChartLine, faInfoCircle, faSitemap)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 

@@ -55,7 +55,7 @@ class IndexInvoiceCategories extends OrgAction
                 'invoice_category_stats.number_invoices_type_invoice as number_type_invoices',
                 'invoice_category_stats.number_invoices_type_refund as number_type_refunds',
             ])
-            ->allowedSorts(['name', 'state', 'number_type_invoices', 'amount', 'number_type_refunds'])
+            ->allowedSorts(['name', 'id' ,'state', 'number_type_invoices', 'amount', 'number_type_refunds'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
