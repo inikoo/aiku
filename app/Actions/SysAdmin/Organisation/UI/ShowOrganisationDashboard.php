@@ -84,6 +84,7 @@ class ShowOrganisationDashboard extends OrgAction
                     ]
                 ]
             ],
+            'currency_code' => $organisation->currency->code,
             'current' => $this->tabDashboardInterval,
             'table' => [
                 [
@@ -124,6 +125,8 @@ class ShowOrganisationDashboard extends OrgAction
     public function getInvoices(Organisation $organisation, $shops, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
     {
         $visualData = [];
+
+        $data = [];
 
         $this->setDashboardTableData(
             $organisation,
@@ -189,8 +192,11 @@ class ShowOrganisationDashboard extends OrgAction
             }
         );
 
-
         $total = $dashboard['total'];
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
 
         $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
@@ -281,6 +287,7 @@ class ShowOrganisationDashboard extends OrgAction
                 ],
             ]
         );
+
 
         return $data;
     }
@@ -399,6 +406,11 @@ class ShowOrganisationDashboard extends OrgAction
         })->toArray();
 
         $dashboard['total'] = $total;
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
 
 
         $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);

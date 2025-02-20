@@ -157,6 +157,11 @@ class ShowGroupDashboard extends OrgAction
 
         $total = $dashboard['total'];
 
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
+
         $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
         usort($combined, function ($a, $b) {
@@ -286,6 +291,11 @@ class ShowGroupDashboard extends OrgAction
         );
 
         $total = $dashboard['total'];
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
 
         $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
