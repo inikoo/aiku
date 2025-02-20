@@ -24,9 +24,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property string $model_type
  * @property ShopifyFulfilmentStateEnum $state
  * @property int|null $customer_client_id
- * @property string|null $no_fulfilment_reason
+ * @property ShopifyFulfilmentReasonEnum|null $no_fulfilment_reason
  * @property string|null $no_fulfilment_reason_notes
- * @property ShopifyFulfilmentReasonEnum $reason
  * @property-read CustomerClient|null $customerClient
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @property-read ShopifyUser $shopifyUser

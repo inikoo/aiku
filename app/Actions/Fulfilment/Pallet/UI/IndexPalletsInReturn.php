@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
@@ -143,7 +143,7 @@ class IndexPalletsInReturn extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletReturnItemsResource::collection($pallets);
+        return PalletReturnItemsUIResource::collection($pallets);
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator

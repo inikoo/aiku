@@ -33,7 +33,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $fulfilment_customer_name
  * @property mixed $fulfilment_customer_slug
  */
-class PalletReturnItemsResource extends JsonResource
+class PalletReturnItemsUIResource extends JsonResource
 {
     public function toArray($request): array
     {

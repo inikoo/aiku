@@ -44,7 +44,10 @@ class PickedPalletReturn extends OrgAction
         if ($palletReturn->type != PalletReturnTypeEnum::PALLET) {
             abort(419);
         }
-        $unpickedPallets = $palletReturn->pallets->filter(fn ($pallet) => $pallet->pivot->state !== PalletReturnItemStateEnum::PICKED->value);
+        $unpickedPallets = $palletReturn->pallets->filter(fn ($pallet) => 
+        $pallet->pivot->state !== PalletReturnItemStateEnum::PICKED->value &&
+        $pallet->pivot->state !== PalletReturnItemStateEnum::NOT_PICKED->value
+        );
         foreach ($unpickedPallets as $pallet) {
             $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
             SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);

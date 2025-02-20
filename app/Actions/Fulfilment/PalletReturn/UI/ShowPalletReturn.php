@@ -23,7 +23,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -701,8 +701,8 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
+                    fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsUIResource::collection(IndexPalletsInReturnPalletWholePallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?

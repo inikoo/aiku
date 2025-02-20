@@ -15,6 +15,8 @@ use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Http\Resources\Fulfilment\PalletReturnItemResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +35,14 @@ class PickPalletReturnItem extends OrgAction
     {
         return DB::transaction(function () use ($palletReturnItem, $modelData) {
             $quantity = Arr::get($modelData, 'quantity_picked');
-            $palletStoredItemQuant = $palletReturnItem->palletStoredItem->quantity;
+            $palletStoredItemQuantity = $palletReturnItem->palletStoredItem->quantity;
             $this->update($palletReturnItem, $modelData);
 
             StoreStoredItemMovementFromPicking::run($palletReturnItem, [
                 'quantity' => $quantity
             ]);
 
-            if ($quantity == $palletStoredItemQuant) {
+            if ($quantity == $palletStoredItemQuantity) {
                 SetPalletStoredItemStateToReturned::run($palletReturnItem->palletStoredItem);
             }
 
@@ -65,5 +67,13 @@ class PickPalletReturnItem extends OrgAction
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturnItem, $this->validatedData);
+    }
+
+    public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItemResource|PalletReturnItemUIResource
+    {
+        if ($request->hasHeader('Maya-Version')) {
+            return PalletReturnItemResource::make($palletReturnItem);
+        }
+        return PalletReturnItemUIResource::make($palletReturnItem);
     }
 }
