@@ -94,13 +94,14 @@ class ShowOrganisationDashboard extends OrgAction
                     'type'     => 'table',
                     'data' => null
                 ],
+                (!app()->isProduction()) ?
                 [
                     'tab_label' => __('Invoices categories'),
                     'tab_slug'  => 'invoice_categories',
                     'tab_icon'  => 'fal fa-sitemap',
                     'type'     => 'table',
                     'data' => null
-                ],
+                ] : []
             ],
             'widgets'          => [
                 'column_count' => 5,
@@ -117,9 +118,11 @@ class ShowOrganisationDashboard extends OrgAction
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            $invoiceCategories = $organisation->invoiceCategories;
-            $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
-            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            if (!app()->isProduction()) {
+                $invoiceCategories = $organisation->invoiceCategories;
+                $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
+                $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            }
         }
 
 
@@ -310,6 +313,7 @@ class ShowOrganisationDashboard extends OrgAction
     public function getInvoiceCategories(Organisation $organisation, $invoiceCategories, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
     {
         $visualData = [];
+        $data = [];
 
         $data = $invoiceCategories->map(function (InvoiceCategory $invoiceCategory) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency   = $dashboard['settings']['key_currency'];
