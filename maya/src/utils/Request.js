@@ -26,6 +26,7 @@ const api = axios.create({
   baseURL: Config.API_URL,
   headers: { 
     'Content-Type': 'application/json', 
+    'Maya-Version': '1',
    },
 });
 
@@ -117,10 +118,7 @@ const request = async ({
       params,
       data,
       responseType,
-      headers: {
-        'App-Type': 'maya', // Always include this header
-        ...headers, // Merge with additional headers
-      },
+      headers
     });
     onSuccess(response.data, extra);
     onBoth(true, response.data, extra)
