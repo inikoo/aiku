@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 20-02-2025-11h-25m
@@ -9,7 +10,6 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Http\Resources\Helpers\AddressResource;
-use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsObject;
 

@@ -10,15 +10,9 @@ namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
-use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
-use App\Http\Resources\SupplyChain\SupplierResource;
-use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Inertia\Inertia;
