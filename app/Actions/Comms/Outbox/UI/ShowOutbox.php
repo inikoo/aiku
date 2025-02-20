@@ -152,12 +152,12 @@ class ShowOutbox extends OrgAction
                     : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
 
                 OutboxTabsEnum::MAILSHOTS->value => $this->tab == OutboxTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($outbox))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($outbox))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($outbox, OutboxTabsEnum::MAILSHOTS->value))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($outbox, OutboxTabsEnum::MAILSHOTS->value))),
 
                 OutboxTabsEnum::DISPATCHED_EMAILS->value => $this->tab == OutboxTabsEnum::DISPATCHED_EMAILS->value ?
-                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($outbox))
-                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($outbox))),
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($outbox, OutboxTabsEnum::DISPATCHED_EMAILS->value))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($outbox, OutboxTabsEnum::DISPATCHED_EMAILS->value))),
 
                 // OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
                 // fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
