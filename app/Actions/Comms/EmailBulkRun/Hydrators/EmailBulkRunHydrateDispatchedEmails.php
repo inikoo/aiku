@@ -22,6 +22,8 @@ class EmailBulkRunHydrateDispatchedEmails
 
     private EmailBulkRun $emailBulkRun;
 
+    public string $jobQueue = 'low-priority';
+
     public function __construct(EmailBulkRun $emailBulkRun)
     {
         $this->emailBulkRun = $emailBulkRun;

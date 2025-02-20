@@ -21,6 +21,8 @@ class DispatchedEmailHydrateEmailTracking
 
     private DispatchedEmail $dispatchedEmail;
 
+    public string $jobQueue = 'low-priority';
+
     public function __construct(DispatchedEmail $dispatchedEmail)
     {
         $this->dispatchedEmail = $dispatchedEmail;
