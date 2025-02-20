@@ -140,7 +140,7 @@ class ProcessSesNotification
 
         $sesNotification->delete();
 
-        PostProcessingEmailTrackingEvent::run($emailProcessingTrackingEvent);
+        PostProcessingEmailTrackingEvent::dispatch($emailProcessingTrackingEvent);
 
         return null;
     }
