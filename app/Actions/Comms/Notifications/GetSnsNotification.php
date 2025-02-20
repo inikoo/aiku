@@ -13,15 +13,16 @@ use App\Models\Comms\SesNotification;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetSnsNotification
 {
     use AsAction;
 
-    public function asController(): string
+    public function asController(ActionRequest $request): string
     {
-        $message   = Message::fromRawPostData();
+        $message   = new Message($request->all());
         $validator = new MessageValidator();
 
         if ($validator->isValid($message)) {
@@ -44,7 +45,7 @@ class GetSnsNotification
                         ]
                     );
 
-                    ProcessSesNotification::dispatch($sesNotification);
+                    // ProcessSesNotification::dispatch($sesNotification);
 
                 }
             }

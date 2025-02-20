@@ -40,12 +40,13 @@ function directCustomer(customer: any) {
 </script>
 
 <template>
-	<Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-[500px]">
-		<div class="flex flex-col items-center p-8 space-y-6">
+	<Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-[400px]">
+		<!-- Main Content -->
+		<div class="flex flex-col items-center p-4 space-y-4">
 			<!-- Header with icon and title -->
-			<div class="flex flex-col items-center space-y-2">
+			<div class="flex flex-col items-center space-y-1">
 				<svg
-					class="h-12 w-12 text-green-500"
+					class="h-10 w-10 text-green-500"
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24">
@@ -55,27 +56,29 @@ function directCustomer(customer: any) {
 						stroke-width="2"
 						d="M5 13l4 4L19 7" />
 				</svg>
-				<h2 class="text-2xl font-bold text-gray-800">Customer Approved!</h2>
+				<h2 class="text-xl font-bold text-gray-800">Customer Approved!</h2>
 			</div>
 			<!-- Informational message -->
-			<p class="text-center text-gray-600">
-				The customer has been approved successfully. You can now proceed to view their
-				details.
+			<p class="text-center text-gray-600 text-sm">
+				The customer has been approved. You can now view their details.
 			</p>
-			<!-- Action button -->
+			<!-- Centered button for viewing customer details -->
 			<div class="w-full flex justify-center">
 				<Link
 					:href="directCustomer(props.approvedCustomer)"
-					class="w-full md:w-auto px-2 py-3  text-black font-semibold rounded-full text-centertransition">
-					Go to Customer
+					class="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full text-center transition shadow-sm">
+					View Details
+
 				</Link>
 			</div>
-            <div class="w-full flex justify-end">
-                <button @click="closeModal"
-                        class="w-full md:w-auto px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-full text-center hover:bg-gray-400 transition">
-                Continue Approve
-                </button>
-            </div>
+		</div>
+		<!-- Footer with continue button -->
+		<div class="px-4 py-3 border-t border-gray-200 flex justify-end">
+			<Button
+				@click="closeModal"
+				class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-full text-center transition shadow-xs">
+				Continue Approve
+			</Button>
 		</div>
 	</Modal>
 </template>

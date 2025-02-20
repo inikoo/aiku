@@ -111,7 +111,7 @@ class ShowPalletReturn extends OrgAction
                 'style'   => 'save',
                 'tooltip' => $tooltipSubmit,
                 'label'   => __('Submit') . ' (' . $palletReturn->stats->number_pallets . ')',
-                'key'     => 'submit',
+                'key'     => 'submit-pallet',
                 'route'   => [
                     'method'     => 'post',
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',

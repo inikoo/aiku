@@ -443,7 +443,7 @@ const isModalUploadFileOpen = ref(false)
        
         </template>
 
-        <template #button-submit="{ action }">
+        <template #button-submit-stored-items="{ action }">
             <ButtonWithLink
                 :routeTarget="action.route"
                 :label="`${trans('Submit')} (${xstored_items_count})`"

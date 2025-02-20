@@ -93,6 +93,8 @@ Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoice
 Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
 Route::get('/invoice-categories/create', CreateInvoiceCategory::class)->name('invoice-categories.create');
 Route::get('/invoice-categories/{invoiceCategory}', ShowInvoiceCategory::class)->name('invoice-categories.show');
+Route::get('/invoice-categories/{invoiceCategory}/invoices', [IndexInvoices::class, 'inInvoiceCategory'])->name('invoice-categories.show.invoices.index');
+
 Route::get('/invoice-categories/{invoiceCategory}/edit', EditInvoiceCategory::class)->name('invoice-categories.edit');
 
 
