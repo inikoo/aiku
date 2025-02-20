@@ -38,7 +38,7 @@ class IndexDispatchedEmails extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->orWhereWith('dispatched_emails.email_address', $value);
+                $query->orWhereWith('email_addresses.email', $value);
             });
         });
 
@@ -96,7 +96,7 @@ class IndexDispatchedEmails extends OrgAction
                     $query->where('dispatched_emails.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['dispatched_emails.state', 'sent_at' ,'dispatched_emails.number_reads', 'mask_as_spam' ,'dispatched_emails.number_clicks'])
+            ->allowedSorts(['email_address', 'sent_at' ,'number_reads', 'mask_as_spam' ,'number_clicks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
