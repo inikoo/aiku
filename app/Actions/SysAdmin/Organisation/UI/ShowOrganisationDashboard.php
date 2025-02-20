@@ -110,6 +110,10 @@ class ShowOrganisationDashboard extends OrgAction
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
 
+        if ($selectedCurrency == 'shop') {
+            data_forget($dashboard, 'currency_code');
+        }
+
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {

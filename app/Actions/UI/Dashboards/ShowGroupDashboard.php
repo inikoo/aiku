@@ -81,6 +81,7 @@ class ShowGroupDashboard extends OrgAction
                     ]
                 ],
             ],
+            'currency_code'    => $group->currency->code,
             'current'          => $this->tabDashboardInterval,
             'table'            => [
                 [
@@ -103,6 +104,10 @@ class ShowGroupDashboard extends OrgAction
                 'components'   => []
             ]
         ];
+
+        if ($selectedCurrency == 'org') {
+            data_forget($dashboard, 'currency_code');
+        }
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_ORGANISATIONS->value) {
             $dashboard['table'][0]['data'] = $this->getInvoiceOrganisation($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
