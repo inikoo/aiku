@@ -16,7 +16,6 @@ use App\Models\Accounting\InvoiceCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Number;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -110,57 +109,13 @@ class ShowOrganisationDashboard extends OrgAction
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
 
-        // $total = [
-        //     'total_sales'                => 0,
-        //     'total_sales_percentages'    => 0,
-        //     'total_sales_ly'             => 0,
-        //     'total_invoices'             => 0,
-        //     'total_invoices_percentages' => 0,
-        //     'total_refunds'              => 0,
-        //     'total_refunds_percentages'  => 0,
-        // ];
-
-        $total = [
-            'total_sales'                => 0,
-            'total_sales_percentages'    => 0,
-
-            'total_invoices'             => 0,
-            'total_invoices_percentages' => 0,
-
-            'total_refunds'              => 0,
-            'total_refunds_percentages'  => 0,
-        ];
-
-
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
-
-            $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval"} ?? 0);
-            $total['total_sales_percentages'] = $this->calculatePercentageIncrease($total['total_sales'], $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval" . '_ly'} ?? 0));
-
-            $total['total_invoices']       = $shops->sum(fn ($shop) => $shop->orderingIntervals->{"invoices_$selectedInterval"} ?? 0);
-            $total['total_invoices_percentages'] = $this->calculatePercentageIncrease($total['total_invoices'], $shops->sum(fn ($shop) => $shop->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0));
-
-            $total['total_refunds']        = $shops->sum(fn ($shop) => $shop->orderingIntervals->{"refunds_$selectedInterval"} ?? 0);
-            $total['total_refunds_percentages'] = $this->calculatePercentageIncrease($total['total_refunds'], $shops->sum(fn ($shop) => $shop->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0));
-
-
-            $dashboard['total_tooltip'] = [
-                'total_sales' => __("Last year sales") . ": " . Number::currency($shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_grp_currency_$selectedInterval" . '_ly'} ?? 0), $organisation->currency->code),
-                'total_invoices' => __("Last year invoices") . ": " . Number::currency($shops->sum(fn ($shop) => $shop->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0), $organisation->currency->code),
-                'total_refunds' => __("Last year refunds") . ": " . Number::currency($shops->sum(fn ($shop) => $shop->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0), $organisation->currency->code),
-            ];
-
-
-            // $total['total_sales']          = $shops->sum(fn ($shop) => $shop->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
-
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
             $invoiceCategories = $organisation->invoiceCategories;
             $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
             $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
         }
-
-        $dashboard['total'] = $total;
 
 
         return $dashboard;
@@ -169,133 +124,6 @@ class ShowOrganisationDashboard extends OrgAction
     public function getInvoices(Organisation $organisation, $shops, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
     {
         $visualData = [];
-
-        // $data = $shops->map(function (Shop $shop) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
-        //     $keyCurrency   = $dashboard['settings']['key_currency'];
-        //     $currencyCode  = $selectedCurrency === $keyCurrency ? $organisation->currency->code : $shop->currency->code;
-        //     $salesCurrency = 'sales_'.$selectedCurrency.'_currency';
-        //     if ($selectedCurrency === 'shop') {
-        //         $salesCurrency = 'sales';
-        //     }
-        //     $responseData = [
-        //         'name'          => $shop->name,
-        //         'slug'          => $shop->slug,
-        //         'code'          => $shop->code,
-        //         'type'          => $shop->type,
-        //         'currency_code' => $currencyCode,
-        //         'state'         => $shop->state,
-        //         'route'         => [
-        //             'name'       => 'grp.org.shops.show.dashboard',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'shop'         => $shop->slug
-        //             ]
-        //         ],
-        //         'route_invoice' => [
-        //             'name'       => 'grp.org.shops.show.ordering.invoices.index',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'shop' => $shop->slug,
-        //                 'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-        //             ]
-        //         ],
-        //         'route_refund' => [
-        //             'name'       => 'grp.org.shops.show.ordering.refunds.index',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'shop'        => $shop->slug,
-        //                 'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-        //             ]
-        //         ],
-        //     ];
-
-        //     if ($shop->type == ShopTypeEnum::FULFILMENT) {
-        //         $responseData['route'] = [
-        //             'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'fulfilment'   => $shop->slug
-        //             ]
-        //         ];
-        //         $responseData['route_invoice'] = [
-        //             'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'fulfilment'   => $shop->slug,
-        //                 'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-        //             ]
-        //         ];
-        //         $responseData['route_refund'] = [
-        //             'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
-        //             'parameters' => [
-        //                 'organisation' => $organisation->slug,
-        //                 'fulfilment'   => $shop->slug,
-        //                 'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-        //             ]
-        //         ];
-        //     }
-
-        //     if ($shop->salesIntervals !== null) {
-        //         // data sales
-        //         $responseData['interval_percentages']['sales'] = $this->getIntervalPercentage(
-        //             $shop->salesIntervals,
-        //             $salesCurrency,
-        //             $selectedInterval,
-        //             __("Last year sales") . ": ",
-        //             $currencyCode
-        //         );
-
-        //         // dd($responseData['interval_percentages']['sales']);
-
-        //         $total['total_sales_ly']                  += $responseData['interval_percentages']['sales']['amount_ly'] ?? 0;
-
-        //         // visual sales
-        //         $visualData['sales_data']['labels'][]              = $shop->code;
-        //         $visualData['sales_data']['currency_codes'][]      = $currencyCode;
-        //         $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
-        //         $total['total_sales_percentages']                  += $responseData['interval_percentages']['sales']['percentage'] ?? 0;
-        //     }
-
-        //     if ($shop->orderingIntervals !== null) {
-        //         // data invoices
-        //         $responseData['interval_percentages']['invoices'] = $this->getIntervalPercentage(
-        //             $shop->orderingIntervals,
-        //             'invoices',
-        //             $selectedInterval,
-        //         );
-        //         // data refunds
-        //         $responseData['interval_percentages']['refunds'] = $this->getIntervalPercentage(
-        //             $shop->orderingIntervals,
-        //             'refunds',
-        //             $selectedInterval,
-        //         );
-
-        //         $total['total_invoices_percentages'] += $responseData['interval_percentages']['invoices']['percentage'] ?? 0;
-        //         $total['total_invoices']             += $responseData['interval_percentages']['invoices']['amount'];
-
-        //         $total['total_refunds'] += $responseData['interval_percentages']['refunds']['amount'];
-        //         $total['total_refunds_percentages']              += $responseData['interval_percentages']['refunds']['percentage'] ?? 0;
-
-
-        //         // visual data
-        //         $visualData['invoices_data']['labels'][]              = $shop->code;
-        //         $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
-        //         $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
-
-        //         $visualData['refunds_data']['labels'][]              = $shop->code;
-        //         $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
-        //         $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
-        //     }
-
-
-        //     return $responseData;
-        // })->toArray();
-
-        // $total['total_tooltip_ly'] = __("Last year sales") . ": " . Number::currency($total['total_sales_ly'], $organisation->currency->code);
-
-        // $dashboard['total'] = $total;
-
-        $data = [];
 
         $this->setDashboardTableData(
             $organisation,
@@ -361,6 +189,8 @@ class ShowOrganisationDashboard extends OrgAction
             }
         );
 
+
+        $total = $dashboard['total'];
 
         $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
