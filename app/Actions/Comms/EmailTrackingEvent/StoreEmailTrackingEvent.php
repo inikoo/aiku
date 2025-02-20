@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\EmailTrackingEvent;
 
+use App\Actions\Comms\DispatchedEmail\Hydrators\DispatchedEmailHydrateEmailTracking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\EmailTrackingEvent\EmailTrackingEventTypeEnum;
@@ -26,6 +27,8 @@ class StoreEmailTrackingEvent extends OrgAction
 
         /** @var EmailTrackingEvent $emailTrackingEvent */
         $emailTrackingEvent = $dispatchedEmail->emailTrackingEvents()->create($modelData);
+
+        DispatchedEmailHydrateEmailTracking::dispatch($dispatchedEmail);
 
         return $emailTrackingEvent;
     }

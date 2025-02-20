@@ -30,6 +30,7 @@ class PalletReturnsResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
+            'created_at'            => $this->created_at,
             'slug'                  => $this->slug,
             'reference'             => $this->reference,
             'state'                 => $this->state,

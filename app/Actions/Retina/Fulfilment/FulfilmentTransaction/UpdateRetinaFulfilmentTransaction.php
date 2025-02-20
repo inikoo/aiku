@@ -27,11 +27,11 @@ class UpdateRetinaFulfilmentTransaction extends RetinaAction
         ];
     }
 
-    public function asController(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $request): FulfilmentTransaction
+    public function asController(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $request)
     {
         $this->initialisation($request);
 
-        return $this->handle($fulfilmentTransaction, $this->validatedData);
+        $this->handle($fulfilmentTransaction, $this->validatedData);
     }
 
     public function action(FulfilmentTransaction $fulfilmentTransaction, array $modelData): FulfilmentTransaction
