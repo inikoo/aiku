@@ -55,32 +55,32 @@ class SupplierProductImport implements ToCollection, WithHeadingRow, SkipsOnFail
         ];
 
         try {
-            $partKey = $validatedData['id_supplier_part_key'];
-            $existingProduct = null;
-            if (is_numeric($partKey)) {
-                $partKey = (int) $partKey;
-                $existingProduct = $this->scope->supplierProducts()
-                ->where('id', $partKey)
-                ->first();
+                $partKey = $validatedData['id_supplier_part_key'];
+                $existingProduct = null;
+                if (is_numeric($partKey)) {
+                    $partKey = (int) $partKey;
+                    $existingProduct = $this->scope->supplierProducts()
+                    ->where('id', $partKey)
+                    ->first();
+                }
+
+                $isNew = is_string($validatedData['id_supplier_part_key']) 
+                    && strtolower($validatedData['id_supplier_part_key']) === 'new';
+
+                if ($existingProduct) {
+                    UpdateSupplierProduct::run($existingProduct, $modelData);
+                } elseif ($isNew) {
+                    StoreSupplierProduct::run($this->scope, $modelData);
+                } else {
+                    throw new Exception("Part key not found");
+                }
+
+                $this->setRecordAsCompleted($uploadRecord);
+            } catch (Exception $e) {
+                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
+            } catch (\Throwable $e) {
+                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
             }
-
-            $isNew = is_string($validatedData['id_supplier_part_key']) 
-                && strtolower($validatedData['id_supplier_part_key']) === 'new';
-
-            if ($existingProduct) {
-                UpdateSupplierProduct::run($existingProduct, $modelData);
-            } elseif ($isNew) {
-                StoreSupplierProduct::run($this->scope, $modelData);
-            } else {
-                throw new Exception("Part key not found");
-            }
-
-            $this->setRecordAsCompleted($uploadRecord);
-        } catch (Exception $e) {
-            $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
-        } catch (\Throwable $e) {
-            $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
-        }
     }
 
     protected function processExcelData($data)

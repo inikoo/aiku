@@ -30,6 +30,10 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
             return route(
                 'grp.org.procurement.agents.show.suppliers.show.supplier_products.show',
                 [supplierProduct.agent_slug, supplierProduct.supplier_slug, supplierProduct.slug]);
+        case 'grp.supply-chain.suppliers.supplier_products.index':
+            return route(
+                'grp.supply-chain.suppliers.supplier_products.show',
+                [route().params["supplier"], supplierProduct.slug]);
         default:
             return route(
                 'grp.org.procurement.org_supplier_products.show',
@@ -41,9 +45,9 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: supplier_product }">
-            <Link :href="supplierProductRoute(supplier_product)">
-                {{ supplier_product['reference'] }}
+        <template #cell(code)="{ item: supplier_product }">
+            <Link :href="supplierProductRoute(supplier_product)" class="primaryLink">
+                {{ supplier_product['code'] }}
             </Link>
         </template>
     </Table>
