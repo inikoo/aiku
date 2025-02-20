@@ -35,6 +35,9 @@ use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\StoredItem\UpdateQuantityStoredItemPalletApp;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItemInPalletReturnWithStoredItem;
+use App\Actions\Fulfilment\PalletReturnItem\UndoStoredItemPick;
+use Illuminate\Support\Facades\Route;
 
 Route::patch('pallet/{pallet:id}/location/{location:slug}/move', [UpdatePalletLocation::class,'usingLocationSlug'])->name('move_pallet')->withoutScopedBindings();
 Route::patch('pallet/{pallet:id}/location/{location:slug}/book-in', [BookInPallet::class,'usingLocationSlug'])->name('bookin_pallet')->withoutScopedBindings();
@@ -70,9 +73,16 @@ Route::patch('pallet-return/{palletReturn:id}/start-picking', [PickingPalletRetu
 Route::patch('pallet-return/{palletReturn:id}/picked', [PickedPalletReturn::class, 'maya'])->name('pallet-return.picked');
 Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchPalletReturn::class, 'maya'])->name('pallet-return.dispatch');
 
-Route::patch('pallet-return-item/{palletReturnItem:id}/pick', PickWholePalletInPalletReturn::class)->name('pallet-return-item.pick');
-Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
-Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
+
+//pallet Return pallet
+Route::patch('pallet-return-item/pallet/{palletReturnItem:id}/pick', PickWholePalletInPalletReturn::class)->name('pallet-return-item.pallet.pick');
+Route::patch('pallet-return-item/pallet/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.pallet.undo-pick');
+Route::patch('pallet-return-item/pallet/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.pallet.not-picked');
+
+//pallet Return stored items
+Route::patch('pallet-return-item/stored-items/{palletReturnItem:id}/pick', PickPalletReturnItemInPalletReturnWithStoredItem::class)->name('pallet-return-item.stored-item.not-picked');
+Route::patch('pallet-return-item/stored-items/{palletReturnItem:id}/undo-pick', UndoStoredItemPick::class)->name('pallet-return-item.stored-item.not-picked');
+
 
 Route::patch('pickings/{picking:id}/picking', UpdatePickingStateToPicking::class)->name('pickings.picking');
 Route::patch('pickings/{picking:id}/queried', UpdatePickingStateToQueried::class)->name('pickings.queried');

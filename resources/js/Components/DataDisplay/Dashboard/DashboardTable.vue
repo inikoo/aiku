@@ -27,7 +27,7 @@ const props = defineProps<{
         total_invoices: string
         total_refunds: string
     }
-	selectedDateOption: String
+	currency_code?:string
 	tableType?: string
 	current?: string
 	settings: {}
@@ -421,7 +421,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right" >
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_refunds_percentages ? 'pr-1' : 'pr-5'">
+								<span v-tooltip="total_tooltip.total_refunds" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_refunds_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_refunds_percentages
 											? `${
@@ -453,7 +453,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_invoices_percentages ? 'pr-1' : 'pr-5'">
+								<span v-tooltip="total_tooltip.total_invoices" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_invoices_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_invoices_percentages
 											? `${
@@ -481,23 +481,19 @@ function useTabChangeDashboard(tab_slug: string) {
 							</template>
 						</Column>
 						<Column
-							v-tooltip="
-								useLocaleStore().currencyFormat(
-									'GBP',
-									Number(totalAmount.total_sales)
-								)
-							"
-							:footer="
-								useLocaleStore().CurrencyShort(
-									'GBP',
-									Number(totalAmount.total_sales),
-									props.settings.selected_amount
-								)
-							"
+							v-tooltip="useLocaleStore().currencyFormat(
+								props.currency_code,
+								Number(totalAmount.total_sales)
+							)"
+							:footer="props.currency_code || settings.options_currency[0].label == settings.options_currency[1].label ? useLocaleStore().CurrencyShort(
+								props.currency_code,
+								Number(totalAmount.total_sales),
+								props.settings.selected_amount
+							) : ''"
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right ">
-							<template #footer>
-								<span v-tooltip="totalAmount?.total_tooltip_ly" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
+							<template #footer v-if="props.currency_code || settings.options_currency[0].label == settings.options_currency[1].label">
+								<span v-tooltip="total_tooltip.total_sales" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_sales_percentages
 											? `${

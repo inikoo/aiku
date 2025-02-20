@@ -106,7 +106,9 @@ class ShowGroupDashboard extends OrgAction
         ];
 
         if ($selectedCurrency == 'org') {
-            data_forget($dashboard, 'currency_code');
+            if ($group->currency->symbol != $orgCurrenciesSymbol) {
+                data_forget($dashboard, 'currency_code');
+            }
         }
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_ORGANISATIONS->value) {
@@ -166,62 +168,108 @@ class ShowGroupDashboard extends OrgAction
             return $data;
         }
 
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
+            $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
-        $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+            usort($combined, function ($a, $b) {
+                return floatval($b[2]) <=> floatval($a[2]);
+            });
 
-        usort($combined, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
+            $visualData['sales_data']['labels']              = array_column($combined, 0);
+            $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
+            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
-        $visualData['sales_data']['labels']              = array_column($combined, 0);
-        $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
-        $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
-                'value'         => $total['total_sales'],
-                'currency_code' => $group->currency->code,
-                'type'          => 'currency',
-                'description'   => __('Total sales')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => $visualData['sales_data']['labels'],
-                    'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'       => $visualData['sales_data']['datasets']
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                    'value'         => $total['total_sales'],
+                    'currency_code' => $group->currency->code,
+                    'type'          => 'currency',
+                    'description'   => __('Total sales')
                 ],
-            ]
-        );
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => $visualData['sales_data']['labels'],
+                        'currency_codes' => $visualData['sales_data']['currency_codes'],
+                        'datasets'       => $visualData['sales_data']['datasets']
+                    ],
+                ]
+            );
+        }
 
-        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+        if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
+            $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
 
-        usort($combinedInvoices, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
+            usort($combinedInvoices, function ($a, $b) {
+                return floatval($b[2]) <=> floatval($a[2]);
+            });
 
-        $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-        $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
-        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+            $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
+            $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
+            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value'       => $total['total_invoices'],
-                'type'        => 'number',
-                'description' => __('Total invoices')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
-
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'value'       => $total['total_invoices'],
+                    'type'        => 'number',
+                    'description' => __('Total invoices')
                 ],
-            ]
-        );
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+
+                    ],
+                ]
+            );
+
+            $averageInvoices = [];
+            $totalAvg = 0;
+            for ($i = 0; $i < count($combined); $i++) {
+                $amount = 0;
+                if ($combinedInvoices[$i][2] != 0) {
+                    $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+                }
+                $averageInvoices[$i] = [
+                    'name' => $combined[$i][0],
+                    'currency_code' => $combined[$i][1],
+                    'amount' => $amount,
+                ];
+                $totalAvg += $amount;
+            }
+
+            if ($totalAvg == 0) {
+                return $data;
+            }
+
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'description' => __('Average amount value')
+                ],
+                visual: [
+                    'type'  => 'bar',
+                    'value' => [
+                        'labels'         => Arr::pluck($averageInvoices, 'name'),
+                        'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                        'datasets'       => [
+                            [
+                                'data' => Arr::pluck($averageInvoices, 'amount')
+                            ]
+                        ]
+                    ],
+                ]
+            );
+        }
+
+
+
+
 
         return $data;
     }
@@ -301,62 +349,96 @@ class ShowGroupDashboard extends OrgAction
             return $data;
         }
 
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
+            $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
-        $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+            $visualData['sales_data']['labels']              = array_column($combined, 0);
+            $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
+            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
-        usort($combined, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
-
-        $visualData['sales_data']['labels']              = array_column($combined, 0);
-        $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
-        $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
-                'value'         => $total['total_sales'],
-                'currency_code' => $group->currency->code,
-                'type'          => 'currency',
-                'description'   => __('Total sales')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => $visualData['sales_data']['labels'],
-                    'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'       => $visualData['sales_data']['datasets']
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                    'value'         => $total['total_sales'],
+                    'currency_code' => $group->currency->code,
+                    'type'          => 'currency',
+                    'description'   => __('Total sales')
                 ],
-            ]
-        );
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => $visualData['sales_data']['labels'],
+                        'currency_codes' => $visualData['sales_data']['currency_codes'],
+                        'datasets'       => $visualData['sales_data']['datasets']
+                    ],
+                ]
+            );
+        }
 
-        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+        if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
+            $combinedInvoices = $this->sortVisualDataset($visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
 
-        usort($combinedInvoices, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
+            $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
+            $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
+            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
 
-        $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-        $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
-        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value'       => $total['total_invoices'],
-                'type'        => 'number',
-                'description' => __('Total invoices')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
-
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'value'       => $total['total_invoices'],
+                    'type'        => 'number',
+                    'description' => __('Total invoices')
                 ],
-            ]
-        );
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+
+                    ],
+                ]
+            );
+
+            $averageInvoices = [];
+            $totalAvg = 0;
+            for ($i = 0; $i < count($combined); $i++) {
+                $amount = 0;
+                if ($combinedInvoices[$i][2] != 0) {
+                    $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+                }
+                $averageInvoices[$i] = [
+                    'name' => $combined[$i][0],
+                    'currency_code' => $combined[$i][1],
+                    'amount' => $amount,
+                ];
+                $totalAvg += $amount;
+            }
+
+            if ($totalAvg == 0) {
+                return $data;
+            }
+
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'description' => __('Average amount value')
+                ],
+                visual: [
+                    'type'  => 'bar',
+                    'value' => [
+                        'labels'         => Arr::pluck($averageInvoices, 'name'),
+                        'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                        'datasets'       => [
+                            [
+                                'data' => Arr::pluck($averageInvoices, 'amount')
+                            ]
+                        ]
+                    ],
+                ]
+            );
+        }
 
 
         return $data;

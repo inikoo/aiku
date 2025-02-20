@@ -223,23 +223,42 @@ trait WithDashboard
             $parentSalesType = 'org';
         }
 
-        $totalSales = $parent->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval"} ?? 0;
-        $totalInvoices = $parent->orderingIntervals->{"invoices_$selectedInterval"} ?? 0;
-        $totalRefunds = $parent->orderingIntervals->{"refunds_$selectedInterval"} ?? 0;
+        $totalSales = $childs->sum(function ($child) use ($selectedInterval, $parentSalesType) {
+            return $child->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval"} ?? 0;
+        }) ?? 0;
+        $totalInvoices = $childs->sum(function ($child) use ($selectedInterval) {
+            return $child->orderingIntervals->{"invoices_$selectedInterval"} ?? 0;
+        }) ?? 0;
+
+        $totalRefunds = $childs->sum(function ($child) use ($selectedInterval) {
+            return $child->orderingIntervals->{"refunds_$selectedInterval"} ?? 0;
+        }) ?? 0;
+
+        $totalSalesLy = $childs->sum(function ($child) use ($selectedInterval, $parentSalesType) {
+            return $child->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval" . '_ly'} ?? 0;
+        }) ?? 0;
+
+        $totalInvoicesLy = $childs->sum(function ($child) use ($selectedInterval) {
+            return $child->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0;
+        }) ?? 0;
+
+        $totalRefundsLy = $childs->sum(function ($child) use ($selectedInterval) {
+            return $child->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0;
+        }) ?? 0;
 
         $totalSalesPercentage = $this->calculatePercentageIncrease(
             $totalSales,
-            $parent->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval" . '_ly'} ?? 0
+            $totalSalesLy
         );
 
         $totalInvoicePercentage = $this->calculatePercentageIncrease(
             $totalInvoices,
-            $parent->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0
+            $totalInvoicesLy
         );
 
         $totalRefundsPercentage = $this->calculatePercentageIncrease(
             $totalRefunds,
-            $parent->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0
+            $totalRefundsLy
         );
 
         $dashboard['total'] = [
@@ -257,6 +276,18 @@ trait WithDashboard
             'total_refunds'  => __("Last year refunds") . ": " . Number::currency($dashboard['total']['total_refunds'], $parent->currency->code),
         ];
 
+    }
+
+
+    public function sortVisualDataset(...$data): array
+    {
+        $combined = array_map(null, ...$data);
+
+        usort($combined, function ($a, $b) {
+            return floatval($b[2]) <=> floatval($a[2]);
+        });
+
+        return $combined;
     }
 
     // public function setDashboardVisualData(&$dashboard): void
