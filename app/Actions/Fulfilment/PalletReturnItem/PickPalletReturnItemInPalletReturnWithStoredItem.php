@@ -22,7 +22,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
-class PickPalletReturnItem extends OrgAction
+class PickPalletReturnItemInPalletReturnWithStoredItem extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithActionUpdate;
