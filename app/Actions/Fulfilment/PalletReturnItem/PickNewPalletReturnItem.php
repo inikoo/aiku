@@ -46,7 +46,7 @@ class PickNewPalletReturnItem extends OrgAction
                 'pallet_id'   => $palletStoredItem->pallet->id,
             ])->first();
 
-            PickPalletReturnItem::run($palletReturnItem, [
+            PickPalletReturnItemInPalletReturnWithStoredItem::run($palletReturnItem, [
                 'quantity_picked' => $quantityOrdered
             ]);
         });

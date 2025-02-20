@@ -18,7 +18,7 @@ use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
+use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
@@ -70,7 +70,7 @@ Route::patch('pallet-return/{palletReturn:id}/start-picking', [PickingPalletRetu
 Route::patch('pallet-return/{palletReturn:id}/picked', [PickedPalletReturn::class, 'maya'])->name('pallet-return.picked');
 Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchPalletReturn::class, 'maya'])->name('pallet-return.dispatch');
 
-Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnAsPicked::class)->name('pallet-return-item.pick');
+Route::patch('pallet-return-item/{palletReturnItem:id}/pick', PickWholePalletInPalletReturn::class)->name('pallet-return-item.pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
 

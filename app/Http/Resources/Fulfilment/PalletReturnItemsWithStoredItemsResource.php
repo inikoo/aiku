@@ -84,7 +84,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         'method'    => 'post'
                     ],
                     'updateRoute' => [
-                        'name'       => 'grp.models.pallet-return-item.update',
+                        'name'       => 'grp.models.pallet-return-item.pick',
                         'parameters' => [
                             'palletReturnItem' => $palletReturnItem->id ?? null
                         ],

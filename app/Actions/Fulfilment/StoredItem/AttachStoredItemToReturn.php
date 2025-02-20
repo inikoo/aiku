@@ -40,7 +40,8 @@ class AttachStoredItemToReturn extends OrgAction
                         'type'                 => 'StoredItem',
                         'pallet_id'            => $palletStoredItem->pallet_id,
                         'pallet_stored_item_id' => $palletStoredItem->id,
-                        'quantity_ordered'      => $quantityOrdered
+                        'quantity_ordered'      => $quantityOrdered,
+                        'picking_location_id'   => $palletStoredItem->pallet->location_id
                         ]
                     ]
                 );
@@ -74,17 +75,6 @@ class AttachStoredItemToReturn extends OrgAction
 
         $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
-
-    // public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
-    // {
-    //     /** @var FulfilmentCustomer $fulfilmentCustomer */
-    //     $this->parent       = $palletReturn;
-    //     $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-    //     $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
-    //     $this->initialisation($request->get('website')->organisation, $request);
-    //     return $this->handle($palletReturn, $this->validatedData);
-    // }
 
     public function action(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData, int $hydratorsDelay = 0): PalletReturn
     {
