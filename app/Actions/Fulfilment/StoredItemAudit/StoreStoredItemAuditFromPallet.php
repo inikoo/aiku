@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 20-02-2025-16h-48m
@@ -22,7 +23,6 @@ use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditScopeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Warehouse;

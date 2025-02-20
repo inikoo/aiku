@@ -45,7 +45,7 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
             );
 
         $validatedData = $row->only($fields)->all();
-        
+
         $modelData = [
             'type' => $validatedData['pallet_type'],
             'customer_reference' => $validatedData['pallet_customer_reference'],

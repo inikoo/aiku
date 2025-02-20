@@ -48,6 +48,6 @@ class UndoStoredItemPick extends OrgAction
 
     public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
-       return $palletReturnItem;
+        return $palletReturnItem;
     }
 }

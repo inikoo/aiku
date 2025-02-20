@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 20-02-2025-16h-43m
@@ -10,9 +11,6 @@ namespace App\Enums\Fulfilment\StoredItemAudit;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 
 enum StoredItemAuditScopeEnum: string
 {

@@ -179,6 +179,7 @@ use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
+use App\Actions\UI\Profile\CanVisit;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Banner\DeleteBanner;
@@ -206,6 +207,8 @@ use App\Stubs\UIDummies\ImportDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
+Route::patch('/profile/can-visit', CanVisit::class)->name('profile.can_visit');
+
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
 
