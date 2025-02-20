@@ -94,13 +94,14 @@ class ShowOrganisationDashboard extends OrgAction
                     'type'     => 'table',
                     'data' => null
                 ],
+                (!app()->isProduction()) ?
                 [
                     'tab_label' => __('Invoices categories'),
                     'tab_slug'  => 'invoice_categories',
                     'tab_icon'  => 'fal fa-sitemap',
                     'type'     => 'table',
                     'data' => null
-                ],
+                ] : []
             ],
             'widgets'          => [
                 'column_count' => 5,
@@ -117,9 +118,11 @@ class ShowOrganisationDashboard extends OrgAction
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            $invoiceCategories = $organisation->invoiceCategories;
-            $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
-            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            if (!app()->isProduction()) {
+                $invoiceCategories = $organisation->invoiceCategories;
+                $total['total_sales']  = $invoiceCategories->sum(fn ($invoiceCategory) => $invoiceCategory->salesIntervals->{"sales_org_currency_$selectedInterval"} ?? 0);
+                $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            }
         }
 
 
@@ -202,95 +205,106 @@ class ShowOrganisationDashboard extends OrgAction
             return $data;
         }
 
-        $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+        if (Arr::get($visualData, 'sales_data.datasets.0.data')) {
+            $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
-        usort($combined, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
+            usort($combined, function ($a, $b) {
+                return floatval($b[2]) <=> floatval($a[2]);
+            });
 
-        $visualData['sales_data']['labels']              = array_column($combined, 0);
-        $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
-        $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
+            $visualData['sales_data']['labels']              = array_column($combined, 0);
+            $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
+            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
 
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'status'        => $total['total_sales'] < 0 ? 'danger' : '',
-                'value'         => $total['total_sales'],
-                'currency_code' => $organisation->currency->code,
-                'type'          => 'currency',
-                'description'   => __('Total sales')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => $visualData['sales_data']['labels'],
-                    'currency_codes' => $visualData['sales_data']['currency_codes'],
-                    'datasets'       => $visualData['sales_data']['datasets']
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                    'value'         => $total['total_sales'],
+                    'currency_code' => $organisation->currency->code,
+                    'type'          => 'currency',
+                    'description'   => __('Total sales')
                 ],
-            ]
-        );
-
-        $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
-
-        usort($combinedInvoices, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
-        });
-
-        $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-        $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
-        $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
-
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'value'       => $total['total_invoices'],
-                'type'        => 'number',
-                'description' => __('Total invoices')
-            ],
-            visual: [
-                'type'  => 'doughnut',
-                'value' => [
-                    'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                    'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
-                ],
-            ]
-        );
-
-        $averageInvoices = [];
-        $totalAvg = 0;
-        for ($i = 0; $i < count($combined); $i++) {
-            $amount = 0;
-            if ($combinedInvoices[$i][2] != 0) {
-                $amount = $combined[$i][2] / $combinedInvoices[$i][2];
-            }
-            $averageInvoices[$i] = [
-                'name' => $combined[$i][0],
-                'currency_code' => $combined[$i][1],
-                'amount' => $amount,
-            ];
-            $totalAvg += $amount;
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => $visualData['sales_data']['labels'],
+                        'currency_codes' => $visualData['sales_data']['currency_codes'],
+                        'datasets'       => $visualData['sales_data']['datasets']
+                    ],
+                ]
+            );
         }
 
 
-        $dashboard['widgets']['components'][] = $this->getWidget(
-            type: 'chart_display',
-            data: [
-                'description' => __('Average amount value')
-            ],
-            visual: [
-                'type'  => 'bar',
-                'value' => [
-                    'labels'         => Arr::pluck($averageInvoices, 'name'),
-                    'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
-                    'datasets'       => [
-                        [
-                            'data' => Arr::pluck($averageInvoices, 'amount')
-                        ]
-                    ]
+        if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
+            $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+
+            usort($combinedInvoices, function ($a, $b) {
+                return floatval($b[2]) <=> floatval($a[2]);
+            });
+
+            $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
+            $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
+            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'value'       => $total['total_invoices'],
+                    'type'        => 'number',
+                    'description' => __('Total invoices')
                 ],
-            ]
-        );
+                visual: [
+                    'type'  => 'doughnut',
+                    'value' => [
+                        'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+                    ],
+                ]
+            );
+
+            $averageInvoices = [];
+            $totalAvg = 0;
+            for ($i = 0; $i < count($combined); $i++) {
+                $amount = 0;
+                if ($combinedInvoices[$i][2] != 0) {
+                    $amount = $combined[$i][2] / $combinedInvoices[$i][2];
+                }
+                $averageInvoices[$i] = [
+                    'name' => $combined[$i][0],
+                    'currency_code' => $combined[$i][1],
+                    'amount' => $amount,
+                ];
+                $totalAvg += $amount;
+            }
+
+            if ($totalAvg == 0) {
+                return $data;
+            }
+
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'description' => __('Average amount value')
+                ],
+                visual: [
+                    'type'  => 'bar',
+                    'value' => [
+                        'labels'         => Arr::pluck($averageInvoices, 'name'),
+                        'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                        'datasets'       => [
+                            [
+                                'data' => Arr::pluck($averageInvoices, 'amount')
+                            ]
+                        ]
+                    ],
+                ]
+            );
+        }
+
+
 
 
         return $data;
@@ -299,6 +313,7 @@ class ShowOrganisationDashboard extends OrgAction
     public function getInvoiceCategories(Organisation $organisation, $invoiceCategories, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
     {
         $visualData = [];
+        $data = [];
 
         $data = $invoiceCategories->map(function (InvoiceCategory $invoiceCategory) use ($selectedInterval, $organisation, &$dashboard, $selectedCurrency, &$visualData, &$total) {
             $keyCurrency   = $dashboard['settings']['key_currency'];

@@ -422,8 +422,8 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/pallet.xlsx');
-    $file     = new UploadedFile($filePath, 'pallet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/PalletsOnlyTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
@@ -434,13 +434,78 @@ test('Import Pallet (xlsx) for Pallet Delivery', function (PalletDelivery $palle
     ]);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->number_rows)->toBe(1)
-        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(3)
         ->and($upload->number_fails)->toBe(0)
-        ->and($palletDelivery->stats->number_pallets)->toBe(10);
+        ->and($palletDelivery->stats->number_pallets)->toBe(12)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(10)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
 
     return $palletDelivery;
 })->depends('Create Retina Pallet Delivery');
+
+test('Import Pallet (xlsx) for Pallet Delivery Duplicate', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletsOnlyTest.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    expect($palletDelivery->stats->number_pallets)->toBe(12)
+    ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(10)
+    ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    $upload = ImportRetinaPallet::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
+    $palletDelivery->refresh();
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets)->toBe(12)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(10)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    return $palletDelivery;
+})->depends('Import Pallet (xlsx) for Pallet Delivery');
+
+test('Import Pallet (xlsx) for Pallet Delivery Invalid Types', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/PalletsOnlyTestInvalidType.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletsOnlyTestInvalidType.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    expect($palletDelivery->stats->number_pallets)->toBe(12)
+    ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(10)
+    ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+    ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    $upload = ImportRetinaPallet::run($palletDelivery, $file, [
+        'with_stored_item' => false
+    ]);
+    $palletDelivery->refresh();
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->number_rows)->toBe(3)
+        ->and($upload->number_success)->toBe(3)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(15)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(13)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
+    return $palletDelivery;
+})->depends('Import Pallet (xlsx) for Pallet Delivery Duplicate');
 
 test('Submit Retina Pallet Delivery', function (PalletDelivery $palletDelivery) {
     $palletDelivery     = SubmitRetinaPalletDelivery::make()->action($palletDelivery, []);
@@ -580,7 +645,61 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
         ->and($palletReturn->stats->number_pallets)->toBe(1);
 
     return $palletReturn;
-})->depends('Create Retina Pallet Return')->todo();
+})->depends('Create Retina Pallet Return');
+
+test('import pallets in return (xlsx) duplicate', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+    //
+    $filePath = base_path('tests/fixtures/returnRetinaPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnRetinaPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+    $upload = ImportRetinaPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('returnRetinaPalletItems.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+        ->and($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
+
+test('import pallets in return (xlsx) invalid reference', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+    //
+    $filePath = base_path('tests/fixtures/PalletReturnInvalid.xlsx');
+    $file     = new UploadedFile($filePath, 'PalletReturnInvalid.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+    $upload = ImportRetinaPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->model)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('PalletReturnInvalid.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+        ->and($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+
+    return $palletReturn;
+})->depends('Create Retina Pallet Return');
 
 test('Attach Pallet to Retina Pallet Return', function (PalletReturn $palletReturn) {
     $palletReturn = AttachRetinaPalletsToReturn::make()->action(

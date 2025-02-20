@@ -21,7 +21,7 @@ export const widgetList: {[key: string]: Component} = {
     'flat_tree_map': FlatTreeMap,
     'overview_display': OverviewDisplay,
     'operation_display': OperationDisplay,
-    'chart_display' : DoubleDisplay,
+    'chart_display' : ChartDisplay,
     'circle_display': CircleDisplay
 }
 

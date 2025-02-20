@@ -10,7 +10,6 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\OrgAction;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
