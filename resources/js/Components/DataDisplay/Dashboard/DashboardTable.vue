@@ -12,6 +12,7 @@ import TabList from "primevue/tablist"
 import Tab from "primevue/tab"
 import { Link } from "@inertiajs/vue3"
 import { router } from "@inertiajs/vue3"
+import { data } from "@/Components/CMS/Website/Product/ProductTemplates/Product1/Descriptor"
 
 const props = defineProps<{
 	tableData: {}[]
@@ -21,6 +22,11 @@ const props = defineProps<{
 		total_sales: number
 		total_refunds: number
 	}
+    total_tooltip: {
+        total_sales: string
+        total_invoices: string
+        total_refunds: string
+    }
 	selectedDateOption: String
 	tableType?: string
 	current?: string
@@ -94,7 +100,7 @@ function useTabChangeDashboard(tab_slug: string) {
 				<Column sortable field="code">
 					<template #header>
 						<div class="flex items-center justify-between">
-							<span class="font-bold">Code</span>
+							<span class="font-bold">Name</span>
 						</div>
 					</template>
 					<template #body="{ data }" v-if="tableType == 'org' || current == 'shops'">
@@ -112,7 +118,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
-									{{ data.code }}
+									{{ data.name }}
 								</div>
 							</Transition>
 						</div>
@@ -370,6 +376,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							<!-- {{ `${data.interval_percentages?.sales?.?.difference}_${data.interval_percentages?.sales?.?.percentage}` }} -->
 							<Transition name="spin-to-down" mode="out-in">
 								<div
+                                    v-tooltip="data.interval_percentages?.sales?.tooltip || ''"
 									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
 									style="align-items: center">
 									<span style="font-size: 16px; font-weight: 500" class="pr-1">
@@ -490,7 +497,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right ">
 							<template #footer>
-								<span style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
+								<span v-tooltip="totalAmount?.total_tooltip_ly" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
 									{{
 										totalAmount.total_sales_percentages
 											? `${
