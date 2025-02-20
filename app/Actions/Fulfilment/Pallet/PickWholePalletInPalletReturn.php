@@ -56,12 +56,12 @@ class PickWholePalletInPalletReturn extends OrgAction
             data_set($modelData, 'status', PalletStatusEnum::RETURNING);
             data_set($modelData, 'picked_at', now());
 
-                $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
+            $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
-                foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                    StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
-                    SetPalletStoredItemStateToReturned::run($palletStoredItem);
-                }
+            foreach ($pallet->palletStoredItems as $palletStoredItem) {
+                StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
+                SetPalletStoredItemStateToReturned::run($palletStoredItem);
+            }
 
 
             PalletRecordSearch::dispatch($pallet);
