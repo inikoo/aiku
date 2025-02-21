@@ -19,64 +19,53 @@ trait WithEmployeeSubNavigation
 
         $subNavigation[] = [
             'isAnchor' => true,
-            'route' => [
-                'name'      => 'grp.org.hr.employees.show',
+            'route'    => [
+                'name'       => 'grp.org.hr.employees.show',
                 'parameters' => $request->route()->originalParameters()
             ],
-            'label'     => __('Employee'),
-            'leftIcon'  => [
+            'label'    => __('Employee'),
+            'leftIcon' => [
                 'icon'    => 'fal fa-stream',
                 'tooltip' => __('employee'),
             ],
 
         ];
 
+        if ($employee->user_id) {
+            $subNavigation[] = [
+                'route' => [
+                    'name'       => 'grp.org.hr.employees.show.users.show',
+                    'parameters' => array_merge(
+                        $request->route()->originalParameters(),
+                        ['user' => $employee->user->slug]
+                    )
+
+                ],
+
+                'label'    => __('User'),
+                'leftIcon' => [
+                    'icon'    => 'fal fa-user-circle',
+                    'tooltip' => __('User'),
+                ],
+                'number'   => $employee->users()->count()
+
+            ];
+        }
+
 
         $subNavigation[] = [
             'route' => [
-                'name'      => 'grp.org.hr.employees.show.users.index',
+                'name'       => 'grp.org.hr.employees.show.timesheets.index',
                 'parameters' => $request->route()->originalParameters()
 
             ],
 
-            'label'     => __('Users'),
-            'leftIcon'  => [
-                'icon'    => 'fal fa-user',
-                'tooltip' => __('Users'),
-            ],
-            'number' => $employee->users()->count()
-
-        ];
-
-        $subNavigation[] = [
-            'route' => [
-                'name'      => 'grp.org.hr.employees.show.positions.index',
-                'parameters' => $request->route()->originalParameters()
-
-            ],
-
-            'label'     => __('Responsibilities'),
-            'leftIcon'  => [
-                'icon'    => 'fal fa-clipboard-list-check',
-                'tooltip' => __('Responsibilities'),
-            ],
-            'number' => $employee->stats->number_job_positions
-
-        ];
-
-        $subNavigation[] = [
-            'route' => [
-                'name'      => 'grp.org.hr.employees.show.timesheets.index',
-                'parameters' => $request->route()->originalParameters()
-
-            ],
-
-            'label'     => __('Timesheets'),
-            'leftIcon'  => [
+            'label'    => __('Timesheets'),
+            'leftIcon' => [
                 'icon'    => 'fal fa-stopwatch',
                 'tooltip' => __('Timesheets'),
             ],
-            'number' => $employee->stats->number_timesheets
+            'number'   => $employee->stats->number_timesheets
 
         ];
 

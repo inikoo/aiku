@@ -57,7 +57,9 @@ class PalletDeliveryResource extends JsonResource
             'number_pallet_storing'   => $palletDelivery->stats->number_pallets_state_storing,
             'number_pallets_state_other_incident'   => $palletDelivery->stats->number_pallets_state_other_incident,
             'number_pallets_state_lost'   => $palletDelivery->stats->number_pallets_state_lost,
-            "number_pallets_state_damaged" => $palletDelivery->stats->number_pallets_state_damaged
+            "number_pallets_state_damaged" => $palletDelivery->stats->number_pallets_state_damaged,
+            "number_pallets_state_booked_in" => $palletDelivery->stats->number_pallets_state_booked_in,
+            "number_pallets_state_not_received" => $palletDelivery->stats->number_pallets_state_not_received
         ];
     }
 }

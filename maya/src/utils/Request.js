@@ -122,7 +122,6 @@ const request = async ({
     });
     onSuccess(response.data, extra);
     onBoth(true, response.data, extra)
-    console.log(response)
     return response.data;
   } catch (error) {
     console.log(error)

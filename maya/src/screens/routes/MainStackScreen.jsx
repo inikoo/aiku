@@ -236,7 +236,7 @@ const DrawerNavigator = () => {
                       />
                   ))
                 : organisationScreens
-                      .filter(({name}) => name !== 'Fulfilment' || organisation)
+                      .filter(({name}) => (name !== 'Fulfilment' && name !== 'Warehouse') || organisation)
                       .map(({name, component, options}) => (
                           <Drawer.Screen
                               key={name}

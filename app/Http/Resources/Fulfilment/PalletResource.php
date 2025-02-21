@@ -70,6 +70,7 @@ class PalletResource extends JsonResource
             'notes'                 => $this->notes ?? '',
             'rental_id'             => $this->rental_id,
             'status_label'          => $pallet->status->labels()[$pallet->status->value],
+            'state_icon'           => $pallet->state->stateIcon()[$pallet->state->value],
             'status_icon'           => $pallet->status->statusIcon()[$pallet->status->value],
             'items'                 => StoredItemResource::collection($this->storedItems ?? []),
             'timeline'              => $timeline

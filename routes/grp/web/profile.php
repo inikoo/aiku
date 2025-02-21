@@ -7,6 +7,7 @@
  */
 
 use App\Actions\UI\Notification\IndexNotification;
+use App\Actions\UI\Profile\CanVisit;
 use App\Actions\UI\Profile\EditProfile;
 use App\Actions\UI\Profile\ShowProfile;
 use App\Actions\UI\Profile\ShowProfileIndexHistory;
@@ -17,10 +18,13 @@ use App\Actions\UI\Profile\ShowProfileIndexVisitLogs;
 use App\Actions\UI\Profile\ShowProfilePageHeadTabs;
 use App\Actions\UI\Profile\ShowProfileShowcase;
 use App\Actions\UI\Profile\UpdateProfile;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowProfile::class)->name('show');
 Route::get('/edit', EditProfile::class)->name('edit');
 Route::post('/', UpdateProfile::class)->name('update');
+Route::get('/can-visit', CanVisit::class)->name('can_visit');
+
 
 Route::get('/notifications', IndexNotification::class)->name('notifications.index');
 

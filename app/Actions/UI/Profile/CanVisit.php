@@ -32,7 +32,7 @@ class CanVisit extends OrgAction
 
     public function asController(ActionRequest $request): bool
     {
-        $this->initialisationFromShop(app('group'), $request);
+        $this->initialisationFromGroup(app('group'), $request);
 
         return $this->handle($request->user(), $this->validatedData);
     }

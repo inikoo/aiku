@@ -14,6 +14,7 @@ import { Link } from "@inertiajs/vue3"
 import { router } from "@inertiajs/vue3"
 import { data } from "@/Components/CMS/Website/Product/ProductTemplates/Product1/Descriptor"
 import { trans } from "laravel-vue-i18n"
+import ItemDashboardTable from "../../Utils/ItemDashboardTable.vue"
 
 const props = defineProps<{
 	tableData: {}[]
@@ -77,9 +78,8 @@ function useTabChangeDashboard(tab_slug: string) {
 </script>
 
 <template>
-	<div class="bg-white mb-2 text-gray-800 rounded-lg p-4 shadow-md border border-gray-200">
-		<div class="">
-	
+	<div class="bg-white mb-2 p-4 shadow-md border border-gray-200">
+		<div class="text-red-500">
 			<Tabs :value="activeIndexTab" class="overflow-x-auto text-sm md:text-base pb-2">
 				<TabList>
 					<Tab
@@ -100,10 +100,15 @@ function useTabChangeDashboard(tab_slug: string) {
 			</Tabs>
 
 			<DataTable v-if="selectedTab.type === 'table'" :value="selectedTab.data" removableSort>
+				<template #empty> 
+					<div class="flex items-center justify-center h-full text-center">
+						No data available.
+					</div>
+				 </template>
 				<Column sortable field="code">
 					<template #header>
 						<div class="text-xs md:text-base flex items-center justify-between">
-							<span class="font-bold">{{ trans("Name") }}</span>
+							<span class="">{{ trans("Name") }}</span>
 						</div>
 					</template>
 
@@ -111,10 +116,10 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
-									<Link v-if="data.route" :href="ShopDashboard(data)" class="hover-underline">
+									<Link v-if="data.route" :href="ShopDashboard(data)" class="hover-underline text-sm">
 										{{ data.name }}
 									</Link>
-									<span v-else>
+									<span v-else class="text-sm">
 										{{ data.name }}
 									</span>
 								</div>
@@ -126,7 +131,9 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
-									{{ data.name }}
+									<span class="text-[16px] md:text-[18px]">
+										{{ data.name }}
+									</span>
 								</div>
 							</Transition>
 						</div>
@@ -141,7 +148,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerClass="align-right">
 					<template #header>
 						<div class="text-xs md:text-base flex justify-end items-end">
-							<span class="font-bold">Refunds</span>
+							<span class="">Refunds</span>
 						</div>
 					</template>
 
@@ -197,47 +204,8 @@ function useTabChangeDashboard(tab_slug: string) {
 					</template>
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
-							<!-- {{ `${data.interval_percentages?.refunds?.[selectedDateOption]?.difference}_${data.interval_percentages?.refunds?.[selectedDateOption]?.percentage}` }} -->
-							<Transition name="spin-to-down" mode="out-in">
-								<div
-									:key="`${data.interval_percentages?.refunds?.difference}_${data.interval_percentages?.refunds?.percentage}`"
-									style=" align-items: center"
-									class="whitespace-nowrap"
-								>
-									<span style="font-size: 16px; font-weight: 500" class="pr-1">
-										{{
-											data.interval_percentages?.refunds?.percentage
-												? `${
-														data.interval_percentages?.refunds
-															?.percentage > 0
-															? "+"
-															: ""
-												  }${data.interval_percentages?.refunds?.percentage.toFixed(
-														2
-												  )}%`
-												: `0.0%`
-										}}
-									</span>
-									<FontAwesomeIcon
-										v-if="
-											data.interval_percentages?.invoices?.percentage
-										"
-										:icon="
-											data.interval_percentages.invoices?.percentage <
-											0
-												? 'fas fa-play'
-												: 'fas fa-play'
-										"
-										style="font-size: 16px"
-										:class="
-											data.interval_percentages.invoices?.percentage <
-											0
-												? 'text-[#ff6347] rotate-90'
-												: 'text-[#26a65b] rotate-[-90deg]'
-										" />
-									<div v-else style="width: 60px"></div>
-								</div>
-							</Transition>
+							<ItemDashboardTable :dataTable="data" type="refunds" section="body"/>
+							
 						</div>
 					</template>
 				</Column>
@@ -251,21 +219,21 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerClass="align-right">
 					<template #header>
 						<div class="text-xs md:text-base flex justify-end items-end">
-							<span class="font-bold">Invoices</span>
+							<span class="">Invoices</span>
 						</div>
 					</template>
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
-									<Link v-if="data.route_invoice" :href="ShopInvoiceDashboard(data)" class="hover-underline" >
+									<Link v-if="data.route_invoice" :href="ShopInvoiceDashboard(data)" class="hover-underline text-[16px] md:text-[18px]" >
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
 											)
 										}}
 									</Link>
-									<span v-else>
+									<span v-else class="text-[16px] md:text-[18px]">
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
@@ -288,7 +256,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerStyle=" width: 140px">
 					<template #header>
 						<div class="text-xs md:text-base flex justify-end items-end">
-							<span class="font-bold">
+							<span class="">
 								<FontAwesomeIcon
 									fixed-width
 									icon="fal fa-triangle"
@@ -300,51 +268,7 @@ function useTabChangeDashboard(tab_slug: string) {
 
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
-							<Transition name="spin-to-down" mode="out-in">
-								<div class="flex justify-end relative">
-									<!-- {{ `${data.interval_percentages?.invoices?.?.difference}_${data.interval_percentages?.invoices?.?.percentage}` }} -->
-									<Transition name="spin-to-down" mode="out-in">
-										<div
-											:key="`${data.interval_percentages?.invoices?.difference}_${data.interval_percentages?.invoices?.percentage}`"
-											style="align-items: center"
-											class="whitespace-nowrap"
-										>
-											<span style="font-size: 16px; font-weight: 500" class="pr-1">
-												{{
-													data.interval_percentages?.invoices?.percentage
-														? `${
-																data.interval_percentages.invoices
-																	?.percentage > 0
-																	? "+"
-																	: ""
-														  }${data.interval_percentages.invoices?.percentage.toFixed(
-																2
-														  )}%`
-														: `0.0%`
-												}}
-											</span>
-											<FontAwesomeIcon
-												v-if="
-													data.interval_percentages?.invoices?.percentage
-												"
-												:icon="
-													data.interval_percentages.invoices?.percentage <
-													0
-														? 'fas fa-play'
-														: 'fas fa-play'
-												"
-												style="font-size: 16px"
-												:class="
-													data.interval_percentages.invoices?.percentage <
-													0
-														? 'text-[#ff6347] rotate-90'
-														: 'text-[#26a65b] rotate-[-90deg]'
-												" />
-											<div v-else style="width: 60px"></div>
-										</div>
-									</Transition>
-								</div>
-							</Transition>
+							<ItemDashboardTable :dataTable="data" type="invoices" section="body"/>
 						</div>
 					</template>
 				</Column>
@@ -359,7 +283,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					>
 					<template #header>
 						<div class="text-xs md:text-base flex justify-end items-end">
-							<span class="font-bold">Sales</span>
+							<span class="">Sales</span>
 						</div>
 					</template>
 					<template #body="{ data }">
@@ -373,13 +297,15 @@ function useTabChangeDashboard(tab_slug: string) {
 										)
 									"
 									:key="data.interval_percentages?.sales?.amount">
-									{{
-										useLocaleStore().CurrencyShort(
-											data.currency_code,
-											data.interval_percentages?.sales?.amount || 0,
-											props.settings.selected_amount
-										)
-									}}
+									<p>
+										{{
+											useLocaleStore().CurrencyShort(
+												data.currency_code,
+												data.interval_percentages?.sales?.amount || 0,
+												props.settings.selected_amount
+											)
+										}}
+									</p>
 								</div>
 							</Transition>
 						</div>
@@ -396,7 +322,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerStyle=" width: 140px">
 					<template #header>
 						<div class="text-xs md:text-base flex justify-end items-end">
-							<span class="font-bold text-gray-700">
+							<span class=" text-gray-700">
 								<FontAwesomeIcon
 									fixed-width
 									icon="fal fa-triangle"
@@ -407,44 +333,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					</template>
 					<template #body="{ data }">
 						<div class="flex justify-end relative">
-							<!-- {{ `${data.interval_percentages?.sales?.?.difference}_${data.interval_percentages?.sales?.?.percentage}` }} -->
-							<Transition name="spin-to-down" mode="out-in">
-								<div
-                                    v-tooltip="data.interval_percentages?.sales?.tooltip || ''"
-									:key="`${data.interval_percentages?.sales?.difference}_${data.interval_percentages?.sales?.percentage}`"
-									style="align-items: center"
-									class="whitespace-nowrap"
-								>
-									<span style="font-size: 16px; font-weight: 500" class="pr-1">
-										{{
-											data.interval_percentages?.sales?.percentage
-												? `${
-														data.interval_percentages.sales.percentage >
-														0
-															? "+"
-															: ""
-												  }${data.interval_percentages?.sales?.percentage.toFixed(
-														2
-												  )}%`
-												: `0.0%`
-										}}
-									</span>
-									<FontAwesomeIcon
-										v-if="data.interval_percentages?.sales?.percentage"
-										class="text-[9px] md:text-[16px]"
-										:icon="
-											data.interval_percentages.sales?.percentage < 0
-												? 'fas fa-play'
-												: 'fas fa-play'
-										"
-										:class="
-											data.interval_percentages.sales?.percentage < 0
-												? 'text-red-500 rotate-90'
-												: 'text-green-500 rotate-[-90deg]'
-										" />
-									<!-- <div v-else style="width: 60px"></div> -->
-								</div>
-							</Transition>
+						<ItemDashboardTable :dataTable="data" type="sales" section="body"/>
 						</div>
 					</template>
 				</Column>
@@ -459,31 +348,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<Column footerStyle="text-align:right" >
 							<template #footer>
 								<div class="whitespace-nowrap" >
-									<span v-tooltip="total_tooltip.total_refunds" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_refunds_percentages ? 'pr-1' : 'pr-5'">
-										{{
-											totalAmount.total_refunds_percentages
-												? `${
-														totalAmount.total_refunds_percentages > 0
-															? "+"
-															: ""
-												  }${totalAmount.total_refunds_percentages.toFixed(2)}%`
-												: "0.0%"
-										}}
-									</span>
-									<FontAwesomeIcon
-										v-if="totalAmount.total_refunds_percentages"
-										:icon="
-											totalAmount.total_refunds_percentages < 0
-												? 'fas fa-play'
-												: 'fas fa-play'
-										"
-										style="font-size: 16px"
-										:class="
-											totalAmount.total_refunds_percentages < 0
-												? 'text-red-500 rotate-90'
-												: 'text-green-500 rotate-[-90deg]'
-										" />
-									<div v-else style="width: 60px"></div>
+									<ItemDashboardTable :totalAmount="totalAmount" :totalTooltip="total_tooltip"  type="total_refunds" section="footer"/>
 								</div>
 							</template>
 						</Column>
@@ -493,31 +358,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<Column footerStyle="text-align:right">
 							<template #footer>
 								<div class="whitespace-nowrap" >
-									<span v-tooltip="total_tooltip.total_invoices" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_invoices_percentages ? 'pr-1' : 'pr-5'">
-										{{
-											totalAmount.total_invoices_percentages
-												? `${
-														totalAmount.total_invoices_percentages > 0
-															? "+"
-															: ""
-												  }${totalAmount.total_invoices_percentages.toFixed(2)}%`
-												: "0.0%"
-										}}
-									</span>
-									<FontAwesomeIcon
-										v-if="totalAmount.total_invoices_percentages"
-										:icon="
-											totalAmount.total_invoices_percentages < 0
-												? 'fas fa-play'
-												: 'fas fa-play'
-										"
-										style="font-size: 16px"
-										:class="
-											totalAmount.total_invoices_percentages < 0
-												? 'text-red-500 rotate-90'
-												: 'text-green-500 rotate-[-90deg]'
-										" />
-									<div v-else style="width: 60px"></div>
+									<ItemDashboardTable :totalAmount="totalAmount" :totalTooltip="total_tooltip"  type="total_invoices" section="footer"/>
 								</div>
 							</template>
 						</Column>
@@ -535,31 +376,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<Column footerStyle="text-align:right ">
 							<template #footer v-if="props.currency_code || settings.options_currency[0].label == settings.options_currency[1].label">
 								<div class="whitespace-nowrap">
-									<span v-tooltip="total_tooltip.total_sales" style="font-size: 16px; font-weight: 500"  :class="totalAmount.total_sales_percentages ? 'pr-1' : 'pr-5'">
-										{{
-											totalAmount.total_sales_percentages
-												? `${
-														totalAmount.total_sales_percentages > 0
-															? "+"
-															: ""
-												  }${totalAmount.total_sales_percentages.toFixed(2)}%`
-												: "0.0%"
-										}}
-									</span>
-									<FontAwesomeIcon
-										v-if="totalAmount.total_sales_percentages"
-										:icon="
-											totalAmount.total_sales_percentages < 0
-												? 'fas fa-play'
-												: 'fas fa-play'
-										"
-										style="font-size: 16px"
-										:class="
-											totalAmount.total_sales_percentages < 0
-												? 'text-red-500 rotate-90'
-												: 'text-green-500 rotate-[-90deg]'
-										" />
-									<div v-else style="width: 60px;"></div>
+									<ItemDashboardTable :totalAmount="totalAmount" :totalTooltip="total_tooltip"  type="total_sales" section="footer"/>
 								</div>
 							</template>
 						</Column>
@@ -581,7 +398,18 @@ function useTabChangeDashboard(tab_slug: string) {
 	@apply py-2.5 px-3 md:py-4 md:px-4;
 }
 
-/* :deep(.p-tablist-active-bar) {
-	
-} */
+::v-deep .p-datatable-tbody > tr > td {
+	padding: 0.25em !important;
+	color: #7c7c7c !important
+}
+::v-deep .p-datatable-header-cell {
+	padding: 0.25em !important;
+	color: #7c7c7c !important
+
+}
+::v-deep .p-datatable-tfoot > tr > td {
+	padding: 0.25em !important;
+	color: #7c7c7c !important
+
+}
 </style>

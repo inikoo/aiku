@@ -206,8 +206,8 @@ trait WithDashboard
                 );
 
                 // visual sales
-                // $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['labels'][]              = $child->code ?? $child->name;
+                $visualData['sales_data']['hover_labels'][]      = $child->name;
                 $visualData['sales_data']['datasets'][0]['data'][] = $visualResponseDataSales['amount'];
             }
 
@@ -225,17 +225,15 @@ trait WithDashboard
                     __("Last year refunds") . ": ",
                 );
 
-                // // visual invoices and refunds
-                $visualData['invoices_data']['labels'][]              = $child->code ?? $child->name;
-                // $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
+                // visual invoices and refunds
+                $visualData['invoices_data']['labels'][]            = $child->code ?? $child->name;
+                $visualData['invoices_data']['hover_labels'][]      = $child->name;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][]              = $child->code ?? $child->name;
-                // $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
+                $visualData['refunds_data']['labels'][]            = $child->code ?? $child->name;
+                $visualData['refunds_data']['hover_labels'][]      = $child->name;
                 $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             };
-
-            $visualData['name'][] = $child->name;
 
             $data[] = $responseData;
         }
@@ -270,6 +268,7 @@ trait WithDashboard
             return $child->orderingIntervals->{"refunds_$suffixLy"} ?? 0;
         }) ?? 0;
 
+        // persentage increase
         $totalSalesPercentage = $this->calculatePercentageIncrease(
             $totalSales,
             $totalSalesLy
@@ -285,6 +284,7 @@ trait WithDashboard
             $totalRefundsLy
         );
 
+        // set total
         $dashboard['total'] = [
             'total_sales'    => $totalSales,
             'total_sales_percentages' => $totalSalesPercentage,
@@ -302,23 +302,117 @@ trait WithDashboard
 
     }
 
+    public function setSortedVisualData(&$visualData, $key): void
+    {
+        $combined = $this->sortVisualDataset(2, $visualData[$key . '_data']['labels'], $visualData[$key . '_data']['hover_labels'], $visualData[$key . '_data']['datasets'][0]['data']);
+        $visualData[ $key . '_data']['labels']              = array_column($combined, 0);
+        $visualData[ $key . '_data']['hover_labels']        = array_column($combined, 1);
+        $visualData[ $key . '_data']['datasets'][0]['data'] = array_column($combined, 2);
+    }
 
-    public function sortVisualDataset(...$data): array
+    public function setVisualInvoiceSales($parent, $visualData, &$dashboard, $visualType = 'doughnut')
+    {
+        $total = $dashboard['total'];
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
+            $this->setSortedVisualData($visualData, 'sales');
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'status'        => $total['total_sales'] < 0 ? 'danger' : '',
+                    'value'         => $total['total_sales'],
+                    'currency_code' => $parent->currency->code,
+                    'type'          => 'currency',
+                    'description'   => __('Total sales')
+                ],
+                visual: [
+                    'type'  => $visualType,
+                    'value' => [
+                        'labels'         => $visualData['sales_data']['labels'],
+                        'hover_labels'   => $visualData['sales_data']['hover_labels'],
+                        'datasets'       => $visualData['sales_data']['datasets']
+                    ],
+                ]
+            );
+        }
+    }
+
+    public function setVisualInvoices($parent, $visualData, &$dashboard, $visualType = 'doughnut')
+    {
+        $total = $dashboard['total'];
+        if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
+            $this->setSortedVisualData($visualData, 'invoices');
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'status'        => $total['total_invoices'] < 0 ? 'danger' : '',
+                    'value'       => $total['total_invoices'],
+                    'type'        => 'number',
+                    'description' => __('Total invoices'),
+                ],
+                visual: [
+                    'type'  => $visualType,
+                    'value' => [
+                        'labels'         => Arr::get($visualData, 'invoices_data.labels'),
+                        'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
+                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+                    ],
+                ]
+            );
+        }
+    }
+
+    public function setVisualAvgInvoices($parent, $visualData, &$dashboard, $visualType = 'bar')
+    {
+        $invoiceValues = Arr::get($visualData, 'sales_data.datasets.0.data');
+        $invoiceTotal = Arr::get($visualData, 'invoices_data.datasets.0.data');
+        if (array_filter($invoiceTotal)) {
+            $hoverLabels = Arr::get($visualData, 'invoices_data.hover_labels');
+            $labels = Arr::get($visualData, 'invoices_data.labels');
+
+            $averageDataset = [];
+            $totalAvg = 0;
+            foreach ($invoiceTotal as $key => $value) {
+                if ($value > 0) {
+                    $averageDataset[] = $invoiceValues[$key] / $value;
+                } else {
+                    $averageDataset[] = 0;
+                }
+                $totalAvg += $averageDataset[$key];
+            }
+
+            $dashboard['widgets']['components'][] = $this->getWidget(
+                type: 'chart_display',
+                data: [
+                    'currency_code' => $parent->currency->code,
+                    'description' => __('Average invoice value')
+                ],
+                visual: [
+                    'type'  => $visualType,
+                    'value' => [
+                        'labels'         => $labels,
+                        'hover_labels'  => $hoverLabels,
+                        'datasets'       => [
+                            [
+                                'data' => $averageDataset,
+                            ]
+                        ]
+                    ],
+                ]
+            );
+        }
+    }
+
+
+    public function sortVisualDataset($keyBaseSorted, ...$data): array
     {
         $combined = array_map(null, ...$data);
 
-        usort($combined, function ($a, $b) {
-            return floatval($b[1]) <=> floatval($a[1]);
+        usort($combined, function ($a, $b) use ($keyBaseSorted) {
+            return floatval($b[$keyBaseSorted]) <=> floatval($a[$keyBaseSorted]);
         });
 
         return $combined;
     }
-
-    // public function setDashboardVisualData(&$dashboard): void
-    // {
-
-    //     $total = $dashboard['total'];
-
-    // }
 
 }
