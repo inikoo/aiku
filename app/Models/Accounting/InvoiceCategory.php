@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed> $data
  * @property int|null $organisation_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Invoice> $invoices
  * @property-read \App\Models\Accounting\InvoiceCategoryOrderingIntervals|null $orderingIntervals

@@ -33,7 +33,6 @@ class PalletStoredItemsInPalletReturnResource extends JsonResource
 {
     public function toArray($request): array
     {
-        dd($this);
         return [
             'id'                  => $this->id,
             'quantity_ordered'    => $this->quantity_ordered,
