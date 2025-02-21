@@ -74,6 +74,7 @@ class CreateWorkplace extends OrgAction
                                     'options'     => GetTimeZonesOptions::run(),
                                     'value'       => null,
                                     'required'    => true,
+                                    'searchable'  => true,
                                     'mode'        => 'single'
                                 ],
                                 'address' => [
