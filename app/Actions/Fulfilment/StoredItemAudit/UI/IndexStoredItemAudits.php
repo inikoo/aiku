@@ -12,10 +12,12 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditScopeEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -32,7 +34,7 @@ class IndexStoredItemAudits extends OrgAction
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private FulfilmentCustomer|Fulfilment $parent;
+    private FulfilmentCustomer|Fulfilment|Pallet $parent;
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
@@ -50,8 +52,16 @@ class IndexStoredItemAudits extends OrgAction
 
         return $this->handle($fulfilmentCustomer);
     }
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPalletInFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $pallet;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+        return $this->handle($pallet);
+    }
+
+    public function handle(FulfilmentCustomer|Fulfilment|Pallet $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -70,6 +80,9 @@ class IndexStoredItemAudits extends OrgAction
 
         if ($parent instanceof FulfilmentCustomer) {
             $query->where('fulfilment_customer_id', $parent->id);
+        } elseif ($parent instanceof Pallet) {
+            $query->where('scope_type', StoredItemAuditScopeEnum::PALLET);
+            $query->where('scope_id', $parent->id);
         } else {
             $query->where('fulfilment_id', $parent->id);
         }

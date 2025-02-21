@@ -18,6 +18,16 @@ class TimezoneResource extends JsonResource
 
     public function toArray($request): array
     {
+
+
+        if (is_null($this->resource)) {
+            return [
+                'id'     => null,
+                'name'   => null,
+                'offset' => null,
+            ];
+        }
+
         /** @var Timezone $timezone */
         $timezone = $this;
 
