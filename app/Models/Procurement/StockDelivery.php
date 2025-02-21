@@ -122,7 +122,6 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'data'            => 'array',
         'cost_data'       => 'array',
         'state'           => StockDeliveryStateEnum::class,
-        'scope'           => StockDeliveryScopeEnum::class,
         'date'            => 'datetime',
         'dispatched_at'   => 'datetime',
         'received_at'     => 'datetime',
