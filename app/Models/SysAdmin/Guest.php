@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property int|null $user_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\TFactory|null $use_factory
@@ -63,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\SysAdmin\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Database\Factories\SysAdmin\GuestFactory factory($count = null, $state = [])
  * @method static Builder<static>|Guest newModelQuery()
@@ -134,6 +136,11 @@ class Guest extends Model implements HasMedia, Auditable
     public function users(): MorphToMany
     {
         return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->withPivot('status');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function registerMediaCollections(): void

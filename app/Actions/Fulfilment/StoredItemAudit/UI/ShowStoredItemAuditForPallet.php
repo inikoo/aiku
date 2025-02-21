@@ -9,7 +9,6 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -20,7 +19,6 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessForPalletResource;
-use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;

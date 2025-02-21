@@ -45,12 +45,17 @@ class StoreUser extends GrpAction
             /** @var User $user */
             $user = User::create($modelData);
             $user->stats()->create();
+
+            $parent->update(
+                [
+                    'user_id' => $user->id
+                ]
+            );
+
             foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
                 $user->timeSeries()->create(['frequency' => $frequency]);
             }
             $user->refresh();
-
-
             if ($parent instanceof Employee) {
                 $user = AttachEmployeeToUser::make()->action($user, $parent, [
                     'status'    => $userModelStatus,
@@ -134,7 +139,7 @@ class StoreUser extends GrpAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if ($this->get('status') and $this->parent->getUser()) {
+        if ($this->get('status') and $this->parent->user) {
             $validator->errors()->add('user', __('This record already has a user associated with it.'));
         }
 

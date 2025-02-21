@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-02-2025-09h-56m
@@ -8,7 +9,6 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**

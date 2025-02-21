@@ -55,6 +55,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_audited_stored_items_with_with_stock_checked Number of stored items with stock checked (stock was correct)
  * @property int $number_associated_stored_items Number of stored items associated to the pallet during the audit
  * @property int $number_created_stored_items Number of stored items created and associated to the pallet during the audit
+ * @property string|null $scope_type Fulfilment|Pallet
+ * @property int|null $scope_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $deltas
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
@@ -62,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
- * @property-read Model|\Eloquent $scope
+ * @property-read Model|\Eloquent|null $scope
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAudit newModelQuery()
