@@ -13,6 +13,7 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { faEye, faEyeSlash } from "@fal";
 import PermissionsPictogram from '@/Components/DataDisplay/PermissionsPictogram.vue'
+import { trans } from "laravel-vue-i18n"
 
 const props = defineProps<{
   data: {
@@ -82,8 +83,8 @@ function toggleShowPins() {
     </div>
   </div> -->
 
-  <div class="px-6 py-6 grid grid-cols-9 gap-x-8">
-        <div class="col-span-6 ring-1 ring-gray-300 shadow rounded-2xl py-6 grid grid-cols-2 gap-y-4">
+  <div class="px-6 py-6 grid lg:grid-cols-9 gap-x-8">
+        <div class="lg:col-span-6 ring-1 ring-gray-300 shadow rounded-2xl py-6 grid lg:grid-cols-2 gap-y-4">
             <div class="flex flex-col gap-y-4 px-8">
                 <div class="mx-auto w-fit aspect-square rounded-full overflow-hidden md:h-56" :src="'person.imageUrl'" alt="">
                     <Image :src="data?.employee?.data.avatar" />
@@ -111,51 +112,51 @@ function toggleShowPins() {
             </div>
 
             <!-- Section: Contact Information -->
-            <div class="mt-6 border-l border-gray-300 pl-6 space-y-3">
-                <div class="font-semibold">Contact Information</div>
+            <div class="mt-6 border-l border-gray-300 px-6 space-y-3">
+                <div class="font-semibold">{{ trans("Contact Information") }}</div>
 
                 <div class="space-y-2">
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                            Contact Name
+                            {{ trans("Contact Name") }}
                         </div>
-                        <div class="col-span-2 font-medium capitalize">
+                        <div class="xl:col-span-2 font-medium capitalize text-right lg:text-left">
                             {{ data?.employee?.data.contact_name }}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                          Emergency Contact
+                          {{ trans("Emergency Contact") }}
                         </div>
-                        <div class="col-span-2 font-medium capitalize">
+                        <div class="xl:col-span-2 font-medium capitalize text-right lg:text-left">
                             {{ data?.employee?.data.emergency_contact || '-' }}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                            Start Working
+                            {{ trans("Start Working") }}
                         </div>
-                        <div class="col-span-2 font-medium">
+                        <div class="xl:col-span-2 font-medium text-right lg:text-left">
                             {{ useFormatTime(data?.employee?.data.employment_start_at) }}
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                          State
+                          {{ trans("State") }}
                         </div>
-                        <div class="col-span-2 font-medium">
+                        <div class="xl:col-span-2 font-medium text-right lg:text-left">
                           <Tag  :value="data?.employee?.data.state"></Tag>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-x-5 text-sm">
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
-                            Job Position
+                            {{ trans("Job Position") }}
                         </div>
-                        <div class="col-span-2 font-medium">
+                        <div class="xl:col-span-2 font-medium text-right lg:text-left">
                             {{ data?.employee?.data.job_positions?.length }} 
                         </div>
                     </div>
@@ -163,26 +164,25 @@ function toggleShowPins() {
             </div>
         </div>
 
-        <div class="h-fit w-fit grid col-span-3 ring-1 ring-gray-300 shadow rounded-2xl p-6 gap-y-6">
-        <div class="flex flex-col items-center gap-y-4">
-          <div v-if="data?.pin" class="flex flex-wrap justify-center gap-2">
-            <div
-              v-for="(value, index) in Array.from(data?.pin)"
-              :key="index"
-              class="w-12 h-12 flex items-center justify-center text-lg font-semibold border border-gray-300 rounded-md shadow-sm bg-gray-50"
-            >
-            
-              {{ showPins ? value : 'X' }}
+        <div class="mt-4 lg:mt-0 w-full h-fit lg:max-w-lg grid lg:col-span-3 ring-1 ring-gray-300 shadow rounded-2xl py-6 px-4 gap-y-6">
+            <div v-if="data?.pin" class="flex flex-nowrap justify-center gap-2">
+              <div
+                v-for="(value, index) in Array.from(data?.pin)"
+                :key="index"
+                class="h-6 xl:h-8 aspect-square flex items-center justify-center text-sm xl:text-lg font-semibold border border-gray-300 rounded xl:rounded-md shadow-sm bg-gray-50"
+              >
+              
+                <Transition name="spin-to-right">
+                  <span :key="showPins ? value : 'X'">{{ showPins ? value : 'X' }}</span>
+                </Transition>
+              </div>
             </div>
+
+          <div class=" flex flex-col items-center gap-y-4">
+
+            <Button  @click="toggleShowPins" type="tertiary" :label="showPins ? trans('Hide Pins') : trans('Show Pins')" :icon="showPins ? faEyeSlash : faEye" />
           </div>
         </div>
-
-        <div class=" flex flex-col items-center gap-y-4">
-          <div class="text-gray-400 italic">Show Clocking Machine Pin</div>
-
-          <Button  @click="toggleShowPins" :label="showPins ? 'Hide Pins' : 'Show Pins'" :icon="showPins ? faEyeSlash : faEye" />
-        </div>
-      </div>
 
     </div>
     <div class="flex py-4 px-8 gap-x-8">
