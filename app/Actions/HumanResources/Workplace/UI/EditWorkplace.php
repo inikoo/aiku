@@ -77,6 +77,7 @@ class EditWorkplace extends OrgAction
                     'options'     => GetTimeZonesOptions::run(),
                     'value'       => $workplace->timezone_id,
                     'required'    => true,
+                    'searchable'  => true,
                     'mode'        => 'single'
                 ],
                 'address'      => [
