@@ -46,23 +46,25 @@ class UpdateEmployee extends OrgAction
     public function handle(Employee $employee, array $modelData): Employee
     {
         $stateData = [];
-        if(Arr::get($modelData, 'state.state')) {
-            $state = Arr::get($modelData, 'state.state');
-            data_set($stateData, 'state', $state);
+        if(Arr::get($modelData, 'state')) {
+            if(Arr::get($modelData, 'state.state')) {
+                $state = Arr::get($modelData, 'state.state');
+                data_set($stateData, 'state', $state);
+            }
+            if(Arr::get($modelData, 'state.employment_start_at')){
+                $startAt = Arr::get($modelData, 'state.employment_start_at');
+                data_set($stateData, 'employment_start_at', $startAt);
+            } 
+    
+            if(Arr::get($modelData, 'state.employment_end_at')) {
+                $endAt = Arr::get($modelData, 'state.employment_end_at');
+                data_set($stateData, 'employment_end_at', $endAt);
+            }
+    
+            data_set($modelData, 'state', $stateData['state']);
+            data_set($modelData, 'employment_start_at', $stateData['employment_start_at']);
+            data_set($modelData, 'employment_end_at', $stateData['employment_end_at']);       
         }
-        if(Arr::get($modelData, 'state.employment_start_at')){
-            $startAt = Arr::get($modelData, 'state.employment_start_at');
-            data_set($stateData, 'employment_start_at', $startAt);
-        } 
-
-        if(Arr::get($modelData, 'state.employment_end_at')) {
-            $endAt = Arr::get($modelData, 'state.employment_end_at');
-            data_set($stateData, 'employment_end_at', $endAt);
-        }
-
-        data_set($modelData, 'state', $stateData['state']);
-        data_set($modelData, 'employment_start_at', $stateData['employment_start_at']);
-        data_set($modelData, 'employment_end_at', $stateData['employment_end_at']);
         
         if (Arr::has($modelData, 'job_positions')) {
 
