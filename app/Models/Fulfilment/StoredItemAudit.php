@@ -62,6 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read Model|\Eloquent $scope
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAudit newModelQuery()
@@ -104,7 +105,7 @@ class StoredItemAudit extends Model implements Auditable
     {
         return $this->morphTo();
     }
-    
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

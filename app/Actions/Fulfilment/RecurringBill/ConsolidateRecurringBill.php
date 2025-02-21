@@ -8,8 +8,8 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
+use App\Actions\Accounting\Invoice\InvoiceRecurringBillTransactions;
 use App\Actions\Accounting\Invoice\StoreInvoice;
-use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -31,6 +31,7 @@ class ConsolidateRecurringBill extends OrgAction
      */
     public function handle(RecurringBill $recurringBill): Invoice
     {
+
         $invoice = DB::transaction(function () use ($recurringBill) {
             $recurringBill = $this->update($recurringBill, [
                 'status'   => RecurringBillStatusEnum::FORMER,
@@ -52,24 +53,17 @@ class ConsolidateRecurringBill extends OrgAction
 
             $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
 
-            $transactions = $recurringBill->transactions;
-
-            foreach ($transactions as $transaction) {
-                $data = [
-                    'tax_category_id' => $transaction->recurringBill->tax_category_id,
-                    'quantity'        => $transaction->quantity * $transaction->temporal_quantity,
-                    'gross_amount'    => $transaction->gross_amount,
-                    'net_amount'      => $transaction->net_amount,
-                ];
-                StoreInvoiceTransaction::make()->action($invoice, $transaction->historicAsset, $data);
+            if ($recurringBill->stats->number_transactions > 2) {
+                InvoiceRecurringBillTransactions::dispatch($invoice, $recurringBill);
+            } else {
+                InvoiceRecurringBillTransactions::run($invoice, $recurringBill);
             }
-
 
             return $invoice;
         });
 
         $this->update($recurringBill->fulfilmentCustomer, [
-            'current_recurring_bill_id' => null,
+            'current_recurring_bill_id'  => null,
             'previous_recurring_bill_id' => $recurringBill->id
         ]);
 
