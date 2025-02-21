@@ -12,8 +12,8 @@ library.add(faCheck, faExclamation, faInfo, faPlay)
 
 const props = withDefaults(
 	defineProps<{
-		widget: any // object or array of objects
-		visual?: any // chart configuration object or array of configurations
+		widget: any
+		visual?: any
 	}>(),
 	{
 		widget: () => ({
@@ -24,7 +24,7 @@ const props = withDefaults(
 		}),
 	}
 )
-console.log(props)
+console.log(props.widget, "xxxxxxxxx")
 
 const locale = inject("locale", aikuLocaleStructure)
 const layoutStore = inject("layout", layoutStructure)
@@ -54,7 +54,6 @@ const printLabelByType = (label?: string, type?: string, currency_code?: string)
 }
 
 function NumberDashboard(shop: any) {
-	console.log(shop)
 	return route(shop?.name, shop?.parameters)
 }
 
@@ -67,19 +66,17 @@ const visualArray = computed(() => {
 	return Array.isArray(props.visual) ? props.visual : [props.visual]
 })
 
-const setChartOptions = () => ({
+const setChartOptions = (chartData: any) => ({
 	responsive: true,
 	maintainAspectRatio: false,
 	plugins: {
-		legend: {
-			display: false,
-		},
+		legend: { display: false },
 		tooltip: {
 			callbacks: {
 				label: (context) => {
 					const value = parseFloat(context.parsed.y ?? context.parsed) || 0
-					// If a currency code is provided in the chart config, use it.
-					const currencyCode = visualArray.value[context.dataIndex]?.currency_codes
+					// Access the currency code from the nested structure:
+					const currencyCode = chartData.value.currency_codes[context.dataIndex]
 					if (currencyCode) {
 						return locale.currencyFormat(currencyCode, value)
 					}
@@ -92,52 +89,61 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div
-		v-for="(item, index) in widgetArray"
-		:key="index"
-		:class="['rounded-lg p-4 shadow-md relative h-full', getStatusColor(item.status)]">
+	<div :class="['rounded-lg p-4 shadow-md relative h-full']">
 		<!-- Widget Header -->
-		<p class="text-2xl font-bold leading-tight truncate">
-			<template v-if="item.type === 'number'">
-				<template v-if="item.route">
-					<Link :href="NumberDashboard(item.route)">
-						<CountUp
-							class="primaryLink inline-block"
-							:endVal="item.value"
-							:duration="1.5"
-							:scrollSpyOnce="true"
-							:options="{ formattingFn: (value: number) => locale.number(value) }" />
-					</Link>
-				</template>
-				<template v-else>
-					<CountUp
-						:endVal="item.value"
-						:duration="1.5"
-						:scrollSpyOnce="true"
-						:options="{ formattingFn: (value: number) => locale.number(value) }" />
-				</template>
-			</template>
-			<template v-else>
-				<template v-if="item.route">
-					<Link :href="NumberDashboard(item.route)" class="primaryLink">
-						{{ printLabelByType(item.value, item.type, item.currency_code) }}
-					</Link>
-				</template>
-				<template v-else>
-					{{ printLabelByType(item.value, item.type, item.currency_code) }}
-				</template>
-			</template>
-		</p>
-		<p class="text-sm text-gray-500">{{ item.description }}</p>
+		<div class="mt-4 flex flex-row">
+			<div
+				v-for="(item, index) in widgetArray"
+				:key="index"
+				:style="{ width: 100 / visualArray.length + '%' }">
+				<p class="text-2xl font-bold leading-tight truncate">
+					<template v-if="item.type === 'number'">
+						<template v-if="item.route">
+							<Link :href="NumberDashboard(item.route)">
+								<CountUp
+									class="primaryLink inline-block"
+									:endVal="item.value"
+									:duration="1.5"
+									:scrollSpyOnce="true"
+									:options="{ formattingFn: (value: number) => locale.number(value) }" />
+							</Link>
+						</template>
+						<template v-else>
+							<CountUp
+								:endVal="item.value"
+								:duration="1.5"
+								:scrollSpyOnce="true"
+								:options="{ formattingFn: (value: number) => locale.number(value) }" />
+						</template>
+					</template>
+					<template v-else>
+						<template v-if="item.route">
+							<Link :href="NumberDashboard(item.route)" class="primaryLink">
+								{{ printLabelByType(item.value, item.type, item.currency_code) }}
+							</Link>
+						</template>
+						<template v-else>
+							{{ printLabelByType(item.value, item.type, item.currency_code) }}
+						</template>
+					</template>
+				</p>
+				<p class="text-sm text-gray-500">{{ item.description }}</p>
+			</div>
+		</div>
 
 		<!-- If a visual configuration exists for this widget, show its chart -->
-		<div v-if="visualArray.length > index" class="mt-4">
-			<Chart
-				:type="visualArray[index].type"
-				:labels="visualArray[index].label"
-				:data="visualArray[index].value"
-				:height="200"
-				:options="setChartOptions()" />
+		<div v-if="visualArray.length" class="mt-4 flex flex-row">
+			<div
+				v-for="(chartData, index) in visualArray"
+				:key="index"
+				:style="{ width: 100 / visualArray.length + '%' }">
+				<Chart
+					:type="chartData.type"
+					:labels="chartData.value.labels"
+					:data="chartData.value"
+					:height="100"
+					:options="setChartOptions(chartData)" />
+			</div>
 		</div>
 	</div>
 </template>
