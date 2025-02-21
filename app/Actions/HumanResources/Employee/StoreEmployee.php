@@ -191,6 +191,7 @@ class StoreEmployee extends OrgAction
             'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)],
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'user_model_status'                       => ['exclude_if:username,null', 'sometimes', 'boolean'],
+            'emergency_contact'                       => ['sometimes', 'nullable', 'string', 'max:256'],
             'type'                                    => ['required', Rule::enum(EmployeeTypeEnum::class)]
         ];
 

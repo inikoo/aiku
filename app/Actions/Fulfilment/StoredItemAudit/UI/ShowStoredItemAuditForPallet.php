@@ -16,10 +16,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Fulfilment\NewStoredItemDeltasInProcessForPalletResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
-use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessForPalletResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -84,8 +82,46 @@ class ShowStoredItemAuditForPallet extends OrgAction
                     'label' => __('Add SKU'),
                 ]
             ];
-            $editDeltas = StoredItemDeltasInProcessForPalletResource::collection(IndexStoredItemDeltasInProcessForPallet::run($storedItemAudit, 'edit_stored_item_deltas'));
-            $editNewDeltas = NewStoredItemDeltasInProcessForPalletResource::collection(IndexNewStoredItemDeltasInProcessForPallet::run($storedItemAudit, 'new_stored_item_deltas'));
+            $editDeltas = $pallet->getEditStoredItemDeltasQuery($pallet->id, $storedItemAudit->id)
+                ->where('pallet_stored_items.pallet_id', $this->id)
+                ->get()->map(fn ($item) => [
+                    'stored_item_audit_id'       => $storedItemAudit->id,
+                    'pallet_id'                  => $item->pallet_id,
+                    'stored_item_id'             => $item->stored_item_id,
+                    'reference'                  => $item->stored_item_reference,
+                    'quantity'                   => (int)$item->quantity,
+                    'audited_quantity'           => (int)$item->audited_quantity,
+                    'audit_notes'                => $item->audit_notes,
+                    'stored_item_audit_delta_id' => $item->stored_item_audit_delta_id,
+                    'audit_type'                 => $item->audit_type,
+                    'update_routes'              => [
+                        'name'       => 'grp.models.stored_item_audit_delta.update',
+                        'parameters' => [
+                            $item->stored_item_audit_delta_id
+                        ]
+                    ],
+                    'type'                       => 'current_item',
+                ]);
+            $editNewDeltas = $pallet->getEditNewStoredItemDeltasQuery($pallet->id)
+            ->where('stored_item_audit_deltas.pallet_id', $pallet->id)
+            ->where('stored_item_audit_deltas.stored_item_audit_id', $storedItemAudit->id)
+                ->get()->map(fn ($item) => [
+                    'stored_item_audit_id'    => $storedItemAudit->id,
+                    'stored_item_id'          => $item->stored_item_id,
+                    'reference'               => $item->stored_item_reference,
+                    'quantity'                => 0,
+                    'audited_quantity'        => (int)$item->audited_quantity,
+                    'stored_item_audit_delta_id' => $item->audit_id,
+                    'audit_type'                 => $item->audit_type,
+                    'update_routes'           => [
+                        'name'       => 'grp.models.stored_item_audit_delta.update',
+                        'parameters' => [
+                            $item->audit_id
+                        ]
+                    ],
+                    'audit_notes'             => $item->audit_notes,
+                    'type'                    => 'new_item'
+                ]);
         } else {
             $deltas = StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItemAudit, 'stored_item_deltas'));
         }
@@ -165,8 +201,8 @@ class ShowStoredItemAuditForPallet extends OrgAction
                 ],
 
                 'data'                    => StoredItemAuditResource::make($storedItemAudit),
-                'edit_stored_item_deltas' => $editDeltas,
-                'edit_new_stored_item_deltas' => $editNewDeltas,
+                'xstored_items' => $editDeltas,
+                'xnew_stored_items' => $editNewDeltas,
                 'stored_item_deltas'      => $deltas,
                 'fulfilment_customer'     => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
