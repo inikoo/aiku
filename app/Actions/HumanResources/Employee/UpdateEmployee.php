@@ -180,6 +180,7 @@ class UpdateEmployee extends OrgAction
             'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
+            'emergency_contact'                     => ['sometimes', 'nullable', 'string', 'max:256'],
             'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)]
 
 
