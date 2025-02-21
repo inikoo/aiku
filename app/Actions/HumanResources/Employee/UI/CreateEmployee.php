@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -68,6 +69,35 @@ class CreateEmployee extends OrgAction
                         [
                             'title'  => __('Employment'),
                             'fields' => [
+
+                                'type'               => [
+                                    'label'     => __('Type'),
+                                    'type'      => 'radio',
+                                    'mode'      => 'card',
+                                    'valueProp' => 'value',
+                                    'required'  => true,
+                                    'value'     => EmployeeTypeEnum::EMPLOYEE->value,
+                                    'options'   => [
+                                        [
+                                            'title'       => __('employee'),
+                                            'value'       => EmployeeTypeEnum::EMPLOYEE->value
+                                        ],
+                                        [
+                                            'title'       => __('volunteer'),
+                                            'value'       => EmployeeTypeEnum::VOLUNTEER->value
+                                        ],
+                                        [
+                                            'title'       => __('temporal worker'),
+                                            'value'       => EmployeeTypeEnum::TEMPORAL_WORKER->value
+                                        ],
+                                        [
+                                            'title'       => __('work experience'),
+                                            'value'       => EmployeeTypeEnum::WORK_EXPERIENCE->value
+                                        ],
+
+                                    ]
+                                ],
+
                                 'worker_number'       => [
                                     'type'     => 'input',
                                     'label'    => __('worker number'),
@@ -91,7 +121,7 @@ class CreateEmployee extends OrgAction
                                     'mode'      => 'card',
                                     'valueProp' => 'value',
                                     'required'  => true,
-                                    'value'     => EmployeeStateEnum::HIRED->value,
+                                    'value'     => EmployeeStateEnum::WORKING->value,
                                     'options'   => [
                                         [
                                             'title'       => __('Hired'),
