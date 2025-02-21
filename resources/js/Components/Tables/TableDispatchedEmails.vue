@@ -43,7 +43,7 @@ library.add(
     faDumpster,
     faHandPaper,
     faCheck,
-    faTimesCircle
+    faTimesCircle,
 );
 const props = defineProps<{
     data: object,
@@ -74,8 +74,8 @@ const locale = inject('locale', aikuLocaleStructure)
         <template #cell(state)="{ item: dispatchedEmail }">
             <Icon :data="dispatchedEmail.state" />
         </template>
-        <template #cell(mask_as_spam)="{ item: dispatchedEmail }">
-            <Icon :data="dispatchedEmail.mask_as_spam" />
+        <template #cell(email_address)="{ item: dispatchedEmail }">
+            {{ dispatchedEmail["email_address"]}} <Icon :data="dispatchedEmail.mask_as_spam" />
         </template>
         <template #cell(sent_at)="{ item: dispatchedEmail }">
             {{ useFormatTime(dispatchedEmail.sent_at, { localeCode: locale.language.code, formatTime: "aiku" }) }}

@@ -114,8 +114,7 @@ class IndexDispatchedEmails extends OrgAction
 
             $table
                 ->withGlobalSearch()
-                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false)
-                ->column(key: 'mask_as_spam', label: __('Spam'), type: 'icon', canBeHidden: false, sortable: true);
+                ->column(key: 'state', label: '', type: 'icon', canBeHidden: false);
             $table->column(key: 'email_address', label: __('Email'), canBeHidden: false, sortable: true);
 
             $table->column(key: 'sent_at', label: __('Send Date'), canBeHidden: false, sortable: true);
