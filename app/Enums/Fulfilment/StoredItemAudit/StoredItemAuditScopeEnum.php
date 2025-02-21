@@ -16,8 +16,8 @@ enum StoredItemAuditScopeEnum: string
 {
     use EnumHelperTrait;
 
-    case FULFILMENT   = 'fulfilment';
-    case PALLET       = 'pallet';
+    case FULFILMENT   = 'Fulfilment';
+    case PALLET       = 'Pallet';
 
 
     public static function labels(): array

@@ -53,7 +53,7 @@ class StoreStoredItemAuditFromPallet extends OrgAction
             $pallet->fulfilmentCustomer,
             SerialReferenceModelEnum::STORED_ITEM_AUDIT
         );
-        data_set($modelData, 'scope_type', StoredItemAuditScopeEnum::PALLET);
+        data_set($modelData, 'scope_type', StoredItemAuditScopeEnum::PALLET->value);
         data_set($modelData, 'scope_id', $pallet->id);
 
         /** @var StoredItemAudit $storedItemAudit */
