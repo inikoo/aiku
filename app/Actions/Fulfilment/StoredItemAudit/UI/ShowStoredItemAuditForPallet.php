@@ -53,8 +53,67 @@ class ShowStoredItemAuditForPallet extends OrgAction
     public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
     {
         $render = Inertia::render(
-            'Devel/Dummy',
+            'Org/Fulfilment/PalletAudit',
+            [
+                'title'       => __('pallet audit'),
+                // 'breadcrumbs' => $this->getBreadcrumbs(
+                //     $request->route()->getName(),
+                //     $request->route()->originalParameters()
+                // ),
+                // 'navigation' => [
+                //     'previous' => $this->getPrevious($palletReturn, $request),
+                //     'next'     => $this->getNext($palletReturn, $request),
+                // ],
+                'pageHead' => [
+                    // 'container' => $container,
+                    // 'subNavigation' => $subNavigation,
+                    'title'     => __('Audit'),
+                    'model'     => __('Pallet'),
+                    // 'afterTitle' => $afterTitle,
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-pallet'],
+                        'title' => __('Pallet')
+                    ],
+                    // 'edit' => $this->canEdit ? [
+                    //     'route' => [
+                    //         'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                    //         'parameters' => array_values($request->route()->originalParameters())
+                    //     ]
+                    // ] : false,
+                    // 'actions' => $actions
+                ],
+                'edit_stored_item_deltas' => null,
+                'stored_item_deltas' => null,
+                'route_list' => [
+                    // 'update' => [
+                    //     'name'       => 'grp.models.stored_item_audit.update',
+                    //     'parameters' => [
+                    //         'storedItemAudit' => $storedItemAudit->id
+                    //     ]
+                    // ],
+                    // 'stored_item_audit_delta' => [
+                    //     'update' => [  // Update quantity
+                    //         'method'     => 'patch',
+                    //         'name'       => 'grp.models.stored_item_audit_delta.update',
+                    //         //parameters: add the storedItemAuditDelta id in the FE
+                    //     ],
+                    //     'delete' => [
+                    //         'method'     => 'delete',
+                    //         'name'       => 'grp.models.stored_item_audit_delta.delete',
+                    //         //parameters: add the storedItemAuditDelta id in the FE
+                    //     ],
+                    //     'store' => [
+                    //         'method'     => 'post',
+                    //         'name'       => 'grp.models.stored_item_audit.stored_item_audit_delta.store',
+                    //         'parameters' => [
+                    //             $storedItemAudit->id
+                    //         ]
+                    //     ],
+                    // ]
+                ],
+            ]
         );
+
         return $render;
 
     }
