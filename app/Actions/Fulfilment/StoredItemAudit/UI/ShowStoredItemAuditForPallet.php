@@ -52,15 +52,18 @@ class ShowStoredItemAuditForPallet extends OrgAction
 
     public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
     {
-        $disabled = $storedItemAudit->deltas->every(function (StoredItemAuditDelta $delta) {
+        /** @var Pallet $pallet */
+        $pallet = $storedItemAudit->scope;
+
+        $disabled      = $storedItemAudit->deltas->every(function (StoredItemAuditDelta $delta) {
             return $delta->storedItem === null;
         });
-        $actions = [];
+        $actions       = [];
         $subNavigation = [];
-        $editDeltas = null;
-        $deltas = null;
+        $editDeltas    = null;
+        $deltas        = null;
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
-            $actions = [
+            $actions    = [
                 [
                     'type'     => 'button',
                     'style'    => 'primary',
@@ -70,14 +73,14 @@ class ShowStoredItemAuditForPallet extends OrgAction
                         'method'     => 'patch',
                         'name'       => 'grp.models.stored_item_audit.complete',
                         'parameters' => [
-                                $storedItemAudit->id
+                            $storedItemAudit->id
                         ],
                     ]
                 ],
                 [
-                    'type'     => 'button',
-                    'style'    => 'secondary',
-                    'label'    => __('Add SKU'),
+                    'type'  => 'button',
+                    'style' => 'secondary',
+                    'label' => __('Add SKU'),
                 ]
             ];
             $editDeltas = StoredItemDeltasInProcessForPalletResource::collection(IndexStoredItemDeltasInProcessForPallet::run($storedItemAudit, 'edit_stored_item_deltas'));
@@ -100,29 +103,19 @@ class ShowStoredItemAuditForPallet extends OrgAction
                 //     'previous' => $this->getPrevious($palletReturn, $request),
                 //     'next'     => $this->getNext($palletReturn, $request),
                 // ],
-                'pageHead' => [
-                    'title'     => __('Audit'),
-                    'model'     => __('Pallet'),
-                    // 'afterTitle' => $afterTitle,
-                    'icon'      => [
+                'pageHead'    => [
+                    'title'         => __('Audit'),
+                    'model'         => __('Pallet'),
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-pallet'],
                         'title' => __('Pallet'),
                     ],
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions,
-                    // 'edit' => $this->canEdit ? [
-                    //     'route' => [
-                    //         'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                    //         'parameters' => array_values($request->route()->originalParameters())
-                    //     ]
-                    // ] : false,
-                    // 'actions' => $actions
                 ],
-                'edit_stored_item_deltas' => null,
-                'stored_item_deltas' => null,
 
                 'route_list' => [
-                    'update' => [
+                    'update'                  => [
                         'name'       => 'grp.models.stored_item_audit.update',
                         'parameters' => [
                             'storedItemAudit' => $storedItemAudit->id
@@ -130,16 +123,16 @@ class ShowStoredItemAuditForPallet extends OrgAction
                     ],
                     'stored_item_audit_delta' => [
                         'update' => [  // Update quantity
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.stored_item_audit_delta.update',
-                            //parameters: add the storedItemAuditDelta id in the FE
+                                       'method' => 'patch',
+                                       'name'   => 'grp.models.stored_item_audit_delta.update',
+                                       //parameters: add the storedItemAuditDelta id in the FE
                         ],
                         'delete' => [
-                            'method'     => 'delete',
-                            'name'       => 'grp.models.stored_item_audit_delta.delete',
+                            'method' => 'delete',
+                            'name'   => 'grp.models.stored_item_audit_delta.delete',
                             //parameters: add the storedItemAuditDelta id in the FE
                         ],
-                        'store' => [
+                        'store'  => [
                             'method'     => 'post',
                             'name'       => 'grp.models.stored_item_audit.stored_item_audit_delta.store',
                             'parameters' => [
@@ -169,17 +162,17 @@ class ShowStoredItemAuditForPallet extends OrgAction
                     ]
                 ],
 
-                'data'                      => StoredItemAuditResource::make($storedItemAudit),
-                'edit_stored_item_deltas'   => $editDeltas,
-                'stored_item_deltas'        => $deltas,
-                'fulfilment_customer'       => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
+                'data'                    => StoredItemAuditResource::make($storedItemAudit),
+                'edit_stored_item_deltas' => $editDeltas,
+                'stored_item_deltas'      => $deltas,
+                'fulfilment_customer'     => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         );
 
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $render->table(
                 IndexStoredItemDeltasInProcessForPallet::make()->tableStructure(
-                    $storedItemAudit->scope,
+                    $pallet,
                     prefix: 'edit_stored_item_deltas'
                 )
             );
@@ -193,7 +186,6 @@ class ShowStoredItemAuditForPallet extends OrgAction
         }
 
         return $render;
-
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -227,7 +219,6 @@ class ShowStoredItemAuditForPallet extends OrgAction
                 ],
             ];
         };
-
 
 
         return match ($routeName) {
