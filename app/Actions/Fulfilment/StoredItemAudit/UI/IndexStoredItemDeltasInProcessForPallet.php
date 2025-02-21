@@ -46,16 +46,14 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(StoredItem::class)
-        ->leftJoin('pallet_stored_items', function ($join) use ($storedItemAudit) {
-            $join->on('stored_items.id', '=', 'pallet_stored_items.stored_item_id')
-                ->where('pallet_stored_items.pallet_id', '=', $storedItemAudit->scope->id);
-        });
-
-        $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
+        $query = QueryBuilder::for(StoredItem::class);
+        $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id' )
+            ->where('pallet_stored_items.pallet_id', $storedItemAudit->scope->id);
+        
+            $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
             $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
                 ->where('stored_item_audit_deltas.stored_item_audit_id', '=', $storedItemAudit->id)
-              ->where('stored_item_audit_deltas.pallet_id', '=', $storedItemAudit->scope->id);
+                ->where('stored_item_audit_deltas.pallet_id', '=', $storedItemAudit->scope->id);
         });
 
 

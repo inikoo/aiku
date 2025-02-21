@@ -15,6 +15,9 @@ use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessForPalletResource;
 use App\Http\Resources\Fulfilment\StoredItemDeltasInProcessResource;
@@ -22,6 +25,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -77,7 +81,6 @@ class ShowStoredItemAuditForPallet extends OrgAction
         } else {
             $deltas = StoredItemAuditDeltasResource::collection(IndexStoredItemAuditDeltas::run($storedItemAudit, 'stored_item_deltas'));
         }
-
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
