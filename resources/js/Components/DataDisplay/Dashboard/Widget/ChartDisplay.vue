@@ -138,21 +138,24 @@ function NumberDashboard(shop: any) {
 const setChartOptions = () => ({
 	responsive: true,
 	maintainAspectRatio: false,
-
 	plugins: {
 		legend: {
 			display: false,
 		},
 		tooltip: {
 			callbacks: {
+				title: (tooltipItems) => {
+					const index = tooltipItems[0].dataIndex
+					return props.visual.label[index]
+				},
+
 				label: (context) => {
-					const value = parseFloat(context.parsed.y ?? context.parsed) || 0
-					const currencyCode = props.visual?.value?.currency_codes?.[context.dataIndex]
-			
-					if (currencyCode) {
-						return locale.currencyFormat(currencyCode, value)
+					const index = context.dataIndex
+					const hoverLabels = props.visual.hoverLabels
+					if (hoverLabels && hoverLabels[index]) {
+						return hoverLabels[index]
 					}
-					return locale.number(value);
+					return context.formattedValue
 				},
 			},
 		},

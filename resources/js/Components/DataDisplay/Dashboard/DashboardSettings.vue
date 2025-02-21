@@ -74,6 +74,9 @@ const updateInterval = (interval_code: string) => {
 
 // Section: Currency
 const isLoadingCurrency = ref<boolean>(false)
+const isLoadingShop = ref<boolean>(false)
+const isLoadingAmount = ref<boolean>(false)
+
 const updateCurrency = (currency_scope: string) => {
 	router.patch(
 		route("grp.models.profile.update"),
@@ -104,10 +107,10 @@ const updateShop = (shop_scope: string) => {
 		},
 		{
 			onStart: () => {
-				isLoadingCurrency.value = true
+				isLoadingShop.value = true
 			},
 			onFinish: () => {
-				isLoadingCurrency.value = false
+				isLoadingShop.value = false
 			},
 			preserveScroll: true,
 		}
@@ -124,10 +127,10 @@ const updateAmountFormat = (amountFormat: string) => {
 		},
 		{
 			onStart: () => {
-				isLoadingCurrency.value = true
+				isLoadingAmount.value = true
 			},
 			onFinish: () => {
-				isLoadingCurrency.value = false
+				isLoadingAmount.value = false
 			},
 			preserveScroll: true,
 		}
@@ -157,7 +160,7 @@ const updateAmountFormat = (amountFormat: string) => {
 					<p
 						class="font-medium"
 						:class="[
-							settings.db_settings.selected_shop_open ===
+							settings.selected_shop_state ===
 							settings.options_shop[1].value
 								? 'text-black font-bold'
 								: 'opacity-50',
@@ -168,12 +171,13 @@ const updateAmountFormat = (amountFormat: string) => {
 					<!-- Shop Toggle Switch -->
 					<ToggleSwitch
 						:modelValue="settings.selected_shop_state === 'open'"
+						:disabled="isLoadingShop"
 						@update:modelValue="(value) => updateShop(value ? 'open' : 'closed')" />
 
 					<p
 						class="font-medium"
 						:class="[
-							settings.db_settings.selected_shop_open ===
+							settings.selected_shop_state ===
 							settings.options_shop[0].value
 								? 'text-black font-bold'
 								: 'opacity-50',
@@ -193,7 +197,7 @@ const updateAmountFormat = (amountFormat: string) => {
 						:modelValue="settings.selected_amount"
 						@update:modelValue="(e: string) => updateAmountFormat(e)"
 						class="mx-2"
-						:disabled="isLoadingCurrency"
+						:disabled="isLoadingAmount"
 						v-tooltip="'amount format'" />
 
 					<p
