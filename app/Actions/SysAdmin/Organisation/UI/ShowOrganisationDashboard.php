@@ -301,7 +301,7 @@ class ShowOrganisationDashboard extends OrgAction
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
                 data: [
-                    'description' => __('Average amount value')
+                    'description' => __('Average invoice value')
                 ],
                 visual: [
                     'type'  => 'bar',
