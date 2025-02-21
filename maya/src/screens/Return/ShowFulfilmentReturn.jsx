@@ -131,7 +131,6 @@ const ShowFulffilmentReturn = ({navigation, route, onChangeState, handleRefresh}
       })
     : [];
 
-    console.log(data)
 
   return (
       <ScrollView
