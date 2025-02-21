@@ -136,28 +136,31 @@ class ShowPallet extends OrgAction
             $model = $this->parent->customer->name;
             $openStoredItemAudit = $pallet->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
 
-            if ($openStoredItemAudit) {
-                $actions[] = [
-                    'type'    => 'button',
-                    'style'   => 'secondary',
-                    'tooltip' => __("Continue pallet's SKUs audit"),
-                    'label'   => __("Continue pallet's SKUs audit"),
-                    'route'   => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show',
-                        'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
-                    ]
-                ];
-            } else {
-                $actions[] = [
-                    'type'    => 'button',
-                    'tooltip' => __("Start pallet's SKUs audit"),
-                    'label'   => __("Start pallet's SKUs audit"),
-                    'route'   => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create',
-                        'parameters' => $request->route()->originalParameters()
-                    ]
-                ];
-
+            if(!app()->environment('production'))
+            {
+                if ($openStoredItemAudit) {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'tooltip' => __("Continue pallet's SKUs audit"),
+                        'label'   => __("Continue pallet's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show',
+                            'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                        ]
+                    ];
+                } else {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'tooltip' => __("Start pallet's SKUs audit"),
+                        'label'   => __("Start pallet's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ];
+    
+                }
             }
         }
 
