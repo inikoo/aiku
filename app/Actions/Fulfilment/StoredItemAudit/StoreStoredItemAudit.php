@@ -18,6 +18,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditScopeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -51,6 +52,8 @@ class StoreStoredItemAudit extends OrgAction
             $fulfilmentCustomer,
             SerialReferenceModelEnum::STORED_ITEM_AUDIT
         );
+        data_set($modelData, 'scope_type', StoredItemAuditScopeEnum::FULFILMENT);
+        data_set($modelData, 'scope_id', $fulfilmentCustomer->fulfilment_id);
 
         /** @var StoredItemAudit $storedItemAudit */
         $storedItemAudit = $fulfilmentCustomer->storedItemAudits()->create($modelData);

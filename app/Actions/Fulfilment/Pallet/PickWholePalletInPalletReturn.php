@@ -16,23 +16,23 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Http\Resources\Fulfilment\PalletReturnItemResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
-class SetPalletInReturnAsPicked extends OrgAction
+class PickWholePalletInPalletReturn extends OrgAction
 {
     use WithActionUpdate;
 
 
     private PalletReturnItem $pallet;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
         return DB::transaction(function () use ($palletReturnItem) {
@@ -56,22 +56,13 @@ class SetPalletInReturnAsPicked extends OrgAction
             data_set($modelData, 'status', PalletStatusEnum::RETURNING);
             data_set($modelData, 'picked_at', now());
 
-            if ($palletReturnItem->type == 'Pallet') {
-                $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
+            $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
-                foreach ($pallet->palletStoredItems as $palletStoredItem) {
-                    StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
-                    SetPalletStoredItemStateToReturned::run($palletStoredItem); //TODO: Review pls
-                }
-            } else {
-                // TODO: check this, not working //Note: this no longer needed
-                $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)
-                    ->where('stored_item_id', $palletReturnItem->stored_item_id)
-                    ->get();
-                foreach ($storedItems as $storedItem) {
-                    $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
-                }
+            foreach ($pallet->palletStoredItems as $palletStoredItem) {
+                StoreStoredItemMovementFromPickingAFullPallet::run($palletReturnItem, $palletStoredItem);
+                SetPalletStoredItemStateToReturned::run($palletStoredItem);
             }
+
 
             PalletRecordSearch::dispatch($pallet);
 
@@ -97,6 +88,9 @@ class SetPalletInReturnAsPicked extends OrgAction
         return [];
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function fromRetina(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
@@ -109,6 +103,9 @@ class SetPalletInReturnAsPicked extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
         $this->pallet = $palletReturnItem;
@@ -118,14 +115,9 @@ class SetPalletInReturnAsPicked extends OrgAction
     }
 
 
-    public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
-    {
-        $this->pallet = $palletReturnItem;
-        $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
-
-        return $this->handle($palletReturnItem);
-    }
-
+    /**
+     * @throws \Throwable
+     */
     public function action(PalletReturnItem $palletReturnItem, array $modelData, int $hydratorsDelay = 0): PalletReturnItem
     {
         $this->pallet         = $palletReturnItem;
@@ -136,8 +128,8 @@ class SetPalletInReturnAsPicked extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
-    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemUIResource
     {
-        return new PalletReturnItemResource($palletReturnItem);
+        return new PalletReturnItemUIResource($palletReturnItem);
     }
 }

@@ -54,8 +54,10 @@ use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAuditFromPallet;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\StoredItemAudit\UI\ShowStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\UI\ShowStoredItemAuditForPallet;
 use App\Actions\Helpers\Upload\UI\IndexRecentUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -99,8 +101,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('stored-item/{storedItem}', IndexPalletsInStoredItem::class)->name('stored-item.index');
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{pallet}/edit', [EditPallet::class, 'inFulfilmentCustomer'])->name('edit');
-
         Route::get('{pallet}/export', [PdfPallet::class, 'inFulfilmentCustomer'])->name('export');
+        Route::get('{pallet}/stored-item-audits', [IndexStoredItemAudits::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.index');
+        Route::get('{pallet}/stored-item-audits/create', [CreateStoredItemAuditFromPallet::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.create');
+        Route::get('{pallet}/stored-item-audits/{storedItemAudit}', [ShowStoredItemAuditForPallet::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.show');
     });
 
     Route::prefix('pallet-deliveries')->as('.pallet_deliveries.')->group(function () {

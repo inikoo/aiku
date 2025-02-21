@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { MenuItem } from '@headlessui/vue'
 import Image from '@/Components/Image.vue'
 import { Image as ImageTS } from '@/types/Image'
+import axios from 'axios'
 
 const props = defineProps<{
     menuItems: {
@@ -24,6 +25,23 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+
+const onClickOrg = async (slug?: string) => {
+    if (!slug) return
+
+    try {        
+        const response = await axios.patch(
+            route('grp.models.profile.can_visit'), {
+                route_name: route().current(),
+                route_parameters: route().params
+        })
+        router.visit(route(route().current(), { ...route().params, organisation: slug }))
+    } catch (error) {
+        console.error('error', error?.response?.data?.message)
+        router.visit(route('grp.org.dashboard.show', { organisation: slug }))
+    }
+
+}
 </script>
 
 <template>
@@ -52,7 +70,7 @@ const layout = inject('layout', layoutStructure)
 
             <template v-else>
                 <MenuItem v-for="(item) in menuItems" v-slot="{ active }">
-                    <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
+                    <div @click="() => onClickOrg(item.slug)" :class="[
                         item.slug == layout.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                         'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
                     ]">

@@ -269,7 +269,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Set Location -->
 		<template #cell(location)="{ item: pallet }">
-			<div v-if="pallet.state == 'received' || pallet.state == 'booked_in' || pallet.state == 'booking_in'" class="flex gap-x-1 gap-y-2 items-center">
+			<div v-if="state == 'booking_in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery
 					noButton
 					noFetchOnMounted

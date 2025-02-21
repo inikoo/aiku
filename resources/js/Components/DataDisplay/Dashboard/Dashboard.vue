@@ -4,6 +4,11 @@ import DashboardTable from "./DashboardTable.vue"
 import DashboardWidget from "./DashboardWidget.vue"
 import { inject, ref, computed, provide } from "vue"
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTriangle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faTriangle)
+
 const props = defineProps<{
 	dashboard?: {
 		settings?: {}[]
@@ -11,7 +16,9 @@ const props = defineProps<{
 		table?: {}[]
 		total?: {}[]
 		widgets?: {}[]
+		currency_code?: string
 		current?: string
+		total_tooltip?:{}[]
 	}
 	checked?: boolean
 	tableType?: string
@@ -97,7 +104,9 @@ const isOrganisation = ref(false)
 			:tableType="props.tableType"
 			:totalAmount="props.dashboard.total"
 			:current="props.dashboard.current"
-			:settings="props.dashboard?.settings" />
+			:settings="props.dashboard?.settings"
+			:currency_code="props.dashboard?.currency_code"
+			:total_tooltip="props.dashboard?.total_tooltip" />
 
 		<DashboardWidget v-if="props.dashboard?.widgets" :widgetsData="dashboard.widgets" />
 	</div>

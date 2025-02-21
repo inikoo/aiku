@@ -113,6 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_vip VIP customer
  * @property int|null $as_organisation_id Indicate customer is a organisation in this group
  * @property int|null $as_employee_id Indicate customer is a employee
+ * @property string|null $approved_at
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments

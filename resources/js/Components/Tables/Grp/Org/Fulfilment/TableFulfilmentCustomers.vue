@@ -64,10 +64,16 @@ function approveCustomer(customer: any) {
         route('grp.models.customer.approve', { customer: customer.id }),
         {},
         {
+            onStart: () => {
+                customer.isLoading = true;
+            },
             preserveScroll: true,
             onSuccess: () => {
               approvedCustomer.value = customer;
               isModalApproveOpen.value = true;
+            },
+            onFinish: () => {
+                customer.isLoading = false;
             },
             onError: (errors) => {
                 console.error("Approval error:", errors);
@@ -106,13 +112,13 @@ function approveCustomer(customer: any) {
       <template #cell(registered_at)="{ item: customer }">
             <div class="text-gray-500 text-right">{{ useFormatTime(customer["registered_at"], { localeCode: locale.language.code, formatTime: "hm" }) }}</div>
         </template>
-      <template #cell(action)="{ item: customer }">
+      <template #cell(action)="{ proxyItem: customer }">
         <div class="flex gap-4">
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'approved' }">
                <Button label="Approved" :icon="faCheckCircle" size="xs"></Button>
           </Link> -->
           <ButtonWithLink
-                label="Approved"
+                label="Approve"
                 icon="fal fa-check"
                 :bindToLink="{
                     preserveScroll: true,
@@ -120,11 +126,12 @@ function approveCustomer(customer: any) {
                 }"
                 type="positive"
                 size="xs"
+                :loading="customer.isLoading"
                 @click="() => approveCustomer(customer)"
             />
           <!-- <Link :href="route('grp.models.customer.approve', {customer : customer.id })" method="patch" :data="{ status: 'rejected' }"> -->
             <ButtonWithLink
-                label="Rejected"
+                label="Reject"
                 icon="fal fa-times"
                 :bindToLink="{
                     preserveScroll: true,

@@ -235,6 +235,7 @@ class IndexSupplierProducts extends GrpAction
             $spreadsheetRoute = [
                 'event'           => 'action-progress',
                 'channel'         => 'grp.personal.'.$this->group->id,
+                'required_fields' => ["id:_supplier_part_key", "supplier's_product_code", "units_per_sko", "skos_per_carton", "carton_cbm", "unit_cost", "availability", "supplier's_unit_description"],
                 'route'           => [
                     'upload'   => [
                         'name'       => 'grp.models.supplier.supplier-product.import',

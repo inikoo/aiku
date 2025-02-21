@@ -8,12 +8,10 @@
 
 namespace App\Actions\Retina\Fulfilment\PalletReturn;
 
-use App\Actions\Helpers\Upload\ImportUpload;
-use App\Actions\Helpers\Upload\StoreUpload;
+use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
-use App\Imports\Fulfilment\PalletReturnItemImport;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Upload;
 use Illuminate\Support\Facades\Storage;
@@ -25,31 +23,7 @@ class ImportRetinaPalletReturnItem extends RetinaAction
 
     public function handle(PalletReturn $palletReturn, $file): Upload
     {
-        $upload = StoreUpload::make()->fromFile(
-            $palletReturn->organisation,
-            $file,
-            [
-                'model' => 'PalletReturnItem',
-                'parent_type' => class_basename($palletReturn),
-                'parent_id' => $palletReturn->id,
-                'customer_id' => $palletReturn->fulfilmentCustomer->customer_id,
-            ]
-        );
-
-        if ($this->isSync) {
-            ImportUpload::run(
-                $file,
-                new PalletReturnItemImport($palletReturn, $upload)
-            );
-            $upload->refresh();
-        } else {
-            ImportUpload::dispatch(
-                $this->tmpPath.$upload->filename,
-                new PalletReturnItemImport($palletReturn, $upload)
-            );
-        }
-
-        return $upload;
+        return ImportPalletReturnItem::run($palletReturn, $file);
     }
 
     public function rules(): array

@@ -10,6 +10,7 @@
 namespace App\Http\Resources\HumanResources;
 
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\TimezoneResource;
 use App\Models\HumanResources\Workplace;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,10 +18,15 @@ use JsonSerializable;
 
 class WorkplaceResource extends JsonResource
 {
+    public static $wrap = null;
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         /** @var Workplace $workplace */
         $workplace = $this;
+
+
+        $timezone = $workplace->timezone;
+
 
         return [
             'id'                                       => $workplace->id,
@@ -31,14 +37,13 @@ class WorkplaceResource extends JsonResource
             'updated_at'                               => $workplace->updated_at,
             'status'                                   => $workplace->status,
             'location'                                 => $workplace->location,
-//            'timezone'                                 => TimezoneResource::make($workplace->timezone)->getArray(),
+            'timezone'                                 => TimezoneResource::make($workplace->timezone)->getArray(),
             'address'                                  => AddressResource::make($workplace->address)->getArray(),
             'number_clocking_machines'                 => $workplace->stats->number_clocking_machines,
             'number_clocking_machines_type_static_nfc' => $workplace->stats->number_clocking_machines_type_static_nfc,
             'number_clocking_machines_type_mobile_app' => $workplace->stats->number_clocking_machines_type_mobile_app,
             'number_clockings'                         => $workplace->stats->number_clockings,
-            'organisation_name' => $this->organisation_name,
-            'organisation_slug' => $this->organisation_slug,
+
         ];
     }
 }

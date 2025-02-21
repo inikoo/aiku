@@ -8,136 +8,77 @@
 
 namespace App\Actions\Comms\SesNotification;
 
-use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
+use App\Actions\Comms\EmailTrackingEvent\PostProcessingEmailTrackingEvent;
 use App\Actions\Comms\EmailTrackingEvent\StoreEmailTrackingEvent;
-use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
-use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
-use App\Actions\CRM\Prospect\UpdateProspectEmailOpened;
-use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
-use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
+use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Utils\IsGoogleIp;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Comms\DispatchedEmailEvent\DispatchedEmailEventTypeEnum;
+use App\Enums\Comms\EmailTrackingEvent\EmailTrackingEventTypeEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\SesNotification;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ProcessSesNotification
 {
     use AsAction;
+    use WithActionUpdate;
 
     public function handle(SesNotification $sesNotification): ?array
     {
-        $dispatchedEmail = DispatchedEmail::where('provider_message_id', $sesNotification->message_id)->first();
+        $dispatchedEmail = DispatchedEmail::where('provider_dispatch_id', $sesNotification->message_id)->first();
 
         if (!$dispatchedEmail) {
             $sesNotification->delete();
 
             return [];
         }
+
+        $additionalData = [];
+
         switch (Arr::get($sesNotification->data, 'eventType')) {
             case 'Bounce':
-                $type = DispatchedEmailEventTypeEnum::BOUNCE;
-                $date = Arr::get($sesNotification->data, 'bounce.timestamp');
                 $data = Arr::only($sesNotification->data['bounce'], ['bounceType', 'bounceSubType', 'reportingMTA']);
-
                 $isHardBounce = Arr::get($sesNotification->data, 'bounce.bounceType') == 'Permanent';
 
-                if ($dispatchedEmail->recipient_type == 'Prospect') {
-                    if ($isHardBounce) {
-                        UpdateProspectEmailHardBounced::run(
-                            $dispatchedEmail->recipient,
-                            new Carbon($date)
-                        );
-                    } else {
-                        UpdateProspectEmailSoftBounced::run(
-                            $dispatchedEmail->recipient,
-                            new Carbon($date)
-                        );
-                    }
-                }
-
+                $type = EmailTrackingEventTypeEnum::SOFT_BOUNCE;
+                $dispatchedEmailState = DispatchedEmailStateEnum::SOFT_BOUNCE;
 
                 if ($isHardBounce) {
-                    $dispatchedEmail->email()->update(
-                        [
-                            'is_hard_bounced'  => true,
-                            'hard_bounce_type' => Arr::get($sesNotification->data, 'bounce.bounceSubType')
-                        ]
-                    );
+                    $type = EmailTrackingEventTypeEnum::HARD_BOUNCE;
+                    $dispatchedEmailState = DispatchedEmailStateEnum::HARD_BOUNCE;
                 }
-
-                UpdateDispatchedEmail::run(
-                    $dispatchedEmail,
-                    [
-                        'state'           => $isHardBounce ? DispatchedEmailStateEnum::HARD_BOUNCE : DispatchedEmailStateEnum::SOFT_BOUNCE,
-                        'date'            => $date,
-                        'is_hard_bounced' => $isHardBounce,
-                        'is_soft_bounced' => !$isHardBounce
-
-                    ]
-                );
 
                 break;
             case 'Complaint':
-                $type = DispatchedEmailEventTypeEnum::COMPLAIN;
-                $date = Arr::get($sesNotification->data, 'complaint.timestamp');
+                $type = EmailTrackingEventTypeEnum::MARKED_AS_SPAM;
+                $dispatchedEmailState = DispatchedEmailStateEnum::SPAM;
                 $data = Arr::only($sesNotification->data['complaint'], ['userAgent', 'complaintSubType', 'complaintFeedbackType']);
 
-                if ($dispatchedEmail->recipient_type == 'Prospect') {
-                    UpdateProspectEmailUnsubscribed::run($dispatchedEmail->recipient, new Carbon($date));
-                }
+                $additionalData = [
+                    'mask_as_spam' => true
+                ];
 
-                UpdateDispatchedEmail::run(
-                    $dispatchedEmail,
-                    [
-                        'state'   => DispatchedEmailStateEnum::SPAM,
-                        'is_spam' => true,
-                        'date'    => $date,
-                    ]
-                );
                 break;
             case 'Delivery':
-                $type = DispatchedEmailEventTypeEnum::DELIVERY;
-                $date = Arr::get($sesNotification->data, 'delivery.timestamp');
+                $type = EmailTrackingEventTypeEnum::DELIVERED;
+                $dispatchedEmailState = DispatchedEmailStateEnum::DELIVERED;
                 $data = Arr::only($sesNotification->data['delivery'], ['remoteMtaIp', 'smtpResponse']);
 
-                UpdateDispatchedEmail::run(
-                    $dispatchedEmail,
-                    [
-                        'state'        => DispatchedEmailStateEnum::DELIVERED,
-                        'date'         => $date,
-                        'delivered_at' => $date,
-                        'is_delivered' => true
-                    ]
-                );
                 break;
             case 'Reject':
+                $type = EmailTrackingEventTypeEnum::DECLINED_BY_PROVIDER;
+                $dispatchedEmailState = DispatchedEmailStateEnum::REJECTED_BY_PROVIDER;
+                $data = Arr::only($sesNotification->data['reject'], ['ipAddress', 'userAgent']);
 
-                if ($dispatchedEmail->state == DispatchedEmailStateEnum::READY) {
-                    UpdateDispatchedEmail::run(
-                        $dispatchedEmail,
-                        [
-                            'state'       => DispatchedEmailStateEnum::REJECTED,
-                            'is_rejected' => true,
-                        ]
-                    );
-                }
-                $sesNotification->delete();
-
-                return null;
-
+                break;
 
             case 'Open':
-                $type = DispatchedEmailEventTypeEnum::OPEN;
-                $date = Arr::get($sesNotification->data, 'open.timestamp');
+                $type = EmailTrackingEventTypeEnum::OPENED;
+                $dispatchedEmailState = DispatchedEmailStateEnum::OPENED;
                 $data = Arr::only($sesNotification->data['open'], ['ipAddress', 'userAgent']);
-
-
 
                 if (Arr::get($data, 'userAgent') == "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 Mozilla/5.0"
                     and IsGoogleIp::run(Arr::get($data, 'ipAddress'))
@@ -146,53 +87,40 @@ class ProcessSesNotification
                     return null;
                 }
 
+                $additionalData = [
+                    'last_read_at' => now()
+                ];
 
-                if ($dispatchedEmail->recipient_type == 'Prospect') {
-                    UpdateProspectEmailOpened::run($dispatchedEmail->recipient, new Carbon($date));
+                if (!$dispatchedEmail->first_read_at) {
+                    $additionalData = [
+                        'first_read_at' => now(),
+                        'last_read_at' => now()
+                    ];
                 }
-
-                UpdateDispatchedEmail::run(
-                    $dispatchedEmail,
-                    [
-                        'state'     => DispatchedEmailStateEnum::OPENED,
-                        'date'      => $date,
-                        'is_opened' => true
-                    ]
-                );
 
                 break;
             case 'Click':
-                StoreEmailTrackingEvent::make()->action($dispatchedEmail, [
-                    'provider_reference' => $sesNotification->message_id
-                ]);
-                /*       $type = DispatchedEmailEventTypeEnum::CLICK;
-                       $date = Arr::get($sesNotification->data, 'click.timestamp');
-                       $data = Arr::only($sesNotification->data['click'], ['ipAddress', 'userAgent', 'link', 'linkTags']);
+                $type = EmailTrackingEventTypeEnum::CLICKED;
+                $dispatchedEmailState = DispatchedEmailStateEnum::CLICKED;
+                $data = Arr::only($sesNotification->data['click'], ['ipAddress', 'userAgent']);
 
-                       if ($dispatchedEmail->recipient_type == 'Prospect') {
-                           UpdateProspectEmailClicked::run($dispatchedEmail->recipient, new Carbon($date));
-                       }*/
+                $additionalData = [
+                    'last_clicked_at' => now()
+                ];
 
-                // Create storetracking event and call hydrators
-
-                /*         UpdateDispatchedEmail::run(
-                             $dispatchedEmail,
-                             [
-                                 'state'      => DispatchedEmailStateEnum::CLICKED,
-                                 'date'       => $date,
-                                 'is_clicked' => true
-                             ]
-                         );*/
+                if (!$dispatchedEmail->first_clicked_at) {
+                    $additionalData = [
+                        'first_clicked_at' => now(),
+                        'last_clicked_at' => now()
+                    ];
+                }
 
                 break;
 
             case 'DeliveryDelay':
-                $type = DispatchedEmailEventTypeEnum::DELIVERY_DELAY;
-                $date = Arr::get($sesNotification->data, 'deliveryDelay.timestamp');
-                $data = Arr::only(
-                    $sesNotification->data['deliveryDelay'],
-                    ['delayType', 'expirationTime', 'reportingMTA']
-                );
+                $type = EmailTrackingEventTypeEnum::DECLINED_BY_PROVIDER;
+                $dispatchedEmailState = DispatchedEmailStateEnum::DELAY;
+                $data = Arr::only($sesNotification->data['deliveryDelay'], ['ipAddress', 'userAgent']);
 
                 break;
 
@@ -200,18 +128,19 @@ class ProcessSesNotification
                 return $sesNotification->data;
         }
 
+        $emailProcessingTrackingEvent = StoreEmailTrackingEvent::make()->action($dispatchedEmail, [
+            'type' => $type,
+            'data' => $data
+        ]);
+
+        $this->update($dispatchedEmail, [
+            'state' => $dispatchedEmailState,
+            ...$additionalData
+        ]);
+
         $sesNotification->delete();
 
-
-        $eventData = [
-            'type' => $type,
-            'date' => $date,
-            'data' => $data
-        ];
-
-
-        $dispatchedEmail->events()->create($eventData);
-
+        PostProcessingEmailTrackingEvent::dispatch($emailProcessingTrackingEvent);
 
         return null;
     }

@@ -39,7 +39,7 @@ class PalletStoredItemsInPalletReturnResource extends JsonResource
             'quantity_dispatched' => $this->quantity_dispatched,
             'quantity_fail'       => $this->quantity_fail,
             'quantity_cancelled'  => $this->quantity_cancelled,
-
+            'quantity_picked'     => $this->quantity_picked,
 
             'state'         => $this->state,
             'state_icon'    => $this->state->stateIcon()[$this->state->value],

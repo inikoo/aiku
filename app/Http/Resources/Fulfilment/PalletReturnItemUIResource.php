@@ -2,14 +2,13 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 03 Feb 2024 11:07:20 Malaysia Time, Bali Airport, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Thu, 20 Feb 2025 13:57:29 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -33,38 +32,35 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $fulfilment_customer_name
  * @property mixed $fulfilment_customer_slug
  */
-class PalletReturnItemsResource extends JsonResource
+class PalletReturnItemUIResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $pallet = Pallet::find($this->pallet_id);
         return [
             'id'                               => $this->id,
-            'pallet_id'                        => $this->pallet_id,
-            'slug'                             => $this->slug,
-            'reference'                        => $this->reference,
-            'customer_reference'               => (string)$this->customer_reference,
-            'fulfilment_customer_name'         => $this->fulfilment_customer_name,
-            'fulfilment_customer_slug'         => $this->fulfilment_customer_slug,
-            'fulfilment_customer_id'           => $this->fulfilment_customer_id,
-            'notes'                            => (string)$this->notes,
-            'state'                            => $this->state->value,
-            'type_icon'                        => $this->type->typeIcon()[$this->type->value],
-            'type'                             => $this->type,
-            'state_label'                      => PalletStateEnum::labels()[$this->state->value],
-            'state_icon'                       => PalletStateEnum::stateIcon()[$this->state->value],
-            'status'                           => $this->status,
-            'status_label'                     => $this->status->labels()[$this->status->value],
-            'status_icon'                      => $this->status->statusIcon()[$this->status->value],
+            'pallet_id'                        => $this->pallet->id,
+            'slug'                             => $this->pallet->slug,
+            'reference'                        => $this->pallet->reference,
+            'customer_reference'               => (string)$this->pallet->customer_reference,
+            'fulfilment_customer_name'         => $this->pallet->fulfilment_customer_name,
+            'fulfilment_customer_slug'         => $this->pallet->fulfilment_customer_slug,
+            'fulfilment_customer_id'           => $this->pallet->fulfilment_customer_id,
+            'notes'                            => (string)$this->pallet->notes,
+            'state'                            => $this->pallet->state->value,
+            'type_icon'                        => $this->pallet->type->typeIcon()[$this->pallet->type->value],
+            'type'                             => $this->pallet->type,
+            'state_label'                      => PalletStateEnum::labels()[$this->pallet->state->value],
+            'state_icon'                       => PalletStateEnum::stateIcon()[$this->pallet->state->value],
+            'status'                           => $this->pallet->status,
+            'status_label'                     => $this->pallet->status->labels()[$this->pallet->status->value],
+            'status_icon'                      => $this->pallet->status->statusIcon()[$this->pallet->status->value],
             'location'                         => $this->location_slug,
             'location_code'                    => $this->location_code,
-            'location_id'                      => $this->location_id,
-            'is_checked'                       => (bool) $this->pallet_return_id,
-            'stored_items'                     => $pallet->storedItems->map(fn ($storedItem) => [
+            'stored_items'                     => $this->pallet->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
-            'stored_items_quantity' => (int)$pallet->storedItems()->sum('quantity'),
+            'stored_items_quantity' => (int)$this->pallet->storedItems()->sum('quantity'),
             'syncRoute'             => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.pallet-return-item.update',
@@ -75,31 +71,13 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
-            'attachRoute'             => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet-return.pallet.attach',
-                    'parameters' => [
-                        'palletReturn' => null, //add in FE , BE didnt get access to it
-                        'pallet' => $this->pallet_id
-
-                    ]
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet-return.pallet.attach',
-                    'parameters' => [
-                        'palletReturn' => null, //add in FE , BE didnt get access to it
-                        'pallet' => $this->pallet_id
-
-                    ]
-                ]
-            },
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return-item.update',
                     'parameters' => $this->id
                 ],
                 default => [
-                    'name'       => 'grp.models.pallet-return-item.set_as_picked',
+                    'name'       => 'grp.models.pallet-return-item.pick',
                     'parameters' => $this->id
                 ]
             },
@@ -129,21 +107,21 @@ class PalletReturnItemsResource extends JsonResource
             'deleteFromDeliveryRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-delivery.pallet.delete',
-                    'parameters' => [$this->pallet_delivery_id, $this->id]
+                    'parameters' => [$this->pallet->pallet_delivery_id, $this->id]
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_delivery_id, $this->id]
+                    'parameters' => [$this->pallet->fulfilment_customer_id, $this->pallet->pallet_delivery_id, $this->id]
                 ]
             },
             'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.pallet.delete',
-                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
+                    'parameters' => [$this->pallet->pallet_return_id, $this->pallet->id]
                 ],
                 default => [
                     'name'       => 'grp.models.pallet-return.pallet.detach',
-                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
+                    'parameters' => [$this->pallet->pallet_return_id, $this->pallet->id]
                 ]
             },
             'notReceivedRoute' => [
@@ -164,7 +142,7 @@ class PalletReturnItemsResource extends JsonResource
             ],
             'updateLocationRoute' => [
                 'name'       => 'grp.models.warehouse.pallets.location.update',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'parameters' => [$this->pallet->warehouse_id, $this->id]
             ],
             'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
                 true => [
@@ -174,16 +152,6 @@ class PalletReturnItemsResource extends JsonResource
                 default => [
                     'name'       => 'grp.models.pallet.stored-items.update',
                     'parameters' => [$this->id]
-                ]
-            },
-            'updatePalletRoute'           => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet.update',
-                    'parameters' => $this->pallet_id
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet.update',
-                    'parameters' => $this->pallet_id
                 ]
             },
         ];

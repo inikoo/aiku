@@ -43,6 +43,7 @@ import TableClockingMachine from "@/Components/Tables/Grp/Org/HumanResources/Tab
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
 import type { Navigation } from "@/types/Tabs";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import WorkplaceShowcase from "@/Components/HumanResources/WorkplaceShowcase.vue"
 
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));
@@ -57,6 +58,7 @@ const props = defineProps<{
     clocking_machines?: object;
     clockings?: object;
     history?: object;
+    showcase: {}
 
 }>();
 
@@ -64,8 +66,8 @@ let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
-
     const components = {
+        showcase: WorkplaceShowcase,
         clocking_machines: TableClockingMachine,
         clockings: TableClockings,
         details: ModelDetails,

@@ -28,6 +28,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -226,6 +227,40 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ]
                 ] : [],
+                $palletReturn->state == PalletReturnStateEnum::DISPATCHED && $palletReturn->recurringBill->status == RecurringBillStatusEnum::CURRENT ? [
+                    'type'   => 'buttonGroup',
+                    'key'    => 'upload-add',
+                    'button' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'label'   => __('add service'),
+                            'key'     => 'add-service',
+                            'tooltip' => __('Add single service'),
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'parameters' => [
+                                    'palletReturn' => $palletReturn->id
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'key'     => 'add-physical-good',
+                            'label'   => __('add physical good'),
+                            'tooltip' => __('Add physical good'),
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'parameters' => [
+                                    'palletReturn' => $palletReturn->id
+                                ]
+                            ]
+                        ],
+                    ]
+            ] : []
             ];
 
             $pdfButton    = [

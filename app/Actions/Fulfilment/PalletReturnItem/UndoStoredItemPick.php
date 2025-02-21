@@ -17,6 +17,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\StoredItemMovement;
 use Lorisleiva\Actions\ActionRequest;
+use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 
 class UndoStoredItemPick extends OrgAction
 {
@@ -44,5 +45,13 @@ class UndoStoredItemPick extends OrgAction
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturnItem);
+    }
+
+    public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem|PalletReturnItemResource
+    {
+        if ($request->hasHeader('Maya-Version')) {
+            return PalletReturnItemResource::make($palletReturnItem);
+        }
+        return $palletReturnItem;
     }
 }

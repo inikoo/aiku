@@ -68,6 +68,7 @@ class IndexPalletStoredItemsInReturn extends OrgAction
                     'pallet_return_items.quantity_dispatched',
                     'pallet_return_items.quantity_fail',
                     'pallet_return_items.quantity_cancelled',
+                    'pallet_return_items.quantity_picked',
                     'pallet_return_items.state',
 
                     'locations.code as location_code',

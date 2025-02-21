@@ -61,17 +61,18 @@ const compareObjects = (objA, objB) => {
                     <RadioGroup v-model="form[fieldName]">
                         <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
                         <div class="flex gap-x-4 justify-around">
-                        <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value" :value="fieldData.valueProp || option" v-slot="{ active, checked }">
+                        <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value" :value="option[fieldData.valueProp] || option" v-slot="{ active, checked }">
                             <div :class="[
-                                'relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none',
-                                active ? 'border-indigo-600 ring-2 ring-indigo-600' : 'border-gray-300'
+                                'relative flex cursor-pointer rounded-lg border py-2 px-3 shadow-sm focus:outline-none',
+                                active ? 'border-indigo-600 ring-2 ring-indigo-600' : '',
+                                checked ? 'bg-indigo-100 border-indigo-300' : 'hover:bg-gray-50'
                             ]">
                             <!-- {{ compareObjects(form[fieldName], option) }} -->
                                 <span class="flex flex-1">
                                     <span class="flex flex-col">
                                     <RadioGroupLabel as="span" class="block text-sm font-medium text-gray-700 capitalize">{{ option.title }}</RadioGroupLabel>
-                                    <RadioGroupDescription as="span" class="mt-1 flex items-center text-xs text-gray-400">{{ option.description }}</RadioGroupDescription>
-                                    <RadioGroupDescription as="span" class="mt-6 text-xs font-medium text-gray-600">{{ option.label }}</RadioGroupDescription>
+                                    <RadioGroupDescription v-if="option.description" as="span" class="mt-1 flex items-center text-xs text-gray-400">{{ option.description }}</RadioGroupDescription>
+                                    <RadioGroupDescription v-if="option.label" as="span" class="mt-6 text-xs font-medium text-gray-600">{{ option.label }}</RadioGroupDescription>
                                     </span>
                                 </span>
                                 <!-- <FontAwesomeIcon icon='far fa-check' :class="[!checked ? 'invisible' : '', 'h-4 w-4 text-indigo-600']" aria-hidden="true" /> -->
