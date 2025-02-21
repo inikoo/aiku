@@ -73,7 +73,7 @@ class CreateEmployee extends OrgAction
                                 'type'               => [
                                     'label'     => __('Type'),
                                     'type'      => 'radio',
-                                    'mode'      => 'card',
+                                    'mode'      => 'compact',
                                     'valueProp' => 'value',
                                     'required'  => true,
                                     'value'     => EmployeeTypeEnum::EMPLOYEE->value,

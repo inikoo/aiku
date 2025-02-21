@@ -8,7 +8,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Enums\Procurement\StockDelivery\StockDeliveryScopeEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
@@ -122,7 +121,6 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'data'            => 'array',
         'cost_data'       => 'array',
         'state'           => StockDeliveryStateEnum::class,
-        'scope'           => StockDeliveryScopeEnum::class,
         'date'            => 'datetime',
         'dispatched_at'   => 'datetime',
         'received_at'     => 'datetime',
