@@ -48,11 +48,6 @@ class ShowOrganisationDashboard extends OrgAction
         $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
         $selectedShopState = Arr::get($userSettings, 'selected_shop_state', 'open');
         $shops            = $organisation->shops->where('state', $selectedShopState);
-        $shopCurrencies   = [];
-        foreach ($shops as $shop) {
-            $shopCurrencies[] = $shop->currency->symbol;
-        }
-        $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
         $dashboard = [
             'interval_options' => $this->getIntervalOptions(),
             'settings'         => [
@@ -78,7 +73,7 @@ class ShowOrganisationDashboard extends OrgAction
                     ],
                     [
                         'value' => 'shop',
-                        'label' => $shopCurrenciesSymbol,
+                        'label' => '',
                     ]
                 ]
             ],
@@ -108,17 +103,30 @@ class ShowOrganisationDashboard extends OrgAction
 
         $selectedCurrency = Arr::get($userSettings, 'selected_currency_in_org', 'org');
 
+        if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
+            $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency);
+            $shopCurrencies   = [];
+            foreach ($shops as $shop) {
+                $shopCurrencies[] = $shop->currency->symbol;
+            }
+            $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
+        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
+            $invoiceCategories = $organisation->invoiceCategories;
+            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
+
+            $invoiceCategoryCurrencies   = [];
+            foreach ($invoiceCategories as $invoiceCategory) {
+                $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
+            }
+            $shopCurrenciesSymbol = implode('/', array_unique($invoiceCategoryCurrencies));
+        }
+
+        $dashboard['settings']['options_currency'][1]['label'] = $shopCurrenciesSymbol;
+
         if ($selectedCurrency == 'shop') {
             if ($organisation->currency->symbol != $shopCurrenciesSymbol) {
                 data_forget($dashboard, 'currency_code');
             }
-        }
-
-        if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
-            $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency);
-        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            $invoiceCategories = $organisation->invoiceCategories;
-            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
         }
 
         return $dashboard;
