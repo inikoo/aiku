@@ -337,7 +337,32 @@ class ShowOrganisationDashboard extends OrgAction
             $data,
             $selectedCurrency,
             $selectedInterval,
-            fn () => [],
+            fn ($child) => [
+                'route' => [
+                    'name'       => 'grp.org.accounting.invoice-categories.show',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'invoiceCategory' => $child->slug
+                    ]
+                ],
+                'route_invoice' => [
+                    'name'       => 'grp.org.accounting.invoice-categories.show.invoices.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'invoiceCategory' => $child->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                    ]
+                ],
+                'route_refund' => [
+                    'name'       => 'grp.org.accounting.invoice-categories.show.invoices.index',
+                    'parameters' => [
+                        'organisation' => $organisation->slug,
+                        'invoiceCategory' => $child->slug,
+                        'between[date]' => $this->getDateIntervalFilter($selectedInterval),
+                        'tab' => 'refunds'
+                    ]
+                ],
+            ],
         );
 
 

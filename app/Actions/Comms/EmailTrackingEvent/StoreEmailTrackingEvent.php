@@ -36,7 +36,6 @@ class StoreEmailTrackingEvent extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'provider_reference' => ['sometimes', 'nullable', 'string', 'max:64'],
             'type'               => ['required', Rule::enum(EmailTrackingEventTypeEnum::class)],
             'data'               => ['sometimes', 'array']
         ];
