@@ -10,6 +10,7 @@ namespace App\Actions\Traits\Authorisations;
 
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -27,7 +28,7 @@ trait WithFulfilmentAuthorisation
             $this->parent = $this->fulfilment;
         }
 
-        if ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment or $this->parent instanceof Pallet) {
             $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");

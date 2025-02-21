@@ -21,8 +21,6 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UsersResource;
-use App\Models\HumanResources\Employee;
-use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,8 +47,13 @@ class ShowProfile extends GrpAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        /** @var Employee|Guest $parent */
-        $parent = $user->parent;
+
+        $parent = $user->employees()->first();
+        if (!$parent) {
+            $parent = $user->guests()->first();
+        }
+
+
 
         return Inertia::render(
             "Profile",
@@ -82,8 +85,8 @@ class ShowProfile extends GrpAction
                     : Inertia::lazy(fn () => GetProfileShowcase::run($user)),
 
                 ProfileTabsEnum::TIMESHEETS->value => $this->tab == ProfileTabsEnum::TIMESHEETS->value ?
-                    fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))
-                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))),
+                    fn () => TimesheetsResource::collection(IndexTimesheets::run($parent, ProfileTabsEnum::TIMESHEETS->value))
+                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($parent, ProfileTabsEnum::TIMESHEETS->value))),
 
                 ProfileTabsEnum::HISTORY->value => $this->tab == ProfileTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))

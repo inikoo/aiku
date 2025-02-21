@@ -1,8 +1,7 @@
 <?php
-
 /*
  * author Arya Permana - Kirin
- * created on 21-02-2025-08h-46m
+ * created on 21-02-2025-14h-59m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
@@ -17,12 +16,13 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexStoredItemDeltasInProcessForPallet extends OrgAction
+class IndexNewStoredItemDeltasInProcessForPallet extends OrgAction
 {
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
@@ -44,15 +44,14 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(StoredItem::class);
-        $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id')
-            ->where('pallet_stored_items.pallet_id', $storedItemAudit->scope->id);
-
-        $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
+        $query = QueryBuilder::for(StoredItemAuditDelta::class);
+        $query->where('stored_item_audit_deltas.is_stored_item_new_in_pallet', true)
+        ->leftJoin('stored_items', 'stored_item_audit_deltas.stored_item_id', '=', 'stored_items.id')
+        ->leftJoin('pallet_stored_items', function ($join) use ($storedItemAudit) {
             $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
-                ->where('stored_item_audit_deltas.stored_item_audit_id', '=', $storedItemAudit->id)
-                ->where('stored_item_audit_deltas.pallet_id', '=', $storedItemAudit->scope->id);
-        });
+                ->where('pallet_stored_items.pallet_id', '=', $storedItemAudit->scope->id);
+        })
+        ->whereNull('pallet_stored_items.id');
 
 
         $query->defaultSort('stored_items.id')
@@ -61,18 +60,15 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
                 'stored_items.reference',
                 'stored_items.slug',
                 'stored_items.name',
-                'pallet_stored_items.pallet_id as pallet_id',
-                'pallet_stored_items.id as pallet_stored_item_id',
-                'pallet_stored_items.quantity as pallet_stored_item_quantity',
                 'stored_item_audit_deltas.notes as audit_notes',
                 'stored_item_audit_deltas.audited_quantity',
                 'stored_item_audit_deltas.state as delta_state',
                 'stored_item_audit_deltas.audit_type',
-                'stored_item_audit_deltas.id as stored_item_audit_delta_id',
+                'stored_item_audit_deltas.id as stored_item_audit_delta_id'
             )->selectRaw("$storedItemAudit->id. as stored_item_audit_id");
 
 
-        return $query->allowedSorts(['reference', 'name', 'pallet_stored_item_quantity'])
+        return $query->allowedSorts(['reference', 'name', 'audited_quantity'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -105,7 +101,7 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'name', label: __("Name"), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallet_stored_item_quantity', label: __("Quantity"), canBeHidden: false);
+            $table->column(key: 'audited_quantity', label: __("Quantity"), canBeHidden: false);
             $table->column(key: 'actions', label: '', canBeHidden: false);
 
             $table->defaultSort('reference');

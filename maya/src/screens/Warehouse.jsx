@@ -41,7 +41,6 @@ const Warehouse = ({ navigation }) => {
   const { userData, organisation, fulfilment, warehouse } = useContext(AuthContext);
   const selectedWarehouse = userData.warehouse;
 
-  console.log('warehouse',organisation)
   return (
     <View style={globalStyles.container}>
       <FlatList

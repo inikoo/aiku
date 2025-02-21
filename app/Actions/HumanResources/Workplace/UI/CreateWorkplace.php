@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
@@ -65,6 +66,16 @@ class CreateWorkplace extends OrgAction
                                     'mode'        => 'single',
                                     'required'    => true,
                                     'searchable'  => true,
+                                ],
+                                'timezone_id' => [
+                                    'type'        => 'select',
+                                    'label'       => __('timezone'),
+                                    'placeholder' => __('Select a timezone'),
+                                    'options'     => GetTimeZonesOptions::run(),
+                                    'value'       => null,
+                                    'required'    => true,
+                                    'searchable'  => true,
+                                    'mode'        => 'single'
                                 ],
                                 'address' => [
                                     'type'  => 'address',

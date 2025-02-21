@@ -19,7 +19,7 @@ import {getFilteredActionsReturn} from '@/src/utils';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {Center} from '@/src/components/ui/center';
-import {Button, ButtonText} from '@/src/components/ui/button';
+import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Modal from '@/src/components/Modal';
 import {Input, InputField} from '@/src/components/ui/input';
 
@@ -67,7 +67,6 @@ const ItemsInReturn = ({navigation, route, onChangeState}) => {
     const {data, setData} = useReturn();
     const {id} = route.params;
     const _BaseList = useRef(null);
-
     return (
         <View style={globalStyles.container}>
             {data.state != 'dispatched' ? (
@@ -81,10 +80,14 @@ const ItemsInReturn = ({navigation, route, onChangeState}) => {
                             borderBottomRightRadius: 0,
                         },
                         onPress: null,
-                        text: `To do : 0 / ${
+                        text: `To do : ${
+                            (data.type == 'pallet'
+                                ? data?.number_pallet_pick
+                                : data?.number_stored_items)
+                        } / ${
                             (data.type == 'pallet'
                                 ? data?.number_pallets
-                                : data?.number_stored_items) || 0
+                                : data?.number_stored_items)
                         }`,
                     }}
                     button2={{
@@ -128,7 +131,7 @@ const ItemsInReturn = ({navigation, route, onChangeState}) => {
 const GroupItem = ({item: initialItem, navigation}) => {
     const [item, setItem] = useState(initialItem);
     const inputRef = useRef(null);
-    const {data} = useReturn();
+    const {data, setData} = useReturn();
     const [loadingSave, setLoadingSave] = useState(false);
     const [modalSetPicked, setModalSetPicked] = useState(false);
     const translateX = useRef(new Animated.Value(0)).current;
@@ -136,7 +139,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
     const MAX_SWIPE = 100;
     const {control, handleSubmit, reset, setValue} = useForm({
         defaultValues: {
-          quantity_picked: parseInt(item.quantity_ordered).toString(),
+            quantity_picked: parseInt(item.quantity_ordered).toString(),
         },
     });
 
@@ -177,19 +180,27 @@ const GroupItem = ({item: initialItem, navigation}) => {
     ).current;
 
     const onPicked = (allPicked = true, data) => {
+        setLoadingSave(true);
         request({
             urlKey: 'set-stored-item-pick',
             method: 'patch',
             args: [item.id],
-            data: allPicked ? {} : data,
+            data: allPicked
+                ? {
+                      quantity_picked: 
+                          parseInt(item.quantity_ordered)
+                          .toString(),
+                  }
+                : data,
             onSuccess: response => {
-                console.log(response);
+                setLoadingSave(false);
                 setItem(prevItem => ({
                     ...prevItem,
                     state: response.data.state,
                     state_icon: response.data.state_icon,
+                    quantity_picked: response.data.quantity_picked,
                 }));
-
+                setModalSetPicked(false);
                 Animated.spring(translateX, {
                     toValue: 0,
                     useNativeDriver: true,
@@ -198,17 +209,19 @@ const GroupItem = ({item: initialItem, navigation}) => {
                 Toast.show({
                     type: ALERT_TYPE.SUCCESS,
                     title: 'Success',
-                    textBody: 'Updated pallet ' + item.reference,
+                    textBody: 'Updated sku ' + item.stored_items_name,
                 });
             },
             onFailed: error => {
                 console.log(error);
+                setLoadingSave(false);
+                setModalSetPicked(false);
                 Toast.show({
                     type: ALERT_TYPE.DANGER,
                     title: 'Error',
                     textBody:
                         error.detail?.message ||
-                        'Failed to update pallet ' + item.reference,
+                        'Failed to update sku ' + item.stored_items_name,
                 });
             },
         });
@@ -218,15 +231,15 @@ const GroupItem = ({item: initialItem, navigation}) => {
         request({
             urlKey: 'set-stored-item-undo-pick',
             method: 'patch',
-            data: {},
             args: [item.id],
             onSuccess: response => {
                 setItem(prevItem => ({
                     ...prevItem,
                     state: response.data.state,
                     state_icon: response.data.state_icon,
+                    quantity_picked: response.data.quantity_picked,
                 }));
-
+                setModalSetPicked(false);
                 Animated.spring(translateX, {
                     toValue: 0,
                     useNativeDriver: true,
@@ -235,17 +248,18 @@ const GroupItem = ({item: initialItem, navigation}) => {
                 Toast.show({
                     type: ALERT_TYPE.SUCCESS,
                     title: 'Success',
-                    textBody: 'Updated pallet ' + item.reference,
+                    textBody: 'Updated sku ' + item.stored_items_name,
                 });
             },
             onFailed: error => {
                 console.log(error);
+                setModalSetPicked(false);
                 Toast.show({
                     type: ALERT_TYPE.DANGER,
                     title: 'Error',
                     textBody:
                         error.detail?.message ||
-                        'Failed to update pallet ' + item.reference,
+                        'Failed to update sku ' + item.stored_items_name,
                 });
             },
         });
@@ -277,9 +291,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
                                     <TouchableOpacity
                                         size="md"
                                         variant="solid"
-                                        onPress={() =>
-                                            setModalSetPicked(true)
-                                        }>
+                                        onPress={() => setModalSetPicked(true)}>
                                         <Center>
                                             <FontAwesomeIcon
                                                 icon={faCheckRegular}
@@ -303,7 +315,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
                                     <TouchableOpacity
                                         size="md"
                                         variant="solid"
-                                        onPress={() => onPicked(false)}>
+                                        onPress={() => onPicked(true)}>
                                         <Center>
                                             <FontAwesomeIcon
                                                 icon={faCheckRegular}
@@ -318,18 +330,24 @@ const GroupItem = ({item: initialItem, navigation}) => {
                                 </View>
                             </>
                         )}
-                         {item.state == 'picked' && (
-                              <View
-                              style={[
-                                globalStyles.button_swipe_danger,
-                                {width: MAX_SWIPE, backgroundColor: '#E5E7EB'},
-                              ]}>
-                              <TouchableOpacity
-                                size="md"
-                                variant="solid"
-                                onPress={() => undoPicked()}>
-                                <FontAwesomeIcon icon={faHistory} size={25} />
-                              </TouchableOpacity>
+                        {item.state == 'picked' && (
+                            <View
+                                style={[
+                                    globalStyles.button_swipe_danger,
+                                    {
+                                        width: MAX_SWIPE,
+                                        backgroundColor: '#E5E7EB',
+                                    },
+                                ]}>
+                                <TouchableOpacity
+                                    size="md"
+                                    variant="solid"
+                                    onPress={() => undoPicked()}>
+                                    <FontAwesomeIcon
+                                        icon={faHistory}
+                                        size={25}
+                                    />
+                                </TouchableOpacity>
                             </View>
                         )}
                     </>
@@ -366,7 +384,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
                                     {item?.stored_items_name || 'N/A'}
                                 </Text>
                                 <Text style={globalStyles.list.title}>
-                                    {parseInt(item.quantity_dispatched) +
+                                    {parseInt(item.quantity_picked) +
                                         '/' +
                                         parseInt(item.quantity_ordered)}
                                 </Text>
@@ -424,7 +442,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
                     />
                     <Button
                         size="lg"
-                        onPress={() => handleSubmit(e => onPicked(false, e))}>
+                        onPress={handleSubmit(e => onPicked(false, e))}>
                         {loadingSave ? (
                             <ButtonSpinner />
                         ) : (

@@ -84,7 +84,7 @@ const PalletsInReturn = ({navigation, route, onChangeState}) => {
             action: 'primary',
             style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
             onPress: null,
-            text: `To do : 0 / ${data?.number_pallets|| 0 }`,
+            text: `To do : ${data.number_pallet_picked + data.number_pallets_state_other_incident + data.number_pallets_state_lost + data.number_pallets_state_damaged} / ${data.type == 'pallet' ? (data.number_pallets + data.number_oversizes + data.number_boxes ) : data.number_stored_items  || 0}`,
           }}
           button2={{
             size: 'md',

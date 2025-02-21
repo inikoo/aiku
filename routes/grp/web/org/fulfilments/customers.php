@@ -102,6 +102,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{pallet}/edit', [EditPallet::class, 'inFulfilmentCustomer'])->name('edit');
         Route::get('{pallet}/export', [PdfPallet::class, 'inFulfilmentCustomer'])->name('export');
+        Route::get('{pallet}/stored-item-audits', [IndexStoredItemAudits::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.index');
         Route::get('{pallet}/stored-item-audits/create', [CreateStoredItemAuditFromPallet::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.create');
         Route::get('{pallet}/stored-item-audits/{storedItemAudit}', [ShowStoredItemAuditForPallet::class, 'inPalletInFulfilmentCustomer'])->name('stored-item-audits.show');
     });

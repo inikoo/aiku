@@ -80,6 +80,7 @@ const DeliveryStackScreen = ({navigation, route}) => {
         urlKey: 'get-delivery',
         args: [organisation.id, warehouse.id, id],
       });
+      console.log(response.data)
       setData(response.data);
     } catch (error) {
       Toast.show({
@@ -165,7 +166,7 @@ const DeliveryStackScreen = ({navigation, route}) => {
         <BottomTabs tabArr={TabArr} />
       ) : (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color='#4F46E5' />
         </View>
       )}
     </SafeAreaView>
