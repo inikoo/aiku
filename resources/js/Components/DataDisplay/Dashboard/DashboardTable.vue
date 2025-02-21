@@ -107,9 +107,12 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.name">
-									<Link :href="ShopDashboard(data)" class="hover-underline">
+									<Link v-if="data.route" :href="ShopDashboard(data)" class="hover-underline">
 										{{ data.name }}
 									</Link>
+									<span v-else>
+										{{ data.name }}
+									</span>
 								</div>
 							</Transition>
 						</div>
@@ -139,13 +142,20 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
                                 <div :key="data?.refunds || 0">
-									<Link :href="ShopRefundDashboard(data)" class="hover-underline">
+									<Link v-if="data.route_refund" :href="ShopRefundDashboard(data)" class="hover-underline">
 										{{
 											locale.number(
 												data?.interval_percentages?.refunds?.amount || 0
 											)
 										}}
 									</Link>
+									<span v-else>
+										{{
+											locale.number(
+												data?.interval_percentages?.refunds?.amount || 0
+											)
+										}}
+									</span>
 								</div>
 								<!-- <div :key="data.interval_percentages?.refunds?.amount || 0">
 									<span>
@@ -237,13 +247,20 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="flex justify-end relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data?.invoices || 0">
-									<Link :href="ShopInvoiceDashboard(data)" class="hover-underline" >
+									<Link v-if="data.route_invoice" :href="ShopInvoiceDashboard(data)" class="hover-underline" >
 										{{
 											locale.number(
 												data?.interval_percentages?.invoices?.amount || 0
 											)
 										}}
 									</Link>
+									<span v-else>
+										{{
+											locale.number(
+												data?.interval_percentages?.invoices?.amount || 0
+											)
+										}}
+									</span>
 								</div>
 							</Transition>
 						</div>
