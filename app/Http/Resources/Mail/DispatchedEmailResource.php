@@ -34,15 +34,9 @@ class DispatchedEmailResource extends JsonResource
             'mask_as_spam'              => $this->mask_as_spam ?
                 [
                     'tooltip' => __('Spam'),
-                    'icon'    => 'fal fa-check',
-                    'class'   => 'text-green-500'
-                ] :
-                [
-                    'tooltip' => __('Not spam'),
-                    'icon'    => 'fal fa-times-circle',
-                    'class'   => 'text-red-500'
-                ],
-
+                    'icon'    => 'fal fa-dumpster',
+                ] : [],
+            'number_email_tracking_events' => $this->number_email_tracking_events,
             'shop_code'                 => $this->shop_code,
             'shop_name'                 => $this->shop_name,
             'organisation_name'         => $this->organisation_name,
