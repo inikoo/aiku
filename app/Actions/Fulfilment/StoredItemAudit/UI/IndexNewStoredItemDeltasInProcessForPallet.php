@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-02-2025-14h-59m
@@ -14,7 +15,6 @@ use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Services\QueryBuilder;

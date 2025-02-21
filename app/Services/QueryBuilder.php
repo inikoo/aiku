@@ -74,13 +74,14 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
+        $table = $this->getModel()->getTable();
         $periodType = array_key_first(request()->input(($prefix ? $prefix.'_' : '').'period') ?? []);
 
         if ($periodType) {
             $periodData = $this->validatePeriod($periodType, $prefix);
 
             if ($periodData) {
-                $this->whereBetween($column, [$periodData['start'], $periodData['end']]);
+                $this->whereBetween($table.'.'.$column, [$periodData['start'], $periodData['end']]);
             }
         }
 
@@ -184,10 +185,14 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
                 if (count($parts) === 2) {
                     [$start, $end] = $parts;
-
-                    // Normalize the start and end dates
-                    $start = trim($start) . ' 00:00:00';
-                    $end = trim($end) . ' 23:59:59';
+                    // TODO: #1461
+                    if ($start == $end) {
+                        $start = trim($start) . ' 00:00:00';
+                        $end = trim($end) . ' ' . now()->format('H:i:s');
+                    } else {
+                        $start = trim($start) . ' ' . now()->format('H:i:s');
+                        $end = trim($end) . ' ' . now()->format('H:i:s');
+                    }
 
                     $this->whereBetween("$table.$column", [$start, $end]);
                 }
