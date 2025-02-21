@@ -46,11 +46,13 @@ class StoreUser extends GrpAction
             $user = User::create($modelData);
             $user->stats()->create();
 
-            $parent->update(
-                [
-                    'user_id' => $user->id
-                ]
-            );
+            if($parent instanceof Guest) {
+                $parent->update(
+                    [
+                        'user_id' => $user->id
+                    ]
+                );
+            }
 
             foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
                 $user->timeSeries()->create(['frequency' => $frequency]);

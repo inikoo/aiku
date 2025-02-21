@@ -45,7 +45,25 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
+        $stateData = [];
+        if(Arr::get($modelData, 'state.state')) {
+            $state = Arr::get($modelData, 'state.state');
+            data_set($stateData, 'state', $state);
+        }
+        if(Arr::get($modelData, 'state.employment_start_at')){
+            $startAt = Arr::get($modelData, 'state.employment_start_at');
+            data_set($stateData, 'employment_start_at', $startAt);
+        } 
 
+        if(Arr::get($modelData, 'state.employment_end_at')) {
+            $endAt = Arr::get($modelData, 'state.employment_end_at');
+            data_set($stateData, 'employment_end_at', $endAt);
+        }
+
+        data_set($modelData, 'state', $stateData['state']);
+        data_set($modelData, 'employment_start_at', $stateData['employment_start_at']);
+        data_set($modelData, 'employment_end_at', $stateData['employment_end_at']);
+        
         if (Arr::has($modelData, 'job_positions')) {
 
             $jobPositions = Arr::pull($modelData, 'job_positions', []);
@@ -60,7 +78,6 @@ class UpdateEmployee extends OrgAction
         data_forget($modelData, 'password');
         data_forget($modelData, 'auth_type');
         data_forget($modelData, 'user_model_status');
-
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
@@ -81,7 +98,6 @@ class UpdateEmployee extends OrgAction
 
             UpdateUser::run($user, $credentials);
         }
-
         return $employee;
     }
 
@@ -120,6 +136,7 @@ class UpdateEmployee extends OrgAction
             ],
             'state.state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'state.employment_start_at'             => ['sometimes', 'nullable', 'date'],
+            'state.employment_end_at'               => ['sometimes', 'nullable', 'date'],
             'work_email'                            => [
                 'sometimes',
                 'nullable',
