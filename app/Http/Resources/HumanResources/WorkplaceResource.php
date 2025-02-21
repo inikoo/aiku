@@ -18,6 +18,7 @@ use JsonSerializable;
 
 class WorkplaceResource extends JsonResource
 {
+    public static $wrap = null;
     public function toArray($request): array|Arrayable|JsonSerializable
     {
         /** @var Workplace $workplace */

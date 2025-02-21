@@ -91,6 +91,8 @@ class StoreEmployee extends OrgAction
                         'user_model_status' => $status
                     ],
                 );
+
+
             }
 
             SyncEmployeeJobPositions::run($employee, $positions);
