@@ -118,7 +118,6 @@ trait WithDashboard
 
 
 
-
         $result = [
             'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
             'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
@@ -196,7 +195,7 @@ trait WithDashboard
                 );
 
                 // visual sales
-                $visualData['sales_data']['labels'][]              = $child->code;
+                $visualData['sales_data']['labels'][]              = $child->code ?? $child->name;
                 $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
             }
@@ -215,14 +214,16 @@ trait WithDashboard
                     __("Last year refunds") . ": ",
                 );
                 // visual invoices and refunds
-                $visualData['invoices_data']['labels'][]              = $child->code;
+                $visualData['invoices_data']['labels'][]              = $child->code ?? $child->name;
                 $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
-                $visualData['refunds_data']['labels'][]              = $child->code;
+                $visualData['refunds_data']['labels'][]              = $child->code ?? $child->name;
                 $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
                 $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
-            }
+            };
+
+            $visualData['name'][] = $child->name;
 
             $data[] = $responseData;
         }
@@ -233,6 +234,9 @@ trait WithDashboard
             $parentSalesType = 'org';
         }
 
+        $suffixLy = $selectedInterval . '_ly';
+
+        // total
         $totalSales = $childs->sum(function ($child) use ($selectedInterval, $parentSalesType) {
             return $child->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval"} ?? 0;
         }) ?? 0;
@@ -244,16 +248,18 @@ trait WithDashboard
             return $child->orderingIntervals->{"refunds_$selectedInterval"} ?? 0;
         }) ?? 0;
 
-        $totalSalesLy = $childs->sum(function ($child) use ($selectedInterval, $parentSalesType) {
-            return $child->salesIntervals->{"sales_$parentSalesType" . "_currency_$selectedInterval" . '_ly'} ?? 0;
+
+        // last year
+        $totalSalesLy = $childs->sum(function ($child) use ($parentSalesType, $suffixLy) {
+            return $child->salesIntervals->{"sales_$parentSalesType" . "_currency_$suffixLy"} ?? 0;
         }) ?? 0;
 
-        $totalInvoicesLy = $childs->sum(function ($child) use ($selectedInterval) {
-            return $child->orderingIntervals->{"invoices_$selectedInterval" . '_ly'} ?? 0;
+        $totalInvoicesLy = $childs->sum(function ($child) use ($suffixLy) {
+            return $child->orderingIntervals->{"invoices_$suffixLy"} ?? 0;
         }) ?? 0;
 
-        $totalRefundsLy = $childs->sum(function ($child) use ($selectedInterval) {
-            return $child->orderingIntervals->{"refunds_$selectedInterval" . '_ly'} ?? 0;
+        $totalRefundsLy = $childs->sum(function ($child) use ($suffixLy) {
+            return $child->orderingIntervals->{"refunds_$suffixLy"} ?? 0;
         }) ?? 0;
 
         $totalSalesPercentage = $this->calculatePercentageIncrease(
