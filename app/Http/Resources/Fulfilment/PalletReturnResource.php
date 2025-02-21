@@ -54,6 +54,7 @@ class PalletReturnResource extends JsonResource
             'number_stored_items'   => $palletReturn->stats->number_stored_items,
             'number_services'       => $palletReturn->stats->number_services,
             'number_physical_goods' => $palletReturn->stats->number_physical_goods,
+            'number_pallet_pick'    => $palletReturn->stats->number_pallets_state_picked,
         ];
     }
 }
