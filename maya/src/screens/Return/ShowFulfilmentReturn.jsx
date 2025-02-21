@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, ScrollView, TouchableOpacity} from 'react-native';
+import {View, ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import {Card} from '@/src/components/ui/card';
 import {Heading} from '@/src/components/ui/heading';
 import {Text} from '@/src/components/ui/text';
@@ -52,7 +52,7 @@ library.add(
   faLayerPlus,
 );
 
-const ShowFulffilmentReturn = ({navigation, route, onChangeState}) => {
+const ShowFulffilmentReturn = ({navigation, route, onChangeState, handleRefresh}) => {
   const {data, setData} = useReturn();
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
@@ -131,100 +131,114 @@ const ShowFulffilmentReturn = ({navigation, route, onChangeState}) => {
       })
     : [];
 
+    console.log(data)
+
   return (
-    <ScrollView
-      style={globalStyles.container}
-      contentContainerStyle={{paddingBottom: insets.bottom + 120}}>
-      {data.state != 'dispatched' ? (
-        <SetStateButton
-          button1={{
-            size: 'md',
-            variant: 'outline',
-            action: 'primary',
-            style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
-            onPress: null,
-            text: `To do : 1 / ${data.number_pallets || 0 }`,
-          }}
-          button2={{
-            size: 'md',
-            action: 'primary',
-            style: {borderTopLeftRadius: 0, borderBottomLeftRadius: 0},
-            onPress: () =>
-              onChangeState(getFilteredActionsReturn(data.state).id),
-            text: "Set to "  + getFilteredActionsReturn(data.state).title,
-          }}
-        />
-      ) : (
-        <Alert action="success" variant="solid">
-          <FontAwesomeIcon icon={faCheckCircle} color='green' />
-          <AlertText>Already Dispatched</AlertText>
-        </Alert>
-      )}
-
-      <Card className="mt-4">
-        <Heading>Return Details</Heading>
-        <Description schema={schema} />
-      </Card>
-
-      <Card className="mt-4">
-        <Center>
-          <Barcode
-            value={data.reference}
-            format="CODE128"
-            maxWidth={250}
-            height={60}
-          />
-        </Center>
-        <Center>
-          <Heading>{data.reference}</Heading>
-        </Center>
-      </Card>
-
-      <Card className={`mt-4 p-2 ${!isTimelineOpen ? 'bg-indigo-300' : ''}`}>
-        <TouchableOpacity
-          className={`flex-row justify-between items-center py-2 px-4`}
-          onPress={() => setIsTimelineOpen(!isTimelineOpen)}>
-          <View>
-            {!isTimelineOpen && (
-              <View className="flex-row items-center mt-2 gap-4 ">
-                <FontAwesomeIcon
-                  icon={data?.state_icon?.icon}
-                  color={data?.state_icon?.color}
-                  size={23}
-                />
-                <Text className="ml-2 font-bold text-white">
-                  {data.state_label}
-                </Text>
-              </View>
-            )}
-          </View>
-          <FontAwesomeIcon
-            icon={isTimelineOpen ? faChevronUp : faChevronDown}
-            size={20}
-          />
-        </TouchableOpacity>
-        <View className="px-4">
-          {isTimelineOpen && timelineData.length > 0 && (
-            <Timeline
-              data={timelineData}
-              lineColor="gray"
-              circleColor="#66DC71"
-              innerCircle={'dot'}
-              isUsingFlatlist={false}
-              timeStyle={{
-                textAlign: 'center',
-                backgroundColor: '#7C86FF',
-                color: 'white',
-                paddingHorizontal: 4,
-                paddingVertical: 2,
-                borderRadius: 13,
-              }}
-              descriptionStyle={{color: 'gray'}}
-            />
+      <ScrollView
+          style={globalStyles.container}
+          contentContainerStyle={{paddingBottom: insets.bottom + 120}}
+          refreshControl={<RefreshControl onRefresh={() => handleRefresh()} />}>
+          {data.state != 'dispatched' ? (
+              <SetStateButton
+                  button1={{
+                      size: 'md',
+                      variant: 'outline',
+                      action: 'primary',
+                      style: {
+                          borderTopRightRadius: 0,
+                          borderBottomRightRadius: 0,
+                      },
+                      onPress: null,
+                      text: `To do : ${data.number_pallet_picked + data.number_pallets_state_other_incident + data.number_pallets_state_lost + data.number_pallets_state_damaged} / ${data.type == 'pallet' ? (data.number_pallets + data.number_oversizes + data.number_boxes ) : data.number_stored_items  || 0}`,
+                  }}
+                  button2={{
+                      size: 'md',
+                      action: 'primary',
+                      style: {
+                          borderTopLeftRadius: 0,
+                          borderBottomLeftRadius: 0,
+                      },
+                      onPress: () =>
+                          onChangeState(
+                              getFilteredActionsReturn(data.state).id,
+                          ),
+                      text:
+                          'Set to ' +
+                          getFilteredActionsReturn(data.state).title,
+                  }}
+              />
+          ) : (
+              <Alert action="success" variant="solid">
+                  <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                  <AlertText>Already Dispatched</AlertText>
+              </Alert>
           )}
-        </View>
-      </Card>
-    </ScrollView>
+
+          <Card className="mt-4">
+              <Heading>Return Details</Heading>
+              <Description schema={schema} />
+          </Card>
+
+          <Card className="mt-4">
+              <Center>
+                  <Barcode
+                      value={data.reference}
+                      format="CODE128"
+                      maxWidth={250}
+                      height={60}
+                  />
+              </Center>
+              <Center>
+                  <Heading>{data.reference}</Heading>
+              </Center>
+          </Card>
+
+          <Card
+              className={`mt-4 p-2 ${!isTimelineOpen ? 'bg-indigo-300' : ''}`}>
+              <TouchableOpacity
+                  className={`flex-row justify-between items-center py-2 px-4`}
+                  onPress={() => setIsTimelineOpen(!isTimelineOpen)}>
+                  <View>
+                      {!isTimelineOpen && (
+                          <View className="flex-row items-center mt-2 gap-4 ">
+                              <FontAwesomeIcon
+                                  icon={data?.state_icon?.icon}
+                                  color={data?.state_icon?.color}
+                                  size={23}
+                              />
+                              <Text className="ml-2 font-bold text-white">
+                                  {data.state_label}
+                              </Text>
+                          </View>
+                      )}
+                  </View>
+                  <FontAwesomeIcon
+                      icon={isTimelineOpen ? faChevronUp : faChevronDown}
+                      size={20}
+                  />
+              </TouchableOpacity>
+              <View className="px-4">
+                  {isTimelineOpen && timelineData.length > 0 && (
+                      <Timeline
+                          data={timelineData}
+                          lineColor="gray"
+                          circleColor="#66DC71"
+                          innerCircle={'dot'}
+                          isUsingFlatlist={false}
+                          timeStyle={{
+                              textAlign: 'center',
+                              backgroundColor: '#7C86FF',
+                              color: 'white',
+                              paddingHorizontal: 4,
+                              paddingVertical: 2,
+                              borderRadius: 13,
+                          }}
+                          descriptionStyle={{color: 'gray'}}
+                      />
+                  )}
+              </View>
+          </Card>
+      </ScrollView>
   );
 };
 

@@ -43,7 +43,7 @@ const ShowArea = ({navigation, route}) => {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
-        <Spinner size="large" />
+        <Spinner size="large" color={"#837FE1"} />
       </View>
     );
   }

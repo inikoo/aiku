@@ -70,7 +70,7 @@ const PalletInDeliveries = ({navigation, route, onChangeState}) => {
             action: 'primary',
             style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
             onPress: null,
-            text: `To do : 1 / ${data.number_pallets || 0}`,
+            text: `To do : ${data.number_pallets_state_not_received + data.number_pallets_state_booked_in }/ ${data.number_pallets + data.number_boxes + data.number_oversizes || 0}`,
           }}
           button2={{
             size: 'md',
@@ -157,7 +157,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
         setItem(prevItem => ({
           ...prevItem,
           state: response.data.state,
-          state_icon: response.data.status_icon,
+          state_icon: response.data.state_icon,
         }));
 
         Animated.spring(translateX, {

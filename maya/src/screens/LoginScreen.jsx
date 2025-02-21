@@ -55,17 +55,16 @@ const LoginScreen = ({navigation}) => {
                 Toast.show({
                   type: ALERT_TYPE.DANGER,
                   title: 'Error',
-                  textBody: err?.detail?.message || 'Failed to fetch data',
+                  textBody: err?.data.message || 'failed from server',
                 });
                 console.error('Profile Retrieval Failed:', err);
               },
             });
           } else {
-            console.error('Login Failed:', userRes);
             Toast.show({
               type: ALERT_TYPE.DANGER,
               title: 'Error',
-              textBody: userRes?.detail?.message || 'Failed to fetch data',
+              textBody: userRes?.data.message || 'failed from server',
             });
             resolve(false);
           }
