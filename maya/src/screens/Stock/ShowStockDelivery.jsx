@@ -51,7 +51,7 @@ const ShowStockDelivery = ({navigation, route}) => {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-100">
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color='#4F46E5' />
       </View>
     );
   }

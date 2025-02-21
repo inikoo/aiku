@@ -24,6 +24,7 @@ const CustomDrawer = props => {
       .toUpperCase();
   };
 
+
   return (
     <View className="flex-1">
       <DrawerContentScrollView

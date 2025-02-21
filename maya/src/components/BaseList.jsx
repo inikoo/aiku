@@ -71,6 +71,7 @@ const BaseList = forwardRef((props, ref) => {
             });
           }
         }
+       /*  setMeta(prevData => ({ ...prevData , last_page : page })) */
         setIsFetching(false);
         setIsLoadingMore(false);
       },
@@ -142,7 +143,7 @@ const BaseList = forwardRef((props, ref) => {
           // Show Loading Indicator on First Fetch
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Spinner size="large" />
+            <Spinner size="large" color={"#837FE1"}/>
           </View>
         ) : (
           <FlatList
@@ -161,7 +162,7 @@ const BaseList = forwardRef((props, ref) => {
             ListFooterComponent={
               isLoadingMore ? (
                 <View style={{paddingVertical: 10}}>
-                  <Spinner size="small" />
+                  <Spinner size="small" color={"#837FE1"}/>
                 </View>
               ) : null
             }

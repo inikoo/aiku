@@ -23,8 +23,8 @@ export default {
 	//stored items
 	'get-stored-items' :  { url: "maya/org/{}/warehouses/{}/inventory/stored-items" },
 	'get-stored-item' :  { url: "maya/org/{}/warehouses/{}/inventory/stored-items/{}" },
-	"set-stored-item-pick" : { url: "maya/action/pallet-return-item/{}/pick" },
-	"set-stored-item-undo-pick" : { url: "" },
+	"set-stored-item-pick" : { url: "maya/action/pallet-return-item/stored-items/{}/pick" },
+	"set-stored-item-undo-pick" : { url: "maya/action/pallet-return-item/stored-items/{}/undo-pick" },
 
 	//scanner
 	'get-scanner' : { url: "maya/org/{}/warehouses/{}/scanners/{}" },
@@ -45,9 +45,9 @@ export default {
 	'set-pallet-location' : { url: "maya/action/pallet/{}/location/{}/move" },
 	'set-pallet-not-received' : { url: "maya/action/pallet/{}/not-received" },
 	'undo-pallet-not-received' : { url: "maya/action/pallet/{}/undo-not-received" },
-	'set-pallet-picked' : { url : "maya/action/pallet-return-item/{}/pick"},
-	'set-pallet-not-picked' : { url : "maya/action/pallet-return-item/{}/not-picked"},
-	'undo-pallet-picked' :  { url : "maya/action/pallet-return-item/{}/undo-pick"},
+	'set-pallet-picked' : { url : "maya/action/pallet-return-item/pallet/{}/pick"},
+	'set-pallet-not-picked' : { url : "maya/action/pallet-return-item/pallet/{}/not-picked"},
+	'undo-pallet-picked' :  { url : "maya/action/pallet-return-item/pallet/{}/undo-pick"},
 
 
 	//return

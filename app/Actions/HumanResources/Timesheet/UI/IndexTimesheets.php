@@ -115,7 +115,7 @@ class IndexTimesheets extends OrgAction
             }
 
             $noResults = __("No timesheets found");
-            if ($parent instanceof Employee) {
+            if ($parent instanceof Employee || $parent instanceof Guest) {
                 $stats     = $parent->stats;
                 $noResults = __("Employee has no timesheets");
             } else {

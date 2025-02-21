@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, ScrollView, TouchableOpacity} from 'react-native';
+import {View, ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import {Card} from '@/src/components/ui/card';
 import {Heading} from '@/src/components/ui/heading';
 import {Center} from '@/src/components/ui/center';
@@ -18,7 +18,7 @@ import {Alert, AlertText} from '@/src/components/ui/alert';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faChevronDown, faChevronUp,faCheckCircle} from '@/private/fa/pro-light-svg-icons';
 
-const ShowFulfilmentDelivery = ({navigation, route, onChangeState}) => {
+const ShowFulfilmentDelivery = ({navigation, route, onChangeState, handleRefresh}) => {
   const {data} = useDelivery();
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const insets = useSafeAreaInsets();
@@ -56,6 +56,10 @@ const ShowFulfilmentDelivery = ({navigation, route, onChangeState}) => {
       value: data.customer_name,
     },
     {
+      label: 'Customer Reference',
+      value: data.customer_reference,
+    },
+    {
       label: 'Boxes',
       value: data.number_boxes ? data.number_boxes.toString() : '-',
     },
@@ -82,13 +86,17 @@ const ShowFulfilmentDelivery = ({navigation, route, onChangeState}) => {
       value: data.public_notes,
     },
   ];
-console.log(data)
+
+  console.log(data.number_pallets_state_not_received + data.number_pallets_state_booked_in)
 
   return (
     <ScrollView
       style={globalStyles.container}
-      contentContainerStyle={{paddingBottom: insets.bottom + 120}}>
-      {data.state != "Booked-in" ? (
+      contentContainerStyle={{paddingBottom: insets.bottom + 120}}
+      refreshControl={
+        <RefreshControl  onRefresh={()=>handleRefresh()} />
+      }>
+      {data.state != "booked_in" ? (
         <SetStateButton
           button1={{
             size: 'md',
@@ -96,7 +104,7 @@ console.log(data)
             action: 'primary',
             style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
             onPress: null,
-            text: `To do : 1 / ${data.number_pallets || 0}`,
+            text: `To do : ${data.number_pallets_state_not_received + data.number_pallets_state_booked_in }/ ${data.number_pallets + data.number_boxes + data.number_oversizes || 0}`,
           }}
           button2={{
             size: 'md',
