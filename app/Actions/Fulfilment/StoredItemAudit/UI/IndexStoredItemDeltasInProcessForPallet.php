@@ -12,8 +12,6 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -47,10 +45,10 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
         }
 
         $query = QueryBuilder::for(StoredItem::class);
-        $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id' )
+        $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id')
             ->where('pallet_stored_items.pallet_id', $storedItemAudit->scope->id);
-        
-            $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
+
+        $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
             $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
                 ->where('stored_item_audit_deltas.stored_item_audit_id', '=', $storedItemAudit->id)
                 ->where('stored_item_audit_deltas.pallet_id', '=', $storedItemAudit->scope->id);

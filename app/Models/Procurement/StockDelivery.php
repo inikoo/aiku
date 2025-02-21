@@ -8,7 +8,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Enums\Procurement\StockDelivery\StockDeliveryScopeEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;

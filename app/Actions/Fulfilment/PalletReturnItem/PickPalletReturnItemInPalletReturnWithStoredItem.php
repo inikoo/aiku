@@ -36,6 +36,7 @@ class PickPalletReturnItemInPalletReturnWithStoredItem extends OrgAction
         return DB::transaction(function () use ($palletReturnItem, $modelData) {
             $quantity = Arr::get($modelData, 'quantity_picked');
             $palletStoredItemQuantity = $palletReturnItem->palletStoredItem->quantity;
+
             $this->update($palletReturnItem, $modelData);
 
             StoreStoredItemMovementFromPicking::run($palletReturnItem, [

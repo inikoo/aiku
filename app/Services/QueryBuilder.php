@@ -74,13 +74,14 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
+        $table = $this->getModel()->getTable();
         $periodType = array_key_first(request()->input(($prefix ? $prefix.'_' : '').'period') ?? []);
 
         if ($periodType) {
             $periodData = $this->validatePeriod($periodType, $prefix);
 
             if ($periodData) {
-                $this->whereBetween($column, [$periodData['start'], $periodData['end']]);
+                $this->whereBetween($table.'.'.$column, [$periodData['start'], $periodData['end']]);
             }
         }
 
