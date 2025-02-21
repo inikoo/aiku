@@ -19,19 +19,13 @@ enum WorkplaceTabsEnum: string
     case SHOWCASE           = 'showcase';
 
     case HISTORY            = 'history';
-    case DATA               = 'data';
 
 
     public function blueprint(): array
     {
         return match ($this) {
 
-            WorkplaceTabsEnum::DATA => [
-                'title' => __('database'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             WorkplaceTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
@@ -39,8 +33,8 @@ enum WorkplaceTabsEnum: string
                 'align' => 'right',
             ],
             WorkplaceTabsEnum::SHOWCASE => [
-                'title' => __('workplace'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-info-circle',
             ],
         };
     }

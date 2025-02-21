@@ -166,6 +166,11 @@ trait WithDashboard
 
     public function setDashboardTableData($parent, $childs, &$dashboard, &$visualData, &$data, $selectedCurrency, $selectedInterval, Closure $route): void
     {
+        $parentSalesType = 'grp';
+        if ($parent instanceof Organisation) {
+            $parentSalesType = 'org';
+        }
+
         foreach ($childs as $child) {
             $keyCurrency   = $dashboard['settings']['key_currency'];
             $currencyCode  = $selectedCurrency === $keyCurrency ? $parent->currency->code : $child->currency->code;
@@ -194,10 +199,16 @@ trait WithDashboard
                     $currencyCode
                 );
 
+                $visualResponseDataSales = $this->getIntervalPercentage(
+                    $child->salesIntervals,
+                    'sales_'.$parentSalesType.'_currency',
+                    $selectedInterval,
+                );
+
                 // visual sales
+                // $visualData['sales_data']['currency_codes'][]      = $currencyCode;
                 $visualData['sales_data']['labels'][]              = $child->code ?? $child->name;
-                $visualData['sales_data']['currency_codes'][]      = $currencyCode;
-                $visualData['sales_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['sales']['amount'];
+                $visualData['sales_data']['datasets'][0]['data'][] = $visualResponseDataSales['amount'];
             }
 
             if ($child->orderingIntervals !== null) {
@@ -213,13 +224,14 @@ trait WithDashboard
                     $selectedInterval,
                     __("Last year refunds") . ": ",
                 );
-                // visual invoices and refunds
+
+                // // visual invoices and refunds
                 $visualData['invoices_data']['labels'][]              = $child->code ?? $child->name;
-                $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
+                // $visualData['invoices_data']['currency_codes'][]      = $currencyCode;
                 $visualData['invoices_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['invoices']['amount'];
 
                 $visualData['refunds_data']['labels'][]              = $child->code ?? $child->name;
-                $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
+                // $visualData['refunds_data']['currency_codes'][]      = $currencyCode;
                 $visualData['refunds_data']['datasets'][0]['data'][] = $responseData['interval_percentages']['refunds']['amount'];
             };
 
@@ -228,11 +240,7 @@ trait WithDashboard
             $data[] = $responseData;
         }
 
-        $parentSalesType = 'grp';
 
-        if ($parent instanceof Organisation) {
-            $parentSalesType = 'org';
-        }
 
         $suffixLy = $selectedInterval . '_ly';
 
@@ -300,7 +308,7 @@ trait WithDashboard
         $combined = array_map(null, ...$data);
 
         usort($combined, function ($a, $b) {
-            return floatval($b[2]) <=> floatval($a[2]);
+            return floatval($b[1]) <=> floatval($a[1]);
         });
 
         return $combined;

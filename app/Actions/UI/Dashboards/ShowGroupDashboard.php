@@ -167,15 +167,10 @@ class ShowGroupDashboard extends OrgAction
         }
 
         if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
-            $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
-
-            usort($combined, function ($a, $b) {
-                return floatval($b[2]) <=> floatval($a[2]);
-            });
+            $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['datasets'][0]['data']);
 
             $visualData['sales_data']['labels']              = array_column($combined, 0);
-            $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
-            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
+            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 1);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -190,7 +185,6 @@ class ShowGroupDashboard extends OrgAction
                     'type'  => 'doughnut',
                     'value' => [
                         'labels'         => $visualData['sales_data']['labels'],
-                        'currency_codes' => $visualData['sales_data']['currency_codes'],
                         'datasets'       => $visualData['sales_data']['datasets']
                     ],
                 ]
@@ -198,15 +192,10 @@ class ShowGroupDashboard extends OrgAction
         }
 
         if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
-            $combinedInvoices = array_map(null, $visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
-
-            usort($combinedInvoices, function ($a, $b) {
-                return floatval($b[2]) <=> floatval($a[2]);
-            });
+            $combinedInvoices = $this->sortVisualDataset($visualData['invoices_data']['labels'], $visualData['invoices_data']['datasets'][0]['data']);
 
             $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-            $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
-            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 1);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -229,14 +218,11 @@ class ShowGroupDashboard extends OrgAction
             $totalMap = [];
 
             foreach ($combined as $entry) {
-                $amountMap[$entry[0]] = [
-                    'currency_code' => $entry[1],
-                    'amount' => (float) $entry[2]
-                ];
+                $amountMap[$entry[0]] = (float) $entry[1];
             }
 
             foreach ($combinedInvoices as $entry) {
-                $totalMap[$entry[0]] = (int) $entry[2];
+                $totalMap[$entry[0]] = (int) $entry[1];
             }
 
             $averages = [];
@@ -244,7 +230,7 @@ class ShowGroupDashboard extends OrgAction
             $totalAvg = 0;
             foreach ($amountMap as $label => $amount) {
                 if (isset($totalMap[$label]) && $totalMap[$label] > 0) {
-                    $averages[$label] = $amount['amount'] / $totalMap[$label];
+                    $averages[$label] = $amount / $totalMap[$label];
                 } else {
                     $averages[$label] = 0;
                 }
@@ -255,8 +241,6 @@ class ShowGroupDashboard extends OrgAction
                 return $data;
             }
 
-            // dd($visualData['name']);
-
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
                 data: [
@@ -266,7 +250,6 @@ class ShowGroupDashboard extends OrgAction
                     'type'  => 'bar',
                     'value' => [
                         'labels'         => array_keys($amountMap),
-                        'currency_codes' => Arr::pluck($amountMap, 'currency_code'),
                         'datasets'       => [
                             [
                                 'data' => Arr::flatten($averages),
@@ -360,11 +343,10 @@ class ShowGroupDashboard extends OrgAction
         }
 
         if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
-            $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
+            $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['datasets'][0]['data']);
 
             $visualData['sales_data']['labels']              = array_column($combined, 0);
-            $visualData['sales_data']['currency_codes']      = array_column($combined, 1);
-            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 2);
+            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 1);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -379,7 +361,6 @@ class ShowGroupDashboard extends OrgAction
                     'type'  => 'doughnut',
                     'value' => [
                         'labels'         => $visualData['sales_data']['labels'],
-                        'currency_codes' => $visualData['sales_data']['currency_codes'],
                         'datasets'       => $visualData['sales_data']['datasets']
                     ],
                 ]
@@ -387,11 +368,10 @@ class ShowGroupDashboard extends OrgAction
         }
 
         if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
-            $combinedInvoices = $this->sortVisualDataset($visualData['invoices_data']['labels'], $visualData['invoices_data']['currency_codes'], $visualData['invoices_data']['datasets'][0]['data']);
+            $combinedInvoices = $this->sortVisualDataset($visualData['invoices_data']['labels'], $visualData['invoices_data']['datasets'][0]['data']);
 
             $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-            $visualData['invoices_data']['currency_codes']      = array_column($combinedInvoices, 1);
-            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 2);
+            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 1);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -413,15 +393,13 @@ class ShowGroupDashboard extends OrgAction
             $amountMap = [];
             $totalMap = [];
 
+
             foreach ($combined as $entry) {
-                $amountMap[$entry[0]] = [
-                    'currency_code' => $entry[1],
-                    'amount' => (float) $entry[2]
-                ];
+                $amountMap[$entry[0]] = (float) $entry[1];
             }
 
             foreach ($combinedInvoices as $entry) {
-                $totalMap[$entry[0]] = (int) $entry[2];
+                $totalMap[$entry[0]] = (int) $entry[1];
             }
 
             $averages = [];
@@ -429,7 +407,7 @@ class ShowGroupDashboard extends OrgAction
             $totalAvg = 0;
             foreach ($amountMap as $label => $amount) {
                 if (isset($totalMap[$label]) && $totalMap[$label] > 0) {
-                    $averages[$label] = $amount['amount'] / $totalMap[$label];
+                    $averages[$label] = $amount / $totalMap[$label];
                 } else {
                     $averages[$label] = 0;
                 }
@@ -440,8 +418,6 @@ class ShowGroupDashboard extends OrgAction
                 return $data;
             }
 
-            // dd($visualData['name']);
-
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
                 data: [
@@ -451,7 +427,6 @@ class ShowGroupDashboard extends OrgAction
                     'type'  => 'bar',
                     'value' => [
                         'labels'         => array_keys($amountMap),
-                        'currency_codes' => Arr::pluck($amountMap, 'currency_code'),
                         'datasets'       => [
                             [
                                 'data' => Arr::flatten($averages),

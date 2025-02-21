@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-02-2025-08h-46m
@@ -16,6 +17,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,20 +29,15 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
     use WithFulfilmentAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-
-    private bool $selectStoredPallets = false;
-
     private FulfilmentCustomer $parent;
-
-
+    private Pallet $pallet;
 
     public function handle(StoredItemAudit $storedItemAudit, $prefix = null): LengthAwarePaginator
     {
-        $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
         $globalSearch       = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('pallets.customer_reference', $value)
-                    ->orWhereWith('pallets.reference', $value);
+                $query->whereAnyWordStartWith('stored_items.reference', $value)
+                    ->orWhereWith('stored_items.name', $value);
             });
         });
 
@@ -49,49 +46,43 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(Pallet::class);
+        $query = QueryBuilder::for(StoredItem::class);
+        $query->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id' )
+            ->where('pallet_stored_items.pallet_id', $storedItemAudit->scope->id);
+        
+            $query->leftJoin('stored_item_audit_deltas', function ($join) use ($storedItemAudit) {
+            $join->on('pallet_stored_items.stored_item_id', '=', 'stored_item_audit_deltas.stored_item_id')
+                ->where('stored_item_audit_deltas.stored_item_audit_id', '=', $storedItemAudit->id)
+                ->where('stored_item_audit_deltas.pallet_id', '=', $storedItemAudit->scope->id);
+        });
 
 
-        $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
-        $query->where('pallets.status', PalletStatusEnum::STORING);
-        $query->where('pallets.state', PalletStateEnum::STORING);
-
-        $query->leftJoin('locations', 'pallets.location_id', '=', 'locations.id');
-        $query->leftJoin('warehouses', 'pallets.warehouse_id', '=', 'warehouses.id');
-
-        $query->defaultSort('pallets.id')
-
+        $query->defaultSort('stored_items.id')
             ->select(
-                'pallets.id',
-                'pallets.slug',
-                'pallets.slug',
-                'pallets.reference',
-                'pallets.customer_reference',
-                'pallets.state',
-                'pallets.status',
-                'pallets.rental_id',
-                'pallets.type',
-                'pallets.received_at',
-                'pallets.location_id',
-                'pallets.fulfilment_customer_id',
-                'pallets.warehouse_id',
-                'pallets.pallet_delivery_id',
-                'pallets.pallet_return_id',
-                'locations.code as location_code',
-                'locations.slug as location_slug',
-                'warehouses.slug as warehouse_slug',
+                'stored_items.id',
+                'stored_items.reference',
+                'stored_items.slug',
+                'stored_items.name',
+                'pallet_stored_items.pallet_id as pallet_id',
+                'pallet_stored_items.id as pallet_stored_item_id',
+                'pallet_stored_items.quantity as pallet_stored_item_quantity',
+                'stored_item_audit_deltas.notes as audit_notes',
+                'stored_item_audit_deltas.audited_quantity',
+                'stored_item_audit_deltas.state as delta_state',
+                'stored_item_audit_deltas.audit_type',
+                'stored_item_audit_deltas.id as stored_item_audit_delta_id',
             )->selectRaw("$storedItemAudit->id. as stored_item_audit_id");
 
 
-        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
-            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
+        return $query->allowedSorts(['reference', 'name', 'pallet_stored_item_quantity'])
+            ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer $fulfilmentCustomer, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Pallet $pallet, $prefix = null, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations, $fulfilmentCustomer) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $pallet) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -101,9 +92,9 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
 
             $emptyStateData = [
                 'icons'       => ['fal fa-pallet'],
-                'title'       => __('No pallets found'),
-                'count'       => $fulfilmentCustomer->number_pallets,
-                'description' => __("This customer don't have any pallets")
+                'title'       => __('No stored items found'),
+                'count'       => $pallet->number_stored_items,
+                'description' => __("This pallet don't have any SKUs")
             ];
 
 
@@ -114,11 +105,9 @@ class IndexStoredItemDeltasInProcessForPallet extends OrgAction
                 ->withModelOperations($modelOperations);
 
 
-            $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'reference', label: __('pallet reference'), canBeHidden: false, sortable: true, searchable: true);
-            // $table->column(key: 'customer_reference', label: __("Pallet customer's reference"), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'stored_items', label: __("Customer's SKUs"), canBeHidden: false);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'name', label: __("Name"), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'pallet_stored_item_quantity', label: __("Quantity"), canBeHidden: false);
             $table->column(key: 'actions', label: '', canBeHidden: false);
 
             $table->defaultSort('reference');

@@ -52,6 +52,6 @@ class UndoStoredItemPick extends OrgAction
         if ($request->hasHeader('Maya-Version')) {
             return PalletReturnItemResource::make($palletReturnItem);
         }
-       return $palletReturnItem;
+        return $palletReturnItem;
     }
 }

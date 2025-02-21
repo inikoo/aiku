@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
+use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -18,9 +19,7 @@ class GetWorkplaceShowcase
     public function handle(Workplace $workplace): array
     {
         return [
-            [
-
-            ]
+            'workplace' => WorkplaceResource::make($workplace)
         ];
     }
 }
