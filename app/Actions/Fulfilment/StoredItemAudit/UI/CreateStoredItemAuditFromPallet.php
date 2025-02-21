@@ -26,7 +26,8 @@ class CreateStoredItemAuditFromPallet extends OrgAction
 {
     use WithFulfilmentAuthorisation;
 
-    private Pallet $parent;
+    private Fulfilment $parent;
+    private Pallet $pallet;
 
     public function handle(Pallet $pallet, array $modelData): StoredItemAudit
     {
@@ -43,10 +44,11 @@ class CreateStoredItemAuditFromPallet extends OrgAction
 
     public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
             $storedItemAudit->organisation->slug,
             $storedItemAudit->fulfilment->slug,
             $storedItemAudit->fulfilmentCustomer->slug,
+            $storedItemAudit->scope->slug,
             $storedItemAudit->slug
         ]);
     }
@@ -55,7 +57,8 @@ class CreateStoredItemAuditFromPallet extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPalletInFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, ActionRequest $request): StoredItemAudit
     {
-        $this->parent = $pallet;
+        $this->parent = $fulfilment;
+        $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($pallet, $this->validatedData);

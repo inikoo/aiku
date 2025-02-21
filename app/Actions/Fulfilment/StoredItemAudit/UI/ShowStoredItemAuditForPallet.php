@@ -36,6 +36,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
 
     private Fulfilment|Location|FulfilmentCustomer $parent;
+    private Pallet $pallet;
 
     private bool $selectStoredPallets = false;
 
@@ -61,7 +62,8 @@ class ShowStoredItemAuditForPallet extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPalletInFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
-        $this->parent = $pallet;
+        $this->parent = $fulfilment;
+        $this->pallet = $pallet;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($storedItemAudit);
