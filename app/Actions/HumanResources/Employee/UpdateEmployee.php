@@ -45,7 +45,18 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
+        $stateData = [];
+        if ($state = Arr::get($modelData, 'state')) {
+            $stateData = [];
+        
+            foreach (['state', 'employment_start_at', 'employment_end_at'] as $key) {
+                if ($value = Arr::get($state, $key)) {
+                    data_set($stateData, $key, $value);
+                    data_set($modelData, $key, $value);
+                }
+            }
+        }
+        
         if (Arr::has($modelData, 'job_positions')) {
 
             $jobPositions = Arr::pull($modelData, 'job_positions', []);
@@ -60,7 +71,6 @@ class UpdateEmployee extends OrgAction
         data_forget($modelData, 'password');
         data_forget($modelData, 'auth_type');
         data_forget($modelData, 'user_model_status');
-
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
@@ -81,7 +91,6 @@ class UpdateEmployee extends OrgAction
 
             UpdateUser::run($user, $credentials);
         }
-
         return $employee;
     }
 
@@ -120,6 +129,7 @@ class UpdateEmployee extends OrgAction
             ],
             'state.state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'state.employment_start_at'             => ['sometimes', 'nullable', 'date'],
+            'state.employment_end_at'               => ['sometimes', 'nullable', 'date'],
             'work_email'                            => [
                 'sometimes',
                 'nullable',
@@ -163,6 +173,7 @@ class UpdateEmployee extends OrgAction
             'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
+            'emergency_contact'                     => ['sometimes', 'nullable', 'string', 'max:256'],
             'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)]
 
 

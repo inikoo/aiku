@@ -220,6 +220,11 @@ class EditEmployee extends OrgAction
                     'label' => __('personal email'),
                     'value' => $employee->email
                 ],
+                'emergency_contact'               => [
+                    'type'     => 'input',
+                    'label'    => __('Emergency Contact'),
+                    'value'    => $employee->emergency_contact
+                ],
             ]
         ];
 
