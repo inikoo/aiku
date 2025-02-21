@@ -36,7 +36,7 @@ class DispatchedEmailResource extends JsonResource
                     'tooltip' => __('Spam'),
                     'icon'    => 'fal fa-dumpster',
                 ] : [],
-
+            'number_email_tracking_events' => $this->number_email_tracking_events,
             'shop_code'                 => $this->shop_code,
             'shop_name'                 => $this->shop_name,
             'organisation_name'         => $this->organisation_name,

@@ -68,6 +68,7 @@ class IndexDispatchedEmails extends OrgAction
                 'dispatched_emails.id',
                 'dispatched_emails.state',
                 'dispatched_emails.mask_as_spam',
+                'dispatched_emails.number_email_tracking_events',
                 'email_addresses.email as email_address',
                 'dispatched_emails.sent_at as sent_at',
                 'dispatched_emails.number_reads',
@@ -96,7 +97,7 @@ class IndexDispatchedEmails extends OrgAction
                     $query->where('dispatched_emails.group_id', $parent->id);
                 }
             })
-            ->allowedSorts(['email_address', 'sent_at' ,'number_reads', 'mask_as_spam' ,'number_clicks'])
+            ->allowedSorts(['email_address', 'number_email_tracking_events' ,'sent_at' ,'number_reads', 'mask_as_spam' ,'number_clicks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -117,13 +118,14 @@ class IndexDispatchedEmails extends OrgAction
                 ->column(key: 'state', label: '', type: 'icon', canBeHidden: false);
             $table->column(key: 'email_address', label: __('Email'), canBeHidden: false, sortable: true);
 
-            $table->column(key: 'sent_at', label: __('Send Date'), canBeHidden: false, sortable: true);
+            $table->column(key: 'sent_at', label: __('Sent Date'), canBeHidden: false, sortable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'number_email_tracking_events', label: __('events'), canBeHidden: false, sortable: true);
+            $table->column(key: 'number_reads', label: __('reads'), canBeHidden: false, sortable: true)
+                ->column(key: 'number_clicks', label: __('clicks'), canBeHidden: false, sortable: true);
             $table->defaultSort('-sent_at');
         };
     }
