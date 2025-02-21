@@ -202,112 +202,18 @@ class ShowOrganisationDashboard extends OrgAction
             }
         );
 
-        $total = $dashboard['total'];
-
         if (!Arr::get($visualData, 'sales_data')) {
             return $data;
         }
 
         // visual pie sales
-
-        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
-            $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['datasets'][0]['data']);
-
-            $visualData['sales_data']['labels']              = array_column($combined, 0);
-            $visualData['sales_data']['datasets'][0]['data'] = array_column($combined, 1);
-
-            $dashboard['widgets']['components'][] = $this->getWidget(
-                type: 'chart_display',
-                data: [
-                    'status'        => $total['total_sales'] < 0 ? 'danger' : '',
-                    'value'         => $total['total_sales'],
-                    'currency_code' => $organisation->currency->code,
-                    'type'          => 'currency',
-                    'description'   => __('Total sales')
-                ],
-                visual: [
-                    'type'  => 'doughnut',
-                    'value' => [
-                        'labels'         => $visualData['sales_data']['labels'],
-                        'datasets'       => $visualData['sales_data']['datasets']
-                    ],
-                ]
-            );
-        }
+        $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
 
         // visual pie invoices
-        if (array_filter(Arr::get($visualData, 'invoices_data.datasets.0.data'))) {
-            $combinedInvoices = $this->sortVisualDataset($visualData['invoices_data']['labels'], $visualData['invoices_data']['datasets'][0]['data']);
+        $this->setVisualInvoices($organisation, $visualData, $dashboard);
 
-            $visualData['invoices_data']['labels']              = array_column($combinedInvoices, 0);
-            $visualData['invoices_data']['datasets'][0]['data'] = array_column($combinedInvoices, 1);
-
-            $dashboard['widgets']['components'][] = $this->getWidget(
-                type: 'chart_display',
-                data: [
-                    'value'       => $total['total_invoices'],
-                    'type'        => 'number',
-                    'description' => __('Total invoices')
-                ],
-                visual: [
-                    'type'  => 'doughnut',
-                    'value' => [
-                        'labels'         => Arr::get($visualData, 'invoices_data.labels'),
-                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
-                    ],
-                ]
-            );
-
-
-            // visual bar average invoice value
-            $amountMap = [];
-            $totalMap = [];
-
-            foreach ($combined as $entry) {
-                $amountMap[$entry[0]] = (float) $entry[1];
-            }
-
-            foreach ($combinedInvoices as $entry) {
-                $totalMap[$entry[0]] = (int) $entry[1];
-            }
-
-            $averages = [];
-
-            $totalAvg = 0;
-            foreach ($amountMap as $label => $amount) {
-                if (isset($totalMap[$label]) && $totalMap[$label] > 0) {
-                    $averages[$label] = $amount / $totalMap[$label];
-                } else {
-                    $averages[$label] = 0;
-                }
-                $totalAvg += $averages[$label];
-            }
-
-            if ($totalAvg == 0) {
-                return $data;
-            }
-
-            $dashboard['widgets']['components'][] = $this->getWidget(
-                type: 'chart_display',
-                data: [
-                    'currency_code' => $organisation->currency->code,
-                    'description' => __('Average invoice value')
-                ],
-                visual: [
-                    'type'  => 'bar',
-                    'value' => [
-                        'labels'         => array_keys($amountMap),
-                        'datasets'       => [
-                            [
-                                'data' => Arr::flatten($averages),
-                            ]
-                        ]
-                    ],
-                ]
-            );
-        }
-
-
+        // visual pie refunds
+        $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
 
 
         return $data;
@@ -353,6 +259,19 @@ class ShowOrganisationDashboard extends OrgAction
                 ],
             ],
         );
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
+        // visual pie sales
+        $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
+
+        // visual pie invoices
+        $this->setVisualInvoices($organisation, $visualData, $dashboard);
+
+        // visual pie refunds
+        $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
 
 
         return $data;
