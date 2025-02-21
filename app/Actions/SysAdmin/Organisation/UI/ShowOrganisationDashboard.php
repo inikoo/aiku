@@ -202,6 +202,10 @@ class ShowOrganisationDashboard extends OrgAction
             }
         );
 
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
         // visual pie sales
         $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
 
@@ -255,6 +259,10 @@ class ShowOrganisationDashboard extends OrgAction
                 ],
             ],
         );
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
 
         // visual pie sales
         $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);

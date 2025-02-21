@@ -160,6 +160,10 @@ class ShowGroupDashboard extends OrgAction
         );
 
 
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
+
         // visual pie sales
         $this->setVisualInvoiceSales($group, $visualData, $dashboard);
 
@@ -240,6 +244,10 @@ class ShowGroupDashboard extends OrgAction
                 return $routes;
             }
         );
+
+        if (!Arr::get($visualData, 'sales_data')) {
+            return $data;
+        }
 
         // visual pie sales
         $this->setVisualInvoiceSales($group, $visualData, $dashboard);
