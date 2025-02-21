@@ -20,7 +20,7 @@ enum DateIntervalEnum: string
     case ONE_MONTH = '1m';
     case ONE_WEEK = '1w';
     case THREE_DAYS = '3d';
-    case ONE_DAY = '1d';
+    // case ONE_DAY = '1d';
     case YEAR_TO_DAY = 'ytd';
     case QUARTER_TO_DAY = 'qtd';
     case MONTH_TO_DAY = 'mtd';

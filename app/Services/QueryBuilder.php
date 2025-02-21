@@ -185,14 +185,9 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
                 if (count($parts) === 2) {
                     [$start, $end] = $parts;
-                    // TODO: #1461
-                    if ($start == $end) {
-                        $start = trim($start) . ' 00:00:00';
-                        $end = trim($end) . ' ' . now()->format('H:i:s');
-                    } else {
-                        $start = trim($start) . ' ' . now()->format('H:i:s');
-                        $end = trim($end) . ' ' . now()->format('H:i:s');
-                    }
+
+                    $start = trim($start) . ' 00:00:00';
+                    $end = trim($end) . ' 23:59:59';
 
                     $this->whereBetween("$table.$column", [$start, $end]);
                 }
