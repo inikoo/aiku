@@ -22,23 +22,22 @@ class InvoiceCategoryHydrateOrderingIntervals
     use AsAction;
     use WithIntervalsAggregators;
 
-    public string $jobQueue = 'orders';
+    public string $jobQueue = 'sales';
 
-    private InvoiceCategory $invoicecategory;
+    private InvoiceCategory $invoiceCategory;
 
-    public function __construct(InvoiceCategory $invoicecategory)
+    public function __construct(InvoiceCategory $invoiceCategory)
     {
-        $this->invoicecategory = $invoicecategory;
+        $this->invoiceCategory = $invoiceCategory;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->invoicecategory->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->invoiceCategory->id))->dontRelease()];
     }
 
     public function handle(InvoiceCategory $invoiceCategory): void
     {
-
         $stats = [];
 
         $queryBase = Invoice::where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
@@ -58,14 +57,6 @@ class InvoiceCategoryHydrateOrderingIntervals
         $invoiceCategory->orderingIntervals->update($stats);
     }
 
-    public string $commandSignature = 'invoice_category:hydrate_ordering_intervals';
 
-    public function asCommand($command)
-    {
-        $f = InvoiceCategory::all();
-        foreach ($f as $key => $value) {
-            $this->handle($value);
-        }
-    }
 
 }

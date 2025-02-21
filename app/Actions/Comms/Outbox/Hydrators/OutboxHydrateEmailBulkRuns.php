@@ -21,6 +21,8 @@ class OutboxHydrateEmailBulkRuns
 
     private Outbox $outbox;
 
+    public string $jobQueue = 'low-priority';
+
     public function __construct(Outbox $outbox)
     {
         $this->outbox = $outbox;

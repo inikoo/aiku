@@ -165,7 +165,38 @@ function openRejectedModal(customer: any) {
 
 <template>
     <!-- Section: Stats box -->
-    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
+    <div class="px-4 py-5 md:px-6 lg:px-8 grid md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
+        <div v-if="data.status === 'pending_approval'" class="w-full max-w-md justify-self-end">
+            <div class="p-5 border rounded-lg bg-white">
+                <div class="flex flex-col items-center text-center gap-2">
+                    <h3 class="text-lg font-semibold text-gray-800">Pending Application</h3>
+                    <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
+                </div>
+
+                <div class="mt-5 flex justify-center gap-3">
+                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
+                        :data="{ status: 'approved' }">
+                        <ButtonPrimeVue class="fixed-width-btn" severity="success"  size="small" variant="outlined" >
+                            <FontAwesomeIcon  :icon="faCheck" @click="visible = false" />
+                            <span>
+                                Approve
+                            </span>
+                        </ButtonPrimeVue>
+                    
+                    </Link>
+
+                    <ButtonPrimeVue class="fixed-width-btn" severity="danger" size="small" variant="outlined"  @click="() => openRejectedModal(data.fulfilment_customer.customer)" >
+                        <FontAwesomeIcon  :icon="faTimes" @click="visible = false" />
+                        <span>
+                            Reject
+                        </span>
+                    </ButtonPrimeVue>
+               
+                   
+                </div>
+            </div>
+        </div>
+
         <div class="space-y-3">
             <!-- Section: Radio -->
             <div class="space-y-3 relative w-full max-w-[500px]">
@@ -444,36 +475,7 @@ function openRejectedModal(customer: any) {
             </div>
         </div>
 
-        <div v-if="data.status === 'pending_approval'" class="w-full max-w-md justify-self-end">
-            <div class="p-5 border rounded-lg shadow-md bg-white">
-                <div class="flex flex-col items-center text-center gap-2">
-                    <h3 class="text-lg font-semibold text-gray-800">Pending Application</h3>
-                    <p class="text-sm text-gray-600">This application is currently awaiting approval.</p>
-                </div>
-
-                <div class="mt-5 flex justify-center gap-3">
-                    <Link :href="route(data.approveRoute.name, data.approveRoute.parameters)" method="patch"
-                        :data="{ status: 'approved' }">
-                        <ButtonPrimeVue class="fixed-width-btn" severity="success"  size="small" variant="outlined" >
-                            <FontAwesomeIcon  :icon="faCheck" @click="visible = false" />
-                            <span>
-                                Approve
-                            </span>
-                        </ButtonPrimeVue>
-                    
-                    </Link>
-
-                    <ButtonPrimeVue class="fixed-width-btn" severity="danger" size="small" variant="outlined"  @click="() => openRejectedModal(data.fulfilment_customer.customer)" >
-                        <FontAwesomeIcon  :icon="faTimes" @click="visible = false" />
-                        <span>
-                            Reject
-                        </span>
-                    </ButtonPrimeVue>
-               
-                   
-                </div>
-            </div>
-        </div>
+        
     </div>
 
 

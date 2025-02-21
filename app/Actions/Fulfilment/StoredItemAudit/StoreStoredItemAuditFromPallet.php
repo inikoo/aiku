@@ -1,10 +1,11 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 18:06:56 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 20-02-2025-16h-48m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
@@ -22,7 +23,7 @@ use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditScopeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -31,7 +32,7 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-class StoreStoredItemAudit extends OrgAction
+class StoreStoredItemAuditFromPallet extends OrgAction
 {
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
@@ -40,23 +41,23 @@ class StoreStoredItemAudit extends OrgAction
 
     public Customer $customer;
 
-    private FulfilmentCustomer $fulfilmentCustomer;
+    private Pallet $pallet;
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
+    public function handle(Pallet $pallet, array $modelData): StoredItemAudit
     {
 
         data_set($modelData, 'date', now());
 
         $modelData = $this->processData(
             $modelData,
-            $fulfilmentCustomer,
+            $pallet->fulfilmentCustomer,
             SerialReferenceModelEnum::STORED_ITEM_AUDIT
         );
-        data_set($modelData, 'scope_type', StoredItemAuditScopeEnum::FULFILMENT);
-        data_set($modelData, 'scope_id', $fulfilmentCustomer->fulfilment_id);
+        data_set($modelData, 'scope_type', StoredItemAuditScopeEnum::PALLET);
+        data_set($modelData, 'scope_id', $pallet->id);
 
         /** @var StoredItemAudit $storedItemAudit */
-        $storedItemAudit = $fulfilmentCustomer->storedItemAudits()->create($modelData);
+        $storedItemAudit = $pallet->fulfilmentCustomer->storedItemAudits()->create($modelData);
         $storedItemAudit->refresh();
 
         GroupHydrateStoredItemAudits::dispatch($storedItemAudit->group);
@@ -105,22 +106,22 @@ class StoreStoredItemAudit extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
+    public function asController(Organisation $organisation, Pallet $pallet, ActionRequest $request): StoredItemAudit
     {
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        $this->pallet = $pallet;
+        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
+    public function action(Pallet $pallet, $modelData): StoredItemAudit
     {
         $this->asAction = true;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->pallet = $pallet;
+        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function jsonResponse(StoredItemAudit $storedItemAudit): array

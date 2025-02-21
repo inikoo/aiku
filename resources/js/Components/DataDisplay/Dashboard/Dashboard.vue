@@ -4,6 +4,11 @@ import DashboardTable from "./DashboardTable.vue"
 import DashboardWidget from "./DashboardWidget.vue"
 import { inject, ref, computed, provide } from "vue"
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTriangle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faTriangle)
+
 const props = defineProps<{
 	dashboard?: {
 		settings?: {}[]

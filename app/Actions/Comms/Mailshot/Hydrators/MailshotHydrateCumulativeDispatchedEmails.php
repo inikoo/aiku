@@ -20,6 +20,8 @@ class MailshotHydrateCumulativeDispatchedEmails
 
     private Mailshot $mailshot;
 
+    public string $jobQueue = 'low-priority';
+
     public function __construct(Mailshot $mailshot)
     {
         $this->mailshot = $mailshot;

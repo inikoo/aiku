@@ -106,7 +106,9 @@ class ShowGroupDashboard extends OrgAction
         ];
 
         if ($selectedCurrency == 'org') {
-            data_forget($dashboard, 'currency_code');
+            if ($group->currency->symbol != $orgCurrenciesSymbol) {
+                data_forget($dashboard, 'currency_code');
+            }
         }
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_ORGANISATIONS->value) {
@@ -166,7 +168,7 @@ class ShowGroupDashboard extends OrgAction
             return $data;
         }
 
-        if (Arr::get($visualData, 'sales_data.datasets.0.data')) {
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
             $combined = array_map(null, $visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
             usort($combined, function ($a, $b) {
@@ -347,7 +349,7 @@ class ShowGroupDashboard extends OrgAction
             return $data;
         }
 
-        if (Arr::get($visualData, 'sales_data.datasets.0.data')) {
+        if (array_filter(Arr::get($visualData, 'sales_data.datasets.0.data'), fn ($value) => $value !== '0.00')) {
             $combined = $this->sortVisualDataset($visualData['sales_data']['labels'], $visualData['sales_data']['currency_codes'], $visualData['sales_data']['datasets'][0]['data']);
 
             $visualData['sales_data']['labels']              = array_column($combined, 0);

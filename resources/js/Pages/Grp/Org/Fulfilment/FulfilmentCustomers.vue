@@ -26,5 +26,7 @@ const props = defineProps<{
     <!-- <pre>{{ data }}</pre> -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableFulfilmentCustomers :data="data"  />
+    <div class="overflow-x-auto border-r border-b border-gray-300">
+      <TableFulfilmentCustomers :data="data"  />
+    </div>
 </template>

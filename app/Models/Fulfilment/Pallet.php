@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $storedItemAuditDeltas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAudit> $storedItemAudits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
@@ -185,6 +186,10 @@ class Pallet extends Model implements Auditable
         return $query->whereNull('location_id');
     }
 
+    public function storedItemAudits()
+    {
+        return $this->morphMany(StoredItemAudit::class, 'scope');
+    }
 
     public function warehouse(): BelongsTo
     {
