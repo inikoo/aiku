@@ -11,9 +11,11 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
+use App\Models\Helpers\Currency;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -115,5 +117,10 @@ class InvoiceCategory extends Model implements Auditable
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 }
