@@ -183,7 +183,7 @@ const ReturnStackScreen = ({navigation, route}) => {
         <BottomTabs tabArr={filteredTabOptions()} />
       ) : (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color='#4F46E5' />
         </View>
       )}
     </SafeAreaView>
