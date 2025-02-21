@@ -104,6 +104,12 @@ class CreateEmployee extends OrgAction
                                     'required' => true,
                                     'value'    => ''
                                 ],
+                                'emergency_contact'               => [
+                                    'type'     => 'input',
+                                    'label'    => __('Emergency Contact'),
+                                    'required' => false,
+                                    'value'    => ''
+                                ],
                                 'alias'               => [
                                     'type'     => 'input',
                                     'label'    => __('alias'),
