@@ -57,10 +57,12 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
             return route(
                 'mail.dispatched-emails.show',
                 [dispatchedEmail.outbox_id, dispatchedEmail.id]);
+        // case 'grp.org.fulfilments.show.operations.comms.outboxes.show':
+        //     return route(
+        //         'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show',
+        //         [route().params['organisation'], route().params['fulfilment'], route().params['outbox'], dispatchedEmail.id]);
         default:
-            return route(
-                'dispatched-emails.show',
-                [dispatchedEmail.id]);
+            return null
     }
 }
 
@@ -75,16 +77,22 @@ const locale = inject('locale', aikuLocaleStructure)
             <Icon :data="dispatchedEmail.state" />
         </template>
         <template #cell(email_address)="{ item: dispatchedEmail }">
-            {{ dispatchedEmail["email_address"]}} <Icon :data="dispatchedEmail.mask_as_spam" />
+            <Link v-if="dispatchedEmailRoute(dispatchedEmail)" :href="dispatchedEmailRoute(dispatchedEmail)"  class="primaryLink">
+                {{ dispatchedEmail["email_address"]}}
+            </Link>
+            <span v-else>
+                {{ dispatchedEmail["email_address"]}}
+            </span>
+            <Icon :data="dispatchedEmail.mask_as_spam" class="pl-1" />
         </template>
         <template #cell(sent_at)="{ item: dispatchedEmail }">
             {{ useFormatTime(dispatchedEmail.sent_at, { localeCode: locale.language.code, formatTime: "aiku" }) }}
         </template>
-        <template #cell(name)="{ item: dispatchedEmail }">
+        <!-- <template #cell(name)="{ item: dispatchedEmail }">
             <Link :href="route(dispatchedEmailRoute(dispatchedEmail))">
                 {{ dispatchedEmail["name"] }}
             </Link>
-        </template>
+        </template> -->
     </Table>
 </template>
 
