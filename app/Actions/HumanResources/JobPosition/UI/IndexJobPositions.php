@@ -68,8 +68,9 @@ class IndexJobPositions extends OrgAction
         $queryBuilder->select(['job_positions.code', 'job_positions.slug', 'job_positions.name', 'job_position_stats.number_employees_currently_working', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug']);
 
         return $queryBuilder
-            ->defaultSort('job_positions.code')
-            ->allowedSorts(['job_positions.code', 'job_positions.name', 'number_employees_currently_working', 'share'])
+            ->select(['job_positions.code as code', 'job_positions.slug as slug', 'job_positions.name as name', 'job_position_stats.number_employees_currently_working', 'organisations.name as organisation_name', 'organisations.slug as organisation_slug'])
+            ->defaultSort('code')
+            ->allowedSorts(['code', 'name', 'number_employees_currently_working', 'share'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();

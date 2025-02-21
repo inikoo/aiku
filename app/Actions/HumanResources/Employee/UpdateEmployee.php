@@ -118,6 +118,7 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
+            'state.state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'state.employment_start_at'             => ['sometimes', 'nullable', 'date'],
             'work_email'                            => [
                 'sometimes',
@@ -155,7 +156,6 @@ class UpdateEmployee extends OrgAction
             'contact_name'                          => ['sometimes', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'job_positions'                             => ['sometimes', 'array'],
             'job_positions.*.slug'                      => ['sometimes', 'string'],
             'job_positions.*.scopes'                    => ['sometimes', 'array'],
