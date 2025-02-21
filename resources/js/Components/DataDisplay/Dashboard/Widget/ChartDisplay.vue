@@ -12,6 +12,7 @@ import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 import { Link } from "@inertiajs/vue3"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useLocaleStore } from "@/Stores/locale"
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -178,7 +179,7 @@ const setChartOptions = () => {
 						const numericValue = Number(value) || 0
 						const currencyCode = props.widget.currency_code
 						if (currencyCode) {
-							return locale.currencyFormat(currencyCode, numericValue)
+							return useLocaleStore().CurrencyShort(currencyCode, numericValue, false)
 						}
 						return locale.number(numericValue)
 					},
