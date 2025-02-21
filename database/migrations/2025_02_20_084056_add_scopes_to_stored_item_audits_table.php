@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::table('stored_item_audits', function (Blueprint $table) {
             $table->string('scope_type')->index()->comment('Fulfilment|Pallet')->nullable();
-            $table->unsignedSmallInteger('scope_id')->nullable();
+            $table->unsignedInteger('scope_id')->nullable();
             $table->index(['scope_type', 'scope_id']);
         });
     }

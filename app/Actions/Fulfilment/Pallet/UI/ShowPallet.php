@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
@@ -120,7 +121,7 @@ class ShowPallet extends OrgAction
         $title = $this->pallet->reference;
         $iconRight = $pallet->status->statusIcon()[$pallet->status->value];
         $afterTitle = [];
-
+        $actions = [];
         if ($this->pallet->customer_reference) {
             $afterTitle = [
                 'label'     => '(' . $this->pallet->customer_reference . ')'
@@ -133,8 +134,33 @@ class ShowPallet extends OrgAction
                 'tooltip' => __('Customer')
             ];
             $model = $this->parent->customer->name;
-        }
+            $openStoredItemAudit = $pallet->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
 
+                if ($openStoredItemAudit) {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'tooltip' => __("Continue pallet's SKUs audit"),
+                        'label'   => __("Continue pallet's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show',
+                            'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                        ]
+                    ];
+                } else {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'tooltip' => __("Start pallet's SKUs audit"),
+                        'label'   => __("Start pallet's SKUs audit"),
+                        'route'   => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ];
+
+                }
+        }
+        
         $subNavigation = [];
         $navigation = PalletTabsEnum::navigation($pallet);
 
@@ -154,7 +180,30 @@ class ShowPallet extends OrgAction
         } elseif ($this->parent instanceof FulfilmentCustomer) {
             $routeName = 'grp.org.fulfilments.show.crm.customers.show.pallets.edit';
         }
-
+        $actions[] = [
+            'type'    => 'button',
+            'style'   => 'edit',
+            'tooltip' => __('edit pallet'),
+            'route'   => [
+                'name'       => $routeName,
+                'parameters' => array_values(request()->route()->originalParameters())
+            ]
+        ];
+        
+        $actions[] = [
+            'type'   => 'button',
+            'style'  => 'tertiary',
+            'label'  => 'PDF Label',
+            'target' => '_blank',
+            'icon'   => 'fal fa-file-pdf',
+            'key'    => 'action',
+            'route'  => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.export',
+                'parameters' => [...array_values(request()->route()->originalParameters()), [
+                    'type' => 'pdf'
+                ]],
+            ]
+        ];
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
@@ -176,54 +225,7 @@ class ShowPallet extends OrgAction
                     'noCapitalise'  => true,
                     'afterTitle'    => $afterTitle,
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'cancel',
-                        //     'tooltip' => __('return to customer'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setReturn',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
-                        // ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'edit',
-                            'tooltip' => __('edit pallet'),
-
-                            'route'   => [
-                                'name'       => $routeName,
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ]
-                        ],
-                        [
-                            'type'   => 'button',
-                            'style'  => 'tertiary',
-                            'label'  => 'PDF Label',
-                            'target' => '_blank',
-                            'icon'   => 'fal fa-file-pdf',
-                            'key'    => 'action',
-                            'route'  => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.export',
-                                'parameters' => [...array_values(request()->route()->originalParameters()), [
-                                    'type' => 'pdf'
-                                ]],
-                            ]
-                        ]
-                        // [
-                        //     'type'    => 'button',
-                        //     'style'   => 'delete',
-                        //     'tooltip' => __('set as damaged'),
-                        //     'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                        //     'route'   => [
-                        //         'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                        //         'parameters' => array_values(request()->route()->originalParameters())
-                        //     ],
-                        //     'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
-                        // ],
-                    ],
+                    'actions'       => $actions
                 ],
                 'tabs'                          => [
                     'current'    => $this->tab,
