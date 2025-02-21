@@ -75,6 +75,11 @@ class ShowStoredItemAuditForPallet extends OrgAction
                                 $storedItemAudit->id
                         ],
                     ]
+                ],
+                [
+                    'type'     => 'button',
+                    'style'    => 'secondary',
+                    'label'    => __('Add SKU'),
                 ]
             ];
             $editDeltas = StoredItemDeltasInProcessForPalletResource::collection(IndexStoredItemDeltasInProcessForPallet::run($storedItemAudit, 'edit_stored_item_deltas'));
