@@ -112,18 +112,16 @@ class ShowGroupDashboard extends OrgAction
         }
 
         if ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_ORGANISATIONS->value) {
-            $dashboard['table'][0]['data'] = $this->getInvoiceOrganisation($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard, $total);
+            $dashboard['table'][0]['data'] = $this->getInvoiceOrganisation($group, $selectedInterval, $selectedCurrency, $organisations, $dashboard);
         } elseif ($this->tabDashboardInterval == GroupDashboardIntervalTabsEnum::INVOICE_SHOPS->value) {
             $shops                         = $group->shops->whereIn('organisation_id', $organisations->pluck('id')->toArray())->where('state', $selectedShopState);
-            $dashboard['table'][1]['data'] = $this->getInvoiceShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency, $total);
+            $dashboard['table'][1]['data'] = $this->getInvoiceShops($group, $shops, $selectedInterval, $dashboard, $selectedCurrency);
         }
-
-        $dashboard['total'] = $total;
 
         return $dashboard;
     }
 
-    public function getInvoiceOrganisation(Group $group, $selectedInterval, $selectedCurrency, $organisations, &$dashboard, &$total): array
+    public function getInvoiceOrganisation(Group $group, $selectedInterval, $selectedCurrency, $organisations, &$dashboard): array
     {
 
         $data = [];
@@ -227,25 +225,37 @@ class ShowGroupDashboard extends OrgAction
                 ]
             );
 
-            $averageInvoices = [];
-            $totalAvg = 0;
-            for ($i = 0; $i < count($combined); $i++) {
-                $amount = 0;
-                if ($combinedInvoices[$i][2] != 0) {
-                    $amount = $combined[$i][2] / $combinedInvoices[$i][2];
-                }
-                $averageInvoices[$i] = [
-                    'name' => $combined[$i][0],
-                    'currency_code' => $combined[$i][1],
-                    'amount' => $amount,
+            $amountMap = [];
+            $totalMap = [];
+
+            foreach ($combined as $entry) {
+                $amountMap[$entry[0]] = [
+                    'currency_code' => $entry[1],
+                    'amount' => (float) $entry[2]
                 ];
-                $totalAvg += $amount;
+            }
+
+            foreach ($combinedInvoices as $entry) {
+                $totalMap[$entry[0]] = (int) $entry[2];
+            }
+
+            $averages = [];
+
+            $totalAvg = 0;
+            foreach ($amountMap as $label => $amount) {
+                if (isset($totalMap[$label]) && $totalMap[$label] > 0) {
+                    $averages[$label] = $amount['amount'] / $totalMap[$label];
+                } else {
+                    $averages[$label] = 0;
+                }
+                $totalAvg += $averages[$label];
             }
 
             if ($totalAvg == 0) {
                 return $data;
             }
 
+            // dd($visualData['name']);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -255,11 +265,11 @@ class ShowGroupDashboard extends OrgAction
                 visual: [
                     'type'  => 'bar',
                     'value' => [
-                        'labels'         => Arr::pluck($averageInvoices, 'name'),
-                        'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                        'labels'         => array_keys($amountMap),
+                        'currency_codes' => Arr::pluck($amountMap, 'currency_code'),
                         'datasets'       => [
                             [
-                                'data' => Arr::pluck($averageInvoices, 'amount')
+                                'data' => Arr::flatten($averages),
                             ]
                         ]
                     ],
@@ -274,7 +284,7 @@ class ShowGroupDashboard extends OrgAction
         return $data;
     }
 
-    public function getInvoiceShops(Group $group, $shops, $selectedInterval, &$dashboard, $selectedCurrency, &$total): array
+    public function getInvoiceShops(Group $group, $shops, $selectedInterval, &$dashboard, $selectedCurrency): array
     {
         $visualData = [];
         $data = [];
@@ -400,25 +410,37 @@ class ShowGroupDashboard extends OrgAction
                 ]
             );
 
-            $averageInvoices = [];
-            $totalAvg = 0;
-            for ($i = 0; $i < count($combined); $i++) {
-                $amount = 0;
-                if ($combinedInvoices[$i][2] != 0) {
-                    $amount = $combined[$i][2] / $combinedInvoices[$i][2];
-                }
-                $averageInvoices[$i] = [
-                    'name' => $combined[$i][0],
-                    'currency_code' => $combined[$i][1],
-                    'amount' => $amount,
+            $amountMap = [];
+            $totalMap = [];
+
+            foreach ($combined as $entry) {
+                $amountMap[$entry[0]] = [
+                    'currency_code' => $entry[1],
+                    'amount' => (float) $entry[2]
                 ];
-                $totalAvg += $amount;
+            }
+
+            foreach ($combinedInvoices as $entry) {
+                $totalMap[$entry[0]] = (int) $entry[2];
+            }
+
+            $averages = [];
+
+            $totalAvg = 0;
+            foreach ($amountMap as $label => $amount) {
+                if (isset($totalMap[$label]) && $totalMap[$label] > 0) {
+                    $averages[$label] = $amount['amount'] / $totalMap[$label];
+                } else {
+                    $averages[$label] = 0;
+                }
+                $totalAvg += $averages[$label];
             }
 
             if ($totalAvg == 0) {
                 return $data;
             }
 
+            // dd($visualData['name']);
 
             $dashboard['widgets']['components'][] = $this->getWidget(
                 type: 'chart_display',
@@ -428,11 +450,11 @@ class ShowGroupDashboard extends OrgAction
                 visual: [
                     'type'  => 'bar',
                     'value' => [
-                        'labels'         => Arr::pluck($averageInvoices, 'name'),
-                        'currency_codes' => Arr::pluck($averageInvoices, 'currency_code'),
+                        'labels'         => array_keys($amountMap),
+                        'currency_codes' => Arr::pluck($amountMap, 'currency_code'),
                         'datasets'       => [
                             [
-                                'data' => Arr::pluck($averageInvoices, 'amount')
+                                'data' => Arr::flatten($averages),
                             ]
                         ]
                     ],
