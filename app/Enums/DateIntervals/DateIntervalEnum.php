@@ -20,7 +20,6 @@ enum DateIntervalEnum: string
     case ONE_MONTH = '1m';
     case ONE_WEEK = '1w';
     case THREE_DAYS = '3d';
-    // case ONE_DAY = '1d';
     case YEAR_TO_DAY = 'ytd';
     case QUARTER_TO_DAY = 'qtd';
     case MONTH_TO_DAY = 'mtd';
@@ -55,8 +54,6 @@ enum DateIntervalEnum: string
                 return $query->whereBetween($column, [now()->subWeek()->startOfDay(), now()->endOfDay()]);
             case '3d':
                 return $query->whereBetween($column, [now()->subDays(3)->startOfDay(), now()->endOfDay()]);
-            case '1d':
-                return $query->whereBetween($column, [now()->subDay()->startOfDay(), now()->endOfDay()]);
             case 'ytd':
                 return $query->whereBetween($column, [now()->startOfYear()->startOfDay(), now()->endOfDay()]);
             case 'tdy':
@@ -89,8 +86,6 @@ enum DateIntervalEnum: string
                 return $query->whereBetween($column, [now()->subWeek()->subYear()->startOfDay(), now()->subYear()->endOfDay()]);
             case '3d':
                 return $query->whereBetween($column, [now()->subDays(3)->subYear()->startOfDay(), now()->subYear()->endOfDay()]);
-            case '1d':
-                return $query->whereBetween($column, [now()->subDay()->subYear()->startOfDay(), now()->subYear()->endOfDay()]);
             case 'ytd':
                 return $query->whereBetween($column, [now()->startOfYear()->subYear()->startOfDay(), now()->subYear()->endOfDay()]);
             case 'tdy':
