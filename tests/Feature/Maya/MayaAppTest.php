@@ -148,14 +148,16 @@ test('get workplace data', function () {
         $this->user,
         ['*']
     );
+
     $response = getJson(route('maya.org.hr.workplaces.show', [
         $this->organisation->id,
         $this->workplace->id
     ]));
     $response->assertOk();
 
-    expect($response->json('data'))->toBeArray()
-        ->and($response->json('data'))
+
+    expect($response->json())->toBeArray()
+        ->and($response->json())
         ->id->toBe($this->workplace->id)
         ->name->toBe($this->workplace->name);
 });

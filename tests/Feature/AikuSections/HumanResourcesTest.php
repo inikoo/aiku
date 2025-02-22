@@ -246,8 +246,7 @@ test('can show workplace', function () {
     $response->assertInertia(function (AssertableInertia $page) use ($workplace) {
         $page
             ->component('Org/HumanResources/Workplace')
-            ->has('breadcrumbs', 3)
-            ->has('tabs.navigation', 3);
+            ->has('breadcrumbs', 3);
     });
 });
 

@@ -106,7 +106,7 @@ class ShowWorkplace extends OrgAction
 
     public function jsonResponse(Workplace $workplace): WorkplaceResource
     {
-        return new WorkplaceResource($workplace);
+        return WorkplaceResource::make($workplace);
     }
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array
@@ -180,4 +180,8 @@ class ShowWorkplace extends OrgAction
             ]
         };
     }
+
+
+
+
 }

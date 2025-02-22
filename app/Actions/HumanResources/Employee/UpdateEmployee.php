@@ -45,17 +45,6 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        $stateData = [];
-        if ($state = Arr::get($modelData, 'state')) {
-            $stateData = [];
-
-            foreach (['state', 'employment_start_at', 'employment_end_at'] as $key) {
-                if ($value = Arr::get($state, $key)) {
-                    data_set($stateData, $key, $value);
-                    data_set($modelData, $key, $value);
-                }
-            }
-        }
 
         if (Arr::has($modelData, 'job_positions')) {
 
@@ -63,7 +52,6 @@ class UpdateEmployee extends OrgAction
             $jobPositions = $this->reorganisePositionsSlugsToIds($jobPositions);
             SyncEmployeeJobPositions::run($employee, $jobPositions);
         }
-
 
         $credentials = Arr::only($modelData, ['username', 'password', 'auth_type', 'user_model_status']);
 
@@ -127,9 +115,9 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'state.state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
-            'state.employment_start_at'             => ['sometimes', 'nullable', 'date'],
-            'state.employment_end_at'               => ['sometimes', 'nullable', 'date'],
+            'state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'employment_start_at'             => ['sometimes', 'nullable', 'date'],
+            'employment_end_at'               => ['sometimes', 'nullable', 'date'],
             'work_email'                            => [
                 'sometimes',
                 'nullable',
@@ -236,6 +224,26 @@ class UpdateEmployee extends OrgAction
                 $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
             }
         }
+
+        if ($this->has('cluster.state')) {
+            {
+                $this->set('state', $this->get('cluster.state'));
+            }
+        }
+
+        if ($this->has('cluster.employment_start_at')) {
+            {
+                $this->set('employment_start_at', $this->get('cluster.employment_start_at'));
+            }
+        }
+
+        if ($this->has('cluster.employment_end_at')) {
+            {
+                $this->set('employment_end_at', $this->get('cluster.employment_end_at'));
+            }
+        }
+
+
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee
