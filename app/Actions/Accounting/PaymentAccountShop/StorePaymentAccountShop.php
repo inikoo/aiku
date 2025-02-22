@@ -11,53 +11,89 @@ namespace App\Actions\Accounting\PaymentAccountShop;
 
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePAS;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentAccountShop extends OrgAction
 {
+    use WithNoStrictRules;
+
     public function handle(PaymentAccount $paymentAccount, Shop $shop, array $modelData): PaymentAccountShop
     {
         data_set($modelData, 'shop_id', $shop->id);
         data_set($modelData, 'type', $paymentAccount->type);
 
+        data_set($modelData, 'currency_id', $shop->currency_id, overwrite: false);
 
+        if (Arr::has($modelData, 'state') && $modelData['state'] == PaymentAccountShopStateEnum::ACTIVE) {
+            data_set($modelData, 'activated_at', now(), overwrite: false);
+            data_set($modelData, 'last_activated_at', now(), overwrite: false);
+        }
+
+        /** @var PaymentAccountShop $paymentAccountShop */
         $paymentAccountShop = $paymentAccount->paymentAccountShops()->create($modelData);
-
-        PaymentAccountHydratePAS::dispatch($paymentAccount);
+        PaymentAccountHydratePAS::dispatch($paymentAccount)->delay($this->hydratorsDelay);
 
         return $paymentAccountShop;
     }
 
     public function rules(): array
     {
-        return [
-            'state'              => [
+        $rules = [
+            'state'                     => [
                 'required',
                 Rule::enum(PaymentAccountShopStateEnum::class)
             ],
-            'currency_id' => [
+            'currency_id'               => [
+                'sometimes',
                 'required',
                 Rule::Exists('currencies', 'id')
-            ]
+            ],
+            'show_in_checkout'          => ['sometimes', 'boolean'],
+            'checkout_display_position' => ['sometimes', 'numeric'],
+            'data'                      => ['sometimes', 'array']
         ];
+
+        if (!$this->strict) {
+            $rules                      = $this->noStrictStoreRules($rules);
+            $rules['activated_at']      = ['sometimes', 'date'];
+            $rules['last_activated_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
+    }
+
+    public function prepareForValidation(): void
+    {
+        if ($this->has('checkout_display_position')) {
+            $checkoutDisplayPosition = $this->shop->paymentAccountShops()->max('checkout_display_position') + 10;
+            $this->set('checkout_display_position', $checkoutDisplayPosition);
+        }
     }
 
     public function asController(PaymentAccount $paymentAccount, Shop $shop, ActionRequest $request): PaymentAccountShop
     {
-        $this->initialisation($paymentAccount->organisation, $request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($paymentAccount, $shop, $this->validateAttributes());
     }
 
-    public function action(PaymentAccount $paymentAccount, Shop $shop, array $modelData): PaymentAccountShop
+    public function action(PaymentAccount $paymentAccount, Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): PaymentAccountShop
     {
-        $this->asAction           = true;
-        $this->initialisation($paymentAccount->organisation, $modelData);
+        if (!$audit) {
+            PaymentAccountShop::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($paymentAccount, $shop, $this->validateAttributes());
     }

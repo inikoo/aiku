@@ -48,7 +48,7 @@ class UpdateEmployee extends OrgAction
         $stateData = [];
         if ($state = Arr::get($modelData, 'state')) {
             $stateData = [];
-        
+
             foreach (['state', 'employment_start_at', 'employment_end_at'] as $key) {
                 if ($value = Arr::get($state, $key)) {
                     data_set($stateData, $key, $value);
@@ -56,7 +56,7 @@ class UpdateEmployee extends OrgAction
                 }
             }
         }
-        
+
         if (Arr::has($modelData, 'job_positions')) {
 
             $jobPositions = Arr::pull($modelData, 'job_positions', []);

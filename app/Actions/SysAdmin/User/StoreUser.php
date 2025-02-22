@@ -46,7 +46,7 @@ class StoreUser extends GrpAction
             $user = User::create($modelData);
             $user->stats()->create();
 
-            if($parent instanceof Guest) {
+            if ($parent instanceof Guest) {
                 $parent->update(
                     [
                         'user_id' => $user->id

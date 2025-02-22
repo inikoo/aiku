@@ -136,8 +136,7 @@ class ShowPallet extends OrgAction
             $model = $this->parent->customer->name;
             $openStoredItemAudit = $pallet->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
 
-            if(!app()->environment('production'))
-            {
+            if (!app()->environment('production')) {
                 if ($openStoredItemAudit) {
                     $actions[] = [
                         'type'    => 'button',
@@ -159,7 +158,7 @@ class ShowPallet extends OrgAction
                             'parameters' => $request->route()->originalParameters()
                         ]
                     ];
-    
+
                 }
             }
         }

@@ -12,11 +12,13 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Currency;
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  *
@@ -30,6 +32,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property PaymentAccountShopStateEnum $state
  * @property PaymentAccountTypeEnum|null $type
+ * @property \Illuminate\Support\Carbon|null $activated_at
+ * @property \Illuminate\Support\Carbon|null $last_activated_at
+ * @property \Illuminate\Support\Carbon|null $inactive_at
+ * @property bool $show_in_checkout
+ * @property int $checkout_display_position for the order in which will be show in checkout UI
+ * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
@@ -39,14 +48,21 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder<static>|PaymentAccountShop query()
  * @mixin Eloquent
  */
-class PaymentAccountShop extends Model
+class PaymentAccountShop extends Model implements Auditable
 {
+    use HasHistory;
+
     protected $table = 'payment_account_shop';
 
     protected $casts = [
         'data'  => 'array',
         'state' => PaymentAccountShopStateEnum::class,
         'type'  => PaymentAccountTypeEnum::class,
+        'activated_at' => 'datetime',
+        'last_activated_at' => 'datetime',
+        'inactive_at' => 'datetime',
+
+
     ];
 
     protected $attributes = [
@@ -54,6 +70,14 @@ class PaymentAccountShop extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'state',
+            'type'
+        ];
+    }
 
     public function paymentAccount(): BelongsTo
     {
