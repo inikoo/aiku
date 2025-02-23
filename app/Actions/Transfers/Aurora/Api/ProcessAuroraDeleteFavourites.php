@@ -40,7 +40,8 @@ class ProcessAuroraDeleteFavourites extends OrgAction
     {
         $res = [
             'status'  => 'error',
-            'message' => 'Favourite not found'
+            'message' => 'Favourite not found',
+            'model'   => 'DeleteFavourite'
         ];
 
         $this->initialisation($organisation, $request);
@@ -51,7 +52,8 @@ class ProcessAuroraDeleteFavourites extends OrgAction
             UnFavourite::make()->action($favourite, Arr::only($validatedData, 'unfavourited_at'));
             $res = [
                 'status' => 'ok',
-                'id'     => $validatedData['id']
+                'id'     => $validatedData['id'],
+                'model'  => 'DeleteFavourite'
             ];
         }
 
