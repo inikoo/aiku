@@ -2,8 +2,8 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 12 Oct 2024 11:26:56 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Sat, 22 Feb 2025 19:47:12 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Favourite;
@@ -16,7 +16,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Favourite;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateFavourite extends OrgAction
+class UnFavourite extends OrgAction
 {
     use WithActionUpdate;
 
@@ -24,11 +24,25 @@ class UpdateFavourite extends OrgAction
 
     public function handle(Favourite $favourite, array $modelData): Favourite
     {
+
+        $customer = $favourite->customer;
+        $product = $favourite->product;
+
+
+        data_set($modelData, 'unfavourited_at', now(), false);
+
         $favourite = $this->update($favourite, $modelData, ['data']);
 
-        CustomerHydrateFavourites::dispatch($favourite->customer)->delay($this->hydratorsDelay);
-        ProductHydrateCustomersWhoFavourited::dispatch($favourite->product)->delay($this->hydratorsDelay);
-        ProductHydrateCustomersWhoFavouritedInCategories::dispatch($favourite->product)->delay($this->hydratorsDelay);
+        $customer->favourites()->where('current_favourite_id', $favourite->id)->update(
+            [
+                'current_favourite_id' => null
+            ]
+        );
+
+
+        CustomerHydrateFavourites::dispatch($customer)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoFavourited::dispatch($product)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoFavouritedInCategories::dispatch($product)->delay($this->hydratorsDelay);
 
         return $favourite;
     }
@@ -42,16 +56,13 @@ class UpdateFavourite extends OrgAction
         return false;
     }
 
+
     public function rules(): array
     {
-        $rules = [];
+        return [
+            'unfavourited_at' => ['sometimes','required', 'date']
+        ];
 
-        if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['unfavourited_at'] = ['sometimes', 'nullable', 'date'];
-        }
-
-        return $rules;
     }
 
     public function action(Favourite $favourite, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Favourite
@@ -59,7 +70,7 @@ class UpdateFavourite extends OrgAction
         $this->strict = $strict;
 
         $this->asAction       = true;
-        $this->favourite      = $favourite;
+        $this->favourite       = $favourite;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($favourite->organisation, $modelData);
 

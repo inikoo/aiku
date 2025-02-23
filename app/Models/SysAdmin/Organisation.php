@@ -34,6 +34,7 @@ use App\Models\Comms\Mailshot;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Favourite;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
@@ -157,6 +158,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
+ * @property-read LaravelCollection<int, Favourite> $favourites
  * @property-read LaravelCollection<int, Feedback> $feedbacks
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
@@ -848,6 +850,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function spaces(): HasMany
     {
         return $this->hasMany(Space::class);
+    }
+
+    public function favourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class);
     }
 
 }
