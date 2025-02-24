@@ -70,9 +70,9 @@ onMounted(() => {
     if (event.origin  === 'https://widget.superchat.de') {
       // Check the message content (depends on what the iframe sends)
       if (event.data.details.isOpen) {
-        iframeStyle.value = { width : '400px', height : "700px"}; 
+        iframeStyle.value = { width : '400px', height : "700px"};
       } else if (!event.data.details.isOpen) {
-        iframeStyle.value = { width : '80px', height : "80px"}; 
+        iframeStyle.value = { width : '80px', height : "80px"};
       }
     }
   };
@@ -106,13 +106,13 @@ onMounted(() => {
 
                     <div class="mt-10 flex items-center justify-center gap-x-6">
                         <Button @click="setFirstVisitToFalse" size="xl" label="Got it" type="red">
-                            
+
                         </Button>
                     </div>
                 </div>
             </div>
         </Modal>
-        
+
         <div :class="[(theme.layout === 'blog' || !theme.layout ) ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
             <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/>
             <main>
@@ -128,9 +128,10 @@ onMounted(() => {
         </template>
     </notifications>
 
-    
-    <iframe 
-    id="superchat-widget" 
+
+    <iframe
+    title="superchat"
+    id="superchat-widget"
     class="rounded-lg shadow-lg fixed bottom-0 right-0 transition-all duration-300"
     :style="{ ...iframeStyle, border: 'none' }"
     src="https://widget.superchat.de/v2?applicationKey=WCNK7nqXPQlrVGq895A2obLRVa">
@@ -139,7 +140,7 @@ onMounted(() => {
 
 
 
- 
+
 </template>
 
 <style lang="scss">

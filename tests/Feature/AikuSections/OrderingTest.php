@@ -21,6 +21,7 @@ use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Adjustment\StoreAdjustment;
+use App\Actions\Ordering\Adjustment\UpdateAdjustment;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
@@ -198,6 +199,23 @@ test('create transaction from adjustment', function (Order $order) {
         ->and($order->stats->number_transactions)->toBe(2);
     return $transaction;
 })->depends('create order');
+
+test('update adjustment', function () {
+    $adjustment = StoreAdjustment::make()->action($this->shop, [
+        'type' => AdjustmentTypeEnum::CREDIT,
+        'net_amount' => 10,
+    ]);
+    expect($adjustment)->toBeInstanceOf(Adjustment::class);
+    $updatedAdjustment = UpdateAdjustment::make()->action($adjustment, [
+        'net_amount' => 20,
+    ]);
+
+    $updatedAdjustment->refresh();
+
+    expect($updatedAdjustment)->toBeInstanceOf(Adjustment::class)
+        ->and(intval($updatedAdjustment->net_amount))->toBe(20);
+    return $updatedAdjustment;
+});
 
 test('create transaction from charge', function (Order $order) {
     $charge = StoreCharge::make()->action($order->shop, [

@@ -237,11 +237,21 @@ class IndexTimesheets extends OrgAction
                             'icon'   => 'fal fa-file-pdf',
                             'key'    => 'action',
                             'route'  => [
-                                'name'       => 'grp.org.hr.timesheets.export',
-                                'parameters' => [
-                                    'organisation' => $this->parent->slug,
-                                    ...$request->query,
-                                ]
+                                'name'       => match (class_basename($this->parent)) {
+                                    class_basename(Organisation::class) => 'grp.org.hr.timesheets.export',
+                                    class_basename(Employee::class) => 'grp.org.hr.employees.show.timesheets.pdf',
+                                },
+                                'parameters' => match (class_basename($this->parent)) {
+                                    class_basename(Organisation::class) => [
+                                        'organisation' => $this->parent->slug,
+                                        ...$request->query
+                                    ],
+                                    class_basename(Employee::class) => [
+                                        'organisation' => $this->parent->organisation->slug,
+                                        'employee' => $this->parent->slug,
+                                        ...$request->query
+                                    ],
+                                },
                             ]
                         ]
                     ]

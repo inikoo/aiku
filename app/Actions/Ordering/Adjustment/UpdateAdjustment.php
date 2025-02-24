@@ -27,8 +27,8 @@ class UpdateAdjustment extends OrgAction
     {
         return [
 
-            'amount'          => ['sometimes', 'required', 'numeric'],
-            'last_fetched_at' => ['sometimes', 'date'],
+            'net_amount'        => ['sometimes', 'required', 'numeric'], //changed from amount to net_amount , amount dont exist
+            'last_fetched_at'   => ['sometimes', 'date'],
         ];
     }
 

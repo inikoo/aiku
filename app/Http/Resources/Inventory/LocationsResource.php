@@ -23,15 +23,12 @@ class LocationsResource extends JsonResource
         /** @var Location $location */
         $location = $this;
 
-        // dd($location);
         return [
             'id'                     => $location->id,
             'slug'                   => $location->slug,
             'code'                   => $location->code,
-            'stock_value'            => $location->stock_value,
+            'stock_value'            => $location->stock_value ?? 0,
             'stock_commercial_value' => $location->stock_commercial_value,
-            'max_weight'             => $location->max_weight,
-            'max_volume'             => $location->max_volume,
             'tags'                   => $location->tags()->pluck('slug')->toArray(),
             'allow_stocks'           => $location->allow_stocks,
             'allow_fulfilment'       => $location->allow_fulfilment,
@@ -42,8 +39,8 @@ class LocationsResource extends JsonResource
             'organisation_slug'      => $location->organisation_slug,
             'organisation_name'      => $location->organisation_name,
             'warehouse_slug'          => $location->warehouse_slug,
-            'max_weight'             => $location->max_weight,
-            'max_volume'             => $location->max_volume,
+            'max_weight'             => $location->max_weight ?? 0,
+            'max_volume'             => $location->max_volume ?? 0,
 
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
