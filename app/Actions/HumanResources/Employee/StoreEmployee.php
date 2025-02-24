@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -25,6 +26,7 @@ use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -39,17 +41,23 @@ class StoreEmployee extends OrgAction
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
     use WithNoStrictRules;
-
+    use WithModelAddressActions;
     /**
      * @throws \Throwable
      */
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
+        $contactAddressData = null;
         if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
             data_set($modelData, 'organisation_id', $organisation->id);
         } else {
             $organisation = $parent;
+        }
+
+        if(Arr::get($modelData, 'contact_address')) {
+            $contactAddressData = Arr::get($modelData, 'contact_address', []);
+            Arr::forget($modelData, 'contact_address');
         }
 
         data_set($modelData, 'group_id', $organisation->group_id);
@@ -62,10 +70,18 @@ class StoreEmployee extends OrgAction
         data_forget($modelData, 'positions');
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
-        $employee = DB::transaction(function () use ($parent, $modelData, $positions, $credentials) {
+        $employee = DB::transaction(function () use ($parent, $modelData, $positions, $credentials, $contactAddressData) {
             /** @var Employee $employee */
             $employee = $parent->employees()->create($modelData);
             $employee->stats()->create();
+
+            if($contactAddressData){
+                $employee = $this->addAddressToModelFromArray(
+                                model: $employee,
+                                addressData: $contactAddressData,
+                            );
+                $employee->refresh();
+            }
 
             if (in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
                 SetEmployeePin::make()->action($employee, updateQuietly: true);
@@ -192,7 +208,11 @@ class StoreEmployee extends OrgAction
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'user_model_status'                       => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'emergency_contact'                       => ['sometimes', 'nullable', 'string', 'max:256'],
-            'type'                                    => ['required', Rule::enum(EmployeeTypeEnum::class)]
+            'type'                                    => ['required', Rule::enum(EmployeeTypeEnum::class)],
+            'contact_address'                         => ['sometimes', 'nullable', new ValidAddress()],
+            'notes'                                   => ['sometimes', 'nullable', 'string', 'max:256'],
+            'identity_document_type'                  => ['sometimes', 'nullable', 'string', 'max:256'],
+            'identity_document_number'                => ['sometimes', 'nullable', 'string', 'max:256'],
         ];
 
         if (!$this->strict) {
