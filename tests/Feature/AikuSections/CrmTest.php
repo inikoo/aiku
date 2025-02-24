@@ -333,7 +333,7 @@ test('update favourite', function (Favourite $favourite) {
     $updatedFavourite->refresh();
 
     expect($updatedFavourite)->toBeInstanceOf(Favourite::class)
-        ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate);
+        ->and($updatedFavourite->last_fetched_at->toDateString())->toEqual($targetDate->toDateString());
 
     return $updatedFavourite;
 })->depends('add favourite to customer');

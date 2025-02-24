@@ -11,6 +11,7 @@ namespace App\Actions\CRM\Poll\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Http\Resources\CRM\PollsResource;
 use App\InertiaTable\InertiaTable;
@@ -28,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 class IndexPolls extends OrgAction
 {
     use WithCustomersSubNavigation;
+    use WithCRMAuthorisation;
 
     private Shop|Organisation $parent;
 
@@ -41,7 +43,7 @@ class IndexPolls extends OrgAction
         $queryBuilder = QueryBuilder::for(Poll::class);
         if ($parent instanceof Shop) {
             $queryBuilder->where('polls.shop_id', $parent->id);
-        } elseif ($parent instanceof Organisation) {
+        } else {
             $queryBuilder->where('polls.organisation_id', $parent->id);
         }
         $queryBuilder
@@ -72,23 +74,12 @@ class IndexPolls extends OrgAction
                 $table->name($prefix)->pageName($prefix . 'Page');
             }
 
-            // foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            //     $table->elementGroup(
-            //         key: $key,
-            //         label: $elementGroup['label'],
-            //         elements: $elementGroup['elements']
-            //     );
-            // }
-
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Organisation' => [
-                            'title'       => __("No polls found"),
-                        ],
-                        'Shop' => [
+                        'Organisation', 'Shop' => [
                             'title'       => __("No polls found"),
                         ],
                         default => null
