@@ -17,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use App\Models\Inventory\Location;
+use App\Models\SysAdmin\Organisation;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -28,17 +29,11 @@ class DownloadLocations extends OrgAction
         return Excel::download(new LocationsExport($warehouse, $modelData), $fileName);
     }
 
-    public function rules(): array
-    {
-        return [
-            'columns' => ['required', 'array'],
-        ];
-    }
-
-    public function asController(Warehouse $warehouse, ActionRequest $request)
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request)
     {
         $this->initialisationFromWarehouse($warehouse, $request);
-
-        return $this->handle($warehouse, $this->validatedData);
+        $columns = explode(',', $request->query('columns', ''));
+        
+        return $this->handle($warehouse, $columns);
     }
 }
