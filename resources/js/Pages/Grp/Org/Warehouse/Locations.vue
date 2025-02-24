@@ -20,8 +20,22 @@ import { routeType } from '@/types/route'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { UploadPallet } from '@/types/Pallet'
 
 library.add(faWarehouse, faMapSigns, faFileExport)
+
+interface UploadSection {
+    title: {
+        label: string
+        information: string
+    }
+    progressDescription: string
+    upload_spreadsheet: UploadPallet
+    preview_template: {
+        header: string[]
+        rows: {}[]
+    }
+}
 
 const props = defineProps<{
     title: string
@@ -37,6 +51,8 @@ const props = defineProps<{
             value: string
         }[]
     }
+    upload_locations: UploadSection
+
 }>()
 
 const isModalUploadOpen = ref(false)
@@ -173,14 +189,22 @@ const onExport = () => {
     <!-- <pre>{{ export }}</pre> -->
     <TableLocations :data="data" :tagsList="tagsList.data" />
 
-    <UploadExcel
+    <!-- <UploadExcel
         v-model="isModalUploadOpen"
         scope="Pallet delivery"
         :title="{
-            label: 'Upload your new pallet deliveries',
+            label: trans('Upload your new pallet deliveries'),
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
         progressDescription="Adding Pallet Deliveries"
+    /> -->
+
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        :title="upload_locations.title"
+        :progressDescription="upload_locations.progressDescription"
+        :upload_spreadsheet="upload_locations.upload_spreadsheet"
+        :preview_template="upload_locations.preview_template"
     />
 
 </template>

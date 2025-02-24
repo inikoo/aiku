@@ -357,6 +357,60 @@ class IndexLocations extends OrgAction
                     ]
                 ],
 
+                'upload_locations' => [
+                    'title' => [
+                        'label' => __('Upload locations'),
+                        'information' => __('The list of column file: customer_reference, notes')
+                    ],
+                    'progressDescription'   => __('Importing locations'),
+                    // 'preview_template'    => [
+                    //     'unique_column' => [
+                    //         'type'  => [
+                    //             'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                    //         ]
+                    //     ],
+                    //     'header' => ['type', 'customer_reference', 'notes'],
+                    //     'rows' => [
+                    //         [
+                    //             'type' => 'Pallet',
+                    //             'customer_reference' => 'PALLET1',
+                    //             'notes' => 'notes',
+                    //         ],
+                    //     ]
+                    // ],
+                    // 'upload_spreadsheet'    => [
+                    //     'event'           => 'action-progress',
+                    //     'channel'         => 'grp.personal.'.$this->organisation->id,
+                    //     'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    //     'template'        => [
+                    //         'label' => 'Download template (.xlsx)',
+                    //     ],
+                    //     'route'           => [
+                    //         'upload'   => [
+                    //             'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                    //             'parameters' => [
+                    //                 'palletDelivery' => $palletDelivery->id
+                    //             ]
+                    //         ],
+                    //         'history'  => [
+                    //             'name'       => 'grp.json.pallet_delivery.recent_uploads',
+                    //             'parameters' => [
+                    //                 'palletDelivery' => $palletDelivery->id
+                    //             ]
+                    //         ],
+                    //         'download' => [
+                    //             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                    //             'parameters' => [
+                    //                 'organisation'       => $palletDelivery->organisation->slug,
+                    //                 'fulfilment'         => $palletDelivery->fulfilment->slug,
+                    //                 'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                    //                 'palletDelivery'     => $palletDelivery->slug
+                    //             ]
+                    //         ],
+                    //     ],
+                    // ]
+                ],
+
                 'export' => $export,
                 'tagRoute'   => [
                     'store' => [
