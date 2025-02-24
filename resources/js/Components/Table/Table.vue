@@ -175,7 +175,7 @@ const queryBuilderProps = computed(() => {
 });
 
 
-const queryBuilderData = ref(queryBuilderProps.value);
+const queryBuilderData = ref({...queryBuilderProps.value});  // spread operator to avoid sort on mounted
 // queryBuilderData.value.elementFilter = {
 //     // 'state': ['left'],
 //     // 'type': ['volunteer', 'employee']
@@ -571,13 +571,13 @@ const visit = (url?: string) => {
 }
 
 watch(queryBuilderData, async () => {
-        if(queryBuilderData.value.sort !== queryBuilderProps.value.sort) {  // To avoid sort on first load
+        // if(queryBuilderData.value.sort !== queryBuilderProps.value.sort) {  // To avoid sort on first load
             try {
                 visit(location.pathname + '?' + generateNewQueryString())
             } catch {
                 console.error("Can't visit expected path")
             }
-        }
+        // }
     },
     {deep: true},
 );
