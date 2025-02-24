@@ -10,7 +10,6 @@ namespace App\Actions\HumanResources\Timesheet\Pdf;
 
 use App\Actions\Traits\WithExportData;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\Timesheet;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Lorisleiva\Actions\ActionRequest;
@@ -19,7 +18,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class PdfTimesheet
+class PdfTimesheets
 {
     use AsAction;
     use WithAttributes;
@@ -28,7 +27,7 @@ class PdfTimesheet
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(Employee $parent)
+    public function handle(Organisation $parent)
     {
         $filename = __('Timesheets - ') . $parent->name . '.pdf';
         $config = [
@@ -41,24 +40,40 @@ class PdfTimesheet
             'auto_page_break_margin' => 10
         ];
 
-        $query = QueryBuilder::for(Timesheet::class);
-        $query->where('subject_type', class_basename($parent));
-        $query->where('subject_id', $parent->id);
-        $query->withFilterPeriod('date');
+        $query = QueryBuilder::for(Employee::class);
+        $query->where('organisation_id', $parent->id);
 
-        return PDF::chunkLoadView('<html-separator/>', 'hr.timesheet', [
-            'filename' => $filename,
-            'organisation' => $parent->organisation,
-            'employee' => $parent,
-            'timesheets' => $query->get()
-        ], [], $config)->stream($filename);
+        $query->whereHas('timesheets', function ($q) {
+            QueryBuilder::for($q)->withFilterPeriod('date');
+        });
+
+        $chunkSize = 10;
+        $employeeChunks = $query->get()->chunk($chunkSize);
+
+        $pdf = PDF::loadHTML('', $config);
+
+        foreach ($employeeChunks as $key => $chunk) {
+            $html = view('hr.timesheets', [
+                'filename' => $filename,
+                'organisation' => $parent,
+                'employees' => $chunk,
+            ])->render();
+
+            if ($key > 0) {
+                $pdf->getMpdf()->WriteHTML('<pagebreak />');
+            }
+
+            $pdf->getMpdf()->WriteHTML($html);
+        }
+
+        return $pdf->stream($filename);
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        return $this->handle($employee);
+        return $this->handle($organisation);
     }
 }
