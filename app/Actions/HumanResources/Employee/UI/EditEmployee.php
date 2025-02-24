@@ -84,7 +84,7 @@ class EditEmployee extends OrgAction
                     'label' => __('work email'),
                     'value' => $employee->work_email ?? ''
                 ],
-                'state'         => [
+                'cluster'         => [
                     'type'     => 'employeeState',
                     'mode'     => 'card',
                     'label'    => 'Employee status',
