@@ -70,7 +70,7 @@ function useTabChangeDashboard(tab_slug: string) {
 </script>
 
 <template>
-	<div class="bg-white mb-2 p-4 shadow-md border border-gray-200">
+	<div class="bg-white mb-3 p-4 shadow-md border border-gray-200">
 		<div class="text-red-500">
 			<Tabs :value="activeIndexTab" class="overflow-x-auto text-sm md:text-base pb-2">
 				<TabList>
@@ -290,7 +290,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<div class="whitespace-nowrap">
+								<div class="whitespace-nowrap text-[#474545]">
 									<DeltaItemDashboard
 										:totalAmount="totalAmount"
 										:totalTooltip="total_tooltip"
@@ -304,7 +304,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right" />
 						<Column footerStyle="text-align:right">
 							<template #footer>
-								<div class="whitespace-nowrap">
+								<div class="whitespace-nowrap  text-[#474545]">
 									<DeltaItemDashboard
 										:totalAmount="totalAmount"
 										:totalTooltip="total_tooltip"
@@ -332,7 +332,7 @@ function useTabChangeDashboard(tab_slug: string) {
 									: ''
 							"
 							footerStyle="text-align:right" />
-						<Column footerStyle="text-align:right ">
+						<Column footerStyle="text-align:right text-[#474545]">
 							<template
 								#footer
 								v-if="
@@ -374,5 +374,10 @@ function useTabChangeDashboard(tab_slug: string) {
 ::v-deep .p-datatable-tfoot > tr > td {
 	padding: 0.25em !important;
 	color: #7c7c7c !important;
+}
+
+::v-deep .p-datatable-column-footer {
+	font-weight: 400 !important;
+	color: #474545 !important;
 }
 </style>
