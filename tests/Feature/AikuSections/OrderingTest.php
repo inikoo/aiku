@@ -369,86 +369,14 @@ test('update order state to Packed ', function (Order $order) {
     return $order;
 })->depends('update order state to Handling');
 
-// test('update order state to Finalised ', function (Order $order) {
-//     $order = UpdateStateToFinalizedOrder::make()->action($order, []);
-//     $order->refresh();
-//     expect($order)->toBeInstanceOf(Order::class)
-//         ->and($order->state)->toEqual(OrderStateEnum::PACKED);
+test('update order state to Finalised ', function (Order $order) {
+    $order = UpdateStateToFinalizedOrder::make()->action($order, []);
+    $order->refresh();
+    expect($order)->toBeInstanceOf(Order::class)
+        ->and($order->state)->toEqual(OrderStateEnum::FINALISED);
     
-//     return $order;
-// })->depends('update order state to Handling');
-
-
-
-test('update state to packed from handling', function ($order) {
-    try {
-        $order = UpdateStateToPackedOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toBe(OrderStateEnum::PACKED);
-})->depends('create order')->todo();
-
-test('update state to finalized from handling', function ($order) {
-    try {
-        $order = UpdateStateToFinalizedOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toBe(OrderStateEnum::FINALISED);
-})->depends('create order')->todo();
-
-
-test('update state to finalized from settled', function ($order) {
-    try {
-        $order = UpdateStateToFinalizedOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toBe(OrderStateEnum::FINALISED);
-})->depends('create order')->todo();
-
-test('update state to packed from finalized', function ($order) {
-    try {
-        $order = UpdateStateToPackedOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toBe(OrderStateEnum::PACKED);
-})->depends('create order')->todo();
-
-test('update state to handling from packed', function ($order) {
-    try {
-        $order = UpdateStateToHandlingOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toEqual(OrderStateEnum::HANDLING);
-})->depends('create order')->todo();
-
-test('update state to submit from handling', function ($order) {
-    try {
-        $order = UpdateOrderStateToSubmitted::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toEqual(OrderStateEnum::SUBMITTED);
-})->depends('create order')->todo();
-
-test('update state to creating from submitted', function ($order) {
-    try {
-        $order = UpdateStateToCreatingOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-
-    expect($order->state)->toEqual(OrderStateEnum::CREATING);
-})->depends('create order')->todo();
-
-test('delete order', function ($order) {
-    $order = DeleteOrder::run($order);
-
-    $this->assertSoftDeleted($order);
-})->depends('create order')->todo();
+    return $order;
+})->depends('update order state to Handling');
 
 test('create customer client', function () {
     $shop           = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
@@ -473,7 +401,7 @@ test('create invoice from customer', function () {
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->reference)->toBe('00001')
-        ->and($invoice->customer->stats->number_invoices)->toBe(1);
+        ->and($invoice->customer->stats->number_invoices)->toBe(2);
 
     return $invoice;
 })->depends();
@@ -505,8 +433,8 @@ test('create invoice from order', function (Order $order) {
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->customer->id)->toBe($order->customer_id)
         ->and($invoice->reference)->toBe('00002')
-        ->and($customer->stats->number_invoices)->toBe(2)
-        ->and($this->shop->orderingStats->number_invoices)->toBe(2)
+        ->and($customer->stats->number_invoices)->toBe(3)
+        ->and($this->shop->orderingStats->number_invoices)->toBe(3)
         ->and($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class);
 
 
