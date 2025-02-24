@@ -24,6 +24,7 @@ import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.
 import TablePaymentAccounts from "@/Components/Tables/Grp/Org/Accounting/TablePaymentAccounts.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import PaymentProviderShowcase from "@/Components/Accounting/PaymentProviderShowcase.vue"
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));
 
@@ -39,6 +40,7 @@ const props = defineProps<{
     payment_accounts?: object
     payments?: object,
     history: object
+    showcase: {}
 
 }>();
 
@@ -48,6 +50,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: PaymentProviderShowcase,
         stats: ModelStats,
         payment_accounts: TablePaymentAccounts,
         payments: TablePayments,
@@ -65,7 +68,9 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <div class="px-4 py-2">
+        <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    </div>
 
 </template>
 

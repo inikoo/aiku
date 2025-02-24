@@ -47,13 +47,14 @@ class ProcessAuroraDeleteFavourites extends OrgAction
         $this->initialisation($organisation, $request);
         $validatedData = $this->validatedData;
 
-        $favourite = Favourite::where('id', $validatedData['id'])->first();
+        $favourite = Favourite::where('source_id', $organisation->id.':'.$validatedData['id'])->first();
+
         if ($favourite) {
             UnFavourite::make()->action($favourite, Arr::only($validatedData, 'unfavourited_at'));
             $res = [
                 'status' => 'ok',
-                'id'     => $validatedData['id'],
-                'model'  => 'DeleteFavourite'
+                'id'     => $favourite->source_id,
+                'model'  => 'DeleteFavourite',
             ];
         }
 

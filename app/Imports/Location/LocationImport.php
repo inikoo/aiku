@@ -77,7 +77,7 @@ class LocationImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
                 'max:64',
                 'alpha_dash'
             ],
-            'warehouse_slug'      => ['required', 'exists:warehouses,slug'],
+            'warehouse_slug'      => ['nullable', 'exists:warehouses,slug'],
             'warehouse_area_slug' => ['nullable', 'exists:warehouse_areas,slug'],
             'max_weight'          => ['nullable', 'numeric', 'min:0.1', 'max:1000000'],
             'max_volume'          => ['nullable', 'numeric', 'min:0.1', 'max:1000000']

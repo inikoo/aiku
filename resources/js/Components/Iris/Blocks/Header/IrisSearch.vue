@@ -124,7 +124,7 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-@import 'https://cdn.luigisbox.com/autocomplete.css'; /* For autocomplete */
+/* @import 'https://cdn.luigisbox.com/autocomplete.css';  */
 
 $luigiColor1: #4b5058;
 $luigiColor2: #957a65;

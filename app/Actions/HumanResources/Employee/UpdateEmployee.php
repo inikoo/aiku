@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
 use App\Actions\HumanResources\JobPosition\SyncEmployeeJobPositions;
 use App\Actions\OrgAction;
@@ -17,6 +18,7 @@ use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
@@ -26,6 +28,7 @@ use App\Models\HumanResources\Employee;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use App\Rules\PinRule;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -38,6 +41,7 @@ class UpdateEmployee extends OrgAction
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
     use WithNoStrictRules;
+    use WithModelAddressActions;
 
     protected bool $asAction = false;
 
@@ -45,6 +49,30 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
+
+        if (Arr::has($modelData, 'contact_address')) {
+            $contactAddressData = Arr::get($modelData, 'contact_address');
+            Arr::forget($modelData, 'contact_address');
+
+
+            if (!blank($contactAddressData)) {
+                if ($employee->address) {
+                    UpdateAddress::run($employee->address, $contactAddressData);
+                } else {
+                    $this->addAddressToModelFromArray(
+                        model: $employee,
+                        addressData: $contactAddressData,
+                        updateLocation: false,
+                    );
+                }
+            }
+
+            $employee->updateQuietly(
+                [
+                    'location' => $employee->address->getLocation()
+                ]
+            );
+        }
 
         if (Arr::has($modelData, 'job_positions')) {
 
@@ -161,8 +189,12 @@ class UpdateEmployee extends OrgAction
             'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
-            'emergency_contact'                     => ['sometimes', 'nullable', 'string', 'max:256'],
-            'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)]
+            'emergency_contact'                     => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)],
+            'contact_address'                         => ['sometimes', 'nullable', new ValidAddress()],
+            'notes'                                   => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'identity_document_type'                  => ['sometimes', 'nullable', 'string', 'max:256'],
+            'identity_document_number'                => ['sometimes', 'nullable', 'string', 'max:256'],
 
 
         ];

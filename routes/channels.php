@@ -19,6 +19,10 @@ Broadcast::channel('grp.personal.{userID}', function (User $user, int $userID) {
     return $userID === $user->id;
 });
 
+Broadcast::channel('grp.download-progress.{userID}', function (User $user, int $userID) {
+    return $userID === $user->id;
+});
+
 Broadcast::channel('grp.{groupID}.general', function (User $user, int $groupID) {
     return $user->group_id === $groupID;
 });
