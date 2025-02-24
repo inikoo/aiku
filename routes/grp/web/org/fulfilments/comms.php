@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Comms\DispatchedEmail\UI\ShowDispatchedEmail;
 use App\Actions\Comms\EmailBulkRun\UI\ShowEmailBulkRun;
 use App\Actions\Comms\OrgPostRoom\UI\IndexOrgPostRooms;
 use App\Actions\Comms\OrgPostRoom\UI\ShowOrgPostRoom;
@@ -14,6 +15,7 @@ Route::get('outboxes', [IndexOutboxes::class, 'inFulfilment'])->name('outboxes')
 Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inFulfilment'])->name('outboxes.show');
 
 Route::get('outboxes/{outbox}/workshop', [ShowOutboxWorkshop::class, 'inFulfilment'])->name('outboxes.workshop');
+Route::get('outboxes/{outbox}/dispatched-emails/{dispatchedEmail:id}', [ShowDispatchedEmail::class, 'inOutboxInFulfilment'])->name('outboxes.dispatched-email.show');
 Route::get('outboxes/{outbox}/email-bulk-runs/{emailBulkRun}', [ShowEmailBulkRun::class, 'inOutbox'])->name('outboxes.show.email-bulk-runs.show');
 
 Route::get('post-rooms', [IndexOrgPostRooms::class, 'inFulfilment'])->name('post-rooms.index');

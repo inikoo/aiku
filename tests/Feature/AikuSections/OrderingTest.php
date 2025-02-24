@@ -14,11 +14,13 @@ use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
+use App\Actions\Ordering\Adjustment\StoreAdjustment;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
@@ -38,19 +40,28 @@ use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
+use App\Actions\Ordering\Transaction\StoreTransactionFromAdjustment;
+use App\Actions\Ordering\Transaction\StoreTransactionFromCharge;
+use App\Actions\Ordering\Transaction\StoreTransactionFromShipping;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
+use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Analytics\AikuScopedSection;
+use App\Models\Billables\Charge;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
+use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
@@ -169,6 +180,110 @@ test('create transaction', function ($order) {
     return $transaction;
 })->depends('create order');
 
+test('create transaction from adjustment', function (Order $order) {
+    $adjustment = StoreAdjustment::make()->action($order->shop, [
+        'type' => AdjustmentTypeEnum::CREDIT,
+        'net_amount' => 10,
+    ]);
+    expect($adjustment)->toBeInstanceOf(Adjustment::class);
+    $transaction = StoreTransactionFromAdjustment::make()->action($order, $adjustment, [
+        'date' => Carbon::now(),
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+
+    expect($transaction)->toBeInstanceOf(Transaction::class)
+        ->and($transaction->order->stats->number_transactions_at_submission)->toBe(2)
+        ->and($order->stats->number_transactions)->toBe(2);
+    return $transaction;
+})->depends('create order');
+
+test('create transaction from charge', function (Order $order) {
+    $charge = StoreCharge::make()->action($order->shop, [
+        'code' => 'CHRG-1',
+        'name' => 'charge 1',
+        'description' => 'charge 1 description',
+        'state' => ChargeStateEnum::ACTIVE,
+        'trigger' => ChargeTriggerEnum::ORDER,
+        'type' => ChargeTypeEnum::TRACKING,
+    ]);
+
+    expect($charge)->toBeInstanceOf(Charge::class);
+    $transaction = StoreTransactionFromCharge::make()->action($order, $charge, [
+        'date' => Carbon::now(),
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+
+    expect($transaction)->toBeInstanceOf(Transaction::class)
+        ->and($transaction->order->stats->number_transactions_at_submission)->toBe(3)
+        ->and($order->stats->number_transactions)->toBe(3);
+    return $transaction;
+})->depends('create order');
+
+test('create transaction from shipping', function (Order $order) {
+    $shippingZoneSchema = StoreShippingZoneSchema::make()->action($order->shop, [
+        'name' => 'schema 1',
+    ]);
+    $shipping = StoreShippingZone::make()->action($shippingZoneSchema, [
+        'code' => 'SHIP-1',
+        'name' => 'shipping 1',
+        'status' => true,
+        'price' => [
+            'type' => "Step Order Items Net Amount",
+            "steps" => [
+                        [
+                        "to" =>  175,
+                        "from" => 0,
+                        "price" => 20
+                        ],
+                        [
+                        "to" => 450,
+                        "from" => 175,
+                        "price" => 40
+                        ],
+                        [
+                        "to" => 975,
+                        "from" => 450,
+                        "price" => 60
+                        ],
+                        [
+                        "to" => "INF",
+                        "from" => 975,
+                        "price" => 0
+                        ]
+                    ]
+                ],
+        'territories' => [
+                        [
+                        "country_code" => "FR"
+                        ],
+                        [
+                        "country_code" => "BE"
+                        ],
+                        [
+                        "country_code" => "LU"
+                        ]
+                    ],
+        'position' => 1,
+        'is_failover' => false,
+    ]);
+    expect($shipping)->toBeInstanceOf(ShippingZone::class);
+    $transaction = StoreTransactionFromShipping::make()->action($order, $shipping, [
+        'date' => Carbon::now(),
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+
+    expect($transaction)->toBeInstanceOf(Transaction::class)
+        ->and($transaction->order->stats->number_transactions_at_submission)->toBe(4)
+        ->and($order->stats->number_transactions)->toBe(4);
+    return $transaction;
+})->depends('create order');
+
 test('update transaction', function ($transaction) {
     $order = UpdateTransaction::make()->action($transaction, Transaction::factory()->definition());
 
@@ -188,11 +303,10 @@ test('update order state to submitted', function (Order $order) {
         ->and($order->shop->orderingStats->number_orders_state_submitted)->toBe(1)
         ->and($order->organisation->orderingStats->number_orders_state_submitted)->toBe(1)
         ->and($order->group->orderingStats->number_orders_state_submitted)->toBe(1)
-        ->and($order->stats->number_transactions)->toBe(1);
+        ->and($order->stats->number_transactions)->toBe(4);
 
     return $order;
 })->depends('create order');
-
 
 test('update order state to in warehouse', function (Order $order) {
     $deliveryNote = SendOrderToWarehouse::make()->action($order, []);
