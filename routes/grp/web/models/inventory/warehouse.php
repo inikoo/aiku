@@ -7,7 +7,6 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Inventory\Location\DownloadLocations;
 use App\Actions\Inventory\Location\ImportLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;

@@ -26,7 +26,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateEmployee extends OrgAction
 {
-
     public function handle(Organisation $organisation, ActionRequest $request): Response
     {
         return Inertia::render(

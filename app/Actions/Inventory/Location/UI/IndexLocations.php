@@ -245,14 +245,14 @@ class IndexLocations extends OrgAction
         $container = null;
         $export = [];
         $columns = collect([
-            'code', 
-            'status', 
-            'stock_value', 
-            'stock_commercial_value', 
-            'max_weight', 
-            'max_volume', 
+            'code',
+            'status',
+            'stock_value',
+            'stock_commercial_value',
+            'max_weight',
+            'max_volume',
             'barcode'
-        ])->map(fn($col) => [
+        ])->map(fn ($col) => [
             'label' => __(str_replace('_', ' ', ucfirst($col))), // Convert _ to space and capitalize first letter
             'value' => $col
         ])->toArray();
