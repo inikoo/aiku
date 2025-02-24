@@ -95,7 +95,6 @@ class ShowCustomer extends OrgAction
             ];
         }
 
-
         return Inertia::render(
             'Org/Shop/CRM/Customer',
             [
@@ -188,7 +187,7 @@ class ShowCustomer extends OrgAction
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
             //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
-            ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
+            ->table(IndexCustomerFavourites::make()->tableStructure(parent:$customer, prefix:$tabs::FAVOURITES->value))
             ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
             ->table(IndexAttachments::make()->tableStructure($tabs::ATTACHMENTS->value))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
