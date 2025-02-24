@@ -8,6 +8,9 @@
 
 namespace App\Actions\Comms\Outbox\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OutboxHydrateEmails
 {
     use AsAction;
+    use WithEnumStats;
     private Outbox $outbox;
 
     public function __construct(Outbox $outbox)
@@ -31,19 +35,24 @@ class OutboxHydrateEmails
 
     public function handle(Outbox $outbox): void
     {
-        $count = DB::table('dispatched_emails')
-            ->where('outbox_id', $outbox->id)->count();
+        $stats = [
+            'number_dispatched_emails' => DB::table('dispatched_emails')->where('outbox_id', $outbox->id)->count(),
+        ];
 
-
-        $outbox->stats()->update(
-            [
-                'number_dispatched_emails'             => $count,
-            ]
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'dispatched_emails',
+                field: 'state',
+                enum: DispatchedEmailStateEnum::class,
+                models: DispatchedEmail::class,
+                where: function ($q) use ($outbox) {
+                    $q->where('outbox_id', $outbox->id);
+                }
+            )
         );
 
-
+        $outbox->stats()->update($stats);
     }
-
-
 
 }

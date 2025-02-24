@@ -24,6 +24,7 @@ class DispatchedEmailResource extends JsonResource
     public function toArray($request): array
     {
         return array(
+            'id'                             => $this->id,
             'number_clicks'                  => $this->number_clicks,
             'number_reads'                   => $this->number_reads,
             'state'                          => $this->state->stateIcon()[$this->state->value],

@@ -24,4 +24,51 @@ enum EmailTrackingEventTypeEnum: string
     case MARKED_AS_SPAM       = 'marked_as_spam';
     case ERROR                = 'error';
     case DELAY                = 'delay';
+
+    public static function typeIcon(): array
+    {
+        return [
+            'sent'                => [
+                'tooltip' => __('Sent'),
+                'icon'    => 'fal fa-paper-plane',
+            ],
+            'declined_by_provider' => [
+                'tooltip' => __('Declined by provider'),
+                'icon'    => 'fal fa-ban',
+            ],
+            'delivered'           => [
+                'tooltip' => __('Delivered'),
+                'icon'    => 'fal fa-inbox-in',
+            ],
+            'opened'              => [
+                'tooltip' => __('Opened'),
+                'icon'    => 'fal fa-envelope-open',
+            ],
+            'clicked'             => [
+                'tooltip' => __('Clicked'),
+                'icon'    => 'fal fa-mouse-pointer',
+            ],
+            'soft_bounce'         => [
+                'tooltip' => __('Soft bounce'),
+                'icon'    => 'fal fa-square',
+            ],
+            'hard_bounce'         => [
+                'tooltip' => __('Hard bounce'),
+                'icon'    => 'fal fa-exclamation-triangle',
+            ],
+            'marked_as_spam'      => [
+                'tooltip' => __('Marked as spam'),
+                'icon'    => 'fal fa-dumpster',
+            ],
+            'error'               => [
+                'tooltip' => __('Error'),
+                'icon'    => 'fal fa-exclamation-circle',
+            ],
+            'delay'               => [
+                'tooltip' => __('Delay'),
+                'icon'    => 'fal fa-clock',
+            ],
+        ];
+    }
+
 }

@@ -236,6 +236,24 @@ class ShowOutbox extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show' =>
+            array_merge(
+                IndexOutboxes::make()->getBreadcrumbs($routeName, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes.show',
+                                'parameters' => array_merge($routeParameters, [
+                                    'tab' => 'dispatched_emails'
+                                ])
+                            ],
+                            'label' => __($outbox->name)
+                        ]
+                    ]
+                ]
+            ),
             default => []
         };
     }
