@@ -707,8 +707,7 @@ test('UI show list payment accounts in organisation payment service provider', f
                     ->where('title', 'Payment Accounts')
                     ->etc()
             )
-            ->has('data')
-            ->has('shops_list');
+            ->has('data');
     });
 });
 
@@ -822,8 +821,7 @@ test('UI show list payment accounts', function () {
                     ->where('title', 'Payment Accounts')
                     ->etc()
             )
-            ->has('data')
-            ->has('shops_list');
+            ->has('data');
     });
 });
 

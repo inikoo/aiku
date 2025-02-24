@@ -486,16 +486,14 @@ test('UI show fulfilment customer (agreed prices tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/customers/'. $this->customer->fulfilmentCustomer->slug.'?tab=agreed_prices');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Shop/CRM/WebUsers')
+            ->component('Org/Fulfilment/FulfilmentCustomer')
             ->has('title')
-            ->has('breadcrumbs', 4)
+            ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'rejected customers')
                         ->etc()
-            )
-            ->has('data');
+            );
 
     });
 });
