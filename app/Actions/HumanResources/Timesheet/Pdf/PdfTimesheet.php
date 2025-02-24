@@ -57,29 +57,13 @@ class PdfTimesheet
         $chunkSize = 10;
         $employeeChunks = $query->get()->chunk($chunkSize);
 
-        $pdf = PDF::loadHTML('', $config);
-
         foreach ($employeeChunks as $key => $chunk) {
             return PDF::chunkLoadView('<html-separator/>', 'hr.timesheets', [
                 'filename' => $filename,
                 'organisation' => $organisation,
                 'employees' => $chunk
             ], [], $config)->stream($filename);
-
-            $html = view('hr.timesheets', [
-                'filename' => $filename,
-                'organisation' => $organisation,
-                'employees' => $chunk,
-            ])->render();
-
-            if ($key > 0) {
-                $pdf->getMpdf()->WriteHTML('<pagebreak />');
-            }
-
-            $pdf->getMpdf()->WriteHTML($html);
         }
-
-        return $pdf->stream($filename);
     }
 
     /**

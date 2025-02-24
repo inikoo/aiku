@@ -10,17 +10,22 @@
 
 namespace App\Http\Resources\Mail;
 
+use App\Actions\SysAdmin\WithLogRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmailTrackingEventResource extends JsonResource
 {
+    use WithLogRequest;
     public function toArray($request): array
     {
         return [
             'ip' => $this->ip,
             'type' => $this->type->typeIcon()[$this->type->value],
-            'device' => $this->device,
             'date' => $this->date,
+            'device' => $this->device ? [
+                'tooltip' => __($this->device),
+                'icon' => $this->getDeviceIcon($this->device)
+            ] : [],
         ];
     }
 }
