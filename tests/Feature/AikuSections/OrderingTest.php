@@ -331,7 +331,38 @@ test('update order state to in warehouse', function (Order $order) {
     $order->refresh();
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
         ->and($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
+    
+    return $order;
 })->depends('update order state to submitted');
+
+test('update order state to Handling', function (Order $order) {
+    $order = UpdateStateToHandlingOrder::make()->action($order, []);
+    $order->refresh();
+    expect($order)->toBeInstanceOf(Order::class)
+        ->and($order->state)->toEqual(OrderStateEnum::HANDLING);
+    
+    return $order;
+})->depends('update order state to in warehouse');
+
+test('update order state to Packed ', function (Order $order) {
+    $order = UpdateStateToPackedOrder::make()->action($order, []);
+    $order->refresh();
+    expect($order)->toBeInstanceOf(Order::class)
+        ->and($order->state)->toEqual(OrderStateEnum::PACKED);
+    
+    return $order;
+})->depends('update order state to Handling');
+
+// test('update order state to Finalised ', function (Order $order) {
+//     $order = UpdateStateToFinalizedOrder::make()->action($order, []);
+//     $order->refresh();
+//     expect($order)->toBeInstanceOf(Order::class)
+//         ->and($order->state)->toEqual(OrderStateEnum::PACKED);
+    
+//     return $order;
+// })->depends('update order state to Handling');
+
+
 
 test('update state to packed from handling', function ($order) {
     try {
