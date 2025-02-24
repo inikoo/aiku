@@ -80,7 +80,7 @@ const props = defineProps<{
 <style scoped>
 .grid-container {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
   grid-template-columns: repeat(var(--column-count, 2), minmax(0, 1fr));
   grid-auto-rows: minmax(0, auto);
 }
