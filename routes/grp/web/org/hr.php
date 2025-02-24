@@ -60,6 +60,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
             Route::get('/users', [IndexUsers::class,'inEmployee'])->name('users.index');
             Route::get('/users/{user:slug}', [ShowUser::class,'inEmployee'])->name('users.show');
 
+            Route::get('/timesheets-pdf', [PdfTimesheet::class, 'inEmployee'])->name('timesheets.pdf');
             Route::get('timesheets', [IndexTimesheets::class,'inEmployee'])->name('timesheets.index');
             Route::get('timesheets/export', ExportEmployeeTimesheets::class)->name('timesheets.export');
             Route::get('timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('timesheets.show');
