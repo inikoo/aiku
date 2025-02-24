@@ -4,17 +4,20 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { faWarehouse, faMapSigns } from '@fal'
+import { faFileExport } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { get } from "lodash"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import { ref } from "vue"
-library.add(faWarehouse, faMapSigns)
+import { trans } from 'laravel-vue-i18n'
+import { routeType } from '@/types/route'
+library.add(faWarehouse, faMapSigns, faFileExport)
 
 const props = defineProps<{
     title: string
@@ -23,15 +26,63 @@ const props = defineProps<{
     tagsList: {
         data: {}
     }
+    export: {
+        route: routeType
+        columns: {
+            lable: string
+            value: string
+        }[]
+    }
 }>()
 
 const isModalUploadOpen = ref(false)
+
+const isExporting = ref(false)
+const progressExport = ref(0)
+const onExport = () => {
+    router[props.export.method || 'post'](
+        route(props.export.route.name, props.export.route.parameters),
+        {
+            columns: ['status']
+        }, {
+            onStart: () => {
+                isExporting.value = true
+            },
+            onProgress: (progress: number) => {
+                progressExport.value = progress
+            },
+            onFinish: () => {
+                isExporting.value = false
+                progressExport.value = 0
+            },
+        }
+
+    )
+}
 </script>
 
 <template>
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- <template #otherBefore>
+            <Button
+                @click="() => onExport()"
+                type="tertiary"
+                icon="fas fa-file-export"
+                :loading="isExporting"
+            >
+                <template #label>
+                    <div>
+                        {{ trans('Export') }}
+                        <span v-if="isExporting">
+                            {{ progressExport }}/100%
+                        </span>
+                    </div>
+                </template>
+            </Button>
+        </template> -->
+
         <template #button-group-upload="{ action }">
             <Button
                 @click="() => isModalUploadOpen = true"
@@ -40,7 +91,8 @@ const isModalUploadOpen = ref(false)
             />
         </template>
     </PageHeading>
-    
+
+    <!-- <pre>{{ export }}</pre> -->
     <TableLocations :data="data" :tagsList="tagsList.data" />
 
     <UploadExcel

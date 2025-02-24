@@ -107,7 +107,8 @@ class SelectOrgPaymentServiceProviders extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->defaultSort('code')
-                ->column(key: 'adoption', label: '')
+                ->column(key: 'adoption', label: '', type: 'icon')
+                ->column(key: 'logo', label: '')
 
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)

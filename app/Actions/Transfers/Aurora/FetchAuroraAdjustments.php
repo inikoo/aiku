@@ -22,19 +22,20 @@ class FetchAuroraAdjustments extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Adjustment
     {
         if ($adjustmentData = $organisationSource->fetchAdjustment($organisationSourceId)) {
-
             if ($adjustment = Adjustment::where('source_id', $adjustmentData['adjustment']['source_id'])->first()) {
                 $adjustment = UpdateAdjustment::make()->action(
                     adjustment: $adjustment,
                     modelData: $adjustmentData['adjustment'],
-                    audit: false
+                    hydratorsDelay: 30,
+                    strict: false
                 );
             } else {
                 $adjustment = StoreAdjustment::make()->action(
                     shop: $adjustmentData['shop'],
                     modelData: $adjustmentData['adjustment'],
+                    hydratorsDelay: 30,
+                    strict: false
                 );
-
             }
 
             return $adjustment;
