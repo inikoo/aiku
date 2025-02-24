@@ -37,14 +37,15 @@ class LocationsExport implements FromQuery, WithMapping, WithHeadings
         $this->columns = $columns;
     }
 
+
     public function map($row): array
-    {
-        return collect($this->columns)->map(fn($column) => $row[$column])->toArray();
+    { 
+        return collect($this->columns)->map(fn($column) => $row->{$column})->toArray();
     }
 
     public function headings(): array
     {
-        return $this->columns;
+        return array_map(fn($col) => str_replace('_', ' ', ucfirst($col)), $this->columns);
     }
     public function query()
     {

@@ -265,10 +265,12 @@ class IndexLocations extends OrgAction
             ];
             $export = [
                 'route' => [
-                    'name' => 'grp.models.warehouse.locations.download',
+                    'name' => 'grp.org.warehouses.locations.download',
                     'parameters' => [
-                        'warehouse' => $scope->id
-                    ]
+                        'organisation' => $scope->organisation->slug,
+                        'warehouse' => $scope->slug
+                    ],
+                    'method' => 'get'
                 ],
                 'columns' => $columns
             ];
