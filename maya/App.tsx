@@ -52,6 +52,8 @@ function App(): React.JSX.Element {
           token: user.token,
           userData: user,
           organisation: user.organisation,
+          fulfilment: null,
+          warehouse: null,
         });
       },
       setFulfilmentWarehouse: async user => {
