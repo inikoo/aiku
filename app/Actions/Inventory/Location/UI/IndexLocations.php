@@ -138,8 +138,6 @@ class IndexLocations extends OrgAction
                     'locations.slug',
                     'locations.stock_value',
                     'locations.stock_commercial_value',
-                    'locations.max_weight',
-                    'locations.max_volume',
                     'locations.allow_stocks',
                     'locations.allow_fulfilment',
                     'locations.allow_dropshipping',
@@ -219,16 +217,13 @@ class IndexLocations extends OrgAction
                     }
                 )
                 ->column(key: 'scope', label: __('scope'), canBeHidden: false, type: 'icon')
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'stock_value', label: __('Stock'), canBeHidden: false, type: 'icon')
-                ->column(key: 'max_weight', label: __('Weight'), canBeHidden: false, type: 'icon')
-                ->column(key: 'max_volume', label: __("CBM (Cubic's meter)"), canBeHidden: false, type: 'icon');
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'max_weight', label: __('weight'), canBeHidden: false);
-            $table->column(key: 'max_volume', label: __('volume'), canBeHidden: false);
-            $table->column(key: '', label: __('stock value'), canBeHidden: false);
+            $table->column(key: 'max_weight', label: __('weight'), canBeHidden: false, align: 'right');
+            $table->column(key: 'max_volume', label: __("CBM (Cubic's meter)"), canBeHidden: false, align: 'right');
+            $table->column(key: 'stock_value', label: __('stock value'), canBeHidden: false, align: 'right');
             $table->column(key: 'tags', label: __('tags'), canBeHidden: false)
                 ->defaultSort('code');
         };

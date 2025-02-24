@@ -219,7 +219,7 @@ class IndexRefunds extends OrgAction
         if ($this->parent instanceof Organisation) {
             return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
-            return $request->user()->authTo("crm.{$this->organisation->id}.view");
+            return $request->user()->authTo("crm.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Shop) {
             return $request->user()->authTo("orders.{$this->shop->id}.view");
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {

@@ -31,6 +31,7 @@ class CustomerFavouritesResource extends JsonResource
     {
         return [
             'id'                     => $this->id,
+            'code'                   => $this->code,
             'slug'                   => $this->slug,
             'name'                   => $this->name,
             'description'            => $this->description,

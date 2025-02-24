@@ -30,7 +30,7 @@ class IndexCustomerFavourites extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('products.code', $value)
-                    ->orWhereAnyWordStartWith('products.name', 'ILIKE', $value);
+                    ->orWhereAnyWordStartWith('products.name', $value);
             });
         });
 
@@ -99,7 +99,7 @@ class IndexCustomerFavourites extends OrgAction
 
         $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.view");
 
-        return $request->user()->authTo("crm.{$this->organisation->id}.view");
+        return $request->user()->authTo("crm.{$this->shop->id}.view");
     }
 
     public function jsonResponse(LengthAwarePaginator $favourites): AnonymousResourceCollection

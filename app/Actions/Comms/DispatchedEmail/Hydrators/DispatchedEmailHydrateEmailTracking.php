@@ -44,6 +44,9 @@ class DispatchedEmailHydrateEmailTracking
             'number_reads' => $dispatchedEmail
                 ->emailTrackingEvents()
                 ->where('type', EmailTrackingEventTypeEnum::OPENED)
+                ->count(),
+            'number_email_tracking_events' => $dispatchedEmail
+                ->emailTrackingEvents()
                 ->count()
         ];
 
