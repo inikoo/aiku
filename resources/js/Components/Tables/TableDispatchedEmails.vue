@@ -52,15 +52,16 @@ const props = defineProps<{
 
 
 function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
+    // console.log(dispatchedEmail.id);
     switch (route().current()) {
         case 'mail.dispatched-emails.index':
             return route(
                 'mail.dispatched-emails.show',
                 [dispatchedEmail.outbox_id, dispatchedEmail.id]);
-        // case 'grp.org.fulfilments.show.operations.comms.outboxes.show':
-        //     return route(
-        //         'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show',
-        //         [route().params['organisation'], route().params['fulfilment'], route().params['outbox'], dispatchedEmail.id]);
+        case 'grp.org.fulfilments.show.operations.comms.outboxes.show':
+            return route(
+                'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show',
+                [route().params['organisation'], route().params['fulfilment'], route().params['outbox'], dispatchedEmail.id]);
         default:
             return null
     }
