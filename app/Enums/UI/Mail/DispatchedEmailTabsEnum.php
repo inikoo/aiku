@@ -29,8 +29,8 @@ enum DispatchedEmailTabsEnum: string
                 'icon'  => 'fal fa-tachometer-alt-fast',
             ],
             DispatchedEmailTabsEnum::EMAIL_TRACKING_EVENTS => [
-                'title' => __('Email Tracking Events'),
-                'icon'  => 'fal fa-envelope-open-text',
+                'title' => __('Tracking'),
+                'icon'  => 'fal fa-stopwatch',
             ],
         };
     }

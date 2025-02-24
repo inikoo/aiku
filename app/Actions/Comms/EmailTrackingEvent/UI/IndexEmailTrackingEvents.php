@@ -71,7 +71,7 @@ class IndexEmailTrackingEvents extends OrgAction
                 'email_tracking_events.device',
                 'email_tracking_events.created_at as date',
             ])
-            ->allowedSorts(['type', 'data', 'ip', 'device', 'date'])
+            ->allowedSorts(['type', 'data', 'device', 'ip', 'date'])
             // ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -91,7 +91,7 @@ class IndexEmailTrackingEvents extends OrgAction
 
             $table
                 ->column(key: 'type', label: '', type: 'icon', canBeHidden: false);
-            $table->column(key: 'ip', label: __('IP'), canBeHidden: false, sortable: true);
+            $table->column(key: 'ip', label: __('Ip Address'), canBeHidden: false, sortable: true);
             $table->column(key: 'device', label: __('Device'), canBeHidden: false, sortable: true);
             $table->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true);
             $table->defaultSort('-date');
