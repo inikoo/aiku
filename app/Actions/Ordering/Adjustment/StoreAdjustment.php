@@ -8,8 +8,12 @@
 
 namespace App\Actions\Ordering\Adjustment;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAdjustments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAdjustments;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAdjustments;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Adjustment;
@@ -18,6 +22,8 @@ use Illuminate\Validation\Rule;
 
 class StoreAdjustment extends OrgAction
 {
+    use WithNoStrictRules;
+
     public function handle(Shop $shop, array $modelData): Adjustment
     {
         data_set($modelData, 'organisation_id', $shop->organisation_id);
@@ -45,10 +51,9 @@ class StoreAdjustment extends OrgAction
         /** @var Adjustment $adjustment */
         $adjustment = $shop->adjustments()->create($modelData);
 
-        //ShopHydrateAdjustments::dispatch($shop);
-        //OrganisationHydrateAdjustments::dispatch($shop->organisation);
-        //GroupHydrateAdjustments::dispatch($shop->group);
-        //AdjustmentHydrateUniversalSearch::dispatch($adjustment);
+        ShopHydrateAdjustments::dispatch($shop);
+        OrganisationHydrateAdjustments::dispatch($shop->organisation);
+        GroupHydrateAdjustments::dispatch($shop->group);
 
 
         return $adjustment;
@@ -56,24 +61,28 @@ class StoreAdjustment extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'type'           => ['required', Rule::enum(AdjustmentTypeEnum::class)],
-            'net_amount'     => ['required', 'numeric'],
-            'org_net_amount' => ['sometimes', 'numeric'],
-            'grp_net_amount' => ['sometimes', 'numeric'],
-            'tax_amount'     => ['sometimes', 'nullable', 'numeric'],
-            'org_tax_amount' => ['sometimes', 'nullable', 'numeric'],
-            'grp_tax_amount' => ['sometimes', 'nullable', 'numeric'],
-            'source_id'      => ['sometimes', 'string', 'max:64'],
-            'fetched_at'     => ['sometimes', 'date'],
+        $rules = [
+            'type'       => ['required', Rule::enum(AdjustmentTypeEnum::class)],
+            'net_amount' => ['required', 'numeric'],
+            'tax_amount' => ['sometimes', 'nullable', 'numeric'],
         ];
+
+        if (!$this->strict) {
+            $rules                   = $this->noStrictStoreRules($rules);
+            $rules['org_net_amount'] = ['sometimes', 'numeric'];
+            $rules['grp_net_amount'] = ['sometimes', 'numeric'];
+            $rules['org_tax_amount'] = ['sometimes', 'nullable', 'numeric'];
+            $rules['grp_tax_amount'] = ['sometimes', 'nullable', 'numeric'];
+        }
+
+        return $rules;
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Adjustment
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Adjustment
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
-
+        $this->strict         = $strict;
 
         $this->initialisationFromShop($shop, $modelData);
 

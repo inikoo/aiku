@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\HydrateModel;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAdjustments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAudits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateBanners;
@@ -181,6 +182,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateOrders::run($group);
         GroupHydratePurges::run($group);
         GroupHydrateDeliveryNotes::run($group);
+        GroupHydrateAdjustments::run($group);
 
 
     }
