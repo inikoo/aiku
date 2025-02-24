@@ -252,8 +252,11 @@ class IndexLocations extends OrgAction
             'max_weight', 
             'max_volume', 
             'barcode'
-        ])->map(fn($col) => ['label' => __($col), 'value' => $col])->toArray();
-        
+        ])->map(fn($col) => [
+            'label' => __(str_replace('_', ' ', ucfirst($col))), // Convert _ to space and capitalize first letter
+            'value' => $col
+        ])->toArray();
+
         if (class_basename($scope) == 'Warehouse') {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
