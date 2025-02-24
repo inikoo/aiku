@@ -440,8 +440,40 @@ test('delete credit transaction', function (CreditTransaction $creditTransaction
     return $deletedCreditTransaction;
 })->depends('update credit transaction');
 
+test('UI index invoice categories', function () {
+    $response = get(route('grp.org.accounting.invoice-categories.index', $this->organisation->slug));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/InvoiceCategories')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Invoice Categories')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI create invoice categories', function () {
+    $response = get(route('grp.org.accounting.invoice-categories.create', $this->organisation->slug));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('formData')
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
+    });
+});
+
 test('store invoice category', function () {
-    $invoiceCategory = StoreInvoiceCategory::make()->action($this->group, [
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->organisation, [
         'name'  => 'Test Inv Cate',
         'state' => InvoiceCategoryStateEnum::ACTIVE,
         'type'  => InvoiceCategoryTypeEnum::IS_ORGANISATION,
@@ -456,6 +488,37 @@ test('store invoice category', function () {
 
     return $invoiceCategory;
 });
+
+test('UI show invoice category', function (InvoiceCategory $invoiceCategory) {
+    $response = get(route('grp.org.accounting.invoice-categories.show', [$this->organisation->slug, $invoiceCategory->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($invoiceCategory) {
+        $page
+            ->component('Org/Accounting/InvoiceCategory')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $invoiceCategory->name)
+                    ->etc()
+            );
+    });
+})->depends('store invoice category');
+
+
+test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
+    $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData')
+            ->has('pageHead')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('store invoice category');
 
 test('update invoice category', function (InvoiceCategory $invoiceCategory) {
     $invoiceCategory = UpdateInvoiceCategory::make()->action($invoiceCategory, [
