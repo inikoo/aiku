@@ -643,7 +643,7 @@ test('UI show fulfilment customer pallet return sub navigation', function () {
     });
 });
 
-test('UI show fulfilment customer recurringbills sub navigation', function () {
+test('UI show fulfilment customer recurring bills sub navigation', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.recurring_bills.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
