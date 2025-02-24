@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
@@ -58,6 +59,10 @@ class StoreRefund extends OrgAction
             /** @var Invoice $refund */
             $refund = $invoice->refunds()->create($modelData);
             $refund->stats()->create();
+
+            if ($refund->customer_id) {
+                CustomerHydrateInvoices::dispatch($refund->customer)->delay($this->hydratorsDelay);
+            }
 
             return $refund;
         });

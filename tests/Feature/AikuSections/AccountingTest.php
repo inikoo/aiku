@@ -10,7 +10,10 @@
 
 use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
+use App\Actions\Accounting\Invoice\DeleteInvoice;
+use App\Actions\Accounting\Invoice\DestroyRefund;
 use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
@@ -30,6 +33,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
@@ -963,6 +967,48 @@ test('UI show invoice', function () {
             ->has('invoice');
     });
 });
+
+test('Delete invoice', function () {
+    $this->withoutExceptionHandling();
+    $shop = StoreShop::run(
+        $this->organisation,
+        Shop::factory()->definition()
+    );
+    $customer = createCustomer($shop);
+    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    expect($customer->stats->number_invoices)->toBe(1);
+
+    DeleteInvoice::make()->action($invoice, []);
+    $customer->refresh();
+    expect($customer->stats->number_invoices)->toBe(0);
+});
+
+test('Store invoice refund', function () {
+    $this->withoutExceptionHandling();
+    $shop = StoreShop::run(
+        $this->organisation,
+        Shop::factory()->definition()
+    );
+    $customer = createCustomer($shop);
+    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    expect($invoice)->toBeInstanceOf(Invoice::class);
+
+    $refund = StoreRefund::make()->action($invoice, []);
+    expect($refund)->toBeInstanceOf(Invoice::class)
+        ->and($refund->type)->toBe(InvoiceTypeEnum::REFUND);
+
+    return $refund;
+});
+
+test('Delete Refund', function (Invoice $refund) {
+    $this->withoutExceptionHandling();
+    $customer = $refund->customer;
+    expect($customer->stats->number_invoices_type_refund)->toBe(1);
+
+    DestroyRefund::make()->action($refund, []);
+    $customer->refresh();
+    expect($customer->stats->number_invoices_type_refund)->toBe(0);
+})->depends('Store invoice refund');
 
 test('UI index customer balances', function () {
     $response = get(route('grp.org.accounting.balances.index', [$this->organisation->slug]));
