@@ -41,7 +41,17 @@ class GetShopNavigation
                             "parameters" => [$shop->organisation->slug, $shop->slug],
                         ],
                     ],
-                ]
+                    [
+                        "tooltip" => __("Payments"),
+                        "label"   => __("Payments"),
+                        "icon"    => ["fal", "fa-coins"],
+                        "root"    => "grp.org.shops.show.payments.accounting.dashboard",
+                        "route"   => [
+                            "name"       => "grp.org.shops.show.payments.accounting.dashboard",
+                            "parameters" => [$shop->organisation->slug, $shop->slug]
+                        ],
+                    ]
+                ],
             ]
 
         ];

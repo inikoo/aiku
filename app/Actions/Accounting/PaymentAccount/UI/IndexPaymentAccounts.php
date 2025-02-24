@@ -9,15 +9,16 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
+use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -33,7 +34,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPaymentAccounts extends OrgAction
 {
-    private Group|Organisation|Shop|OrgPaymentServiceProvider $parent;
+    use WithAccountingSubNavigation;
+
+    private Group|Organisation|Shop|OrgPaymentServiceProvider|Fulfilment $parent;
 
     public function handle(Group|Shop|Organisation|OrgPaymentServiceProvider $parent, $prefix = null): LengthAwarePaginator
     {
@@ -62,7 +65,8 @@ class IndexPaymentAccounts extends OrgAction
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
             $queryBuilder->where('org_payment_service_provider_id', $parent->id);
         } elseif ($parent instanceof Shop) {
-            $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+            // TODO: fix it raul
+            // $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('payment_accounts.group_id', $parent->id);
         }
@@ -90,14 +94,14 @@ class IndexPaymentAccounts extends OrgAction
         }
 
         return $queryBuilder->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
-            ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
+            ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
             ->allowedSorts(['code', 'name', 'number_payments', 'payment_service_provider_code', 'number_pas_state_active', 'org_amount_successfully_paid'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Shop|Organisation|OrgPaymentServiceProvider $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Shop|Fulfilment|Organisation|OrgPaymentServiceProvider $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -182,6 +186,14 @@ class IndexPaymentAccounts extends OrgAction
         return $this->handle($shop);
     }
 
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromShop($fulfilment->shop, $request);
+
+        return $this->handle($fulfilment->shop);
+    }
+
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
@@ -202,10 +214,11 @@ class IndexPaymentAccounts extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
-        if ($this->parent instanceof Group) {
-            $shops = $this->group->shops;
-        } else {
-            $shops = $this->organisation->shops;
+        $subNavigation = [];
+        if ($this->parent instanceof Fulfilment) {
+            $subNavigation = $this->getSubNavigation($this->parent);
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigationShop($this->parent);
         }
 
         return Inertia::render(
@@ -217,6 +230,7 @@ class IndexPaymentAccounts extends OrgAction
                 ),
                 'title'       => __('Payment Accounts'),
                 'pageHead'    => [
+                    'subNavigation' => $subNavigation,
                     'icon'      => ['fal', 'fa-money-check-alt'],
                     'title'     => __('Payment Accounts'),
                     'actions'   => [
@@ -241,7 +255,6 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'shops_list'  => ShopResource::collection($shops),
                 'data'        => PaymentAccountsResource::collection($paymentAccounts)
 
 

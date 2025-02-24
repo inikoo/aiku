@@ -54,7 +54,15 @@ class GetFulfilmentNavigation
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
-
+                        [
+                            "tooltip" => __("Payments"),
+                            "icon"    => ["fal", "fa-coins"],
+                            "root"    => "grp.org.fulfilments.show.operations.accounting.dashboard",
+                            "route"   => [
+                                "name"       => "grp.org.fulfilments.show.operations.accounting.dashboard",
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
                         [
                             'label'   => __('deliveries'),

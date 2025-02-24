@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
+use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
@@ -22,6 +23,7 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -38,9 +40,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexPayments extends OrgAction
 {
     use WithPaymentAccountSubNavigation;
-    private Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
+    use WithAccountingSubNavigation;
 
-    public function handle(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
+    private Fulfilment|Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
+
+    public function handle(Group|Fulfilment|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -139,7 +143,7 @@ class IndexPayments extends OrgAction
         ];
     }
 
-    public function tableStructure(Group|Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Fulfilment|Invoice|Shop|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -149,7 +153,16 @@ class IndexPayments extends OrgAction
             }
             $table->betweenDates(['date']);
 
-            if (!($parent instanceof Order || $parent instanceof Invoice)) {
+            if ($parent instanceof Fulfilment) {
+                foreach ($this->getElementGroups($parent->shop) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+
+            } elseif (!($parent instanceof Order || $parent instanceof Invoice)) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -224,6 +237,14 @@ class IndexPayments extends OrgAction
         return $this->handle($shop);
     }
 
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromShop($fulfilment->shop, $request);
+
+        return $this->handle($fulfilment->shop);
+    }
+
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = group();
@@ -246,6 +267,10 @@ class IndexPayments extends OrgAction
 
         if ($this->parent instanceof PaymentAccount) {
             $subNavigation = $this->getPaymentAccountNavigation($this->parent);
+        } elseif ($this->parent instanceof Fulfilment) {
+            $subNavigation = $this->getSubNavigation($this->parent);
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigationShop($this->parent);
         }
 
         return Inertia::render(

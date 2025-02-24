@@ -9,6 +9,10 @@
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
+use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
+use App\Actions\Accounting\UI\IndexCustomerBalances;
+use App\Actions\Accounting\UI\ShowAccountingDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
@@ -90,6 +94,13 @@ Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
 
 
 });
+
+Route::get('accounting-dashboard', [ShowAccountingDashboard::class, 'inFulfilment'])->name('accounting.dashboard');
+
+Route::get('accounting-dashboard/accounts', [IndexPaymentAccounts::class, 'inFulfilment'])->name('accounting.accounts.index');
+Route::get('accounting-dashboard/payments', [IndexPayments::class, 'inFulfilment'])->name('accounting.payments.index');
+Route::get('accounting-dashboard/customer-balances', [IndexCustomerBalances::class, 'inFulfilment'])->name('accounting.customer_balances.index');
+
 
 Route::prefix('invoices')->as('invoices')->group(function () {
     Route::get('', [IndexInvoices::class, 'inFulfilment'])->name('.all.index');
