@@ -17,10 +17,13 @@ class GetOrgPaymentServiceProviderShowcase
 
     public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider): array
     {
+        // dd($orgPaymentServiceProvider);
         return [
-            [
-
-            ]
+            'type'   => $orgPaymentServiceProvider->type,
+            'slug'   => $orgPaymentServiceProvider->slug,
+            'code'   => $orgPaymentServiceProvider->code,
+            'created_at' => $orgPaymentServiceProvider->created_at,
+            'payment_service_provider' => $orgPaymentServiceProvider->paymentServiceProvider,
         ];
     }
 }

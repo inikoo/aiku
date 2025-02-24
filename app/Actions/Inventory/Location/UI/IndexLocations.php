@@ -243,11 +243,34 @@ class IndexLocations extends OrgAction
     {
         $scope     = $this->parent;
         $container = null;
+        $export = [];
+        $columns = collect([
+            'code', 
+            'status', 
+            'stock_value', 
+            'stock_commercial_value', 
+            'max_weight', 
+            'max_volume', 
+            'barcode'
+        ])->map(fn($col) => [
+            'label' => __(str_replace('_', ' ', ucfirst($col))), // Convert _ to space and capitalize first letter
+            'value' => $col
+        ])->toArray();
+
         if (class_basename($scope) == 'Warehouse') {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
                 'tooltip' => __('Warehouse'),
                 'label'   => Str::possessive($scope->code)
+            ];
+            $export = [
+                'route' => [
+                    'name' => 'grp.models.warehouse.locations.download',
+                    'parameters' => [
+                        'warehouse' => $scope->id
+                    ]
+                ],
+                'columns' => $columns
             ];
         } elseif (class_basename($scope) == 'WarehouseArea') {
             $container = [
@@ -332,6 +355,7 @@ class IndexLocations extends OrgAction
                     ]
                 ],
 
+                'export' => $export,
                 'tagRoute'   => [
                     'store' => [
                         'name'       => 'grp.models.location.tag.store',

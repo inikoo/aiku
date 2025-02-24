@@ -8,11 +8,12 @@
 import { faPresentation, faLink, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { getStyles } from "@/Composables/styles.js"
+import { v4 as uuidv4 } from 'uuid';
 
 library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
-    fieldValue: any
+  fieldValue: any
 	webpageData?: any
 	blockData?: Object
 }>()
@@ -22,6 +23,7 @@ const props = defineProps<{
 
 <template>
         <iframe 
+            :title="fieldValue?.title || `iframe-${uuidv4()}`"
             :src="fieldValue?.link" 
             :style="getStyles(fieldValue?.container?.properties)" 
         />
