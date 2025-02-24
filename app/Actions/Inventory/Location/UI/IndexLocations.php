@@ -256,8 +256,7 @@ class IndexLocations extends OrgAction
             'label' => __(str_replace('_', ' ', ucfirst($col))), // Convert _ to space and capitalize first letter
             'value' => $col
         ])->toArray();
-        
-        dd($columns);
+
         if (class_basename($scope) == 'Warehouse') {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
