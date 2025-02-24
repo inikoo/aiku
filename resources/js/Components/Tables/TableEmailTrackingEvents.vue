@@ -21,6 +21,8 @@ import Icon from '../Icon.vue'
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import { faDesktopAlt } from '@far'
+import { faMobileAlt, faRobot } from '@fas'
 
 library.add(
     faSpellCheck,
@@ -36,6 +38,9 @@ library.add(
     faHandPaper,
     faClock,
     faTimesCircle,
+    faDesktopAlt,
+    faMobileAlt,
+    faRobot
 );
 const props = defineProps<{
     data: object,
@@ -51,6 +56,9 @@ const locale = inject('locale', aikuLocaleStructure)
     <Table :resource="data" :name="tab"  class="mt-5">
         <template #cell(type)="{ item: emailTrackingEvent }">
             <Icon :data="emailTrackingEvent.type" />
+        </template>
+        <template #cell(device)="{ item: emailTrackingEvent }">
+            <Icon :data="emailTrackingEvent.device" /> <span>{{ emailTrackingEvent.device['tooltip'] }}</span>
         </template>
         <template #cell(date)="{ item: emailTrackingEvent }">
             {{ useFormatTime(emailTrackingEvent.date, { localeCode: locale.language.code, formatTime: "aiku" }) }}

@@ -21,6 +21,8 @@ trait WithLogRequest
     {
         if ($deviceType == 'Desktop') {
             return 'far fa-desktop-alt';
+        } elseif ($deviceType == 'Bot') {
+            return 'fas fa-robot';
         }
 
         return 'fas fa-mobile-alt';
