@@ -42,6 +42,7 @@ trait WithAuroraAttachments
 
     public function fetchAttachment($auroraAttachmentData, $organisationID): array
     {
+
         $content = $auroraAttachmentData->{'Attachment Data'};
 
         $temporaryDirectory = TemporaryDirectory::make();

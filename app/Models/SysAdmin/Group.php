@@ -133,6 +133,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read LaravelCollection<int, DispatchedEmail> $DispatchedEmails
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
+ * @property-read LaravelCollection<int, Adjustment> $adjustments
  * @property-read LaravelCollection<int, Agent> $agents
  * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, AikuSection> $aikuSections

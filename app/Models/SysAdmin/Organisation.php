@@ -137,6 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
+ * @property-read LaravelCollection<int, Adjustment> $adjustments
  * @property-read Agent|null $agent
  * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, Artefact> $artefacts

@@ -56,7 +56,7 @@
         "monicahq/laravel-cloudflare": "^3.3",
         "mpdf/qrcode": "^1.2",
         "nyholm/psr7": "^1.8",
-        "owen-it/laravel-auditing": "13.6.9",
+        "owen-it/laravel-auditing": "^13.7",
         "pgvector/pgvector": "^0.2.0",
         "phlak/semver": "^4.0",
         "phpmailer/phpmailer": "^6.9",
