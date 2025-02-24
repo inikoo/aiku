@@ -9,10 +9,11 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Invoice;
 
-class DeleteInvoice
+class DeleteInvoice extends OrgAction
 {
     use WithActionUpdate;
 
@@ -25,5 +26,12 @@ class DeleteInvoice
         CustomerHydrateInvoices::dispatch($invoice->customer);
 
         return $this->update($invoice, $modelData, ['data']);
+    }
+
+    public function action(Invoice $invoice, array $modelData): Invoice
+    {
+        $this->initialisation($invoice->organisation, $modelData);
+
+        return $this->handle($invoice, $this->validatedData);
     }
 }
