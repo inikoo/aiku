@@ -55,7 +55,7 @@ class StoreEmployee extends OrgAction
             $organisation = $parent;
         }
 
-        if(Arr::get($modelData, 'contact_address')) {
+        if (Arr::get($modelData, 'contact_address')) {
             $contactAddressData = Arr::get($modelData, 'contact_address', []);
             Arr::forget($modelData, 'contact_address');
         }
@@ -75,11 +75,11 @@ class StoreEmployee extends OrgAction
             $employee = $parent->employees()->create($modelData);
             $employee->stats()->create();
 
-            if($contactAddressData){
+            if ($contactAddressData) {
                 $employee = $this->addAddressToModelFromArray(
-                                model: $employee,
-                                addressData: $contactAddressData,
-                            );
+                    model: $employee,
+                    addressData: $contactAddressData,
+                );
                 $employee->refresh();
             }
 

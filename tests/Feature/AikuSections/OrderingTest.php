@@ -22,13 +22,11 @@ use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Adjustment\StoreAdjustment;
 use App\Actions\Ordering\Adjustment\UpdateAdjustment;
-use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderStateToSubmitted;
-use App\Actions\Ordering\Order\UpdateStateToCreatingOrder;
 use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
@@ -70,7 +68,6 @@ use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Date;
 use Inertia\Testing\AssertableInertia;
 
@@ -347,7 +344,7 @@ test('update order state to in warehouse', function (Order $order) {
     $order->refresh();
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
         ->and($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
-    
+
     return $order;
 })->depends('update order state to submitted');
 
@@ -356,7 +353,7 @@ test('update order state to Handling', function (Order $order) {
     $order->refresh();
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toEqual(OrderStateEnum::HANDLING);
-    
+
     return $order;
 })->depends('update order state to in warehouse');
 
@@ -365,7 +362,7 @@ test('update order state to Packed ', function (Order $order) {
     $order->refresh();
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toEqual(OrderStateEnum::PACKED);
-    
+
     return $order;
 })->depends('update order state to Handling');
 
@@ -374,7 +371,7 @@ test('update order state to Finalised ', function (Order $order) {
     $order->refresh();
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toEqual(OrderStateEnum::FINALISED);
-    
+
     return $order;
 })->depends('update order state to Handling');
 
