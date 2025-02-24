@@ -191,7 +191,7 @@ onUnmounted(() => {
                     </template>
 
                     <!-- Icon: pencil -->
-                    <div class="opacity-0 group-hover:opacity-100 flex items-center px-1 py-1" @click="() => onEditLocation = item.slug">
+                    <div class="opacity-50 group-hover:opacity-100 flex items-center px-1 py-1" @click="() => onEditLocation = item.slug">
                         <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-lg cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
                     </div>
                 </div>

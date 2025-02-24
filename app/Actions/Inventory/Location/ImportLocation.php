@@ -30,6 +30,8 @@ class ImportLocation
             $file,
             [
                 'model' => 'Location',
+                'parent_type' => $parent->getMorphClass(),
+                'parent_id' => $parent->id,
             ]
         );
 

@@ -16,6 +16,22 @@ import { ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import AccountProvidersForm from '@/Components/PaymentProviders/accountProvidersForm.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+
+import PaypalSVG from '@/../art/payment_service_providers/paypal.svg'
+import btree from '@/../art/payment_service_providers/btree.svg'
+import cash from '@/../art/payment_service_providers/cash.svg'
+import checkout from '@/../art/payment_service_providers/checkout.svg'
+import hokodo from '@/../art/payment_service_providers/hokodo.svg'
+import pastpay from '@/../art/payment_service_providers/pastpay.svg'
+import paypal from '@/../art/payment_service_providers/paypal.svg'
+import sofort from '@/../art/payment_service_providers/sofort.svg'
+import worldpay from '@/../art/payment_service_providers/worldpay.svg'
+import xendit from '@/../art/payment_service_providers/xendit.svg'
+import bank from '@/../art/payment_service_providers/bank.svg'
+import accounts from '@/../art/payment_service_providers/accounts.svg'
+import cond from '@/../art/payment_service_providers/cond.svg'
+
+
 library.add(faPlus, faCheckDouble)
 
 const props = defineProps<{
@@ -105,6 +121,42 @@ const onCloseModal = async (data) => {
     }, 300)
 }
 
+
+const selectImage = (code: string) => {
+    if (!code) return null
+
+    switch (code) {
+        case 'paypal':
+            return PaypalSVG
+        case 'btree':
+            return btree
+        case 'cash':
+            return cash
+        case 'checkout':
+            return checkout
+        case 'hokodo':
+            return hokodo
+        case 'accounts':
+            return accounts
+        case 'cond':
+            return cond
+        case 'bank':
+            return bank
+        case 'pastpay':
+            return pastpay
+        case 'paypal':
+            return paypal
+        case 'sofort':
+            return sofort
+        case 'worldpay':
+            return worldpay
+        case 'xendit':
+            return xendit
+        default:
+            return null
+    }
+}
+
 </script>
 
 
@@ -125,6 +177,17 @@ const onCloseModal = async (data) => {
                 </template>
 
                 <template v-else-if="item.state === 'legacy'"></template>
+            </div>
+        </template>
+
+        <!-- Column: Logo -->
+        <template #cell(logo)="{ item: paymentServiceProvider }">
+            <div class="w-20">
+                <!-- {{ paymentServiceProvider.code }} -->
+                <img v-if="selectImage(paymentServiceProvider.code)" :src="selectImage(paymentServiceProvider.code)" :alt="paymentServiceProvider.name" :title="paymentServiceProvider.name" class="mx-auto aspect-auto h-auto max-h-10 w-auto max-w-20">
+                <div v-else class="h-12 w-20 text-gray-400 flex items-center justify-center">
+                    {{ trans('No image') }}
+                </div>
             </div>
         </template>
 

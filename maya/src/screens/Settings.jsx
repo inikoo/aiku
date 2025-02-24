@@ -45,7 +45,7 @@ const MainContent = ({navigation}) => {
   };
   
   const accountData = [
-    {icon: faUsers, subText: 'Organisation', route: 'organisation'},
+    {icon: faUsers, subText: 'Organisation/Agents', route: 'organisation'},
   ];
 
   if (organisation) {

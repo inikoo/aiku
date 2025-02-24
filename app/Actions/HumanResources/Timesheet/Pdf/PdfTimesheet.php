@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Timesheet\Pdf;
 
 use App\Actions\Traits\WithExportData;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Timesheet;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,7 +28,7 @@ class PdfTimesheet
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(Organisation|Employee $parent)
+    public function handle(Employee $parent)
     {
         $filename = __('Timesheets - ') . $parent->name . '.pdf';
         $config = [
@@ -40,38 +41,17 @@ class PdfTimesheet
             'auto_page_break_margin' => 10
         ];
 
-        $query = QueryBuilder::for(Employee::class);
+        $query = QueryBuilder::for(Timesheet::class);
+        $query->where('subject_type', class_basename($parent));
+        $query->where('subject_id', $parent->id);
+        $query->withFilterPeriod('date');
 
-        if ($parent instanceof Organisation) {
-            $organisation = $parent;
-            $query->where('organisation_id', $parent->id);
-        } else {
-            $organisation = $parent->organisation;
-            $query->where('id', $parent->id);
-        }
-
-        $query->whereHas('timesheets', function ($q) {
-            QueryBuilder::for($q)->withFilterPeriod('date');
-        });
-
-        $chunkSize = 10;
-        $employeeChunks = $query->get()->chunk($chunkSize);
-
-        foreach ($employeeChunks as $key => $chunk) {
-            return PDF::chunkLoadView('<html-separator/>', 'hr.timesheets', [
-                'filename' => $filename,
-                'organisation' => $organisation,
-                'employees' => $chunk
-            ], [], $config)->stream($filename);
-        }
-    }
-
-    /**
-     * @throws \Mpdf\MpdfException
-     */
-    public function asController(Organisation $organisation, ActionRequest $request): Response
-    {
-        return $this->handle($organisation);
+        return PDF::chunkLoadView('<html-separator/>', 'hr.timesheet', [
+            'filename' => $filename,
+            'organisation' => $parent->organisation,
+            'employee' => $parent,
+            'timesheets' => $query->get()
+        ], [], $config)->stream($filename);
     }
 
     /**

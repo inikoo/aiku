@@ -17,6 +17,8 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Task;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -110,6 +112,8 @@ use Spatie\Sluggable\SlugOptions;
 class Employee extends Model implements HasMedia, Auditable
 {
     use HasSlug;
+    use HasAddress;
+    use HasAddresses;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasImage;

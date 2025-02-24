@@ -71,6 +71,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\SalesChannel;
@@ -935,6 +936,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function spaces(): HasMany
     {
         return $this->hasMany(Space::class);
+    }
+
+    public function adjustments(): HasMany
+    {
+        return $this->hasMany(Adjustment::class);
     }
 
 }

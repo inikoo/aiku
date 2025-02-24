@@ -48,7 +48,7 @@ trait WithProcessAurora
 
             return [
                 'organisation' => $organisation->slug,
-                'class'        => class_basename($this->fetcher),
+                'model'        => class_basename($this->fetcher),
                 'id'           => Arr::get($validatedData, 'id'),
                 'date'         => now('Asia/Kuala_Lumpur')->format('Y-m-d H:i:s')
             ];
