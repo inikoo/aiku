@@ -104,7 +104,6 @@ beforeEach(function () {
         [resource_path('js/Pages/Grp')]
     );
     actingAs($this->user);
-
 });
 
 
@@ -182,13 +181,17 @@ test('create transaction', function ($order) {
 })->depends('create order');
 
 test('create transaction from adjustment', function (Order $order) {
-    $adjustment = StoreAdjustment::make()->action($order->shop, [
-        'type' => AdjustmentTypeEnum::CREDIT,
-        'net_amount' => 10,
-    ]);
+    $adjustment = StoreAdjustment::make()->action(
+        $order->shop,
+        [
+            'type'       => AdjustmentTypeEnum::CREDIT,
+            'net_amount' => 10,
+        ],
+        strict: false
+    );
     expect($adjustment)->toBeInstanceOf(Adjustment::class);
     $transaction = StoreTransactionFromAdjustment::make()->action($order, $adjustment, [
-        'date' => Carbon::now(),
+        'date'             => Carbon::now(),
         'quantity_ordered' => 1,
     ]);
 
@@ -196,40 +199,51 @@ test('create transaction from adjustment', function (Order $order) {
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
         ->and($transaction->order->stats->number_transactions_at_submission)->toBe(2)
-        ->and($order->stats->number_transactions)->toBe(2);
+        ->and($order->stats->number_transactions)->toBe(2)
+        ->and($order->shop->stats->number_adjustments)->toBe(1)
+        ->and($order->shop->stats->number_adjustments_type_credit)->toBe(1)
+        ->and($order->organisation->catalogueStats->number_adjustments)->toBe(1)
+        ->and($order->group->catalogueStats->number_adjustments)->toBe(1);
+
     return $transaction;
 })->depends('create order');
 
 test('update adjustment', function () {
-    $adjustment = StoreAdjustment::make()->action($this->shop, [
-        'type' => AdjustmentTypeEnum::CREDIT,
-        'net_amount' => 10,
-    ]);
+    $adjustment = StoreAdjustment::make()->action(
+        $this->shop,
+        [
+            'type'       => AdjustmentTypeEnum::CREDIT,
+            'net_amount' => 10,
+        ],
+        strict: false
+    );
     expect($adjustment)->toBeInstanceOf(Adjustment::class);
     $updatedAdjustment = UpdateAdjustment::make()->action($adjustment, [
         'net_amount' => 20,
-    ]);
+    ], strict: false);
 
     $updatedAdjustment->refresh();
 
     expect($updatedAdjustment)->toBeInstanceOf(Adjustment::class)
-        ->and(intval($updatedAdjustment->net_amount))->toBe(20);
+        ->and(intval($updatedAdjustment->net_amount))->toBe(20)
+        ->and($updatedAdjustment->shop->stats->number_adjustments)->toBe(2);
+
     return $updatedAdjustment;
 });
 
 test('create transaction from charge', function (Order $order) {
     $charge = StoreCharge::make()->action($order->shop, [
-        'code' => 'CHRG-1',
-        'name' => 'charge 1',
+        'code'        => 'charge-1',
+        'name'        => 'charge 1',
         'description' => 'charge 1 description',
-        'state' => ChargeStateEnum::ACTIVE,
-        'trigger' => ChargeTriggerEnum::ORDER,
-        'type' => ChargeTypeEnum::TRACKING,
+        'state'       => ChargeStateEnum::ACTIVE,
+        'trigger'     => ChargeTriggerEnum::ORDER,
+        'type'        => ChargeTypeEnum::TRACKING,
     ]);
 
     expect($charge)->toBeInstanceOf(Charge::class);
     $transaction = StoreTransactionFromCharge::make()->action($order, $charge, [
-        'date' => Carbon::now(),
+        'date'             => Carbon::now(),
         'quantity_ordered' => 1,
     ]);
 
@@ -238,6 +252,7 @@ test('create transaction from charge', function (Order $order) {
     expect($transaction)->toBeInstanceOf(Transaction::class)
         ->and($transaction->order->stats->number_transactions_at_submission)->toBe(3)
         ->and($order->stats->number_transactions)->toBe(3);
+
     return $transaction;
 })->depends('create order');
 
@@ -245,52 +260,52 @@ test('create transaction from shipping', function (Order $order) {
     $shippingZoneSchema = StoreShippingZoneSchema::make()->action($order->shop, [
         'name' => 'schema 1',
     ]);
-    $shipping = StoreShippingZone::make()->action($shippingZoneSchema, [
-        'code' => 'SHIP-1',
-        'name' => 'shipping 1',
-        'status' => true,
-        'price' => [
-            'type' => "Step Order Items Net Amount",
+    $shipping           = StoreShippingZone::make()->action($shippingZoneSchema, [
+        'code'        => 'SHIP-1',
+        'name'        => 'shipping 1',
+        'status'      => true,
+        'price'       => [
+            'type'  => "Step Order Items Net Amount",
             "steps" => [
-                        [
-                        "to" =>  175,
-                        "from" => 0,
-                        "price" => 20
-                        ],
-                        [
-                        "to" => 450,
-                        "from" => 175,
-                        "price" => 40
-                        ],
-                        [
-                        "to" => 975,
-                        "from" => 450,
-                        "price" => 60
-                        ],
-                        [
-                        "to" => "INF",
-                        "from" => 975,
-                        "price" => 0
-                        ]
-                    ]
+                [
+                    "to"    => 175,
+                    "from"  => 0,
+                    "price" => 20
                 ],
+                [
+                    "to"    => 450,
+                    "from"  => 175,
+                    "price" => 40
+                ],
+                [
+                    "to"    => 975,
+                    "from"  => 450,
+                    "price" => 60
+                ],
+                [
+                    "to"    => "INF",
+                    "from"  => 975,
+                    "price" => 0
+                ]
+            ]
+        ],
         'territories' => [
-                        [
-                        "country_code" => "FR"
-                        ],
-                        [
-                        "country_code" => "BE"
-                        ],
-                        [
-                        "country_code" => "LU"
-                        ]
-                    ],
-        'position' => 1,
+            [
+                "country_code" => "FR"
+            ],
+            [
+                "country_code" => "BE"
+            ],
+            [
+                "country_code" => "LU"
+            ]
+        ],
+        'position'    => 1,
         'is_failover' => false,
     ]);
     expect($shipping)->toBeInstanceOf(ShippingZone::class);
     $transaction = StoreTransactionFromShipping::make()->action($order, $shipping, [
-        'date' => Carbon::now(),
+        'date'             => Carbon::now(),
         'quantity_ordered' => 1,
     ]);
 
@@ -299,6 +314,7 @@ test('create transaction from shipping', function (Order $order) {
     expect($transaction)->toBeInstanceOf(Transaction::class)
         ->and($transaction->order->stats->number_transactions_at_submission)->toBe(4)
         ->and($order->stats->number_transactions)->toBe(4);
+
     return $transaction;
 })->depends('create order');
 
