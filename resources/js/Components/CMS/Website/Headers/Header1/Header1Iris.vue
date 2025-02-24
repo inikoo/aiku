@@ -83,8 +83,8 @@ const isLoggedIn = inject("isPreviewLoggedIn", false);
         <a href="/">
           <div :style="getStyles(fieldValue.logo.properties)">
             <Image 
-              :alt="fieldValue.logo.alt" 
-              :src="fieldValue.logo.image.source" 
+              :alt="fieldValue?.logo?.alt" 
+              :src="fieldValue?.logo?.image?.source" 
               class="hover-dashed" 
             />
           </div>
