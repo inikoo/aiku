@@ -18,22 +18,24 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class DownloadLocations extends OrgAction
 {
-    public function handle(Warehouse $warehouse, array $modelData): void
+    public function handle(Warehouse $warehouse, array $modelData)
     {
         $fileName = 'locations_warehouse_' . $warehouse->id . '.xlsx';
 
-        Excel::queue(new LocationsExport($warehouse, $modelData), 'public/'.$fileName)->chain([
+        return Excel::download(new LocationsExport($warehouse, $modelData), $fileName);
+
+        /*Excel::queue(new LocationsExport($warehouse, $modelData), 'public/'.$fileName)->chain([
             function () use ($warehouse, $fileName) {
                 broadcast(new FileDownloadProgress($warehouse->id, 100, $fileName));
             }
-        ]);
+        ]);*/
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): void
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request)
     {
         $this->initialisationFromWarehouse($warehouse, $request);
         $columns = explode(',', $request->query('columns', ''));
 
-        $this->handle($warehouse, $columns);
+        return $this->handle($warehouse, $columns);
     }
 }
