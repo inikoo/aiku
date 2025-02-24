@@ -16,6 +16,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -38,6 +39,7 @@ class ShowCustomer extends OrgAction
     use WithActionButtons;
     use WithWebUserMeta;
     use WithCustomerSubNavigation;
+    use WithCRMAuthorisation;
 
     private Organisation|Shop $parent;
 
@@ -46,31 +48,9 @@ class ShowCustomer extends OrgAction
         return $customer;
     }
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->authTo("shops.{$this->organisation->id}.edit");
-
-            return $request->user()->authTo("shops.{$this->organisation->id}.view");
-        }
-        if ($this->parent instanceof Shop) {
-            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
-
-            return $request->user()->authTo(
-                [
-                    "crm.{$this->shop->id}.view",
-                    "accounting.{$this->shop->organisation_id}.view"
-                ]
-            );
-        }
-
-        return false;
-    }
-
-
     public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
     {
+
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)
             ->withTab($customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::values() : CustomerTabsEnum::values());

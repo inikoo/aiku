@@ -32,14 +32,14 @@ class OrgAction
     protected Warehouse $warehouse;
     protected Production $production;
 
-    protected bool $asAction     = false;
-    protected bool $canEdit      = false;
-    protected bool $canDelete    = false;
+    protected bool $asAction = false;
+    protected bool $canEdit = false;
+    protected bool $canDelete = false;
     protected bool $isSupervisor = false;
-    public int $hydratorsDelay   = 0;
-    protected bool $strict       = true;
-    protected bool $han          = false;
-    protected bool $maya         = false;
+    public int $hydratorsDelay = 0;
+    protected bool $strict = true;
+    protected bool $han = false;
+    protected bool $maya = false;
 
     protected array $validatedData;
 
@@ -47,7 +47,7 @@ class OrgAction
     public function initialisation(Organisation $organisation, ActionRequest|array $request): static
     {
         $this->organisation = $organisation;
-        $this->group = $organisation->group;
+        $this->group        = $organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -62,7 +62,7 @@ class OrgAction
     {
         $this->shop         = $shop;
         $this->organisation = $shop->organisation;
-        $this->group = $this->organisation->group;
+        $this->group        = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -78,7 +78,7 @@ class OrgAction
         $this->fulfilment   = $fulfilment;
         $this->shop         = $fulfilment->shop;
         $this->organisation = $fulfilment->organisation;
-        $this->group = $this->organisation->group;
+        $this->group        = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -93,7 +93,7 @@ class OrgAction
     {
         $this->warehouse    = $warehouse;
         $this->organisation = $warehouse->organisation;
-        $this->group = $this->organisation->group;
+        $this->group        = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -108,7 +108,7 @@ class OrgAction
     {
         $this->production   = $production;
         $this->organisation = $production->organisation;
-        $this->group = $this->organisation->group;
+        $this->group        = $this->organisation->group;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {

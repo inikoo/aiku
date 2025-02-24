@@ -10,6 +10,7 @@
 namespace App\Actions\CRM\BackInStockReminder\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Http\Resources\CRM\CustomerBackInStockRemindersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\BackInStockReminder;
@@ -18,19 +19,18 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerBackInStockReminders extends OrgAction
 {
-    private Customer $parent;
+    use WithCRMAuthorisation;
 
     public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('products.code', $value)
-                    ->orWhereAnyWordStartWith('products.name', 'ILIKE', $value);
+                    ->orWhereAnyWordStartWith('products.name', $value);
             });
         });
 
@@ -75,10 +75,7 @@ class IndexCustomerBackInStockReminders extends OrgAction
             }
 
 
-            $stats     = $parent->stats;
             $noResults = __("Customer has no reminders");
-
-
             $table
                 ->withGlobalSearch()
                 ->withEmptyState(
