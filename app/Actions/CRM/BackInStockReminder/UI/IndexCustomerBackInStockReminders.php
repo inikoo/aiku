@@ -90,13 +90,6 @@ class IndexCustomerBackInStockReminders extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-
-        $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.view");
-
-        return $request->user()->authTo("crm.{$this->organisation->id}.view");
-    }
 
     public function jsonResponse(LengthAwarePaginator $reminders): AnonymousResourceCollection
     {
