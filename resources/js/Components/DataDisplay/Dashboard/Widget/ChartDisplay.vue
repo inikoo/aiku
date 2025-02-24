@@ -206,7 +206,7 @@ const setChartOptions = () => {
 </script>
 
 <template>
-	<div :class="['rounded-lg p-4 shadow-md relative h-full', getStatusColor(widget.status)]">
+	<div :class="['rounded-lg p-3 shadow-md relative h-full', getStatusColor(widget.status)]">
 		<p class="text-2xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
 			<!-- Render CountUp if widget.type is 'number' -->

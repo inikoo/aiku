@@ -19,7 +19,7 @@ const props = defineProps<{
 				:key="`${dataTable?.interval_percentages?.[type]?.difference}_${dataTable?.interval_percentages?.[type]?.percentage}`"
 				style="align-items: center"
 				class="whitespace-nowrap">
-				<span style="font-size: 14px" class="pr-1">
+				<span  class="text-[9px] md:text-[16px] font-mono pr-1">
 					{{
 						dataTable?.interval_percentages?.[type]?.percentage
 							? `${
@@ -45,7 +45,7 @@ const props = defineProps<{
 			<div v-else-if="section === 'footer'">
 				<span
 					v-tooltip="totalTooltip?.[type] || ''"
-					class="md:text-[16px] text-[9px] "
+					class="md:text-[16px] text-[9px] font-mono pr-1"
 					>
 					{{
 						totalAmount?.[type + "_percentages"]

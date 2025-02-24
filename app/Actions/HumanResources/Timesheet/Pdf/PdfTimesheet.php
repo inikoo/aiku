@@ -9,7 +9,9 @@
 namespace App\Actions\HumanResources\Timesheet\Pdf;
 
 use App\Actions\Traits\WithExportData;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -25,24 +27,59 @@ class PdfTimesheet
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(Organisation $organisation)
+    public function handle(Organisation|Employee $parent)
     {
-        $filename = __('Timesheets - ') . $organisation->name . '.pdf';
+        $filename = __('Timesheets - ') . $parent->name . '.pdf';
         $config = [
-            'title'                  => $filename,
-            'margin_left'            => 8,
-            'margin_right'           => 8,
-            'margin_top'             => 2,
-            'margin_bottom'          => 2,
-            'auto_page_break'        => true,
+            'title' => $filename,
+            'margin_left' => 8,
+            'margin_right' => 8,
+            'margin_top' => 2,
+            'margin_bottom' => 2,
+            'auto_page_break' => true,
             'auto_page_break_margin' => 10
         ];
 
-        return PDF::chunkLoadView('<html-separator/>', 'hr.timesheets', [
-            'filename' => $filename,
-            'organisation' => $organisation,
-            'employees' => $organisation->employees()->limit(10)->get(),
-        ], [], $config)->stream($filename);
+        $query = QueryBuilder::for(Employee::class);
+
+        if ($parent instanceof Organisation) {
+            $organisation = $parent;
+            $query->where('organisation_id', $parent->id);
+        } else {
+            $organisation = $parent->organisation;
+            $query->where('id', $parent->id);
+        }
+
+        $query->whereHas('timesheets', function ($q) {
+            QueryBuilder::for($q)->withFilterPeriod('date');
+        });
+
+        $chunkSize = 10;
+        $employeeChunks = $query->get()->chunk($chunkSize);
+
+        $pdf = PDF::loadHTML('', $config);
+
+        foreach ($employeeChunks as $key => $chunk) {
+            return PDF::chunkLoadView('<html-separator/>', 'hr.timesheets', [
+                'filename' => $filename,
+                'organisation' => $organisation,
+                'employees' => $chunk
+            ], [], $config)->stream($filename);
+
+            $html = view('hr.timesheets', [
+                'filename' => $filename,
+                'organisation' => $organisation,
+                'employees' => $chunk,
+            ])->render();
+
+            if ($key > 0) {
+                $pdf->getMpdf()->WriteHTML('<pagebreak />');
+            }
+
+            $pdf->getMpdf()->WriteHTML($html);
+        }
+
+        return $pdf->stream($filename);
     }
 
     /**
@@ -51,5 +88,13 @@ class PdfTimesheet
     public function asController(Organisation $organisation, ActionRequest $request): Response
     {
         return $this->handle($organisation);
+    }
+
+    /**
+     * @throws \Mpdf\MpdfException
+     */
+    public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): Response
+    {
+        return $this->handle($employee);
     }
 }
