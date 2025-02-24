@@ -29,15 +29,26 @@ const layout = inject('layout', layoutStructure)
 const onClickOrg = async (slug?: string) => {
     if (!slug) return
 
-    try {        
-        const response = await axios.patch(
-            route('grp.models.profile.can_visit'), {
-                route_name: route().current(),
-                route_parameters: route().params
-        })
-        router.visit(route(route().current(), { ...route().params, organisation: slug }))
+    try {      
+        if (!route().current()?.includes('grp.org.')) {
+            throw new Error('Redirect to dashboard')
+        }
+
+        // const response = await axios.patch(
+        //     route('grp.models.profile.can_visit'), {
+        //         route_name: route().current(),
+        //         route_parameters: route().params
+        // })
+
+        const response = await axios.get(route('grp.profile.can_visit'))
+
+        if (!!response.data) {
+            router.visit(route(route().current(), { ...route().params, organisation: slug }))
+        } else {
+            throw new Error('Redirect to dashboard')
+        }
     } catch (error) {
-        console.error('error', error?.response?.data?.message)
+        console.error(error)
         router.visit(route('grp.org.dashboard.show', { organisation: slug }))
     }
 

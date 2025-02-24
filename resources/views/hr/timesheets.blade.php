@@ -170,8 +170,14 @@
 <br>
 @endforeach
 <htmlpagefooter name="myfooter">
-    <div>
-
+    <div
+        style="font-size: 9pt; text-align: right; padding-top: 3mm; margin-top: 120px">
+        <table width="100%">
+            <tr>
+                <td width="80%"></td>
+                <td width="20%">{{ __('Sign Here') }}</td>
+            </tr>
+        </table>
     </div>
 </htmlpagefooter>
 </body>

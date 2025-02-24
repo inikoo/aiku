@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\OrgAction;
 use App\Models\Accounting\Invoice;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,10 @@ class DestroyRefund extends OrgAction
         DB::transaction(function () use ($invoice) {
             $invoice->invoiceTransactions()->forceDelete();
             $invoice->forceDelete();
+
+            if ($invoice->customer_id) {
+                CustomerHydrateInvoices::dispatch($invoice->customer);
+            }
         });
     }
 
