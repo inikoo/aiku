@@ -68,7 +68,7 @@ class IndexTimesheets extends OrgAction
             $query->whereDate('timesheets.date', now()->format('Y-m-d'));
         }
 
-        $query->withFilterPeriod('created_at');
+        $query->withFilterPeriod('date');
         $query->select([
             'timesheets.id',
             'timesheets.date',
@@ -115,7 +115,7 @@ class IndexTimesheets extends OrgAction
             }
 
             $noResults = __("No timesheets found");
-            if ($parent instanceof Employee) {
+            if ($parent instanceof Employee || $parent instanceof Guest) {
                 $stats     = $parent->stats;
                 $noResults = __("Employee has no timesheets");
             } else {
@@ -228,7 +228,34 @@ class IndexTimesheets extends OrgAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
-                ],
+                    'actions' => [
+                        [
+                            'type'   => 'button',
+                            'style'  => 'tertiary',
+                            'label'  => 'PDF',
+                            'target' => '_blank',
+                            'icon'   => 'fal fa-file-pdf',
+                            'key'    => 'action',
+                            'route'  => [
+                                'name'       => match (class_basename($this->parent)) {
+                                    class_basename(Organisation::class) => 'grp.org.hr.timesheets.export',
+                                    class_basename(Employee::class) => 'grp.org.hr.employees.show.timesheets.pdf',
+                                },
+                                'parameters' => match (class_basename($this->parent)) {
+                                    class_basename(Organisation::class) => [
+                                        'organisation' => $this->parent->slug,
+                                        ...$request->query
+                                    ],
+                                    class_basename(Employee::class) => [
+                                        'organisation' => $this->parent->organisation->slug,
+                                        'employee' => $this->parent->slug,
+                                        ...$request->query
+                                    ],
+                                },
+                            ]
+                        ]
+                    ]
+        ],
 
                 'tabs' => [
                     'current'    => $this->tab,

@@ -427,7 +427,8 @@ class Shop extends Model implements HasMedia, Auditable
 
     public function getPaymentAccountTypeAccount(): ?PaymentAccount
     {
-        return $this->paymentAccountShops->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        $paymentAccountShop = $this->paymentAccountShops()->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        return $paymentAccountShop ? $paymentAccountShop->paymentAccount : null;
     }
 
     public function outboxes(): HasMany

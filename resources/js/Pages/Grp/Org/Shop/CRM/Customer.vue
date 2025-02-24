@@ -45,6 +45,8 @@ const props = defineProps<{
     web_users?: {}
     attachments?: {}
     attachmentRoutes?: {}
+    favourites?: {}
+    reminders?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)

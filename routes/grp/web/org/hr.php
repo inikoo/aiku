@@ -28,6 +28,7 @@ use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
+use App\Actions\HumanResources\Timesheet\Pdf\PdfTimesheet;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\Timesheet\UI\ShowTimesheet;
 use App\Actions\HumanResources\Workplace\UI\CreateWorkplace;
@@ -59,6 +60,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
             Route::get('/users', [IndexUsers::class,'inEmployee'])->name('users.index');
             Route::get('/users/{user:slug}', [ShowUser::class,'inEmployee'])->name('users.show');
 
+            Route::get('/timesheets-pdf', [PdfTimesheet::class, 'inEmployee'])->name('timesheets.pdf');
             Route::get('timesheets', [IndexTimesheets::class,'inEmployee'])->name('timesheets.index');
             Route::get('timesheets/export', ExportEmployeeTimesheets::class)->name('timesheets.export');
             Route::get('timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('timesheets.show');
@@ -78,8 +80,8 @@ Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
 Route::get('/timesheets', IndexTimesheets::class)->name('timesheets.index');
+Route::get('/timesheets-export', PdfTimesheet::class)->name('timesheets.export');
 Route::get('/timesheets/{timesheet}', ShowTimesheet::class)->name('timesheets.show');
-
 
 Route::get('/workplaces', IndexWorkplaces::class)->name('workplaces.index');
 Route::get('/workplaces/create', CreateWorkplace::class)->name('workplaces.create');

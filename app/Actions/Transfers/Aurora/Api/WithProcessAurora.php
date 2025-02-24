@@ -42,13 +42,13 @@ trait WithProcessAurora
         if (Arr::get($validatedData, 'bg', false)) {
 
 
-            $delay = (int) Arr::get($validatedData, 'delay', 30);
+            $delay = (int) Arr::get($validatedData, 'delay', 0);
 
             (new $this->fetcher())::dispatch($organisation->id, Arr::get($validatedData, 'id'), $with)->delay($delay);
 
             return [
                 'organisation' => $organisation->slug,
-                'class'        => class_basename($this->fetcher),
+                'model'        => class_basename($this->fetcher),
                 'id'           => Arr::get($validatedData, 'id'),
                 'date'         => now('Asia/Kuala_Lumpur')->format('Y-m-d H:i:s')
             ];

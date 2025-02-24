@@ -48,9 +48,10 @@ class UpdateFavourite extends OrgAction
 
         if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['unfavourited_at'] = ['sometimes', 'nullable', 'date'];
         }
-        return $rules;
 
+        return $rules;
     }
 
     public function action(Favourite $favourite, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Favourite
@@ -58,7 +59,7 @@ class UpdateFavourite extends OrgAction
         $this->strict = $strict;
 
         $this->asAction       = true;
-        $this->favourite       = $favourite;
+        $this->favourite      = $favourite;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($favourite->organisation, $modelData);
 

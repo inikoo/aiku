@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\HumanResources\Employee\GetEmployeeJobPositionsData;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
@@ -15,6 +16,7 @@ use App\Actions\SysAdmin\User\GetUserGroupScopeJobPositionsData;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\Catalogue\ShopResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
@@ -84,7 +86,7 @@ class EditEmployee extends OrgAction
                     'label' => __('work email'),
                     'value' => $employee->work_email ?? ''
                 ],
-                'state'         => [
+                'cluster'         => [
                     'type'     => 'employeeState',
                     'mode'     => 'card',
                     'label'    => 'Employee status',
@@ -219,6 +221,34 @@ class EditEmployee extends OrgAction
                     'type'  => 'input',
                     'label' => __('personal email'),
                     'value' => $employee->email
+                ],
+                'contact_address' => [
+                    'type'    => 'address',
+                    'label'   => __('Address'),
+                    'value'   => AddressFormFieldsResource::make($employee->address)->getArray(),
+                    'options' => [
+                        'countriesAddressData' => GetAddressData::run()
+                    ]
+                ],
+                'emergency_contact'               => [
+                    'type'     => 'textarea',
+                    'label'    => __('Emergency Contact'),
+                    'value'    => $employee->emergency_contact
+                ],
+                'identity_document_type'         => [
+                    'type'  => 'input',
+                    'label' => __('identity document type'),
+                    'value' => $employee->identity_document_type
+                ],
+                'identity_document_number'         => [
+                    'type'  => 'input',
+                    'label' => __('identity document number'),
+                    'value' => $employee->identity_document_number
+                ],
+                'notes'         => [
+                    'type'  => 'textarea',
+                    'label' => __('notes'),
+                    'value' => $employee->notes
                 ],
             ]
         ];

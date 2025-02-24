@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Inventory\Location\DownloadLocations;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\CreateWarehouse;
 use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
@@ -18,6 +19,7 @@ Route::get('create', CreateWarehouse::class)->name('create');
 Route::prefix('{warehouse}')
     ->group(function () {
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
+        Route::get('locations/download', DownloadLocations::class)->name('locations.download');
         Route::get('edit', EditWarehouse::class)->name('edit');
         Route::name('show')
             ->group(function () {

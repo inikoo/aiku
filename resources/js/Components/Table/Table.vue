@@ -175,7 +175,7 @@ const queryBuilderProps = computed(() => {
 });
 
 
-const queryBuilderData = ref(queryBuilderProps.value);
+const queryBuilderData = ref({...queryBuilderProps.value});  // spread operator to avoid sort on mounted
 // queryBuilderData.value.elementFilter = {
 //     // 'state': ['left'],
 //     // 'type': ['volunteer', 'employee']
@@ -571,11 +571,13 @@ const visit = (url?: string) => {
 }
 
 watch(queryBuilderData, async () => {
-        try {
-            visit(location.pathname + '?' + generateNewQueryString())
-        } catch {
-            console.error("Can't visit expected path")
-        }
+        // if(queryBuilderData.value.sort !== queryBuilderProps.value.sort) {  // To avoid sort on first load
+            try {
+                visit(location.pathname + '?' + generateNewQueryString())
+            } catch {
+                console.error("Can't visit expected path")
+            }
+        // }
     },
     {deep: true},
 );
@@ -834,7 +836,7 @@ const isLoading = ref<string | boolean>(false)
                         </div>
 
                         <!-- Filter: Radio element -->
-                        <div v-if="queryBuilderProps.radioFilter" class="w-fit">
+                        <div v-if="queryBuilderProps.radioFilter?.radio" class="w-fit">
                             <TableRadioFilter
                                 :value="queryBuilderProps.radioFilter.radio?.value"
                                 :options="queryBuilderProps.radioFilter?.radio?.options"
@@ -889,6 +891,8 @@ const isLoading = ref<string | boolean>(false)
                 </slot> -->
 
             </div>
+
+            <!-- <pre>{{ compResourceData }}</pre> -->
 
             <!-- The Main Table -->
             <slot name="tableWrapper" :meta="compResourceMeta">

@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\UI\CRM\ProspectsTabsEnum;
@@ -38,25 +39,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexProspects extends OrgAction
 {
     use WithProspectsSubNavigation;
+    use WithCRMAuthorisation;
 
     private Group|Shop|Organisation|Fulfilment $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Shop) {
-            $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.prospects.edit");
 
-            return $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.prospects.view");
-        } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-
-        return false;
-    }
 
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator

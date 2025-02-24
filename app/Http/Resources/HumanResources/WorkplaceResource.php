@@ -23,11 +23,6 @@ class WorkplaceResource extends JsonResource
     {
         /** @var Workplace $workplace */
         $workplace = $this;
-
-
-        $timezone = $workplace->timezone;
-
-
         return [
             'id'                                       => $workplace->id,
             'slug'                                     => $workplace->slug,

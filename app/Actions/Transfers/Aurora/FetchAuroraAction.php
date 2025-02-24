@@ -203,7 +203,7 @@ class FetchAuroraAction extends FetchAction
     /**
      * @throws \Exception
      */
-    public function action(int $organisationID, int $organisationSourceId, array $with): ?Model
+    public function action(int $organisationID, int $organisationSourceId, array $with): Model|array|null
     {
         $organisation = Organisation::find($organisationID);
         if (!$organisation) {

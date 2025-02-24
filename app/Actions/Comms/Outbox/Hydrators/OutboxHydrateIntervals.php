@@ -9,8 +9,8 @@
 
 namespace App\Actions\Comms\Outbox\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateIntervals;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -19,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OutboxHydrateIntervals
 {
     use AsAction;
+    use WithHydrateIntervals;
 
     private Outbox $outbox;
 
@@ -35,41 +36,7 @@ class OutboxHydrateIntervals
 
     public function handle(Outbox $outbox): void
     {
-        $now = Carbon::now();
-
-        $dateRanges = [
-            'all' => null,
-            '1y' => [$now->subYear(), $now],
-            '1q' => [$now->subMonths(3), $now],
-            '1m' => [$now->subMonth(), $now],
-            '1w' => [$now->subWeek(), $now],
-            '3d' => [$now->subDays(3), $now],
-            '1d' => [$now->subDay(), $now],
-            'ytd' => [$now->copy()->startOfYear(), $now],
-            'qtd' => [$now->copy()->startOfQuarter(), $now],
-            'mtd' => [$now->copy()->startOfMonth(), $now],
-            'wtd' => [$now->copy()->startOfWeek(), $now],
-            'tdy' => [$now->copy()->startOfDay(), $now],
-            'lm' => [$now->copy()->subMonth()->startOfMonth(), $now->copy()->subMonth()->endOfMonth()],
-            'lw' => [$now->copy()->subWeek()->startOfWeek(), $now->copy()->subWeek()->endOfWeek()],
-            'ld' => [$now->copy()->subDay()->startOfDay(), $now->copy()->subDay()->endOfDay()],
-
-            '1y_ly' => [$now->copy()->subYears(2), $now->copy()->subYear()],
-            '1q_ly' => [$now->copy()->subYear()->subMonths(3), $now->copy()->subYear()],
-            '1m_ly' => [$now->copy()->subYear()->subMonth(), $now->copy()->subYear()],
-            '1w_ly' => [$now->copy()->subYear()->subWeek(), $now->copy()->subYear()],
-            '3d_ly' => [$now->copy()->subYear()->subDays(3), $now->copy()->subYear()],
-            '1d_ly' => [$now->copy()->subYear()->subDay(), $now->copy()->subYear()],
-            'ytd_ly' => [$now->copy()->subYear()->startOfYear(), $now->copy()->subYear()->endOfYear()],
-            'qtd_ly' => [$now->copy()->subYear()->startOfQuarter(), $now->copy()->subYear()->endOfQuarter()],
-            'mtd_ly' => [$now->copy()->subYear()->startOfMonth(), $now->copy()->subYear()->endOfMonth()],
-            'wtd_ly' => [$now->copy()->subYear()->startOfWeek(), $now->copy()->subYear()->endOfWeek()],
-            'tdy_ly' => [$now->copy()->subYear()->startOfDay(), $now->copy()->subYear()->endOfDay()],
-            'lm_ly' => [$now->copy()->subYear()->subMonth()->startOfMonth(), $now->copy()->subYear()->subMonth()->endOfMonth()],
-            'lw_ly' => [$now->copy()->subYear()->subWeek()->startOfWeek(), $now->copy()->subYear()->subWeek()->endOfWeek()],
-            'ld_ly' => [$now->copy()->subYear()->subDay()->startOfDay(), $now->copy()->subYear()->subDay()->endOfDay()],
-        ];
-
+        $dateRanges = $this->getDateRanges();
         $results = [];
 
         foreach ($dateRanges as $rangeKey => $range) {

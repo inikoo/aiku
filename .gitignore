@@ -98,3 +98,4 @@ frankenphp
 frankenphp-worker.php
 rr
 /.rr.yaml
+/maya/private/

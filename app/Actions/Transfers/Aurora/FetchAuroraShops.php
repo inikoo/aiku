@@ -8,12 +8,17 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
+use App\Actions\Accounting\PaymentAccountShop\UpdatePaymentAccountShop;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
+use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -24,6 +29,7 @@ use Throwable;
 class FetchAuroraShops extends FetchAuroraAction
 {
     use WithShopSetOutboxesSourceId;
+    use WithAuroraParsers;
 
     public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
@@ -101,33 +107,18 @@ class FetchAuroraShops extends FetchAuroraAction
 
             $this->setShopSetOutboxesSourceId($shop);
 
-            $sourceData  = explode(':', $shop->source_id);
-            $accountData = DB::connection('aurora')->table('Payment Account Dimension')
-                ->select('Payment Account Key')
-                ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
-                ->where('Payment Account Block', 'Accounts')
-                ->where('Payment Account Store Store Key', $sourceData[1])
-                ->first();
-            if ($accountData) {
-                $accounts = $shop->getPaymentAccountTypeAccount();
-                $accounts->update(
-                    [
-                        'source_id' => $shop->organisation->id.':'.$accountData->{'Payment Account Key'}
-                    ]
-                );
+            $sourceData = explode(':', $shop->source_id);
 
-                if ($accounts->fetched_at) {
-                    $accounts->update(
-                        [
-                            'last_fetched_at' => now()
-                        ]
-                    );
+            foreach (
+                DB::connection('aurora')->table('Payment Account Dimension')
+                    ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
+                    ->where('Payment Account Store Store Key', $sourceData[1])
+                    ->get() as $paymentAccountData
+            ) {
+                if ($paymentAccountData->{'Payment Account Block'} == 'Accounts') {
+                    $this->setShopPaymentAccountTypeAccount($shop, $paymentAccountData);
                 } else {
-                    $accounts->update(
-                        [
-                            'fetched_at' => now()
-                        ]
-                    );
+                    $this->fetchPaymentAccountShop($shop, $paymentAccountData);
                 }
             }
 
@@ -136,6 +127,141 @@ class FetchAuroraShops extends FetchAuroraAction
         }
 
         return null;
+    }
+
+
+    public function fetchPaymentAccountShop(Shop $shop, $accountData): void
+    {
+        $paymentAccount = $this->parsePaymentAccount($shop->organisation->id.':'.$accountData->{'Payment Account Key'});
+        if (!$paymentAccount) {
+            exit('Error payment account not found in fetchPaymentAccountShop');
+        }
+
+        $paymentAccountShop = PaymentAccountShop::where('shop_id', $shop->id)
+            ->where('source_id', $shop->organisation->id.':'.$accountData->{'Payment Account Store Key'})
+            ->first();
+
+
+        $state = match ($accountData->{'Payment Account Store Status'}) {
+            'Active' => PaymentAccountShopStateEnum::ACTIVE,
+            'Inactive' => PaymentAccountShopStateEnum::INACTIVE,
+        };
+
+        $paymentAccountShopData = [
+            'show_in_checkout'          => $accountData->{'Payment Account Store Show In Cart'} == 'Yes',
+            'checkout_display_position' => $accountData->{'Payment Account Store Show Cart Order'},
+            'state'                     => $state,
+            'source_id'                 => $shop->organisation->id.':'.$accountData->{'Payment Account Store Key'},
+        ];
+
+        $from = $this->parseDatetime($accountData->{'Payment Account Store Valid From'});
+        if (!$from) {
+            $from = $paymentAccount->created_at;
+        }
+
+        if ($from) {
+            $paymentAccountShopData['activated_at']      = $from;
+            $paymentAccountShopData['last_activated_at'] = $from;
+        }
+
+
+        $data = [];
+        if ($accountData->login or $accountData->password or $accountData->public_key or $accountData->hide) {
+            $rawSettings = [
+                'login'      => $accountData->login,
+                'password'   => $accountData->password,
+                'public_key' => $accountData->public_key,
+                'hide'       => $accountData->hide
+            ];
+
+
+            if ($accountData->{'Payment Account Block'} == 'BTree' and $accountData->hide == 'yes') {
+                $data['btree_credit_card_hide'] = true;
+            } elseif ($accountData->{'Payment Account Block'} == 'Checkout') {
+
+                if ($accountData->login and $accountData->password and !$accountData->public_key) {
+                    $data['legacy'] = true;
+                    $data['credentials'] = [
+                        'public_key' => $accountData->login,
+                        'secret_key' => $accountData->password
+                    ];
+                } else {
+                    $data['credentials'] = [
+                        'payment_channel' => $accountData->login,
+                    ];
+                }
+            } elseif ($accountData->{'Payment Account Block'} == 'Hokodo' and $accountData->login and !$accountData->password and $accountData->public_key) {
+                $data['credentials'] = [
+                    'public_key' => $accountData->public_key,
+                    'id' => $accountData->login
+                ];
+            } else {
+                dd($accountData, $rawSettings);
+            }
+        }
+
+        $paymentAccountShopData['data'] = $data;
+
+        if ($paymentAccountShop) {
+            $paymentAccountShopData['data'] = array_merge($paymentAccountShop->data, $data);
+
+            UpdatePaymentAccountShop::make()->action(
+                paymentAccountShop: $paymentAccountShop,
+                modelData: $paymentAccountShopData,
+                strict: false,
+                audit: false
+            );
+        } else {
+            //print_r($accountData);
+
+            StorePaymentAccountShop::make()->action(
+                paymentAccount: $paymentAccount,
+                shop: $shop,
+                modelData: $paymentAccountShopData,
+                strict: false,
+                audit: false
+            );
+            // dd($accountData,$paymentAccountShopData);
+
+        }
+    }
+
+    public function setShopPaymentAccountTypeAccount(Shop $shop, $accountData): void
+    {
+        $accounts = $shop->getPaymentAccountTypeAccount();
+
+        if (!$accounts) {
+            exit('Error shop payment account type account not found');
+        }
+        $accounts->update(
+            [
+                'source_id' => $shop->organisation->id.':'.$accountData->{'Payment Account Key'}
+            ]
+        );
+
+        $paymentAccountShop = PaymentAccountShop::where('shop_id', $shop->id)
+            ->where('payment_account_id', $accounts->id)
+            ->first();
+
+        $paymentAccountShop->update(
+            [
+                'source_id' => $shop->organisation->id.':'.$accountData->{'Payment Account Store Key'}
+            ]
+        );
+
+        if ($accounts->fetched_at) {
+            $accounts->update(
+                [
+                    'last_fetched_at' => now(),
+                ]
+            );
+        } else {
+            $accounts->update(
+                [
+                    'fetched_at' => now()
+                ]
+            );
+        }
     }
 
 

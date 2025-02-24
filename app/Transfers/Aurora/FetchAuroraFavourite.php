@@ -14,7 +14,6 @@ class FetchAuroraFavourite extends FetchAurora
 {
     protected function parseModel(): void
     {
-
         $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Customer Favourite Product Customer Key'});
         if (!$customer or $customer->deleted_at) {
             return;
@@ -42,6 +41,7 @@ class FetchAuroraFavourite extends FetchAurora
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Customer Favourite Product Key'},
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
+            'unfavourited_at' => null
         ];
     }
 

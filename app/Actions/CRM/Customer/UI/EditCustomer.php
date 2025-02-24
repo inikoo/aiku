@@ -10,6 +10,7 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
@@ -20,16 +21,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditCustomer extends OrgAction
 {
+    use WithCRMAuthorisation;
+
     public function handle(Customer $customer): Customer
     {
         return $customer;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.edit");
-
-        return $request->user()->authTo("crm.{$this->shop->id}.edit");
     }
 
 

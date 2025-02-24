@@ -22,6 +22,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\CustomerNote\StoreCustomerNote;
 use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
 use App\Actions\CRM\Favourite\StoreFavourite;
+use App\Actions\CRM\Favourite\UnFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Poll\UpdatePoll;
@@ -230,7 +231,7 @@ test('update prospect tags', function ($prospect) {
 test('prospect query count', function () {
     $this->artisan('query:count')->assertExitCode(0);
 
-    $query = Query::first();
+    $query  = Query::first();
     $query2 = Query::skip(1)->first();
 
     expect($query->number_items)->toBe(2)
@@ -305,11 +306,15 @@ test('add favourite to customer', function (Customer $customer) {
     );
 
     $customer->refresh();
-
+    $this->product->refresh();
     expect($favourite)->toBeInstanceOf(Favourite::class)
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->favourites)->not->toBeNull()
-        ->and($customer->favourites->count())->toBe(1);
+        ->and($customer->favourites->count())->toBe(1)
+        ->and($customer->stats->number_favourites)->toBe(1)
+        ->and($customer->stats->number_unfavourited)->toBe(0)
+        ->and($this->product->stats->number_customers_who_favourited)->toBe(1)
+        ->and($this->product->stats->number_customers_who_un_favourited)->toBe(0);
 
     return $favourite;
 })->depends('create customer');
@@ -327,12 +332,32 @@ test('update favourite', function (Favourite $favourite) {
 
     $updatedFavourite->refresh();
 
-    expect($updatedFavourite)->toBeInstanceOf(Favourite::class);
-
-    // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
+    expect($updatedFavourite)->toBeInstanceOf(Favourite::class)
+        ->and($updatedFavourite->last_fetched_at->toDateString())->toEqual($targetDate->toDateString());
 
     return $updatedFavourite;
 })->depends('add favourite to customer');
+
+test('un-favourite', function (Favourite $favourite) {
+    $customer   = $favourite->customer;
+    $product    = $favourite->product;
+    $unFavorite = UnFavourite::make()->action(
+        $favourite,
+        [
+            'unfavourited_at' => now()
+        ]
+    );
+
+    $customer->refresh();
+    $product->refresh();
+    expect($unFavorite)->unfavourited_at->not->toBeNull()
+        ->and($customer->stats->number_favourites)->toBe(0)
+        ->and($customer->stats->number_unfavourited)->toBe(1)
+        ->and($this->product->stats->number_customers_who_favourited)->toBe(0)
+        ->and($this->product->stats->number_customers_who_un_favourited)->toBe(1);
+
+})->depends('add favourite to customer');
+
 
 test('add back in stock reminder to customer', function (Customer $customer) {
     $reminder = StoreBackInStockReminder::make()->action(
@@ -743,7 +768,6 @@ test('UI show customer web users', function () {
 });
 
 test('UI Edit customer web users', function () {
-
     $webUser  = WebUser::first();
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.edit', [
         $this->organisation->slug,
@@ -797,7 +821,6 @@ test('UI Index customer orders', function () {
 });
 
 test('UI show order', function () {
-
     $order    = Order::first();
     $customer = $order->customer;
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.show', [$this->organisation->slug, $this->shop->slug, $customer->slug, $order->slug]));

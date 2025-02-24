@@ -23,9 +23,9 @@ enum PaymentAccountShopStateEnum: string
     public static function labels(): array
     {
         return [
-            'in_process'        => __('In Process'),
-            'active'           => __('Active'),
-            'inactive'             => __('Inactive'),
+            'in_process' => __('In Process'),
+            'active'     => __('Active'),
+            'inactive'   => __('Inactive'),
         ];
     }
 

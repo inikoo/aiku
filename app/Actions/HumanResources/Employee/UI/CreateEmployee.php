@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
@@ -15,6 +16,8 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
@@ -23,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateEmployee extends OrgAction
 {
-    public function htmlResponse(ActionRequest $request): Response
+    public function handle(Organisation $organisation, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -61,6 +64,47 @@ class CreateEmployee extends OrgAction
                                 'email'         => [
                                     'type'  => 'input',
                                     'label' => __('personal email'),
+                                    'value' => ''
+                                ],
+                                'phone'         => [
+                                    'type'  => 'input',
+                                    'label' => __('contact number'),
+                                    'value' => ''
+                                ],
+                                'contact_address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => $organisation->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+
+                                    ]
+                                ],
+                                'emergency_contact'         => [
+                                    'type'  => 'textarea',
+                                    'label' => __('emergency contact'),
+                                    'value' => ''
+                                ],
+                                'identity_document_type'         => [
+                                    'type'  => 'input',
+                                    'label' => __('identity document type'),
+                                    'value' => ''
+                                ],
+                                'identity_document_number'         => [
+                                    'type'  => 'input',
+                                    'label' => __('identity document number'),
+                                    'value' => ''
+                                ],
+                                'notes'         => [
+                                    'type'  => 'textarea',
+                                    'label' => __('notes'),
                                     'value' => ''
                                 ],
 
@@ -190,7 +234,7 @@ class CreateEmployee extends OrgAction
                     'route'     => [
                         'name'       => 'grp.models.org.employee.store',
                         'parameters' => [
-                            'organisation' => $this->organisation->id
+                            'organisation' => $organisation->id
                         ]
                     ]
                 ],
@@ -207,11 +251,11 @@ class CreateEmployee extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
         $this->initialisation($organisation, $request);
 
-        return $request;
+        return $this->handle($organisation, $request);
     }
 
 

@@ -20,7 +20,6 @@ enum DateIntervalEnum: string
     case ONE_MONTH = '1m';
     case ONE_WEEK = '1w';
     case THREE_DAYS = '3d';
-    case ONE_DAY = '1d';
     case YEAR_TO_DAY = 'ytd';
     case QUARTER_TO_DAY = 'qtd';
     case MONTH_TO_DAY = 'mtd';
@@ -42,74 +41,42 @@ enum DateIntervalEnum: string
 
     public function wherePeriod($query, $column)
     {
-        switch ($this->value) {
-            case 'all':
-                return $query;
-            case '1y':
-                return $query->whereBetween($column, [now()->subYear(), now()]);
-            case '1q':
-                return $query->whereBetween($column, [now()->subQuarter(), now()]);
-            case '1m':
-                return $query->whereBetween($column, [now()->subMonth(), now()]);
-            case '1w':
-                return $query->whereBetween($column, [now()->subWeek(), now()]);
-            case '3d':
-                return $query->whereBetween($column, [now()->subDays(3), now()]);
-            case '1d':
-                return $query->whereBetween($column, [now()->subDay(), now()]);
-            case 'ytd':
-                return $query->whereBetween($column, [now()->startOfYear()->startOfDay(), now()]);
-            case 'tdy':
-                return $query->whereBetween($column, [now()->startOfDay(), now()]);
-            case 'qtd':
-                return $query->whereBetween($column, [now()->startOfQuarter()->startOfDay(), now()]);
-            case 'mtd':
-                return $query->whereBetween($column, [now()->startOfMonth()->startOfDay(), now()]);
-            case 'wtd':
-                return $query->whereBetween($column, [now()->startOfWeek()->startOfDay(), now()]);
-            case 'lm':
-                return $query->whereBetween($column, [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
-            case 'lw':
-                return $query->whereBetween($column, [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()]);
-            case 'ld':
-                return $query->whereBetween($column, [now()->subDay()->startOfDay(), now()->subDay()->endOfDay()]);
-        }
+        return match ($this->value) {
+            '1y' => $query->whereBetween($column, [now()->subYear()->startOfDay(), now()->endOfDay()]),
+            '1q' => $query->whereBetween($column, [now()->subQuarter()->startOfDay(), now()->endOfDay()]),
+            '1m' => $query->whereBetween($column, [now()->subMonth()->startOfDay(), now()->endOfDay()]),
+            '1w' => $query->whereBetween($column, [now()->subWeek()->startOfDay(), now()->endOfDay()]),
+            '3d' => $query->whereBetween($column, [now()->subDays(3)->startOfDay(), now()->endOfDay()]),
+            'ytd' => $query->whereBetween($column, [now()->startOfYear()->startOfDay(), now()->endOfDay()]),
+            'tdy' => $query->whereBetween($column, [now()->startOfDay(), now()->endOfDay()]),
+            'qtd' => $query->whereBetween($column, [now()->startOfQuarter()->startOfDay(), now()->endOfDay()]),
+            'mtd' => $query->whereBetween($column, [now()->startOfMonth()->startOfDay(), now()->endOfDay()]),
+            'wtd' => $query->whereBetween($column, [now()->startOfWeek()->startOfDay(), now()->endOfDay()]),
+            'lm' => $query->whereBetween($column, [now()->subMonth()->startOfMonth()->startOfDay(), now()->subMonth()->endOfMonth()->endOfDay()]),
+            'lw' => $query->whereBetween($column, [now()->subWeek()->startOfWeek()->startOfDay(), now()->subWeek()->endOfWeek()->endOfDay()]),
+            'ld' => $query->whereBetween($column, [now()->subDay()->startOfDay(), now()->subDay()->endOfDay()]),
+            default => $query,
+        };
     }
 
     public function whereLastYearPeriod($query, $column)
     {
-        switch ($this->value) {
-            case '1y':
-                return $query->whereBetween($column, [now()->subYears(2), now()->subYear()]);
-            case '1q':
-                return $query->whereBetween($column, [now()->subQuarter()->subYear(), now()->subYear()]);
-            case '1m':
-                return $query->whereBetween($column, [now()->subMonth()->subYear(), now()->subYear()]);
-            case '1w':
-                return $query->whereBetween($column, [now()->subWeek()->subYear(), now()->subYear()]);
-            case '3d':
-                return $query->whereBetween($column, [now()->subDays(3)->subYear(), now()->subYear()]);
-            case '1d':
-                return $query->whereBetween($column, [now()->subDay()->subYear(), now()->subYear()]);
-            case 'ytd':
-                return $query->whereBetween($column, [now()->startOfYear()->subYear(), now()->subYear()]);
-            case 'tdy':
-                return $query->whereBetween($column, [now()->startOfDay()->subYear(), now()->subYear()]);
-            case 'qtd':
-                return $query->whereBetween($column, [now()->startOfQuarter()->subYear(), now()->subYear()]);
-            case 'mtd':
-                return $query->whereBetween($column, [now()->startOfMonth()->subYear(), now()->subYear()]);
-            case 'wtd':
-                return $query->whereBetween($column, [now()->startOfWeek()->subYear(), now()->subYear()]);
-            case 'lm':
-                return $query->whereBetween($column, [now()->subMonth()->startOfMonth()->subYear(), now()->subMonth()->endOfMonth()->subYear()]);
-            case 'lw':
-                return $query->whereBetween($column, [now()->subWeek()->startOfWeek()->subYear(), now()->subWeek()->endOfWeek()->subYear()]);
-            case 'ld':
-                return $query->whereBetween($column, [now()->subDay()->startOfDay()->subYear(), now()->subDay()->endOfDay()->subYear()]);
-            default:
-                return null;
-        }
+        return match ($this->value) {
+            '1y' => $query->whereBetween($column, [now()->subYears(2)->startOfDay(), now()->subYear()->endOfDay()]),
+            '1q' => $query->whereBetween($column, [now()->subQuarter()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            '1m' => $query->whereBetween($column, [now()->subMonth()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            '1w' => $query->whereBetween($column, [now()->subWeek()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            '3d' => $query->whereBetween($column, [now()->subDays(3)->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'ytd' => $query->whereBetween($column, [now()->startOfYear()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'tdy' => $query->whereBetween($column, [now()->startOfDay()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'qtd' => $query->whereBetween($column, [now()->startOfQuarter()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'mtd' => $query->whereBetween($column, [now()->startOfMonth()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'wtd' => $query->whereBetween($column, [now()->startOfWeek()->subYear()->startOfDay(), now()->subYear()->endOfDay()]),
+            'lm' => $query->whereBetween($column, [now()->subMonth()->startOfMonth()->subYear()->startOfDay(), now()->subMonth()->endOfMonth()->subYear()->endOfDay()]),
+            'lw' => $query->whereBetween($column, [now()->subWeek()->startOfWeek()->subYear()->startOfDay(), now()->subWeek()->endOfWeek()->subYear()->endOfDay()]),
+            'ld' => $query->whereBetween($column, [now()->subDay()->startOfDay()->subYear()->startOfDay(), now()->subDay()->endOfDay()->subYear()->endOfDay()]),
+            default => $query,
+        };
     }
 
 

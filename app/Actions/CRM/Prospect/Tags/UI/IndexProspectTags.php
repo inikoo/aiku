@@ -11,6 +11,7 @@ namespace App\Actions\CRM\Prospect\Tags\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\Helpers\Tag\TagsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -31,16 +32,10 @@ use Spatie\Tags\Tag;
 class IndexProspectTags extends OrgAction
 {
     use WithProspectsSubNavigation;
+    use WithCRMAuthorisation;
 
     private Shop|Organisation $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->authTo("crm.{$this->shop->id}.prospects.edit");
-
-        return  $request->user()->authTo("crm.{$this->shop->id}.prospects.view");
-
-    }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -75,7 +70,6 @@ class IndexProspectTags extends OrgAction
         $query->where('type', 'crm');
         $query->leftJoin('tag_crm_stats', 'tag_crm_stats.tag_id', 'tags.id');
 
-        /** @noinspection PhpUndefinedMethodInspection */
         return $query
             ->allowedSorts(['label', 'number_prospects'])
             ->allowedFilters([$globalSearch])
@@ -163,7 +157,7 @@ class IndexProspectTags extends OrgAction
             ->table(IndexHistory::make()->tableStructure(prefix: TagsTabsEnum::HISTORY->value));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [

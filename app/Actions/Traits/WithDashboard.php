@@ -137,6 +137,7 @@ trait WithDashboard
 
     public function getDateIntervalFilter($interval): string
     {
+        // TODO: #1461
         $intervals = [
             '1y' => now()->subYear(),
             '1q' => now()->subQuarter(),

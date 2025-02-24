@@ -95,7 +95,7 @@ function LBInitAutocomplete() {
 </template>
 
 <style>
-@import 'https://cdn.luigisbox.com/autocomplete.css'; /* For autocomplete */
+/* @import 'https://cdn.luigisbox.com/autocomplete.css'; */ /* For autocomplete */
 
 
 .luigi-ac-footer {

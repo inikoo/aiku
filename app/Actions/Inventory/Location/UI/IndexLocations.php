@@ -138,8 +138,6 @@ class IndexLocations extends OrgAction
                     'locations.slug',
                     'locations.stock_value',
                     'locations.stock_commercial_value',
-                    'locations.max_weight',
-                    'locations.max_volume',
                     'locations.allow_stocks',
                     'locations.allow_fulfilment',
                     'locations.allow_dropshipping',
@@ -219,16 +217,13 @@ class IndexLocations extends OrgAction
                     }
                 )
                 ->column(key: 'scope', label: __('scope'), canBeHidden: false, type: 'icon')
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'stock_value', label: __('Stock'), canBeHidden: false, type: 'icon')
-                ->column(key: 'max_weight', label: __('Weight'), canBeHidden: false, type: 'icon')
-                ->column(key: 'max_volume', label: __("CBM (Cubic's meter)"), canBeHidden: false, type: 'icon');
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'max_weight', label: __('weight'), canBeHidden: false);
-            $table->column(key: 'max_volume', label: __('volume'), canBeHidden: false);
-            $table->column(key: '', label: __('stock value'), canBeHidden: false);
+            $table->column(key: 'max_weight', label: __('weight'), canBeHidden: false, align: 'right');
+            $table->column(key: 'max_volume', label: __("CBM (Cubic's meter)"), canBeHidden: false, align: 'right');
+            $table->column(key: 'stock_value', label: __('stock value'), canBeHidden: false, align: 'right');
             $table->column(key: 'tags', label: __('tags'), canBeHidden: false)
                 ->defaultSort('code');
         };
@@ -248,11 +243,36 @@ class IndexLocations extends OrgAction
     {
         $scope     = $this->parent;
         $container = null;
+        $export = [];
+        $columns = collect([
+            'code',
+            'status',
+            'stock_value',
+            'stock_commercial_value',
+            'max_weight',
+            'max_volume',
+            'barcode'
+        ])->map(fn ($col) => [
+            'label' => __(str_replace('_', ' ', ucfirst($col))), // Convert _ to space and capitalize first letter
+            'value' => $col
+        ])->toArray();
+
         if (class_basename($scope) == 'Warehouse') {
             $container = [
                 'icon'    => ['fal', 'fa-warehouse'],
                 'tooltip' => __('Warehouse'),
                 'label'   => Str::possessive($scope->code)
+            ];
+            $export = [
+                'route' => [
+                    'name' => 'grp.org.warehouses.locations.download',
+                    'parameters' => [
+                        'organisation' => $scope->organisation->slug,
+                        'warehouse' => $scope->slug
+                    ],
+                    'method' => 'get'
+                ],
+                'columns' => $columns
             ];
         } elseif (class_basename($scope) == 'WarehouseArea') {
             $container = [
@@ -337,6 +357,70 @@ class IndexLocations extends OrgAction
                     ]
                 ],
 
+                'upload_locations' => [
+                    'title' => [
+                        'label' => __('Upload locations'),
+                        'information' => __('The list of column file:')
+                    ],
+                    'progressDescription'   => __('Importing locations'),
+                    'preview_template'    => [
+                        // 'unique_column' => [
+                        //     'type'  => [
+                        //         'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
+                        //     ]
+                        // ],
+                        'header' => ['code', 'max weight', 'max volume'],
+                        'rows' => [
+                            [
+                                'code' => 'CD',
+                                'max_weight' => 10,
+                                'max_volume' => 20,
+                            ],
+                        ]
+                    ],
+                    'upload_spreadsheet'    => [
+                        'event'           => 'action-progress',
+                        'channel'         => 'grp.personal.'.$this->organisation->id,
+                        'required_fields' => ['code', 'max_weight', 'max_volume'],
+                        'template'        => [
+                            'label' => 'Download template (.xlsx)',
+                        ],
+                        'route'           => [
+                            'upload'   => match ($this->parent::class) {
+                                Warehouse::class => [
+                                    'name'       => 'grp.models.warehouse.location.upload',
+                                    'parameters' => [
+                                        $this->parent->id
+                                    ]
+                                ],
+                                WarehouseArea::class => [
+                                    'name'       => 'grp.models.warehouse_area.location.upload',
+                                    'parameters' => [
+                                        $this->parent->id
+                                    ]
+                                ],
+                                default => throw new \Exception('Unexpected match value')
+                            }
+                            // 'history'  => [
+                            //     'name'       => 'grp.json.pallet_delivery.recent_uploads',
+                            //     'parameters' => [
+                            //         'palletDelivery' => $palletDelivery->id
+                            //     ]
+                            // ],
+                            // 'download' => [
+                            //     'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                            //     'parameters' => [
+                            //         'organisation'       => $palletDelivery->organisation->slug,
+                            //         'fulfilment'         => $palletDelivery->fulfilment->slug,
+                            //         'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                            //         'palletDelivery'     => $palletDelivery->slug
+                            //     ]
+                            // ],
+                        ],
+                    ]
+                ],
+
+                'export' => $export,
                 'tagRoute'   => [
                     'store' => [
                         'name'       => 'grp.models.location.tag.store',

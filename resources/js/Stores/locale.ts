@@ -59,7 +59,7 @@ export const useLocaleStore = defineStore("locale", () => {
 	}
 
 	const CurrencyShort = (currencyCode: string, number: number, useShort: boolean) => {
-		console.log(useShort,'asdasd');
+		// console.log(useShort,'asdasd');
 		
 		if (useShort) {
 			return new Intl.NumberFormat("en", {

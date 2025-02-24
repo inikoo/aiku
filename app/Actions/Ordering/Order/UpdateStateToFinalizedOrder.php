@@ -67,15 +67,15 @@ class UpdateStateToFinalizedOrder extends OrgAction
             if ($transaction->model_type == 'Adjustment') {
                 /** @var Adjustment $adjustment */
                 $adjustment = Adjustment::find($transaction->model_id);
-                StoreInvoiceTransactionFromAdjustment::make()->action($invoice, $adjustment, []);
+                StoreInvoiceTransactionFromAdjustment::make()->action($invoice, $adjustment, $data);
             } elseif ($transaction->model_type == 'Charge') {
                 StoreInvoiceTransactionFromCharge::make()->action(
                     invoice: $invoice,
                     charge: $transaction->model,
-                    modelData: []
+                    modelData: $data
                 );
             } elseif ($transaction->model_type == 'ShippingZone') {
-                StoreInvoiceTransactionFromShipping::make()->action($invoice, $transaction->model, []);
+                StoreInvoiceTransactionFromShipping::make()->action($invoice, $transaction->model, $data);
             } else {
                 StoreInvoiceTransaction::make()->action($invoice, $transaction->historicAsset, $data);
             }

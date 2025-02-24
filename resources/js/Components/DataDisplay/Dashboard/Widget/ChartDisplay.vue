@@ -12,6 +12,7 @@ import Chart from "primevue/chart"
 import ProgressDashboardCard from "../../ProgressDashboardCard.vue"
 import { Link } from "@inertiajs/vue3"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useLocaleStore } from "@/Stores/locale"
 library.add(faCheck, faExclamation, faInfo, faPlay)
 
 // Props for dynamic behavior
@@ -135,29 +136,60 @@ function NumberDashboard(shop: any) {
 	return route(shop?.name, shop?.parameters)
 }
 
-const setChartOptions = () => ({
-	responsive: true,
-	maintainAspectRatio: false,
-
-	plugins: {
-		legend: {
-			display: false,
-		},
-		tooltip: {
-			callbacks: {
-				label: (context) => {
-					const value = parseFloat(context.parsed.y ?? context.parsed) || 0
-					const currencyCode = props.visual?.value?.currency_codes?.[context.dataIndex]
-			
-					if (currencyCode) {
-						return locale.currencyFormat(currencyCode, value)
-					}
-					return locale.number(value);
+const setChartOptions = () => {
+	// Base chart options
+	const options: any = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				display: false,
+			},
+			tooltip: {
+				callbacks: {
+					title: function (tooltipItems) {
+						if (
+							props.visual &&
+							props.visual.value.hover_labels &&
+							tooltipItems.length > 0
+						) {
+							return props.visual.value.hover_labels[tooltipItems[0].dataIndex]
+						}
+						return tooltipItems[0].label
+					},
+					label: (context) => {
+						const value = parseFloat(context.parsed.y ?? context.parsed) || 0
+						const currencyCode = props.widget.currency_code
+						if (currencyCode) {
+							return locale.currencyFormat(currencyCode, value)
+						}
+						return locale.number(value)
+					},
 				},
 			},
 		},
-	},
-})
+	}
+
+	// Only apply y-axis currency formatting for bar charts
+	if (props.visual && props.visual.type === "bar") {
+		options.scales = {
+			y: {
+				ticks: {
+					callback: (value) => {
+						const numericValue = Number(value) || 0
+						const currencyCode = props.widget.currency_code
+						if (currencyCode) {
+							return useLocaleStore().CurrencyShort(currencyCode, numericValue, false)
+						}
+						return locale.number(numericValue)
+					},
+				},
+			},
+		}
+	}
+
+	return options
+}
 
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 // const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
@@ -174,7 +206,7 @@ const setChartOptions = () => ({
 </script>
 
 <template>
-	<div :class="['rounded-lg p-4 shadow-md relative h-full', getStatusColor(widget.status)]">
+	<div :class="['rounded-lg p-3 shadow-md relative h-full', getStatusColor(widget.status)]">
 		<p class="text-2xl font-bold leading-tight truncate">
 			<!-- v-tooltip="printLabelByType(widget?.value)" -->
 			<!-- Render CountUp if widget.type is 'number' -->

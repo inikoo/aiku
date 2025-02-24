@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\HydrateModel;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAdjustments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollectionCategories;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollections;
@@ -135,7 +136,7 @@ class HydrateOrganisations extends HydrateModel
 
             OrganisationHydrateTopUps::run($organisation);
             OrganisationHydrateCreditTransactions::run($organisation);
-
+            OrganisationHydrateAdjustments::run($organisation);
             //OrganisationHydrateOfferCampaigns::run($organisation);
             //OrganisationHydrateOffers::run($organisation);
 

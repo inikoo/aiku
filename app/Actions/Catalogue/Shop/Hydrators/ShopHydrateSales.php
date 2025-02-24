@@ -67,15 +67,6 @@ class ShopHydrateSales
         $shop->salesIntervals()->update($stats);
     }
 
-    public string $commandSignature = 'test';
-
-    public function asCommand($command)
-    {
-        $f = Shop::all();
-        foreach ($f as $fulfilment) {
-            $this->handle($fulfilment);
-        }
-    }
 
 
 

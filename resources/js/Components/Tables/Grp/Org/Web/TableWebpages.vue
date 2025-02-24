@@ -27,7 +27,7 @@ const props = defineProps<{
 
 function webpageRoute(webpage: Webpage) {
 
-  console.log(route().current())
+//   console.log(route().current())
 
     switch (route().current()) {
 

@@ -110,12 +110,11 @@ const layout = inject('layout', layoutStructure)
                                 :href="item.route?.name ? route(item.route.name, item.route.parameters) : '#'" :class="[
                                     item.route?.name
                                         ? $page.url.startsWith((route(item.route.name, item.route.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                                            ? 'text-gray-600 font-medium'
-                                            : 'text-gray-600 hover:text-gray-700'
+                                            ? 'text-gray-500 font-medium'
+                                            : 'text-gray-500 hover:text-gray-800'
                                         : 'text-gray-500'
-                                ]" class="first:pl-0 px-1 flex gap-x-1 items-center">
-                                <FontAwesomeIcon v-if="item.leftIcon" :title="item.leftIcon.tooltip" fixed-width
-                                    aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400" />
+                                ]" class="group first:pl-0 px-1 flex gap-x-1 items-center">
+                                <FontAwesomeIcon v-if="item.leftIcon" :title="item.leftIcon.tooltip" fixed-width aria-hidden="true" :icon="item.leftIcon.icon" class="opacity-70 group-hover:opacity-100" />
                                 <MetaLabel :item="item" class="leading-none" />
                             </component>
                         </slot>
