@@ -152,12 +152,12 @@ class StoreInvoice extends OrgAction
 
         // todo: Upload Invoices to Google Drive #544
         //UploadPdfInvoice::run($invoice);
-        /** @var Invoice $invoice */
+
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
-        /** @var InvoiceCategory */
+
         if ($invoice->invoiceCategory) {
             InvoiceCategoryHydrateInvoices::dispatch($invoice->invoiceCategory)->delay($this->hydratorsDelay);
             InvoiceCategoryHydrateSalesIntervals::dispatch($invoice->invoiceCategory)->delay($this->hydratorsDelay);
@@ -218,21 +218,25 @@ class StoreInvoice extends OrgAction
 
 
         if (!$this->strict) {
-            $rules['reference'] = [
+            $rules['reference']          = [
                 'required',
                 'max:64',
                 'string'
             ];
-            $rules['is_vip'] = ['sometimes', 'boolean'];
-            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
-            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
+            $rules['is_vip']             = ['sometimes', 'boolean'];
+            $rules['as_organisation_id'] = ['sometimes', 'nullable', 'integer'];
+            $rules['as_employee_id']     = ['sometimes', 'nullable', 'integer'];
 
 
-            $rules['invoice_category_id'] = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
-            $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
-            $rules['billing_address'] = ['required', new ValidAddress()];
-            $rules                    = $this->orderingAmountNoStrictFields($rules);
-            $rules                    = $this->noStrictStoreRules($rules);
+            $rules['invoice_category_id']                = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
+            $rules['tax_category_id']                    = ['sometimes', 'required', 'exists:tax_categories,id'];
+            $rules['billing_address']                    = ['required', new ValidAddress()];
+            $rules['deleted_at']                         = ['sometimes', 'nullable', 'date'];
+            $rules['deleted_note']                       = ['sometimes', 'string'];
+            $rules['deleted_from_deleted_invoice_fetch'] = ['sometimes', 'boolean'];
+            $rules['deleted_by']                         = ['sometimes', 'nullable', 'integer'];
+            $rules                                       = $this->orderingAmountNoStrictFields($rules);
+            $rules                                       = $this->noStrictStoreRules($rules);
         }
 
 

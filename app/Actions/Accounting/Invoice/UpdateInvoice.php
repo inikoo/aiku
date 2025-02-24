@@ -43,14 +43,12 @@ class UpdateInvoice extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
-
         $billingAddressData = Arr::get($modelData, 'billing_address');
         data_forget($modelData, 'billing_address');
 
         $invoice = $this->update($invoice, $modelData, ['data']);
 
         if ($billingAddressData) {
-
             $this->updateFixedAddress(
                 $invoice,
                 $invoice->billingAddress,
@@ -61,7 +59,7 @@ class UpdateInvoice extends OrgAction
             );
         }
 
-        /** @var InvoiceCategory */
+
         if ($invoice->invoiceCategory) {
             InvoiceCategoryHydrateInvoices::dispatch($invoice->invoiceCategory)->delay($this->hydratorsDelay);
             InvoiceCategoryHydrateSalesIntervals::dispatch($invoice->invoiceCategory)->delay($this->hydratorsDelay);
@@ -84,14 +82,13 @@ class UpdateInvoice extends OrgAction
         InvoiceRecordSearch::dispatch($invoice);
 
 
-
         return $invoice;
     }
 
     public function rules(): array
     {
         $rules = [
-            'reference'        => [
+            'reference' => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -103,15 +100,15 @@ class UpdateInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id'      => ['sometimes', 'required', 'exists:currencies,id'],
-            'net_amount'       => ['sometimes', 'required', 'numeric'],
-            'total_amount'     => ['sometimes', 'required', 'numeric'],
-            'payment_amount'   => ['sometimes', 'numeric'],
+
+            'payment_amount' => ['sometimes', 'numeric'],
+
+
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'footer'           => ['sometimes', 'string'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
-            'sales_channel_id'   => [
+            'sales_channel_id' => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
@@ -122,20 +119,33 @@ class UpdateInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['currency_id']     = ['sometimes', 'required', 'exists:currencies,id'];
+            $rules['net_amount']      = ['sometimes', 'required', 'numeric'];
+            $rules['total_amount']    = ['sometimes', 'required', 'numeric'];
+            $rules['gross_amount']    = ['sometimes', 'required', 'numeric'];
+            $rules['rental_amount']   = ['sometimes', 'required', 'numeric'];
+            $rules['goods_amount']    = ['sometimes', 'required', 'numeric'];
+            $rules['services_amount'] = ['sometimes', 'required', 'numeric'];
+            $rules['tax_amount']      = ['sometimes', 'required', 'numeric'];
+            $rules['footer']          = ['sometimes', 'string'];
+            $rules['data']            = ['sometimes', 'array'];
 
-            $rules['is_vip'] = ['sometimes', 'boolean'];
-            $rules['as_organisation_id'] = ['sometimes','nullable', 'integer'];
-            $rules['as_employee_id'] = ['sometimes','nullable', 'integer'];
 
-            $rules['invoice_category_id'] = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
-
-            $rules['reference'] = [
+            $rules['is_vip']                             = ['sometimes', 'boolean'];
+            $rules['as_organisation_id']                 = ['sometimes', 'nullable', 'integer'];
+            $rules['as_employee_id']                     = ['sometimes', 'nullable', 'integer'];
+            $rules['invoice_category_id']                = ['sometimes', 'nullable', Rule::exists('invoice_categories', 'id')->where('organisation_id', $this->organisation->id)];
+            $rules['deleted_at']                         = ['sometimes', 'nullable', 'date'];
+            $rules['deleted_note']                       = ['sometimes', 'string'];
+            $rules['deleted_from_deleted_invoice_fetch'] = ['sometimes', 'boolean'];
+            $rules['deleted_by']                         = ['sometimes', 'nullable', 'integer'];
+            $rules['reference']                          = [
                 'sometimes',
                 'string',
                 'max:64',
             ];
-            $rules = $this->orderNoStrictFields($rules);
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules                                       = $this->orderNoStrictFields($rules);
+            $rules                                       = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
