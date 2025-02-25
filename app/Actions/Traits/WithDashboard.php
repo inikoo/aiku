@@ -333,7 +333,7 @@ trait WithDashboard
                         'hover_labels'   => $visualData['sales_data']['hover_labels'],
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['sales_data']['datasets']),
-                            'backgroundColor' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
+                            'backgroundColor' => $this->getReadableColor($visualData['sales_data']['labels']),
                         ],
                     ],
                 ]
@@ -361,7 +361,7 @@ trait WithDashboard
                         'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['invoices_data']['datasets']),
-                            'backgroundColor' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
+                            'backgroundColor' => $this->getReadableColor(Arr::get($visualData, 'invoices_data.labels')),
                         ],
                     ],
                 ]
@@ -402,7 +402,7 @@ trait WithDashboard
                         'datasets'       => [
                             [
                                 'data' => $averageDataset,
-                                'backgroundColor' => $this->getReadableColor(count($labels)),
+                                'backgroundColor' => $this->getReadableColor($labels),
                             ]
                         ]
                     ],
@@ -423,7 +423,7 @@ trait WithDashboard
         return $combined;
     }
 
-    public function getMoreColor(array $colorMaps, int $needed): array
+    public function getMoreColor(array $colorMaps, int $needed, array $labels): array
     {
         $added = 0;
         $i = count($colorMaps); // Start from where we left off
@@ -446,13 +446,15 @@ trait WithDashboard
         return $colorMaps;
     }
 
-    public function getReadableColor(int $total): array
+    public function getReadableColor(array $labels): array
     {
         $colorMaps = [];
 
+        $total = count($labels);
+
         // Generate colors using HSL (best distribution)
         for ($i = 0; $i < min($total, 360); $i++) {
-            $hash = crc32((string) $i);
+            $hash = crc32((string) $labels[$i]);
             $hue = $hash % 360;
             $hexColor = $this->hslToHex($hue, 80, 60);
 
@@ -461,7 +463,8 @@ trait WithDashboard
 
         // If more colors are needed, fallback to more color generation
         if (count($colorMaps) < $total) {
-            $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps));
+            $labels = array_slice($labels, count($colorMaps));
+            $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps), $labels);
         }
 
         return array_values($colorMaps);
