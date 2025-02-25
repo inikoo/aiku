@@ -331,7 +331,8 @@ trait WithDashboard
                     'value' => [
                         'labels'         => $visualData['sales_data']['labels'],
                         'hover_labels'   => $visualData['sales_data']['hover_labels'],
-                        'datasets'       => $visualData['sales_data']['datasets']
+                        'datasets'       => $visualData['sales_data']['datasets'],
+                        'background_colors' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
                     ],
                 ]
             );
@@ -357,6 +358,7 @@ trait WithDashboard
                         'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                         'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
                         'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
+                        'background_colors' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
                     ],
                 ]
             );
@@ -393,6 +395,7 @@ trait WithDashboard
                     'value' => [
                         'labels'         => $labels,
                         'hover_labels'  => $hoverLabels,
+                        'background_colors' => $this->getReadableColor(count($labels)),
                         'datasets'       => [
                             [
                                 'data' => $averageDataset,
@@ -415,5 +418,71 @@ trait WithDashboard
 
         return $combined;
     }
+
+    public function getMoreColor(array $colorMaps, int $needed): array
+    {
+        $added = 0;
+        $i = count($colorMaps); // Start from where we left off
+
+        while ($added < $needed) {
+            $hash = md5((string) $i);
+            $r = hexdec(substr($hash, 0, 2));
+            $g = hexdec(substr($hash, 2, 2));
+            $b = hexdec(substr($hash, 4, 2));
+            $hexColor = sprintf("#%02X%02X%02X", $r, $g, $b);
+
+            // Ensure unique colors
+            if (!isset($colorMaps[$hexColor])) {
+                $colorMaps[$hexColor] = $hexColor;
+                $added++;
+            }
+            $i++;
+        }
+
+        return $colorMaps;
+    }
+
+    public function getReadableColor(int $total): array
+    {
+        $colorMaps = [];
+
+        // Generate colors using HSL (best distribution)
+        for ($i = 0; $i < min($total, 360); $i++) {
+            $hash = crc32((string) $i);
+            $hue = $hash % 360;
+            $hexColor = $this->hslToHex($hue, 80, 60);
+
+            $colorMaps[$hexColor] = $hexColor;
+        }
+
+        // If more colors are needed, fallback to more color generation
+        if (count($colorMaps) < $total) {
+            $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps));
+        }
+
+        return array_values($colorMaps);
+    }
+
+    // Convert HSL to HEX (ensures better color distribution)
+    private function hslToHex($h, $s, $l): string
+    {
+        $s /= 100;
+        $l /= 100;
+        $c = (1 - abs(2 * $l - 1)) * $s;
+        $x = $c * (1 - abs(fmod($h / 60, 2) - 1));
+        $m = $l - $c / 2;
+
+        list($r, $g, $b) = match (true) {
+            $h < 60 => [$c, $x, 0],
+            $h < 120 => [$x, $c, 0],
+            $h < 180 => [0, $c, $x],
+            $h < 240 => [0, $x, $c],
+            $h < 300 => [$x, 0, $c],
+            default => [$c, 0, $x]
+        };
+
+        return sprintf("#%02X%02X%02X", ($r + $m) * 255, ($g + $m) * 255, ($b + $m) * 255);
+    }
+
 
 }
