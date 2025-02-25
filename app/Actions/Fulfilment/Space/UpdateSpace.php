@@ -47,4 +47,12 @@ class UpdateSpace extends OrgAction
 
         return $this->handle($space, $this->validatedData);
     }
+
+    public function action(Space $space, array $modelData): Space
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($space->fulfilment, $modelData);
+
+        return $this->handle($space, $this->validatedData);
+    }
 }
