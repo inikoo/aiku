@@ -14,6 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Order;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStateToDispatchedOrder extends OrgAction
@@ -28,16 +29,18 @@ class UpdateStateToDispatchedOrder extends OrgAction
             'dispatched_at' => now()
         ];
 
-        $order->transactions()->update([
-            'state' => TransactionStateEnum::DISPATCHED
-        ]);
+        DB::transaction(function () use ($order, $data) {
+            $order->transactions()->update([
+                'state' => TransactionStateEnum::DISPATCHED
+            ]);
 
-        $this->update($order, $data);
-        $this->orderHydrators($order);
+            $this->update($order, $data);
+            $this->orderHydrators($order);
 
-        if ($order->shopifyOrder) {
-            FulfillOrderToShopify::run($order);
-        }
+            if ($order->shopifyOrder) {
+                FulfillOrderToShopify::run($order);
+            }
+        });
 
         return $order;
     }
