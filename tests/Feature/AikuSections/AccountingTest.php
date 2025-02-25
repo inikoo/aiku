@@ -29,6 +29,7 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
 use App\Actions\Accounting\PaymentAccountShop\UpdatePaymentAccountShop;
+use App\Actions\Accounting\PaymentServiceProvider\DeletePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
@@ -1184,4 +1185,14 @@ test('top up search', function () {
     $topUp = TopUp::first();
     ReindexTopUpSearch::run($topUp);
     expect($topUp->universalSearch()->count())->toBe(1);
+});
+
+test('delete payment service provider', function () {
+    /** @var Group $group */
+    $group = $this->group;
+    expect($group->paymentServiceProviders()->count())->toBe(12);
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    DeletePaymentServiceProvider::make()->action($paymentServiceProvider);
+    $group->refresh();
+    expect($group->paymentServiceProviders()->count())->toBe(11);
 });

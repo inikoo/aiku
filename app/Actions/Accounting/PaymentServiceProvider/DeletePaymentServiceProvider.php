@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
+use App\Actions\GrpAction;
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -15,9 +16,8 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeletePaymentServiceProvider
+class DeletePaymentServiceProvider extends GrpAction
 {
-    use AsController;
     use WithAttributes;
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider
@@ -29,14 +29,27 @@ class DeletePaymentServiceProvider
         return $paymentServiceProvider;
     }
 
+
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         return $request->user()->authTo("accounting.payment-service-providers.edit");
     }
 
     public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
-        $request->validate();
+        $this->initialisation($paymentServiceProvider->group, $request);
+
+        return $this->handle($paymentServiceProvider);
+    }
+
+    public function action(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider
+    {
+        $this->asAction = true;
+        $this->initialisation($paymentServiceProvider->group, []);
 
         return $this->handle($paymentServiceProvider);
     }
