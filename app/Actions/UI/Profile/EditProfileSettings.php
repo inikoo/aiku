@@ -36,15 +36,15 @@ class EditProfileSettings
     public function generateBlueprint(User $user): array
     {
         return [
-            "title"       => __("Settings"),
+            "title"       => __("Preferences"),
             "pageHead"    => [
-                "title"        => __("Edit settings"),
+                "title"        => __("Preferences"),
 
             ],
             "formData" => [
                 "blueprint" => [
                     [
-                        "label"  => __("Settings"),
+                        "label"  => __("Preferences"),
                         "icon"   => "fal fa-cog",
                         "fields" => [
                             "language_id" => [
