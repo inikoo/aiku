@@ -53,15 +53,17 @@ const props = defineProps<{
 		headerText: string
 		chip_text: string
 		text: {
-			properties: {
-				position: {
-					top: string
-					left: string
+			container : {
+				properties: {
+					position: {
+						top: string
+						left: string
+					}
+					width: string
+					height: string
 				}
-				width: string
-				height: string
+				text: string
 			}
-			text: string
 		}
 	}
 	loginMode: boolean
@@ -98,8 +100,8 @@ function onDragText(e) {
 		target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`
 
 		// Update modelValue position
-		props.modelValue.text.properties.position.left = `${beforeTranslate[0]}px`
-		props.modelValue.text.properties.position.top = `${beforeTranslate[1]}px`
+		props.modelValue.text.container.properties.position.left = `${beforeTranslate[0]}px`
+		props.modelValue.text.container.properties.position.top = `${beforeTranslate[1]}px`
 		onSave()
 	}
 }
@@ -111,8 +113,8 @@ function onResizeText(e) {
 	target.style.height = `${height}px`
 
 	// Update modelValue
-	props.modelValue.text.properties.width = `${width}px`
-	props.modelValue.text.properties.height = `${height}px`
+	props.modelValue.text.container.properties.width = `${width}px`
+	props.modelValue.text.container.properties.height = `${height}px`
 	onSave()
 }
 
@@ -124,8 +126,8 @@ function onTextScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
 	if (!scaleMatch) return
 
 	const scaleValues = scaleMatch[1].split(", ").map(Number)
-	props.modelValue.text.properties.width = `${offsetWidth * scaleValues[0]}px`
-	props.modelValue.text.properties.height = `${offsetHeight * scaleValues[1]}px`
+	props.modelValue.text.container.properties.width = `${offsetWidth * scaleValues[0]}px`
+	props.modelValue.text.container.properties.height = `${offsetHeight * scaleValues[1]}px`
 	onSave()
 }
 
