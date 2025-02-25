@@ -11,9 +11,9 @@ use Inertia\Response;
 
 class InertiaTable
 {
-    private string $name          = 'default';
-    private string $pageName      = 'page';
-    private array $perPageOptions = [10, 25, 50, 100];
+    private string $name = 'default';
+    private string $pageName = 'page';
+    private array $perPageOptions = [10, 25, 50, 100]; // must be between config/ui.php for min_records_per_page - records_per_page - max_records_per_page
     private Request $request;
     private Collection $columns;
     private Collection $searchInputs;
@@ -137,7 +137,7 @@ class InertiaTable
             'filters'                         => $this->transformFilters(),
             'hasFilters'                      => $this->filters->isNotEmpty(),
             'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
-            'searchInputs'                    => $searchInputs              = $this->transformSearchInputs(),
+            'searchInputs'                    => $searchInputs = $this->transformSearchInputs(),
             'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
             'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
             'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
@@ -226,7 +226,7 @@ class InertiaTable
 
     protected function transformRadioFilter(): Collection
     {
-        $radioFilter = $this->radioFilter;
+        $radioFilter   = $this->radioFilter;
         $queryElements = $this->query('radioFilter', '');
 
         if (empty($queryElements)) {
@@ -238,7 +238,7 @@ class InertiaTable
         }
 
         return $radioFilter->map(function (RadioFilterGroup $elementRadioGroup) use ($queryElements) {
-            $elementRadioGroup->value = (string) $queryElements;
+            $elementRadioGroup->value = (string)$queryElements;
 
             return $elementRadioGroup;
         });
