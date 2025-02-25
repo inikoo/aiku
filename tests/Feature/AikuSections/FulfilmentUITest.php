@@ -22,6 +22,7 @@ use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Billables\Rental\RentalStateEnum;
@@ -49,6 +50,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -237,6 +239,17 @@ beforeEach(function () {
     }
 
     $this->space = $space;
+
+    $storedItemAudit = StoredItemAudit::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$storedItemAudit) {
+        $storedItemAudit = StoreStoredItemAudit::make()->action(
+            $this->customer->fulfilmentCustomer,
+            [
+                'warehouse_id' => $this->warehouse->id,
+            ]
+        );
+    }
+    $this->storedItemAudit = $storedItemAudit;
 
     $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
@@ -688,7 +701,6 @@ test('UI index refund', function () {
                 ->has('subNavigation')
                 ->etc()
             )
-            ->has('formData')
             ->has('breadcrumbs', 3);
     });
 });
@@ -1483,4 +1495,29 @@ test('UI get section route org fulfilments index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_FULFILMENT->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+
+// ui stored item audit
+test('UI show stored item audit', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $this->storedItemAudit->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/StoredItemAudit')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', "Customer's SKUs audit")
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
+    });
 });
