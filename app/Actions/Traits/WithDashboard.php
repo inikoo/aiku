@@ -331,8 +331,10 @@ trait WithDashboard
                     'value' => [
                         'labels'         => $visualData['sales_data']['labels'],
                         'hover_labels'   => $visualData['sales_data']['hover_labels'],
-                        'datasets'       => $visualData['sales_data']['datasets'],
-                        'background_colors' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
+                        'datasets'       => [
+                            'data' => Arr::flatten($visualData['sales_data']['datasets']),
+                            'background_colors' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
+                        ],
                     ],
                 ]
             );
@@ -357,8 +359,10 @@ trait WithDashboard
                     'value' => [
                         'labels'         => Arr::get($visualData, 'invoices_data.labels'),
                         'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
-                        'datasets'       => Arr::get($visualData, 'invoices_data.datasets'),
-                        'background_colors' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
+                        'datasets'       => [
+                            'data' => Arr::flatten($visualData['invoices_data']['datasets']),
+                            'background_colors' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
+                        ],
                     ],
                 ]
             );
@@ -395,10 +399,10 @@ trait WithDashboard
                     'value' => [
                         'labels'         => $labels,
                         'hover_labels'  => $hoverLabels,
-                        'background_colors' => $this->getReadableColor(count($labels)),
                         'datasets'       => [
                             [
                                 'data' => $averageDataset,
+                                'background_colors' => $this->getReadableColor(count($labels)),
                             ]
                         ]
                     ],
