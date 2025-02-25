@@ -57,6 +57,7 @@ use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
+use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItemInPalletReturnWithStoredItem;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -83,6 +84,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
@@ -102,6 +104,7 @@ use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
@@ -2427,31 +2430,6 @@ test('attach stored item second pallet return', function (PalletReturn $palletRe
     return $palletReturn;
 })->depends('create second pallet return');
 
-test('attach stored item second pallet return with different quantity', function (PalletReturn $palletReturn) {
-    SendPalletReturnNotification::shouldRun()
-        ->andReturn();
-
-    /** @var FulfilmentCustomer $fulfilmentCustomer */
-    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
-
-    $storedItem = $fulfilmentCustomer->storedItems()->first();
-    $palletStoredItem = $storedItem->palletStoredItems()->first();
-
-    AttachStoredItemToReturn::make()->action(
-        $palletReturn,
-        $palletStoredItem,
-        [
-            'quantity_ordered' => 4,
-        ]
-    );
-
-    $palletReturn->refresh();
-    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
-        ->and($palletReturn->storedItems()->count())->toBe(1);
-
-    return $palletReturn;
-})->depends('create second pallet return');
-
 test('attach stored item second pallet return with 0 quantity', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
@@ -2476,6 +2454,90 @@ test('attach stored item second pallet return with 0 quantity', function (Pallet
 
     return $palletReturn;
 })->depends('create second pallet return');
+
+test('attach stored item second pallet return again', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    /** @var FulfilmentCustomer $fulfilmentCustomer */
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $storedItem = $fulfilmentCustomer->storedItems()->first();
+    $palletStoredItem = $storedItem->palletStoredItems()->first();
+
+    AttachStoredItemToReturn::make()->action(
+        $palletReturn,
+        $palletStoredItem,
+        [
+            'quantity_ordered' => 4,
+        ]
+    );
+
+    $palletReturn->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->storedItems()->count())->toBe(1);
+
+    return $palletReturn;
+})->depends('create second pallet return');
+
+test('submit second pallet return', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $submittedPalletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+
+    $fulfilmentCustomer->refresh();
+    expect($submittedPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($submittedPalletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED);
+
+    return $submittedPalletReturn;
+})->depends('create second pallet return');
+
+
+test('picking second pallet to return', function (PalletReturn $submittedPalletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $submittedPalletReturn->fulfilmentCustomer;
+
+
+    $pickingPalletReturn = PickingPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $submittedPalletReturn,
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    expect($pickingPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($pickingPalletReturn->state)->toBe(PalletReturnStateEnum::PICKING);
+
+    return $pickingPalletReturn;
+})->depends('submit second pallet return');
+
+test('pick pallet return item', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $palletReturnItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->first();
+
+    $palletReturnItem = PickPalletReturnItemInPalletReturnWithStoredItem::make()->action(
+        $palletReturnItem,
+        [
+            'quantity_picked' => 4
+        ],
+    );
+
+    $palletReturn->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::PICKED);
+
+    expect($palletReturnItem)->toBeInstanceOf(PalletReturnItem::class)
+        ->and($palletReturnItem->quantity_picked)->toBe(4)
+        ->and($palletReturnItem->state)->toBe(PalletReturnItemStateEnum::PICKED);
+
+    return $palletReturn;
+})->depends('picking second pallet to return');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
