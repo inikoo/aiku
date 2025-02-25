@@ -16,6 +16,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRentals;
 use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Billables\Rental;
@@ -121,7 +122,7 @@ class StoreRental extends OrgAction
             'data'                     => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'date'],
             'source_id'                => ['sometimes', 'string', 'max:63'],
-
+            'type'                     => ['sometimes', Rule::enum(RentalTypeEnum::class)],
             'auto_assign_asset'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
             'auto_assign_asset_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
 

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Comms\Traits\WithCommsSubNavigation;
 use App\Actions\Comms\UI\ShowCommsDashboard;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
@@ -304,6 +305,22 @@ class IndexOutboxes extends OrgAction
                         'simple' => [
                             'route' => [
                                 'name'       => 'grp.org.fulfilments.show.operations.comms.outboxes',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Outboxes')
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.shops.show.comms.outboxes.dispatched-email.show' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.comms.outboxes.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Outboxes')

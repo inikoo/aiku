@@ -13,6 +13,7 @@ use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\OrgAction;
 use App\Enums\UI\Mail\DispatchedEmailTabsEnum;
 use App\Http\Resources\Mail\EmailTrackingEventResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
@@ -27,6 +28,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowDispatchedEmail extends OrgAction
 {
+    private Fulfilment|Shop|Group $parent;
+
     public function handle(DispatchedEmail $dispatchedEmail): DispatchedEmail
     {
         return $dispatchedEmail;
@@ -55,6 +58,13 @@ class ShowDispatchedEmail extends OrgAction
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(DispatchedEmailTabsEnum::values());
+        return $this->handle($dispatchedEmail);
+    }
+
+    public function inOutboxInShop(Organisation $organisation, Shop $shop, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(DispatchedEmailTabsEnum::values());
         return $this->handle($dispatchedEmail);
     }
 
@@ -98,6 +108,22 @@ class ShowDispatchedEmail extends OrgAction
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show',
+            => array_merge(
+                ShowOutbox::make()->getBreadcrumbs($routeName, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => $routeName,
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => $dispatchedEmail->id
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.shops.show.comms.outboxes.dispatched-email.show',
             => array_merge(
                 ShowOutbox::make()->getBreadcrumbs($routeName, $routeParameters),
                 [

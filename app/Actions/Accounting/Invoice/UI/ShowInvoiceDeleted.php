@@ -1,10 +1,12 @@
 <?php
 
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 19 Apr 2024 13:42:37 Malaysia Time, Kuala Lumpur , Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * Author: Ganes <gustiganes@gmail.com>
+ * Created on: 25-02-2025, Bali, Indonesia
+ * Github: https://github.com/Ganes556
+ * Copyright: 2025
+ *
+*/
 
 namespace App\Actions\Accounting\Invoice\UI;
 
@@ -30,7 +32,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowInvoice extends OrgAction
+class ShowInvoiceDeleted extends OrgAction
 {
     use IsInvoiceUI;
     use WithFulfilmentCustomerSubNavigation;
@@ -43,8 +45,12 @@ class ShowInvoice extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
+    public function asController(Organisation $organisation, $invoiceSlug, ActionRequest $request): Invoice
     {
+        $invoice = Invoice::onlyTrashed()->where('slug', $invoiceSlug)->first();
+        if (!$invoice) {
+            abort(404);
+        }
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
 
@@ -52,8 +58,12 @@ class ShowInvoice extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
+    public function inShop(Organisation $organisation, Shop $shop, $invoiceSlug, ActionRequest $request): Invoice
     {
+        $invoice = Invoice::onlyTrashed()->where('slug', $invoiceSlug)->first();
+        if (!$invoice) {
+            abort(404);
+        }
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(InvoiceTabsEnum::values());
 
@@ -61,8 +71,12 @@ class ShowInvoice extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Invoice $invoice, ActionRequest $request): Invoice
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, $invoiceSlug, ActionRequest $request): Invoice
     {
+        $invoice = Invoice::onlyTrashed()->where('slug', $invoiceSlug)->first();
+        if (!$invoice) {
+            abort(404);
+        }
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
 
@@ -70,8 +84,12 @@ class ShowInvoice extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, $invoiceSlug, ActionRequest $request): Invoice
     {
+        $invoice = Invoice::onlyTrashed()->where('slug', $invoiceSlug)->first();
+        if (!$invoice) {
+            abort(404);
+        }
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
 
@@ -86,69 +104,70 @@ class ShowInvoice extends OrgAction
         }
 
         $actions = [];
-        if (!app()->environment('production')) {
-            $actions[] =
-                [
-                    'type'  => 'button',
-                    'style' => 'create',
-                    'label' => __('create refund'),
-                    'route' => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.refund.create',
-                        'parameters' => [
-                            'invoice' => $invoice->id,
+        // if (!app()->environment('production')) {
+        //     $actions[] =
+        //         [
+        //             'type'  => 'button',
+        //             'style' => 'create',
+        //             'label' => __('create refund'),
+        //             'route' => [
+        //                 'method'     => 'post',
+        //                 'name'       => 'grp.models.refund.create',
+        //                 'parameters' => [
+        //                     'invoice' => $invoice->id,
 
-                        ],
-                        'body'       => [
-                            'referral_route' => [
-                                'name'       => $request->route()->getName(),
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ]
-                    ],
-                ];
+        //                 ],
+        //                 'body'       => [
+        //                     'referral_route' => [
+        //                         'name'       => $request->route()->getName(),
+        //                         'parameters' => $request->route()->originalParameters()
+        //                     ]
+        //                 ]
+        //             ],
+        //         ];
 
-            $actions[] =
-                [
-                    'type'  => 'button',
-                    'style' => 'tertiary',
-                    'label' => __('send invoice'),
-                    'key'   => 'send-invoice',
-                    'route' => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.invoice.send_invoice',
-                        'parameters' => [
-                            'invoice' => $invoice->id
-                        ]
-                    ]
-                ];
-        }
+        //     $actions[] =
+        //         [
+        //             'type'  => 'button',
+        //             'style' => 'tertiary',
+        //             'label' => __('send invoice'),
+        //             'key'   => 'send-invoice',
+        //             'route' => [
+        //                 'method'     => 'post',
+        //                 'name'       => 'grp.models.invoice.send_invoice',
+        //                 'parameters' => [
+        //                     'invoice' => $invoice->id
+        //                 ]
+        //             ]
+        //         ];
+        // }
 
-        $actions[] = [
-            'type'  => 'button',
-            'style' => 'edit',
-            'label' => __('edit'),
-            'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
-                'parameters' => $request->route()->originalParameters()
-            ],
-        ];
+        // $actions[] = [
+        //     'type'  => 'button',
+        //     'style' => 'edit',
+        //     'label' => __('edit'),
+        //     'route' => [
+        //         'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
+        //         'parameters' => $request->route()->originalParameters()
+        //     ],
+        // ];
 
         return Inertia::render(
-            'Org/Accounting/Invoice',
+            'Org/Accounting/InvoiceDeleted',
             [
-                'title'       => __('invoice'),
+                'title'       => __('Deleted Invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $invoice,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($invoice, $request),
-                    'next'     => $this->getNext($invoice, $request),
-                ],
+                // 'navigation'  => [
+                //     'previous' => $this->getPrevious($invoice, $request),
+                //     'next'     => $this->getNext($invoice, $request),
+                // ],
                 'pageHead'    => [
                     'subNavigation' => $subNavigation,
-                    'model'         => __('invoice'),
+                    'model'         => __('Deleted Invoice'),
                     'title'         => $invoice->reference,
                     'icon'          => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
@@ -241,7 +260,7 @@ class ShowInvoice extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Invoice $invoice, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (Invoice $invoice, array $routeParameters, string $suffix = null, $suffixIndex = '') {
             return [
@@ -264,7 +283,7 @@ class ShowInvoice extends OrgAction
                 ],
             ];
         };
-        $invoice   = Invoice::where('slug', $routeParameters['invoice'])->first();
+        // $invoice   = Invoice::withTrashed()->where('slug', $routeParameters['invoice'])->first();
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.invoices.show',
@@ -409,8 +428,8 @@ class ShowInvoice extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::onlyTrashed()->where('reference', '<', $invoice->reference)
-            ->where('invoices.shop_id', $invoice->shop_id)
+        $previous = Invoice::where('reference', '<', $invoice->reference)
+            ->where('shop_id', $invoice->shop_id)
             ->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
@@ -418,7 +437,7 @@ class ShowInvoice extends OrgAction
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::onlyTrashed()->where('reference', '>', $invoice->reference)
+        $next = Invoice::where('reference', '>', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('reference')->first();
 

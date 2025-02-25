@@ -36,16 +36,16 @@ class EditProfileSettings
     public function generateBlueprint(User $user): array
     {
         return [
-            "title"       => __("Settings"),
+            "title"       => __("Preferences"),
             "pageHead"    => [
-                "title"        => __("Edit settings"),
+                "title"        => __("Preferences"),
 
             ],
             "formData" => [
                 "blueprint" => [
                     [
-                        "label"  => __("Settings"),
-                        "icon"   => "fal fa-cog",
+                        "label"  => __("Preferences"),
+                        "icon"   => "fal fa-sliders-v",
                         "fields" => [
                             "language_id" => [
                                 "type"    => "select",
@@ -61,6 +61,7 @@ class EditProfileSettings
                             "hide_logo" => [
                                 "type"    => "toggle",
                                 "label"   => __("Hide logo"),
+                                "noIcon"    => true,
                                 "value"   => Arr::get($user->settings, 'hide_logo'),
 
                             ],

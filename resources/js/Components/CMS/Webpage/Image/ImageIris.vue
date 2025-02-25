@@ -94,8 +94,8 @@ const getImageSlots = (layoutType: string) => {
 				target="_blank"
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
-				<Image
-					:src="fieldValue?.value?.images?.[index - 1]?.source"
+				<img
+					:src="fieldValue?.value?.images?.[index - 1]?.source?.original"
 					class="w-full object-cover object-center group-hover:opacity-75"
 					:alt="fieldValue?.value?.images?.[index - 1]?.alt || ''"
 				/>

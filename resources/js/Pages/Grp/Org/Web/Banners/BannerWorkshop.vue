@@ -43,7 +43,7 @@ const props = defineProps<{
         uploaded_images : routeType
     }
 }>()
-console.log('props',props.bannerLayout)
+console.log('props',props)
 
 const user = ref(usePage().props.auth.user)
 const isLoading = ref(false)
@@ -53,7 +53,7 @@ const isSetData = ref(false)
 
 
 const routeExit = props.pageHead.actions.find((item) => item.style == "exit")
-const data = reactive(cloneDeep(props.bannerLayout))
+const data = reactive(cloneDeep(props.banner?.compiled_layout))
 let timeoutId: any
 
 const compCurrentHash = computed(() => {
@@ -98,7 +98,7 @@ const fetchInitialData = async () => {
         loadingState.value = true
         Object.assign(data, newData)
     } catch (error) {
-        Object.assign(data, cloneDeep(props.bannerLayout))
+        Object.assign(data, cloneDeep(props.banner?.compiled_layout))
     } finally {
         isSetData.value = false
         loadingState.value = false

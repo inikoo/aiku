@@ -214,6 +214,8 @@ Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 
 
+
+
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inEmployee'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inEmployee'])->name('attachment.detach')->withoutScopedBindings();
@@ -489,7 +491,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
 
 
         Route::prefix('{banner:id}')->group(function () {
-            Route::post('images', UploadImagesToBanner::class)->name('images.store')->withoutScopedBindings();
+
             Route::patch('', UpdateBanner::class)->name('update')->withoutScopedBindings();
 
             Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
@@ -536,6 +538,10 @@ Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('or
 
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
+
+    Route::post('images/banner', UploadImagesToBanner::class)->name('images.banner.store');
+
+
     Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
     Route::post('publish/footer', [PublishWebsiteMarginal::class, 'footer'])->name('publish.footer');
 

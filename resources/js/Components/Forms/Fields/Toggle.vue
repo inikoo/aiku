@@ -17,6 +17,7 @@ const props = defineProps<{
         readonly?: boolean
         copyButton: boolean
         maxLength?: number
+        noIcon?: boolean
     }
 }>()
 
@@ -77,10 +78,12 @@ watch(value, (newValue) => {
                 form.errors[fieldName] ? 'errorShake' : ''
             ]" 
         >
-            <span aria-hidden="true" :class="value ? 'translate-x-6' : 'translate-x-0'"
-                class="flex items-center justify-center pointer-events-none h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition">
-                <FontAwesomeIcon v-if="value" icon='fal fa-check' class='text-sm text-green-500' fixed-width aria-hidden='true' />
-                <FontAwesomeIcon v-else icon='fal fa-times' class='text-sm text-red-500' fixed-width aria-hidden='true' />
+            <span aria-hidden="true" :class="value ? 'translate-x-6 bg-white ' : 'translate-x-0 bg-gray-50'"
+                class="flex items-center justify-center pointer-events-none h-full w-1/2 transform rounded-full shadow-lg ring-0 transition">
+                <template v-if="!fieldData.noIcon">
+                    <FontAwesomeIcon v-if="value" icon='fal fa-check' class='text-sm text-green-500' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-else icon='fal fa-times' class='text-sm text-red-500' fixed-width aria-hidden='true' />
+                </template>
             </span>
         </Switch>
 

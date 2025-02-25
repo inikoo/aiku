@@ -477,3 +477,21 @@ test('UI Index Dispatched Emails Overview', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI show dispatched emails', function () {
+    $response = $this->get(route('grp.overview.comms-marketing.dispatched-emails.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/DispatchedEmails')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'dispatched emails')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
