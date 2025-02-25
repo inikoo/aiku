@@ -45,7 +45,7 @@ class EditProfileSettings
                 "blueprint" => [
                     [
                         "label"  => __("Preferences"),
-                        "icon"   => "fal fa-cog",
+                        "icon"   => "fal fa-sliders-v",
                         "fields" => [
                             "language_id" => [
                                 "type"    => "select",
@@ -61,6 +61,7 @@ class EditProfileSettings
                             "hide_logo" => [
                                 "type"    => "toggle",
                                 "label"   => __("Hide logo"),
+                                "noIcon"    => true,
                                 "value"   => Arr::get($user->settings, 'hide_logo'),
 
                             ],
