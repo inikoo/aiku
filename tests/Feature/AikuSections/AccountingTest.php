@@ -16,6 +16,8 @@ use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\StoreRefundInvoiceTransaction;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\Search\ReindexPaymentSearch;
 use App\Actions\Accounting\Payment\StorePayment;
@@ -29,6 +31,7 @@ use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
 use App\Actions\Accounting\TopUp\UpdateTopUp;
 use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
@@ -42,12 +45,14 @@ use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
 use App\Models\Analytics\AikuScopedSection;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
@@ -68,6 +73,11 @@ beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
     $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+    $stocks          = createStocks($this->group);
+    $orgStocks       = createOrgStocks($this->organisation, $stocks);
+    $this->orgStock1 = $orgStocks[0];
+    $this->orgStock2 = $orgStocks[1];
 
     Config::set(
         'inertia.testing.page_paths',
@@ -988,7 +998,30 @@ test('Store invoice refund', function () {
         Shop::factory()->definition()
     );
     $customer = createCustomer($shop);
+
+    $orgStocks = [
+        $this->orgStock1->id => [
+            'quantity' => 1,
+        ]
+    ];
+
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'org_stocks' => $orgStocks,
+            'price'      => 100,
+            'unit'       => 'unit'
+        ]
+    );
+    $product = StoreProduct::make()->action($shop, $productData);
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+        'date'            => now(),
+        'tax_category_id' => $invoice->tax_category_id,
+        'quantity'        => 10,
+        'gross_amount'    => 1000,
+        'net_amount'      => 1000,
+    ]);
     expect($invoice)->toBeInstanceOf(Invoice::class);
 
     $refund = StoreRefund::make()->action($invoice, []);
@@ -997,6 +1030,23 @@ test('Store invoice refund', function () {
 
     return $refund;
 });
+
+test('Store invoice refund transaction', function (Invoice $refund) {
+    $this->withoutExceptionHandling();
+
+    $originalInvoice = $refund->originalInvoice;
+
+    $transaction = $originalInvoice->invoiceTransactions()->first();
+
+    $refundTransaction = StoreRefundInvoiceTransaction::make()->action($transaction, [
+        'gross_amount' => $transaction->gross_amount,
+    ]);
+
+    $refund->refresh();
+    expect($refundTransaction)->toBeInstanceOf(InvoiceTransaction::class);
+    
+    return $refund;
+})->depends('Store invoice refund');
 
 test('Delete Refund', function (Invoice $refund) {
     $this->withoutExceptionHandling();
