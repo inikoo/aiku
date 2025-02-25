@@ -28,6 +28,7 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
         $deletedInvoiceData = $organisationSource->fetchDeletedInvoice($organisationSourceId);
         if (!$deletedInvoiceData or !$deletedInvoiceData['invoice']) {
             print "No deleted invoice data found for $organisationSourceId\n";
+
             return null;
         }
 
@@ -36,7 +37,7 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
 
         // dd($deletedInvoiceData['invoice']['source_id']);
         if ($invoice) {
-            //  if ($invoice->trashed()) {
+            // if ($invoice->deleted_from_deleted_invoice_fetch) {
             try {
                 $invoice = UpdateInvoice::make()->action(
                     invoice: $invoice,
@@ -82,6 +83,9 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
             //                return null;
             //            }
         }
+
+
+        $invoice->invoiceTransactions()->delete();
 
 
         return $invoice;
