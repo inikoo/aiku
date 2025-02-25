@@ -18,11 +18,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRetinaDropshipping extends RetinaAction
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->is_root;
-    }
-
     public function asController(ActionRequest $request)
     {
         $this->initialisation($request);
