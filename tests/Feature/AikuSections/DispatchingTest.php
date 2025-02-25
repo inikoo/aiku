@@ -20,10 +20,12 @@ use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Dispatching\DeliveryNote;
@@ -121,9 +123,10 @@ test('create delivery note item', function (DeliveryNote $deliveryNote) {
     $historicAsset = HistoricAsset::find(1);
 
     $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
-    $orgStock    = StoreOrgStock::make()->action($this->organisation, $stock, [
-        'state' => OrgStockStateEnum::ACTIVE
+    $stock       = UpdateStock::make()->action($stock, [
+        'state' => StockStateEnum::ACTIVE
     ]);
+    $orgStock    = StoreOrgStock::make()->action($this->organisation, $stock, []);
     $transaction = StoreTransaction::make()->action($this->order, $historicAsset, Transaction::factory()->definition());
 
     $deliveryNoteData = [
@@ -137,10 +140,8 @@ test('create delivery note item', function (DeliveryNote $deliveryNote) {
 
     expect($deliveryNoteItem->delivery_note_id)->toBe($deliveryNoteData['delivery_note_id']);
 
-    // dd($deliveryNoteItem->pickings);
-
     return $deliveryNoteItem;
-})->depends('create delivery note')->todo();// fix this test
+})->depends('create delivery note');
 
 
 test('remove delivery note', function ($deliveryNote) {
@@ -175,9 +176,10 @@ test('create second delivery note item', function (DeliveryNote $deliveryNote) {
     $historicAsset = HistoricAsset::find(1);
 
     $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
-    $orgStock    = StoreOrgStock::make()->action($this->organisation, $stock, [
-        'state' => OrgStockStateEnum::ACTIVE
+    $stock       = UpdateStock::make()->action($stock, [
+        'state' => StockStateEnum::ACTIVE
     ]);
+    $orgStock    = StoreOrgStock::make()->action($this->organisation, $stock, []);
     $transaction = StoreTransaction::make()->action($this->order, $historicAsset, Transaction::factory()->definition());
 
     $deliveryNoteData = [
@@ -193,7 +195,7 @@ test('create second delivery note item', function (DeliveryNote $deliveryNote) {
 
     // dd($deliveryNoteItem->pickings);
     return $deliveryNoteItem;
-})->depends('create second delivery note')->todo();
+})->depends('create second delivery note');
 
 test('update second delivery note item state to in queue', function (DeliveryNote $deliveryNote) {
     $deliveryNote = UpdateDeliveryNoteStateToInQueue::make()->action($deliveryNote);
