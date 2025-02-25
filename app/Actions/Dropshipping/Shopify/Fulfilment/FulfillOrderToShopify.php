@@ -34,8 +34,7 @@ class FulfillOrderToShopify extends OrgAction
                         'fulfillment_order_id' => $fulfillOrderId
                     ]
                 ]
-            ],
-            'tracking_info' => null
+            ]
         ]);
 
         if (!$response['errors']) {

@@ -36,7 +36,7 @@ class UpdateStateToDispatchedOrder extends OrgAction
         $this->orderHydrators($order);
 
         if ($order->shopifyOrder) {
-            FulfillOrderToShopify::dispatch($order);
+            FulfillOrderToShopify::run($order);
         }
 
         return $order;
