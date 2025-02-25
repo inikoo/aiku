@@ -658,6 +658,41 @@ test('UI show fulfilment customer space', function () {
     });
 });
 
+test('UI show fulfilment customer stored item', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.create', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'new SKU')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI index refund', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.invoices.refunds.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Refunds')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'Refunds')
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 3);
+    });
+});
+
 test('UI show fulfilment customer pallet sub navigation', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
