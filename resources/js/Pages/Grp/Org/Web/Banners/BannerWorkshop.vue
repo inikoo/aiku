@@ -43,7 +43,7 @@ const props = defineProps<{
         uploaded_images : routeType
     }
 }>()
-
+console.log('props',props.bannerLayout)
 
 const user = ref(usePage().props.auth.user)
 const isLoading = ref(false)
@@ -121,6 +121,7 @@ const handleKeyDown = () => {
 
 const autoSave = debounce(() => {
     const form = useForm(data);
+    console.log('ssss',data)
     form.patch(
         route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), {
             preserveScroll: true,

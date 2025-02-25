@@ -22,6 +22,7 @@ import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
 // import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
 import EditProfile from "@/Pages/Grp/EditProfile.vue"
+import SettingProfile from "@/Pages/Grp/SettingProfile.vue"
 
 import axios from 'axios'
 import { trans } from 'laravel-vue-i18n'
@@ -31,12 +32,12 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCard, faClipboardListCheck, faRabbitFast } from '@fal'
+import { faIdCard, faClipboardListCheck, faRabbitFast, faSlidersV } from '@fal'
 import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useLogoutAuth } from '@/Composables/useAppMethod'
-library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfoCircle)
+library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSlidersV, faSpinnerThird, faInfoCircle)
 
 /* const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue")) */
 
@@ -176,16 +177,24 @@ onMounted(async () => {
     <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
         <template #button-edit-profile="{ action }">
             <Button
+                @click="() => layout.stackedComponents.push({ component: EditProfile })"
+                :label="action.label"
+                type="edit"
+            />
+            <Button
+                @click="() => layout.stackedComponents.push({ component: SettingProfile })"
+                :label="trans('Preferences')"
+                icon="fal fa-sliders-v"
+                type="edit"
+                class="-ml-2"
+            />
+
+            <Button
                 @click="() => onLogoutAuth()"
                 label="Logout"
                 :loading="isLoadingLogout"
                 icon="fal fa-sign-out-alt"
                 :style="'negative'"
-            />
-            <Button
-                @click="() => layout.stackedComponents.push({ component: EditProfile })"
-                :label="action.label"
-                :style="action.style"
             />
         </template>
     </PageHeading>

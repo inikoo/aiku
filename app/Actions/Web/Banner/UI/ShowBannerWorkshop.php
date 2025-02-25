@@ -107,11 +107,9 @@ class ShowBannerWorkshop extends OrgAction
                     ]
                 ],
                 'imagesUploadRoute' => [
-                    'name'       => 'grp.models.shop.website.banner.images.store',
+                    'name'       => 'grp.models.website.images.banner.store',
                     'parameters' => [
-                        'shop'    => $this->shop->id,
                         'website' => $this->parent->id,
-                        'banner'  => $banner->id
                     ]
                 ],
                 'galleryRoute'      => [

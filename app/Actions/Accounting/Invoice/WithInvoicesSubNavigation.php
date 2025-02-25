@@ -29,6 +29,7 @@ trait WithInvoicesSubNavigation
             $allInvoicesRouteName = $routeName . '.index';
             $refundsRouteName = preg_replace('/invoices/', 'refunds', $routeName).'.index';
             $unpaidRouteName = preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index';
+            $deletedInvoicesRouteName = preg_replace('/invoices/', 'deleted_invoices', $routeName).'.index';
 
         } elseif ($parent instanceof Fulfilment) {
             $total = $parent->shop->orderingStats?->number_invoices ?? 10;
@@ -40,6 +41,7 @@ trait WithInvoicesSubNavigation
             $allInvoicesRouteName = $routeName . '.all.index';
             $refundsRouteName = $routeName . '.refunds.index';
             $unpaidRouteName = $routeName . '.unpaid_invoices.index';
+            $deletedInvoicesRouteName = $routeName . '.deleted_invoices.index';
 
         } else {
             $total = $parent->orderingStats?->number_invoices ?? 10;
@@ -51,7 +53,7 @@ trait WithInvoicesSubNavigation
             $allInvoicesRouteName = $routeName . '.index';
             $unpaidRouteName = preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index';
             $refundsRouteName = preg_replace('/invoices/', 'refunds', $routeName).'.index';
-
+            $deletedInvoicesRouteName = preg_replace('/invoices/', 'deleted_invoices', $routeName).'.index';
         }
 
         return [
@@ -75,6 +77,15 @@ trait WithInvoicesSubNavigation
                 ],
             ],
 
+            [
+                "number"   => 0,
+                "label"    => __("Deleted Invoices"),
+                'align'    => 'right',
+                "route"     => [
+                    "name"       => $deletedInvoicesRouteName,
+                    "parameters" => $param,
+                ],
+            ],
             [
                 "number"   => $numberRefunds,
                 "label"    => __("Refunds"),
