@@ -8,12 +8,9 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,29 +26,18 @@ class EditProfile
         return $request->user();
     }
 
-    public function jsonResponse(User $user)
+    public function jsonResponse(User $user): array
     {
         return $this->generateBlueprint($user);
     }
 
-    public function generateBlueprint(User $user)
+    public function generateBlueprint(User $user): array
     {
         return [
             "title"       => __("Edit Profile"),
-            "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
                 "title"        => __("Edit Profile"),
-                // 'actions'      => [
-                //     [
-                //         'type'  => 'button',
-                //         'style' => 'exit',
-                //         'label' => __('back to profile'),
-                //         'route' => [
-                //             'name'       => 'grp.profile.show',
-                //             'parameters' => array_values(request()->route()->originalParameters())
-                //         ],
-                //     ]
-                // ]
+
             ],
             "formData" => [
                 "blueprint" => [
@@ -86,96 +72,8 @@ class EditProfile
                             ],
                         ],
                     ],
-                    // [
-                    //     "label"  => __("password"),
-                    //     "icon"   => "fa-light fa-key",
-                    //     "fields" => [
-                    //     ],
-                    // ],
-                    [
-                        "label"  => __("Settings"),
-                        "icon"   => "fal fa-cog",
-                        "fields" => [
-                            "language_id" => [
-                                "type"    => "select",
-                                "label"   => __("language"),
-                                "value"   => $user->language_id,
-                                'options' => GetLanguagesOptions::make()->translated(),
-                            ],
-                            "app_theme" => [
-                                "type"  => "app_theme",
-                                "label" => __("theme color"),
-                                "value" => Arr::get($user->settings, 'app_theme'),
-                            ],
-                            "hide_logo" => [
-                                "type"    => "toggle",
-                                "label"   => __("Hide logo"),
-                                "value"   => Arr::get($user->settings, 'hide_logo'),
-
-                            ],
-                        ],
 
 
-
-                    ],
-                    // [
-                    //     "label"  => __("appearance"),
-                    //     "icon"   => "fa-light fa-paint-brush",
-                    //     "fields" => [
-                    //         "colorMode" => [
-                    //             "type"  => "colorMode",
-                    //             "label" => __("turn dark mode"),
-                    //             "value" => "",
-                    //         ],
-                    //         "theme"     => [
-                    //             "type"  => "theme",
-                    //             "label" => __("choose your theme"),
-                    //             "value" => "",
-                    //         ],
-                    //     ],
-                    // ],
-                    // [
-                    //     "label"  => __("notifications"),
-                    //     "icon"   => "fa-light fa-bell",
-                    //     "fields" => [
-                    //         "notifications" => [
-                    //             "type"  => "myNotifications",
-                    //             "label" => __("notifications"),
-                    //             "value" => [],
-                    //             "data"  => [
-                    //                 [
-                    //                     'type' => 'new-order',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //                 [
-                    //                     'type' => 'new re',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //                 [
-                    //                     'type' => 'new user',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //             ]
-                    //         ],
-
-                    //     ],
-                    // ],
-                    // [
-                    //     'label'  => __('App'),
-                    //     'icon'   => 'fal fa-mobile-android-alt',
-                    //     'fields' => [
-                    //         "app_login" => [
-                    //             "type"          => "app_login",
-                    //             "label"         => __("App login"),
-                    //             "route"         => [
-                    //                 "name"  => "grp.models.profile.app-login-qrcode",
-                    //             ],
-                    //             "noSaveButton"  => true,
-                    //             "noTitle"       => true,
-                    //             "full"          => true
-                    //         ],
-                    //     ]
-                    // ]
                 ],
                 "args"      => [
                     "updateRoute" => [
@@ -195,18 +93,5 @@ class EditProfile
         return Inertia::render("EditModel", $this->generateBlueprint($user));
     }
 
-    public function getBreadcrumbs(): array
-    {
-        return array_merge(ShowGroupDashboard::make()->getBreadcrumbs(), [
-            [
-                "type"   => "simple",
-                "simple" => [
-                    "route" => [
-                        "name" => "grp.profile.show",
-                    ],
-                    "label" => __("my profile"),
-                ],
-            ],
-        ]);
-    }
+
 }

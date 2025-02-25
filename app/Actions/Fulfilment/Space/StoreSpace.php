@@ -126,4 +126,12 @@ class StoreSpace extends OrgAction
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Space
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
 }

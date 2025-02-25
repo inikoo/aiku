@@ -43,7 +43,10 @@ class RejectCustomer extends OrgAction
             FulfilmentHydrateCustomers::dispatch($customer->fulfilmentCustomer->fulfilment);
         }
 
-        SendCustomerRejectEmail::dispatch($customer);
+        if (!$this->asAction) {
+            SendCustomerRejectEmail::dispatch($customer);
+        }
+
 
         return $customer;
     }
@@ -68,6 +71,7 @@ class RejectCustomer extends OrgAction
 
     public function action(Customer $customer, array $modelData): Customer
     {
+        $this->asAction = true;
         $this->initialisation($customer->organisation, $modelData);
 
         return $this->handle($customer, $this->validatedData);

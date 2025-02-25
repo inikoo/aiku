@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
@@ -39,7 +40,7 @@ Route::get('/refunds', [IndexRefunds::class,'inShop'])->name('refunds.index');
 
 Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaidInShop'])->name('unpaid_invoices.index');
 Route::get('/invoices-paid', [IndexInvoices::class, 'paidInShop'])->name('paid_invoices.index');
-
+Route::get('/invoices-deleted', [IndexInvoicesDeleted::class, 'inShop'])->name('deleted_invoices.index');
 
 
 Route::get('/orders/delivery_notes', [IndexDeliveryNotes::class, 'inShop'])->name('delivery-notes.index');
