@@ -333,7 +333,7 @@ trait WithDashboard
                         'hover_labels'   => $visualData['sales_data']['hover_labels'],
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['sales_data']['datasets']),
-                            'background_colors' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
+                            'backgroundColor' => $this->getReadableColor(count($visualData['sales_data']['labels'])),
                         ],
                     ],
                 ]
@@ -361,7 +361,7 @@ trait WithDashboard
                         'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['invoices_data']['datasets']),
-                            'background_colors' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
+                            'backgroundColor' => $this->getReadableColor(count(Arr::get($visualData, 'invoices_data.labels'))),
                         ],
                     ],
                 ]
@@ -402,7 +402,7 @@ trait WithDashboard
                         'datasets'       => [
                             [
                                 'data' => $averageDataset,
-                                'background_colors' => $this->getReadableColor(count($labels)),
+                                'backgroundColor' => $this->getReadableColor(count($labels)),
                             ]
                         ]
                     ],
