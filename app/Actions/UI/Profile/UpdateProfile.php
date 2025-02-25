@@ -24,6 +24,12 @@ class UpdateProfile extends GrpAction
 
     public function handle(User $user, array $modelData): User
     {
+
+        if (Arr::exists($modelData, 'hide_logo')) {
+            $appTheme = Arr::pull($modelData, 'hide_logo');
+            $modelData['settings']['hide_logo'] = $appTheme;
+        }
+
         $user = $this->processProfileAvatar($modelData, $user);
         if (Arr::exists($modelData, 'app_theme')) {
             $appTheme = Arr::pull($modelData, 'app_theme');
@@ -42,6 +48,7 @@ class UpdateProfile extends GrpAction
             'about'       => ['sometimes', 'nullable', 'string', 'max:255'],
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'app_theme'   => ['sometimes', 'required'],
+            'hide_logo'   => ['sometimes', 'boolean'],
             'image'       => [
                 'sometimes',
                 'nullable',

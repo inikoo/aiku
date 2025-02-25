@@ -107,7 +107,16 @@ class EditProfile
                                 "label" => __("theme color"),
                                 "value" => Arr::get($user->settings, 'app_theme'),
                             ],
+                            "hide_logo" => [
+                                "type"    => "toggle",
+                                "label"   => __("Hide logo"),
+                                "value"   => Arr::get($user->settings, 'hide_logo'),
+
+                            ],
                         ],
+
+
+
                     ],
                     // [
                     //     "label"  => __("appearance"),
