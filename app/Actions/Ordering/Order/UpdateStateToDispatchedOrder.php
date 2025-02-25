@@ -35,13 +35,9 @@ class UpdateStateToDispatchedOrder extends OrgAction
         $this->update($order, $data);
         $this->orderHydrators($order);
 
-        // Still dummy data, ignore this
-        // UpdateFulfilmentShopify::run($order, [
-        //     'company' => 'DHL',
-        //     'number'  => 'DHL0001'
-        // ]);
-
-        FulfillOrderToShopify::dispatch($order);
+        if ($order->shopifyOrder) {
+            FulfillOrderToShopify::dispatch($order);
+        }
 
         return $order;
     }

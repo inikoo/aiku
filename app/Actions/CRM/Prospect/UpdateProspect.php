@@ -8,9 +8,11 @@
 
 namespace App\Actions\CRM\Prospect;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProspects;
 use App\Actions\CRM\Prospect\Search\ProspectRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithProspectPrepareForValidation;
 use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
@@ -57,8 +59,11 @@ class UpdateProspect extends OrgAction
                 ]
             );
         }
+        $prospect->refresh();
 
         ProspectRecordSearch::dispatch($prospect);
+        OrganisationHydrateProspects::dispatch($prospect->organisation)->delay($this->hydratorsDelay);
+        ShopHydrateProspects::dispatch($prospect->shop)->delay($this->hydratorsDelay);
 
         return $prospect;
     }

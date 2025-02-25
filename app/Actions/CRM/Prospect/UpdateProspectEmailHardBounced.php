@@ -9,15 +9,14 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\OrgAction;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailHardBounced extends OrgAction
 {
-
     public function handle(Prospect $prospect, Carbon $date): Prospect
     {
         $dataToUpdate = [];
@@ -29,7 +28,7 @@ class UpdateProspectEmailHardBounced extends OrgAction
         if ($prospect->state != ProspectStateEnum::SUCCESS) {
             $dataToUpdate['state']           = ProspectStateEnum::FAIL;
             $dataToUpdate['fail_status']     = ProspectFailStatusEnum::INVALID;
-            $dataToUpdate['contacted_state'] = ProspectFailStatusEnum::NA;
+            $dataToUpdate['contacted_state'] = ProspectContactedStateEnum::NA;
         }
 
         $prospect = UpdateProspect::run(
