@@ -9,8 +9,10 @@
 use App\Actions\Accounting\Invoice\ExportInvoices;
 use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
+use App\Actions\Accounting\Invoice\UI\ShowInvoiceDeleted;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\Accounting\InvoiceCategory\UI\CreateInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UI\EditInvoiceCategory;
@@ -89,6 +91,9 @@ Route::get('/refunds', IndexRefunds::class)->name('refunds.index');
 
 Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaid'])->name('unpaid_invoices.index');
 Route::get('/invoices-paid', [IndexInvoices::class, 'paid'])->name('paid_invoices.index');
+
+Route::get('/invoices-deleted', IndexInvoicesDeleted::class)->name('deleted_invoices.index');
+Route::get('/invoices-deleted/{invoiceId}', ShowInvoiceDeleted::class)->name('deleted_invoices.show');
 
 Route::get('/invoice-categories', IndexInvoiceCategories::class)->name('invoice-categories.index');
 Route::get('/invoice-categories/create', CreateInvoiceCategory::class)->name('invoice-categories.create');
