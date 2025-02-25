@@ -12,6 +12,8 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Invoice;
+use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class DeleteInvoice extends OrgAction
 {
@@ -19,13 +21,30 @@ class DeleteInvoice extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
-        $invoice = $this->update($invoice, $modelData, ['data']);
+        $invoice = $this->update($invoice, $modelData);
         $invoice->invoiceTransactions()->delete();
         $invoice->delete();
         CustomerHydrateInvoices::dispatch($invoice->customer);
 
-
+        return $invoice;
     }
+
+    public function rules(): array
+    {
+        return [
+            'deleted_notes' => ['required', 'string', 'max:4000'],
+            'deleted_by'    => ['nullable', 'integer', Rule::exists('users', 'id')->where('group_id', $this->group->id)],
+        ];
+    }
+
+    public function asController(Invoice $invoice, ActionRequest $request): Invoice
+    {
+        $this->set('user_id', $request->user()->id);
+        $this->initialisationFromShop($invoice->shop, $request);
+
+        return $this->handle($invoice, $this->validatedData);
+    }
+
 
     public function action(Invoice $invoice, array $modelData): Invoice
     {
