@@ -29,6 +29,8 @@ class DeleteRetinaShopifyUser extends OrgAction
             'slug' => $shopifyUser->slug . '-deleted-' . rand(00, 99),
             'status' => false
         ]);
+
+        $shopifyUser->delete();
     }
 
     public function authorize(ActionRequest $request): bool
