@@ -156,17 +156,17 @@
 					}
 				}
 			},
-			"text": {	
+			"text": {
 				"text": "Become Gold Reward Member",
 				"container": {
 					"properties": {
-						"width": "252px",
-						"height": "31px",
+						"width": "246px",
+						"height": "38px",
 						"position": {
-						  "top": "45px",
-						  "left": "910px",
-						  "right": "70px",
-						  "bottom": "22px"
+							"top": "35.7143%",
+							"left": "910px",
+							"right": "70px",
+							"bottom": "80.9859%"
 						},
 						"text": {
 							"color": "rgba(255, 255, 255, 1)"
