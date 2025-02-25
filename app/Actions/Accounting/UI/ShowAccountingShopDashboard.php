@@ -67,7 +67,7 @@ class ShowAccountingShopDashboard extends OrgAction
             $subNavigation = $this->getSubNavigation($parent);
         }
         return Inertia::render(
-            'Comms/AccountingDashboard',
+            'Dashboard/AccountingDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('mail'),

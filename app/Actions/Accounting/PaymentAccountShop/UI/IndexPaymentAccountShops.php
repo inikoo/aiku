@@ -14,7 +14,6 @@ use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
 use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
 use App\Http\Resources\Accounting\PaymentAccountShopsResource;
-use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
@@ -61,17 +60,23 @@ class IndexPaymentAccountShops extends OrgAction
         }
 
         $queryBuilder->leftjoin('shops', 'payment_account_shop.shop_id', 'shops.id');
+        $queryBuilder->leftJoin('payment_accounts', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
+        $queryBuilder->leftJoin('payment_account_shop_stats', 'payment_account_shop_stats.payment_account_shop_id', 'payment_account_shop.id');
+        $queryBuilder->leftJoin('currencies', 'shops.currency_id', 'currencies.id');
 
         return $queryBuilder
             ->defaultSort('payment_account_shop.id')
             ->select([
                 'payment_account_shop.id',
+                'currencies.code as shop_currency_code',
                 'shops.id as shop_id',
                 'shops.code as shop_code',
                 'shops.name as shop_name',
                 'shops.slug as shop_slug',
+                'payment_account_shop_stats.number_payments',
+                'payment_account_shop_stats.amount_successfully_paid',
             ])
-            ->allowedSorts(['shop_code', 'shop_name'])
+            ->allowedSorts(['shop_code', 'shop_name', 'number_payments', 'amount_successfully_paid'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -95,6 +100,8 @@ class IndexPaymentAccountShops extends OrgAction
                     ]
                 )
                 ->column(key: 'shop_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount_successfully_paid', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type:'number')
                 ->defaultSort('id');
         };
     }
@@ -111,7 +118,7 @@ class IndexPaymentAccountShops extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $paymentAccounts): AnonymousResourceCollection
     {
-        return PaymentAccountsResource::collection($paymentAccounts);
+        return PaymentAccountShopsResource::collection($paymentAccounts);
     }
 
 

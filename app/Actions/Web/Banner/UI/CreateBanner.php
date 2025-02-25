@@ -21,40 +21,37 @@ use Spatie\LaravelOptions\Options;
 
 class CreateBanner extends OrgAction
 {
-    private Shop|Fulfilment $parent;
-    private Website $website;
-
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Response
     {
-        $this->parent  = $shop;
-        $this->website = $website;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($request);
+        return $this->handle($website, $request);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Response
     {
-        $this->parent  = $fulfilment;
-        $this->website = $website;
-        $this->initialisationFromShop($fulfilment->shop, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($request);
+        return $this->handle($website, $request);
     }
 
-    public function handle(ActionRequest $request): Response
+
+    public function handle(Website $website, ActionRequest $request): Response
     {
+
+
         $fields = [];
 
         $fields[] = [
             'title'  => '',
             'fields' => [
                 'type' => [
-                    'type'        => 'radio',
-                    'label'       => __('orientation'),
-                    'required'    => true,
-                    'value'       => BannerTypeEnum::LANDSCAPE,
-                    'options'     => Options::forEnum(BannerTypeEnum::class)
+                    'type'     => 'radio',
+                    'label'    => __('orientation'),
+                    'required' => true,
+                    'value'    => BannerTypeEnum::LANDSCAPE,
+                    'options'  => Options::forEnum(BannerTypeEnum::class)
 
                 ],
 
@@ -91,19 +88,12 @@ class CreateBanner extends OrgAction
                 ],
                 'formData'    => [
                     'blueprint' => $fields,
-                    'route'     =>
-                        match (class_basename($this->parent)) {
-                            'Shop', 'Fulfilment' => [
-                                'name'       => 'grp.models.shop.website.banner.store',
-                                'parameters' => [
-                                    'shop'    => $this->parent->id,
-                                    'website' => $this->website->id
-                                ]
-                            ],
-                            default => [
-                                'name'       => 'grp.models.banner.store'
-                            ],
-                        }
+                    'route'     => [
+                        'name'       => 'grp.models.website.banner.store',
+                        'parameters' => [
+                            'website' => $website->id
+                        ]
+                    ],
                 ],
             ]
         );
