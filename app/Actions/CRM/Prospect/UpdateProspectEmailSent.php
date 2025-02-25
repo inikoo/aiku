@@ -8,16 +8,15 @@
 
 namespace App\Actions\CRM\Prospect;
 
+use App\Actions\OrgAction;
 use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateProspectEmailSent
+class UpdateProspectEmailSent extends OrgAction
 {
-    use AsAction;
-
-    public function handle(Prospect $prospect): void
+    public function handle(Prospect $prospect): Prospect
     {
 
         if ($prospect->state == ProspectStateEnum::NO_CONTACTED or $prospect->state == ProspectStateEnum::CONTACTED) {
@@ -40,8 +39,16 @@ class UpdateProspectEmailSent
             }
 
 
-            UpdateProspect::run($prospect, $dataToUpdate);
+            $prospect = UpdateProspect::run($prospect, $dataToUpdate);
 
+            return $prospect;
         }
+    }
+
+    public function action(Prospect $prospect): Prospect
+    {
+        $this->initialisation($prospect->organisation, []);
+
+        return $this->handle($prospect);
     }
 }

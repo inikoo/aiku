@@ -10,14 +10,12 @@ import Table from '@/Components/Table/Table.vue'
 import { PaymentAccount } from "@/types/payment-account"
 import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Shop } from '@/types/shop'
 import { useLocaleStore } from '@/Stores/locale'
 library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 defineProps<{
     data: {}
     tab?: string
-    shopsList?: Shop[]
 }>()
 
 const locale = useLocaleStore();
@@ -83,7 +81,6 @@ function shopsRoute(paymentAccount: PaymentAccount) {
 
 
 <template>
-    <!-- {{ props.shopsList }} -->
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code-->
         <template #cell(code)="{ item: paymentAccount }">

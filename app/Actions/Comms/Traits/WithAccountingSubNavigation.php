@@ -28,20 +28,20 @@ trait WithAccountingSubNavigation
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-chart-network"],
-                    "tooltip" => __("Tree view of the webpages"),
+                    "tooltip" => __("Shop Accounting Dashboard"),
                 ],
             ],
-            // [
-            //     "label"    => __("Accounts"),
-            //     "route"    => [
-            //         "name"       => "grp.org.fulfilments.show.operations.accounting.accounts.index",
-            //         "parameters" => [$parent->organisation->slug, $parent->slug],
-            //     ],
-            //     "leftIcon" => [
-            //         "icon"    => ["fal", "fa-inbox-out"],
-            //         "tooltip" => __("Accounts"),
-            //     ],
-            // ],
+            [
+                "label"    => __("Accounts"),
+                "route"    => [
+                    "name"       => "grp.org.fulfilments.show.operations.accounting.accounts.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-inbox-out"],
+                    "tooltip" => __("Accounts"),
+                ],
+            ],
             [
                 "label"    => __("Payments"),
                 "route"    => [
@@ -79,21 +79,20 @@ trait WithAccountingSubNavigation
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-chart-network"],
-                    "tooltip" => __("Tree view of the webpages"),
+                    "tooltip" => __("Shop Accounting Dashboard"),
                 ],
             ],
-            // TODO: fix to get payment_account_shop
-            // [
-            //     "label"    => __("Accounts"),
-            //     "route"    => [
-            //         "name"       => "grp.org.shops.show.payments.accounting.accounts.index",
-            //         "parameters" => [$parent->organisation->slug, $parent->slug],
-            //     ],
-            //     "leftIcon" => [
-            //         "icon"    => ["fal", "fa-inbox-out"],
-            //         "tooltip" => __("Accounts"),
-            //     ],
-            // ],
+            [
+                "label"    => __("Accounts"),
+                "route"    => [
+                    "name"       => "grp.org.shops.show.payments.accounting.accounts.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-inbox-out"],
+                    "tooltip" => __("Accounts"),
+                ],
+            ],
             [
                 "label"    => __("Payments"),
                 "route"    => [
