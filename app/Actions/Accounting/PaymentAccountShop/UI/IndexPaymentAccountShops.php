@@ -11,12 +11,15 @@ namespace App\Actions\Accounting\PaymentAccountShop\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\WithPaymentAccountSubNavigation;
+use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
 use App\Http\Resources\Accounting\PaymentAccountShopsResource;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
+use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -31,9 +34,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexPaymentAccountShops extends OrgAction
 {
     use WithPaymentAccountSubNavigation;
-    private PaymentAccount $parent;
+    use WithAccountingSubNavigation;
+    private PaymentAccount|Shop|Fulfilment $parent;
 
-    public function handle(PaymentAccount $paymentAccount, $prefix = null): LengthAwarePaginator
+    public function handle(PaymentAccount|Shop|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,14 +46,20 @@ class IndexPaymentAccountShops extends OrgAction
             });
         });
 
-        // if ($prefix) {
-        //     InertiaTable::updateQueryBuilderParameters($prefix);
-        // }
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         $queryBuilder = QueryBuilder::for(PaymentAccountShop::class);
 
+        if ($parent instanceof PaymentAccount) {
+            $queryBuilder->where('payment_account_shop.payment_account_id', $parent->id);
+        } elseif ($parent instanceof Shop) {
+            $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            $queryBuilder->where('payment_account_shop.shop_id', $parent->shop->id);
+        }
 
-        $queryBuilder->where('payment_account_shop.payment_account_id', $paymentAccount->id);
         $queryBuilder->leftjoin('shops', 'payment_account_shop.shop_id', 'shops.id');
 
         return $queryBuilder
@@ -67,7 +77,7 @@ class IndexPaymentAccountShops extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(PaymentAccount|Shop|Fulfilment $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -107,6 +117,14 @@ class IndexPaymentAccountShops extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $paymentAccountShops, ActionRequest $request): Response
     {
+        $subNavigation = [];
+        if ($this->parent instanceof PaymentAccount) {
+            $subNavigation = $this->getPaymentAccountNavigation($this->parent);
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigationShop($this->parent);
+        } elseif ($this->parent instanceof Fulfilment) {
+            $subNavigation = $this->getSubNavigation($this->parent);
+        }
         return Inertia::render(
             'Org/Accounting/PaymentAccountShops',
             [
@@ -116,7 +134,7 @@ class IndexPaymentAccountShops extends OrgAction
                 ),
                 'title'       => __('Payment Account Shops'),
                 'pageHead'    => [
-                    'subNavigation' => $this->getPaymentAccountNavigation($this->parent),
+                    'subNavigation' => $subNavigation,
                     'icon'      => ['fal', 'fa-store-alt'],
                     'title'     => __('Payment Account Shops'),
                 ],
@@ -126,6 +144,23 @@ class IndexPaymentAccountShops extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
     }
+
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
 
     public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request)
     {
