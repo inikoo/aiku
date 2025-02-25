@@ -177,23 +177,24 @@ onMounted(async () => {
     <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
         <template #button-edit-profile="{ action }">
             <Button
+                @click="() => layout.stackedComponents.push({ component: EditProfile })"
+                :label="action.label"
+                type="edit"
+            />
+            <Button
+                @click="() => layout.stackedComponents.push({ component: SettingProfile })"
+                :label="trans('Settings')"
+                icon="fal fa-cog"
+                type="edit"
+                class="-ml-2"
+            />
+
+            <Button
                 @click="() => onLogoutAuth()"
                 label="Logout"
                 :loading="isLoadingLogout"
                 icon="fal fa-sign-out-alt"
                 :style="'negative'"
-            />
-            <Button
-                @click="() => layout.stackedComponents.push({ component: EditProfile })"
-                :label="action.label"
-                :style="action.style"
-            />
-            
-            <Button
-                @click="() => layout.stackedComponents.push({ component: SettingProfile })"
-                :label="trans('Settings')"
-                icon="fal fa-cog"
-                type="secondary"
             />
         </template>
     </PageHeading>
