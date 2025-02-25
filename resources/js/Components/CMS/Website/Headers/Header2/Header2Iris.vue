@@ -79,7 +79,7 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
 				<a href="/">
-					<div :style="getStyles(fieldValue.logo.properties)">
+					<div :style="getStyles(fieldValue?.logo?.properties)">
 						<Image
 							:alt="fieldValue?.logo?.alt"
 							:src="fieldValue?.logo?.image?.source"
@@ -115,7 +115,7 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
                         ? `${fieldValue.text?.container?.properties?.position?.bottom}`
                         : '0px',
 					}">
-					<div v-html="fieldValue.text.text" />
+					<div v-html="fieldValue?.text?.text" />
 				</div>
 			</div>
 		</div>
