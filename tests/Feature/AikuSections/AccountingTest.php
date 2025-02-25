@@ -158,11 +158,11 @@ test('update org payment service provider', function (OrgPaymentServiceProvider 
     $orgPaymentServiceProvider = UpdateOrgPaymentServiceProvider::make()->action(
         $orgPaymentServiceProvider,
         [
-            'code' => 'newcode'
+            'code' => 'new_code'
         ]
     );
     expect($orgPaymentServiceProvider)->toBeInstanceOf(OrgPaymentServiceProvider::class)
-        ->and($orgPaymentServiceProvider->code)->toBe('newcode');
+        ->and($orgPaymentServiceProvider->code)->toBe('new_code');
 
     return $orgPaymentServiceProvider;
 })->depends('create other org payment service provider');
@@ -232,7 +232,7 @@ test('update payment account shop', function (PaymentAccount $paymentAccount) {
     );
 
     expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class)
-        ->and($paymentAccountShop->show_in_checkout)->toBe(true);
+        ->and($paymentAccountShop->show_in_checkout)->toBeTrue();
 
     return $paymentAccount;
 })->depends('create payment account');
@@ -1075,8 +1075,11 @@ test('Delete invoice', function () {
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
     expect($customer->stats->number_invoices)->toBe(1);
 
-    DeleteInvoice::make()->action($invoice, []);
+    $invoice=DeleteInvoice::make()->action($invoice, [
+        'deleted_note'=> 'test'
+    ]);
     $customer->refresh();
+    expect($invoice->trashed())->toBeTrue();
     expect($customer->stats->number_invoices)->toBe(0);
 });
 
@@ -1111,7 +1114,8 @@ test('Store invoice refund', function () {
         'gross_amount'    => 1000,
         'net_amount'      => 1000,
     ]);
-    expect($invoice)->toBeInstanceOf(Invoice::class);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoice)->toBeInstanceOf(Invoice::class);
 
     $refund = StoreRefund::make()->action($invoice, []);
     expect($refund)->toBeInstanceOf(Invoice::class)

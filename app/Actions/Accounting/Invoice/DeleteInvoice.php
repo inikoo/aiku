@@ -32,7 +32,7 @@ class DeleteInvoice extends OrgAction
     public function rules(): array
     {
         return [
-            'deleted_notes' => ['required', 'string', 'max:4000'],
+            'deleted_note' => ['required', 'string', 'max:4000'],
             'deleted_by'    => ['nullable', 'integer', Rule::exists('users', 'id')->where('group_id', $this->group->id)],
         ];
     }
