@@ -36,7 +36,7 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
                 $address = Arr::get($customer, 'addresses')[0];
                 $existsClient = $this->parent->clients()->where('email', $customer['email'])->first();
 
-                $attributes = $this->getAttributes($customer, $address);
+                $attributes = $this->getAttributes($customer['container'], $address['container']);
 
                 if (!$existsClient) {
                     StoreCustomerClient::make()->action($this->parent, $attributes);
