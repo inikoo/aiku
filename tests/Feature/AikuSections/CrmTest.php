@@ -937,7 +937,7 @@ test('create 3rd prospect (Email Clicked)', function () {
     expect($prospect)->toBeInstanceOf(Prospect::class)
         ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
         ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::CLICKED);
-        
+
     return $prospect;
 });
 

@@ -60,7 +60,7 @@ class UpdateProspect extends OrgAction
             );
         }
         $prospect->refresh();
-        
+
         ProspectRecordSearch::dispatch($prospect);
         OrganisationHydrateProspects::dispatch($prospect->organisation)->delay($this->hydratorsDelay);
         ShopHydrateProspects::dispatch($prospect->shop)->delay($this->hydratorsDelay);
