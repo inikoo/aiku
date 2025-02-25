@@ -8,18 +8,18 @@
 
 namespace App\Actions\CRM\Prospect;
 
+use App\Actions\OrgAction;
 use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateProspectEmailUndoUnsubscribed
+class UpdateProspectEmailUndoUnsubscribed extends OrgAction
 {
-    use AsAction;
-
-    public function handle(Prospect $prospect): void
+    public function handle(Prospect $prospect): Prospect
     {
         $dataToUpdate = [
             'dont_contact_me'    => false,
@@ -53,14 +53,24 @@ class UpdateProspectEmailUndoUnsubscribed
             $dataToUpdate['contacted_state'] = $contactedState;
         }
 
-        UpdateProspect::run(
+        $prospect = UpdateProspect::run(
             $prospect,
             $dataToUpdate
         );
+
+        return $prospect;
     }
 
-    public function inShop(Shop $shop, Prospect $prospect): void
+    public function inShop(Shop $shop, Prospect $prospect, ActionRequest $request): void
     {
+        $this->initialisationFromShop($shop, $request);
         $this->handle($prospect);
+    }
+
+    public function action(Prospect $prospect): Prospect
+    {
+        $this->initialisation($prospect->organisation, []);
+
+        return $this->handle($prospect);
     }
 }
