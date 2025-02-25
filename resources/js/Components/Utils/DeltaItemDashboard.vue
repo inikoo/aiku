@@ -64,7 +64,7 @@ const props = defineProps<{
 							? 'text-red-500 rotate-90'
 							: 'text-green-500 rotate-[-90deg]'
 					" />
-				<div v-else style="width: 60px"></div>
+				<div v-else style="width: 10px"></div>
 			</div>
 		</Transition>
 	</div>

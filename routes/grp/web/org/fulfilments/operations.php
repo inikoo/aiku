@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
@@ -105,7 +106,10 @@ Route::get('accounting-dashboard/customer-balances', [IndexCustomerBalances::cla
 Route::prefix('invoices')->as('invoices')->group(function () {
     Route::get('', [IndexInvoices::class, 'inFulfilment'])->name('.all.index');
 
+    Route::get('/invoices-deleted', [IndexInvoicesDeleted::class, 'inFulfilment'])->name('.deleted_invoices.index');
+
     Route::get('/unpaid-invoices', [IndexInvoices::class, 'unpaidInFulfilment'])->name('.unpaid_invoices.index');
+
     Route::get('/paid-invoices', [IndexInvoices::class, 'paidInFulfilment'])->name('.paid_invoices.index');
     Route::get('/refunds', [IndexRefunds::class,'inFulfilment'])->name('.refunds.index');
 

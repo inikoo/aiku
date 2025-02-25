@@ -28,7 +28,10 @@ class ApproveCustomer extends OrgAction
             'approved_at' => now()
         ]);
 
-        SendCustomerApprovedEmail::dispatch($customer);
+
+        if (!$this->asAction) {
+            SendCustomerApprovedEmail::dispatch($customer);
+        }
 
         if ($customer->fulfilmentCustomer) {
             FulfilmentHydrateCustomers::dispatch($customer->fulfilmentCustomer->fulfilment);
@@ -47,6 +50,7 @@ class ApproveCustomer extends OrgAction
 
     public function action(Customer $customer, array $modelData): Customer
     {
+        $this->asAction = true;
         $this->initialisation($customer->organisation, $modelData);
 
         return $this->handle($customer);
