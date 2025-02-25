@@ -43,7 +43,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\HumanResources\Employee
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -81,6 +81,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array<array-key, mixed> $migration_data
  * @property int|null $user_id
+ * @property int|null $address_id
+ * @property string|null $location
+ * @property string|null $notes
+ * @property-read \App\Models\Helpers\Address|null $address
+ * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
@@ -258,11 +263,5 @@ class Employee extends Model implements HasMedia, Auditable
     {
         return $this->morphMany(Task::class, 'assigner');
     }
-
-    public function getPseudoJobPositions()
-    {
-
-    }
-
 
 }

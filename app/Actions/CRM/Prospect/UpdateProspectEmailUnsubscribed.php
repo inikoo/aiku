@@ -8,18 +8,18 @@
 
 namespace App\Actions\CRM\Prospect;
 
+use App\Actions\OrgAction;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProspectEmailUnsubscribed
+class UpdateProspectEmailUnsubscribed extends OrgAction
 {
-    use AsAction;
-
-    public function handle(Prospect $prospect, Carbon $date): void
+    public function handle(Prospect $prospect, Carbon $date): Prospect
     {
         $dataToUpdate = [
             'dont_contact_me' => true
@@ -34,17 +34,27 @@ class UpdateProspectEmailUnsubscribed
         if ($prospect->state != ProspectStateEnum::SUCCESS) {
             $dataToUpdate['state']           = ProspectStateEnum::FAIL;
             $dataToUpdate['fail_status']     = ProspectFailStatusEnum::UNSUBSCRIBED;
-            $dataToUpdate['contacted_state'] = ProspectFailStatusEnum::NA;
+            $dataToUpdate['contacted_state'] = ProspectContactedStateEnum::NA;
         }
 
-        UpdateProspect::run(
+        $prospect = UpdateProspect::run(
             $prospect,
             $dataToUpdate
         );
+
+        return $prospect;
     }
 
-    public function inShop(Shop $shop, Prospect $prospect): void
+    public function inShop(Shop $shop, Prospect $prospect, ActionRequest $request): void
     {
+        $this->initialisationFromShop($shop, $request);
         $this->handle($prospect, now());
+    }
+
+    public function action(Prospect $prospect, Carbon $date): Prospect
+    {
+        $this->initialisation($prospect->organisation, []);
+
+        return $this->handle($prospect, $date);
     }
 }

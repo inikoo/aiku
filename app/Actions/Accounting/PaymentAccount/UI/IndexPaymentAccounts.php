@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
@@ -90,7 +89,7 @@ class IndexPaymentAccounts extends OrgAction
         }
 
         return $queryBuilder->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
-            ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
+            ->leftJoin('payment_service_providers', 'payment_accounts.payment_service_provider_id', 'payment_service_providers.id')
             ->allowedSorts(['code', 'name', 'number_payments', 'payment_service_provider_code', 'number_pas_state_active', 'org_amount_successfully_paid'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -202,12 +201,6 @@ class IndexPaymentAccounts extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
-        if ($this->parent instanceof Group) {
-            $shops = $this->group->shops;
-        } else {
-            $shops = $this->organisation->shops;
-        }
-
         return Inertia::render(
             'Org/Accounting/PaymentAccounts',
             [
@@ -241,7 +234,6 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'shops_list'  => ShopResource::collection($shops),
                 'data'        => PaymentAccountsResource::collection($paymentAccounts)
 
 

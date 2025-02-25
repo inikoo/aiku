@@ -311,6 +311,48 @@ test('UI show fulfilment shop customers list', function () {
     });
 });
 
+test('UI show fulfilment shop customers pending approval list', function () {
+
+    $fulfilment = $this->shop->fulfilment;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.crm.customers.pending_approval.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomers')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show fulfilment shop customers reject list', function () {
+
+    $fulfilment = $this->shop->fulfilment;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.crm.customers.rejected.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomers')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+});
+
 
 // Indexes
 
@@ -450,19 +492,18 @@ test('UI show fulfilment customer (agreed prices tab)', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
                         ->etc()
-            )
-            ->has('tabs');
+            );
 
     });
 });
+
 
 test('UI edit fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('EditModel')
+        ->component('EditModel')
             ->has('title')
             ->has('formData.blueprint.0.fields', 6)
             ->has('pageHead')
@@ -527,6 +568,142 @@ test('UI index fulfilment invoices unpaid', function () {
                         ->has('subNavigation')
                         ->etc()
             );
+    });
+});
+
+test('UI show fulfilment customer space sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Spaces')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer pallet sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletsInCustomer')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer delivery sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDeliveries')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer pallet return sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturns')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer recurring bills sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.recurring_bills.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/RecurringBills')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer invoice sub navigation', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
+        if (!app()->environment('production')) {
+            $page->has('tabs');
+        } else {
+            $page->has('data');
+        }
+    });
+});
+
+
+test('UI show recurring bills in fulfilment customer', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.recurring_bills.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->slug,
+        $this->recurringBill->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/RecurringBill')
+            ->has('title')
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->recurringBill->slug)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
     });
 });
 

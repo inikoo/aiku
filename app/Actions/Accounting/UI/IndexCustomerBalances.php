@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\UI;
 
+use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
@@ -15,6 +16,7 @@ use App\Http\Resources\Accounting\CustomerBalancesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -28,9 +30,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerBalances extends OrgAction
 {
-    private Group|Organisation|Shop $parent;
+    use WithAccountingSubNavigation;
 
-    public function handle(Group|Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    private Group|Organisation|Shop|Fulfilment $parent;
+
+    public function handle(Group|Shop|Fulfilment|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -52,6 +56,8 @@ class IndexCustomerBalances extends OrgAction
             $queryBuilder->where('customers.shop_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('customers.group_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            $queryBuilder->where('customers.shop_id', $parent->shop->id);
         }
         $queryBuilder->leftjoin('organisations', 'customers.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'customers.shop_id', 'shops.id');
@@ -89,7 +95,7 @@ class IndexCustomerBalances extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Shop|Organisation|Fulfilment $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -115,12 +121,15 @@ class IndexCustomerBalances extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
+        // if ($this->parent instanceof Group) {
+        //     return $request->user()->authTo("group-overview");
+        // }
+        // $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
 
-        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
+        // return $request->user()->authTo("accounting.{$this->organisation->id}.view");
+
+        // TODO: raul fix the auth
+        return true;
     }
 
 
@@ -139,6 +148,13 @@ class IndexCustomerBalances extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($fulfilment);
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
@@ -160,6 +176,12 @@ class IndexCustomerBalances extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
+        $subNavigation = [];
+        if ($this->parent instanceof Fulfilment) {
+            $subNavigation = $this->getSubNavigation($this->parent);
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getSubNavigationShop($this->parent);
+        }
         return Inertia::render(
             'Org/Accounting/CustomerBalances',
             [
@@ -168,11 +190,13 @@ class IndexCustomerBalances extends OrgAction
                     $routeParameters
                 ),
                 'title'       => __('Customer Balances'),
+
                 'pageHead'    => [
                     'icon'      => ['fal', 'fa-money-check-alt'],
                     'title'     => __('Customer Balances'),
                     'actions'   => [
                     ],
+                    'subNavigation' => $subNavigation,
 
 
                 ],

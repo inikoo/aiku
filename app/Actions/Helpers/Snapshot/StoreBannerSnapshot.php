@@ -9,22 +9,30 @@
 namespace App\Actions\Helpers\Snapshot;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\Authorisations\WithBannerEditAuthorisation;
 use App\Actions\Web\Slide\StoreSlide;
+use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
+use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Banner;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class StoreBannerSnapshot extends OrgAction
 {
-    use WithNoStrictRules;
+    use WithBannerEditAuthorisation;
 
     /**
      * @throws \Throwable
      */
     public function handle(Banner $banner, array $modelData, ?array $slides): Snapshot
     {
+        data_set($modelData, 'group_id', $banner->group_id);
+        data_set($modelData, 'scope', SnapshotScopeEnum::BANNER);
+        data_set($modelData, 'builder', SnapshotBuilderEnum::AIKU_BANNERS_V1);
+
         data_set(
             $modelData,
             'checksum',
@@ -34,9 +42,7 @@ class StoreBannerSnapshot extends OrgAction
                 )
             )
         );
-        data_set($modelData, 'group_id', $banner->group_id);
 
-        data_set($modelData, 'scope', 'banner');
 
         return DB::transaction(function () use ($banner, $modelData, $slides) {
             /** @var Snapshot $snapshot */
@@ -58,27 +64,24 @@ class StoreBannerSnapshot extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
-            'layout' => ['required', 'array'],
+        return [
+            'layout'         => ['required', 'array'],
+            'state'          => ['sometimes', Rule::enum(SnapshotStateEnum::class)],
+            'comment'        => ['sometimes','nullable', 'string'],
+            'publisher_id'   => ['sometimes','nullable', 'integer'],
+            'publisher_type' => ['sometimes','nullable', 'string'],
+            'published_at'   => ['sometimes','nullable', 'date'],
+            'first_commit'   => ['sometimes','required', 'boolean'],
         ];
-
-        if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
-        }
-
-        return $rules;
     }
 
     /**
      * @throws \Throwable
      */
-    public function action(Banner $banner, array $modelData, ?array $slides, int $hydratorsDelay = 0, bool $strict = true): Snapshot
+    public function action(Banner $banner, array $modelData, ?array $slides, int $hydratorsDelay = 0): Snapshot
     {
         $this->asAction       = true;
-        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-
-
         $this->initialisationFromShop($banner->shop, $modelData);
 
         return $this->handle($banner, $this->validatedData, $slides);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3620ae3cc758a17c3fc2e32eea8f1d6c",
+    "content-hash": "85986ca9ecdfcb3c826075200c3767d2",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -10283,16 +10283,16 @@
         },
         {
             "name": "owen-it/laravel-auditing",
-            "version": "v13.6.9",
+            "version": "v13.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/owen-it/laravel-auditing.git",
-                "reference": "559b391e2ebf46a734b3f82d4f18faf425107054"
+                "reference": "4f72181622683bc667bbdd2e5fa09cd376329af4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/owen-it/laravel-auditing/zipball/559b391e2ebf46a734b3f82d4f18faf425107054",
-                "reference": "559b391e2ebf46a734b3f82d4f18faf425107054",
+                "url": "https://api.github.com/repos/owen-it/laravel-auditing/zipball/4f72181622683bc667bbdd2e5fa09cd376329af4",
+                "reference": "4f72181622683bc667bbdd2e5fa09cd376329af4",
                 "shasum": ""
             },
             "require": {
@@ -10367,7 +10367,7 @@
                 "issues": "https://github.com/owen-it/laravel-auditing/issues",
                 "source": "https://github.com/owen-it/laravel-auditing"
             },
-            "time": "2024-12-27T15:04:04+00:00"
+            "time": "2025-02-21T14:58:02+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -22329,7 +22329,7 @@
     ],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -22344,6 +22344,6 @@
         "ext-soap": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

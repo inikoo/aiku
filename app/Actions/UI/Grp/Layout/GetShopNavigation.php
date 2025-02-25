@@ -41,7 +41,27 @@ class GetShopNavigation
                             "parameters" => [$shop->organisation->slug, $shop->slug],
                         ],
                     ],
-                ]
+                    [
+                        "tooltip" => __("Payments"),
+                        "label"   => __("Payments"),
+                        "icon"    => ["fal", "fa-coins"],
+                        "root"    => "grp.org.shops.show.payments.accounting.dashboard",
+                        "route"   => [
+                            "name"       => "grp.org.shops.show.payments.accounting.dashboard",
+                            "parameters" => [$shop->organisation->slug, $shop->slug]
+                        ],
+                    ],
+                    [
+                        "label"   => __("Invoices"),
+                        "tooltip" => __("Invoices"),
+                        "icon"    => ["fal", "fa-file-invoice-dollar"],
+                        'root'    => 'grp.org.shops.show.ordering.invoices.index',
+                        "route"   => [
+                            "name"       => "grp.org.shops.show.ordering.invoices.index",
+                            "parameters" => [$shop->organisation->slug, $shop->slug],
+                        ],
+                    ],
+                ],
             ]
 
         ];
@@ -424,16 +444,6 @@ class GetShopNavigation
                             'root'    => 'grp.org.shops.show.ordering.orders.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.ordering.orders.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
-                        [
-                            "label"   => __("invoices"),
-                            "tooltip" => __("Invoices"),
-                            "icon"    => ["fal", "fa-file-invoice-dollar"],
-                            'root'    => 'grp.org.shops.show.ordering.invoices.',
-                            "route"   => [
-                                "name"       => "grp.org.shops.show.ordering.invoices.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],

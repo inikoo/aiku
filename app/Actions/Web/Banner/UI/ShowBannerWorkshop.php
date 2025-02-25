@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithBannerEditAuthorisation;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowBannerWorkshop extends OrgAction
 {
+    use WithBannerEditAuthorisation;
+
     private Website $parent;
 
     public function handler(Website $parent, Banner $banner): Banner
@@ -31,16 +34,6 @@ class ShowBannerWorkshop extends OrgAction
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return true;
-
-        $this->canEdit   = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
-        $this->canDelete = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
-
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.view");
-    }
-
     public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisationFromShop($shop, $request);
@@ -48,6 +41,7 @@ class ShowBannerWorkshop extends OrgAction
         return $this->handler($website, $banner);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisationFromShop($fulfilment->shop, $request);
@@ -106,12 +100,10 @@ class ShowBannerWorkshop extends OrgAction
                         'banner'  => $banner->id
                     ]
                 ],
-                'publishRoute'   => [
-                    'name'       => 'grp.models.shop.website.banner.publish',
+                'publishRoute'      => [
+                    'name'       => 'grp.models.banner.publish',
                     'parameters' => [
-                        'shop'    => $this->shop->id,
-                        'website' => $this->parent->id,
-                        'banner'  => $banner->id
+                        'banner' => $banner->id
                     ]
                 ],
                 'imagesUploadRoute' => [
@@ -122,8 +114,8 @@ class ShowBannerWorkshop extends OrgAction
                         'banner'  => $banner->id
                     ]
                 ],
-                'galleryRoute' => [
-                    'stock_images' => [
+                'galleryRoute'      => [
+                    'stock_images'    => [
                         'name' => "grp.gallery.stock-images.banner.$banner->type.index"
                     ],
                     'uploaded_images' => [
@@ -157,6 +149,7 @@ class ShowBannerWorkshop extends OrgAction
 
         return $this->getNavigation($next, $request->route()->getName(), $request->route()->parameters);
     }
+
     private function getNavigation(?Banner $banner, string $routeName, array $routeParameters): ?array
     {
         if (!$banner) {
@@ -164,7 +157,7 @@ class ShowBannerWorkshop extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.web.banners.workshop', => [
+            'grp.org.shops.show.web.banners.workshop', 'grp.org.fulfilments.show.web.banners.workshop' => [
                 'label' => $banner->name,
                 'route' => [
                     'name'       => $routeName,

@@ -3,7 +3,7 @@ import CountUp from "vue-countup-v3"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faCheck, faExclamation, faInfo, faPlay } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { inject, ref } from "vue"
+import { computed, inject, ref } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import MeterGroup from "primevue/metergroup"
 import { values } from "lodash"
@@ -191,6 +191,21 @@ const setChartOptions = () => {
 	return options
 }
 
+const formattedVisual = computed(() => {
+    if (!props.visual || !props.visual.value) {
+        return null;
+    }
+
+    const visualValue = props.visual.value;
+
+    return {
+        ...visualValue,
+        datasets: Array.isArray(visualValue.datasets)
+            ? visualValue.datasets
+            : [visualValue.datasets] // Ensure it's an array
+    };
+});
+
 // const chartLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 // const chartData = [10, 20, 15, 25, 20, 18, 22, 10]
 // const dummyChartData = {
@@ -256,7 +271,7 @@ const setChartOptions = () => {
 					<Chart
 						:type="visual.type"
 						:labels="visual.label"
-						:data="visual.value"
+						:data="formattedVisual"
 						:height="200"
 						:options="setChartOptions()" />
 				</div>

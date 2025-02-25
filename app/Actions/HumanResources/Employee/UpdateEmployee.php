@@ -49,7 +49,6 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
         if (Arr::has($modelData, 'contact_address')) {
             $contactAddressData = Arr::get($modelData, 'contact_address');
             Arr::forget($modelData, 'contact_address');
@@ -75,7 +74,6 @@ class UpdateEmployee extends OrgAction
         }
 
         if (Arr::has($modelData, 'job_positions')) {
-
             $jobPositions = Arr::pull($modelData, 'job_positions', []);
             $jobPositions = $this->reorganisePositionsSlugsToIds($jobPositions);
             SyncEmployeeJobPositions::run($employee, $jobPositions);
@@ -107,6 +105,7 @@ class UpdateEmployee extends OrgAction
 
             UpdateUser::run($user, $credentials);
         }
+
         return $employee;
     }
 
@@ -123,7 +122,7 @@ class UpdateEmployee extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'worker_number'                         => [
+            'worker_number'                             => [
                 'sometimes',
                 'max:64',
                 'alpha_dash',
@@ -143,10 +142,10 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'state'                           => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
-            'employment_start_at'             => ['sometimes', 'nullable', 'date'],
-            'employment_end_at'               => ['sometimes', 'nullable', 'date'],
-            'work_email'                            => [
+            'state'                                     => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'employment_start_at'                       => ['sometimes', 'nullable', 'date'],
+            'employment_end_at'                         => ['sometimes', 'nullable', 'date'],
+            'work_email'                                => [
                 'sometimes',
                 'nullable',
                 'email',
@@ -162,7 +161,7 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'alias'                                 => [
+            'alias'                                     => [
                 'sometimes',
                 'string',
                 $this->strict ? 'max:24' : 'max:255',
@@ -178,23 +177,23 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'pin'                                   => ['sometimes', new PinRule($this->employee->organisation_id)],
-            'contact_name'                          => ['sometimes', 'string', 'max:256'],
-            'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
+            'pin'                                       => ['sometimes', new PinRule($this->employee->organisation_id)],
+            'contact_name'                              => ['sometimes', 'string', 'max:256'],
+            'date_of_birth'                             => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'                                 => ['sometimes', 'nullable', 'string', 'max:256'],
             'job_positions'                             => ['sometimes', 'array'],
             'job_positions.*.slug'                      => ['sometimes', 'string'],
             'job_positions.*.scopes'                    => ['sometimes', 'array'],
             'job_positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
             'job_positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'job_positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
-            'email'                                 => ['sometimes', 'nullable', 'email'],
-            'emergency_contact'                     => ['sometimes', 'nullable', 'string', 'max:1024'],
-            'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)],
-            'contact_address'                         => ['sometimes', 'nullable', new ValidAddress()],
-            'notes'                                   => ['sometimes', 'nullable', 'string', 'max:4000'],
-            'identity_document_type'                  => ['sometimes', 'nullable', 'string', 'max:256'],
-            'identity_document_number'                => ['sometimes', 'nullable', 'string', 'max:256'],
+            'email'                                     => ['sometimes', 'nullable', 'email'],
+            'emergency_contact'                         => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'type'                                      => ['sometimes', Rule::enum(EmployeeTypeEnum::class)],
+            'contact_address'                           => ['sometimes', 'nullable', new ValidAddress()],
+            'notes'                                     => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'identity_document_type'                    => ['sometimes', 'nullable', 'string', 'max:256'],
+            'identity_document_number'                  => ['sometimes', 'nullable', 'string', 'max:256'],
 
 
         ];
@@ -274,8 +273,6 @@ class UpdateEmployee extends OrgAction
                 $this->set('employment_end_at', $this->get('cluster.employment_end_at'));
             }
         }
-
-
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee

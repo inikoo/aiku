@@ -473,6 +473,10 @@ Route::prefix('rental-agreement/{rentalAgreement:id}')->group(function () {
     Route::patch('', UpdateRentalAgreement::class)->name('rental-agreement.update');
 });
 
+Route::name('banner.')->prefix('banner/{banner:id}')->group(function () {
+    Route::patch('publish', PublishBanner::class)->name('publish');
+});
+
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
     Route::post('website', StoreWebsite::class)->name('website.store');
@@ -482,13 +486,12 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     });
 
     Route::prefix('website/{website:id}/banner')->name('website.banner.')->group(function () {
-        Route::post('/', StoreBanner::class)->name('store')->withoutScopedBindings();
-        Route::post('from-gallery', [StoreBanner::class, 'fromGallery'])->name('store.from-gallery');
+
 
         Route::prefix('{banner:id}')->group(function () {
             Route::post('images', UploadImagesToBanner::class)->name('images.store')->withoutScopedBindings();
             Route::patch('', UpdateBanner::class)->name('update')->withoutScopedBindings();
-            Route::patch('publish', PublishBanner::class)->name('publish')->withoutScopedBindings();
+
             Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
             Route::delete('', DeleteBanner::class)->name('delete');
             Route::patch('shutdown', PublishBanner::class)->name('shutdown');
@@ -554,6 +557,11 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('images/header', [UploadImagesToWebsite::class, 'header'])->name('header.images.store');
     Route::post('images/footer', [UploadImagesToWebsite::class, 'footer'])->name('footer.images.store');
     Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
+
+
+    Route::post('/banner', StoreBanner::class)->name('banner.store');
+
+
 });
 
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {

@@ -105,5 +105,10 @@ class StoreRefundInvoiceTransaction extends OrgAction
         $this->handle($invoiceTransaction, $this->validatedData);
     }
 
+    public function action(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
+    {
+        $this->initialisationFromShop($invoiceTransaction->shop, $modelData);
+        return $this->handle($invoiceTransaction, $this->validatedData);
+    }
 
 }

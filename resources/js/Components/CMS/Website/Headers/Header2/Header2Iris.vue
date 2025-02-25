@@ -1,102 +1,115 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import MobileMenu from '@/Components/MobileMenu.vue'
-import Menu from 'primevue/menu'
-import { getStyles } from "@/Composables/styles";
+import { getStyles } from "@/Composables/styles"
+import { checkVisible } from "@/Composables/Workshop"
+import { inject } from "vue"
+import Image from "@/Components/Image.vue"
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage, faSignInAlt, faFileAlt } from '@fas';
-import { faHeart } from '@far';
-import Image from "@/Components/Image.vue"
-import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
+import {
+	faChevronRight,
+	faSignOutAlt,
+	faShoppingCart,
+	faSearch,
+	faChevronDown,
+	faTimes,
+	faPlusCircle,
+	faBars,
+	faUserCircle,
+	faImage,
+	faSignInAlt,
+	faFileAlt,
+} from "@fas"
+import { faHeart } from "@far"
 
-library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faSignInAlt, faFileAlt)
+library.add(
+	faPresentation,
+	faCube,
+	faText,
+	faImage,
+	faPaperclip,
+	faChevronRight,
+	faSignOutAlt,
+	faShoppingCart,
+	faHeart,
+	faSearch,
+	faChevronDown,
+	faTimes,
+	faPlusCircle,
+	faBars,
+	faUserCircle,
+	faSignInAlt,
+	faFileAlt
+)
 
 const props = defineProps<{
-    modelValue: {
-        headerText: string
-        chip_text: string
-    }
-    loginMode: boolean
+	fieldValue: {
+		headerText: string
+		chip_text: string
+		container: {
+			properties: Record<string, string>
+		}
+		logo: {
+			properties: Record<string, string>
+			alt: string
+			image: {
+				source: string
+			}
+		}
+		text: {
+			text: string
+			visible: boolean | null
+			container: {
+				properties: Record<string, string>
+			}
+		}
+	}
+	loginMode: boolean
 }>()
 
-
-const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
-    (e: 'setPanelActive', value: string | number): void
-}>()
-
-const _menu = ref();
-
-const toggle = (event) => {
-    _menu.value.toggle(event)
-};
-const editable = ref(true)
-
+const isLoggedIn = inject("isPreviewLoggedIn", false)
 </script>
 
 <template>
-    <div class="shadow-sm" :style="getStyles(modelValue?.container?.properties)">
-        <div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
-            <div class="w-full grid grid-cols-3 items-center gap-6">
-                <!-- Logo -->
-                <div :style="getStyles(modelValue?.logo.properties)" @click="() => emits('setPanelActive', 'logo')">
-                    <Image :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.image?.source" class="hover-dashed"></Image>
-                </div>
+	<div class="shadow-sm" :style="getStyles(fieldValue?.container?.properties)">
+		<div class="flex flex-col justify-between items-center py-4 px-6">
+			<div class="w-full grid grid-cols-3 items-center gap-6">
+				<!-- Logo -->
+				<a href="/">
+					<div :style="getStyles(fieldValue?.logo?.properties)">
+						<Image
+							:alt="fieldValue?.logo?.alt"
+							:src="fieldValue?.logo?.image?.source"
+							class="hover-dashed" />
+					</div>
+				</a>
 
-                <!-- Search Bar -->
-                <div class="relative justify-self-center w-full max-w-md">
-                    <!-- <input type="text" placeholder="Search Products"
-                        class="border border-gray-300 py-2 px-4 rounded-md text-sm w-full shadow-inner focus:outline-none focus:border-gray-500">
-                    <FontAwesomeIcon icon="fas fa-search"
-                        class="absolute top-1/2 -translate-y-1/2 right-4 text-gray-500" fixed-width /> -->
-                </div>
+				<!-- Search Bar -->
+				<div class="relative justify-self-center w-full max-w-md">
+					<!-- Search bar can be added here if needed -->
+				</div>
 
-                <!-- Text -->
-                
-               <!--  <Editor
-                    :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
-                    :key="editorKey" v-model="modelValue?.columns.column_4.data.textBox1"
-                    :editable="editable"
-                    @update:model-value="(e) => { modelValue?.columns.column_4.data.textBox1 = e, emits('update:modelValue', modelValue) }" /> -->
-            </div>
-        </div>
-
-        <!-- Mobile view (hidden on desktop) -->
-        <div class="block md:hidden p-3">
-            <div class="flex justify-between items-center">
-                <MobileMenu :header="modelValue" :menu="modelValue" />
-
-                <!-- Logo for Mobile -->
-                <img v-if="!modelValue?.logo"
-                    src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-                    alt="Ancient Wisdom Logo" class="h-10 mx-2">
-
-                <Image v-else :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
-
-                <!-- Profile Icon with Dropdown Menu -->
-                <div @click="toggle" class="flex items-center cursor-pointer text-white">
-                    <FontAwesomeIcon icon="fas fa-user-circle" class="text-2xl" />
-                    <Menu ref="_menu" id="overlay_menu" :model="items" :popup="true">
-                        <template #itemicon="{ item }">
-                            <FontAwesomeIcon :icon="item.icon" />
-                        </template>
-                    </Menu>
-                </div>
-            </div>
-
-            <!-- Mobile Search Bar -->
-            <div class="relative mt-2">
-                <input type="text" placeholder="Search Products"
-                    class="border border-gray-300 py-2 px-4 rounded-md w-full shadow-inner focus:outline-none focus:border-gray-500">
-                <FontAwesomeIcon icon="fas fa-search" class="absolute top-1/2 -translate-y-1/2 right-4 text-gray-500"
-                    fixed-width />
-            </div>
-        </div>
-    </div>
+				<!-- Gold Member Button -->
+				<div class="absolute"  ref="el => textRefs = el"
+					:style="{
+						width: fieldValue.text?.container?.properties?.width
+							? `${fieldValue.text?.container?.properties?.width}`
+							: 'auto',
+						height: fieldValue.text?.container?.properties?.height
+							? `${fieldValue.text?.container?.properties?.height}`
+							: 'auto',
+						top: fieldValue.text?.container?.properties?.position?.top
+							? `${fieldValue.text?.container?.properties?.position?.top}`
+							: 'auto',
+						left: fieldValue.text?.container?.properties?.position?.left
+							? `${fieldValue.text?.container?.properties?.position?.left}`
+							: 'auto',
+					}">
+					<div v-html="fieldValue?.text?.text" />
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style scoped></style>

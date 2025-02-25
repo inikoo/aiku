@@ -12,16 +12,14 @@ use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithBannerEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannerResource;
-use App\Models\Catalogue\Shop;
-use App\Models\Helpers\Snapshot;
 use App\Models\Web\Banner;
-use App\Models\Web\Website;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,9 +27,13 @@ use Lorisleiva\Actions\ActionRequest;
 class PublishBanner extends OrgAction
 {
     use WithActionUpdate;
+    use WithBannerEditAuthorisation;
 
     public bool $isAction = false;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Banner $banner, array $modelData): Banner
     {
         $firstCommit = false;
@@ -45,11 +47,10 @@ class PublishBanner extends OrgAction
             ]);
         }
 
-        $layout                = Arr::pull($modelData, 'layout');
+        $layout = Arr::pull($modelData, 'layout');
         list($layout, $slides) = ParseBannerLayout::run($layout);
 
-        /** @var Snapshot $snapshot */
-        $snapshot = StoreBannerSnapshot::run(
+        $snapshot = StoreBannerSnapshot::make()->action(
             $banner,
             [
                 'state'          => SnapshotStateEnum::LIVE,
@@ -59,6 +60,7 @@ class PublishBanner extends OrgAction
                 'publisher_id'   => Arr::get($modelData, 'publisher_id'),
                 'publisher_type' => Arr::get($modelData, 'publisher_type'),
                 'comment'        => Arr::get($modelData, 'comment'),
+
 
 
             ],
@@ -99,16 +101,6 @@ class PublishBanner extends OrgAction
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return true;
-
-        if ($this->isAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("portfolio.banners.edit");
-    }
 
     public function rules(): array
     {
@@ -127,13 +119,19 @@ class PublishBanner extends OrgAction
         $this->set('publisher_type', 'User');
     }
 
-    public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Banner $banner, ActionRequest $request): Banner
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($banner->shop, $request);
 
         return $this->handle($banner, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Banner $banner, $modelData): Banner
     {
         $this->isAction = true;

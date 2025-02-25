@@ -30,8 +30,6 @@ trait WithAuroraAttachments
 {
     public function getModelAttachmentsCollection($model, $id): Collection
     {
-
-
         return DB::connection('aurora')
             ->table('Attachment Bridge as B')
             ->leftJoin('Attachment Dimension as A', 'A.Attachment Key', '=', 'B.Attachment Key')
@@ -40,8 +38,12 @@ trait WithAuroraAttachments
             ->get();
     }
 
-    public function fetchAttachment($auroraAttachmentData, $organisationID): array
+    public function fetchAttachment($auroraAttachmentData, $organisationID): ?array
     {
+        if (is_null($auroraAttachmentData->{'Attachment Data'})) {
+            return null;
+        }
+
         $content = $auroraAttachmentData->{'Attachment Data'};
 
         $temporaryDirectory = TemporaryDirectory::make();
@@ -84,13 +86,17 @@ trait WithAuroraAttachments
         $attachmentModelType = class_basename($model);
 
         $delete = true;
-        if (in_array($attachmentModelType, ['Supplier', 'SupplierProduct', 'Agent', 'Stock','TradeUnit'])) {
+        if (in_array($attachmentModelType, ['Supplier', 'SupplierProduct', 'Agent', 'Stock', 'TradeUnit'])) {
             $delete = false;
         }
 
         $attachmentsToDelete = $model->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
 
+
         foreach ($this->parseAttachments($modelSourceID, $modelType) as $attachmentData) {
+            if (is_null($attachmentData)) {
+                continue;
+            }
 
             $media = SaveModelAttachment::make()->action(
                 model: $model,
@@ -102,16 +108,16 @@ trait WithAuroraAttachments
             $modelAttachment = $model->attachments()->where('media_id', $media->id)->first();
 
 
-            $sources      = json_decode($modelAttachment->pivot->sources, true);
+            $sources = json_decode($modelAttachment->pivot->sources, true);
 
-            $bridgeSources = Arr::get($sources, 'bridge', []);
-            $bridgeSources[] = $attachmentData['modelData']['source_id'];
-            $bridgeSources = array_unique($bridgeSources);
+            $bridgeSources     = Arr::get($sources, 'bridge', []);
+            $bridgeSources[]   = $attachmentData['modelData']['source_id'];
+            $bridgeSources     = array_unique($bridgeSources);
             $sources['bridge'] = $bridgeSources;
 
-            $modelSources = Arr::get($sources, $attachmentModelType, []);
-            $modelSources[] =  $model->source_id;
-            $modelSources = array_unique($modelSources);
+            $modelSources                  = Arr::get($sources, $attachmentModelType, []);
+            $modelSources[]                = $model->source_id;
+            $modelSources                  = array_unique($modelSources);
             $sources[$attachmentModelType] = $modelSources;
 
             $model->attachments()->updateExistingPivot(
@@ -130,15 +136,15 @@ trait WithAuroraAttachments
             }
         }
         if ($delete) {
-            $model->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
-            foreach ($attachmentsToDelete as $attachmentID) {
+            foreach ($attachmentsToDelete as $attachmentSourceID) {
+                $modelHasAttachment = DB::table('model_has_attachments')->where('source_id', $attachmentSourceID)->first();
                 /** @var Media $attachment */
-                $attachment = Media::find($attachmentID);
+                $attachment = Media::find($modelHasAttachment->media_id);
                 DetachAttachmentFromModel::make()->action($model, $attachment);
                 try {
                     DeleteAttachment::make()->action($attachment);
                 } catch (Throwable) {
-                    // do nothing
+                    //do nothing
                 }
             }
         }

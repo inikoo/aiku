@@ -81,6 +81,9 @@ function shopRoute(customer: FulfilmentCustomer) {
         <template #cell(invoiced_net_amount)="{ item: customer }">
             <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
         </template>
+        <template #cell(sales_all)="{ item: customer }">
+            <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
+        </template>
     </Table>
 </template>
 

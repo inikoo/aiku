@@ -52,7 +52,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
         $argumentName = ($prefix ? $prefix.'_' : '').'radioFilter';
         if (request()->has($argumentName) or $defaultValue) {
-            $elements               = request()->input("$argumentName") ?? $defaultValue;
+            $elements = request()->input("$argumentName") ?? $defaultValue;
             if (is_array($elements)) {
                 $elements = Arr::get($elements, 'radio.value');
             }
@@ -74,7 +74,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
-        $table = $this->getModel()->getTable();
+        $table      = $this->getModel()->getTable();
         $periodType = array_key_first(request()->input(($prefix ? $prefix.'_' : '').'period') ?? []);
 
         if ($periodType) {
@@ -172,9 +172,9 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withBetweenDates(array $allowedColumns, ?string $prefix = null): static
     {
-        $table = $this->getModel()->getTable();
+        $table          = $this->getModel()->getTable();
         $allowedColumns = array_merge($allowedColumns, ['created_at', 'updated_at']);
-        $argumentName = ($prefix ? $prefix . '_' : '') . 'between';
+        $argumentName   = ($prefix ? $prefix.'_' : '').'between';
 
         $filters = request()->input($argumentName, []);
 
@@ -186,8 +186,8 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
                 if (count($parts) === 2) {
                     [$start, $end] = $parts;
 
-                    $start = trim($start) . ' 00:00:00';
-                    $end = trim($end) . ' 23:59:59';
+                    $start = trim($start).' 00:00:00';
+                    $end   = trim($end).' 23:59:59';
 
                     $this->whereBetween("$table.$column", [$start, $end]);
                 }
@@ -200,10 +200,13 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withPaginator($prefix, int $numberOfRecords = null, $tableName = null): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        $userId = auth()->user()->id ?? null;
+        $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
+        if (is_null($numberOfRecords) and request()->has($argumentName)) {
+            $numberOfRecords = (int)request()->input($argumentName);
+        }
 
-        // ui_state-user:YYYY;rrp-table:XXXXXXX
-        $keyRppCache = $tableName ? "ui_state-user:{$userId};rrp-table:" . ($prefix ? "{$prefix}." : "") . "{$tableName}" : null;
+        $userId = auth()->user()->id ?? null;
+        $keyRppCache = $tableName ? "ui_state-user:{$userId};rrp-table:".($prefix ? "{$prefix}." : "")."{$tableName}" : null;
 
         if ($numberOfRecords) {
             $perPage = $numberOfRecords;
@@ -214,24 +217,18 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         }
 
 
-        $argumentName = ($prefix ? $prefix.'_' : '').'perPage';
-        if (request()->has($argumentName)) {
-            $inputtedPerPage = (int)request()->input($argumentName);
-
-            if ($inputtedPerPage < 10) {
-                $perPage = 10;
-            } elseif ($inputtedPerPage > 1000) {
-                $perPage = 1000;
-            } else {
-                $perPage = $inputtedPerPage;
-            }
-
-            if ($tableName && $userId) {
-                Cache::put($keyRppCache, $perPage, now()->addMonth(6));
-            }
-
+        if ($perPage > config('ui.table.max_records_per_page')) {
+            $perPage = config('ui.table.max_records_per_page');
         }
 
+        if ($perPage < config('ui.table.min_records_per_page')) {
+            $perPage = config('ui.table.min_records_per_page');
+        }
+
+
+        if ($tableName && $userId) {
+            Cache::put($keyRppCache, $perPage, now()->addMonth(6));
+        }
 
         return $this->paginate(
             perPage: $perPage,

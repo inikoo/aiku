@@ -32,7 +32,7 @@ class DeleteAttachment
     /**
      * @throws \Exception
      */
-    protected function action(Media $attachment): void
+    public function action(Media $attachment): void
     {
         $this->handle($attachment);
     }
