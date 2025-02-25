@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Events\UploadProductToShopifyProgressEvent;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -77,8 +78,8 @@ class HandleApiProductToShopify extends OrgAction
 
                 $response =  $client->request('POST', '/admin/api/2024-04/products.json', $body);
 
-                if ($response['status'] == 422) {
-                    abort($response['status'], $response['body']);
+                if ($response['errors']) {
+                    throw ValidationException::withMessages(['Internal server error, please wait a while']);
                 }
 
                 $shopifyUser->products()->attach($product, [
