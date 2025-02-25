@@ -17,6 +17,7 @@ use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;
@@ -65,8 +66,9 @@ class IndexPaymentAccounts extends OrgAction
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
             $queryBuilder->where('org_payment_service_provider_id', $parent->id);
         } elseif ($parent instanceof Shop) {
-            // TODO: fix it raul
-            // $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+            $queryBuilder = QueryBuilder::for(PaymentAccountShop::class);
+            $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+            $queryBuilder->leftJoin('payment_accounts', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('payment_accounts.group_id', $parent->id);
         }
