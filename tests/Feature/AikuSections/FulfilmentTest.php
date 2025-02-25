@@ -13,6 +13,8 @@ use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\CRM\Customer\ApproveCustomer;
+use App\Actions\CRM\Customer\RejectCustomer;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
@@ -69,6 +71,7 @@ use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\CRM\Customer\CustomerRejectReasonEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
@@ -181,6 +184,81 @@ test('create fulfilment shop', function () {
 
     return $shop->fulfilment;
 });
+
+
+// case approve customer
+test('create fulfilment customer (pending approvement)', function (Fulfilment $fulfilment) {
+    $fulfilment->fulfilmentCustomers()->delete();
+    $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
+        $fulfilment,
+        [
+            'state'           => CustomerStateEnum::IN_PROCESS,
+            'status'          => CustomerStatusEnum::PENDING_APPROVAL,
+            'contact_name'    => 'pending approval',
+            'company_name'    => 'pending',
+            'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'contact_address' => Address::factory()->definition(),
+        ]
+    );
+
+    expect($fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($fulfilmentCustomer->customer)->toBeInstanceOf(Customer::class)
+        ->and($fulfilmentCustomer->customer->status)->toBe(CustomerStatusEnum::PENDING_APPROVAL)
+        ->and($fulfilmentCustomer->customer->state)->toBe(CustomerStateEnum::IN_PROCESS)
+        ->and($fulfilmentCustomer->customer->is_fulfilment)->toBeTrue()
+        ->and($fulfilment->shop->crmStats->number_customers_status_pending_approval)->toBe(1);
+
+    return $fulfilmentCustomer;
+})->depends('create fulfilment shop');
+
+test('approve fulfilment customer', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $customer = ApproveCustomer::make()->action($fulfilmentCustomer->customer, []);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($customer->is_fulfilment)->toBeTrue()
+        ->and($customer->shop->crmStats->number_customers_status_approved)->toBe(1);
+
+    $fulfilmentCustomer->forceDelete();
+})->depends('create fulfilment customer (pending approvement)');
+
+// case reject customer
+test('create fulfilment second customer (pending approvement)', function (Fulfilment $fulfilment) {
+    $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
+        $fulfilment,
+        [
+            'state'           => CustomerStateEnum::IN_PROCESS,
+            'status'          => CustomerStatusEnum::PENDING_APPROVAL,
+            'contact_name'    => 'pending approval',
+            'company_name'    => 'pending',
+            'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'contact_address' => Address::factory()->definition(),
+        ]
+    );
+
+    expect($fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($fulfilmentCustomer->customer)->toBeInstanceOf(Customer::class)
+        ->and($fulfilmentCustomer->customer->status)->toBe(CustomerStatusEnum::PENDING_APPROVAL)
+        ->and($fulfilmentCustomer->customer->state)->toBe(CustomerStateEnum::IN_PROCESS)
+        ->and($fulfilmentCustomer->customer->is_fulfilment)->toBeTrue()
+        ->and($fulfilment->shop->crmStats->number_customers_status_pending_approval)->toBe(1);
+
+    return $fulfilmentCustomer;
+})->depends('create fulfilment shop');
+
+test('reject fulfilment customer', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $customer = RejectCustomer::make()->action($fulfilmentCustomer->customer, [
+        'rejected_reason' => CustomerRejectReasonEnum::SPAM->value,
+    ]);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->status)->toBe(CustomerStatusEnum::REJECTED)
+        ->and($customer->is_fulfilment)->toBeTrue()
+        ->and($customer->shop->crmStats->number_customers_status_rejected)->toBe(1);
+
+    $fulfilmentCustomer->forceDelete();
+})->depends('create fulfilment second customer (pending approvement)');
+
 
 test('update fulfilment settings (weekly cut off day)', function (Fulfilment $fulfilment) {
     $fulfilment = UpdateFulfilment::make()->action(
@@ -474,7 +552,6 @@ test('create fulfilment customer from customer', function (Fulfilment $fulfilmen
 
     expect($customer)->toBeInstanceOf(Customer::class)
         ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
-        ->and($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::PENDING_APPROVAL)
         ->and($customer->is_fulfilment)->toBeTrue()
         ->and($customer->fulfilmentCustomer->pallets_storage)->toBeTrue()
@@ -484,6 +561,7 @@ test('create fulfilment customer from customer', function (Fulfilment $fulfilmen
         ->and($customer->fulfilmentCustomer->number_stored_items)->toBe(0)
         ->and($fulfilment->stats->number_customers_interest_items_storage)->toBe(1)
         ->and($fulfilment->stats->number_customers_interest_pallets_storage)->toBe(1)
+        ->and($fulfilment->shop->crmStats->number_customers_status_pending_approval)->tobe(1)
         ->and($fulfilment->stats->number_customers_interest_dropshipping)->toBe(0);
 
     return $customer->fulfilmentCustomer;
