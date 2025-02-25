@@ -32,12 +32,12 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCard, faClipboardListCheck, faRabbitFast, faCog } from '@fal'
+import { faIdCard, faClipboardListCheck, faRabbitFast, faSlidersV } from '@fal'
 import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useLogoutAuth } from '@/Composables/useAppMethod'
-library.add(faIdCard, faClipboardListCheck, faRabbitFast, faCog, faSpinnerThird, faInfoCircle)
+library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSlidersV, faSpinnerThird, faInfoCircle)
 
 /* const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue")) */
 
@@ -183,8 +183,8 @@ onMounted(async () => {
             />
             <Button
                 @click="() => layout.stackedComponents.push({ component: SettingProfile })"
-                :label="trans('Settings')"
-                icon="fal fa-cog"
+                :label="trans('Preferences')"
+                icon="fal fa-sliders-v"
                 type="edit"
                 class="-ml-2"
             />
