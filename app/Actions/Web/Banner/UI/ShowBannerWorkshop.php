@@ -92,10 +92,8 @@ class ShowBannerWorkshop extends OrgAction
                 ],
                 'banner'            => BannerResource::make($banner)->getArray(),
                 'autoSaveRoute'     => [
-                    'name'       => 'grp.models.shop.website.banner.update',
+                    'name'       => 'grp.models.banner.layout.update',
                     'parameters' => [
-                        'shop'    => $this->shop->id,
-                        'website' => $this->parent->id,
                         'banner'  => $banner->id
                     ]
                 ],
@@ -106,9 +104,9 @@ class ShowBannerWorkshop extends OrgAction
                     ]
                 ],
                 'imagesUploadRoute' => [
-                    'name'       => 'grp.models.website.images.banner.store',
+                    'name'       => 'grp.models.banner.images.store',
                     'parameters' => [
-                        'website' => $this->parent->id,
+                        'banner' => $banner->id
                     ]
                 ],
                 'galleryRoute'      => [

@@ -10,18 +10,20 @@ namespace App\Actions\Web\Banner;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\WithUploadWebImage;
-use App\Models\Web\Website;
+use App\Models\Web\Banner;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 
 class UploadImagesToBanner extends OrgAction
 {
     use WithUploadWebImage;
+
     // Todo WithWebEditAuthorisation here
 
-    public function asController(Website $website, ActionRequest $request): Collection
+    public function asController(Banner $banner, ActionRequest $request): Collection
     {
-        $this->initialisationFromShop($website->shop, $request);
-        return $this->handle($website->group, 'banner', $this->validatedData);
+        $this->initialisationFromShop($banner->shop, $request);
+
+        return $this->handle($banner->group, 'banner', $this->validatedData);
     }
 }

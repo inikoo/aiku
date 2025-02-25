@@ -186,6 +186,7 @@ use App\Actions\Web\Banner\PublishBanner;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\Banner\UpdateBannerState;
+use App\Actions\Web\Banner\UpdateUnpublishedBannerSnapshot;
 use App\Actions\Web\Banner\UploadImagesToBanner;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
@@ -477,6 +478,9 @@ Route::prefix('rental-agreement/{rentalAgreement:id}')->group(function () {
 
 Route::name('banner.')->prefix('banner/{banner:id}')->group(function () {
     Route::patch('publish', PublishBanner::class)->name('publish');
+    Route::patch('layout', UpdateUnpublishedBannerSnapshot::class)->name('layout.update');
+    Route::post('images', UploadImagesToBanner::class)->name('images.store');
+
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
@@ -539,7 +543,6 @@ Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('or
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
 
-    Route::post('images/banner', UploadImagesToBanner::class)->name('images.banner.store');
 
 
     Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
