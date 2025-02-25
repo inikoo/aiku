@@ -40,7 +40,6 @@ class IndexUploadedBannerImages extends GrpAction
         return $queryBuilder
             ->defaultSort('media.name')
             ->where('group_id', $group->id)
-            ->where('collection_name', 'image')
             ->select(['media.name', 'media.id', 'size', 'mime_type', 'file_name', 'disk', 'media.slug', 'is_animated'])
             ->allowedSorts(['name', 'size'])
             ->allowedFilters([$globalSearch])
