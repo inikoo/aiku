@@ -13,6 +13,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -39,10 +40,12 @@ enum PaymentStateEnum: string
         ];
     }
 
-    public static function count(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent): array
+    public static function count(Group|Organisation|PaymentAccount|Shop|Fulfilment|OrgPaymentServiceProvider|Invoice|Order $parent): array
     {
         if ($parent instanceof Group || $parent instanceof Organisation || $parent instanceof Shop) {
             $stats = $parent->accountingStats;
+        } elseif ($parent instanceof Fulfilment) {
+            $stats = $parent->shop->accountingStats;
         } elseif ($parent instanceof OrgPaymentServiceProvider || $parent instanceof PaymentAccount) {
             $stats = $parent->stats;
         }
