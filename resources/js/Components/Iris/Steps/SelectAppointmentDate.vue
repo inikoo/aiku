@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { ref } from 'vue'
-import { DatePicker } from 'v-calendar'
+// import { DatePicker } from 'v-calendar'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
@@ -71,7 +71,7 @@ const meetOptions = [
         <div class="grid grid-cols-2 divide-x divide-gray-300">
             <!-- Section: Date picker -->
             <div class="w-full px-8">
-                <DatePicker :value="modelValue" @update:modelValue="(newVal: Date) => emits('update:modelValue', newVal)" expanded :attributes="attrs" :min-date='new Date()'/>
+                <!-- <DatePicker :value="modelValue" @update:modelValue="(newVal: Date) => emits('update:modelValue', newVal)" expanded :attributes="attrs" :min-date='new Date()'/> -->
             </div>
 
             <!-- Section: Button Hour, Button Submit -->

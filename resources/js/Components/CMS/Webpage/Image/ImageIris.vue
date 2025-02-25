@@ -87,16 +87,19 @@ const getImageSlots = (layoutType: string) => {
 			class="relative p-2"
 			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)"
 		>
-			<a
+			<component
 				v-if="fieldValue?.value?.images?.[index - 1]?.source"
-				:href="getHref(index - 1)"
+				:is="getHref(index - 1) ? 'a' : 'div'"
+				:href="getHref(index - 1) || '#'"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
 				<Image
 					:src="fieldValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75" />
-			</a>
+					class="w-full object-cover object-center group-hover:opacity-75"
+					:alt="fieldValue?.value?.images?.[index - 1]?.alt || ''"
+				/>
+			</component>
 		</div>
 	</div>
 

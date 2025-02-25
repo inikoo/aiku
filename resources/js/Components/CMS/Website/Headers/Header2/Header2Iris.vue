@@ -71,12 +71,12 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 </script>
 
 <template>
-	<div class="shadow-sm" :style="getStyles(fieldValue.container.properties)">
+	<div class="shadow-sm" :style="getStyles(fieldValue?.container?.properties)">
 		<div class="flex flex-col justify-between items-center py-4 px-6">
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
 				<a href="/">
-					<div :style="getStyles(fieldValue.logo.properties)">
+					<div :style="getStyles(fieldValue?.logo?.properties)">
 						<Image
 							:alt="fieldValue?.logo?.alt"
 							:src="fieldValue?.logo?.image?.source"
@@ -105,7 +105,7 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 							? `${fieldValue.text?.container?.properties?.position?.left}`
 							: 'auto',
 					}">
-					<div v-html="fieldValue.text.text" />
+					<div v-html="fieldValue?.text?.text" />
 				</div>
 			</div>
 		</div>

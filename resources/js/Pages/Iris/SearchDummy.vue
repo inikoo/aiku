@@ -2,8 +2,8 @@
 import { router } from '@inertiajs/vue3'
 import { ref, onMounted } from 'vue'
 
-import 'https://cdn.luigisbox.com/search.js'  // For search
-import 'https://cdn.luigisbox.com/autocomplete.js'  // For autocomplete
+// import 'https://cdn.luigisbox.com/search.js'  // For search
+// import 'https://cdn.luigisbox.com/autocomplete.js'  // For autocomplete
 import { debounce } from 'lodash'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
@@ -12,63 +12,63 @@ import LoadingText from '@/Components/Utils/LoadingText.vue'
 onMounted(() => {
     // console.log('ppp', _pureInput.value?._inputRef)
     inputSearch.value = route().params.q
-    LBInitSearch()
-    LBInitAutocomplete()
+    // LBInitSearch()
+    // LBInitAutocomplete()
 })
 
-const luigiTrackerId = import.meta.env.VITE_LUIGI_TRACKER_ID
-const luigiContent = import.meta.env.VITE_LUIGI_CONTENT_API
+// const luigiTrackerId = import.meta.env.VITE_LUIGI_TRACKER_ID
+// const luigiContent = import.meta.env.VITE_LUIGI_CONTENT_API
 const inputSearch = ref('')
 const _pureInput = ref()
 
 
-const LBInitSearch = async () => {
-    const asdasd = await Luigis.Search({
-        TrackerId: luigiTrackerId,
-        Locale: 'en',
-        Theme: 'boo',
-        Size: 10,
-        UrlParamName: {
-            QUERY: 'q',
-        }
-    }, '#inputLuigi', '#search-ui')
-}
+// const LBInitSearch = async () => {
+//     const asdasd = await Luigis.Search({
+//         TrackerId: luigiTrackerId,
+//         Locale: 'en',
+//         Theme: 'boo',
+//         Size: 10,
+//         UrlParamName: {
+//             QUERY: 'q',
+//         }
+//     }, '#inputLuigi', '#search-ui')
+// }
 
-function LBInitAutocomplete() {
-    AutoComplete({
-        Layout: 'heromobile',
-        TrackerId: luigiTrackerId,
-        Locale: 'en',
-        Translations: {
-            en: {
-                types: {
-                    item: {
-                        name: "Products",
-                        heroName: "Top product"
-                    },
-                    query: {
-                        name: "Searches"
-                    },
-                    category: {
-                        name: "Categories"
-                    }
-                }
-            }
-        },
-        Types: [
-            {
-                type: 'product',
-                size: 7
-            },
-            {
-                type: 'query'
-            },
-            {
-                type: 'category'
-            }
-        ]
-    }, '#inputLuigi')
-}
+// function LBInitAutocomplete() {
+//     AutoComplete({
+//         Layout: 'heromobile',
+//         TrackerId: luigiTrackerId,
+//         Locale: 'en',
+//         Translations: {
+//             en: {
+//                 types: {
+//                     item: {
+//                         name: "Products",
+//                         heroName: "Top product"
+//                     },
+//                     query: {
+//                         name: "Searches"
+//                     },
+//                     category: {
+//                         name: "Categories"
+//                     }
+//                 }
+//             }
+//         },
+//         Types: [
+//             {
+//                 type: 'product',
+//                 size: 7
+//             },
+//             {
+//                 type: 'query'
+//             },
+//             {
+//                 type: 'category'
+//             }
+//         ]
+//     }, '#inputLuigi')
+// }
 
 </script>
 
