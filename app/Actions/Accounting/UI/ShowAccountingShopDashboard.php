@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowAccountingDashboard extends OrgAction
+class ShowAccountingShopDashboard extends OrgAction
 {
     use WithAccountingSubNavigation;
 
