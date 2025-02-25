@@ -10,7 +10,9 @@ namespace App\Actions\Dropshipping\Shopify\Fulfilment;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dropshipping\ShopifyFulfilmentStateEnum;
 use App\Models\Ordering\Order;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -22,10 +24,10 @@ class FulfillOrderToShopify extends OrgAction
 
     public function handle(Order $order): void
     {
-        $fulfillOrderId = $order->shopifyOrder->shopify_fulfilment_id;
-        $shopifyUser = $order->shopifyOrder->shopifyUser;
+        $fulfillOrderId = $order->shopifyOrder?->shopify_fulfilment_id;
+        $shopifyUser = $order->shopifyOrder?->shopifyUser;
 
-        $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/fulfillments.json', [
+        $response = $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/fulfillments.json', [
             'fulfillment' => [
                 'line_items_by_fulfillment_order' => [
                     [
@@ -35,5 +37,15 @@ class FulfillOrderToShopify extends OrgAction
             ],
             'tracking_info' => null
         ]);
+
+        if (!$response['errors']) {
+            $this->update($order->shopifyOrder, [
+                'state' => ShopifyFulfilmentStateEnum::DISPATCHED
+            ]);
+        }
+
+        if ($response['body'] == 'Not Found') {
+            throw ValidationException::withMessages(['messages' => __('You dont have any products')]);
+        }
     }
 }

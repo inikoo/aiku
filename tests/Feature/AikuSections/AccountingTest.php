@@ -175,7 +175,7 @@ test('create other org payment service provider account', function () {
 
     $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
     $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
-        $organisation, 
+        $organisation,
         $paymentServiceProvider,
         [
             'code' => 'Acc1',
@@ -1115,7 +1115,7 @@ test('Store invoice refund transaction', function (Invoice $refund) {
 
     $refund->refresh();
     expect($refundTransaction)->toBeInstanceOf(InvoiceTransaction::class);
-    
+
     return $refund;
 })->depends('Store invoice refund');
 

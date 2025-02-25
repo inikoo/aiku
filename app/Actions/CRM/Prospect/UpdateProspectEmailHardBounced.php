@@ -13,11 +13,9 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailHardBounced extends OrgAction
 {
-
     public function handle(Prospect $prospect, Carbon $date): Prospect
     {
         $dataToUpdate = [];

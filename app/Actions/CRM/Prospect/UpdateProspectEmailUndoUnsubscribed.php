@@ -15,7 +15,6 @@ use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailUndoUnsubscribed extends OrgAction
 {
