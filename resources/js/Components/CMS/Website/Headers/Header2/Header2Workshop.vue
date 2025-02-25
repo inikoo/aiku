@@ -89,36 +89,57 @@ onMounted(() => {
 
 // Save function to emit autoSave
 function onSave() {
-	emits("autoSave")
+	emits("update:modelValue", props.modelValue)
 }
 
 // Dragging function for Moveable
 function onDragText(e) {
-	const { target, beforeTranslate } = e
-	if (beforeTranslate) {
-		// Apply the movement
-		target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`
+  const { target, beforeTranslate } = e;
+  if (beforeTranslate) {
+    // Calculate new left and top positions:
+    const newLeft = beforeTranslate[0];
+    const newTop = beforeTranslate[1];
 
-		// Update modelValue position
-		props.modelValue.text.container.properties.position.left = `${beforeTranslate[0]}px`
-		props.modelValue.text.container.properties.position.top = `${beforeTranslate[1]}px`
-		onSave()
-	}
+    // Directly update left and top instead of (or in addition to) using transform:
+    target.style.left = `${newLeft}px`;
+    target.style.top = `${newTop}px`;
+    // Clear the transform to rely solely on left/top
+    target.style.transform = '';
+
+    // Determine parent dimensions
+    const parent = target.parentElement;
+    const parentWidth = parent ? parent.clientWidth : 0;
+    const parentHeight = parent ? parent.clientHeight : 0;
+
+    // Get element dimensions
+    const elementWidth = target.offsetWidth;
+    const elementHeight = target.offsetHeight;
+
+    // Calculate right and bottom offsets
+    const newRight = parentWidth - (newLeft + elementWidth);
+    const newBottom = parentHeight - (newTop + elementHeight);
+
+    // Update model's position values
+    props.modelValue.text.container.properties.position.left = `${newLeft}px`;
+    props.modelValue.text.container.properties.position.top = `${newTop}px`;
+    props.modelValue.text.container.properties.position.right = `${newRight}px`;
+    props.modelValue.text.container.properties.position.bottom = `${newBottom}px`;
+
+    onSave();
+  }
 }
 
-// Resizing function for Moveable
+
+
 function onResizeText(e) {
 	const { target, width, height } = e
 	target.style.width = `${width}px`
 	target.style.height = `${height}px`
-
-	// Update modelValue
 	props.modelValue.text.container.properties.width = `${width}px`
 	props.modelValue.text.container.properties.height = `${height}px`
 	onSave()
 }
 
-// Scaling function (Fixing potential errors)
 function onTextScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
 	if (!transform) return
 
@@ -141,7 +162,7 @@ const editable = ref(true)
 </script>
 
 <template>
-	<div class="shadow-sm" :style="getStyles(modelValue.container.properties)">
+	<div ref="_parentComponent" class="relative shadow-sm" :style="getStyles(modelValue.container.properties)">
 		<div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
@@ -158,7 +179,26 @@ const editable = ref(true)
 				<div class="relative justify-self-center w-full max-w-md"></div>
 
 				<!-- Text (Movable & Resizable) -->
-				<div ref="_textRef" class="relative resizable-box">
+				<div ref="_textRef" class="absolute" :style="{
+						width: modelValue.text?.container?.properties?.width
+							? `${modelValue.text?.container?.properties?.width}`
+							: 'auto',
+						height: modelValue.text?.container?.properties?.height
+							? `${modelValue.text?.container?.properties?.height}`
+							: 'auto',
+						top: modelValue.text?.container?.properties?.position?.top
+							? `${modelValue.text?.container?.properties?.position?.top}`
+							: 'auto',
+						right: modelValue.text?.container?.properties?.position?.right
+							? `${modelValue.text?.container?.properties?.position?.right}`
+							: '0px',
+                        left: modelValue.text?.container?.properties?.position?.left
+                        ? `${modelValue.text?.container?.properties?.position?.left}`
+                        : '0px',
+                        bottom: modelValue.text?.container?.properties?.position?.bottom
+                        ? `${modelValue.text?.container?.properties?.position?.bottom}`
+                        : '0px',
+					}">
 					<Editor
 						v-model="modelValue.text.text"
 						:editable="editable"
@@ -177,7 +217,7 @@ const editable = ref(true)
 					:resizable="true"
 					:scalable="true"
 					:keepRatio="false"
-					:throttleDrag="1"
+					:throttleDrag="5"
 					:throttleResize="1"
 					:renderDirections="['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']"
 					@drag="onDragText"

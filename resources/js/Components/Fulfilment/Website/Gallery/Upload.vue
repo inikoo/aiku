@@ -92,7 +92,7 @@ const drop = (e) => {
     <Modal :isOpen="isOpenModalCrop" @onClose="isOpenModalCrop = false">
         <div>
             <CropImage v-bind="cropProps" :data="uploadedFilesList" :imagesUploadRoute="uploadRoutes"
-                @response="(e) => emits('onUpload', e)" />
+                :response="(e) => emits('onUpload', e)" />
         </div>
     </Modal>
 </template>

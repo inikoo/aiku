@@ -71,12 +71,15 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 </script>
 
 <template>
-	<div class="shadow-sm" :style="getStyles(fieldValue.container.properties)">
+	<div
+		ref="_parentComponent"
+		class="relative"
+		:style="getStyles(fieldValue.container.properties)">
 		<div class="flex flex-col justify-between items-center py-4 px-6">
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
 				<a href="/">
-					<div :style="getStyles(fieldValue.logo.properties)">
+					<div :style="getStyles(fieldValue?.logo?.properties)">
 						<Image
 							:alt="fieldValue?.logo?.alt"
 							:src="fieldValue?.logo?.image?.source"
@@ -90,7 +93,8 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 				</div>
 
 				<!-- Gold Member Button -->
-				<div class="absolute"  ref="el => textRefs = el"
+				<div
+					class="absolute"
 					:style="{
 						width: fieldValue.text?.container?.properties?.width
 							? `${fieldValue.text?.container?.properties?.width}`
@@ -101,11 +105,17 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 						top: fieldValue.text?.container?.properties?.position?.top
 							? `${fieldValue.text?.container?.properties?.position?.top}`
 							: 'auto',
-						left: fieldValue.text?.container?.properties?.position?.left
-							? `${fieldValue.text?.container?.properties?.position?.left}`
-							: 'auto',
+						right: fieldValue.text?.container?.properties?.position?.right
+							? `${fieldValue.text?.container?.properties?.position?.right}`
+							: '0px',
+                        left: fieldValue.text?.container?.properties?.position?.left
+                        ? `${fieldValue.text?.container?.properties?.position?.left}`
+                        : '0px',
+                        bottom: fieldValue.text?.container?.properties?.position?.bottom
+                        ? `${fieldValue.text?.container?.properties?.position?.bottom}`
+                        : '0px',
 					}">
-					<div v-html="fieldValue.text.text" />
+					<div v-html="fieldValue?.text?.text" />
 				</div>
 			</div>
 		</div>
