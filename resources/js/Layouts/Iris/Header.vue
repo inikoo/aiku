@@ -71,8 +71,8 @@ provide('onLogout', onLogoutAuth)
             <MobileMenu :header="data.header.data.fieldValue" :menu="menu?.data?.fieldValue?.navigation" />
             <!-- Logo for Mobile -->
             <!-- <pre> {{ data.header.data.fieldValue?.logo.image.source }}</pre>  -->
-            <img :src="data.header.data.fieldValue?.logo.image.source.original"
-                :alt="data.header.data.fieldValue?.logo.alt" class="h-10 mx-2"></img>
+            <img :src="data.header.data.fieldValue?.logo?.image?.source?.original"
+                :alt="data.header.data.fieldValue?.logo?.alt" class="h-10 mx-2"></img>
 
             <!-- Profile Icon with Dropdown Menu -->
             <div @click="toggle" class="flex items-center cursor-pointer">

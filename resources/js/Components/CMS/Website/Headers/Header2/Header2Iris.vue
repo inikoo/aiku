@@ -39,11 +39,11 @@ const editable = ref(true)
 </script>
 
 <template>
-    <div class="shadow-sm" :style="getStyles(modelValue.container.properties)">
+    <div class="shadow-sm" :style="getStyles(modelValue?.container?.properties)">
         <div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
-                <div :style="getStyles(modelValue.logo.properties)" @click="() => emits('setPanelActive', 'logo')">
+                <div :style="getStyles(modelValue?.logo.properties)" @click="() => emits('setPanelActive', 'logo')">
                     <Image :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.image?.source" class="hover-dashed"></Image>
                 </div>
 
@@ -59,9 +59,9 @@ const editable = ref(true)
                 
                <!--  <Editor
                     :class="'model border border-transparent hover-dashed border-dashed cursor-text'"
-                    :key="editorKey" v-model="modelValue.columns.column_4.data.textBox1"
+                    :key="editorKey" v-model="modelValue?.columns.column_4.data.textBox1"
                     :editable="editable"
-                    @update:model-value="(e) => { modelValue.columns.column_4.data.textBox1 = e, emits('update:modelValue', modelValue) }" /> -->
+                    @update:model-value="(e) => { modelValue?.columns.column_4.data.textBox1 = e, emits('update:modelValue', modelValue) }" /> -->
             </div>
         </div>
 
@@ -71,7 +71,7 @@ const editable = ref(true)
                 <MobileMenu :header="modelValue" :menu="modelValue" />
 
                 <!-- Logo for Mobile -->
-                <img v-if="!modelValue.logo"
+                <img v-if="!modelValue?.logo"
                     src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
                     alt="Ancient Wisdom Logo" class="h-10 mx-2">
 
