@@ -8,10 +8,8 @@
 
 namespace App\Actions\Dropshipping\Shopify\Product;
 
-use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Events\UploadProductToShopifyProgressEvent;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
@@ -83,15 +81,12 @@ class HandleApiProductToShopify extends OrgAction
                     abort($response['status'], $response['body']);
                 }
 
-                $portfolio = StorePortfolio::run($shopifyUser->customer, [
-                    'product_id' => $product->id,
-                    'type' => PortfolioTypeEnum::SHOPIFY->value,
-                ]);
-
                 $shopifyUser->products()->attach($product, [
                     'shopify_user_id' => $shopifyUser->id,
                     'product_type' => class_basename($product),
-                    'portfolio_id' => $portfolio->id
+                    'product_id' => $product->id,
+                    'portfolio_id' => $portfolio->id,
+                    'shopify_product_id' => $response['body']['product']['id']
                 ]);
 
                 $uploaded++;

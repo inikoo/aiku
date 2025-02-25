@@ -34,53 +34,53 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
         $invoice = Invoice::withTrashed()->where('source_id', $deletedInvoiceData['invoice']['source_id'])->first();
 
 
-       // dd($deletedInvoiceData['invoice']['source_id']);
+        // dd($deletedInvoiceData['invoice']['source_id']);
         if ($invoice) {
-          //  if ($invoice->trashed()) {
-                try {
-                    $invoice = UpdateInvoice::make()->action(
-                        invoice: $invoice,
-                        modelData: $deletedInvoiceData['invoice'],
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'update');
-
-                    return null;
-                }
-//            } else {
-//                // delete invoice
-//                print "Deleting invoice: $invoice->source_id\n";
-//            }
-        } else {
-          //  try {
-                $invoice = StoreInvoice::make()->action(
-                    parent: $deletedInvoiceData['parent'],
+            //  if ($invoice->trashed()) {
+            try {
+                $invoice = UpdateInvoice::make()->action(
+                    invoice: $invoice,
                     modelData: $deletedInvoiceData['invoice'],
-                    hydratorsDelay: 60,
+                    hydratorsDelay: $this->hydratorsDelay,
                     strict: false,
                     audit: false
                 );
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'update');
 
-                Invoice::enableAuditing();
-                $this->saveMigrationHistory(
-                    $invoice,
-                    Arr::except($deletedInvoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
-                $this->recordNew($organisationSource);
+                return null;
+            }
+            //            } else {
+            //                // delete invoice
+            //                print "Deleting invoice: $invoice->source_id\n";
+            //            }
+        } else {
+            //  try {
+            $invoice = StoreInvoice::make()->action(
+                parent: $deletedInvoiceData['parent'],
+                modelData: $deletedInvoiceData['invoice'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+
+            Invoice::enableAuditing();
+            $this->saveMigrationHistory(
+                $invoice,
+                Arr::except($deletedInvoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
+            $this->recordNew($organisationSource);
 
 
-                $sourceData=explode(':',$invoice->source_id);
-                DB::connection('aurora')->table('Invoice Deleted Dimension')
-                    ->where('Invoice Deleted Key', $sourceData[1])
-                    ->update(['aiku_id' => $invoice->id]);
-//            } catch (Exception|Throwable $e) {
-//                $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'store');
-//
-//                return null;
-//            }
+            $sourceData = explode(':', $invoice->source_id);
+            DB::connection('aurora')->table('Invoice Deleted Dimension')
+                ->where('Invoice Deleted Key', $sourceData[1])
+                ->update(['aiku_id' => $invoice->id]);
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'store');
+            //
+            //                return null;
+            //            }
         }
 
 
