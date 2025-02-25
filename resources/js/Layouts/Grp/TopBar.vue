@@ -9,7 +9,7 @@ import { Link } from "@inertiajs/vue3";
 import { reactive, inject } from "vue";
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue";
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue";
-import { Menu, MenuItems } from "@headlessui/vue";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import { Disclosure } from "@headlessui/vue";
 import { trans } from "laravel-vue-i18n";
 import Image from "@/Components/Image.vue";
@@ -69,6 +69,8 @@ import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue";
 import { layoutStructure } from "@/Composables/useLayoutStructure";
 import { faBallot } from "@fas";
 import ScreenWarning from "@/Components/Utils/ScreenWarning.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { useTruncate } from "@/Composables/useTruncate"
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
   faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows, faStream,
@@ -109,7 +111,7 @@ console.log("environment:", usePage().props.environment);
 
     <div class="px-0">
       <div class="flex h-11 lg:h-10 flex-shrink-0">
-        <div class="flex">
+        <div class="flex items-center border-b border-gray-300">
           <!-- Mobile: Hamburger -->
           <button class="block md:hidden w-10 h-10 relative focus:outline-none" @click="$emit('sidebarOpen', !sidebarOpen)">
             <span class="sr-only">Open sidebar</span>
@@ -123,9 +125,9 @@ console.log("environment:", usePage().props.environment);
           </button>
 
           <!-- App Title: Image and Title -->
-          <div class="overflow-hidden relative flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
-               :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
-               :style="{
+          <div v-if="!layoutStore.user?.settings?.hide_logo" class="overflow-hidden relative flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+            :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
+            :style="{
                             'background-color': layoutStore.app.theme[0],
                             'color': layoutStore.app.theme[1],
                             'border-bottom': `1px solid ${layoutStore.app.theme[2]}3F`
@@ -135,7 +137,7 @@ console.log("environment:", usePage().props.environment);
               <Link :href="layoutStore.currentParams?.organisation ? route('grp.org.dashboard.show', layoutStore.currentParams?.organisation) : route('grp.dashboard.show')"
                     :key="layoutStore.currentParams?.organisation"
                     class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
-                    :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
+                    :class="[layoutStore.leftSidebar.show ? 'py-3 pl-4' : 'pl-2.5 w-full']"
               >
                 <Image :src="layoutStore.organisations.data?.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
                 <Transition name="slide-to-left">
@@ -149,24 +151,11 @@ console.log("environment:", usePage().props.environment);
                 </Transition>
               </Link>
             </Transition>
-          </div>
         </div>
 
-        <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
-          <!-- Section: Dropdown + subsections -->
-          <div class="flex items-center gap-x-2 pl-2">
-            <!-- Section: Dropdown -->
-            <div
-              v-if="layoutStore.group
-                    || (layoutStore.organisations.data?.length > 1)
-                    || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
-                    || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
-                "
-              class="flex border border-gray-300 rounded-md"
-            >
               <!-- Dropdown: TopBars -->
-              <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
-                <TopBarSelectButton
+            <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="ml-2 relative text-left">
+                <!-- <TopBarSelectButton
                   :icon="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
@@ -187,7 +176,40 @@ console.log("environment:", usePage().props.environment);
                                                 ?? layoutStore.group?.label
                                             : layoutStore.group?.label
                                     "
-                />
+                  
+                /> -->
+
+                <MenuButton v-slot="{ open }"
+                    class="inline-flex sm:min-w-32 sm:w-[184px] h-[26px] lg:h-8 overflow-ellipsis rounded border border-gray-300 w-full whitespace-nowrap justify-between items-center gap-x-2 px-2.5 py-2 text-xxs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
+                    :class="[!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation) ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'hover:bg-slate-200 text-slate-600']">
+                    <div class="flex items-center gap-x-1 w-full truncate overflow-ellipsis line-clamp-2">
+                        <FontAwesomeIcon :icon="layoutStore.currentParams?.organisation
+                                            ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ? 'fal fa-building'
+                                                : layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                    ? 'fal fa-people-arrows'
+                                                    : layoutStore.digital_agency.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                        ? 'fal fa-laptop-house'
+                                                        : 'fal fa-city'
+                                            : 'fal fa-city'" class='opacity-60 text-xs' fixed-width aria-hidden='true' />
+                        <Transition name="spin-to-down">
+                          <span :key="layoutStore.currentParams?.organisation
+                                              ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.digital_agency.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.group?.label
+                                              : layoutStore.group?.label"
+                              class="hidden sm:inline whitespace-pre-line">
+                                              {{ useTruncate(layoutStore.currentParams?.organisation
+                                              ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.digital_agency.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                  ?? layoutStore.group?.label
+                                              : layoutStore.group?.label, 44) }}</span>
+                        </Transition>
+                    </div>
+                    <FontAwesomeIcon icon='far fa-chevron-down' class='text-xs transition-all duration-200 ease-in-out' :class="[open ? 'rotate-180' : '']" aria-hidden='true' />
+                </MenuButton>
 
                 <transition>
                   <MenuItems
@@ -230,6 +252,21 @@ console.log("environment:", usePage().props.environment);
                   </MenuItems>
                 </transition>
               </Menu>
+        </div>
+
+        <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
+          <!-- Section: Dropdown + subsections -->
+          <div class="flex items-center gap-x-2 pl-2">
+            <!-- Section: Dropdown -->
+            <div
+              v-if="layoutStore.group
+                    || (layoutStore.organisations.data?.length > 1)
+                    || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
+                    || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
+                "
+              class="flex border border-gray-300 rounded"
+            >
+              
 
 
               <!-- Dropdown: Shops and Fulfilment-->
