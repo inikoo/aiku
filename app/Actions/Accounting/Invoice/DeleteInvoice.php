@@ -17,20 +17,19 @@ class DeleteInvoice extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(
-        Invoice $invoice,
-        array $modelData
-    ): Invoice {
+    public function handle(Invoice $invoice, array $modelData): Invoice
+    {
+        $invoice = $this->update($invoice, $modelData, ['data']);
         $invoice->invoiceTransactions()->delete();
         $invoice->delete();
         CustomerHydrateInvoices::dispatch($invoice->customer);
 
-        return $this->update($invoice, $modelData, ['data']);
+
     }
 
     public function action(Invoice $invoice, array $modelData): Invoice
     {
-        $this->initialisation($invoice->organisation, $modelData);
+        $this->initialisationFromShop($invoice->shop, $modelData);
 
         return $this->handle($invoice, $this->validatedData);
     }

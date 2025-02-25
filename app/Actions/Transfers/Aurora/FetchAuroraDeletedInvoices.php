@@ -27,36 +27,28 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
     {
         $deletedInvoiceData = $organisationSource->fetchDeletedInvoice($organisationSourceId);
         if (!$deletedInvoiceData or !$deletedInvoiceData['invoice']) {
-            print "No deleted invoice data found for $organisationSourceId\n";
-
             return null;
         }
 
         $invoice = Invoice::withTrashed()->where('source_id', $deletedInvoiceData['invoice']['source_id'])->first();
 
 
-        // dd($deletedInvoiceData['invoice']['source_id']);
         if ($invoice) {
-            // if ($invoice->deleted_from_deleted_invoice_fetch) {
-            try {
-                $invoice = UpdateInvoice::make()->action(
-                    invoice: $invoice,
-                    modelData: $deletedInvoiceData['invoice'],
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false,
-                    audit: false
-                );
-            } catch (Exception $e) {
-                $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'update');
-
-                return null;
-            }
-            //            } else {
-            //                // delete invoice
-            //                print "Deleting invoice: $invoice->source_id\n";
+            //  try {
+            $invoice = UpdateInvoice::make()->action(
+                invoice: $invoice,
+                modelData: $deletedInvoiceData['invoice'],
+                hydratorsDelay: $this->hydratorsDelay,
+                strict: false,
+                audit: false
+            );
+            //            } catch (Exception $e) {
+            //                $this->recordError($organisationSource, $e, $deletedInvoiceData['invoice'], 'Invoice', 'update');
+            //
+            //                return null;
             //            }
         } else {
-            //  try {
+            // try {
             $invoice = StoreInvoice::make()->action(
                 parent: $deletedInvoiceData['parent'],
                 modelData: $deletedInvoiceData['invoice'],
@@ -85,7 +77,8 @@ class FetchAuroraDeletedInvoices extends FetchAuroraAction
         }
 
 
-        $invoice->invoiceTransactions()->delete();
+        DB::table('invoice_transactions')->where('invoice_id', $invoice->id)
+            ->whereNull('deleted_at')->delete();
 
 
         return $invoice;
