@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
@@ -18,12 +19,14 @@ use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotifi
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
@@ -40,6 +43,7 @@ use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -223,6 +227,20 @@ beforeEach(function () {
         );
     }
     $this->recurringBill = $recurringBill;
+
+    $invoice = Invoice::where("type", InvoiceTypeEnum::INVOICE->value)->first();
+    if (!$invoice) {
+        $invoice = ConsolidateRecurringBill::make()->action($recurringBill);
+    }
+
+    $this->invoice = $invoice;
+
+    $refund = Invoice::where("type", InvoiceTypeEnum::REFUND->value)->first();
+    if (!$refund) {
+        $refund = StoreRefund::make()->action($invoice, []);
+    }
+    $this->refund = $refund;
+
 
     $space = $this->customer->fulfilmentCustomer->spaces()->first();
     if (!$space) {
@@ -668,6 +686,50 @@ test('UI show fulfilment customer space', function () {
             ->has('tabs')
             ->has('showcase')
             ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer edit invoice', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->invoice->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'Edit invoice')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer refund', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->slug,
+        $this->invoice->slug,
+        $this->refund->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/InvoiceRefund')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->refund->reference)
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('order_summary')
+            ->has('exportPdfRoute')
+            ->has('box_stats')
+            ->has('invoice_refund')
+            ->has('breadcrumbs', 5);
     });
 });
 
