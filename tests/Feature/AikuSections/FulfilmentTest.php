@@ -59,6 +59,8 @@ use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
+use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
@@ -67,6 +69,7 @@ use App\Actions\Traits\WithGetRecurringBillEndDate;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
+use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
@@ -98,6 +101,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
+use App\Models\Fulfilment\Space;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Upload;
@@ -723,6 +727,49 @@ test('update second rental agreement cause', function (RentalAgreement $rentalAg
 
     return $rentalAgreement;
 })->depends('create second rental agreement');
+
+test('create space', function (FulfilmentCustomer $fulfilmentCustomer) {
+    /** @var Fulfilment $fulfilment */
+    $fulfilment = $fulfilmentCustomer->fulfilment;
+    /** @var Rental $rental */
+    $rental = StoreRental::make()->action(
+        $fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00020',
+            'name'  => 'Rental Asset Z',
+            'type'  =>  RentalTypeEnum::SPACE
+        ]
+    );
+    $space = StoreSpace::make()->action(
+        $fulfilmentCustomer,
+        [
+            'reference' => 'Ref1',
+            'exclude_weekend' => true,
+            'start_at' => now(),
+            'rental_id' => $rental->id
+        ]
+    );
+
+    expect($space)->toBeInstanceOf(Space::class);
+
+    return $space;
+
+})->depends('create second fulfilment customer');
+
+test('update space', function (Space $space) {
+    $space = UpdateSpace::make()->action(
+        $space,
+        [
+            'exclude_weekend' => false,
+        ]
+    );
+
+    expect($space)->toBeInstanceOf(Space::class)
+        ->and($space->exclude_weekend)->toBe(false);
+
+})->depends('create space');
 
 test('Fetch new webhook fulfilment customer', function (FulfilmentCustomer $fulfilmentCustomer) {
     $webhook = FetchNewWebhookFulfilmentCustomer::make()->action(
