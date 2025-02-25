@@ -205,8 +205,16 @@ console.log(props.modelValue)
 				@click="(e) => (isInWorkshop ? e.preventDefault() : null)">
 				
 				<img
+					v-if="modelValue?.value?.images?.[index - 1]?.source?.original"
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source?.original"
+					class="w-full object-cover object-center group-hover:opacity-75" 
+					@click="openImageGallery(index - 1)" 
+				/>
+				<Image
+					v-else
+					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
+					:src="modelValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" 
 					@click="openImageGallery(index - 1)" 
 				/>
