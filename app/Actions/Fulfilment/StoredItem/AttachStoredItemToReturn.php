@@ -75,13 +75,13 @@ class AttachStoredItemToReturn extends OrgAction
         $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData, int $hydratorsDelay = 0): PalletReturn
+    public function action(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData, int $hydratorsDelay = 0)
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
-        return $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
+        $this->handle($palletReturn, $palletStoredItem, $this->validatedData);
     }
 }
