@@ -20,6 +20,7 @@ use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotificati
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
@@ -219,8 +220,24 @@ beforeEach(function () {
             $storeData
         );
     }
-
     $this->recurringBill = $recurringBill;
+
+    $space = $this->customer->fulfilmentCustomer->spaces()->first();
+    if (!$space) {
+        $space = StoreSpace::run(
+            $this->customer->fulfilmentCustomer,
+            [
+                'reference' => 'test',
+                'exclude_weekend' => false,
+                'start_at' => now(),
+                'end_at' => now()->addDays(10),
+                'rental_id' => $this->rental->id
+            ]
+        );
+    }
+
+    $this->space = $space;
+
     $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
@@ -585,6 +602,58 @@ test('UI show fulfilment customer space sub navigation', function () {
                 ->etc()
             )
             ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer create space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.create', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'new space')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer edit space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->space->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'edit space')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show fulfilment customer space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->space->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Space')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->space->reference)
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('showcase')
             ->has('breadcrumbs', 4);
     });
 });
