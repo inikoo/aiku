@@ -34,6 +34,9 @@ class PaymentAccountShopsResource extends JsonResource
             'shop_code' => $this->shop_code,
             'shop_name' => $this->shop_name,
             'shop_slug' => $this->shop_slug,
+            'number_payments'               => $this->number_payments,
+            'amount_successfully_paid'  => $this->amount_successfully_paid,
+            'shop_currency_code' => $this->shop_currency_code,
         ];
     }
 }
