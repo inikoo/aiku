@@ -57,9 +57,7 @@ onMounted(() => {
         if (event.data.key === 'reload') {
             router.reload({
                 only: ['footer', 'header', 'webpage'],
-                onSuccess: () => {
-                    if (props.webpage) data.value = props.webpage
-                }
+                onSuccess: () => {}
             });
         }
     });

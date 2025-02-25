@@ -130,7 +130,6 @@ class IndexPallets extends OrgAction
             'customer_reference',
             'reference',
             'fulfilment_customer_name',
-            'datw'
         ])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
