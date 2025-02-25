@@ -21,14 +21,15 @@ const props = defineProps<{
 
 <template>
     <!-- If banner is 'landscape' -->
-    <div v-if="data.type == 'landscape'">
+    <div v-if="data.type == 'landscape'" class="">
         <div v-if="data.published_snapshot" class="w-full bg-white flex items-center justify-between py-3 px-4">
             <div class="flex gap-x-2">
-                <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-gray-300">
+                <div v-if="data?.published_snapshot?.publisher_avatar" class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-gray-300">
                     <Image :src="data.published_snapshot.publisher_avatar" />
                 </div>
-                <div class="font-bold text-lg leading-none">{{ data.published_snapshot.publisher }}</div>
-                <div v-if="data.published_snapshot.comment" class="text-sm text-gray-500 italic">
+                <div v-if="data.published_snapshot?.publisher" class="font-bold text-lg leading-none">{{ data.published_snapshot.publisher }}</div>
+                <div v-else class=" leading-none text-gray-400 italic">{{ trans("Not published yet") }}</div>
+                <div v-if="data.published_snapshot?.comment" class="text-sm text-gray-500 italic">
                     ({{ data.published_snapshot.comment }})
                 </div>
             </div>
@@ -36,7 +37,7 @@ const props = defineProps<{
                 Published at <span class="font-bold">{{ useRangeFromNow(data.published_snapshot.published_at) }}</span> ago
             </div>
         </div>
-        <div class="aspect-[2/1] md:aspect-[3/1] lg:aspect-[4/1] w-fit h-56 md:h-60">
+        <div class="aspect-[2/1] md:aspect-[3/1] lg:aspect-[4/1] w-auto min-h-24 md:min-h-48 max-h-60">
             <SliderLandscape :data="data.compiled_layout" :production="true" />
         </div>
     </div>

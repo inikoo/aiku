@@ -63,6 +63,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
@@ -2400,6 +2401,81 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
 
     return $palletReturn;
 })->depends('set fifth pallet delivery as booked in');
+
+test('attach stored item second pallet return', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    /** @var FulfilmentCustomer $fulfilmentCustomer */
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $storedItem = $fulfilmentCustomer->storedItems()->first();
+    $palletStoredItem = $storedItem->palletStoredItems()->first();
+
+    AttachStoredItemToReturn::make()->action(
+        $palletReturn,
+        $palletStoredItem,
+        [
+            'quantity_ordered' => 2,
+        ]
+    );
+
+    $palletReturn->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->storedItems()->count())->toBe(1);
+
+    return $palletReturn;
+})->depends('create second pallet return');
+
+test('attach stored item second pallet return with different quantity', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    /** @var FulfilmentCustomer $fulfilmentCustomer */
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $storedItem = $fulfilmentCustomer->storedItems()->first();
+    $palletStoredItem = $storedItem->palletStoredItems()->first();
+
+    AttachStoredItemToReturn::make()->action(
+        $palletReturn,
+        $palletStoredItem,
+        [
+            'quantity_ordered' => 4,
+        ]
+    );
+
+    $palletReturn->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->storedItems()->count())->toBe(1);
+
+    return $palletReturn;
+})->depends('create second pallet return');
+
+test('attach stored item second pallet return with 0 quantity', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    /** @var FulfilmentCustomer $fulfilmentCustomer */
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $storedItem = $fulfilmentCustomer->storedItems()->first();
+    $palletStoredItem = $storedItem->palletStoredItems()->first();
+
+    AttachStoredItemToReturn::make()->action(
+        $palletReturn,
+        $palletStoredItem,
+        [
+            'quantity_ordered' => 0,
+        ]
+    );
+
+    $palletReturn->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->storedItems()->count())->toBe(0);
+
+    return $palletReturn;
+})->depends('create second pallet return');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
