@@ -226,6 +226,7 @@ test('update payment account shop', function (PaymentAccount $paymentAccount) {
     $paymentAccountShop = UpdatePaymentAccountShop::make()->action(
         $paymentAccountShop,
         [
+            'state'            => PaymentAccountShopStateEnum::INACTIVE,
             'show_in_checkout' => true,
         ]
     );

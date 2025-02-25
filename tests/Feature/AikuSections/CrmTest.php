@@ -34,6 +34,13 @@ use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
+use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
+use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
+use App\Actions\CRM\Prospect\UpdateProspectEmailOpened;
+use App\Actions\CRM\Prospect\UpdateProspectEmailSent;
+use App\Actions\CRM\Prospect\UpdateProspectEmailSoftBounced;
+use App\Actions\CRM\Prospect\UpdateProspectEmailUndoUnsubscribed;
+use App\Actions\CRM\Prospect\UpdateProspectEmailUnsubscribed;
 use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\Order\StoreOrder;
@@ -45,6 +52,9 @@ use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Poll\PollTypeEnum;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
+use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
+use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
@@ -912,4 +922,160 @@ test('prospects search', function () {
     $prospects = Prospect::first();
     ReindexProspectSearch::run($prospects);
     expect($prospects->universalSearch()->count())->toBe(1);
+});
+
+test('create 3rd prospect (Email Clicked)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect->refresh();
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(3);
+
+    $prospect = UpdateProspectEmailClicked::make()->action($prospect, Carbon::now());
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::CLICKED);
+        
+    return $prospect;
+});
+
+test('create 4th prospect (Email hard Bounced)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect->refresh();
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(4);
+
+    $prospect = UpdateProspectEmailHardBounced::make()->action($prospect, Carbon::now());
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::FAIL)
+        ->and($prospect->fail_status)->toBe(ProspectFailStatusEnum::INVALID)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::NA);
+
+    return $prospect;
+});
+
+test('create 5th prospect (Email Sent)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect     = UpdateProspect::make()->action($prospect, [
+        'contacted_state' => ProspectContactedStateEnum::NA
+    ]);
+    $prospect->refresh();
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(5);
+
+    $prospect = UpdateProspectEmailSent::make()->action($prospect);
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::NEVER_OPEN);
+
+    return $prospect;
+});
+
+test('create 6th prospect (Email Opened)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect     = UpdateProspect::make()->action($prospect, [
+        'contacted_state' => ProspectContactedStateEnum::NA
+    ]);
+    $prospect->refresh();
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(6);
+
+    $prospect = UpdateProspectEmailOpened::make()->action($prospect, Carbon::now());
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::OPEN);
+
+    return $prospect;
+});
+
+test('create 7th prospect (Email Soft Bounced)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect     = UpdateProspect::make()->action($prospect, [
+        'state'           => ProspectStateEnum::NO_CONTACTED,
+        'contacted_state' => ProspectContactedStateEnum::NA
+    ]);
+    $prospect->refresh();
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(7);
+
+    $prospect = UpdateProspectEmailSoftBounced::make()->action($prospect, Carbon::now());
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::SOFT_BOUNCED);
+
+    return $prospect;
+});
+
+test('create 8th prospect (Email Undo Unsubscribed)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect->refresh();
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(8);
+
+    $prospect = UpdateProspectEmailUndoUnsubscribed::make()->action($prospect);
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::NO_CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::NA)
+        ->and($prospect->fail_status)->toBe(ProspectFailStatusEnum::NA);
+
+    return $prospect;
+});
+
+test('create 9th prospect (Email Undo Unsubscribed - last_contacted not null)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect     = UpdateProspect::make()->action($prospect, [
+        'last_contacted_at'           => Carbon::now(),
+    ]);
+    $prospect->refresh();
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(9);
+
+    $prospect = UpdateProspectEmailUndoUnsubscribed::make()->action($prospect);
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::CONTACTED)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::NEVER_OPEN)
+        ->and($prospect->fail_status)->toBe(ProspectFailStatusEnum::NA);
+
+    return $prospect;
+});
+
+test('create 10th prospect (Email Unsubscribed)', function () {
+    $shop         = $this->shop;
+    $modelData    = Prospect::factory()->definition();
+    $prospect     = StoreProspect::make()->action($shop, $modelData);
+    $prospect->refresh();
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($shop->crmStats->number_prospects)->toBe(10);
+
+    $prospect = UpdateProspectEmailUnsubscribed::make()->action($prospect, Carbon::now());
+
+    expect($prospect)->toBeInstanceOf(Prospect::class)
+        ->and($prospect->state)->toBe(ProspectStateEnum::FAIL)
+        ->and($prospect->contacted_state)->toBe(ProspectContactedStateEnum::NA)
+        ->and($prospect->fail_status)->toBe(ProspectFailStatusEnum::UNSUBSCRIBED);
+
+    return $prospect;
 });

@@ -53,7 +53,7 @@ const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const saveCancelToken = ref<Function | null>(null)
 const isIframeLoading = ref(true)
-const iframeSrc = ref(
+const iframeSrc = 
     route('grp.websites.footer.preview', [
         route().params['website'],
         {
@@ -61,7 +61,7 @@ const iframeSrc = ref(
             shop: route().params["shop"],
             fulfilment : route().params["fulfilment"]
         }
-    ]))
+    ])
 
 
 const onPickTemplate = (footer: Object) => {
