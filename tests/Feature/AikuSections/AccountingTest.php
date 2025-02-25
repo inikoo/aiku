@@ -25,6 +25,8 @@ use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\Search\ReindexPaymentAccountSearch;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
+use App\Actions\Accounting\PaymentAccountShop\UpdatePaymentAccountShop;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
@@ -40,6 +42,7 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Accounting\CreditTransaction;
@@ -49,6 +52,7 @@ use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
 use App\Models\Analytics\AikuScopedSection;
@@ -164,6 +168,33 @@ test('create payment account', function ($orgPaymentServiceProvider) {
 
     return $paymentAccount;
 })->depends('add payment service provider to organisation');
+
+test('update payment account shop', function (PaymentAccount $paymentAccount) {
+    $shop     = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
+    $paymentAccountShop = StorePaymentAccountShop::make()->action(
+        $paymentAccount,
+        $shop,
+        [
+            'currency_id' => $shop->currency_id,
+            'state'       => PaymentAccountShopStateEnum::ACTIVE
+        ]
+    );
+
+    $paymentAccountShop->refresh();
+    expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class);
+
+    $paymentAccountShop = UpdatePaymentAccountShop::make()->action(
+        $paymentAccountShop,
+        [
+            'show_in_checkout' => true,
+        ]
+    );
+
+    expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class)
+        ->and($paymentAccountShop->show_in_checkout)->toBe(true);
+        
+    return $paymentAccount;
+})->depends('create payment account');
 
 test('update payment account', function ($paymentAccount) {
     $paymentAccount = UpdatePaymentAccount::make()->action(
