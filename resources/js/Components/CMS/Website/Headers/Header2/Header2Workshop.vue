@@ -94,39 +94,31 @@ function onSave() {
 
 // Dragging function for Moveable
 function onDragText(e) {
-  const { target, beforeTranslate } = e;
-  if (beforeTranslate) {
-    // Calculate new left and top positions:
-    const newLeft = beforeTranslate[0];
-    const newTop = beforeTranslate[1];
+	const { target, beforeTranslate } = e
+	const parent = target.parentElement
+	if (!parent) return
 
-    // Directly update left and top instead of (or in addition to) using transform:
-    target.style.left = `${newLeft}px`;
-    target.style.top = `${newTop}px`;
-    // Clear the transform to rely solely on left/top
-    target.style.transform = '';
+	const parentWidth = parent.clientWidth
+	const parentHeight = parent.clientHeight
 
-    // Determine parent dimensions
-    const parent = target.parentElement;
-    const parentWidth = parent ? parent.clientWidth : 0;
-    const parentHeight = parent ? parent.clientHeight : 0;
+	if (beforeTranslate) {
+		const newLeft = beforeTranslate[0]
+		const newTop = beforeTranslate[1]
 
-    // Get element dimensions
-    const elementWidth = target.offsetWidth;
-    const elementHeight = target.offsetHeight;
+		// Convert px to %
+		const leftPercent = (newLeft / parentWidth) * 100
+		const topPercent = (newTop / parentHeight) * 100
 
-    // Calculate right and bottom offsets
-    const newRight = parentWidth - (newLeft + elementWidth);
-    const newBottom = parentHeight - (newTop + elementHeight);
+		target.style.left = `${leftPercent}%`
+		target.style.top = `${topPercent}%`
+		target.style.transform = "" // Reset transform
 
-    // Update model's position values
-    props.modelValue.text.container.properties.position.left = `${newLeft}px`;
-    props.modelValue.text.container.properties.position.top = `${newTop}px`;
-    props.modelValue.text.container.properties.position.right = `${newRight}px`;
-    props.modelValue.text.container.properties.position.bottom = `${newBottom}px`;
+		// Update modelValue with percentages
+		props.modelValue.text.container.properties.position.left = `${leftPercent}%`
+		props.modelValue.text.container.properties.position.top = `${topPercent}%`
 
-    onSave();
-  }
+		onSave()
+	}
 }
 
 
@@ -180,24 +172,10 @@ const editable = ref(true)
 
 				<!-- Text (Movable & Resizable) -->
 				<div ref="_textRef" class="absolute" :style="{
-						width: modelValue.text?.container?.properties?.width
-							? `${modelValue.text?.container?.properties?.width}`
-							: 'auto',
-						height: modelValue.text?.container?.properties?.height
-							? `${modelValue.text?.container?.properties?.height}`
-							: 'auto',
-						top: modelValue.text?.container?.properties?.position?.top
-							? `${modelValue.text?.container?.properties?.position?.top}`
-							: 'auto',
-						right: modelValue.text?.container?.properties?.position?.right
-							? `${modelValue.text?.container?.properties?.position?.right}`
-							: '0px',
-                        left: modelValue.text?.container?.properties?.position?.left
-                        ? `${modelValue.text?.container?.properties?.position?.left}`
-                        : '0px',
-                        bottom: modelValue.text?.container?.properties?.position?.bottom
-                        ? `${modelValue.text?.container?.properties?.position?.bottom}`
-                        : '0px',
+					width: modelValue.text?.container?.properties?.width || 'auto',
+						height: modelValue.text?.container?.properties?.height || 'auto',
+						top: modelValue.text?.container?.properties?.position?.top || 'auto',
+						left: modelValue.text?.container?.properties?.position?.left || 'auto',
 					}">
 					<Editor
 						v-model="modelValue.text.text"

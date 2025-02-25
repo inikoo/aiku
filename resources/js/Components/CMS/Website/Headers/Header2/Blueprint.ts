@@ -1,25 +1,13 @@
 export default {
 	blueprint: [
-		{
-			name: "Container",
-			icon: {
-				icon: "fal fa-rectangle-wide",
-				tooltip: "Container",
+	/* 	{
+			name: "Texts",
+			key: ["text"],
+			type: "textHeader",
+			props_data: {
+				type: "text",
 			},
-			key: ["container", "properties"],
-			replaceForm: [
-                {
-                    key: ["background"],
-                    label: "Background",
-                    type: "background"
-                },
-              /*   {
-                    key: ["text"],
-                    label: "Text",
-                    type: "textProperty"
-                } */
-            ]		
-		},
+		}, */
 		{
 			name: "Logo",
 			key: ["logo"],
@@ -27,27 +15,26 @@ export default {
 				icon: "fal fa-image",
 				tooltip: "Logo",
 			},
-        /*     type: "upload_image", */
+			/*     type: "upload_image", */
 			replaceForm: [
-				
 				{
 					key: ["image"],
-					label : "Upload image",
+					label: "Upload image",
 					type: "upload_image",
 				},
 				{
-					key: ['properties','dimension'],
-					label : "Dimension",
+					key: ["properties", "dimension"],
+					label: "Dimension",
 					type: "dimension",
 				},
 				{
-					key: ['properties','margin'],
-					label : "Margin",
+					key: ["properties", "margin"],
+					label: "Margin",
 					type: "margin",
 				},
 				{
-					key: ['properties','padding'],
-					label : "Padding",
+					key: ["properties", "padding"],
+					label: "Padding",
 					type: "padding",
 				},
 			],
