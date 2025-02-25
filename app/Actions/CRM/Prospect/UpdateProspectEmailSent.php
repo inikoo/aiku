@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailSent extends OrgAction
 {

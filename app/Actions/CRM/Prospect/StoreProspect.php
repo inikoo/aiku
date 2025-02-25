@@ -109,7 +109,7 @@ class StoreProspect extends OrgAction
         }
 
         $prospect->refresh();
-        
+
         return $prospect;
     }
 

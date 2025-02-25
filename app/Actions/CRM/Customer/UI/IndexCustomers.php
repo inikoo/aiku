@@ -60,7 +60,7 @@ class IndexCustomers extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(CustomersTabsEnum::values());
 
-        return $this->handle($shop);
+        return $this->handle($shop, CustomersTabsEnum::CUSTOMERS->value);
     }
 
 

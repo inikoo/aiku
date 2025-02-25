@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import 'https://cdn.luigisbox.com/search.js'  // For search
+// import 'https://cdn.luigisbox.com/search.js'  // For search
 import { onMounted } from 'vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
 
@@ -9,33 +9,33 @@ const defaultTrackerId = '179075-204259'
 // const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
 const listFieldsRemoved = ['price', 'price_amount']
 
-const LBInitSearch = async () => {
-    await Luigis.Search({
-        TrackerId: luigiTrackerId,
-        Locale: 'en',
-        PriceFilter: {
-            decimals: 2,
-            locale: 'en',
-            prefixed: true,
-            symbol: '£'
-        },
-        Theme: 'boo',
-        Size: 10,
-        // QuicksearchTypes: ['category', 'brand'],
-        DefaultFilters: {
-            type: 'item'  // Search query only looking from item (category not included)
-        },
-        Facets: ['price_amount', 'brand', 'category', 'color'],
-        // hit_fields: ['description', 'formatted_price'],
-        UrlParamName: {
-            QUERY: 'q',
-        },
-        // RemoveFields: listFieldsRemoved
-    }, '#inputLuigi', '#search-ui')
-}
+// const LBInitSearch = async () => {
+//     await Luigis.Search({
+//         TrackerId: luigiTrackerId,
+//         Locale: 'en',
+//         PriceFilter: {
+//             decimals: 2,
+//             locale: 'en',
+//             prefixed: true,
+//             symbol: '£'
+//         },
+//         Theme: 'boo',
+//         Size: 10,
+//         // QuicksearchTypes: ['category', 'brand'],
+//         DefaultFilters: {
+//             type: 'item'  // Search query only looking from item (category not included)
+//         },
+//         Facets: ['price_amount', 'brand', 'category', 'color'],
+//         // hit_fields: ['description', 'formatted_price'],
+//         UrlParamName: {
+//             QUERY: 'q',
+//         },
+//         // RemoveFields: listFieldsRemoved
+//     }, '#inputLuigi', '#search-ui')
+// }
 
 onMounted(() => {
-    LBInitSearch()
+    // LBInitSearch()
     
 })
 </script>

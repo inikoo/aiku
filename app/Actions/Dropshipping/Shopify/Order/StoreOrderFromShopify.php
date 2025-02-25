@@ -68,7 +68,8 @@ class StoreOrderFromShopify extends OrgAction
             'shopify_user_id' => $shopifyUser->id,
             'model_type' => class_basename(Order::class),
             'model_id' => $order->id,
-            'shopify_order_id' => Arr::get($modelData, 'id'),
+            'shopify_order_id' => Arr::get($modelData, 'order_id'),
+            'shopify_fulfilment_id' => Arr::get($modelData, 'id'),
             'state' => ShopifyFulfilmentStateEnum::OPEN,
             'customer_client_id' => $customerClient->id
         ]);

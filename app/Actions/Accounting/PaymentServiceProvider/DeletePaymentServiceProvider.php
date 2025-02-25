@@ -13,7 +13,6 @@ use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class DeletePaymentServiceProvider extends GrpAction
@@ -32,8 +31,7 @@ class DeletePaymentServiceProvider extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
         return $request->user()->authTo("accounting.payment-service-providers.edit");

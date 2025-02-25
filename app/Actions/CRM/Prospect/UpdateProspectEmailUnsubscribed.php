@@ -16,7 +16,6 @@ use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailUnsubscribed extends OrgAction
 {

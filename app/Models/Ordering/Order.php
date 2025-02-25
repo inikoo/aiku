@@ -39,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -253,9 +254,9 @@ class Order extends Model implements HasMedia, Auditable
         return $this->belongsTo(Address::class);
     }
 
-    public function shopifyOrder(): HasOne
+    public function shopifyOrder(): MorphOne
     {
-        return $this->hasOne(ShopifyUserHasFulfilment::class, 'order_id');
+        return $this->morphOne(ShopifyUserHasFulfilment::class, 'model');
     }
 
     public function addresses(): MorphToMany
