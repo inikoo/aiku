@@ -11,6 +11,7 @@
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
+use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Analytics\GetSectionRoute;
@@ -448,6 +449,16 @@ test('update invoice transaction', function (Invoice $invoice) {
 
     return $updatedTransaction;
 })->depends('create invoice from order');
+
+test('delete invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
+    $invoice        = $invoiceTransaction->invoice;
+    DeleteInvoiceTransaction::make()->action($invoiceTransaction);
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->stats->number_invoice_transactions)->toBe(0);
+
+    return $invoice;
+})->depends('update invoice transaction');
 
 test('create old order', function () {
     $billingAddress  = new Address(Address::factory()->definition());
