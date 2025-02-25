@@ -26,7 +26,6 @@ use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
-use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;

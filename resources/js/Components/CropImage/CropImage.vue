@@ -23,9 +23,9 @@ import { routeType } from '@/types/route'
 
 
 const props = withDefaults(defineProps<{
-    data: File[];
+    data: File[]|File;
     imagesUploadRoute: string
-    response : Function
+    response?: any
     ratio?:  {
         w: number
         h: number
@@ -41,7 +41,6 @@ const emits = defineEmits<{
 const setData2 = () => {
     const data = []
     for (const set of props.data) {
-        console.log('ss',set)
         data.push({
             originalFile: set,
         })
@@ -110,7 +109,7 @@ const addComponent = async () => {
             }
         );
         form.value = new FormData()
-        props.response(response.data)
+        props?.response(response.data)
         emits('onFinishCropped', response.data)
         loadingState.value = false
     } catch (error) {
