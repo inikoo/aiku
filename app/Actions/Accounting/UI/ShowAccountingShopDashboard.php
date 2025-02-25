@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowAccountingDashboard extends OrgAction
+class ShowAccountingShopDashboard extends OrgAction
 {
     use WithAccountingSubNavigation;
 
@@ -67,7 +67,7 @@ class ShowAccountingDashboard extends OrgAction
             $subNavigation = $this->getSubNavigation($parent);
         }
         return Inertia::render(
-            'Comms/AccountingDashboard',
+            'Dashboard/AccountingDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('mail'),

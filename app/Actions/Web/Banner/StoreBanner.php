@@ -10,55 +10,43 @@ namespace App\Actions\Web\Banner;
 
 use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithBannerEditAuthorisation;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
-use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreBanner extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    use WithBannerEditAuthorisation;
 
     private Website $website;
-    private string $scope;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Website $website, array $modelData): Banner
     {
-
         $layout = [
             "delay"      => 5000,
             "navigation" => [
                 "bottomNav" => [
-                    "value"     => true,
-                    "type"      => "bullet"
+                    "value" => true,
+                    "type"  => "bullet"
                 ],
-                "sideNav" => [
-                    "value"     => true,
-                    "type"      => "arrow"
+                "sideNav"   => [
+                    "value" => true,
+                    "type"  => "arrow"
                 ]
             ],
             "common"     => [
-                // "corners"      => [
-                //     "bottomLeft" => [
-                //         "type" => "slideControls"
-                //     ]
-                // ],
                 "spaceBetween" => 0,
                 "centralStage" => [
                     "title"    => null,
@@ -80,11 +68,10 @@ class StoreBanner extends OrgAction
 
         /** @var Banner $banner */
         $banner   = Banner::create($modelData);
-        $snapshot = StoreBannerSnapshot::run(
+        $snapshot = StoreBannerSnapshot::make()->action(
             $banner,
             [
                 'layout' => $layout,
-                'builder' => SnapshotBuilderEnum::AIKU_WEB_BLOCKS_V1
             ],
             $slides
         );
@@ -103,133 +90,61 @@ class StoreBanner extends OrgAction
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return true;
-
-        // Not complete yet
-        // return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
-
-    /*    public function prepareForValidation(ActionRequest $request): void
-        {
-            if (!$request->exists('portfolio_website_id')) {
-                $count = $this->customer->portfolioWebsites()->count();
-                if ($count == 1) {
-                    $portfolioWebsite = $request->get('customer')->portfolioWebsites()->first();
-
-                    $request->merge(['portfolio_website_id' => $portfolioWebsite->id]);
-                }
-            }
-
-            if (!$request->get('name')) {
-                $name = PetName::Generate(2, ' ').' banner';
-                $request->merge(['name' => $name]);
-            }
-            if (!$request->get('type')) {
-                $request->merge(['type' => BannerTypeEnum::LANDSCAPE->value]);
-            }
-
-        }*/
 
     public function rules(): array
     {
         return [
-            'name'                 => ['required', 'string', 'max:255'],
-            'type'                 => ['required', new Enum(BannerTypeEnum::class)],
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', new Enum(BannerTypeEnum::class)],
         ];
     }
 
-    public function asController(Shop $shop, Website $website, ActionRequest $request): Banner
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Website $website, ActionRequest $request): Banner
     {
         $this->website = $website;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($website->shop, $request);
 
         return $this->handle($website, $this->validatedData);
     }
 
-    public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Banner
-    {
-        $this->website = $website;
-        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($website, $this->validatedData);
-    }
-
+    /**
+     * @throws \Throwable
+     */
     public function action(Website $website, array $objectData): Banner
     {
         $this->asAction = true;
-        $this->setRawAttributes($objectData);
+        $this->initialisationFromShop($website->shop, $objectData);
 
-        $validatedData = $this->validateAttributes();
-        return $this->handle($website, $validatedData);
+        return $this->handle($website, $this->validatedData);
     }
 
-    public function getCommandSignature(): string
-    {
-        return 'customer:new-banner {customer} {portfolio-website} {--T|type=landscape} {--N|name=}';
-    }
-
-    public function asCommand(Command $command): int
-    {
-        try {
-            $customer = Customer::where('slug', $command->argument('customer'))->firstOrFail();
-        } catch (Exception) {
-            $command->error('Customer not found');
-
-            return 1;
-        }
-        Config::set('global.customer_id', $customer->id);
-        $this->customer = $customer;
-
-        $portfolioWebsite = PortfolioWebsite::where('slug', $command->argument('portfolio-website'))->firstOrFail();
-
-
-        $this->asAction = true;
-        $this->setRawAttributes(
-            [
-                'name'                 => $command->option('name') ?? PetName::Generate(2).' banner',
-                'portfolio_website_id' => $portfolioWebsite->id,
-                'type'                 => $command->option('type')
-            ]
-        );
-        $validatedData = $this->validateAttributes();
-
-        $banner = $this->handle($portfolioWebsite ?? $customer, $validatedData);
-
-        $command->info("Done! Banner $banner->slug ($banner->name) created 🎉");
-
-        return 0;
-    }
-
-
-    public function jsonResponse(Banner $banner): string
-    {
-        return route(
-            'grp.org.shops.show.web.banners.workshop',
-            [
-                'organisation' => $this->website->organisation->slug,
-                'shop'         => $this->website->shop->slug,
-                'website'      => $this->website->slug,
-                'banner'       => $banner->slug
-            ]
-        );
-    }
 
     public function htmlResponse(Banner $banner): RedirectResponse
     {
-        return redirect()->route(
-            'grp.org.shops.show.web.banners.workshop',
-            [
-                'organisation' => $this->website->organisation->slug,
-                'shop'         => $this->website->shop->slug,
-                'website'      => $this->website->slug,
-                'banner'       => $banner->slug
-            ]
-        );
+        if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
+            return redirect()->route(
+                'grp.org.fulfilments.show.web.banners.workshop',
+                [
+                    'organisation' => $this->website->organisation->slug,
+                    'fulfilment'   => $this->shop->fulfilment->slug,
+                    'website'      => $this->website->slug,
+                    'banner'       => $banner->slug
+                ]
+            );
+        } else {
+            return redirect()->route(
+                'grp.org.shops.show.web.banners.workshop',
+                [
+                    'organisation' => $this->website->organisation->slug,
+                    'shop'         => $this->website->shop->slug,
+                    'website'      => $this->website->slug,
+                    'banner'       => $banner->slug
+                ]
+            );
+        }
     }
 }

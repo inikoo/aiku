@@ -16,19 +16,27 @@ use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\StoreRefundInvoiceTransaction;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
+use App\Actions\Accounting\OrgPaymentServiceProvider\UpdateOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\Search\ReindexPaymentSearch;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\Search\ReindexPaymentAccountSearch;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
+use App\Actions\Accounting\PaymentAccountShop\UpdatePaymentAccountShop;
+use App\Actions\Accounting\PaymentServiceProvider\DeletePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
 use App\Actions\Accounting\TopUp\UpdateTopUp;
 use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
@@ -37,17 +45,21 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
 use App\Models\Analytics\AikuScopedSection;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
@@ -68,6 +80,11 @@ beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
     $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+    $stocks          = createStocks($this->group);
+    $orgStocks       = createOrgStocks($this->organisation, $stocks);
+    $this->orgStock1 = $orgStocks[0];
+    $this->orgStock2 = $orgStocks[1];
 
     Config::set(
         'inertia.testing.page_paths',
@@ -137,6 +154,43 @@ test('create other org payment service provider', function () {
     return $orgPaymentServiceProvider;
 });
 
+test('update org payment service provider', function (OrgPaymentServiceProvider $orgPaymentServiceProvider) {
+    $orgPaymentServiceProvider = UpdateOrgPaymentServiceProvider::make()->action(
+        $orgPaymentServiceProvider,
+        [
+            'code' => 'newcode'
+        ]
+    );
+    expect($orgPaymentServiceProvider)->toBeInstanceOf(OrgPaymentServiceProvider::class)
+        ->and($orgPaymentServiceProvider->code)->toBe('newcode');
+
+    return $orgPaymentServiceProvider;
+})->depends('create other org payment service provider');
+
+test('create other org payment service provider account', function () {
+    /** @var Organisation $organisation */
+    $organisation = $this->organisation;
+
+    expect($organisation->accountingStats->number_payment_accounts)->toBe(0);
+
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $organisation, 
+        $paymentServiceProvider,
+        [
+            'code' => 'Acc1',
+            'name' => 'Account 1'
+        ]
+    );
+
+    $this->organisation->refresh();
+
+    expect($paymentAccount)->toBeInstanceOf(PaymentAccount::class)
+        ->and($organisation->accountingStats->number_payment_accounts)->toBe(1);
+
+    return $paymentAccount;
+});
+
 
 //todo restrict payments account types depending of the Service Account type
 test('create payment account', function ($orgPaymentServiceProvider) {
@@ -154,6 +208,33 @@ test('create payment account', function ($orgPaymentServiceProvider) {
 
     return $paymentAccount;
 })->depends('add payment service provider to organisation');
+
+test('update payment account shop', function (PaymentAccount $paymentAccount) {
+    $shop     = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
+    $paymentAccountShop = StorePaymentAccountShop::make()->action(
+        $paymentAccount,
+        $shop,
+        [
+            'currency_id' => $shop->currency_id,
+            'state'       => PaymentAccountShopStateEnum::ACTIVE
+        ]
+    );
+
+    $paymentAccountShop->refresh();
+    expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class);
+
+    $paymentAccountShop = UpdatePaymentAccountShop::make()->action(
+        $paymentAccountShop,
+        [
+            'show_in_checkout' => true,
+        ]
+    );
+
+    expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class)
+        ->and($paymentAccountShop->show_in_checkout)->toBe(true);
+
+    return $paymentAccount;
+})->depends('create payment account');
 
 test('update payment account', function ($paymentAccount) {
     $paymentAccount = UpdatePaymentAccount::make()->action(
@@ -988,7 +1069,30 @@ test('Store invoice refund', function () {
         Shop::factory()->definition()
     );
     $customer = createCustomer($shop);
+
+    $orgStocks = [
+        $this->orgStock1->id => [
+            'quantity' => 1,
+        ]
+    ];
+
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'org_stocks' => $orgStocks,
+            'price'      => 100,
+            'unit'       => 'unit'
+        ]
+    );
+    $product = StoreProduct::make()->action($shop, $productData);
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+        'date'            => now(),
+        'tax_category_id' => $invoice->tax_category_id,
+        'quantity'        => 10,
+        'gross_amount'    => 1000,
+        'net_amount'      => 1000,
+    ]);
     expect($invoice)->toBeInstanceOf(Invoice::class);
 
     $refund = StoreRefund::make()->action($invoice, []);
@@ -997,6 +1101,23 @@ test('Store invoice refund', function () {
 
     return $refund;
 });
+
+test('Store invoice refund transaction', function (Invoice $refund) {
+    $this->withoutExceptionHandling();
+
+    $originalInvoice = $refund->originalInvoice;
+
+    $transaction = $originalInvoice->invoiceTransactions()->first();
+
+    $refundTransaction = StoreRefundInvoiceTransaction::make()->action($transaction, [
+        'gross_amount' => $transaction->gross_amount,
+    ]);
+
+    $refund->refresh();
+    expect($refundTransaction)->toBeInstanceOf(InvoiceTransaction::class);
+    
+    return $refund;
+})->depends('Store invoice refund');
 
 test('Delete Refund', function (Invoice $refund) {
     $this->withoutExceptionHandling();
@@ -1064,4 +1185,14 @@ test('top up search', function () {
     $topUp = TopUp::first();
     ReindexTopUpSearch::run($topUp);
     expect($topUp->universalSearch()->count())->toBe(1);
+});
+
+test('delete payment service provider', function () {
+    /** @var Group $group */
+    $group = $this->group;
+    expect($group->paymentServiceProviders()->count())->toBe(12);
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    DeletePaymentServiceProvider::make()->action($paymentServiceProvider);
+    $group->refresh();
+    expect($group->paymentServiceProviders()->count())->toBe(11);
 });

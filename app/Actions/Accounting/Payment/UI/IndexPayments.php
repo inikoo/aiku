@@ -67,6 +67,8 @@ class IndexPayments extends OrgAction
             $queryBuilder->where('payments.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Group') {
             $queryBuilder->where('payments.group_id', $parent->id);
+        } elseif (class_basename($parent) == 'Fulfilment') {
+            $queryBuilder->where('payments.shop_id', $parent->shop->id);
         } elseif (class_basename($parent) == 'Invoice') {
 
             $queryBuilder->leftJoin('model_has_payments', 'payments.id', 'model_has_payments.payment_id')
@@ -122,7 +124,7 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    protected function getElementGroups(Group|Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider $parent): array
+    protected function getElementGroups(Group|Organisation|PaymentAccount|Shop|Fulfilment|OrgPaymentServiceProvider $parent): array
     {
 
         return [
@@ -240,9 +242,9 @@ class IndexPayments extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
-        $this->initialisationFromShop($fulfilment->shop, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment->shop);
+        return $this->handle($fulfilment);
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
