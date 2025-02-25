@@ -201,12 +201,15 @@ console.log(props.modelValue)
 				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full overflow-hidden"
+				class="transition-shadow aspect-h-1 aspect-w-1 w-full"
 				@click="(e) => (isInWorkshop ? e.preventDefault() : null)">
-				<Image
+				
+				<img
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
-					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full group-hover:opacity-75" @click="openImageGallery(index - 1)" />
+					:src="modelValue?.value?.images?.[index - 1]?.source?.original"
+					class="w-full object-cover object-center group-hover:opacity-75" 
+					@click="openImageGallery(index - 1)" 
+				/>
 			</a>
 
 			<!-- <div

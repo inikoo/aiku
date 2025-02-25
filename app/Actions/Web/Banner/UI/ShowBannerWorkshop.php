@@ -90,7 +90,6 @@ class ShowBannerWorkshop extends OrgAction
                         ],
                     ],
                 ],
-                'bannerLayout'      => $banner->compiled_layout,
                 'banner'            => BannerResource::make($banner)->getArray(),
                 'autoSaveRoute'     => [
                     'name'       => 'grp.models.shop.website.banner.update',
