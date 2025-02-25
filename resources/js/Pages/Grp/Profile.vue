@@ -22,6 +22,7 @@ import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
 // import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
 import EditProfile from "@/Pages/Grp/EditProfile.vue"
+import SettingProfile from "@/Pages/Grp/SettingProfile.vue"
 
 import axios from 'axios'
 import { trans } from 'laravel-vue-i18n'
@@ -31,12 +32,12 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCard, faClipboardListCheck, faRabbitFast } from '@fal'
+import { faIdCard, faClipboardListCheck, faRabbitFast, faCog } from '@fal'
 import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useLogoutAuth } from '@/Composables/useAppMethod'
-library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfoCircle)
+library.add(faIdCard, faClipboardListCheck, faRabbitFast, faCog, faSpinnerThird, faInfoCircle)
 
 /* const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue")) */
 
@@ -186,6 +187,13 @@ onMounted(async () => {
                 @click="() => layout.stackedComponents.push({ component: EditProfile })"
                 :label="action.label"
                 :style="action.style"
+            />
+            
+            <Button
+                @click="() => layout.stackedComponents.push({ component: SettingProfile })"
+                :label="trans('Settings')"
+                icon="fal fa-cog"
+                type="secondary"
             />
         </template>
     </PageHeading>
