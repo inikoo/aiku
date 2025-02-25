@@ -163,10 +163,10 @@
 						"width": "252px",
 						"height": "31px",
 						"position": {
-						  "top": "24px",
-						  "left": "500px",
-						  "right": "525px",
-						  "bottom": "43px"
+						  "top": "25px",
+						  "left": "865px",
+						  "right": "-28px",
+						  "bottom": "23px"
 						},
 						"text": {
 							"color": "rgba(255, 255, 255, 1)"
