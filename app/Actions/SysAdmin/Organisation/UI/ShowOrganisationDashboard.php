@@ -129,8 +129,6 @@ class ShowOrganisationDashboard extends OrgAction
             }
         }
 
-        dd($dashboard);
-
         return $dashboard;
     }
 
