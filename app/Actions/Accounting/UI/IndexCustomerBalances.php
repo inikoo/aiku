@@ -34,7 +34,7 @@ class IndexCustomerBalances extends OrgAction
 
     private Group|Organisation|Shop|Fulfilment $parent;
 
-    public function handle(Group|Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Shop|Fulfilment|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -56,6 +56,8 @@ class IndexCustomerBalances extends OrgAction
             $queryBuilder->where('customers.shop_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('customers.group_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            $queryBuilder->where('customers.shop_id', $parent->shop->id);
         }
         $queryBuilder->leftjoin('organisations', 'customers.organisation_id', '=', 'organisations.id');
         $queryBuilder->leftjoin('shops', 'customers.shop_id', 'shops.id');
@@ -151,9 +153,8 @@ class IndexCustomerBalances extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
-        $this->initialisationFromShop($fulfilment->shop, $request);
-
-        return $this->handle($fulfilment->shop);
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($fulfilment);
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
