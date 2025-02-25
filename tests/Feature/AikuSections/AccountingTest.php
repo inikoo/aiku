@@ -592,6 +592,23 @@ test('UI show invoice category', function (InvoiceCategory $invoiceCategory) {
     });
 })->depends('store invoice category');
 
+test('UI show invoice in invoice category', function (InvoiceCategory $invoiceCategory) {
+    $response = get(route('grp.org.accounting.invoice-categories.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($invoiceCategory) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $invoiceCategory->name)
+                    ->etc()
+            );
+    });
+})->depends('store invoice category');
+
 
 test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
     $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
