@@ -11,6 +11,7 @@ namespace App\Actions\Web\Banner\UI;
 use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
+use App\Actions\Traits\Authorisations\WithBannerAuthorisation;
 use App\Enums\Web\Banner\BannerTabsEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\BannerResource;
@@ -27,6 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowBanner extends OrgAction
 {
     use WithActionButtons;
+    use WithBannerAuthorisation;
 
     private Website $parent;
 
@@ -35,19 +37,6 @@ class ShowBanner extends OrgAction
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-
-        $this->canEdit   = true;
-        $this->canDelete = true;
-
-        return true;
-
-        return
-            (
-                $request->get('customerUser')->hasPermissionTo('portfolio.banners.view')
-            );
-    }
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
@@ -57,6 +46,7 @@ class ShowBanner extends OrgAction
         return $this->handle($banner);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
     {
         $this->parent = $website;
@@ -70,28 +60,28 @@ class ShowBanner extends OrgAction
         return Inertia::render(
             'Org/Web/Banners/Banner',
             [
-                'breadcrumbs'                   => $this->getBreadcrumbs(
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                    => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($banner, $request),
                     'next'     => $this->getNext($banner, $request),
                 ],
-                'title'                         => $banner->name,
-                'pageHead'                      => [
-                    'title'       => $banner->name,
-                    'icon'        => [
+                'title'       => $banner->name,
+                'pageHead'    => [
+                    'title'     => $banner->name,
+                    'icon'      => [
                         'tooltip' => __('banner'),
                         'icon'    => 'fal fa-sign'
                     ],
-                    'container'   => [
+                    'container' => [
                         'icon'    => ['fal', 'fa-globe'],
                         'tooltip' => __('Website'),
                         'label'   => Str::possessive($this->parent->name)
                     ],
-                    'iconRight'   => $banner->state->stateIcon()[$banner->state->value],
-                    'actions'     => [
+                    'iconRight' => $banner->state->stateIcon()[$banner->state->value],
+                    'actions'   => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                         $this->canEdit ? [
@@ -106,7 +96,7 @@ class ShowBanner extends OrgAction
                         ] : false,
                     ],
                 ],
-                'tabs'                          => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => BannerTabsEnum::navigation()
                 ],
@@ -167,10 +157,10 @@ class ShowBanner extends OrgAction
             ];
         };
 
-
         return match ($routeName) {
-            'customer.banners.banners.show',
-            'customer.banners.banners.edit' =>
+            'grp.org.shops.show.web.banners.show',
+            'grp.org.shops.show.web.banners.edit',
+            =>
             array_merge(
                 IndexBanners::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
@@ -178,11 +168,32 @@ class ShowBanner extends OrgAction
                     Banner::firstWhere('slug', $routeParameters['banner']),
                     [
                         'index' => [
-                            'name'       => 'customer.banners.banners.index',
-                            'parameters' => []
+                            'name'       => 'grp.org.shops.show.web.banners.index',
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'customer.banners.banners.show',
+                            'name'       => 'grp.org.shops.show.web.banners.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+            'grp.org.fulfilments.show.web.banners.show',
+            'grp.org.fulfilments.show.web.banners.edit'
+            =>
+            array_merge(
+                IndexBanners::make()->getBreadcrumbs($routeName, $routeParameters),
+                $headCrumb(
+                    'modelWithIndex',
+                    Banner::firstWhere('slug', $routeParameters['banner']),
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.web.banners.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.web.banners.show',
                             'parameters' => $routeParameters
                         ]
                     ],

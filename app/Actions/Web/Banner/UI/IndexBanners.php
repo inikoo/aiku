@@ -52,7 +52,6 @@ class IndexBanners extends OrgAction
             ];
     }
 
-    /** @noinspection PhpUndefinedMethodInspection */
     public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -84,14 +83,7 @@ class IndexBanners extends OrgAction
             'organisations.slug as organisation_slug',
         );
 
-        /*        foreach ($this->getElementGroups() as $key => $elementGroup) {
-                    $queryBuilder->whereElementGroup(
-                        prefix: $prefix,
-                        key: $key,
-                        allowedElements: array_keys($elementGroup['elements']),
-                        engine: $elementGroup['engine']
-                    );
-                }*/
+
 
 
         return $queryBuilder
@@ -124,13 +116,7 @@ class IndexBanners extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            /*            foreach ($this->getElementGroups() as $key => $elementGroup) {
-                            $table->elementGroup(
-                                key: $key,
-                                label: $elementGroup['label'],
-                                elements: $elementGroup['elements']
-                            );
-                        }*/
+
 
             $action = null;
 
@@ -169,6 +155,7 @@ class IndexBanners extends OrgAction
         return $this->handle();
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
