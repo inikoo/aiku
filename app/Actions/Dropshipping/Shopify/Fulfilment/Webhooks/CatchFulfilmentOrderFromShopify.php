@@ -9,8 +9,10 @@
 namespace App\Actions\Dropshipping\Shopify\Fulfilment\Webhooks;
 
 use App\Actions\Dropshipping\Shopify\Fulfilment\StoreFulfilmentFromShopify;
+use App\Actions\Dropshipping\Shopify\Order\StoreOrderFromShopify;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +40,11 @@ class CatchFulfilmentOrderFromShopify extends OrgAction
 
                 $fulfilmentOrder = array_merge($fulfilmentOrder, Arr::only($modelData, ['customer', 'shipping_address']));
 
-                StoreFulfilmentFromShopify::run($shopifyUser, $fulfilmentOrder);
+                if ($shopifyUser->customer?->shop?->type === ShopTypeEnum::FULFILMENT) {
+                    StoreFulfilmentFromShopify::run($shopifyUser, $fulfilmentOrder);
+                } elseif ($shopifyUser->customer?->shop?->type === ShopTypeEnum::DROPSHIPPING) {
+                    StoreOrderFromShopify::run($shopifyUser, $fulfilmentOrder);
+                }
             }
         });
     }
