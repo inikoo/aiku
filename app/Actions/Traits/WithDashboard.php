@@ -426,20 +426,26 @@ trait WithDashboard
     public function getMoreColor(array $colorMaps, int $needed, array $labels): array
     {
         $added = 0;
-        $i = count($colorMaps); // Start from where we left off
+        $i = 0; // Start index for labels
 
-        while ($added < $needed) {
-            $hash = md5((string) $i);
+        while ($added < $needed && isset($labels[$i])) {
+            $hash = md5((string) $labels[$i]); // Hash label for consistency
             $r = hexdec(substr($hash, 0, 2));
             $g = hexdec(substr($hash, 2, 2));
             $b = hexdec(substr($hash, 4, 2));
             $hexColor = sprintf("#%02X%02X%02X", $r, $g, $b);
 
-            // Ensure unique colors
-            if (!isset($colorMaps[$hexColor])) {
-                $colorMaps[$hexColor] = $hexColor;
-                $added++;
+            // Ensure truly unique colors
+            while (isset($colorMaps[$hexColor])) {
+                $hash = md5($hash); // Re-hash to generate a different value
+                $r = hexdec(substr($hash, 0, 2));
+                $g = hexdec(substr($hash, 2, 2));
+                $b = hexdec(substr($hash, 4, 2));
+                $hexColor = sprintf("#%02X%02X%02X", $r, $g, $b);
             }
+
+            $colorMaps[$hexColor] = $hexColor;
+            $added++;
             $i++;
         }
 
@@ -463,8 +469,8 @@ trait WithDashboard
 
         // If more colors are needed, fallback to more color generation
         if (count($colorMaps) < $total) {
-            $labels = array_slice($labels, count($colorMaps));
-            $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps), $labels);
+            $neededLabels = array_values(array_diff($labels, array_keys($colorMaps)));
+            $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps), $neededLabels);
         }
 
         return array_values($colorMaps);
