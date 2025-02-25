@@ -20,7 +20,7 @@ const props = defineProps<{
 
 const jumpToIndex = ref('')
 const screenView = ref("")
-
+console.log('props',props.data)
 </script>
 
 <template>
