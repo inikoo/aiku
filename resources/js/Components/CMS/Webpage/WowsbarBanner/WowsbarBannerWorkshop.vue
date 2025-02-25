@@ -34,6 +34,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+console.log(route().params)
 const bannersList = ref([])
 const isModalOpen = ref(false)
 const data = ref(null)
@@ -54,7 +55,7 @@ const onPickBanner = (banner) => {
 
 const getRouteIndex = () => {
     const currentRoute = route().current()
-    if (currentRoute.includes('fulfilments')) {
+    if (currentRoute.includes('fulfilments') || route().params['fulfilment']) {
         return route('grp.org.fulfilments.show.web.banners.index', {
             organisation: route().params['organisation'],
             fulfilment: route().params['fulfilment'],
@@ -71,7 +72,7 @@ const getRouteIndex = () => {
 
 const getRouteShow = () => {
     const currentRoute = route().current()
-    if (currentRoute.includes('fulfilments')) {
+    if (currentRoute.includes('fulfilments') || route().params['fulfilment'] ) {
         return route('grp.org.fulfilments.show.web.banners.show', {
             organisation: route().params['organisation'],
             fulfilment: route().params['fulfilment'],
@@ -210,10 +211,10 @@ console.log(route().params)
 
                 <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
                     <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
-                    <a target="_blank"
+                    <!-- <a target="_blank"
                         :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
                         <Button label="Create banner" iconRight="fal fa-external-link" />
-                    </a>
+                    </a> -->
                 </div>
             </div>
 
