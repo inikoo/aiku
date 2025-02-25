@@ -9,6 +9,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\OrgAction;
+use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
@@ -34,7 +35,7 @@ class UpdateProspectEmailUnsubscribed extends OrgAction
         if ($prospect->state != ProspectStateEnum::SUCCESS) {
             $dataToUpdate['state']           = ProspectStateEnum::FAIL;
             $dataToUpdate['fail_status']     = ProspectFailStatusEnum::UNSUBSCRIBED;
-            $dataToUpdate['contacted_state'] = ProspectFailStatusEnum::NA;
+            $dataToUpdate['contacted_state'] = ProspectContactedStateEnum::NA;
         }
 
         $prospect = UpdateProspect::run(

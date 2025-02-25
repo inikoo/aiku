@@ -108,6 +108,8 @@ class StoreProspect extends OrgAction
             SyncTagsProspect::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
         }
 
+        $prospect->refresh();
+        
         return $prospect;
     }
 
