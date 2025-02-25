@@ -311,6 +311,22 @@ class IndexOutboxes extends OrgAction
                     ]
                 ]
             ),
+            'grp.org.shops.show.comms.outboxes.dispatched-email.show' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.comms.outboxes.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Outboxes')
+                        ]
+                    ]
+                ]
+            ),
             default => []
         };
     }
