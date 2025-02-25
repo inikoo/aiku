@@ -19,6 +19,8 @@ use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreRefundInvoiceTransaction;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
+use App\Actions\Accounting\OrgPaymentServiceProvider\UpdateOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\Search\ReindexPaymentSearch;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
@@ -151,6 +153,43 @@ test('create other org payment service provider', function () {
     return $orgPaymentServiceProvider;
 });
 
+test('update org payment service provider', function (OrgPaymentServiceProvider $orgPaymentServiceProvider) {
+    $orgPaymentServiceProvider = UpdateOrgPaymentServiceProvider::make()->action(
+        $orgPaymentServiceProvider,
+        [
+            'code' => 'newcode'
+        ]
+    );
+    expect($orgPaymentServiceProvider)->toBeInstanceOf(OrgPaymentServiceProvider::class)
+        ->and($orgPaymentServiceProvider->code)->toBe('newcode');
+
+    return $orgPaymentServiceProvider;
+})->depends('create other org payment service provider');
+
+test('create other org payment service provider account', function () {
+    /** @var Organisation $organisation */
+    $organisation = $this->organisation;
+
+    expect($organisation->accountingStats->number_payment_accounts)->toBe(0);
+
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $organisation, 
+        $paymentServiceProvider,
+        [
+            'code' => 'Acc1',
+            'name' => 'Account 1'
+        ]
+    );
+
+    $this->organisation->refresh();
+
+    expect($paymentAccount)->toBeInstanceOf(PaymentAccount::class)
+        ->and($organisation->accountingStats->number_payment_accounts)->toBe(1);
+
+    return $paymentAccount;
+});
+
 
 //todo restrict payments account types depending of the Service Account type
 test('create payment account', function ($orgPaymentServiceProvider) {
@@ -192,7 +231,7 @@ test('update payment account shop', function (PaymentAccount $paymentAccount) {
 
     expect($paymentAccountShop)->toBeInstanceOf(PaymentAccountShop::class)
         ->and($paymentAccountShop->show_in_checkout)->toBe(true);
-        
+
     return $paymentAccount;
 })->depends('create payment account');
 
