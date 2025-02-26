@@ -86,6 +86,8 @@ beforeEach(function () {
     $this->orgStock1 = $orgStocks[0];
     $this->orgStock2 = $orgStocks[1];
 
+    $this->adminGuest->refresh();
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -764,6 +766,33 @@ test('UI show organisation payment service provider (payments tab)', function ()
     });
 });
 
+test('UI index payment account shops', function () {
+    $orgPaymentServiceProvider = $this->organisation->orgPaymentServiceProviders->first();
+    $paymentAccount            = $orgPaymentServiceProvider->paymentAccounts->first();
+    $response                  = get(
+        route(
+            'grp.org.accounting.payment-accounts.show.shops.index',
+            [$this->organisation->slug, $paymentAccount->slug]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($orgPaymentServiceProvider) {
+        $page
+            ->component('Org/Accounting/PaymentAccountShops')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->has('subNavigation')
+                    ->where('title', 'Payment Account Shops')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});
+
 test('UI show organisation payment service provider (history tab)', function () {
     $orgPaymentServiceProvider = $this->organisation->orgPaymentServiceProviders->first();
     $response                  = get('http://app.aiku.test/org/'.$this->organisation->slug.'/accounting/providers/'.$orgPaymentServiceProvider->slug.'?tab=history');
@@ -1081,7 +1110,65 @@ test('Delete invoice', function () {
     $customer->refresh();
     expect($invoice->trashed())->toBeTrue();
     expect($customer->stats->number_invoices)->toBe(0);
+    return $invoice;
 });
+
+test('UI index invoices deleted', function (Invoice $invoice) {
+    $this->withoutExceptionHandling();
+    $response                  = get(
+        route(
+            'grp.org.shops.show.ordering.deleted_invoices.index',
+            [$this->organisation->slug, $invoice->shop->slug]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/InvoicesDeleted')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->has('subNavigation')
+                    ->where('title', 'Invoices')
+                    ->etc()
+            )
+            ->has('data');
+    });
+})->depends('Delete invoice');
+
+test('UI show invoices deleted', function (Invoice $invoice) {
+    $this->withoutExceptionHandling();
+    $response                  = get(
+        route(
+            'grp.org.accounting.deleted_invoices.show',
+            [$this->organisation->slug, $invoice->slug]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($invoice) {
+        $page
+            ->component('Org/Accounting/InvoiceDeleted')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $invoice->reference)
+                    ->etc()
+            )
+            ->has('exportPdfRoute')
+            ->has('invoice')
+            ->has('tabs')
+            ->has('order_summary')
+            ->has('box_stats');
+    });
+})->depends('Delete invoice');
+
+
 
 test('Store invoice refund', function () {
     $this->withoutExceptionHandling();
