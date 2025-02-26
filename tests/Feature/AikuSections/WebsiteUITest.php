@@ -405,7 +405,7 @@ test('show banner', function () {
     });
 });
 
-test('show banner workshop', function () {
+test('show fulfilment banner workshop', function () {
     $this->withoutExceptionHandling();
     $response = get(
         route(
@@ -432,6 +432,33 @@ test('show banner workshop', function () {
             ->has('imagesUploadRoute')
             ->has('galleryRoute')
             ->has('banner');
+    });
+});
+
+test('show fulfilment edit website', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.edit',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('navigation')
+            ->has('breadcrumbs', 2)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'Settings')->etc()
+            )
+            ->has('formData');
     });
 });
 
