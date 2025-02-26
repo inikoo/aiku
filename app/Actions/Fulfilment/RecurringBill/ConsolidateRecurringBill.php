@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Accounting\Invoice\InvoiceRecurringBillTransactions;
 use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -61,6 +62,12 @@ class ConsolidateRecurringBill extends OrgAction
 
             return $invoice;
         });
+
+        foreach ($recurringBill->transactions as $transaction) {
+            if(!$transaction->end_date) {
+                UpdateRecurringBillTransaction::make()->action($transaction, ['end_date' => now()]);
+            }
+        }
 
         $this->update($recurringBill->fulfilmentCustomer, [
             'current_recurring_bill_id'  => null,

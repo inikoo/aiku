@@ -62,7 +62,7 @@ class DispatchPalletReturn extends OrgAction
                         'status' => PalletStatusEnum::RETURNED,
                         'dispatched_at' => now()
                     ]);
-                    if ($pallet->current_recurring_bill_id && $pallet->current_recurring_bill_id == $pallet->fulfilmentCustomer->current_recurring_bill_id) {
+                    if ($pallet->current_recurring_bill_id && $pallet->fulfilmentCustomer->current_recurring_bill_id == $pallet->fulfilmentCustomer->current_recurring_bill_id) {
                         $recurringBillTransaction = $pallet->currentRecurringBillTransaction;
                         UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
                             'end_date' => now()
