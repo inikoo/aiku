@@ -21,8 +21,6 @@ Route::get('/register', function () {return Inertia::render('Register');})->name
 
 Route::get('webhooks/{fulfilmentCustomer:webhook_access_key}', IndexFulfilmentCustomerFromWebhook::class)->name('fulfilment-customer.webhook.show');
 
-Route::get('/banner/{slug}', DeliverBanner::class)->name('banner');
-
 //Route::get('/appointment', ShowPublicAppointment::class)->name('.appointment');
 
 Route::prefix("disclosure")->name("disclosure.")->group(__DIR__."/disclosure.php");
