@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,17 +21,55 @@ class GetRetinaDropshippingNavigation
         $customer = $webUser->customer;
         $groupNavigation = [];
 
-        /*$groupNavigation['dashboard'] = [
-            'label' => __('Dashboard'),
-            'icon' => ['fal', 'fa-tachometer-alt'],
-            'root' => 'retina.dashboard.',
-            'route' => [
-                'name' => 'retina.dashboard.show'
-            ],
-            'topMenu' => [
+        if ($customer?->shop?->type === ShopTypeEnum::DROPSHIPPING) {
+            $groupNavigation['dashboard'] = [
+                'label' => __('Dashboard'),
+                'icon' => ['fal', 'fa-tachometer-alt'],
+                'root' => 'retina.dashboard.',
+                'route' => [
+                    'name' => 'retina.dashboard.show'
+                ],
+                'topMenu' => [
 
-            ]
-        ];*/
+                ]
+            ];
+
+            $groupNavigation['portfolios'] = [
+                'label' => __('Portfolio'),
+                'icon' => ['fal', 'fa-pallet'],
+                'root' => 'retina.dashboard.',
+                'route' => [
+                    'name' => 'retina.dashboard.show'
+                ],
+                'topMenu' => [
+
+                ]
+            ];
+
+            $groupNavigation['clients'] = [
+                'label' => __('Clients'),
+                'icon' => ['fal', 'fa-user'],
+                'root' => 'retina.dashboard.',
+                'route' => [
+                    'name' => 'retina.dashboard.show'
+                ],
+                'topMenu' => [
+
+                ]
+            ];
+
+            $groupNavigation['orders'] = [
+                'label' => __('Orders'),
+                'icon' => ['fal', 'fa-box'],
+                'root' => 'retina.dashboard.',
+                'route' => [
+                    'name' => 'retina.dashboard.show'
+                ],
+                'topMenu' => [
+
+                ]
+            ];
+        }
 
         $groupNavigation['platform'] = [
             'label' => __('Channels'),
@@ -40,7 +79,6 @@ class GetRetinaDropshippingNavigation
                 'name' => 'retina.dropshipping.platform.dashboard'
             ]
         ];
-
 
         $platforms_navigation = [];
         foreach (
