@@ -201,8 +201,18 @@ const formattedVisual = computed(() => {
     return {
         ...visualValue,
         datasets: Array.isArray(visualValue.datasets)
-            ? visualValue.datasets
-            : [visualValue.datasets] // Ensure it's an array
+            ? visualValue.datasets.map(dataset => ({
+                ...dataset,
+                backgroundColor: props.visual.type === "bar" ? "#36a2eb" : dataset.backgroundColor,
+                borderColor: props.visual.type === "bar" ? "#2a7bbf" : dataset.borderColor,
+                borderWidth: 1, // Optional: Adjust border thickness
+            }))
+            : [{
+                ...visualValue.datasets,
+                backgroundColor: props.visual.type === "bar" ? "#36a2eb" : visualValue.datasets.backgroundColor,
+                borderColor: props.visual.type === "bar" ? "#2a7bbf" : visualValue.datasets.borderColor,
+                borderWidth: 1,
+            }]
     };
 });
 

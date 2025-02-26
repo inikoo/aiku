@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
+use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
@@ -61,6 +62,13 @@ class DispatchPalletReturn extends OrgAction
                         'status' => PalletStatusEnum::RETURNED,
                         'dispatched_at' => now()
                     ]);
+
+                    if ($pallet->recurringBillTransactions()->count() > 0) {
+                        $recurringBillTransaction = $pallet->recurringBillTransactions()->latest()->first();
+                        UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
+                            'end_date' => now()
+                        ]);
+                    }
 
 
                     $palletReturn->pallets()->syncWithoutDetaching([
