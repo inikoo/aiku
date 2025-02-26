@@ -20,7 +20,7 @@ import BannerShowcase from "@/Pages/Grp/Org/Web/Banners/BannerShowcase.vue";
 
 library.add(faSign, faGlobe, faPencil, faSeedling, faPaste, faLayerGroup)
 
-const props = defineProps<{
+const props = defineProps<{    
     title: string,
     pageHead: object,
     tabs: {
