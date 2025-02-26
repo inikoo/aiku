@@ -77,6 +77,7 @@ const emits = defineEmits<{
 
 const _menu = ref()
 const _textRef = ref<HTMLElement | null>(null) // Correct reference type
+const _parentComponent = ref<HTMLElement | null>(null);
 
 // Ensure Moveable gets the correct target
 onMounted(() => {
@@ -94,7 +95,29 @@ function onSave() {
 
 // Dragging function for Moveable
 function onDragText(e) {
-	const { target, beforeTranslate } = e
+	e.target.style.transform = e.transform
+
+	if (_parentComponent.value) {
+		const parentRect = _parentComponent.value.getBoundingClientRect()
+		// Calculate the element's position relative to the parent
+		const relativeLeft = e.left - parentRect.left
+		const relativeTop = e.top - parentRect.top
+
+		// Convert to percentages relative to the parent's dimensions
+		const leftPercent = (relativeLeft / parentRect.width) * 100
+		const topPercent = (relativeTop / parentRect.height) * 100
+
+		e.target.style.left = `${leftPercent}%`
+		e.target.style.top = `${topPercent}%`
+		e.target.style.transform = "" // Reset transform
+
+		// Update the model values in percentage.
+		props.modelValue.text.container.properties.position.left = `${leftPercent}%`
+		props.modelValue.text.container.properties.position.top = `${topPercent}%`
+
+		onSave()
+	}
+	/* const { target, beforeTranslate } = e
 	const parent = target.parentElement
 	if (!parent) return
 
@@ -118,7 +141,7 @@ function onDragText(e) {
 		props.modelValue.text.container.properties.position.top = `${topPercent}%`
 
 		onSave()
-	}
+	} */
 }
 
 
