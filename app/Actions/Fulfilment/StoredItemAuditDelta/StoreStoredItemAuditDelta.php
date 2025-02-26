@@ -100,6 +100,7 @@ class StoreStoredItemAuditDelta extends OrgAction
 
     public function action(StoredItemAudit $storedItemAudit, $modelData): StoredItemAuditDelta
     {
+        $this->asAction = true;
         $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $modelData);
 
         return $this->handle($storedItemAudit, $this->validatedData);
