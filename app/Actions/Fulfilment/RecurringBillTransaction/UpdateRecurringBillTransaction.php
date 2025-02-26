@@ -51,6 +51,7 @@ class UpdateRecurringBillTransaction extends OrgAction
         return [
             'quantity' => ['sometimes', 'numeric', 'min:0'],
             'net_amount' => ['sometimes', 'numeric', 'min:0'],
+            'end_date' => ['sometimes', 'date'],
         ];
     }
 
