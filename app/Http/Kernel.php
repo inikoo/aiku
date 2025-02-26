@@ -38,6 +38,7 @@ use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\VerifyShopifyWebhook;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -246,5 +247,6 @@ class Kernel extends HttpKernel
         'retina-prepare-account' => RetinaPreparingAccount::class,
         'abilities'              => CheckAbilities::class,
         'ability'                => CheckForAnyAbility::class,
+        'verify.shopify.webhook' => VerifyShopifyWebhook::class,
     ];
 }

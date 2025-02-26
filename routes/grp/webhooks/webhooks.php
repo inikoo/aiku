@@ -34,11 +34,13 @@ Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group
     });
 });
 
-Route::prefix('customers')->as('customers.')->group(function () {
-    Route::post('data_request', CustomerDataRequestWebhookShopify::class)->name('data_request');
-    Route::post('redact', CustomerDataRedactWebhookShopify::class)->name('redact');
-});
+Route::middleware('verify.shopify.webhook')->group(function () {
+    Route::prefix('customers')->as('customers.')->group(function () {
+        Route::post('data_request', CustomerDataRequestWebhookShopify::class)->name('data_request');
+        Route::post('redact', CustomerDataRedactWebhookShopify::class)->name('redact');
+    });
 
-Route::prefix('shop')->as('shop.')->group(function () {
-    Route::post('redact', ShopRedactWebhookShopify::class)->name('redact');
+    Route::prefix('shop')->as('shop.')->group(function () {
+        Route::post('redact', ShopRedactWebhookShopify::class)->name('redact');
+    });
 });

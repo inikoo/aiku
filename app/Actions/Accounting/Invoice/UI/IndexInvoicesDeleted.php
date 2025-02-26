@@ -215,10 +215,11 @@ class IndexInvoicesDeleted extends OrgAction
         } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
             return $request->user()->authTo(["crm.{$this->shop->id}.view","accounting.{$this->shop->organisation_id}.view"]);
         } elseif ($this->parent instanceof Shop) {
-            //todo think about it
-            $permission = $request->user()->authTo("orders.{$this->shop->id}.view");
+            // TODO: raul need correct permission
+            // $permission = $request->user()->authTo("orders.{$this->shop->id}.view");
 
-            return $permission;
+            // return $permission;
+            return true;
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
             return $request->user()->authTo(
                 [
