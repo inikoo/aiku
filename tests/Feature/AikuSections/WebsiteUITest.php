@@ -405,6 +405,36 @@ test('show banner', function () {
     });
 });
 
+test('show banner workshop', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.banners.workshop',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Banners/BannerWorkshop')
+            ->has('title')
+            ->has('navigation')
+            ->has('breadcrumbs', 1)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'Workshop')->etc()
+            )
+            ->has('publishRoute')
+            ->has('imagesUploadRoute')
+            ->has('galleryRoute')
+            ->has('banner');
+    });
+});
+
 test('create banner', function () {
     $response = get(
         route(
