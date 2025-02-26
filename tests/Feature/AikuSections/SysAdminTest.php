@@ -292,9 +292,78 @@ test('SetUserAuthorisedModels command', function (Guest $guest) {
     $user = $guest->getUser();
     expect($user->authorisedOrganisations()->count())->toBe(1);
 
-
+    return $user;
 
 })->depends('create guest');
+
+
+test('UI show dashboard org', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.dashboard.show',
+            [
+                $organisation->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($organisation) {
+        $page
+            ->component('Dashboard/OrganisationDashboard')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'dashboard_stats',
+                fn (AssertableInertia $page) =>
+                $page->has('table', 2)
+                ->has('interval_options')
+                ->has('settings')
+                ->where('currency_code', $organisation->currency->code)
+                ->etc()
+            );
+    });
+
+})->depends('SetUserAuthorisedModels command');
+
+
+test('UI show dashboard org (tab invoice_categories)', function (User $user) {
+    $this->withoutExceptionHandling();
+
+    actingAs($user);
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.dashboard.show',
+            [
+                $organisation->slug,
+                'tab_dashboard_interval' => 'invoice_categories',
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($organisation) {
+        $page
+            ->component('Dashboard/OrganisationDashboard')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'dashboard_stats',
+                fn (AssertableInertia $page) =>
+                $page->has('table', 2)
+                ->has('interval_options')
+                ->has('settings')
+                ->where('currency_code', $organisation->currency->code)
+                ->etc()
+            );
+    });
+})->depends('SetUserAuthorisedModels command');
+
+
+
 
 test('create guest from command', function (Group $group) {
     expect($group->sysadminStats->number_guests)->toBe(1);
@@ -660,14 +729,16 @@ test('can show hr dashboard', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('SysAdmin/SysAdminDashboard')
-            ->has('breadcrumbs', 2);
+        ->component('SysAdmin/SysAdminDashboard')
+        ->has('breadcrumbs', 2);
     });
 
 });
 
 
 test('UI show organisation setting', function () {
+    $this->withoutExceptionHandling();
+    actingAs(User::first());
     $organisation = Organisation::first();
 
     $response = get(
@@ -684,17 +755,17 @@ test('UI show organisation setting', function () {
             ->has('title')
             ->has('breadcrumbs', 2)
             ->has('formData.blueprint.0.fields', 2)
-            ->has('formData.blueprint.1.fields', 1)
-            ->has('formData.blueprint.2.fields', 4)
+            ->has('formData.blueprint.1.fields', 4)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                    ->where('name', 'grp.models.org.update')
+                    ->where('name', 'grp.models.org.settings.update')
                     ->where('parameters', [$organisation->id])
             );
     });
-})->todo();
+});
+
 
 test('UI index organisation', function () {
 
@@ -889,5 +960,90 @@ test('UI index request logs', function () {
                     ->where('title', 'User Requests')
                     ->etc()
             )->has('data');
+    });
+});
+
+test('UI index overview group', function () {
+    $this->withoutExceptionHandling();
+
+    actingAs(User::first());
+
+    $response = get(
+        route(
+            'grp.overview.hub',
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Overview/OverviewHub')
+            ->where('title', 'overview')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'overview')
+                    ->etc()
+            )->has('dashboard_stats');
+    });
+});
+
+test('UI show dashboard group', function () {
+    $this->withoutExceptionHandling();
+
+    actingAs(User::first());
+
+    $group = group();
+
+    $response = get(
+        route(
+            'grp.dashboard.show',
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($group) {
+        $page
+            ->component('Dashboard/GrpDashboard')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'dashboard_stats',
+                fn (AssertableInertia $page) =>
+                $page->has('table', 2)
+                ->has('interval_options')
+                ->has('settings')
+                ->where('currency_code', $group->currency->code)
+                ->etc()
+            );
+    });
+});
+
+test('UI show dashboard group (tab invoice_shops)', function () {
+    $this->withoutExceptionHandling();
+
+    actingAs(User::first());
+    $group = group();
+
+    $response = get(
+        route(
+            'grp.dashboard.show',
+            [
+                'tab_dashboard_interval' => 'invoice_shops',
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($group) {
+        $page
+            ->component('Dashboard/GrpDashboard')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'dashboard_stats',
+                fn (AssertableInertia $page) =>
+                $page->has('table', 2)
+                ->has('interval_options')
+                ->has('settings')
+                ->where('currency_code', $group->currency->code)
+                ->etc()
+            );
     });
 });

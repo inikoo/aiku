@@ -18,6 +18,7 @@ export interface Root {
   delete_model_has_web_blocks_route: DeleteModelHasWebBlocksRoute
   images_upload_route: ImagesUploadRoute
   reorder_web_blocks_route: ReorderWebBlocksRoute
+  website_layout: string
 }
 
 export interface Layout {
