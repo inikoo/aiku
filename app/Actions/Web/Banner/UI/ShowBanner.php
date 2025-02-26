@@ -82,7 +82,8 @@ class ShowBanner extends OrgAction
                     ],
                     'iconRight' => $banner->state->stateIcon()[$banner->state->value],
                     'actions'   => [
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                      // tofo un coment this whrn the edit action is woerking
+                        //  $this->canEdit ? $this->getEditActionIcon($request) : null,
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'primary',
