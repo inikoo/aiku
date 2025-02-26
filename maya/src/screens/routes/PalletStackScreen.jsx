@@ -25,8 +25,8 @@ import {useForm, Controller} from 'react-hook-form';
 import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Empty from '@/src/components/Empty';
 
-import PalletShowcase from '@/src/screens/Pallet/ShowPallet';
-import ItemsInPallet from '@/src/screens/Pallet/ItemsInPallet';
+import PalletShowcase from '@/src/screens/Fulfilment/Pallet/ShowPallet';
+import ItemsInPallet from '@/src/screens/Fulfilment/Pallet/ItemsInPallet';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {

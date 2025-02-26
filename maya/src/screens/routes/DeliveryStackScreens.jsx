@@ -9,8 +9,8 @@ import BottomTabs from '@/src/components/BottomTabs';
 import {DeliveryProvider, useDelivery} from '@/src/components/Context/delivery';
 import Menu from '@/src/components/Menu';
 import {AuthContext} from '@/src/components/Context/context';
-import PalletInDeliveries from '@/src/screens/Delivery/PalletInDeliveries';
-import ShowFulfilmentDelivery from '@/src/screens/Delivery/ShowFulfilmentDelivery';
+import PalletInDeliveries from '@/src/screens/Fulfilment/Delivery//PalletInDeliveries';
+import ShowFulfilmentDelivery from '@/src/screens/Fulfilment/Delivery/ShowFulfilmentDelivery';
 import request from '@/src/utils/Request';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 

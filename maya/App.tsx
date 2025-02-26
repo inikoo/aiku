@@ -39,6 +39,8 @@ function App(): React.JSX.Element {
           token: user.token,
           userData: user,
           organisation: user.organisation,
+          fulfilment: null,
+          warehouse: null,
         });
       },
       setOrganisation: async user => {
@@ -79,13 +81,14 @@ function App(): React.JSX.Element {
         }
         dispatch({type: 'LOGOUT'});
       },
-      userData: loginState.userData,
-      organisation: loginState.organisation,
-      fulfilment: loginState.fulfilment,
-      warehouse: loginState.warehouse,
+      userData: loginState.userData,  // ✅ Ambil dari loginState
+      organisation: loginState.organisation,  // ✅ Ambil dari loginState
+      fulfilment: loginState.fulfilment,  // ✅ Ambil dari loginState
+      warehouse: loginState.warehouse,  // ✅ Ambil dari loginState
     }),
     [loginState],
   );
+  
 
   useEffect(() => {
     const loadUserToken = async () => {
@@ -106,14 +109,16 @@ function App(): React.JSX.Element {
     };
     loadUserToken();
   }, []);
+  
 
   if (loginState.isLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color='#4F46E5'/>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
+
 
   return (
     <GluestackUIProvider>
