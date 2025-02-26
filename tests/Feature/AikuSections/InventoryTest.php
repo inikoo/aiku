@@ -305,6 +305,7 @@ test('create org stock family', function () {
         ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
         ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
         ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
+    return $orgStockFamily;
 });
 
 test('create org stock from 2nd stock (within stock family)', function () {
@@ -674,7 +675,31 @@ test("UI Index warehouses", function () {
     });
 });
 
-test("UI index stocks all", function () {
+test("UI show org stock", function (OrgStock $orgStock) {
+    $warehouse = $this->organisation->warehouses->first();
+    $this->withoutExceptionHandling();
+
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show", [
+            $this->organisation->slug,
+            $warehouse->slug,
+            $orgStock->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($orgStock) {
+        $page
+            ->component("Org/Inventory/OrgStock")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $orgStock->code)->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create org stock');
+
+test("UI index org stocks all", function () {
     $warehouse = Warehouse::first();
     $this->withoutExceptionHandling();
     $response = get(
@@ -688,6 +713,50 @@ test("UI index stocks all", function () {
             ->component("Org/Inventory/OrgStocks")
             ->has("title")
             ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
+    });
+});
+
+test("UI index org stocks discontinued", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
+    });
+});
+
+test("UI index org stocks abnormally", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.abnormality_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs")
             ->has(
                 "pageHead",
                 fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
@@ -786,6 +855,29 @@ test("UI Index Org Stock Families", function () {
             ->has("data");
     });
 });
+
+test("UI Show Org Stock Family", function (OrgStockFamily $orgStockFamily) {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stock_families.show", [
+            $this->organisation->slug,
+            $warehouse->slug,
+            $orgStockFamily->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($orgStockFamily) {
+        $page
+            ->component("Org/Inventory/OrgStockFamily")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $orgStockFamily->name)->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create org stock family');
 
 test("UI Index Stock Families", function () {
     $this->withoutExceptionHandling();
