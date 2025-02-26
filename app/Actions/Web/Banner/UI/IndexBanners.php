@@ -10,6 +10,7 @@ namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Traits\Authorisations\WithWebsiteAuthorisation;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannersResource;
@@ -31,6 +32,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexBanners extends OrgAction
 {
+    use WithWebsiteAuthorisation;
+
     protected array $elementGroups = [];
     private Group|Fulfilment|Shop $parent;
 
@@ -172,6 +175,35 @@ class IndexBanners extends OrgAction
     public function htmlResponse(LengthAwarePaginator $banners, ActionRequest $request): Response
     {
         $container = null;
+
+        $actions = null;
+
+        if ($this->canEdit) {
+            $actions =  [
+                match ($this->parent::class) {
+                    Shop::class => [
+                        'type'  => 'button',
+                        'style' => 'create',
+                        'label' => __('Create Banner'),
+                        'route' => [
+                            'name'       => 'grp.org.shops.show.web.banners.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ],
+                    Fulfilment::class => [
+                        'type'  => 'button',
+                        'style' => 'create',
+                        'label' => __('Create Banner'),
+                        'route' => [
+                            'name'       => 'grp.org.fulfilments.show.web.banners.create',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ],
+                    default => null
+                }
+            ];
+        }
+
         return Inertia::render(
             'Org/Web/Banners/Banners',
             [
@@ -187,30 +219,8 @@ class IndexBanners extends OrgAction
                         'title' => __('banner'),
                         'icon'  => 'fal fa-sign'
                     ],
-                    'actions'   =>
-                        [
-                            match ($this->parent::class) {
-                                Shop::class => [
-                                    'type'  => 'button',
-                                    'style' => 'create',
-                                    'label' => __('Create Banner'),
-                                    'route' => [
-                                        'name'       => 'grp.org.shops.show.web.banners.create',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ]
-                                ],
-                                Fulfilment::class => [
-                                    'type'  => 'button',
-                                    'style' => 'create',
-                                    'label' => __('Create Banner'),
-                                    'route' => [
-                                        'name'       => 'grp.org.fulfilments.show.web.banners.create',
-                                        'parameters' => $request->route()->originalParameters()
-                                    ]
-                                ],
-                                default => null
-                            }
-                        ]
+                    'actions'   => $actions,
+
 
                 ],
 

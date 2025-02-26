@@ -9,6 +9,7 @@
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Web\Banner\UI\CreateBanner;
+use App\Actions\Web\Banner\UI\EditBanner;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Banner\UI\ShowBanner;
 use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
@@ -79,8 +80,10 @@ Route::prefix('{website}/web-users')->name('web_users.')->group(function () {
 Route::prefix('{website}/banners')->name('banners.')->group(function () {
     Route::get('', [IndexBanners::class, 'inFulfilment'])->name('index');
     Route::get('/create', [CreateBanner::class, 'inFulfilment'])->name('create');
+
     Route::get('/{banner}/workshop', [ShowBannerWorkshop::class, 'inFulfilment'])->name('workshop');
     Route::get('/{banner}', [ShowBanner::class, 'inFulfilment'])->name('show');
+    Route::get('/{banner}/edit', [EditBanner::class, 'inFulfilment'])->name('edit');
 });
 
 //  Route::get('/blog/article/create', CreateArticle::class)->name('show.blog.article.create');

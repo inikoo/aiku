@@ -8,35 +8,45 @@
 
 namespace App\Actions\Web\Banner\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Enums\Web\Banner\BannerStateEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditBanner extends InertiaAction
+class EditBanner extends OrgAction
 {
+    use WithWebsiteEditAuthorisation;
+
     public function handle(Banner $banner): Banner
     {
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
 
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
-
-    public function asController(Banner $banner, ActionRequest $request): Banner
+    public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($banner->shop, $request);
 
         return $this->handle($banner);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
+    {
+
+        $this->initialisationFromShop($banner->shop, $request);
+        return $this->handle($banner);
+    }
+
 
     /**
      * @throws Exception
