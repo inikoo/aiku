@@ -63,7 +63,7 @@ class DispatchPalletReturn extends OrgAction
                         'dispatched_at' => now()
                     ]);
 
-                    if($pallet->recurringBillTransactions()->count() > 0){
+                    if ($pallet->recurringBillTransactions()->count() > 0) {
                         $recurringBillTransaction = $pallet->recurringBillTransactions()->latest()->first();
                         UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
                             'end_date' => now()
