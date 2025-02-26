@@ -64,7 +64,7 @@ class ConsolidateRecurringBill extends OrgAction
         });
 
         foreach ($recurringBill->transactions as $transaction) {
-            if(!$transaction->end_date) {
+            if (!$transaction->end_date) {
                 UpdateRecurringBillTransaction::make()->action($transaction, ['end_date' => now()]);
             }
         }
