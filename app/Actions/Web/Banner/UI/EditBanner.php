@@ -35,7 +35,6 @@ class EditBanner extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisationFromShop($banner->shop, $request);
-
         return $this->handle($banner);
     }
 
