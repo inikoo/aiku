@@ -70,7 +70,7 @@ class IndexUserRequestLogs extends GrpAction
             }
         }
 
-        return [];
+        return new LengthAwarePaginator([], 0, 10);
     }
 
     public function htmlResponse(LengthAwarePaginator $requests, ActionRequest $request): Response
