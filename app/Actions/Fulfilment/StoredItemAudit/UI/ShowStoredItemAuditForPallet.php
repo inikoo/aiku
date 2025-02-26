@@ -262,7 +262,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show' =>
             array_merge(
-                ShowPallet::make()->getBreadcrumbs($storedItemAudit->fulfilmentCustomer, $routeName, $routeParameters),
+                ShowPallet::make()->getBreadcrumbs($storedItemAudit->fulfilmentCustomer, $routeParameters),
                 $headCrumb(
                     [
                         'index' => [

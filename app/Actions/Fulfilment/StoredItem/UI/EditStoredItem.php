@@ -134,7 +134,7 @@ class EditStoredItem extends OrgAction
     public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         return array_merge(
-            ShowStoredItem::make()->getBreadcrumbs($parent, $routeName, $routeParameters, '('.__('Editing').')'),
+            ShowStoredItem::make()->getBreadcrumbs($parent, $routeParameters, '('.__('Editing').')'),
             []
         );
     }

@@ -181,7 +181,6 @@ class EditPallet extends OrgAction
     {
         return ShowPallet::make()->getBreadcrumbs(
             $this->parent,
-            routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
         );

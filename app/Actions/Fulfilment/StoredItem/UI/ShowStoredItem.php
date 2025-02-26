@@ -49,7 +49,6 @@ class ShowStoredItem extends OrgAction
                 );
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit       = $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-            $this->allowLocation = $request->user()->authTo("locations.{$this->warehouse->id}.view");
             return $request->user()->authTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
@@ -90,7 +89,6 @@ class ShowStoredItem extends OrgAction
                 'title'       => __('stored item'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $this->parent,
-                    request()->route()->getName(),
                     request()->route()->originalParameters()
                 ),
                 'pageHead'    => [
@@ -185,16 +183,16 @@ class ShowStoredItem extends OrgAction
         return new StoredItemResource($storedItem);
     }
 
-    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, array $routeParameters, string $suffix = ''): array
     {
         $storedItem = StoredItem::where('slug', $routeParameters['storedItem'])->first();
 
         return match (class_basename($parent)) {
-            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($storedItem, $routeName, $suffix),
-            default        => $this->getBreadcrumbsFromFulfilmentCustomer($storedItem, $routeName, $suffix),
+            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($storedItem, $suffix),
+            default        => $this->getBreadcrumbsFromFulfilmentCustomer($storedItem, $suffix),
         };
     }
-    public function getBreadcrumbsFromFulfilmentCustomer(StoredItem $storedItem, $routeName, $suffix = null): array
+    public function getBreadcrumbsFromFulfilmentCustomer(StoredItem $storedItem, $suffix = null): array
     {
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
@@ -223,7 +221,7 @@ class ShowStoredItem extends OrgAction
         );
     }
 
-    public function getBreadcrumbsFromWarehouse(StoredItem $storedItem, $routeName, $suffix = null): array
+    public function getBreadcrumbsFromWarehouse(StoredItem $storedItem, $suffix = null): array
     {
         return array_merge(
             ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
