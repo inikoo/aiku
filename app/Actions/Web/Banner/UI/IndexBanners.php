@@ -55,7 +55,7 @@ class IndexBanners extends OrgAction
             ];
     }
 
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Group|Fulfilment|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where('banners.name', "%$value%");
@@ -72,6 +72,20 @@ class IndexBanners extends OrgAction
         $queryBuilder = QueryBuilder::for(Banner::class)
                         ->leftJoin('organisations', 'banners.organisation_id', '=', 'organisations.id')
                         ->leftJoin('shops', 'banners.shop_id', '=', 'shops.id');
+
+
+        switch ($parent::class) {
+            case Shop::class:
+                $queryBuilder->where('banners.shop_id', $parent->id);
+                break;
+            case Fulfilment::class:
+                $queryBuilder->where('banners.shop_id', $parent->shop_id);
+                break;
+            case Group::class:
+                $queryBuilder->where('banners.group_id', $parent->id);
+                break;
+        }
+
 
         $queryBuilder->select(
             'banners.id',
@@ -97,13 +111,7 @@ class IndexBanners extends OrgAction
             ->withQueryString();
     }
 
-    public function inGroup(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
 
-        return $this->handle($this->parent);
-    }
 
     public function tableStructure(
         Group|Fulfilment|Shop $parent,
@@ -155,7 +163,7 @@ class IndexBanners extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle();
+        return $this->handle($this->parent);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -164,7 +172,15 @@ class IndexBanners extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromShop($fulfilment->shop, $request);
 
-        return $this->handle();
+        return $this->handle($this->parent);
+    }
+
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = group();
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle($this->parent);
     }
 
     public function jsonResponse(LengthAwarePaginator $banners): AnonymousResourceCollection
