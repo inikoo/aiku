@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -298,5 +299,12 @@ class Pallet extends Model implements Auditable
     public function recurringBillTransactions(): MorphMany
     {
         return $this->morphMany(RecurringBillTransaction::class, 'item');
+    }
+
+    public function currentRecurringBillTransaction(): MorphOne
+    {
+        return $this->morphOne(RecurringBillTransaction::class, 'item')
+                    ->where('recurring_bill_id', $this->current_recurring_bill_id)
+                    ->latestOfMany();
     }
 }
