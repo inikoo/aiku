@@ -1075,8 +1075,8 @@ test('Delete invoice', function () {
     $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
     expect($customer->stats->number_invoices)->toBe(1);
 
-    $invoice=DeleteInvoice::make()->action($invoice, [
-        'deleted_note'=> 'test'
+    $invoice = DeleteInvoice::make()->action($invoice, [
+        'deleted_note' => 'test'
     ]);
     $customer->refresh();
     expect($invoice->trashed())->toBeTrue();

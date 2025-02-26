@@ -8,6 +8,8 @@
 
 namespace App\Http\Resources\Catalogue;
 
+use App\Models\Catalogue\Product;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -26,18 +28,26 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $family_slug
  * @property mixed $family_code
  * @property mixed $family_name
+ * @property StoredItem|Product $item
  *
  */
 class DropshippingPortfolioResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $quantity = 0;
+        if ($this->item instanceof StoredItem) {
+            $quantity = $this->item->total_quantity;
+        } elseif ($this->item instanceof Product) {
+            $quantity = $this->item->available_quantity;
+        }
+
         return [
             'id'                        => $this->id,
             'slug'                      => $this->item->slug,
             'code'                      => $this->item->code,
             'name'                      => $this->item->name,
-            'quantity_left'             => $this->item->total_quantity,
+            'quantity_left'             => $quantity,
             'type'                      => $this->item_type,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
