@@ -939,6 +939,26 @@ test("UI Create stock family", function () {
     });
 });
 
+test("UI index inventory stored item", function () {
+    $response = get(
+        route("grp.org.warehouses.show.inventory.stored_items.current.index", [
+            $this->organisation->slug,
+            Warehouse::first()->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Fulfilment/StoredItems")
+            ->has("title")
+            ->has("breadcrumbs", 4)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "customer's sKUs")->etc()
+            )
+            ->has("tabs");
+    });
+});
+
 test('UI get section route inventory dashboard', function () {
     $warehouse = Warehouse::first();
     $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.show.inventory.dashboard', [
