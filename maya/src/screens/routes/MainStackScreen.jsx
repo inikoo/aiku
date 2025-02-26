@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import DeliveryStackScreen from '@/src/screens/routes/DeliveryStackScreens';
@@ -9,19 +9,22 @@ import Settings from '@/src/screens/Settings';
 import Organisation from '@/src/screens/Organisation';
 import Warehouse from '@/src/screens/Warehouse';
 import Fulfilment from '@/src/screens/Fulfilment';
-import ShowDeliveryNote from '@/src/screens/DeliveryNote/ShowDeliveryNote';
-import ShowLocation from '@/src/screens/Location/ShowLocation';
-import ShowArea from '@/src/screens/Area/ShowArea';
-import ShowStockDelivery from '@/src/screens/Stock/ShowStockDelivery';
+import ShowDeliveryNote from '@/src/screens/Fulfilment/DeliveryNote/ShowDeliveryNote';
+import ShowLocation from '@/src/screens/Fulfilment/Location/ShowLocation';
+import ShowArea from '@/src/screens/Fulfilment/Area/ShowArea';
+import ShowStockDelivery from '@/src/screens/Fulfilment/Stock/ShowStockDelivery';
 import SessionExpired from '@/src/screens/SessionExpired';
-import ShowOrgStock from '@/src/screens/OrgStock/ShowOrgStock';
+import ShowOrgStock from '@/src/screens/Fulfilment/OrgStock/ShowOrgStock';
 import EditProfile from '@/src/screens/EditProfile';
 import Scanner from '@/src/screens/Scanner';
 import DrawerScreens from '@/src/screens/routes/drawerScreens';
+import {AuthContext} from '@/src/components/Context/context';
 
 const Stack = createStackNavigator();
 
 const HomeStack = () => {
+      console.log('ooo',useContext(AuthContext))
+
     return (
         <Stack.Navigator
             screenOptions={{

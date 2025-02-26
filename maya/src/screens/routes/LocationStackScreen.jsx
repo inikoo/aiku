@@ -3,8 +3,8 @@ import React, {} from 'react';
 import { SafeAreaView } from 'react-native';
 import BottomTabs from '@/src/components/BottomTabs'
 
-import Locations from '@/src/screens/Location/Locations';
-import Areas from '@/src/screens/Area/Areas';
+import Locations from '@/src/screens/Fulfilment/Location/Locations';
+import Areas from '@/src/screens/Fulfilment/Area/Areas';
 
 import { faMapSigns , faInventory } from '@/private/fa/pro-regular-svg-icons';
 

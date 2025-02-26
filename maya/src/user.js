@@ -60,12 +60,16 @@ export function logout(signOut) {
                 signOut();
             },
             onFailed: error => {
-              console.log(error)
-                Toast.show({
-                    type: ALERT_TYPE.DANGER,
-                    title: 'Error',
-                    textBody: error.detail?.message || 'Failed to logout',
-                });
+                console.log(error);
+                if (error.status == 401) {
+                    signOut();
+                } else {
+                    Toast.show({
+                        type: ALERT_TYPE.DANGER,
+                        title: 'Error',
+                        textBody: error.detail?.message || 'Failed to logout',
+                    });
+                }
             },
         });
     } else {

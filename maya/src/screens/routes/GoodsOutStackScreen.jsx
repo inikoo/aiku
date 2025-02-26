@@ -3,8 +3,8 @@ import React, {} from 'react';
 import { SafeAreaView } from 'react-native';
 import BottomTabs from '@/src/components/BottomTabs'
 
-import DeliveryNotes from '@/src/screens/DeliveryNote/DeliveryNotes';
-import FulfilmentReturns from '@/src/screens/Return/FulfilmentReturns'
+import DeliveryNotes from '@/src/screens/Fulfilment/DeliveryNote/DeliveryNotes';
+import FulfilmentReturns from '@/src/screens/Fulfilment/Return/FulfilmentReturns'
 
 import { faTruck , faSignOut  } from '@/private/fa/pro-regular-svg-icons';
 

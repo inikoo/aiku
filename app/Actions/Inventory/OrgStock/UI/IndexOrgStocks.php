@@ -171,7 +171,7 @@ class IndexOrgStocks extends OrgAction
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('org_stocks.state', $elements);
                 }
 
             ],
@@ -224,7 +224,7 @@ class IndexOrgStocks extends OrgAction
             $queryBuilder->where('org_stocks.state', OrgStockStateEnum::DISCONTINUED);
         } elseif ($this->bucket == 'abnormality') {
             $queryBuilder->where('org_stocks.state', OrgStockStateEnum::ABNORMALITY);
-        } elseif (!($this->parent instanceof Group)) {
+        } elseif (!($parent instanceof Group)) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -256,7 +256,7 @@ class IndexOrgStocks extends OrgAction
             ->leftJoin('warehouses', 'warehouses.organisation_id', 'organisations.id')
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
             ->leftJoin('org_stock_families', 'org_stocks.org_stock_family_id', 'org_stock_families.id')
-            ->allowedSorts(['code', 'family_code', 'unit_value', 'discontinued_in_organisation_at', 'organisation_name'])
+            ->allowedSorts(['code', 'name' ,'family_code', 'unit_value', 'discontinued_in_organisation_at', 'organisation_name'])
             ->allowedFilters([$globalSearch, AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();

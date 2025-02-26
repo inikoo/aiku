@@ -6,8 +6,8 @@ import Empty from '@/src/components/Empty';
 import request from '@/src/utils/Request';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 
-import ShowStoredItem from '@/src/screens/StoredItem/ShowStoredItem';
-import PalletsInStoredItem from '@/src/screens/StoredItem/PalletsInStoredItem';
+import ShowStoredItem from '@/src/screens/Fulfilment/StoredItem/ShowStoredItem';
+import PalletsInStoredItem from '@/src/screens/Fulfilment/StoredItem/PalletsInStoredItem';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
     faPallet,

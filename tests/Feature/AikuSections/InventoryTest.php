@@ -46,6 +46,7 @@ use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Enums\UI\Inventory\LocationTabsEnum;
+use App\Enums\UI\Inventory\OrgStockFamilyTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
@@ -74,8 +75,11 @@ beforeEach(
         $this->group        = group();
         $this->guest        = createAdminGuest($this->group);
 
+        $this->artisan('warehouse:seed-permissions')->assertExitCode(0);
+
         Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
-        actingAs($this->guest->getUser());
+        $this->user = $this->guest->getUser();
+        actingAs($this->user);
 
     }
 );
@@ -302,6 +306,7 @@ test('create org stock family', function () {
         ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
         ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
         ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
+    return $orgStockFamily;
 });
 
 test('create org stock from 2nd stock (within stock family)', function () {
@@ -602,6 +607,8 @@ test("UI Edit location", function () {
 test("UI Index fulfilment locations", function () {
     $warehouse = Warehouse::first();
     $this->withoutExceptionHandling();
+    $user = $this->user;
+    $user->givePermissionTo("fulfilment.{$warehouse->id}.view");
     $response = get(
         route("grp.org.warehouses.show.fulfilment.locations.index", [
             $this->organisation->slug,
@@ -612,14 +619,14 @@ test("UI Index fulfilment locations", function () {
         $page
             ->component("Org/Warehouse/Fulfilment/Locations")
             ->has("title")
-            ->has("breadcrumbs", 3)
+            ->has("breadcrumbs", 4)
             ->has(
                 "pageHead",
                 fn (AssertableInertia $page) => $page->where("title", "locations")->etc()
             )
             ->has("data");
     });
-})->todo();
+});
 
 test("UI Show fulfilment location", function () {
     $warehouse = Warehouse::first();
@@ -632,19 +639,19 @@ test("UI Show fulfilment location", function () {
             $location->slug,
         ])
     );
-    $response->assertInertia(function (AssertableInertia $page) {
+    $response->assertInertia(function (AssertableInertia $page) use ($location) {
         $page
             ->component("Org/Warehouse/Location")
             ->has("title")
             ->has("breadcrumbs", 3)
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => $page->where("title", "location")->etc()
+                fn (AssertableInertia $page) => $page->where("title", $location->slug)->etc()
             )
             ->has("navigation")
             ->has("tabs");
     });
-})->todo();
+})->depends("UI Index fulfilment locations");
 
 test("UI Index warehouses", function () {
     $warehouse = Warehouse::first();
@@ -666,6 +673,96 @@ test("UI Index warehouses", function () {
             )
             ->has("tabs")
             ->has("tagsList");
+    });
+});
+
+test("UI show org stock", function (OrgStock $orgStock) {
+    $warehouse = $this->organisation->warehouses->first();
+    $this->withoutExceptionHandling();
+
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.show", [
+            $this->organisation->slug,
+            $warehouse->slug,
+            $orgStock->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($orgStock) {
+        $page
+            ->component("Org/Inventory/OrgStock")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $orgStock->code)->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create org stock');
+
+test("UI index org stocks all", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
+    });
+});
+
+test("UI index org stocks discontinued", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
+    });
+});
+
+test("UI index org stocks abnormally", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.abnormality_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
     });
 });
 
@@ -760,6 +857,53 @@ test("UI Index Org Stock Families", function () {
     });
 });
 
+test("UI Show Org Stock Family", function (OrgStockFamily $orgStockFamily) {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stock_families.show", [
+            $this->organisation->slug,
+            $warehouse->slug,
+            $orgStockFamily->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($orgStockFamily) {
+        $page
+            ->component("Org/Inventory/OrgStockFamily")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $orgStockFamily->name)->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create org stock family');
+
+test("UI Show Org Stock Family (tab org stocks)", function (OrgStockFamily $orgStockFamily) {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stock_families.show", [
+            $this->organisation->slug,
+            $warehouse->slug,
+            $orgStockFamily->slug,
+            'tab' => OrgStockFamilyTabsEnum::ORG_STOCKS->value
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($orgStockFamily) {
+        $page
+            ->component("Org/Inventory/OrgStockFamily")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $orgStockFamily->name)->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create org stock family');
+
 test("UI Index Stock Families", function () {
     $this->withoutExceptionHandling();
     $response = get(
@@ -792,6 +936,26 @@ test("UI Create stock family", function () {
                 fn (AssertableInertia $page) => $page->where("title", "new SKU family")->etc()
             )
             ->has("formData");
+    });
+});
+
+test("UI index inventory stored item", function () {
+    $response = get(
+        route("grp.org.warehouses.show.inventory.stored_items.current.index", [
+            $this->organisation->slug,
+            Warehouse::first()->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Fulfilment/StoredItems")
+            ->has("title")
+            ->has("breadcrumbs", 4)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "customer's sKUs")->etc()
+            )
+            ->has("tabs");
     });
 });
 

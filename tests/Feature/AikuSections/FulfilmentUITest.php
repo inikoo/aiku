@@ -60,6 +60,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\getJson;
 
 uses()->group('ui');
 
@@ -1582,4 +1583,19 @@ test('UI show stored item audit', function () {
             )
             ->has('breadcrumbs', 4);
     });
+});
+
+
+test('UI json index pallets in stored item', function () {
+    $this->withoutExceptionHandling();
+    $response = getJson(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item.index', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $this->storedItem->slug
+    ]));
+    $response->assertStatus(200)
+        ->assertJsonStructure([
+            'data',
+        ]);
 });

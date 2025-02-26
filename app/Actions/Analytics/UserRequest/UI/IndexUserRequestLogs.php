@@ -49,24 +49,27 @@ class IndexUserRequestLogs extends GrpAction
                             'bool' => [
                                 'must' => [
                                     ['match' => ['type' => $filter]],
-                                     ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
+                                    ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
                                 ],
                             ],
                         ],
                     ],
                 ];
 
-                return $this->format($client, $params);
+                $res = $this->format($client, $params);
+
+                if ($res) {
+                    return $res;
+                }
+
+                return new LengthAwarePaginator([], 0, 10);
 
             } catch (ClientResponseException $e) {
-                // todo manage the 4xx error
-                return false;
+                return new LengthAwarePaginator([], 0, 10);
             } catch (ServerResponseException $e) {
-                // todo manage the 5xx error
-                return false;
+                return new LengthAwarePaginator([], 0, 10);
             } catch (Exception $e) {
-                // todo eg. network error like NoNodeAvailableException
-                return false;
+                return new LengthAwarePaginator([], 0, 10);
             }
         }
 
