@@ -8,7 +8,7 @@
 
 namespace App\Actions\Web\Banner\UI;
 
-use App\Models\Portfolio\Banner;
+use App\Models\Web\Banner;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,15 +18,17 @@ class DeliverBanner
 {
     use AsController;
 
-    public function handle(string $ulid): array
+    public function handle(string $slug): array
     {
         $seconds = 86400;
-        return Cache::remember('banner_compiled_layout_'.$ulid, $seconds, function () use ($ulid) {
-            $banner = Banner::where('ulid', $ulid)->firstOrFail();
+        return Cache::remember('banner_compiled_layout_'.$slug, $seconds, function () use ($slug) {
+            $banner = Banner::where('slug', $slug)->firstOrFail();
             return $banner->compiled_layout;
         });
 
     }
+
+
 
 
     public function htmlResponse(array $compiledLayout): Response
