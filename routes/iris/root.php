@@ -32,4 +32,4 @@ Route::prefix("unsubscribe")
     ->name("unsubscribe.")
     ->group(__DIR__."/unsubscribe.php");
 
-Route::get('/banners/{slug}', DeliverBanner::class)->name('banner');
+Route::get('/media/banners/{slug}', DeliverBanner::class)->name('banner');
