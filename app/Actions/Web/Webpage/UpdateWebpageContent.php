@@ -9,34 +9,32 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Web\WebBlockResource;
-use App\Http\Resources\Web\WebpageResource;
 use App\Models\Web\Webpage;
 
 class UpdateWebpageContent extends OrgAction
 {
     use WithActionUpdate;
-    use HasWebAuthorisation;
+    use WithWebsiteEditAuthorisation;
     use WebpageContentManagement;
 
     public function handle(Webpage $webpage): Webpage
     {
         $snapshot = $webpage->unpublishedSnapshot;
 
-        $layout  = [];
+        $layout = [];
         foreach ($webpage->webBlocks as $webBlock) {
             $layout['web_blocks'][] =
                 [
-                    'id'       => $webBlock->pivot->id,
-                    'name'     => $webBlock->webBlockType->name,
-                    'type'     => $webBlock->webBlockType->code,
-                    'web_block' => WebBlockResource::make($webBlock)->getArray(),
+                    'id'         => $webBlock->pivot->id,
+                    'name'       => $webBlock->webBlockType->name,
+                    'type'       => $webBlock->webBlockType->code,
+                    'web_block'  => WebBlockResource::make($webBlock)->getArray(),
                     'visibility' => ['in' => $webBlock->pivot->show_logged_in, 'out' => $webBlock->pivot->show_logged_out],
-                    'show' => $webBlock->pivot->show,
+                    'show'       => $webBlock->pivot->show,
                 ];
-
         }
 
         $snapshot->update(
@@ -58,18 +56,6 @@ class UpdateWebpageContent extends OrgAction
 
 
         return $webpage;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'layout' => ['required', 'array'],
-        ];
-    }
-
-    public function jsonResponse(Webpage $webpage): WebpageResource
-    {
-        return WebpageResource::make($webpage);
     }
 
 

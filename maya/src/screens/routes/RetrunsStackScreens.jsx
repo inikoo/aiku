@@ -9,9 +9,9 @@ import BottomTabs from '@/src/components/BottomTabs';
 import {ReturnProvider, useReturn} from '@/src/components/Context/return';
 import {AuthContext} from '@/src/components/Context/context';
 import Menu from '@/src/components/Menu';
-import PalletsInReturn from '@/src/screens/Return/PalletsInReturn';
-import ShowFulfilmentReturn from '@/src/screens/Return/ShowFulfilmentReturn';
-import ItemsInReturn from '@/src/screens/Return/ItemsInReturn';
+import PalletsInReturn from '@/src/screens/Fulfilment/Return/PalletsInReturn';
+import ShowFulfilmentReturn from '@/src/screens/Fulfilment/Return/ShowFulfilmentReturn';
+import ItemsInReturn from '@/src/screens/Fulfilment/Return/ItemsInReturn';
 import request from '@/src/utils/Request';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 

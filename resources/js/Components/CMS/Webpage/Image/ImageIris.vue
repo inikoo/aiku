@@ -80,7 +80,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<div v-if="fieldValue?.value?.images" class="flex flex-wrap overflow-hidden" :style="getStyles(fieldValue.container.properties)">
+	<div v-if="fieldValue?.value?.images" class="flex flex-wrap overflow-hidden" :style="getStyles(fieldValue?.container?.properties)">
 		<div
 			v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
 			:key="index"

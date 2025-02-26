@@ -191,7 +191,7 @@ console.log(props.modelValue)
 </script>
 
 <template>
-	<div :style="getStyles(modelValue.container.properties)" class="flex flex-wrap overflow-hidden">
+	<div :style="getStyles(modelValue?.container?.properties)" class="flex flex-wrap overflow-hidden">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"

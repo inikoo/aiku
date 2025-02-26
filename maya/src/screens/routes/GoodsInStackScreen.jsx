@@ -3,8 +3,8 @@ import React, {} from 'react';
 import { SafeAreaView } from 'react-native';
 import BottomTabs from '@/src/components/BottomTabs'
 
-import StockDeliveries from '@/src/screens/Stock/StockDeliveries';
-import FulfilmentDeliveries from '@/src/screens/Delivery/FulfilmentDeliveries'
+import StockDeliveries from '@/src/screens/Fulfilment/Stock/StockDeliveries';
+import FulfilmentDeliveries from '@/src/screens/Fulfilment/Delivery/FulfilmentDeliveries'
 
 import { faTruck , faTruckCouch } from '@/private/fa/pro-regular-svg-icons';
 

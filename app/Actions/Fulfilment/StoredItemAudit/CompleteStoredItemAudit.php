@@ -88,6 +88,10 @@ class CompleteStoredItemAudit extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
@@ -96,6 +100,16 @@ class CompleteStoredItemAudit extends OrgAction
         $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
         $this->storedItemAudit    = $storedItemAudit;
         $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $request);
+
+        return $this->handle($storedItemAudit, $this->validatedData);
+    }
+
+    public function action(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAudit
+    {
+        $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+        $this->storedItemAudit    = $storedItemAudit;
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $modelData);
 
         return $this->handle($storedItemAudit, $this->validatedData);
     }

@@ -26,7 +26,7 @@ const agentMenu = (fulfilment,warehouse) => {
             },
         },
         {
-            name: 'Procurement',
+            name: 'Stock Control',
             component: Fulfilment,
             options: {
                 drawerIcon: ({color}) => (
