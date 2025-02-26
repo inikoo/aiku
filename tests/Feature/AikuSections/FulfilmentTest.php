@@ -68,8 +68,10 @@ use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAuditDelta\DeleteStoredItemAuditDelta;
 use App\Actions\Fulfilment\StoredItemAuditDelta\StoreStoredItemAuditDelta;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UpdateStoredItemAuditDelta;
 use App\Actions\Inventory\Location\StoreLocation;
@@ -95,6 +97,8 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
@@ -3110,3 +3114,54 @@ test('update stored item audit delta', function (StoredItemAuditDelta $storedIte
 
     return $storedItemAuditDelta;
 })->depends('create stored item audit delta');
+
+test('delete stored item audit delta', function (StoredItemAuditDelta $storedItemAuditDelta) {
+
+    $storedItemAudit = $storedItemAuditDelta->storedItemAudit;
+
+    DeleteStoredItemAuditDelta::make()->action($storedItemAuditDelta, []);
+    
+    $storedItemAudit->refresh();
+
+    expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
+        ->and($storedItemAudit->number_audited_stored_items)->toBe(0);
+
+    return $storedItemAudit;
+})->depends('update stored item audit delta');
+
+test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
+    $fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+    $palletStoredItems = PalletStoredItem::whereHas('pallet', function ($query) use ($fulfilmentCustomer) {
+        $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
+    })->get();
+
+    /** @var PalletStoredItem $palletStoredItem */
+
+    $palletStoredItem = $palletStoredItems->first();
+
+    $storedItemAuditDelta = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
+        'pallet_id' => $palletStoredItem->pallet_id,
+        'stored_item_id' => $palletStoredItem->stored_item_id,
+        'audited_quantity'  => 15,
+        'user_id'       => $this->user->id
+    ]);
+
+    $storedItemAudit->refresh();
+
+    expect($storedItemAuditDelta)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($storedItemAuditDelta->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
+
+    $storedItemAudit = CompleteStoredItemAudit::make()->action($storedItemAudit,[]);
+    
+    $storedItemAudit->refresh();
+
+    $delta = $storedItemAudit->deltas()->first();
+
+    expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
+        ->and($storedItemAudit->state)->toBe(StoredItemAuditStateEnum::COMPLETED);
+    
+    expect($delta)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($delta->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
+
+    return $storedItemAudit;
+})->depends('delete stored item audit delta');
