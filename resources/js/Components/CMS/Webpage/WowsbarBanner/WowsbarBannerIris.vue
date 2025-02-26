@@ -75,11 +75,11 @@ watch(() => props.fieldValue.banner_slug, getDataBanner)
         <LoadingIcon class="text-4xl" />
     </div>
 
-    <div v-else class="relative" :style="getStyles(properties)">
+   <!--  <div v-else="data" class="relative" :style="getStyles(properties)">
         <SliderLandscape v-if="data?.type === 'landscape'" :data="data?.compiled_layout" :production="true" />
         <SliderSquare v-else :data="data?.compiled_layout" :production="true" />
     </div>
+ -->
 
-    {{ data }}
 
 </template>
