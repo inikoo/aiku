@@ -333,7 +333,7 @@ trait WithDashboard
                         'hover_labels'   => $visualData['sales_data']['hover_labels'],
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['sales_data']['datasets']),
-                            'backgroundColor' => $this->getReadableColor($visualData['sales_data']['labels']),
+                            // 'backgroundColor' => $this->getReadableColor($visualData['sales_data']['labels']),
                         ],
                     ],
                 ]
@@ -361,7 +361,7 @@ trait WithDashboard
                         'hover_labels'   => Arr::get($visualData, 'invoices_data.hover_labels'),
                         'datasets'       => [
                             'data' => Arr::flatten($visualData['invoices_data']['datasets']),
-                            'backgroundColor' => $this->getReadableColor(Arr::get($visualData, 'invoices_data.labels')),
+                            // 'backgroundColor' => $this->getReadableColor(Arr::get($visualData, 'invoices_data.labels')),
                         ],
                     ],
                 ]
@@ -402,7 +402,7 @@ trait WithDashboard
                         'datasets'       => [
                             [
                                 'data' => $averageDataset,
-                                'backgroundColor' => $this->getReadableColor($labels),
+                                // 'backgroundColor' => $this->getReadableColor($labels),
                             ]
                         ]
                     ],
@@ -426,18 +426,17 @@ trait WithDashboard
     public function getMoreColor(array $colorMaps, int $needed, array $labels): array
     {
         $added = 0;
-        $i = 0; // Start index for labels
+        $i = 0;
 
         while ($added < $needed && isset($labels[$i])) {
-            $hash = md5((string) $labels[$i]); // Hash label for consistency
+            $hash = md5((string) $labels[$i]);
             $r = hexdec(substr($hash, 0, 2));
             $g = hexdec(substr($hash, 2, 2));
             $b = hexdec(substr($hash, 4, 2));
             $hexColor = sprintf("#%02X%02X%02X", $r, $g, $b);
 
-            // Ensure truly unique colors
             while (isset($colorMaps[$hexColor])) {
-                $hash = md5($hash); // Re-hash to generate a different value
+                $hash = md5($hash);
                 $r = hexdec(substr($hash, 0, 2));
                 $g = hexdec(substr($hash, 2, 2));
                 $b = hexdec(substr($hash, 4, 2));
@@ -458,16 +457,20 @@ trait WithDashboard
 
         $total = count($labels);
 
-        // Generate colors using HSL (best distribution)
-        for ($i = 0; $i < min($total, 360); $i++) {
-            $hash = crc32((string) $labels[$i]);
-            $hue = $hash % 360;
-            $hexColor = $this->hslToHex($hue, 80, 60);
+        for ($i = 0; $i < min($total, 121); $i++) {
+            $hash = md5($labels[$i]);
+            $hue = 179 + (hexdec(substr($hash, 0, 6)) % (300 - 179));
+            $saturation = 90;
+            $lightness = 65 / 0.9;
 
+            $hexColor = $this->hslToHex($hue, $saturation, $lightness);
             $colorMaps[$hexColor] = $hexColor;
         }
 
-        // If more colors are needed, fallback to more color generation
+        // $hash = crc32((string) $labels[$i]);
+        // $hue = $hash % 360;
+        // $hexColor = $this->hslToHex($hue, 80, 60);
+
         if (count($colorMaps) < $total) {
             $neededLabels = array_values(array_diff($labels, array_keys($colorMaps)));
             $colorMaps = $this->getMoreColor($colorMaps, $total - count($colorMaps), $neededLabels);
@@ -476,7 +479,6 @@ trait WithDashboard
         return array_values($colorMaps);
     }
 
-    // Convert HSL to HEX (ensures better color distribution)
     private function hslToHex($h, $s, $l): string
     {
         $s /= 100;
