@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
@@ -24,7 +23,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\PalletReturn;
 
 class SubmitPalletReturn extends OrgAction

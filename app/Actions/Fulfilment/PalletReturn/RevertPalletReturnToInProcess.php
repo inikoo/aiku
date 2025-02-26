@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 26-02-2025-09h-58m
@@ -24,9 +25,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
