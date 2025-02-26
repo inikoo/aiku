@@ -162,7 +162,7 @@ class UpdatePallet extends OrgAction
                     ]
                 ),
             ],
-
+            'requested_for_return_at'      => ['sometimes', 'nullable', 'date'],
         ];
         if (!$this->strict) {
             $rules                 = $this->noStrictUpdateRules($rules);
