@@ -256,6 +256,22 @@ class ShowPalletReturn extends OrgAction
                 ] : [],
                 $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                     'type'    => 'button',
+                    'style'   => 'negative',
+                    'tooltip' => __('In Process'),
+                    'label'   => __('In Process'),
+                    'key'     => 'in process',
+                    'icon'    => 'fal fa-undo',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.pallet-return.revert-to-in-process',
+                        'parameters' => [
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+
+                $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
+                    'type'    => 'button',
                     'style'   => 'save',
                     'tooltip' => __('Start picking'),
                     'label'   => __('start picking'),
@@ -271,6 +287,7 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ] : [],
+
                 $palletReturn->state == PalletReturnStateEnum::PICKING ?
                 $pickingAllocation : [],
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
