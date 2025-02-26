@@ -7,7 +7,7 @@
  */
 
 
-
+use App\Actions\UI\Iris\Appointment\ShowPublicAppointment;
 use App\Actions\UI\Iris\ShowHome;
 use App\Actions\Web\Banner\UI\DeliverBanner;
 use Illuminate\Support\Facades\Route;
@@ -20,9 +20,9 @@ Route::middleware(["iris-auth:retina"])->group(function () {
     });
 });
 
-Route::prefix("crm")
-    ->name("crm.")
-    ->group(__DIR__."/crm.php");
+//Route::prefix("crm")
+//    ->name("crm.")
+//    ->group(__DIR__."/crm.php");
 
 Route::prefix("disclosure")
     ->name("disclosure.")
@@ -32,4 +32,3 @@ Route::prefix("unsubscribe")
     ->name("unsubscribe.")
     ->group(__DIR__."/unsubscribe.php");
 
-Route::get('/media/banners/{slug}', DeliverBanner::class)->name('banner');
