@@ -29,6 +29,6 @@ class ShopRedactWebhookShopify extends OrgAction
 
     public function asController(ActionRequest $request)
     {
-        return $this->handle($this->validatedData);
+        return $this->handle($request->all());
     }
 }
