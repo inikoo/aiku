@@ -34,7 +34,7 @@ const props = defineProps<{
 
             <div v-if="modelValue?.email"
                 class="relative group flex-1 flex justify-center md:justify-start items-center">
-                <a style="font-size: 17px">{{ modelValue?.email }}</a>
+                <div style="font-size: 17px">{{ modelValue?.email }}</div>
                 <div
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
                     <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
@@ -55,7 +55,7 @@ const props = defineProps<{
             </div>
 
             <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center">
-                <a v-for="phone of modelValue?.phone?.numbers" style="font-size: 17px">
+                <a v-for="phone of modelValue?.phone?.numbers" :href="`tel:${phone}`" style="font-size: 17px">
                     {{ phone }}
                 </a>
 
