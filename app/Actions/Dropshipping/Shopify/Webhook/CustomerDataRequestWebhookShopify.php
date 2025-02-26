@@ -32,6 +32,6 @@ class CustomerDataRequestWebhookShopify extends OrgAction
 
     public function asController(ActionRequest $request): ShopifyUser
     {
-        return $this->handle($this->validatedData);
+        return $this->handle($request->all());
     }
 }

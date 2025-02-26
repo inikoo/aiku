@@ -1,10 +1,11 @@
 <?php
 
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 26-02-2025-09h-58m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
@@ -23,30 +24,32 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\PalletReturn;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Lorisleiva\Actions\ActionRequest;
 
-class SubmitPalletReturn extends OrgAction
+class RevertPalletReturnToInProcess extends OrgAction
 {
     use WithActionUpdate;
 
 
-    private bool $sendNotifications = false;
-
-    public function handle(PalletReturn $palletReturn, array $modelData, bool $sendNotifications = false): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $modelData['submitted_at'] = now();
-        $modelData['state']        = PalletReturnStateEnum::SUBMITTED;
+        $modelData['submitted_at'] = null;
+        $modelData['confirmed_at'] = null;
+        $modelData['state']                                       = PalletReturnStateEnum::IN_PROCESS;
 
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             foreach ($palletReturn->pallets as $pallet) {
                 UpdatePallet::run($pallet, [
-                    'state'     => PalletStateEnum::REQUEST_RETURN_SUBMITTED,
-                    'status'    => PalletStatusEnum::RETURNING
+                    'state'  => PalletStateEnum::REQUEST_RETURN_IN_PROCESS,
+                    'status' => PalletStatusEnum::RETURNING
                 ]);
 
                 $palletReturn->pallets()->syncWithoutDetaching([
                     $pallet->id => [
-                        'state' => PalletReturnItemStateEnum::SUBMITTED
+                        'state' => PalletReturnItemStateEnum::IN_PROCESS
                     ]
                 ]);
             }
@@ -60,22 +63,44 @@ class SubmitPalletReturn extends OrgAction
         FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
-
-        if ($sendNotifications) {
-            SendPalletReturnNotification::run($palletReturn);
-        }
+        SendPalletReturnNotification::run($palletReturn);
         PalletReturnRecordSearch::dispatch($palletReturn);
-
         return $palletReturn;
     }
 
-
-    public function action(PalletReturn $palletReturn, bool $sendNotification = false): PalletReturn
+    public function authorize(ActionRequest $request): bool
     {
-        $this->asAction          = true;
-        $this->sendNotifications = $sendNotification;
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+    }
+
+    public function jsonResponse(PalletReturn $palletReturn): JsonResource
+    {
+        return new PalletReturnResource($palletReturn);
+    }
+
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    {
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function maya(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    {
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(PalletReturn $palletReturn): PalletReturn
+    {
+        $this->asAction = true;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
 
         return $this->handle($palletReturn, []);
     }
+
 }
