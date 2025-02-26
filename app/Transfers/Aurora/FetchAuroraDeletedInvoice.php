@@ -18,7 +18,6 @@ class FetchAuroraDeletedInvoice extends FetchAurora
     {
         $auroraDeletedData = json_decode($this->auroraModelData->{'Invoice Deleted Metadata'});
 
-
         if ($this->auroraModelData->{'Invoice Deleted Order Key'} && $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Deleted Order Key'})) {
             $this->parsedData['parent'] = $order;
             $currencyID                 = $order->currency_id;

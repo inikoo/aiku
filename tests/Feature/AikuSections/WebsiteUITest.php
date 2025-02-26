@@ -396,7 +396,7 @@ test('show banner', function () {
             ->component('Org/Web/Banners/Banner')
             ->has('title')
             ->has('navigation')
-            ->has('breadcrumbs', 0)
+            ->has('breadcrumbs', 1)
             ->has(
                 "pageHead",
                 fn (AssertableInertia $page) => $page->where("title", $this->banner->name)->etc()

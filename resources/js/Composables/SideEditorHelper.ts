@@ -27,6 +27,7 @@ import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
 
 import { set } from 'lodash'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
+import TextHeader from '@/Components/CMS/Fields/TextHeader.vue'
 
 // Field list of SideEditor
 export const getComponent = (componentName: string) => {
@@ -40,7 +41,7 @@ export const getComponent = (componentName: string) => {
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
        /*  "properties": PanelProperties, */
        "overview-property" : Overview,
-        
+        "textHeader": TextHeader,
         "background": Background,
         "border": Border,
         "padding": Padding,

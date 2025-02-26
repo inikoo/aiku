@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Banner;
 
+use App\Actions\OrgAction;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
@@ -20,15 +21,15 @@ use App\Models\Web\Slide;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateUnpublishedBannerSnapshot
+class UpdateUnpublishedBannerSnapshot extends OrgAction
 {
     use WithActionUpdate;
-
-    public bool $isAction = false;
 
     public function handle(Snapshot $snapshot, array $modelData): Banner
     {
         $layout = Arr::pull($modelData, 'layout');
+
+
 
         list($layout, $slides) = ParseBannerLayout::run($layout);
 
@@ -36,12 +37,8 @@ class UpdateUnpublishedBannerSnapshot
         data_set($modelData, 'layout', $layout);
 
 
-
-
-
         if ($slides) {
             foreach ($slides as $ulid => $slideData) {
-
                 $slide = Slide::where('ulid', $ulid)->first();
                 if ($slide) {
                     UpdateSlide::run(
@@ -81,54 +78,41 @@ class UpdateUnpublishedBannerSnapshot
         );
 
         UpdateBannerImage::run($banner);
-
         BannerRecordSearch::dispatch($banner);
-
-
-
 
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->isAction) {
-            return true;
-        }
-
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
 
     public function rules(): array
     {
         return [
-            'layout' => ['sometimes', 'required', 'array:delay,common,components']
+            'layout' => ['sometimes', 'required', 'array:type,delay,common,components,navigation']
         ];
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $request->merge(
-            [
-                'layout' => $request->only(['delay', 'common', 'components'])
-            ]
+        $this->set(
+            'layout',
+            $this->only(['type', 'delay', 'common', 'components', 'navigation'])
         );
+
     }
 
     public function asController(Banner $banner, ActionRequest $request): Banner
     {
-        $request->validate();
+        $this->initialisationFromShop($banner->shop, $request);
 
-        return $this->handle($banner->unpublishedSnapshot, $request->validated());
+        return $this->handle($banner->unpublishedSnapshot, $this->validatedData);
     }
 
     public function action(Banner $banner, $modelData): Banner
     {
-        $this->isAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction = true;
+        $this->initialisationFromShop($banner->shop, $modelData);
 
-        return $this->handle($banner->unpublishedSnapshot, $validatedData);
+        return $this->handle($banner->unpublishedSnapshot, $this->validatedData);
     }
 
     public function jsonResponse(Banner $banner): BannerResource

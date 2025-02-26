@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Accounting\Invoice\StoreRefund;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
@@ -18,10 +19,14 @@ use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotifi
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
@@ -38,6 +43,7 @@ use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -48,6 +54,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -219,8 +226,49 @@ beforeEach(function () {
             $storeData
         );
     }
-
     $this->recurringBill = $recurringBill;
+
+    $invoice = Invoice::where("type", InvoiceTypeEnum::INVOICE->value)->first();
+    if (!$invoice) {
+        $invoice = ConsolidateRecurringBill::make()->action($recurringBill);
+    }
+
+    $this->invoice = $invoice;
+
+    $refund = Invoice::where("type", InvoiceTypeEnum::REFUND->value)->first();
+    if (!$refund) {
+        $refund = StoreRefund::make()->action($invoice, []);
+    }
+    $this->refund = $refund;
+
+
+    $space = $this->customer->fulfilmentCustomer->spaces()->first();
+    if (!$space) {
+        $space = StoreSpace::run(
+            $this->customer->fulfilmentCustomer,
+            [
+                'reference' => 'test',
+                'exclude_weekend' => false,
+                'start_at' => now(),
+                'end_at' => now()->addDays(10),
+                'rental_id' => $this->rental->id
+            ]
+        );
+    }
+
+    $this->space = $space;
+
+    $storedItemAudit = StoredItemAudit::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$storedItemAudit) {
+        $storedItemAudit = StoreStoredItemAudit::make()->action(
+            $this->customer->fulfilmentCustomer,
+            [
+                'warehouse_id' => $this->warehouse->id,
+            ]
+        );
+    }
+    $this->storedItemAudit = $storedItemAudit;
+
     $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
@@ -586,6 +634,136 @@ test('UI show fulfilment customer space sub navigation', function () {
             )
             ->has('data')
             ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer create space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.create', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'new space')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer edit space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->space->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'edit space')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show fulfilment customer space', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.spaces.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->space->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Space')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->space->reference)
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('showcase')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer edit invoice', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug, $this->invoice->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'Edit invoice')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show fulfilment customer refund', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.show.refunds.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->slug,
+        $this->invoice->slug,
+        $this->refund->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/InvoiceRefund')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->refund->reference)
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('order_summary')
+            ->has('exportPdfRoute')
+            ->has('box_stats')
+            ->has('invoice_refund')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show fulfilment customer stored item', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.create', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'new SKU')
+                ->etc()
+            )
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI index refund', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.invoices.refunds.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Refunds')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'Refunds')
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 3);
     });
 });
 
@@ -1379,4 +1557,29 @@ test('UI get section route org fulfilments index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_FULFILMENT->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+
+// ui stored item audit
+test('UI show stored item audit', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $this->storedItemAudit->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/StoredItemAudit')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', "Customer's SKUs audit")
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
+    });
 });

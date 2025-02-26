@@ -70,6 +70,14 @@ class PickPalletReturnItemInPalletReturnWithStoredItem extends OrgAction
         return $this->handle($palletReturnItem, $this->validatedData);
     }
 
+    public function action(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $modelData);
+
+        return $this->handle($palletReturnItem, $this->validatedData);
+    }
+
     public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItemResource|PalletReturnItemUIResource
     {
         if ($request->hasHeader('Maya-Version')) {

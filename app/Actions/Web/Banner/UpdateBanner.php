@@ -19,9 +19,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateBanner extends OrgAction
 {
+    // Todo WithWebEditAuthorisation here
     use WithActionUpdate;
 
-    public bool $isAction = false;
 
     public function handle(Banner $banner, array $modelData): Banner
     {
@@ -32,16 +32,6 @@ class UpdateBanner extends OrgAction
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return true;
-
-        if ($this->isAction) {
-            return true;
-        }
-
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
 
     public function rules(): array
     {
@@ -60,11 +50,10 @@ class UpdateBanner extends OrgAction
 
     public function action(Banner $banner, $modelData): Banner
     {
-        $this->isAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($banner, $validatedData);
+        $this->initialisationFromGroup($banner->group, $modelData);
+
+        return $this->handle($banner, $this->validatedData);
     }
 
     public function jsonResponse(Banner $banner): BannerResource
