@@ -12,6 +12,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Web\Webpage;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class WebpageResource extends JsonResource
 {
@@ -26,6 +27,7 @@ class WebpageResource extends JsonResource
             'slug'                => $webpage->slug,
             'level'               => $webpage->level,
             'domain'              => $webpage->website->domain ?? null,
+            'website_layout'      => Arr::get($webpage->website->published_layout, 'theme.layout', 'blog'),
             'code'                => $webpage->code,
             'url'                 => $webpage->url,
             'type'                => $webpage->type,
