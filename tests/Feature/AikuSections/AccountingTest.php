@@ -285,6 +285,77 @@ test(
     }
 )->depends('create payment account');
 
+test('UI create payment', function () {
+    $this->withoutExceptionHandling();
+    $response                  = get(
+        route(
+            'grp.org.accounting.payments.create',
+            [$this->organisation->slug]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 1)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'new payment')
+                    ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI show payment', function (Payment $payment) {
+    $response                  = get(
+        route(
+            'grp.org.accounting.payments.show',
+            [$this->organisation->slug, $payment->id]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($payment) {
+        $page
+            ->component('Org/Accounting/Payment')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $payment->reference)
+                    ->etc()
+            )
+            ->has('tabs');
+    });
+})->depends('create payment');
+
+test('UI edit payment', function (Payment $payment) {
+    $this->withoutExceptionHandling();
+    $response                  = get(
+        route(
+            'grp.org.accounting.payments.edit',
+            [$this->organisation->slug, $payment->id]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($payment) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $payment->reference)
+                    ->etc()
+            )
+            ->has('formData');
+    });
+})->depends('create payment');
+
 test(
     'update payment',
     function (Payment $payment) {
