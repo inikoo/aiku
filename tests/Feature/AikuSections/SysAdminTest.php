@@ -363,6 +363,63 @@ test('UI show dashboard org (tab invoice_categories)', function (User $user) {
 })->depends('SetUserAuthorisedModels command');
 
 
+test('UI index overview org', function (User $user) {
+    $this->withoutExceptionHandling();
+
+    actingAs($user);
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.overview.hub',
+            [
+                $organisation->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Overview/OverviewHub')
+            ->where('title', 'overview')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'overview')
+                    ->etc()
+            )->has('dashboard_stats');
+    });
+})->depends('SetUserAuthorisedModels command');
+
+test('UI index overview org changelog', function (User $user) {
+    $this->withoutExceptionHandling();
+
+    actingAs($user);
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.overview.changelog.index',
+            [
+                $organisation->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Histories')
+            ->where('title', 'Changelog')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Changelog')
+                    ->etc()
+            )->has('data');
+    });
+})->depends('SetUserAuthorisedModels command');
 
 
 test('create guest from command', function (Group $group) {
@@ -985,6 +1042,31 @@ test('UI index overview group', function () {
                     ->where('title', 'overview')
                     ->etc()
             )->has('dashboard_stats');
+    });
+});
+
+test('UI index overview group changelog', function () {
+    $this->withoutExceptionHandling();
+
+    actingAs(User::first());
+
+    $response = get(
+        route(
+            'grp.overview.sysadmin.changelog.index',
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Histories')
+            ->where('title', 'Changelog')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Changelog')
+                    ->etc()
+            )->has('data');
     });
 });
 
