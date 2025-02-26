@@ -74,8 +74,11 @@ beforeEach(
         $this->group        = group();
         $this->guest        = createAdminGuest($this->group);
 
+        $this->artisan('warehouse:seed-permissions')->assertExitCode(0);
+
         Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
-        actingAs($this->guest->getUser());
+        $this->user = $this->guest->getUser();
+        actingAs($this->user);
 
     }
 );
@@ -602,6 +605,8 @@ test("UI Edit location", function () {
 test("UI Index fulfilment locations", function () {
     $warehouse = Warehouse::first();
     $this->withoutExceptionHandling();
+    $user = $this->user;
+    $user->givePermissionTo("fulfilment.{$warehouse->id}.view");
     $response = get(
         route("grp.org.warehouses.show.fulfilment.locations.index", [
             $this->organisation->slug,
@@ -612,14 +617,14 @@ test("UI Index fulfilment locations", function () {
         $page
             ->component("Org/Warehouse/Fulfilment/Locations")
             ->has("title")
-            ->has("breadcrumbs", 3)
+            ->has("breadcrumbs", 4)
             ->has(
                 "pageHead",
                 fn (AssertableInertia $page) => $page->where("title", "locations")->etc()
             )
             ->has("data");
     });
-})->todo();
+});
 
 test("UI Show fulfilment location", function () {
     $warehouse = Warehouse::first();
@@ -632,19 +637,19 @@ test("UI Show fulfilment location", function () {
             $location->slug,
         ])
     );
-    $response->assertInertia(function (AssertableInertia $page) {
+    $response->assertInertia(function (AssertableInertia $page) use ($location) {
         $page
             ->component("Org/Warehouse/Location")
             ->has("title")
             ->has("breadcrumbs", 3)
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => $page->where("title", "location")->etc()
+                fn (AssertableInertia $page) => $page->where("title", $location->slug)->etc()
             )
             ->has("navigation")
             ->has("tabs");
     });
-})->todo();
+})->depends("UI Index fulfilment locations");
 
 test("UI Index warehouses", function () {
     $warehouse = Warehouse::first();
@@ -666,6 +671,28 @@ test("UI Index warehouses", function () {
             )
             ->has("tabs")
             ->has("tagsList");
+    });
+});
+
+test("UI index stocks all", function () {
+    $warehouse = Warehouse::first();
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index", [
+            $this->organisation->slug,
+            $warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs')->etc()
+            )
+            ->has("data");
     });
 });
 
