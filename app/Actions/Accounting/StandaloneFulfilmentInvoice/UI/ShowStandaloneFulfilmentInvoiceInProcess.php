@@ -166,6 +166,11 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->reference
                     ],
+                    'iconRight' => $invoice->in_process ? [
+                        'icon' => 'fal fa-seedling',
+                        'tooltip' => __('In Process'),
+                        'class' => 'text-green-500'
+                    ] : null,
                     'actions'       => $actions
                 ],
                 'tabs'        => [
@@ -246,7 +251,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
             ]
         )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
-            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
+            ->table(IndexStandaloneFulfilmentInvoiceTransactions::make()->tableStructure(InvoiceTabsEnum::ITEMS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

@@ -18,6 +18,7 @@ import { routeType } from '@/types/route'
 import InputNumber from 'primevue/inputnumber'
 import { set } from 'lodash'
 import { trans } from 'laravel-vue-i18n'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 library.add(faTag,faTrashAlt)
 
 const props = defineProps<{
@@ -115,34 +116,28 @@ const locale = inject('locale', aikuLocaleStructure)
         </template>
 
         <!-- Column: asset code -->
-        <template #cell(asset_code)="{ item }">
+        <template #cell(historic_asset_name)="{ item }">
 			<div>
-                {{ item.asset_code }} <br>
-                <span class="text-gray-400">({{ item.asset_name }})</span>
+                {{ item.historic_asset_code }} <br>
+                <span class="text-gray-400">({{ item.historic_asset_name }})</span>
             </div>
 		</template>
 
         <!-- Column: quantity -->
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="item.edit_type !== 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
+				<div v-if="item.edit_type == 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
-				<div v-else-if="item.data.type == 'Pallet'">
-                    {{ locale.number(item.quantity) }} {{ item.quantity > 1 ? trans("days") : trans("day") }}
-				</div>
-				<div v-else-if="item.data.type == 'Product'">
-                    {{ locale.number(item.quantity) }} {{ item.quantity > 1 ? trans("pcs") : trans("pc") }}
-				</div>
                 <div v-else class="text-gray-500">
-                    
+                    {{ item.quantity }}
                 </div>
 			</div>
 		</template>
 
         <!-- Column: asset price -->
-        <template #cell(asset_price)="{ item }">
-            {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
+        <template #cell(historic_asset_price)="{ item }">
+            {{ locale.currencyFormat(item.currency_code, item.historic_asset_price || 0) }}/{{ item.historic_asset_unit }}
             <Tag v-if="item['discount'] > 0" :theme="17" noHoverColor>
                 <template #label>
                     <font-awesome-icon icon="fal fa-tag" class="text-xs text-emerald-700"/>
@@ -151,12 +146,12 @@ const locale = inject('locale', aikuLocaleStructure)
             </Tag>
         </template>
 
-        <template #cell(total)="{ item, proxyItem }">
+        <template #cell(net_amount)="{ item, proxyItem }">
             <div class="relative">
                 <template v-if="item.edit_type === 'net'">
                     <div class="w-72 float-right">
                         <NumberWithButtonSave
-                            v-model="proxyItem.total"
+                            v-model="proxyItem.net_amount"
                             :saveOnForm="true"
                             :routeSubmit="getRoute(item)"
                             keySubmit="net_amount"
@@ -172,8 +167,8 @@ const locale = inject('locale', aikuLocaleStructure)
                 </template>
 
                 <Transition v-else name="spin-to-right">
-                    <span :key="item.total">
-                        {{ locale.currencyFormat(item.currency_code, item.total || 0) }}
+                    <span :key="item.net_amount">
+                        {{ locale.currencyFormat(item.currency_code, item.net_amount || 0) }}
                     </span>
                 </Transition>
             </div>
@@ -181,9 +176,12 @@ const locale = inject('locale', aikuLocaleStructure)
 
         <!-- Column: Action -->
 		<template #cell(actions)="{ item }">
-			<Button v-if="item.data.type !== 'Pallet' && item.data.type !== 'Space'" @click="() => onDeleteTransaction(item.id,item.fulfilment_transaction_id)"
-				:loading="isLoading === 'buttonReset' + item.id" icon="fal fa-trash-alt" type="negative"
-				v-tooltip="'Unselect this field'" />
+            <ButtonWithLink
+                :routeTarget="item.deleteRoute"
+                icon="fal fa-trash-alt"
+                type="negative"
+				v-tooltip="trans('Unselect')"
+            />
 		</template>
     </Table>
 </template>
