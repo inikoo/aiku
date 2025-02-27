@@ -10,14 +10,13 @@ namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
 use App\Models\Web\Banner;
-use Illuminate\Support\Facades\Cache;
 
 class DeliverBanner extends OrgAction
 {
     public function handle(Banner $banner): mixed
     {
-      
-            return $banner;
+
+        return $banner;
     }
 
     public function jsonResponse(mixed $banner): mixed
