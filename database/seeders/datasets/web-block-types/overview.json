@@ -3,6 +3,7 @@
 	"slug": "overview_aurora",
 	"code": "overview_aurora",
 	"name": "Showcase (A)",
+	"fixed": true,
 	"icon": ["fal", "text"],
 	"data": {
 		"fieldValue": {
