@@ -9,23 +9,22 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\Web\BannerResource;
 use App\Models\Web\Banner;
 use Illuminate\Support\Facades\Cache;
 
 class DeliverBanner extends OrgAction
 {
-    public function handle(Banner $banner): array|Banner
+    public function handle(Banner $banner): mixed
     {
         $seconds = 86400;
 
         return Cache::remember('banner_compiled_layout_'.$banner->ulid, $seconds, function () use ($banner) {
-            return $banner;
+            return $banner->compiled_layout;
         });
     }
 
-    public function jsonResponse(mixed $banner): BannerResource
+    public function jsonResponse(mixed $compiledLayout): mixed
     {
-        return BannerResource::make($banner);
+        return $compiledLayout;
     }
 }
