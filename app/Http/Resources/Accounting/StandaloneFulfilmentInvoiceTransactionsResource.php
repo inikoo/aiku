@@ -49,7 +49,22 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             'asset_type'                => $this->asset_type,
             'asset_slug'                => $this->asset_slug,
             'currency_code'             => $this->currency_code,
-            'edit_type'                 => $editType    
+            'edit_type'                 => $editType,
+            
+            'updateRoute'               => [
+                'name' => 'grp.models.standalone-invoice-transaction.update',
+                'parameters' => [
+                    'invoiceTransaction' => $this->id
+                ],
+                'method' => 'patch'
+            ],
+            'deleteRoute'               => [
+                'name' => 'grp.models.standalone-invoice-transaction.delete',
+                'parameters' => [
+                    'invoiceTransaction' => $this->id
+                ],
+                'method' => 'delete'
+            ]
             
         ];
     }

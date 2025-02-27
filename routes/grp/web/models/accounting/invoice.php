@@ -29,7 +29,7 @@ Route::name('standalone-invoice.')->prefix('standalone-invoice/{invoice:id}')->g
 });
 
 Route::name('standalone-invoice-transaction.')->prefix('standalone-invoice-transaction/{invoiceTransaction:id}')->group(function () {
-    Route::post('update', UpdateStandaloneFulfilmentInvoiceTransaction::class)->name('update');
+    Route::patch('update', UpdateStandaloneFulfilmentInvoiceTransaction::class)->name('update');
     Route::delete('delete', DeleteStandaloneFulfilmentInvoiceTransaction::class)->name('delete');
 });
 
