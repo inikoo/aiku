@@ -50,7 +50,7 @@ class UpdateBanner extends OrgAction
 
     public function action(Banner $banner, $modelData): Banner
     {
-
+        $this->asAction = true;
         $this->initialisationFromGroup($banner->group, $modelData);
 
         return $this->handle($banner, $this->validatedData);

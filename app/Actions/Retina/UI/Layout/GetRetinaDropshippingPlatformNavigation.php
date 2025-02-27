@@ -40,7 +40,7 @@ class GetRetinaDropshippingPlatformNavigation
                 'icon' => ['fal', 'fa-cube'],
                 'root' => 'retina.dropshipping.portfolios.',
                 'route' => [
-                    'name' => 'retina.dropshipping.portfolios.index'
+                    'name' => 'retina.dropshipping.portfolios.platforms.shopify.index'
                 ],
                 'topMenu' => [
                     'subSections' => [
