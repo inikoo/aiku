@@ -72,12 +72,10 @@ console.log(props)
 			<div
 				v-for="block in data"
 				:key="block.id"
-				class="relative min-h-20 h-32 w-48 border rounded-lg shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-xl bg-white overflow-hidden"
+				class="relative min-h-20 h-32 w-48 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 bg-white overflow-hidden"
 				@click="onPickBlock(block)"
 				:class="'border-gray-200'">
 				<div class="h-3/4 w-full flex items-center justify-center rounded-t-lg bg-gray-50">
-
-
 
 					<Image
 						:src="block.screenshot"
@@ -86,7 +84,7 @@ console.log(props)
 				</div>
 
 				<div
-					class="absolute bottom-0 w-full h-1/4 bg-gradient-to-t from-black/70 via-black/40 to-transparent rounded-b-lg flex items-end text-white text-sm p-2 truncate">
+					class="absolute bottom-0 w-full h-1/4  via-black/40 to-transparent rounded-b-lg flex items-end  font-bold  text-sm p-2 truncate">
 					{{ block.name }}
 				</div>
 			</div>
