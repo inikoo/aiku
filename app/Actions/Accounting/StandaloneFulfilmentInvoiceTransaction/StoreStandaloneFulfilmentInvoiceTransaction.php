@@ -12,26 +12,28 @@ namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoice\CalculateStandaloneFulfilmentInvoiceTotals;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Traits\WithOrderExchanges;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\HistoricAsset;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
-    use WithOrderExchanges;
-    use WithNoStrictRules;
-
     public function handle(Invoice $invoice, HistoricAsset $historicAsset, array $modelData): InvoiceTransaction
     {
-        $amount = $historicAsset->price * Arr::get($modelData, 'quantity');
+        $grossAmount = $historicAsset->price * Arr::get($modelData, 'quantity');
         data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
-        data_set($modelData, 'gross_amount', $amount);
-        data_set($modelData, 'net_amount', $amount);
+        data_set($modelData, 'gross_amount', $grossAmount);
+
+        // here we calculate the discounts from clauses
+        $netAmount = $this->getDiscounts($invoice, $grossAmount, $historicAsset->asset_id);
+
+        data_set($modelData, 'net_amount', $netAmount);
         data_set($modelData, 'in_process', true);
+
         $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $historicAsset, $modelData);
 
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoice);
@@ -39,21 +41,43 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
         return $invoiceTransaction;
     }
 
+
+    public function getDiscounts(Invoice $invoice, $grossAmount, int $assetID)
+    {
+
+        $rentalAgreementClause = $invoice->customer->fulfilmentCustomer->rentalAgreementClauses()
+            ->where('state', RentalAgreementCauseStateEnum::ACTIVE)
+            ->where('asset_id', $assetID)
+            ->first();
+
+        $percentageOff = 0;
+        if ($rentalAgreementClause) {
+
+            $percentageOff = $rentalAgreementClause->percentage_off / 100;
+
+        }
+
+        return $grossAmount - ($grossAmount * $percentageOff);
+    }
+
     public function rules(): array
     {
-        $rules = [
-            'quantity'        => ['required', 'numeric'],
+        return [
+            'quantity' => ['required', 'numeric'],
         ];
-
-        return $rules;
     }
 
 
-    public function asController(Invoice $invoice, HistoricAsset $historicAsset, ActionRequest $request)
+    public function asController(Invoice $invoice, HistoricAsset $historicAsset, ActionRequest $request): InvoiceTransaction
     {
         $this->initialisationFromShop($invoice->shop, $request);
 
-        $this->handle($invoice, $historicAsset, $this->validatedData);
+        return $this->handle($invoice, $historicAsset, $this->validatedData);
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return back();
     }
 
 
