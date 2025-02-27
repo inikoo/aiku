@@ -180,7 +180,7 @@ const locale = inject('locale', aikuLocaleStructure)
                 :routeTarget="item.deleteRoute"
                 icon="fal fa-trash-alt"
                 type="negative"
-				v-tooltip="trans('Unselect')"
+				v-tooltip="trans('Delete')"
             />
 		</template>
     </Table>
