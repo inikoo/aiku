@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 27-02-2025-14h-44m
@@ -8,105 +9,40 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\CRM\Customer\ApproveCustomer;
-use App\Actions\CRM\Customer\RejectCustomer;
-use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
-use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
-use App\Actions\Fulfilment\Pallet\DeletePallet;
-use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
-use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
-use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
-use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
-use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
-use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
-use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
-use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
-use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ImportPalletsInPalletDeliveryWithStoredItems;
-use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
-use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
-use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
-use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
-use App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItemInPalletReturnWithStoredItem;
-use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
-use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
-use App\Actions\Fulfilment\Space\StoreSpace;
-use App\Actions\Fulfilment\Space\UpdateSpace;
-use App\Actions\Fulfilment\StoredItem\AttachStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
-use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
-use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
-use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
-use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
-use App\Actions\Fulfilment\StoredItemAuditDelta\DeleteStoredItemAuditDelta;
-use App\Actions\Fulfilment\StoredItemAuditDelta\StoreStoredItemAuditDelta;
-use App\Actions\Fulfilment\StoredItemAuditDelta\UpdateStoredItemAuditDelta;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\Traits\WithGetRecurringBillEndDate;
-use App\Actions\Web\Website\StoreWebsite;
-use App\Enums\Accounting\Payment\PaymentStateEnum;
-use App\Enums\Accounting\Payment\PaymentStatusEnum;
-use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\CRM\Customer\CustomerRejectReasonEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
-use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
-use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
-use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Models\Accounting\Invoice;
-use App\Models\Accounting\Payment;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Asset;
@@ -118,26 +54,14 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
-use App\Models\Fulfilment\Space;
-use App\Models\Fulfilment\StoredItem;
-use App\Models\Fulfilment\StoredItemAudit;
-use App\Models\Fulfilment\StoredItemAuditDelta;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
-use App\Models\Web\Website;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
 
@@ -248,7 +172,7 @@ test('create product in fulfilment shop', function (Fulfilment $fulfilment) {
     );
 
     $product = StoreProduct::make()->action($fulfilment->shop, $productData);
-    
+
     $product->refresh();
 
     expect($product)->toBeInstanceOf(Product::class);
@@ -624,7 +548,7 @@ test('Delivery state change and recurring bill transaction monitor', function (P
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
         ->and($palletDelivery->stats->number_services)->toBe(2)
         ->and($palletDelivery->stats->number_physical_goods)->toBe(1);
-    
+
     expect($recurringBill->stats->number_transactions)->toBe(0);
 
     $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
@@ -643,8 +567,7 @@ test('Delivery state change and recurring bill transaction monitor', function (P
 
     $location = $this->warehouse->locations()->first();
     $rental = $palletDelivery->fulfilment->rentals->last();
-    foreach($palletDelivery->pallets as $pallet)
-    {
+    foreach ($palletDelivery->pallets as $pallet) {
         BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
         SetPalletRental::make()->action($pallet, ['rental_id' => $rental->id]);
     }
@@ -678,7 +601,7 @@ test('add service after delivery booked in', function (PalletDelivery $palletDel
 
 })->depends('Delivery state change and recurring bill transaction monitor');
 
-test('update quantity from pallet delivery and Recurring Bill', function (FulfilmentTransaction $fulfilmentTransaction){
+test('update quantity from pallet delivery and Recurring Bill', function (FulfilmentTransaction $fulfilmentTransaction) {
     $fulfilmentTransaction = UpdateFulfilmentTransaction::make()->action($fulfilmentTransaction, [
         'quantity' => 20
     ]);
