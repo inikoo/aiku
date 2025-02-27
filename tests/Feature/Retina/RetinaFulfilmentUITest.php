@@ -25,6 +25,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Fulfilment\Pallet;
@@ -334,6 +335,96 @@ test('show pallet delivery (pallet tab)', function () {
             ->has('tabs');
 
     });
+});
+
+test('show pallet delivery (attachments tab)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [
+        $this->palletDelivery->slug,
+        'tab' => PalletDeliveryTabsEnum::ATTACHMENTS->value
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('show pallet delivery state in process', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $palletDelivery = $this->palletDelivery;
+
+    if ($palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
+        $palletDelivery->update(['state' => PalletDeliveryStateEnum::IN_PROCESS]);
+    }
+
+    $palletDelivery->fulfilmentCustomer->rentalAgreement->update([
+        'pallets_limit' => 10,
+    ]);
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [$this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    $palletDelivery->update(['state' => PalletDeliveryStateEnum::CONFIRMED]);
+    $palletDelivery->fulfilmentCustomer->rentalAgreement->update([
+        'pallets_limit' => null,
+    ]);
+});
+
+test('show pallet delivery state booked in or booking in', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $palletDelivery = $this->palletDelivery;
+
+    if ($palletDelivery->state != PalletDeliveryStateEnum::BOOKED_IN || $palletDelivery->state != PalletDeliveryStateEnum::BOOKING_IN) {
+        $palletDelivery->update(['state' => PalletDeliveryStateEnum::BOOKED_IN]);
+    }
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [$this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    $palletDelivery->update(['state' => PalletDeliveryStateEnum::CONFIRMED]);
 });
 
 test('show pallet delivery (services tab)', function () {
