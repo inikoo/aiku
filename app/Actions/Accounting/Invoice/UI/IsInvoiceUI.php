@@ -21,7 +21,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 trait IsInvoiceUI
 {
-
     use WithAccountingAuthorisation;
     public function authorize(ActionRequest $request): bool
     {
@@ -103,17 +102,17 @@ trait IsInvoiceUI
 
     public function getRecurringBillRoute(Invoice $invoice): ?array
     {
-        if ($invoice->shop->type!==ShopTypeEnum::FULFILMENT) {
+        if ($invoice->shop->type !== ShopTypeEnum::FULFILMENT) {
             return  null;
         }
-        $recurringBillRoute=null;
+        $recurringBillRoute = null;
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.operations.recurring_bills.show',
                     'parameters' => [$invoice->organisation->slug, $this->parent->slug, $invoice->recurringBill->slug]
                 ];
-            } elseif($this->parent instanceof FulfilmentCustomer) {
+            } elseif ($this->parent instanceof FulfilmentCustomer) {
                 $recurringBillRoute = [
                     'name' => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
                     'parameters' => [$invoice->organisation->slug, $this->parent->fulfilment->slug, $this->parent->slug, $invoice->recurringBill->slug]

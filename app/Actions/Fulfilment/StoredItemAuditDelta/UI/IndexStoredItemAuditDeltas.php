@@ -10,7 +10,7 @@
 namespace App\Actions\Fulfilment\StoredItemAuditDelta\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -30,7 +30,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemAuditDeltas extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private StoredItemAudit $storedItemAudit;
 

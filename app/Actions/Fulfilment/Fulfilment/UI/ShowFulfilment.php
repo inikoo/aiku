@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithDashboard;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -26,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowFulfilment extends OrgAction
 {
     use WithDashboard;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
 
     public function handle(Fulfilment $fulfilment): Fulfilment

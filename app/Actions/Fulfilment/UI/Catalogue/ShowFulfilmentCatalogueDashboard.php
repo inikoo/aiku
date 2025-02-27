@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\UI\Catalogue;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -31,7 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ShowFulfilmentCatalogueDashboard extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     protected function getElementGroups(Fulfilment $fulfilment): array
     {

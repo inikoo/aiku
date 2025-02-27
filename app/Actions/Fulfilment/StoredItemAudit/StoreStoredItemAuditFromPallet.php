@@ -18,7 +18,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditScopeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
@@ -36,7 +36,7 @@ class StoreStoredItemAuditFromPallet extends OrgAction
 {
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
 
     public Customer $customer;

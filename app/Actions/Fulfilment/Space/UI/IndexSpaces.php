@@ -12,7 +12,7 @@ namespace App\Actions\Fulfilment\Space\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Http\Resources\Fulfilment\SpacesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -33,7 +33,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexSpaces extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
+
     private Fulfilment|Organisation|Group|FulfilmentCustomer $parent;
 
     public function handle(Fulfilment|Organisation|Group|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
@@ -114,7 +115,6 @@ class IndexSpaces extends OrgAction
             $table->column(key: 'rental', label: __('rental'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'start_at', label: __('start'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'end_at', label: __('end'), sortable: true, canBeHidden: false, searchable: true);
-
         };
     }
 
@@ -146,6 +146,22 @@ class IndexSpaces extends OrgAction
             ];
         }
 
+        $actions = null;
+        if ($request->user()->authTo("supervisor-fulfilment-shop.".$this->fulfilment->id)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('space'),
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.spaces.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ],
+                ]
+            ];
+        }
+
+
         return Inertia::render(
             'Org/Fulfilment/Spaces',
             [
@@ -160,17 +176,7 @@ class IndexSpaces extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('space'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.spaces.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                        ]
-                    ],
+                    'actions'       => $actions
                 ],
                 'data'        => SpacesResource::collection($spaces)
             ]
@@ -180,8 +186,6 @@ class IndexSpaces extends OrgAction
             )
         );
     }
-
-
 
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator

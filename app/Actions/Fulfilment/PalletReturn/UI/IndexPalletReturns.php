@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\WithPalletReturnSubNavigation;
 use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
@@ -41,27 +42,13 @@ class IndexPalletReturns extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithPalletReturnSubNavigation;
+    use WithFulfilmentShopAuthorisation;
 
 
     private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
     private ?string $restriction = null;
     private ?string $type = null;
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
-            $this->canEdit = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->authTo("fulfilment.{$this->warehouse->id}.edit");
-
-            return $request->user()->authTo("fulfilment.{$this->warehouse->id}.view");
-        }
-
-        return false;
-    }
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
