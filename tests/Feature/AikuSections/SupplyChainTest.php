@@ -321,6 +321,21 @@ test('UI Index suppliers product in supplier', function () {
     });
 });
 
+test('UI supply chain dashboard', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $response = $this->get(route('grp.supply-chain.dashboard'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplyChainDashboard')
+            ->has('title')
+            ->has('pageHead')
+            ->has('flatTreeMaps')
+            ->has('breadcrumbs', 2);
+    });
+});
+
 test('UI create suppliers product in supplier', function () {
     $this->withoutExceptionHandling();
     $supplier = Supplier::first();
