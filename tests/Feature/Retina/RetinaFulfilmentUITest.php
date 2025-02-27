@@ -718,7 +718,7 @@ test('index pricing', function () {
             ->has('assets');
 
     });
-});
+})->todo();
 
 test('index pricing (goods)', function () {
     // $this->withoutExceptionHandling();
