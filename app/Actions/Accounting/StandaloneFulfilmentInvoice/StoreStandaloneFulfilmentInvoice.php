@@ -45,13 +45,6 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
 
         return $invoice;
     }
-
-    public function rules(): array
-    {
-        return [
-            'tax_category_id' => ['sometimes', 'exists:tax_categories,id'],
-        ];
-    }
     /**
      * @throws \Throwable
      */
