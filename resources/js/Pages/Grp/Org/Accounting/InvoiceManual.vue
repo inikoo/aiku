@@ -635,7 +635,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </dd>
                 </div>
 
-                <div class="relative flex items-start w-full flex-none gap-x-2">
+                <!-- <div class="relative flex items-start w-full flex-none gap-x-2">
                     <dt class="flex-none pt-1">
                         <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
@@ -649,7 +649,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     />
 
 
-                </div>
+                </div> -->
             </div>
         </BoxStatPallet>
 

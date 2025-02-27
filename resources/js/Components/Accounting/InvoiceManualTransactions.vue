@@ -70,28 +70,28 @@ const onUpdateQuantity = (id:Number,fulfilment_transaction_id: number, value: nu
     })
 }
 
-const isLoading = ref<string | boolean>(false)
-const onDeleteTransaction = (id:Number, fulfilment_transaction_id: number) => {
-	const routeDelete = <routeType>{}
-    if(fulfilment_transaction_id){
-        if (layout.app.name === "Aiku") {
-		routeDelete.name = "grp.models.fulfilment-transaction.delete"
-		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
-	} else {
-		routeDelete.name = "retina.models.fulfilment-transaction.delete"
-		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
-	}
-    }else{
-        routeDelete.name = "grp.models.recurring_bill_transaction.delete"
-        routeDelete.parameters = { recurringBillTransaction: id }
-    }
+// const isLoading = ref<string | boolean>(false)
+// const onDeleteTransaction = (id:Number, fulfilment_transaction_id: number) => {
+// 	const routeDelete = <routeType>{}
+//     if(fulfilment_transaction_id){
+//         if (layout.app.name === "Aiku") {
+// 		routeDelete.name = "grp.models.fulfilment-transaction.delete"
+// 		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+// 	} else {
+// 		routeDelete.name = "retina.models.fulfilment-transaction.delete"
+// 		routeDelete.parameters = { fulfilmentTransaction: fulfilment_transaction_id }
+// 	}
+//     }else{
+//         routeDelete.name = "grp.models.recurring_bill_transaction.delete"
+//         routeDelete.parameters = { recurringBillTransaction: id }
+//     }
 	
-	router.delete(route(routeDelete.name, routeDelete.parameters), {
-        preserveScroll: true,
-		onStart: () => (isLoading.value = "buttonReset" + id),
-		onFinish: () => (isLoading.value = false),
-	})
-}
+// 	router.delete(route(routeDelete.name, routeDelete.parameters), {
+//         preserveScroll: true,
+// 		onStart: () => (isLoading.value = "buttonReset" + id),
+// 		onFinish: () => (isLoading.value = false),
+// 	})
+// }
 
 const locale = inject('locale', aikuLocaleStructure)
 </script>
