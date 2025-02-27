@@ -428,8 +428,8 @@ class ShowInvoiceDeleted extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::where('reference', '<', $invoice->reference)
-            ->where('shop_id', $invoice->shop_id)
+        $previous = Invoice::onlyTrashed()->where('reference', '<', $invoice->reference)
+            ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
@@ -437,7 +437,7 @@ class ShowInvoiceDeleted extends OrgAction
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::where('reference', '>', $invoice->reference)
+        $next = Invoice::onlyTrashed()->where('reference', '>', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('reference')->first();
 
