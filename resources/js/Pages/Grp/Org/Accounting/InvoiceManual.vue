@@ -324,12 +324,12 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     <PageHeading :data="pageHead">
 
         <!-- Button: PDF -->
-        <template #otherBefore>
+        <!-- <template #otherBefore>
             <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank"
                 class="mt-4 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
                 <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
             </a>
-        </template>
+        </template> -->
 
         
         <!-- Button: Add service -->

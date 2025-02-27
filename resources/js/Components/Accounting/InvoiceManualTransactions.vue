@@ -130,7 +130,7 @@ const locale = inject('locale', aikuLocaleStructure)
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.updateRoute, item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
                 <div v-else class="text-gray-500">
-                    {{ item.quantity }}
+                    <!-- {{ item.quantity }} -->
                 </div>
 			</div>
 		</template>
@@ -147,7 +147,7 @@ const locale = inject('locale', aikuLocaleStructure)
         </template>
 
         <template #cell(net_amount)="{ item, proxyItem }">
-            <div class="relative text-left">
+            <div class="relative">
                 <template v-if="item.edit_type == 'net'">
                     <div class="w-72 float-right">
                         <NumberWithButtonSave

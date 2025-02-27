@@ -27,7 +27,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
     {
         $editType = null;
         if ($this->model_type == 'Service') {
-            $service = Service::find($this->item_id);
+            $service = Service::find($this->model_id);
             $editType = $service->edit_type ?? null;
         }
 
