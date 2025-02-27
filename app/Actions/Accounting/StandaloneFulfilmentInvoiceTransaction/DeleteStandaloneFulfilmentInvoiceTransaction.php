@@ -22,7 +22,7 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
     use WithOrderExchanges;
     use WithNoStrictRules;
 
-    public function handle(InvoiceTransaction $invoiceTransaction): InvoiceTransaction
+    public function handle(InvoiceTransaction $invoiceTransaction): void
     {
         $invoice = $invoiceTransaction->invoice;
         DeleteInvoiceTransaction::make()->action($invoiceTransaction);
@@ -30,7 +30,7 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
         $invoice->refresh();
 
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoice);
-        return $invoiceTransaction;
+        $invoiceTransaction;
     }
 
     public function rules(): array
@@ -43,11 +43,11 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
     }
 
 
-    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): InvoiceTransaction
+    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): void
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
 
-        return $this->handle($invoiceTransaction, $this->validatedData);
+        $this->handle($invoiceTransaction, $this->validatedData);
     }
 
 
