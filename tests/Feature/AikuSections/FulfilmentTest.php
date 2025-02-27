@@ -3089,7 +3089,7 @@ test('create stored item audit delta', function (StoredItemAudit $storedItemAudi
         'audited_quantity'  => 15,
         'user_id'       => $this->user->id
     ]);
-    
+
     $storedItemAudit->refresh();
 
     expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
@@ -3106,7 +3106,7 @@ test('update stored item audit delta', function (StoredItemAuditDelta $storedIte
         'audited_quantity' => 17,
         'user_id'       => $this->user->id
     ]);
-    
+
     $storedItemAuditDelta->refresh();
 
     expect($storedItemAuditDelta)->toBeInstanceOf(StoredItemAuditDelta::class)
@@ -3120,7 +3120,7 @@ test('delete stored item audit delta', function (StoredItemAuditDelta $storedIte
     $storedItemAudit = $storedItemAuditDelta->storedItemAudit;
 
     DeleteStoredItemAuditDelta::make()->action($storedItemAuditDelta, []);
-    
+
     $storedItemAudit->refresh();
 
     expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
@@ -3151,15 +3151,15 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
     expect($storedItemAuditDelta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($storedItemAuditDelta->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
 
-    $storedItemAudit = CompleteStoredItemAudit::make()->action($storedItemAudit,[]);
-    
+    $storedItemAudit = CompleteStoredItemAudit::make()->action($storedItemAudit, []);
+
     $storedItemAudit->refresh();
 
     $delta = $storedItemAudit->deltas()->first();
 
     expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
         ->and($storedItemAudit->state)->toBe(StoredItemAuditStateEnum::COMPLETED);
-    
+
     expect($delta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($delta->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
 

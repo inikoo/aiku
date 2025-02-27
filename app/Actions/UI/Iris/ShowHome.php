@@ -38,7 +38,7 @@ class ShowHome
                     'description' => $webpage?->description ?? $home->description,
                 ],
                 'blocks' => $webpage?->published_layout ?? $home->published_layout,
-                'data' => $website ,
+                'data' => $website,
             ]
         );
     }
