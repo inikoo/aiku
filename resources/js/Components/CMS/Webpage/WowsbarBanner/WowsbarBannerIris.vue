@@ -1,85 +1,83 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue"
-import axios from "axios"
-import { notify } from "@kyvg/vue3-notification"
-import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
-import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
-import { Link, router } from "@inertiajs/vue3"
+import { ref, onMounted, watch } from "vue";
+import { router } from "@inertiajs/vue3";
+import { notify } from "@kyvg/vue3-notification";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPresentation, faLink, faExternalLink } from "@fal";
+import { faSpinnerThird } from "@fad";
+import axios from "axios";
 
-import { faPresentation, faLink, faExternalLink } from "@fal"
-import { faSpinnerThird } from "@fad"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { layoutStructure } from "@/Composables/useLayoutStructure"
-import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import { useFormatTime } from "@/Composables/useFormatTime"
-import { getStyles } from "@/Composables/styles"
+import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue";
+import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue";
+import EmptyState from "@/Components/Utils/EmptyState.vue";
+import { getStyles } from "@/Composables/styles";
+import Skeleton from 'primevue/skeleton';
 
-library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
+library.add(faPresentation, faLink, faExternalLink, faSpinnerThird);
 
-const props = defineProps<{
-    fieldValue: {
-        banner_slug?: string
+const props = defineProps<{ fieldValue: { banner_slug?: string } }>();
+
+const data = ref(null);
+const isLoading = ref(false);
+
+const getRouteShow = () => {
+    const params = route().params;
+    console.log(params);
+    if (params.isInWorkshop) {
+        if (params.fulfilment) {
+            return route("grp.org.fulfilments.show.web.banners.show", {
+                organisation: params?.organisation,
+                fulfilment: params?.fulfilment,
+                website: params?.website,
+                banner: props.fieldValue.banner_slug,
+            });
+        } else if (params.shop) {
+            return route("grp.org.shops.show.web.banners.show", {
+                organisation: params?.organisation,
+                shop: params?.shop,
+                website: params?.website,
+                banner: props.fieldValue.banner_slug,
+            });
+        }
+    } else {
+        return route('iris.banners.deliver', { banner: props.fieldValue.banner_slug });
     }
-}>()
-
-const data = ref(null)
-const isLoading = ref(false)
-
-const emits = defineEmits<{
-    (e: "update:fieldValue", value: string | number): void
-    (e: "autoSave"): void
-}>()
+};
 
 const getDataBanner = async () => {
-    if (!props.fieldValue.banner_slug) return
+    if (props.fieldValue.banner_slug) {
+        try {
+            isLoading.value = true;
+            const url = getRouteShow();
 
-    isLoading.value = true
-    router.get(
-        route("iris.banner", { slug: props.fieldValue.banner_slug }),
-        {
-            preserveScroll: true,
-            onSuccess: (response) => {
-                data.value = response.data
-            },
-            onError: () => {
-                notify({
-                    title: "Something went wrong in Banner.",
-                    text: "Failed to save",
-                    type: "error",
-                })
-            },
-            onFinish: () => {
-                isLoading.value = false
-            },
+            const response = await axios.get(url);
+            data.value = response.data;
+        } catch (error) {
+            console.error(error);
+            notify({
+                title: "Failed to fetch banners data",
+                text: error.message || 'An error occurred',
+                type: "error",
+            });
+        } finally {
+            isLoading.value = false;
         }
-    )
-}
+    }
+};
 
-onMounted(getDataBanner)
-
-// Watch jika fieldValue berubah
-watch(() => props.fieldValue.banner_slug, getDataBanner)
-
+onMounted(getDataBanner);
+watch(() => props.fieldValue.banner_slug, getDataBanner);
 </script>
 
 <template>
-    <!-- <div class="relative"
-        :style="getStyles(properties)">
-        {{ data }}
-
-       <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
-        <SliderSquare v-else :data="data.compiled_layout" :production="true" /> 
-    </div> -->
-
-    <div v-if="isLoading" class="flex justify-center h-36 items-center">
-        <LoadingIcon class="text-4xl" />
-    </div>
-
-   <!--  <div v-else="data" class="relative" :style="getStyles(properties)">
-        <SliderLandscape v-if="data?.type === 'landscape'" :data="data?.compiled_layout" :production="true" />
-        <SliderSquare v-else :data="data?.compiled_layout" :production="true" />
-    </div>
- -->
-
-
+  <div v-if="isLoading" class="h-36 flex flex-col space-y-2">
+    <Skeleton width="100%" height="335px" />
+  </div>
+  <div v-else-if="data?.type" class="relative" :style="getStyles(fieldValue?.container?.properties)">
+    <SliderLandscape v-if="data.type === 'landscape'" :data="data.compiled_layout" :production="true" />
+    <SliderSquare v-else :data="data.compiled_layout" :production="true" />
+  </div>
+  <div v-else class="relative" :style="getStyles(fieldValue?.container?.properties)">
+    <EmptyState />
+  </div>
 </template>

@@ -13,9 +13,7 @@ import { faBars } from '@fal'
 library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faFacebook,faWhatsapp)
 
 const props = defineProps<{
-    fieldValue: FieldValue,
-    keyTemplate: String
-    colorThemed?: Object
+    fieldValue?: FieldValue,
     modelValue:FieldValue
 }>();
 

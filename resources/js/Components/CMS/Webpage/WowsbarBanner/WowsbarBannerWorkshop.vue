@@ -150,7 +150,6 @@ console.log(route().params)
 
 <template>
 
-
     <div v-if="isLoading" class="flex justify-center h-36 items-center">
         <LoadingIcon class="text-4xl" />
     </div>
@@ -163,7 +162,7 @@ console.log(route().params)
 
 
     <div v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative"
-        :style="getStyles(properties)">
+        :style="getStyles(modelValue?.container?.properties)">
 
         <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
         <SliderSquare v-else :data="data.compiled_layout" :production="true" />

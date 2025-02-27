@@ -69,7 +69,7 @@ const props = defineProps<{
     }
 
     loginMode:Boolean
-    previewMode:Boolean
+    previewMode?:Boolean
 }>()
 
 const emits = defineEmits<{
