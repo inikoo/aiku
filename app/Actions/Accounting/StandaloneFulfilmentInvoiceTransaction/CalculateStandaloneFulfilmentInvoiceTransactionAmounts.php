@@ -9,6 +9,8 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -19,12 +21,31 @@ class CalculateStandaloneFulfilmentInvoiceTransactionAmounts
     {
         $grossAmount = $invoiceTransaction->historicAsset->price * $invoiceTransaction->quantity;
 
+        $netAmount = $this->getDiscounts($invoiceTransaction->invoice, $grossAmount, $invoiceTransaction->historicAsset->asset_id);
         $invoiceTransaction->update([
             'gross_amount' => $grossAmount,
-            'net_amount'   => $grossAmount ,
+            'net_amount'   => $netAmount ,
         ]);
 
         return $invoiceTransaction;
+    }
+
+    public function getDiscounts(Invoice $invoice, $grossAmount, int $assetID)
+    {
+
+        $rentalAgreementClause = $invoice->customer->fulfilmentCustomer->rentalAgreementClauses()
+            ->where('state', RentalAgreementCauseStateEnum::ACTIVE)
+            ->where('asset_id', $assetID)
+            ->first();
+
+        $percentageOff = 0;
+        if ($rentalAgreementClause) {
+
+            $percentageOff = $rentalAgreementClause->percentage_off / 100;
+
+        }
+
+        return $grossAmount - ($grossAmount * $percentageOff);
     }
 
 
