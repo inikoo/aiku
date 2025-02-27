@@ -17,6 +17,7 @@ use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreStandaloneFulfilmentInvoice extends OrgAction
@@ -61,4 +62,13 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    public function htmlResponse(Invoice $invoice)
+    {
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show', [
+            'organisation' => $invoice->organisation->slug,
+            'fulfilment'   => $invoice->shop->fulfilment->slug,
+            'fulfilmentCustomer'     => $invoice->customer->fulfilmentCustomer->slug,
+            'invoice'      => $invoice->slug
+        ]);
+    }
 }

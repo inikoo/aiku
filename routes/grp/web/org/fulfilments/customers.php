@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\UI\ShowStandaloneFulfilmentInvoiceInProcess;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomerClients;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -145,6 +146,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('invoices')->as('.invoices.')->group(function () {
         Route::get('', [IndexInvoices::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{invoice}/in-process', [ShowStandaloneFulfilmentInvoiceInProcess::class, 'inFulfilmentCustomer'])->name('in-process.show');
         Route::get('{invoice}/edit', [EditInvoice::class, 'inFulfilmentCustomer'])->name('edit');
 
         Route::prefix('{invoice}/refunds')->as('show.refunds.')->group(function () {
