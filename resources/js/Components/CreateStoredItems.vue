@@ -36,6 +36,11 @@ const props = defineProps<{
 	stored_items: {}[]
     title?: string
     prefixQuery?: string   // from filter[global] to stored_items_filter[global]
+	storedItemToEdit?: {
+		id: string
+		quantity: number
+		reference: string
+	}
 }>()
 
 const loadingAddStoredItem = ref(false)
@@ -190,6 +195,7 @@ const onSaveNameForNewStoredItem = async () => {
 			
 			<div class="mt-1 col-span-2">
 				<SelectQuery ref="_selectQuery"
+					:initOptions="props.storedItemToEdit ? [props.storedItemToEdit] : undefined"
 					:filterOptions="filterOptionsStoredItems"
 					:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
 					:value="form"
