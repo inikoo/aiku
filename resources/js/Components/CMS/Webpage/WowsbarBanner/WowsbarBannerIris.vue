@@ -12,6 +12,7 @@ import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue";
 import EmptyState from "@/Components/Utils/EmptyState.vue";
 import { getStyles } from "@/Composables/styles";
 import Skeleton from 'primevue/skeleton';
+import { v4 as uuidv4 } from 'uuid';
 
 library.add(faPresentation, faLink, faExternalLink, faSpinnerThird);
 
@@ -50,7 +51,11 @@ const getDataBanner = async () => {
             isLoading.value = true;
             const url = getRouteShow();
 
-            const response = await axios.get(url);
+            const response = await axios.get(url, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             data.value = response.data;
         } catch (error) {
             console.error(error);
@@ -65,6 +70,7 @@ const getDataBanner = async () => {
     }
 };
 
+
 onMounted(getDataBanner);
 watch(() => props.fieldValue.banner_slug, getDataBanner);
 </script>
@@ -74,8 +80,8 @@ watch(() => props.fieldValue.banner_slug, getDataBanner);
     <Skeleton width="100%" height="335px" />
   </div>
   <div v-else-if="data?.type" class="relative" :style="getStyles(fieldValue?.container?.properties)">
-    <SliderLandscape v-if="data.type === 'landscape'" :data="data.compiled_layout" :production="true" />
-    <SliderSquare v-else :data="data.compiled_layout" :production="true" />
+    <SliderLandscape v-if="data.type === 'landscape'" :data="data" :production="true" :key="uuidv4()" />
+    <SliderSquare v-else :data="data" :production="true" :key="uuidv4()"/>
   </div>
   <div v-else class="relative" :style="getStyles(fieldValue?.container?.properties)">
     <EmptyState />
