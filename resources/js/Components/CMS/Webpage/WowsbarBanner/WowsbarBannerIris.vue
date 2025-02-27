@@ -57,6 +57,7 @@ const getDataBanner = async () => {
                 }
             });
             data.value = response.data;
+            console.log(response)
         } catch (error) {
             console.error(error);
             notify({
