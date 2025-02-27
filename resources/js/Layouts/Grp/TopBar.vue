@@ -136,8 +136,8 @@ console.log("environment:", usePage().props.environment);
             <Transition name="spin-to-down">
               <Link :href="layoutStore.currentParams?.organisation ? route('grp.org.dashboard.show', layoutStore.currentParams?.organisation) : route('grp.dashboard.show')"
                     :key="layoutStore.currentParams?.organisation"
-                    class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
-                    :class="[layoutStore.leftSidebar.show ? 'py-3 pl-4' : 'pl-2.5 w-full']"
+                    class="py-3 hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
+                    :class="[layoutStore.leftSidebar.show ? 'pl-4' : 'pl-2.5 w-full']"
               >
                 <Image :src="layoutStore.organisations.data?.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
                 <Transition name="slide-to-left">
