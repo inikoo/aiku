@@ -55,39 +55,35 @@ const active = ref<Daum>(props.webBlockTypes.data[0])
 
 // Filter webBlockTypes based on scope and save in data
 onMounted(() => {
-  const filteredData =
-    props.scope === "all"
-      ? props.webBlockTypes.data
-      : props.webBlockTypes.data.filter((item) => item.scope === props.scope)
+	const filteredData =
+		props.scope === "all"
+			? props.webBlockTypes.data
+			: props.webBlockTypes.data.filter((item) => item.scope === props.scope)
 
-  data.value = filteredData.sort((a, b) => a.name.localeCompare(b.name))
-  active.value = data.value[0] || null;
+	data.value = filteredData.sort((a, b) => a.name.localeCompare(b.name))
+	active.value = data.value[0] || null;
 })
 console.log(props)
 </script>
 
 <template>
-	<div class="overflow-y-auto h-full select-none p-4 bg-gray-100">
-		<div class="flex flex-wrap justify-center gap-4">
-			<div
-				v-for="block in data"
-				:key="block.id"
-				class="relative min-h-20 h-32 w-48 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 bg-white overflow-hidden"
-				@click="onPickBlock(block)"
-				:class="'border-gray-200'">
-				<div class="h-3/4 w-full flex items-center justify-center rounded-t-lg bg-gray-50">
-
-					<Image
-						:src="block.screenshot"
-						class="max-h-full max-w-full object-contain"
-						alt="Screenshot of {{ block.name }}" />
+	<div class="overflow-y-auto h-full select-none p-6 bg-gray-100">
+		<div class="flex flex-wrap justify-center gap-6">
+			<div v-for="block in data" :key="block.id"
+				class="relative h-36 w-52 min-h-24 border rounded-xl cursor-pointer shadow-md transition-transform transform hover:scale-105 bg-white overflow-hidden hover:shadow-lg"
+				:class="'border-gray-300'" @click="onPickBlock(block)">
+				<div class="h-3/4 w-full flex items-center justify-center rounded-t-xl bg-gray-50">
+					<Image :src="block.screenshot" class="max-h-full max-w-full object-contain"
+						:alt="`Screenshot of ${block.name}`" />
 				</div>
 
 				<div
-					class="absolute bottom-0 w-full h-1/4  via-black/40 to-transparent rounded-b-lg flex items-end  font-bold  text-sm p-2 truncate">
+					class="absolute bottom-0 w-full h-1/4  to-transparent rounded-b-xl flex items-end font-semibold  text-sm p-2 truncate">
 					{{ block.name }}
 				</div>
 			</div>
 		</div>
 	</div>
+
+
 </template>
