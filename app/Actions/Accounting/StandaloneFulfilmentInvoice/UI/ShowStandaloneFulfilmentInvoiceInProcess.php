@@ -480,7 +480,8 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             ],
 
             //  'grp.org.fulfilments.show.crm.customers.show.refund.show'
-            'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
+            'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+            'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show' => [
                 'label' => $invoice->reference,
                 'route' => [
                     'name'       => $routeName,
