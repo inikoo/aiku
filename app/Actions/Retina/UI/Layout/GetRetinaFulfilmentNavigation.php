@@ -124,27 +124,27 @@ class GetRetinaFulfilmentNavigation
                 }
             }
 
-            $groupNavigation['pricing'] = [
-                'label'   => __('Pricing'),
-                'icon'    => ['fal', 'fa-usd-circle'],
-                'root'    => 'retina.fulfilment.pricing.',
-                'route'   => [
-                    'name' => 'retina.fulfilment.pricing.index'
-                ],
-                'topMenu' => [
+            // $groupNavigation['pricing'] = [
+            //     'label'   => __('Pricing'),
+            //     'icon'    => ['fal', 'fa-usd-circle'],
+            //     'root'    => 'retina.fulfilment.pricing.',
+            //     'route'   => [
+            //         'name' => 'retina.fulfilment.pricing.index'
+            //     ],
+            //     'topMenu' => [
 
 
-                    [
-                        'label' => __('Pricing'),
-                        'icon'  => ['fal', 'fa-usd-circle'],
-                        'root'  => 'retina.fulfilment.pricing.',
-                        'route' => [
-                            'name' => 'retina.fulfilment.storage.pricing'
-                        ]
-                    ],
-                ]
+            //         [
+            //             'label' => __('Pricing'),
+            //             'icon'  => ['fal', 'fa-usd-circle'],
+            //             'root'  => 'retina.fulfilment.pricing.',
+            //             'route' => [
+            //                 'name' => 'retina.fulfilment.storage.pricing'
+            //             ]
+            //         ],
+            //     ]
 
-            ];
+            // ];
 
             $groupNavigation['spaces'] = [
                 'label'   => __('Spaces'),
