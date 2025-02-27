@@ -1165,6 +1165,53 @@ test('UI show pallet return', function () {
     });
 });
 
+test('UI show pallet return with stored items', function () {
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->palletReturn->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('interest')
+            ->has('updateRoute')
+            ->has('deleteServiceRoute')
+            ->has('deletePhysicalGoodRoute')
+            ->has('routeStorePallet')
+            ->has('upload_spreadsheet')
+            ->has('attachmentRoutes')
+            ->has('data')
+            ->has('box_stats')
+            ->has('notes_data')
+            ->has('stored_items_count')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+
+test('UI json get pallet return whole pallet', function () {
+    $this->withoutExceptionHandling();
+    $response = getJson(route('grp.json.pallet-return.pallets.index', [
+        $this->palletReturn->slug
+    ]));
+    $response->assertStatus(200)
+        ->assertJsonStructure([
+            'data',
+        ]);
+});
+
 test('UI show pallet return (physical goods tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=physical_goods');
     $response->assertInertia(function (AssertableInertia $page) {
