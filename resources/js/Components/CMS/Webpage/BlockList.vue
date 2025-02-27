@@ -55,14 +55,13 @@ const active = ref<Daum>(props.webBlockTypes.data[0])
 
 // Filter webBlockTypes based on scope and save in data
 onMounted(() => {
-	if (props.scope === "all") {
-		data.value = props.webBlockTypes.data
-	} else {
-		// Filter based on scope (e.g., 'website', 'webpage', etc.)
-		data.value = props.webBlockTypes.data.filter((item) => item.scope === props.scope)
-	}
+  const filteredData =
+    props.scope === "all"
+      ? props.webBlockTypes.data
+      : props.webBlockTypes.data.filter((item) => item.scope === props.scope)
 
-	active.value = data.value[0] || null
+  data.value = filteredData.sort((a, b) => a.name.localeCompare(b.name))
+  active.value = data.value[0] || null
 })
 
 </script>
