@@ -154,10 +154,10 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             'Org/Accounting/InvoiceManual',
             [
                 'title'       => __('invoice'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
+                // 'breadcrumbs' => $this->getBreadcrumbs(
+                //     $request->route()->getName(),
+                //     $request->route()->originalParameters()
+                // ),
                 'pageHead'    => [
                     'subNavigation' => $subNavigation,
                     'model'         => __('invoice'),
@@ -282,63 +282,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
         $invoice   = Invoice::where('slug', $routeParameters['invoice'])->first();
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.operations.invoices.show',
-            => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
-            => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
-                        ]
-                    ],
-                    $suffix,
-                    ' ('.__('All').')'
-                ),
-            ),
-            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
-            => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.unpaid_invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
-                        ]
-                    ],
-                    $suffix,
-                    ' ('.__('Unpaid').')'
-                ),
-            ),
-
             'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show',
             => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
@@ -357,67 +300,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     $suffix
                 ),
             ),
-
-            'grp.org.accounting.invoices.all_invoices.show',
-            => array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.accounting.invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.accounting.invoices.all_invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
-                        ]
-                    ],
-                    $suffix,
-                    ' ('.__('All').')'
-                ),
-            ),
-
-            'grp.org.accounting.invoices.unpaid_invoices.show',
-            => array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.accounting.invoices.unpaid_invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.accounting.invoices.unpaid_invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
-                        ]
-                    ],
-                    $suffix,
-                    ' ('.__('Unpaid').')'
-                ),
-            ),
-
-            'grp.org.accounting.invoices.show',
-            => array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb(
-                    $invoice,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.accounting.invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.accounting.invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-
-
             default => []
         };
     }
