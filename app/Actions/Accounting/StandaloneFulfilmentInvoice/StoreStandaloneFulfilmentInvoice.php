@@ -28,7 +28,7 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(FulfilmentCustomer $parent): Invoice
+    public function handle(FulfilmentCustomer $fulfilmentCustomer): Invoice
     {
         $invoiceData = [
             'currency_id'     => $this->fulfilment->shop->currency_id,
@@ -40,7 +40,7 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
             'in_process'      => true,
         ];
 
-        $invoice = StoreInvoice::make()->action($parent->customer, $invoiceData);
+        $invoice = StoreInvoice::make()->action($fulfilmentCustomer->customer, $invoiceData);
 
         return $invoice;
     }
@@ -54,11 +54,11 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function asController(FulfilmentCustomer $parent, ActionRequest $request): Invoice
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Invoice
     {
-        $this->initialisationFromFulfilment($parent->fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($parent, $this->validatedData);
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
 }

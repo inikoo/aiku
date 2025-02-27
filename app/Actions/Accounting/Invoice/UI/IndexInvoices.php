@@ -279,7 +279,7 @@ class IndexInvoices extends OrgAction
         $afterTitle = null;
         $iconRight  = null;
         $model      = null;
-        $actions    = null;
+        $actions    = [];
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $icon       = ['fal', 'fa-user'];
@@ -289,6 +289,20 @@ class IndexInvoices extends OrgAction
             ];
             $afterTitle = [
                 'label' => __('invoices')
+            ];
+            $actions[] = 
+            [
+                'type'  => 'button',
+                'style' => 'create',
+                'label' => __('Create standalone invoice'),
+                'fullLoading'   => true,
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.standalone-invoice.store',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $this->parent->id
+                    ]
+                ]
             ];
         } elseif ($this->parent instanceof CustomerClient) {
             $iconRight  = $icon;
