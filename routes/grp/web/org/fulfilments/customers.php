@@ -146,7 +146,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('invoices')->as('.invoices.')->group(function () {
         Route::get('', [IndexInvoices::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
-        Route::get('{invoice}/in-process', [ShowStandaloneFulfilmentInvoiceInProcess::class, 'inFulfilmentCustomer'])->name('in-process.show');
+        Route::get('{invoice}/in-process', ShowStandaloneFulfilmentInvoiceInProcess::class)->name('in-process.show');
         Route::get('{invoice}/edit', [EditInvoice::class, 'inFulfilmentCustomer'])->name('edit');
 
         Route::prefix('{invoice}/refunds')->as('show.refunds.')->group(function () {
