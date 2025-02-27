@@ -9,6 +9,7 @@
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Comms\Email\SendInvoiceEmailToCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,10 @@ Route::name('invoice.')->prefix('invoice/{invoice:id}')->group(function () {
     Route::post('customer/{customer:id}/payment/{paymentAccount:id}', PayInvoice::class)->name('payment.store')->withoutScopedBindings();
 
     Route::post('send-invoice', SendInvoiceEmailToCustomer::class)->name('send_invoice');
+});
+
+Route::name('standalone-invoice.')->prefix('standalone-invoice/{invoice:id}')->group(function () {
+    Route::post('transaction/{historicAsset:id}', StoreStandaloneFulfilmentInvoiceTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 
 Route::name('invoice_transaction.')->prefix('invoice_transaction/{invoiceTransaction:id}')->group(function () {

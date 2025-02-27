@@ -84,10 +84,56 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+
+            $serviceRoute = [
+                'name'       => 'grp.json.fulfilment.invoice.services.index',
+                'parameters' => [
+                    'fulfilment' => $invoice->shop->fulfilment->slug,
+                    'scope'      => $invoice->slug
+                ]
+            ];
+
+            $productRoute = [
+                'name'       => 'grp.json.fulfilment.invoice.physical-goods.index',
+                'parameters' => [
+                    'fulfilment' => $invoice->shop->fulfilment->slug,
+                    'scope'      => $invoice->slug
+                ]
+                ];
         }
 
         $actions = [];
         if (!app()->environment('production')) {
+            $actions[] =  $actions = [
+                [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'icon'    => 'fal fa-plus',
+                    'key'     => 'add-service',
+                    'label'   => __('add service'),
+                    'tooltip' => __('Add single service'),
+                    'route'   => [
+                        'name'       => 'grp.models.standalone-invoice.transaction.store',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ]
+                ],
+                [
+                    'type'    => 'button',
+                    'style'   => 'secondary',
+                    'icon'    => 'fal fa-plus',
+                    'key'     => 'add_physical_good',
+                    'label'   => __('add physical good'),
+                    'tooltip' => __('Add physical good'),
+                    'route'   => [
+                        'name'       => 'grp.models.standalone-invoice.transaction.store',
+                        'parameters' => [
+                            'invoice' => $invoice->id
+                        ]
+                    ]
+                ]
+            ];
             $actions[] =
                 [
                     'type'  => 'button',
@@ -183,6 +229,9 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     ]
                 ],
                 'box_stats'      => $this->getBoxStats($invoice),
+                
+                'service_list_route'       => $serviceRoute,
+                'physical_good_list_route' => $productRoute,
 
                 'invoice' => InvoiceResource::make($invoice),
                 'outbox'  => [
