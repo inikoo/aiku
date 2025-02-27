@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Icon from '@/Components/Icon.vue'
+import { trans } from 'laravel-vue-i18n'
 library.add(faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle)
 
 
@@ -73,6 +74,7 @@ function invoiceRoute(invoice: Invoice) {
             <Link :href="invoiceRoute(invoice)" class="primaryLink py-0.5">
             {{ invoice.reference }}
             </Link>
+            <FontAwesomeIcon v-if="invoice.in_process" v-tooltip="trans('In process')" icon='fal fa-seedling' class='text-green-500' fixed-width aria-hidden='true' />
         </template>
 
         <!-- Column: Date -->
