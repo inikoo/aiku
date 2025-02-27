@@ -9,8 +9,8 @@
 use App\Actions\Dispatching\DeliveryNote\PdfDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
-use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
-use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Dispatching\GoodsOut\UI\IndexWarehousePalletReturns;
+use App\Actions\Dispatching\GoodsOut\UI\ShowWarehousePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use Illuminate\Support\Facades\Route;
@@ -20,11 +20,11 @@ Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes')
 Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
 Route::get('/delivery-notes/{deliveryNote}/pdf', PdfDeliveryNote::class)->name('delivery-notes.pdf');
 
-Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
-Route::get('returns/confirmed', [IndexPalletReturns::class, 'inWarehouseConfirmed'])->name('pallet-returns.confirmed.index');
-Route::get('returns/picking', [IndexPalletReturns::class, 'inWarehousePicking'])->name('pallet-returns.picking.index');
-Route::get('returns/picked', [IndexPalletReturns::class, 'inWarehousePicked'])->name('pallet-returns.picked.index');
-Route::get('returns/dispatched', [IndexPalletReturns::class, 'inWarehouseDispatched'])->name('pallet-returns.dispatched.index');
-Route::get('returns/cancelled', [IndexPalletReturns::class, 'inWarehouseCancelled'])->name('pallet-returns.cancelled.index');
-Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');
+Route::get('returns', IndexWarehousePalletReturns::class)->name('pallet-returns.index');
+Route::get('returns/confirmed', [IndexWarehousePalletReturns::class, 'inWarehouseConfirmed'])->name('pallet-returns.confirmed.index');
+Route::get('returns/picking', [IndexWarehousePalletReturns::class, 'inWarehousePicking'])->name('pallet-returns.picking.index');
+Route::get('returns/picked', [IndexWarehousePalletReturns::class, 'inWarehousePicked'])->name('pallet-returns.picked.index');
+Route::get('returns/dispatched', [IndexWarehousePalletReturns::class, 'inWarehouseDispatched'])->name('pallet-returns.dispatched.index');
+Route::get('returns/cancelled', [IndexWarehousePalletReturns::class, 'inWarehouseCancelled'])->name('pallet-returns.cancelled.index');
+Route::get('returns/{palletReturn}', ShowWarehousePalletReturn::class)->name('pallet-returns.show');
 Route::get('return-stored-items/{palletReturn}', [ShowStoredItemReturn::class, 'inWarehouse'])->name('pallet-return-with-stored-items.show');

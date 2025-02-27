@@ -11,7 +11,6 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Helpers\Upload\UI\IndexPalletUploads;
 use App\Actions\OrgAction;
@@ -28,7 +27,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -46,10 +44,11 @@ class IndexPalletDeliveries extends OrgAction
     use WithFulfilmentShopAuthorisation;
     use HasRentalAgreement;
     use WithFulfilmentCustomerSubNavigation;
+
     private ?string $restriction = null;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent;
+    private Fulfilment|FulfilmentCustomer|Group|RecurringBill $parent;
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
@@ -63,7 +62,6 @@ class IndexPalletDeliveries extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
-
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
@@ -71,45 +69,16 @@ class IndexPalletDeliveries extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveriesTabsEnum::values());
-
-        return $this->handle($warehouse, PalletDeliveriesTabsEnum::DELIVERIES->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseHandling(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->restriction = 'handling';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveriesTabsEnum::values());
-
-        return $this->handle($warehouse, PalletDeliveriesTabsEnum::DELIVERIES->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseBookedIn(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->restriction = 'booked_in';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveriesTabsEnum::values());
-
-        return $this->handle($warehouse, PalletDeliveriesTabsEnum::DELIVERIES->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $group = group();
+        $group        = group();
         $this->parent = $group;
         $this->initialisationFromGroup($group, $request)->withTab(PalletDeliveriesTabsEnum::values());
 
         return $this->handle($group, PalletDeliveriesTabsEnum::DELIVERIES->value);
     }
 
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Group|RecurringBill $parent): array
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn|Group|RecurringBill $parent): array
     {
         return [
             'state' => [
@@ -128,7 +97,7 @@ class IndexPalletDeliveries extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|FulfilmentCustomer|Group|RecurringBill $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -136,7 +105,6 @@ class IndexPalletDeliveries extends OrgAction
                     ->orWhereStartWith('customer_reference', $value);
             });
         });
-
 
 
         if ($prefix) {
@@ -147,9 +115,6 @@ class IndexPalletDeliveries extends OrgAction
         $queryBuilder->leftJoin('pallet_delivery_stats', 'pallet_deliveries.id', '=', 'pallet_delivery_stats.pallet_delivery_id');
         if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
-        } elseif ($parent instanceof Warehouse) {
-            $queryBuilder->where('pallet_deliveries.warehouse_id', $parent->id);
-            $queryBuilder->whereNotIn('pallet_deliveries.state', [PalletDeliveryStateEnum::IN_PROCESS, PalletDeliveryStateEnum::SUBMITTED]);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('pallet_deliveries.group_id', $parent->id);
         } elseif ($parent instanceof RecurringBill) {
@@ -159,8 +124,8 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         $queryBuilder->leftJoin('organisations', 'pallet_deliveries.organisation_id', '=', 'organisations.id')
-        ->leftJoin('fulfilments', 'pallet_deliveries.fulfilment_id', '=', 'fulfilments.id')
-        ->leftJoin('shops', 'fulfilments.shop_id', '=', 'shops.id');
+            ->leftJoin('fulfilments', 'pallet_deliveries.fulfilment_id', '=', 'fulfilments.id')
+            ->leftJoin('shops', 'fulfilments.shop_id', '=', 'shops.id');
 
         if ($this->restriction) {
             switch ($this->restriction) {
@@ -207,21 +172,21 @@ class IndexPalletDeliveries extends OrgAction
             }
         }
 
-        if ($parent instanceof Fulfilment || $parent instanceof Warehouse) {
+        if ($parent instanceof Fulfilment) {
             $queryBuilder->leftJoin('fulfilment_customers', 'pallet_deliveries.fulfilment_customer_id', '=', 'fulfilment_customers.id')
-              ->leftJoin('customers', 'fulfilment_customers.customer_id', '=', 'customers.id')
-              ->addSelect('customers.name as customer_name', 'customers.slug as customer_slug');
+                ->leftJoin('customers', 'fulfilment_customers.customer_id', '=', 'customers.id')
+                ->addSelect('customers.name as customer_name', 'customers.slug as customer_slug');
         }
 
         return $queryBuilder
             ->defaultSort('reference')
             ->allowedSorts(['reference'])
-            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
+            ->allowedFilters([$globalSearch, AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|Group|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Fulfilment|FulfilmentCustomer|Group|RecurringBill $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -230,8 +195,8 @@ class IndexPalletDeliveries extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            $hasRentalAgreementActive    = $parent->rentalAgreement && $parent->rentalAgreement->state == RentalAgreementStateEnum::ACTIVE;
-            $hasRentalAgreement          = (bool) $parent->rentalAgreement;
+            $hasRentalAgreementActive = $parent->rentalAgreement && $parent->rentalAgreement->state == RentalAgreementStateEnum::ACTIVE;
+            $hasRentalAgreement       = (bool)$parent->rentalAgreement;
 
             $table
                 ->withModelOperations($modelOperations)
@@ -239,17 +204,12 @@ class IndexPalletDeliveries extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Fulfilment' => [
-                            'title'       => __('No deliveries found for this shop'),
-                            'count'       => $parent->stats->number_pallet_deliveries
+                            'title' => __('No deliveries found for this shop'),
+                            'count' => $parent->stats->number_pallet_deliveries
                         ],
                         'Group' => [
-                            'title'       => __('No deliveries found for this group'),
-                            'count'       => $parent->fulfilmentStats->number_pallet_deliveries
-                        ],
-                        'Warehouse' => [
-                            'title'       => __('No pallet deliveries found for this warehouse'),
-                            'description' => __('This warehouse has not received any pallet deliveries yet'),
-                            'count'       => $parent->stats->number_pallet_deliveries
+                            'title' => __('No deliveries found for this group'),
+                            'count' => $parent->fulfilmentStats->number_pallet_deliveries
                         ],
                         'RecurringBill' => [
                             'title'       => __('No pallet deliveries found for this recurring bill'),
@@ -257,27 +217,30 @@ class IndexPalletDeliveries extends OrgAction
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'FulfilmentCustomer' => [
-                            'title'       => __($hasRentalAgreementActive ?
-                                __('We did not find any deliveries for this customer')
-                                : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
-                                : 'You have rental agreement but its ' . $parent->rentalAgreement->state->value)),
-                            'count'       => $parent->number_pallet_deliveries,
-                            'action'      => $hasRentalAgreementActive ? [] : (!$parent->rentalAgreement ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new rental agreement'),
-                                'label'   => __('New rental agreement'),
-                                'route'   => [
-                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
-                                    'parameters' => array_values(request()->route()->originalParameters())
-                                ]
-                            ] : false)
+                            'title'  => __(
+                                $hasRentalAgreementActive
+                                    ?
+                                    __('We did not find any deliveries for this customer')
+                                    : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
+                                    : 'You have rental agreement but its '.$parent->rentalAgreement->state->value)
+                            ),
+                            'count'  => $parent->number_pallet_deliveries,
+                            'action' => $hasRentalAgreementActive
+                                ? []
+                                : (!$parent->rentalAgreement ? [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('Create new rental agreement'),
+                                    'label'   => __('New rental agreement'),
+                                    'route'   => [
+                                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                                        'parameters' => array_values(request()->route()->originalParameters())
+                                    ]
+                                ] : false)
                         ]
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-
-
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
@@ -298,13 +261,10 @@ class IndexPalletDeliveries extends OrgAction
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
-                        ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+                    ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'estimated_delivery_date', label: __('estimated delivery date'), canBeHidden: false, sortable: true, searchable: true);
-            if ($parent instanceof Warehouse) {
-                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
-            }
         };
     }
 
@@ -316,88 +276,87 @@ class IndexPalletDeliveries extends OrgAction
     public function htmlResponse(LengthAwarePaginator $deliveries, ActionRequest $request): Response
     {
         $navigation = PalletDeliveriesTabsEnum::navigation();
-        if ($this->parent instanceof Group || $this->parent instanceof Warehouse) {
+        if ($this->parent instanceof Group) {
             unset($navigation[PalletDeliveriesTabsEnum::UPLOADS->value]);
         }
         $subNavigation = [];
 
-        $icon      = ['fal', 'fa-truck-couch'];
-        $title     = __('fulfilment deliveries');
+        $icon       = ['fal', 'fa-truck-couch'];
+        $title      = __('fulfilment deliveries');
         $afterTitle = null;
-        $iconRight = null;
-        $model     = null;
+        $iconRight  = null;
+        $model      = null;
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         = ['fal', 'fa-user'];
-            $title        = $this->parent->customer->name;
-            $iconRight    = [
+            $icon          = ['fal', 'fa-user'];
+            $title         = $this->parent->customer->name;
+            $iconRight     = [
                 'icon' => 'fal fa-truck-couch',
             ];
-            $afterTitle = [
+            $afterTitle    = [
 
-                'label'     => __('Deliveries')
+                'label' => __('Deliveries')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
-        } elseif ($this->parent instanceof Warehouse) {
-            $model = __('Goods in');
         }
 
-        if ($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
+
         return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
             [
-               'breadcrumbs' => $this->getBreadcrumbs(
-                   $request->route()->getName(),
-                   $request->route()->originalParameters()
-               ),
-               'title'       => __('pallet deliveries'),
-               'pageHead'    => [
-                   'title'         => $title,
-                   'model'         => $model,
-                   'afterTitle'    => $afterTitle,
-                   'iconRight'     => $iconRight,
-                   'icon'          => $icon,
-                   'subNavigation' => $subNavigation,
-                   'actions'       => [
-                       match (class_basename($this->parent)) {
-                           'FulfilmentCustomer' =>
-                               [
-                                   'type'          => 'button',
-                                   'style'         => 'create',
-                                   'tooltip'       => __('Create new delivery'),
-                                   'label'         => __('Delivery'),
-                                   'fullLoading'   => true,
-                                   'route'         => [
-                                       'method'     => 'post',
-                                       'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                       'parameters' => [$this->parent->id]
-                                       ]
-                               ],
-                           default => null
-                       }
-                   ]
-               ],
-               'data'        => PalletDeliveriesResource::collection($deliveries),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'title'       => __('pallet deliveries'),
+                'pageHead'    => [
+                    'title'         => $title,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
+                    'subNavigation' => $subNavigation,
+                    'actions'       => [
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                            [
+                                'type'        => 'button',
+                                'style'       => 'create',
+                                'tooltip'     => __('Create new delivery'),
+                                'label'       => __('Delivery'),
+                                'fullLoading' => true,
+                                'route'       => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                    'parameters' => [$this->parent->id]
+                                ]
+                            ],
+                            default => null
+                        }
+                    ]
+                ],
+                'data'        => PalletDeliveriesResource::collection($deliveries),
 
-               'tabs' => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
 
-               PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
-                   fn () => PalletDeliveriesResource::collection($deliveries)
-                   : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
+                PalletDeliveriesTabsEnum::DELIVERIES->value => $this->tab == PalletDeliveriesTabsEnum::DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection($deliveries)
+                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection($deliveries)),
 
-               PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
-                   fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))
-                   : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))),
+                PalletDeliveriesTabsEnum::UPLOADS->value => $this->tab == PalletDeliveriesTabsEnum::UPLOADS->value ?
+                    fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))
+                    : Inertia::lazy(fn () => PalletUploadsResource::collection(IndexPalletUploads::run($this->parent, PalletDeliveriesTabsEnum::UPLOADS->value))),
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix:PalletDeliveriesTabsEnum::DELIVERIES->value))
-        ->table(IndexPalletUploads::make()->tableStructure(prefix:PalletDeliveriesTabsEnum::UPLOADS->value));
+        )->table($this->tableStructure(parent: $this->parent, prefix: PalletDeliveriesTabsEnum::DELIVERIES->value))
+            ->table(IndexPalletUploads::make()->tableStructure(prefix: PalletDeliveriesTabsEnum::UPLOADS->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -436,17 +395,6 @@ class IndexPalletDeliveries extends OrgAction
                     [
                         'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
-                    ]
-                )
-            ),
-            'grp.org.warehouses.show.incoming.pallet_deliveries.index' => array_merge(
-                ShowWarehouse::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                     ]
                 )
             ),

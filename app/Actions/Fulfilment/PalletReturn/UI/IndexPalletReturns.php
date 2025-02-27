@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Fulfilment\WithPalletReturnSubNavigation;
 use App\Actions\Helpers\Upload\UI\IndexPalletReturnItemUploads;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -26,7 +25,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -45,9 +43,8 @@ class IndexPalletReturns extends OrgAction
     use WithFulfilmentShopAuthorisation;
 
 
-    private Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent;
+    private Fulfilment|FulfilmentCustomer|RecurringBill $parent;
     private ?string $restriction = null;
-    private ?string $type = null;
 
 
 
@@ -130,78 +127,8 @@ class IndexPalletReturns extends OrgAction
         return $this->handle($fulfilmentCustomer, PalletReturnsTabsEnum::RETURNS->value);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'all';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
 
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseHandling(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'handling';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseConfirmed(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'confirmed';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehousePicking(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'picking';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehousePicked(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'picked';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseDispatched(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'dispatched';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseCancelled(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent      = $warehouse;
-        $this->restriction = 'cancelled';
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnsTabsEnum::values());
-
-        return $this->handle($warehouse, PalletReturnsTabsEnum::RETURNS->value);
-    }
-
-    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|RecurringBill $parent): array
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn|RecurringBill $parent): array
     {
         $allowedStates = PalletReturnStateEnum::labels(forElements: true);
         $countStates   = PalletReturnStateEnum::count($parent, forElements: true);
@@ -209,9 +136,6 @@ class IndexPalletReturns extends OrgAction
         if ($this->restriction === 'new') {
             $allowedStates = array_filter($allowedStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
             $countStates   = array_filter($countStates, fn ($key) => in_array($key, ['in_process', 'submitted', 'confirmed']), ARRAY_FILTER_USE_KEY);
-        } elseif ($parent instanceof Warehouse && $this->restriction === 'all') {
-            $allowedStates = array_filter($allowedStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
-            $countStates   = array_filter($countStates, fn ($key) => !in_array($key, ['in_process', 'submitted']), ARRAY_FILTER_USE_KEY);
         }
 
         return [
@@ -225,7 +149,7 @@ class IndexPalletReturns extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|FulfilmentCustomer|RecurringBill $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -245,17 +169,12 @@ class IndexPalletReturns extends OrgAction
 
         if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
-        } elseif ($parent instanceof Warehouse) {
-            $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
         } elseif ($parent instanceof RecurringBill) {
             $queryBuilder->where('pallet_returns.recurring_bill_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
-        if ($this->type) {
-            $queryBuilder->where('type', $this->type);
-        }
 
         if ($this->restriction == 'all' || $this->restriction == 'new') {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -310,7 +229,7 @@ class IndexPalletReturns extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null, string $restriction = 'all'): Closure
+    public function tableStructure(Fulfilment|FulfilmentCustomer|RecurringBill $parent, ?array $modelOperations = null, $prefix = null, string $restriction = 'all'): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $restriction) {
             if ($prefix) {
@@ -337,11 +256,6 @@ class IndexPalletReturns extends OrgAction
                         'Fulfilment' => [
                             'title' => __('No pallet returns found for this shop'),
                             'count' => $parent->stats->number_pallet_returns
-                        ],
-                        'Warehouse' => [
-                            'title'       => __('No pallet returns found for this warehouse'),
-                            'description' => __('This warehouse has not received any pallet returns yet'),
-                            'count'       => $parent->stats->number_pallet_returns
                         ],
                         'RecurringBill' => [
                             'title'       => __('No pallet returns found for this recurring bill'),
@@ -371,9 +285,7 @@ class IndexPalletReturns extends OrgAction
     public function htmlResponse(LengthAwarePaginator $returns, ActionRequest $request): Response
     {
         $navigation = PalletReturnsTabsEnum::navigation();
-        if ($this->parent instanceof Warehouse) {
-            unset($navigation[PalletReturnsTabsEnum::UPLOADS->value]);
-        }
+
         $subNavigation = [];
 
         $icon       = ['fal', 'fa-sign-out-alt'];
@@ -395,11 +307,6 @@ class IndexPalletReturns extends OrgAction
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model         = __('Operations');
-            $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
-        } elseif ($this->parent instanceof Warehouse) {
-            $icon          = ['fal', 'fa-arrow-from-left'];
-            $model         = __('Goods Out');
-            $iconRight     = ['fal', 'fa-sign-out-alt'];
             $subNavigation = $this->getPalletReturnSubNavigation($this->parent, $request);
         }
 
@@ -491,22 +398,7 @@ class IndexPalletReturns extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.warehouses.show.dispatching.pallet-returns.index',
-            'grp.org.warehouses.show.dispatching.pallet-returns.confirmed.index',
-            'grp.org.warehouses.show.dispatching.pallet-returns.picking.index',
-            'grp.org.warehouses.show.dispatching.pallet-returns.dispatched.index',
-            'grp.org.warehouses.show.dispatching.pallet-returns.cancelled.index',
-            'grp.org.warehouses.show.dispatching.pallet-returns.picked.index' => array_merge(
-                ShowWarehouse::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
-                    ]
-                )
-            ),
+
 
             'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
