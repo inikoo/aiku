@@ -16,6 +16,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Feedback;
+use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\SalesChannel;
@@ -118,6 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop
+ * @property-read TaxCategory $taxCategory
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
@@ -263,6 +265,11 @@ class Invoice extends Model implements Auditable
     public function invoiceCategory(): BelongsTo
     {
         return $this->belongsTo(InvoiceCategory::class);
+    }
+
+    public function taxCategory(): BelongsTo
+    {
+        return $this->belongsTo(TaxCategory::class);
     }
 
 }
