@@ -22,6 +22,8 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { getStyles } from "@/Composables/styles"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faImages, faPlus } from "@fas"
 
 library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
 
@@ -90,6 +92,23 @@ const getRouteShow = () => {
     }
 }
 
+const getRouteCreate = () => {
+    const currentRoute = route().current()
+    if (currentRoute.includes('fulfilments') || route().params['fulfilment']) {
+        return route('grp.org.fulfilments.show.web.banners.create', {
+            organisation: route().params['organisation'],
+            fulfilment: route().params['fulfilment'],
+            website: route().params['website'],
+        });
+    } else {
+        return route('grp.org.shops.show.web.banners.create', {
+            organisation: route().params['organisation'],
+            shop: route().params['shop'],
+            website: route().params['website'],
+        });
+    }
+}
+
 const getBannersList = async (): Promise<void> => {
     try {
         isLoadingFetching.value = true
@@ -143,10 +162,8 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 
 onMounted(() => {
     if (props.modelValue.banner_slug && props.modelValue.banner_id) getDataBanner()
-    else getBannersList()
 })
 
-console.log(route().params)
 </script>
 
 <template>
@@ -155,11 +172,19 @@ console.log(route().params)
         <LoadingIcon class="text-4xl" />
     </div>
 
-    <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug">
-        <div class="flex justify-center border border-dashed border-gray-300 rounded-md py-8">
-            <Button label="Select banner" type="tertiary" @click="isModalOpen = true"></Button>
-        </div>
+    <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug" class="h-64">
+    <div class="flex justify-center gap-6 h-full border border-dashed border-gray-300 rounded-md p-6">
+        <a target="_blank" :href="getRouteCreate()" class="flex flex-col items-center justify-center w-40 h-40 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
+            <FontAwesomeIcon :icon="faPlus" class="text-4xl"></FontAwesomeIcon>
+            <span class="mt-2 text-sm font-medium">Create Banner</span>
+        </a>
+        <button @click="() => {isModalOpen = true , getBannersList()}" class="flex flex-col items-center justify-center w-40 h-40 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            <FontAwesomeIcon :icon="faImages" class="text-4xl"></FontAwesomeIcon>
+            <span class="mt-2 text-sm font-medium">Banner Gallery</span>
+        </button>
     </div>
+</div>
+
 
 
     <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data">

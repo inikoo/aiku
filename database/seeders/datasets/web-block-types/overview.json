@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "overview_aurora",
 	"code": "overview_aurora",
-	"name": "Overview Aurora",
+	"name": "Showcase (A)",
 	"icon": ["fal", "text"],
 	"data": {
 		"fieldValue": {
