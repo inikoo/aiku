@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "cta3",
 	"code": "cta3",
-	"name": "Call to action 3",
+	"name": "CTA (D)",
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {

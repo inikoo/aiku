@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "overview_2",
 	"code": "overview_2",
-	"name": "Overview 2",
+	"name": "Showcase (Simple)",
 	"icon": ["fal", "text"],
 	"data": {
 		"fieldValue": {

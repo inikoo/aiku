@@ -61,9 +61,9 @@ onMounted(() => {
       : props.webBlockTypes.data.filter((item) => item.scope === props.scope)
 
   data.value = filteredData.sort((a, b) => a.name.localeCompare(b.name))
-  active.value = data.value[0] || null
+  active.value = data.value[0] || null;
 })
-
+console.log(props)
 </script>
 
 <template>
@@ -76,6 +76,9 @@ onMounted(() => {
 				@click="onPickBlock(block)"
 				:class="'border-gray-200'">
 				<div class="h-3/4 w-full flex items-center justify-center rounded-t-lg bg-gray-50">
+
+
+
 					<Image
 						:src="block.screenshot"
 						class="max-h-full max-w-full object-contain"

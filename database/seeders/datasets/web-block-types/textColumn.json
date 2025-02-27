@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "text-column",
 	"code": "text-column",
-	"name": "text-column",
+	"name": "Text (Columns)",
 	"icon": ["fal", "text"],
 	"data": {
 		"fieldValue": {
