@@ -16,15 +16,12 @@ class DeliverBanner extends OrgAction
 {
     public function handle(Banner $banner): mixed
     {
-        $seconds = 86400;
-
-        return Cache::remember('banner_compiled_layout_'.$banner->ulid, $seconds, function () use ($banner) {
-            return $banner->compiled_layout;
-        });
+      
+            return $banner;
     }
 
-    public function jsonResponse(mixed $compiledLayout): mixed
+    public function jsonResponse(mixed $banner): mixed
     {
-        return $compiledLayout;
+        return $banner;
     }
 }

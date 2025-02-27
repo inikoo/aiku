@@ -84,7 +84,6 @@ onMounted(() => {
     window.removeEventListener('message', handleMessage);
   });
 });
-console.log('arya Test')
 
 </script>
 
