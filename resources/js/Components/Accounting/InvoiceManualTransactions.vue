@@ -126,7 +126,7 @@ const locale = inject('locale', aikuLocaleStructure)
         <!-- Column: quantity -->
         <template #cell(quantity)="{ item }">
 			<div class="flex justify-end">
-				<div v-if="item.edit_type == 'net' && status == 'current' &&  (item.data.type !== 'Pallet' && item.data.type !== 'Space')">
+				<div v-if="item.edit_type !== 'net'">
 					<NumberWithButtonSave v-model="item.quantity"   @onSave="(e)=>onUpdateQuantity(item.updateRoute, item.id,item.fulfilment_transaction_id, e)"/>
 				</div>
                 <div v-else class="text-gray-500">
