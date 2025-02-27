@@ -249,13 +249,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
-
-    public function jsonResponse(Invoice $invoice): InvoiceResource
-    {
-        return new InvoiceResource($invoice);
-    }
-
-
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (Invoice $invoice, array $routeParameters, string $suffix = null, $suffixIndex = '') {
