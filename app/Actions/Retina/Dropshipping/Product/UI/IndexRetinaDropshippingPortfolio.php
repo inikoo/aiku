@@ -14,6 +14,7 @@ use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -52,6 +53,22 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $shopifyUser = $request->user()->customer->shopifyUser;
+        $this->shopifyUser = $shopifyUser;
+
+        if ($fulfilmentCustomer = $shopifyUser->customer->fulfilmentCustomer) {
+            $this->parent = $fulfilmentCustomer;
+        } else {
+            $this->parent = $shopifyUser->customer;
+        }
+
+        $this->initialisation($request);
+
+        return $this->handle($shopifyUser);
+    }
+
+    public function inPlatform(Platform $platform, ActionRequest $request): LengthAwarePaginator
     {
         $shopifyUser = $request->user()->customer->shopifyUser;
         $this->shopifyUser = $shopifyUser;

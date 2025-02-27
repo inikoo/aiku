@@ -13,6 +13,7 @@ use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Fulfilment\RetinaDropshippingFulfilmentOrdersResources;
 use App\InertiaTable\InertiaTable;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\ShopifyUserHasFulfilment;
 use App\Services\QueryBuilder;
@@ -57,6 +58,15 @@ class IndexRetinaDropshippingOrders extends RetinaAction
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        $shopifyUser = $request->user()->customer->shopifyUser;
+
+        return $this->handle($shopifyUser);
+    }
+
+    public function inPlatform(Platform $platform, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
 

@@ -37,21 +37,38 @@ class GetRetinaDropshippingNavigation
             $groupNavigation['portfolios'] = [
                 'label' => __('Portfolio'),
                 'icon' => ['fal', 'fa-pallet'],
-                'root' => 'retina.dashboard.',
+                'root' => 'retina.dropshipping.portfolios.',
                 'route' => [
                     'name' => 'retina.dropshipping.portfolios.index'
                 ],
                 'topMenu' => [
-
+                    'subSections' => [
+                        [
+                            'label' => __('My Portfolio'),
+                            'icon' => ['fal', 'fa-cube'],
+                            'root' => 'retina.dropshipping.portfolios.index',
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.index'
+                            ]
+                        ],
+                        [
+                            'label' => __('All Products'),
+                            'icon' => ['fal', 'fa-cube'],
+                            'root' => 'retina.dropshipping.portfolios.products.index',
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.products.index'
+                            ]
+                        ]
+                    ]
                 ]
             ];
 
             $groupNavigation['clients'] = [
                 'label' => __('Clients'),
                 'icon' => ['fal', 'fa-user'],
-                'root' => 'retina.dashboard.',
+                'root' => 'retina.dropshipping.client.',
                 'route' => [
-                    'name' => 'retina.dashboard.show'
+                    'name' => 'retina.dropshipping.client.index'
                 ],
                 'topMenu' => [
 
@@ -61,9 +78,9 @@ class GetRetinaDropshippingNavigation
             $groupNavigation['orders'] = [
                 'label' => __('Orders'),
                 'icon' => ['fal', 'fa-box'],
-                'root' => 'retina.dashboard.',
+                'root' => 'retina.dropshipping.orders.',
                 'route' => [
-                    'name' => 'retina.dashboard.show'
+                    'name' => 'retina.dropshipping.orders.index'
                 ],
                 'topMenu' => [
 
@@ -86,7 +103,7 @@ class GetRetinaDropshippingNavigation
         ) {
             $platforms_navigation[$platform->slug] = [
                 'type'          => $platform->type,
-                'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser)
+                'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser, $platform)
             ];
         }
 
