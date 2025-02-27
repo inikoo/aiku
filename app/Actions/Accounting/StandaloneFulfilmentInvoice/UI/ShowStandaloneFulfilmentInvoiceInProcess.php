@@ -154,10 +154,10 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             'Org/Accounting/InvoiceManual',
             [
                 'title'       => __('invoice'),
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'subNavigation' => $subNavigation,
                     'model'         => __('invoice'),
