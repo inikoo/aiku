@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -32,6 +33,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -125,6 +127,17 @@ beforeEach(function () {
     }
 
     $this->storedItem = $storedItem;
+
+    $storedItemAudit = StoredItemAudit::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$storedItemAudit) {
+        $storedItemAudit = StoreStoredItemAudit::make()->action(
+            $this->customer->fulfilmentCustomer,
+            [
+                'warehouse_id' => $this->warehouse->id,
+            ]
+        );
+    }
+    $this->storedItemAudit = $storedItemAudit;
 
     $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
     if (!$rentalAgreement) {
@@ -559,6 +572,29 @@ test('index stored item audits', function () {
                         ->where('title', 'stored item audits')
                         ->etc()
             )
+            ->has('data');
+
+    });
+});
+
+test('show stored item audit', function () {
+    $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.show', [
+        $this->storedItemAudit->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItemsAudit')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', "'SKUs audit")
+                        ->etc()
+            )
+            ->has('pallets')
             ->has('data');
 
     });
