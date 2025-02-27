@@ -46,20 +46,19 @@
       }, 2000)
   }
 
-  
   </script>
   
   
   <template>
       <div class="py-3 mx-auto px-5 space-y-4">
           <!-- The banner -->
-          <div v-if="data.compiled_layout?.components?.length" class="mx-auto w-fit rounded-md overflow-hidden border border-gray-300 shadow">
+          <div v-if="data.compiled_layout?.components?.length && data.state != 'switch_off'" class="mx-auto w-fit rounded-md overflow-hidden border border-gray-300 shadow">
               <BannerPreview :data="data" />
           </div>
   
           <EmptyState v-else :data="{
-              title: trans('You do not have slides to show'),
-              description: trans('Create new slides in the workshop to get started'),
+              title: data.state != 'switch_off' ? trans('You do not have slides to show') : trans('You turn off the banner'),
+              description: data.state != 'switch_off' ? trans('Create new slides in the workshop to get started' ): trans('need re-publish the banner at workshop'),
             
           }" />
   

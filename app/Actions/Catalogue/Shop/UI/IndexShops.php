@@ -176,7 +176,7 @@ class IndexShops extends OrgAction
                             'tooltip' => __('new shop'),
                             'label'   => __('shop'),
                             'route'   => [
-                                'name'       => 'shops.create',
+                                'name'       => 'grp.org.shops.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,

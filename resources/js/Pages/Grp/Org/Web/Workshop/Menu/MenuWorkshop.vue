@@ -149,7 +149,11 @@ const autoSave = async (data: object) => {
 }
 
 const openFullScreenPreview = () => {
-  window.open(iframeSrc.value, "_blank")
+/*   window.open(iframeSrc.value, "_blank") */
+  const url = new URL(iframeSrc.value, window.location.origin);
+    url.searchParams.set('isInWorkshop', 'true');
+    url.searchParams.set('mode', 'iris');
+    window.open(url.toString(), '_blank');
 }
 
 const openWebsite = () => {

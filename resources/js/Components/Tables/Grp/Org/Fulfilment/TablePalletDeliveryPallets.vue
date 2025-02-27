@@ -11,7 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
@@ -133,6 +133,44 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 }
 
 
+// Section: Stored Item
+const selectedpallet = ref(null)
+const storedItemToEdit = ref()
+const isModalStoredItem = ref(false)
+const onDelete = (sendRoute: routeType, pallet_stored_items: {}[], data : { id : ''}) => {
+    const stored_items = [...pallet_stored_items].filter((item) => item.id != data.id)
+    const finalData = {}
+    for (const d of stored_items) finalData[d.id] = { quantity: d.quantity }
+    // console.log('finalData', finalData)
+
+    sendToServer(sendRoute, finalData)
+}
+
+const sendToServer = async (sendRoute: routeType, data : {}, replaceData?: boolean) => {
+    // console.log('-=-=-=-=', props.saveRoute.name, props.saveRoute.parameters)
+    router.post(
+		route(sendRoute.name, sendRoute.parameters),
+		replaceData ? data : { stored_item_ids: data },
+		{
+			preserveScroll: true,
+			preserveState: true,
+			onError: (e) => {
+				notify({
+					title: trans("Something went wrong"),
+					text: trans("Failed to update the stored items"),
+					type: "error"
+				})
+			},
+			onSuccess: (e) => {
+				isModalStoredItem.value = false
+			},
+			onBefore: () => {
+			},
+			onFinish: () => {
+			}
+		}
+	)
+}
 </script>
 
 <template>
@@ -207,15 +245,36 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item }">
-			<StoredItemProperty
-				v-if="props.state == 'in_process'"
+			<!-- <StoredItemProperty
+				
                 :pallet="item"
 				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :editable="props.state == 'in_process'"
                 @renderTable="() => emits('renderTableKey')"
 				prefixQuery="stored_items"
-            />
+            /> -->
+
+			<div v-if="props.state == 'in_process'" class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
+                <template v-if="item?.stored_items?.length">
+                    <div v-for="stored_item of item.stored_items" class="cursor-pointer">
+                        <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item.storeStoredItemRoute, item.stored_items, stored_item) }"
+                            :label="`${stored_item.reference}`"
+                            :closeButton="true"
+							:stringToColor="true"
+                            @click="() => (selectedpallet = item, storedItemToEdit = stored_item, isModalStoredItem = true)"
+                        >
+                            <template #label>
+                                <div class="whitespace-nowrap text-xs">
+                                    {{ stored_item.reference }} (<span class="font-light">{{ stored_item.quantity }}</span>)
+                                </div>
+                            </template>
+                        </Tag>
+                    </div>
+                </template>
+                
+                <Button icon="fal fa-plus" @click="() => (selectedpallet = item, isModalStoredItem = true)" :type="'dashed'" :size="'xs'"/>
+            </div>
 
 			<!-- State: Submitted and Confirmed -->
 			<div v-else-if="props.state == 'submitted' || props.state == 'confirmed'" class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
@@ -341,4 +400,20 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			</div>
 		</template>
 	</Table>
+	
+	<StoredItemProperty
+		:isModalOpened="isModalStoredItem"
+		:pallet="selectedpallet"
+		:saveRoute="selectedpallet?.storeStoredItemRoute"
+		:storedItemsRoute="storedItemsRoute"
+		:editable="props.state == 'in_process'"
+		@xxxrenderTable="() => emits('renderTableKey')"
+		@onCloseModal="isModalStoredItem = false"
+		@onSuccessSubmit="isModalStoredItem = false"
+		prefixQuery="stored_items"
+		:sendToServerOptions="{ preserveScroll: true, preserveState: true }"
+		:storedItemToEdit="storedItemToEdit"
+	>
+		<div />
+	</StoredItemProperty>
 </template>

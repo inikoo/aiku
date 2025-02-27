@@ -20,7 +20,7 @@ const props = defineProps <{
     pageHead: TSPageHeading
     title: string
     data: object
-    upload_spreadsheet: object
+    upload_spreadsheet?: object
 }>()
 
 const isModalUploadOpen = ref(false)
@@ -32,6 +32,7 @@ const isModalUploadOpen = ref(false)
     <PageHeading :data="pageHead">
       <template #other>
           <Button
+              v-if="upload_spreadsheet"
               @click="() => isModalUploadOpen = true"
               :label="trans('Attach file')"
               icon="fal fa-upload"
@@ -47,6 +48,7 @@ const isModalUploadOpen = ref(false)
             label: 'Upload your new products',
             information: 'The list of column file: customer_reference, notes, stored_items'
         }"
+        v-if="upload_spreadsheet"
         progressDescription="Adding Products to Supplier"        
         :upload_spreadsheet="upload_spreadsheet"
         

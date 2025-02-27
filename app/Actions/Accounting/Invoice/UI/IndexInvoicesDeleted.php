@@ -11,8 +11,6 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
-use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
-use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -52,11 +50,10 @@ class IndexInvoicesDeleted extends OrgAction
     use WithFulfilmentCustomerSubNavigation;
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
-    use WithInvoiceCategorySubNavigation;
 
 
-    private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop $parent;
-    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
+    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -89,8 +86,6 @@ class IndexInvoicesDeleted extends OrgAction
             $queryBuilder->where('invoices.order_id', $parent->id);
         } elseif ($parent instanceof Group) {
             $queryBuilder->where('invoices.group_id', $parent->id);
-        } elseif ($parent instanceof InvoiceCategory) {
-            $queryBuilder->where('invoices.invoice_category_id', $parent->id);
         } else {
             abort(422);
         }
@@ -141,7 +136,7 @@ class IndexInvoicesDeleted extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -257,8 +252,6 @@ class IndexInvoicesDeleted extends OrgAction
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Shop || $this->parent instanceof Fulfilment || $this->parent instanceof Organisation) {
             $subNavigation = $this->getInvoicesNavigation($this->parent);
-        } elseif ($this->parent instanceof InvoiceCategory) {
-            $subNavigation = $this->getInvoiceCategoryNavigation($this->parent);
         }
 
 
@@ -361,53 +354,6 @@ class IndexInvoicesDeleted extends OrgAction
     }
 
 
-    public function unpaid(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'unpaid';
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function unpaidInShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'unpaid';
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop);
-    }
-
-    public function paid(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'paid';
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    public function unpaidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'unpaid';
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
-    public function paidInFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'paid';
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
-
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
@@ -426,42 +372,6 @@ class IndexInvoicesDeleted extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment);
-    }
-
-    public function inGroup(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->bucket = 'all';
-        $this->parent = group();
-        $this->initialisationFromGroup(group(), $request);
-
-        return $this->handle(group());
-    }
-
-    public function inInvoiceCategory(Organisation $organisation, InvoiceCategory $invoiceCategory, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $invoiceCategory;
-        $this->initialisation($invoiceCategory->organisation, $request)->withTab(InvoicesTabsEnum::values());
-
-        return $this->handle($invoiceCategory, InvoicesTabsEnum::INVOICES->value);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoicesTabsEnum::values());
-
-        return $this->handle($fulfilmentCustomer, InvoicesTabsEnum::INVOICES->value);
-    }
-
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $customer;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle(parent: $customer);
     }
 
 
@@ -616,16 +526,6 @@ class IndexInvoicesDeleted extends OrgAction
                         'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index',
                         'parameters' => $routeParameters
                     ]
-                )
-            ),
-            'grp.org.accounting.invoice-categories.show.invoices.index' =>
-            array_merge(
-                ShowInvoiceCategory::make()->getBreadcrumbs($this->parent, $routeName, $routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
                 )
             ),
 

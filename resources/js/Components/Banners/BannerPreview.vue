@@ -3,6 +3,7 @@ import { useRangeFromNow } from '@/Composables/useFormatTime'
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
 import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
 import Image from '@/Components/Image.vue'
+import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{
     data: {

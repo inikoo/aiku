@@ -21,6 +21,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import ButtonPreviewEdit from '@/Components/Workshop/Tools/ButtonPreviewEdit.vue';
 import ButtonPreviewLogin from '@/Components/Workshop/Tools/ButtonPreviewLogin.vue';
+import { faChevronDoubleLeft } from '@fal';
 
 
 defineOptions({ layout: WebPreview })
@@ -41,7 +42,8 @@ const props = defineProps<{
 }>()
 
 const isPreviewLoggedIn = ref(false)
-const isPreviewMode = ref(false)
+const { mode } = route().params;
+const isPreviewMode = ref(mode != 'iris' ? false : true)
 const isInWorkshop = route().params.isInWorkshop || false
 /* const layout = reactive({
     header: { ...props.header?.data },
@@ -86,6 +88,7 @@ onMounted(() => {
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 provide('isPreviewMode', isPreviewMode)
 
+console.log(route().current())
 </script>
 
 

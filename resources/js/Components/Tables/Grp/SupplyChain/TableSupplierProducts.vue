@@ -34,6 +34,10 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
             return route(
                 'grp.supply-chain.suppliers.supplier_products.show',
                 [route().params["supplier"], supplierProduct.slug]);
+        case 'grp.supply-chain.agents.show.supplier_products.index':
+            return '#';
+        case 'grp.supply-chain.supplier_products.index':
+            return '#';
         default:
             return route(
                 'grp.org.procurement.org_supplier_products.show',

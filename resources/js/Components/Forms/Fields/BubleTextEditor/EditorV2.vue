@@ -754,7 +754,7 @@ const setVariabel = (value) => {
 }
 
 :deep(.editor-class h3) {
-    @apply text-2xl font-semibold;
+    @apply text-2xl font-semibold !important;
 }
 
 :deep(.editor-class ol),
@@ -806,6 +806,10 @@ const setVariabel = (value) => {
 
 :deep(.ProseMirror iframe) {
     @apply w-full h-auto max-w-[480px] min-h-[320px] aspect-video mr-6;
+}
+
+:deep(.ProseMirror h3) {
+    margin-block-end: 0em;
 }
 
 :deep(.ProseMirror img) {

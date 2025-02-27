@@ -307,7 +307,11 @@ const previewSrc =
 )
 
 const openFullScreenPreview = () => {
-	window.open(previewSrc + '&isInWorkshop=true', "_blank")
+	/* window.open(previewSrc + '&isInWorkshop=true', "_blank") */
+	const url = new URL(previewSrc, window.location.origin);
+    url.searchParams.set('isInWorkshop', 'true');
+    url.searchParams.set('mode', 'iris');
+    window.open(url.toString(), '_blank');
 }
 
 const setHideBlock = (block : Daum) => {
