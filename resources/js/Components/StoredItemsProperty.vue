@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { useForm, router } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -29,15 +29,33 @@ const props = defineProps<{
         preserveScroll?: boolean
         preserveState?: boolean
     }
+    isModalOpened?: boolean
+    storedItemToEdit?: {
+        id: string
+        quantity: number
+        reference: string
+    }
 }>()
 
 const emits = defineEmits<{
     (e: 'renderTable'): void
+    (e: 'onCloseModal'): void
+    (e: 'onSuccessSubmit'): void
 }>()
 
-const isModalOpen = ref(false)
-const form = useForm({ id: null, quantity: 1, oldData: null })
+// Section: modal condition
+const isModalOpen = ref(props.isModalOpened || false)
+watch(() => props.isModalOpened, (value) => {
+    isModalOpen.value = value
+})
 
+// Form
+const form = useForm({ id: props.storedItemToEdit?.id, quantity: props.storedItemToEdit?.quantity || 1, oldData: props.storedItemToEdit })
+watch(() => props.storedItemToEdit, (value) => {
+    form.id = value?.id
+    form.quantity = value?.quantity || 1
+    form.oldData = value
+})
 const setFormOnEdit = (data) => {
     form.id = data.id
     form.quantity = data.quantity
@@ -51,7 +69,7 @@ const setFormOnCreate = () => {
 }
 
 const onDelete = (data : { id : ''}) => {
-    const stored_items = [...props.pallet.stored_items].filter((item) => item.id != data.id)
+    const stored_items = [...props.pallet?.stored_items].filter((item) => item.id != data.id)
     const finalData = {}
     for (const d of stored_items) finalData[d.id] = { quantity: d.quantity }
     sendToServer(finalData)
@@ -73,7 +91,9 @@ const sendToServer = async (data : {}, replaceData?: boolean) => {
         },
         onSuccess: (e) => {
             emits('renderTable')
+            emits('onSuccessSubmit')
             isModalOpen.value = false
+            form.reset()
             form.errors = {}
         },
         onBefore: () => {
@@ -114,18 +134,19 @@ const sendToServer = async (data : {}, replaceData?: boolean) => {
                 <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
             </div>
         </slot>
-
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[500px]">
+        
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false, emits('onCloseModal'), form.reset()" width="w-[500px]">
             <slot name="modal" :form :sendToServer="sendToServer" :closeModal="() => isModalOpen = false" >
                 <div class="space-y-4">
                     <CreateStoredItems
                         :storedItemsRoute="storedItemsRoute"
                         :form="form"
                         @onSave="sendToServer"
-                        :stored_items="pallet.stored_items"
-                        @closeModal="isModalOpen = false"
+                        :stored_items="pallet?.stored_items"
+                        @closeModal="isModalOpen = false, emits('onCloseModal'), form.reset()"
                         :title
                         :prefixQuery
+                        :storedItemToEdit
                     />
                 </div>
             </slot>
