@@ -7,7 +7,7 @@
 
         <!-- Button: Download Table -->
         <slot name="tableDownload" class="">
-            <TableDownload v-if="exportLinks?.export?.route" :exportLinks="exportLinks" />
+            <!-- <TableDownload v-if="exportLinks?.export?.route" :exportLinks="exportLinks" /> -->
         </slot>
 
         <template v-if="hasPagination && meta?.total > 15">
