@@ -49,11 +49,11 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
     }
 
 
-    public function asController(Invoice $invoice, HistoricAsset $historicAsset, ActionRequest $request): InvoiceTransaction
+    public function asController(Invoice $invoice, HistoricAsset $historicAsset, ActionRequest $request)
     {
         $this->initialisationFromShop($invoice->shop, $request);
 
-        return $this->handle($invoice, $historicAsset, $this->validatedData);
+        $this->handle($invoice, $historicAsset, $this->validatedData);
     }
 
 
