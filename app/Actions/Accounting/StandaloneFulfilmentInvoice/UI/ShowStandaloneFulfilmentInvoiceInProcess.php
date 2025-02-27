@@ -158,10 +158,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($invoice, $request),
-                    'next'     => $this->getNext($invoice, $request),
-                ],
                 'pageHead'    => [
                     'subNavigation' => $subNavigation,
                     'model'         => __('invoice'),
@@ -348,7 +344,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 ),
             ),
 
-            'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+            'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show',
             => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -359,7 +355,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'invoice'])
                         ]
                     ],
@@ -428,75 +424,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
 
             default => []
-        };
-    }
-
-    public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
-    {
-        $previous = Invoice::onlyTrashed()->where('reference', '<', $invoice->reference)
-            ->where('invoices.shop_id', $invoice->shop_id)
-            ->orderBy('reference', 'desc')->first();
-
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Invoice $invoice, ActionRequest $request): ?array
-    {
-        $next = Invoice::onlyTrashed()->where('reference', '>', $invoice->reference)
-            ->where('invoices.shop_id', $invoice->shop_id)
-            ->orderBy('reference')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Invoice $invoice, string $routeName): ?array
-    {
-        if (!$invoice) {
-            return null;
-        }
-
-        // $isInvoice = $invoice->type === InvoiceTypeEnum::INVOICE;
-
-        return match ($routeName) {
-            'grp.org.accounting.invoices.show', 'grp.org.accounting.invoices.all_invoices.show', 'grp.org.accounting.invoices.unpaid_invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'invoice'      => $invoice->slug
-                    ]
-
-                ]
-            ],
-            'grp.org.fulfilments.show.operations.invoices.all_invoices.show',
-            'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.show',
-            'grp.org.fulfilments.show.operations.invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $invoice->organisation->slug,
-                        'fulfilment'   => $this->parent->slug,
-                        'invoice'      => $invoice->slug
-                    ]
-
-                ]
-            ],
-
-            //  'grp.org.fulfilments.show.crm.customers.show.refund.show'
-            'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
-                'label' => $invoice->reference,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation'       => $invoice->organisation->slug,
-                        'fulfilment'         => $invoice->shop->fulfilment->slug,
-                        'fulfilmentCustomer' => $this->parent->slug,
-                        'invoice'            => $invoice->slug
-                    ]
-                ]
-            ],
         };
     }
 }
