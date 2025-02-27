@@ -81,11 +81,14 @@ class EditBanner extends OrgAction
                             'icon'  => ['fal', 'fa-power-off'],
                             'label' => __('Shutdown banner'),
                             'route' => [
-                                'name'       => 'customer.models.banner.shutdown',
+                                'method' => 'patch',
+                                'name'       => 'grp.models.shop.website.banner.shutdown',
                                 'parameters' => [
-                                    'banner' => $banner->id
+                                    'shop' => $banner->shop_id,
+                                    'website' => $banner->website_id,
+                                    'banner' => $banner->id,
                                 ]
-                            ]
+                            ],
                         ],
                     ]
                 ]
@@ -102,13 +105,15 @@ class EditBanner extends OrgAction
                         'type'  => 'button',
                         'style' => 'delete',
                         'label' => __('delete banner'),
-                        'method' => 'delete',
                         'route' => [
-                            'name'       => 'customer.models.banner.delete',
+                            'method' => 'delete',
+                            'name'       => 'grp.models.shop.website.banner.delete',
                             'parameters' => [
-                                'banner' => $banner->id
+                                'shop' => $banner->shop_id,
+                                'website' => $banner->website_id,
+                                'banner' => $banner->id,
                             ]
-                        ]
+                        ],
                     ],
                 ]
             ]
@@ -155,8 +160,12 @@ class EditBanner extends OrgAction
                     'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'customer.models.banner.update',
-                            'parameters' => $banner->id
+                            'name'       => 'grp.models.shop.website.banner.update',
+                            'parameters' => [
+                                'shop' => $banner->shop_id,
+                                'website' => $banner->website_id,
+                                'banner' => $banner->id,
+                            ]
                         ],
                     ]
                 ],

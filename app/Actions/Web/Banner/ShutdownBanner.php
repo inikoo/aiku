@@ -12,34 +12,30 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
+use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateBanner extends OrgAction
+class ShutdownBanner extends OrgAction
 {
     use WithWebsiteEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(Banner $banner, array $modelData): Banner
     {
+        data_set($modelData, 'state', BannerStateEnum::SWITCH_OFF);
+        data_set($modelData, 'switch_off_at', now());
+        data_set($modelData, 'live_at', null);
+
         $this->update($banner, $modelData, ['data']);
 
         BannerRecordSearch::dispatch($banner);
 
         return $banner;
     }
-
-
-    public function rules(): array
-    {
-        return [
-            'name' => ['sometimes', 'required','string','max:255']
-        ];
-    }
-
 
     public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
