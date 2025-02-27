@@ -13,13 +13,11 @@ use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -49,7 +47,6 @@ class IndexPalletStoredItems extends OrgAction
 
     public function handle(Group|FulfilmentCustomer|Pallet|Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereWith('pallets.reference', $value);
@@ -91,14 +88,15 @@ class IndexPalletStoredItems extends OrgAction
                 'stored_items.reference as stored_item_reference',
                 'stored_items.slug as stored_item_slug',
                 'stored_items.state as stored_item_state',
+                'stored_items.name as stored_item_name',
                 'pallet_stored_items.quantity',
                 'pallet_stored_items.damaged_quantity',
                 'locations.code as location_code'
             ])
-            ->defaultSort('pallet_reference');
+            ->defaultSort($parent instanceof Pallet ? 'stored_item_reference' : 'pallet_reference');
 
 
-        return $queryBuilder->allowedSorts(['stored_item_reference', 'quantity', 'code','price','name','state', 'pallet_reference', 'slug'])
+        return $queryBuilder->allowedSorts(['stored_item_reference', 'quantity', 'code', 'price', 'name', 'state', 'pallet_reference', 'slug','stored_item_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -107,7 +105,6 @@ class IndexPalletStoredItems extends OrgAction
     public function tableStructure(Group|FulfilmentCustomer|Pallet|Warehouse $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
-
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -130,20 +127,27 @@ class IndexPalletStoredItems extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'FulfilmentCustomer' => [
-                            'title'         => __("No stored items found"),
-                            'count'         => $parent->number_pallets_with_stored_items,
-                            'description'   => __("No items stored in this customer")
+                            'title'       => __("No stored items found"),
+                            'count'       => $parent->number_pallets_with_stored_items,
+                            'description' => __("No items stored in this customer")
                         ],
                         default => []
                     }
                 )
-                ->column(key: 'state_icon', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
-                ->column(key: 'pallet_reference', label: __('pallet'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'stored_item_reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
-                // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('pallet_reference');
+                ->column(key: 'state_icon', label: '', canBeHidden: false, type: 'icon');
+            if (!$parent instanceof Pallet) {
+                $table->column(key: 'pallet_reference', label: __('pallet'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'stored_item_reference', label: __('Customer SKU'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Pallet) {
+                $table->column(key: 'stored_item_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
+            if (!$parent instanceof Pallet) {
+                $table->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->defaultSort($parent instanceof Pallet ? 'stored_item_reference' : 'pallet_reference');
         };
     }
 
@@ -167,12 +171,6 @@ class IndexPalletStoredItems extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
-    public function inApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
-
-        return $this->handle($pallet);
-    }
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {

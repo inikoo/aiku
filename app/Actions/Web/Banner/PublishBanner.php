@@ -95,7 +95,7 @@ class PublishBanner extends OrgAction
         UpdateBannerImage::run($banner);
 
 
-        Cache::put('banner_compiled_layout_'.$banner->ulid, $banner->compiled_layout, 86400);
+        Cache::put('banner_compiled_layout_'.$banner->slug, $banner->compiled_layout, 86400);
 
 
         return $banner;

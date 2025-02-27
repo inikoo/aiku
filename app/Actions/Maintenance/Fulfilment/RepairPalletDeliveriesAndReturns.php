@@ -39,23 +39,24 @@ class RepairPalletDeliveriesAndReturns
     {
         $this->fixPalletDispatchedAt();
 
+
         $this->fixPalletDeliveryRecurringBill();
+
         $this->fixPalletDeliveryTransactionsRecurringBill();
 
-        print "palletsStartDate\n";
+
         $this->palletsStartDate();
-        print "palletsEndDate\n";
+
+
         $this->palletsEndDate();
 
 
-        print "palletsValidateStartEndDate x\n";
         $this->palletsValidateStartEndDate();
 
-        print "fixPalletReturnTransactionsRecurringBill\n";
 
         $this->fixPalletReturnTransactionsRecurringBill();
 
-        print "fixNonRentalRecurringBillTransactions\n";
+
         $this->fixNonRentalRecurringBillTransactions();
 
 
@@ -101,11 +102,21 @@ class RepairPalletDeliveriesAndReturns
         foreach ($pallets as $pallet) {
             $palletReturn = $pallet->palletReturn;
             if (!$palletReturn and !$pallet->dispatched_at) {
-                //  print 'Pallet: '.$pallet->id.' dont have pallet return!!'."\n";
+                // print 'Pallet: '.$pallet->id.' dont have pallet return!!'."\n";
                 continue;
             }
 
-            if (!$pallet->dispatched_at or $palletReturn->dispatched_at or $palletReturn->dispatched_at->ne($pallet->dispatched_at)) {
+            if (!$palletReturn) {
+                print 'Pallet: '.$pallet->id.' dont have pallet return!!'."\n";
+                dd($pallet);
+                continue;
+            }
+
+
+            if (
+                !$pallet->dispatched_at or
+                $palletReturn->dispatched_at or
+                $palletReturn->dispatched_at->ne($pallet->dispatched_at)) {
                 $palletDate = 'no date';
                 if ($pallet->dispatched_at) {
                     $palletDate = $pallet->dispatched_at->format('Y-m-d');
@@ -124,8 +135,8 @@ class RepairPalletDeliveriesAndReturns
                 }
                 if ($palletDate != 'no date' and $palledReturnDate == 'no date') {
                     print 'Pallet: Big error Dispatch mismatch '.$pallet->id.' '.$palletDate.' -> '.$palledReturnDate."\n";
-                } elseif ($palletReturn->dispatched_at->ne($pallet->dispatched_at)) {
-                    print 'Pallet: Dispatch mismatch '.$pallet->id.' '.$palletDate.' -> '.$palledReturnDate."\n";
+                } elseif ($palletReturn->dispatched_at->toDateString() != $pallet->dispatched_at->toDateString()) {
+                    print 'Pallet: * Dispatch mismatch  '.$pallet->id.'  P  '.$pallet->dispatched_at.' -> '.$palletReturn->dispatched_at."\n";
                     // $palletReturn->update(['dispatched_at' => $pallet->dispatched_at]);
 
                 }
@@ -169,7 +180,7 @@ class RepairPalletDeliveriesAndReturns
                 $pallet = $transaction->item;
                 if ($pallet->dispatched_at) {
                     if (!$transaction->end_date) {
-                        print 'PED: '.$transaction->id.' add end day '.$pallet->dispatched_at->format('Y-m-d')."\n";
+                        print 'PED: Trans'.$transaction->id.' add   pallet id  '.$pallet->id.'  end day '.$pallet->dispatched_at->format('Y-m-d')."\n";
                         $transaction->update(['end_date' => $pallet->dispatched_at]);
                     } else {
                         $currentEndDay   = $transaction->end_date->startOfDay();
@@ -179,12 +190,12 @@ class RepairPalletDeliveriesAndReturns
                         }
 
                         if ($originalEndDate->ne($currentEndDay)) {
-                            print 'PEDx: '.$transaction->id.' '.$originalEndDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
+                            print '===========>PEDx: '.$transaction->id.' '.$originalEndDate->format('Y-m-d').' -> '.$currentEndDay->format('Y-m-d')."\n";
                             $transaction->update(['end_date' => $pallet->dispatched_at]);
                         }
                     }
                 } elseif ($transaction->end_date) {
-                    //    print 'PED: '.$transaction->id.' remove end day '.$transaction->end_date->format('Y-m-d')."\n";
+                    //print 'PED: '.$transaction->id.'  pallet id  '.$pallet->id.'  set end day '.$transaction->end_date->format('Y-m-d')." to recurring bill end date  ".$recurringBill->end_date." \n";
                     $transaction->update(['end_date' => $recurringBill->end_date]);
                 }
             }
@@ -248,7 +259,12 @@ class RepairPalletDeliveriesAndReturns
         $palletReturns = PalletReturn::whereNotNull('recurring_bill_id')->get();
         /** @var PalletReturn $palletReturn */
         foreach ($palletReturns as $palletReturn) {
-            $palletReturn->transactions->each(function ($transaction) use (
+            if ($palletReturn->recurringBill->status != RecurringBillStatusEnum::CURRENT) {
+                continue;
+            }
+
+
+            $palletReturn->transactions()->each(function ($transaction) use (
                 $palletReturn
             ) {
                 if (!$palletReturn->recurringBill->transactions()->where('fulfilment_transaction_id', $transaction->id)->exists()) {
@@ -258,7 +274,7 @@ class RepairPalletDeliveriesAndReturns
                         $palletReturn->recurringBill,
                         $transaction,
                         [
-                            'start_date'                => now(),
+                            'start_date'                => $transaction->created_at,
                             'quantity'                  => $transaction->quantity,
                             'pallet_return_id'          => $palletReturn->id,
                             'fulfilment_transaction_id' => $transaction->id
@@ -292,13 +308,13 @@ class RepairPalletDeliveriesAndReturns
 
     public function asCommand(Command $command): int
     {
-        try {
-            $this->handle();
-        } catch (Throwable $e) {
-            $command->error($e->getMessage());
+        //        try {
+        $this->handle();
+        //        } catch (Throwable $e) {
+        //          $command->error($e->getMessage());
 
-            return 1;
-        }
+        //          return 1;
+        //   }
 
         return 0;
     }
