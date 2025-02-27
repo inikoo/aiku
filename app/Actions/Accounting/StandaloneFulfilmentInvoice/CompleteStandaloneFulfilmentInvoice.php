@@ -43,13 +43,17 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
             foreach ($invoice->invoiceTransactions as $transaction) {
                 $this->update($transaction, [
                     'date'       => now(),
-                    'in_process' => false
+                    'in_process' => false,
+                    'grp_net_amount' => $transaction->net_amount * $transaction->grp_exchange,
+                    'org_net_amount' => $transaction->net_amount * $transaction->org_exchange
                 ]);
             }
 
             return $this->update($invoice, [
                 'date'       => now(),
-                'in_process' => false
+                'in_process' => false,
+                'grp_net_amount' => $invoice->net_amount * $invoice->grp_exchange,
+                'org_net_amount' => $invoice->net_amount * $invoice->org_exchange
             ]);
         });
 
