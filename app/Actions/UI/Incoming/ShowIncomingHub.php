@@ -10,18 +10,14 @@ namespace App\Actions\UI\Incoming;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowIncomingHub extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
 
     public function handle(Warehouse $warehouse): Warehouse
     {
