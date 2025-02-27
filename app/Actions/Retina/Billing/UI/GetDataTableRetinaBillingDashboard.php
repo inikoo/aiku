@@ -25,10 +25,10 @@ class GetDataTableRetinaBillingDashboard
     public function getData(Customer $customer): array
     {
         // get unpaid invoices
-        $invoices = $customer->invoices()->where('total_amount', '>', 0)->where('paid_at', null)->get();
+        $invoices = $customer->invoices()->where('in_process',false)->where('total_amount', '>', 0)->where('paid_at', null)->get();
         $data = [];
+        /** @var \App\Models\Accounting\Invoice $invoice */
         foreach ($invoices as $invoice) {
-            // dd($invoice->currency);
             $data[] = [
                 'reference'  => $invoice->reference,
                 'route' => route('retina.fulfilment.billing.invoices.show', $invoice->slug),
