@@ -4,7 +4,7 @@ import { trans } from 'laravel-vue-i18n'
 import Popover from "@/Components/Utils/Popover.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { computed, ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid'
+// import { v4 as uuidv4 } from 'uuid'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
@@ -19,9 +19,9 @@ const props = defineProps<{
     isLoading: boolean
 }>()
 
-const compRandomKey = computed(() => {
-    return uuidv4()
-})
+// const compRandomKey = computed(() => {
+//     return uuidv4()
+// })
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void

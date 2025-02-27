@@ -9,7 +9,6 @@ import { ref, watch } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPaintBrushAlt, faText } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { Obj } from '@popperjs/core'
 library.add(faPaintBrushAlt, faText)
 
 
