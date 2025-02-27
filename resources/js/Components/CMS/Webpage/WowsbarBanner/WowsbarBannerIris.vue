@@ -80,11 +80,10 @@ watch(() => props.fieldValue.banner_slug, getDataBanner);
   <div v-if="isLoading" class="h-36 flex flex-col space-y-2">
     <Skeleton width="100%" height="335px" />
   </div>
-  <div v-else-if="data?.type" class="relative" :style="getStyles(fieldValue?.container?.properties)">
+  <div v-else-if="data?.type && data.state != 'switch_off'"  :style="getStyles(fieldValue?.container?.properties)">
     <SliderLandscape v-if="data.type === 'landscape'" :data="data.compiled_layout" :production="true" :key="uuidv4()" />
     <SliderSquare v-else :data="data.compiled_layout" :production="true" :key="uuidv4()"/>
   </div>
-  <div v-else class="relative" :style="getStyles(fieldValue?.container?.properties)">
-    <EmptyState />
+  <div v-else >
   </div>
 </template>

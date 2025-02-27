@@ -13,6 +13,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { trans } from "laravel-vue-i18n"
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
 import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
+import EmptyState from '@/Components/Utils/EmptyState.vue'
 
 import { faPresentation, faLink, faExternalLink } from "@fal"
 import { faSpinnerThird } from '@fad'
@@ -72,7 +73,7 @@ const getRouteIndex = () => {
 
 const getRouteShow = () => {
     const currentRoute = route().current()
-    if (currentRoute.includes('fulfilments') || route().params['fulfilment'] ) {
+    if (currentRoute.includes('fulfilments') || route().params['fulfilment']) {
         return route('grp.org.fulfilments.show.web.banners.show', {
             organisation: route().params['organisation'],
             fulfilment: route().params['fulfilment'],
@@ -153,6 +154,7 @@ console.log(route().params)
     <div v-if="isLoading" class="flex justify-center h-36 items-center">
         <LoadingIcon class="text-4xl" />
     </div>
+
     <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug">
         <div class="flex justify-center border border-dashed border-gray-300 rounded-md py-8">
             <Button label="Select banner" type="tertiary" @click="isModalOpen = true"></Button>
@@ -160,22 +162,29 @@ console.log(route().params)
     </div>
 
 
+    <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data">
+        <div v-if="data.state != 'switch_off'" class="relative" :style="getStyles(modelValue?.container?.properties)">
+            <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
+            <SliderSquare v-else :data="data.compiled_layout" :production="true" />
 
-    <div v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative"
-        :style="getStyles(modelValue?.container?.properties)">
-
-        <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
-        <SliderSquare v-else :data="data.compiled_layout" :production="true" />
-
-        <!-- Icon: Edit -->
-        <div class="absolute top-2 right-2 flex space-x-2 z-10">
-            <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
-                @click="() => { isModalOpen = true, getBannersList() }" />
+            <!-- Icon: Edit -->
+            <div class="absolute top-2 right-2 flex space-x-2 z-10">
+                <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
+                    @click="() => { isModalOpen = true, getBannersList() }" />
+            </div>
         </div>
-    </div>
+        <div v-else class="relative">
+            <div class="absolute top-2 right-2 flex space-x-2 z-10">
+                <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
+                    @click="() => { isModalOpen = true, getBannersList() }" />
+            </div>
+            <EmptyState :data="{
+                title: data.state != 'switch_off' ? trans('You do not have slides to show') : trans('You turn off the banner'),
+                description: data.state != 'switch_off' ? trans('Create new slides in the workshop to get started') : trans('need re-publish the banner at workshop'),
 
-
-
+            }" />
+        </div>
+    </section>
 
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
