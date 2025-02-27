@@ -203,6 +203,7 @@ class StoreInvoice extends OrgAction
             'services_amount' => ['sometimes', 'required', 'numeric'],
             'tax_amount'      => ['required', 'numeric'],
             'footer'          => ['sometimes', 'string'],
+            'in_process'      => ['sometimes', 'boolean'],
 
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],

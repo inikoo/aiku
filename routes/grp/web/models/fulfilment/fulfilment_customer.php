@@ -6,6 +6,7 @@
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\StoreStandaloneFulfilmentInvoice;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\UpdateCustomerAddress;
 use App\Actions\CRM\WebUser\StoreWebUser;
@@ -59,6 +60,10 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');
+    });
+
+    Route::prefix('standalone-invoice')->name('standalone-invoice.')->group(function () {
+        Route::post('/', StoreStandaloneFulfilmentInvoice::class)->name('store');
     });
 
 

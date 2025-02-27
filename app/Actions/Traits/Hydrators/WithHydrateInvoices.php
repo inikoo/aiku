@@ -20,26 +20,26 @@ trait WithHydrateInvoices
 {
     public function getInvoicesStats(Group|Organisation|Shop|Customer|InvoiceCategory $model): array
     {
-        $numberInvoices = $model->invoices()->count();
+        $numberInvoices = $model->invoices()->where('invoices.in_process',false)->count();
         $stats          = [
             'number_invoices'              => $numberInvoices,
-            'number_invoices_type_invoice' => $model->invoices()->where('type', InvoiceTypeEnum::INVOICE)->count(),
-            'last_invoiced_at'             => $model->invoices()->max('date'),
+            'number_invoices_type_invoice' => $model->invoices()->where('invoices.in_process',false)->where('type', InvoiceTypeEnum::INVOICE)->count(),
+            'last_invoiced_at'             => $model->invoices()->where('invoices.in_process',false)->max('date'),
         ];
 
         if ($model instanceof Customer) {
-            $stats['sales_all'] = $model->invoices()->sum('net_amount');
-            $stats['sales_org_currency_all'] = $model->invoices()->sum('org_net_amount');
-            $stats['sales_grp_currency_all'] = $model->invoices()->sum('grp_net_amount');
+            $stats['sales_all'] = $model->invoices()->where('invoices.in_process',false)->sum('net_amount');
+            $stats['sales_org_currency_all'] = $model->invoices()->where('invoices.in_process',false)->sum('org_net_amount');
+            $stats['sales_grp_currency_all'] = $model->invoices()->where('invoices.in_process',false)->sum('grp_net_amount');
 
         }
 
         if ($model instanceof InvoiceCategory) {
-            $stats['number_invoiced_customers'] = $model->invoices()->distinct('customer_id')->count('customer_id');
+            $stats['number_invoiced_customers'] = $model->invoices()->where('invoices.in_process',false)->distinct('customer_id')->count('customer_id');
         }
 
         // unpaid hydrate
-        $unpaidQuery = $model->invoices()->where('type', InvoiceTypeEnum::INVOICE)->where('pay_status', InvoicePayStatusEnum::UNPAID);
+        $unpaidQuery = $model->invoices()->where('type', InvoiceTypeEnum::INVOICE)->where('invoices.in_process',false)->where('pay_status', InvoicePayStatusEnum::UNPAID);
 
         if ($model instanceof Customer || $model instanceof Shop) {
             $stats = array_merge($stats, [

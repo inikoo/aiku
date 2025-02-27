@@ -11,7 +11,7 @@
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\DeleteRefundInProcessInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Analytics\GetSectionRoute;
@@ -452,7 +452,7 @@ test('update invoice transaction', function (Invoice $invoice) {
 
 test('delete invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
     $invoice        = $invoiceTransaction->invoice;
-    DeleteInvoiceTransaction::make()->action($invoiceTransaction);
+    DeleteRefundInProcessInvoiceTransaction::make()->action($invoiceTransaction);
     $invoice->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->stats->number_invoice_transactions)->toBe(0);

@@ -67,7 +67,8 @@ class InvoicesResource extends JsonResource
             'organisation_slug' => $this->organisation_slug,
             'parent_invoice'    => $parentInvoice ? [
                 'slug'              => $parentInvoice->slug,
-            ] : null
+            ] : null,
+            'in_process'        => $this->in_process,
         ];
     }
 }
