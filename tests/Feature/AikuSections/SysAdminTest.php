@@ -9,6 +9,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Analytics\GetSectionRoute;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Helpers\Address\HydrateAddress;
 use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
@@ -39,6 +40,7 @@ use App\Actions\SysAdmin\User\UserSyncRoles;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
+use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -327,6 +329,110 @@ test('UI show dashboard org', function (User $user) {
             );
     });
 
+})->depends('SetUserAuthorisedModels command');
+
+
+test('UI create shop', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.shops.create',
+            [
+                $organisation->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('formData', 2)
+            ->has('pageHead');
+    });
+})->depends('SetUserAuthorisedModels command');
+
+test('UI edit shop', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $shop     = StoreShop::make()->action($organisation, Shop::factory()->definition());
+
+
+    $response = get(
+        route(
+            'grp.org.shops.show.settings.edit',
+            [
+                $organisation->slug,
+                $shop->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('formData')
+            ->has('pageHead');
+    });
+
+    return $shop;
+})->depends('SetUserAuthorisedModels command');
+
+test('UI show shop', function (User $user, Shop $shop) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $response = get(
+        route(
+            'grp.org.shops.show.dashboard',
+            [
+                $shop->organisation->slug,
+                $shop->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Shop')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('flatTreeMaps')
+            ->has('tabs')
+            ->has('pageHead');
+    });
+})->depends('SetUserAuthorisedModels command', 'UI edit shop');
+
+test('UI index shop', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $organisation = $user->authorisedOrganisations()->first();
+
+    $response = get(
+        route(
+            'grp.org.shops.index',
+            [
+                $organisation->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Shops')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('tabs')
+            ->has('shops')
+            ->has('pageHead');
+    });
 })->depends('SetUserAuthorisedModels command');
 
 
