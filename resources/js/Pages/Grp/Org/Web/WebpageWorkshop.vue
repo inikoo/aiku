@@ -56,7 +56,6 @@ const deleteBlockCancelToken = ref<Function | null>(null)
 
 const openedBlockSideEditor = ref<number | null>(null)
 provide('openedBlockSideEditor', openedBlockSideEditor)
-
 // Method: Add block
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
