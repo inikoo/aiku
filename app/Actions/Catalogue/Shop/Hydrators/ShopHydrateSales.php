@@ -37,7 +37,7 @@ class ShopHydrateSales
     public function handle(Shop $shop, ?array $intervals = null, $doPreviousIntervals = null): void
     {
         $stats     = [];
-        $queryBase = Invoice::where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $queryBase = Invoice::where('in_process',false)->where('shop_id', $shop->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
