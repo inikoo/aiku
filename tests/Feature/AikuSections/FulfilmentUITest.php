@@ -9,6 +9,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\StoreRefund;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\StoreStandaloneFulfilmentInvoice;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
@@ -38,6 +39,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -859,6 +861,60 @@ test('UI show fulfilment customer invoice sub navigation', function () {
         } else {
             $page->has('data');
         }
+    });
+});
+
+test('UI show fulfilment customer invoice sub navigation (tab in process)', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.index', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->slug,
+        'tab' => InvoicesTabsEnum::IN_PROCESS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
+        if (!app()->environment('production')) {
+            $page->has(InvoicesTabsEnum::IN_PROCESS->value);
+            $page->has('tabs');
+        } else {
+            $page->has('data');
+        }
+    });
+});
+
+test('UI show standalone invoice fulfilment customer', function () {
+    $standaloneInvoice = StoreStandaloneFulfilmentInvoice::make()->action($this->customer->fulfilmentCustomer, []);
+
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->slug,
+        $standaloneInvoice->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($standaloneInvoice) {
+        $page
+            ->component('Org/Accounting/InvoiceManual')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $standaloneInvoice->reference)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('order_summary')
+            ->has('exportPdfRoute')
+            ->has('box_stats')
+            ->has('invoice')
+            ->has('breadcrumbs', 4);
     });
 });
 
