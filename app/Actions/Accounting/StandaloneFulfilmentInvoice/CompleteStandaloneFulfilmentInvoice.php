@@ -26,28 +26,32 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Invoice;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class CompleteStandaloneFulfilmentInvoice extends OrgAction
 {
     use WithActionUpdate;
+
     /**
      * @throws \Throwable
      */
     public function handle(Invoice $invoice): Invoice
     {
-        foreach ($invoice->invoiceTransactions as $transaction) {
-            $transaction = $this->update($transaction, [
-                'date' => now(),
+        $invoice = DB::transaction(function () use ($invoice) {
+            foreach ($invoice->invoiceTransactions as $transaction) {
+                $this->update($transaction, [
+                    'date'       => now(),
+                    'in_process' => false
+                ]);
+            }
+
+            return $this->update($invoice, [
+                'date'       => now(),
                 'in_process' => false
             ]);
-        }
-
-        $invoice = $this->update($invoice, [
-            'date' => now(),
-            'in_process' => false
-        ]);
+        });
 
         ShopHydrateInvoices::dispatch($invoice->shop);
         OrganisationHydrateInvoices::dispatch($invoice->organisation);
@@ -72,6 +76,7 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
 
         return $invoice;
     }
+
     /**
      * @throws \Throwable
      */
@@ -85,10 +90,10 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
     public function htmlResponse(Invoice $invoice): RedirectResponse
     {
         return Redirect::route('grp.org.fulfilments.show.crm.customers.show.invoices.show', [
-            'organisation' => $invoice->organisation->slug,
-            'fulfilment'   => $invoice->shop->fulfilment->slug,
-            'fulfilmentCustomer'     => $invoice->customer->fulfilmentCustomer->slug,
-            'invoice'      => $invoice->slug
+            'organisation'       => $invoice->organisation->slug,
+            'fulfilment'         => $invoice->shop->fulfilment->slug,
+            'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
+            'invoice'            => $invoice->slug
         ]);
     }
 
