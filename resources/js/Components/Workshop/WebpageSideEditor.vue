@@ -135,6 +135,15 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div> -->
     <div class="max-h-[calc(100vh-220px)] h-fit min-w-[350px] max-w-[400px] transition-all overflow-y-auto flex flex-col pr-3">
+        <div class="full pr-3">
+        <Button class="mt-3" full type="dashed" @click="openModalBlockList">
+            <div class="text-gray-500">
+                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                {{ trans('Add block') }}
+            </div>
+        </Button>
+    </div>
+    
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable
                 :list="webpage.layout.web_blocks"
@@ -224,14 +233,7 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
 
         
     </div>
-    <div class="full pr-3">
-        <Button class="mt-3" full type="dashed" @click="openModalBlockList">
-            <div class="text-gray-500">
-                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                {{ trans('Add block') }}
-            </div>
-        </Button>
-    </div>
+ 
 
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />

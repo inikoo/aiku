@@ -409,7 +409,7 @@ class ShowInvoice extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::onlyTrashed()->where('reference', '<', $invoice->reference)
+        $previous = Invoice::where('reference', '<', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('reference', 'desc')->first();
 
@@ -418,7 +418,7 @@ class ShowInvoice extends OrgAction
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::onlyTrashed()->where('reference', '>', $invoice->reference)
+        $next = Invoice::where('reference', '>', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('reference')->first();
 

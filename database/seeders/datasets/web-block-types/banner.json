@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "banner",
 	"code": "banner",
-	"name": "Wowsbar banner",
+	"name": "Banner",
 	"icon": ["fal", "presentation"],
 	"data": {
 		"fieldValue": {

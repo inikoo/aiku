@@ -17,12 +17,14 @@ use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Helpers\Snapshot\StoreEmailSnapshot;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\Email;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\WebUser;
@@ -495,3 +497,79 @@ test('UI show dispatched emails', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI create mailshot', function () {
+    $response = $this->get(route('grp.org.shops.show.marketing.mailshots.create', [
+        $this->organisation,
+        $this->shop
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has(
+                'formData',
+                fn (AssertableInertia $page) => $page
+                    ->where('route', [
+                        'name' => 'grp.models.shop.mailshot.store',
+                        'parameters' => [
+                            'shop' => $this->shop->id
+                        ]
+                    ])
+                    ->etc()
+            )
+            ->has('breadcrumbs');
+    });
+});
+
+test('UI edit mailshot', function (Mailshot $mailShot) {
+    $response = $this->get(route('grp.org.shops.show.marketing.mailshots.edit', [
+        $this->organisation,
+        $this->shop,
+        $mailShot->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData')
+            ->has('breadcrumbs');
+    });
+})->depends('update mailshot');
+
+test('UI show mailshot in workshop', function (Mailshot $mailShot) {
+    $this->withoutExceptionHandling();
+    $email = Email::first();
+    $snapshot = StoreEmailSnapshot::make()->action($email, [
+        'builder' => EmailBuilderEnum::BLADE->value,
+        'layout' => [
+        ],
+    ], strict: false);
+
+    $mailShot->update([
+        'email_id' => $email->id
+    ]);
+
+    $response = $this->get(route('grp.org.shops.show.marketing.mailshots.workshop', [
+        $this->organisation,
+        $this->shop,
+        $mailShot->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($snapshot) {
+        $page
+            ->component('Org/Web/Workshop/Outbox/OutboxWorkshop')
+            ->has('title')
+            ->has('pageHead', fn (AssertableInertia $page) => $page->where('title', $snapshot->parent->subject))
+            ->has('snapshot')
+            ->has('builder')
+            ->has('imagesUploadRoute')
+            ->has('updateRoute')
+            ->has('loadRoute')
+            ->has('publishRoute')
+            ->has('formData', fn (AssertableInertia $page) => $page->where('fullLayout', true))
+            ->has('breadcrumbs');
+    });
+})->depends('update mailshot')->todo();

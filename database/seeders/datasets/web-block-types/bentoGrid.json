@@ -2,7 +2,7 @@
 	"scope": "webpage",
 	"slug": "bento-grid",
 	"code": "bento-grid-1",
-	"name": "Three column bento grid",
+	"name": "Showcase (Bento Grid)",
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {
