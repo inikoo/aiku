@@ -33,6 +33,8 @@ class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
 
         $invoiceTransaction = UpdateInvoiceTransaction::make()->action($invoiceTransaction, $modelData);
 
+        $invoiceTransaction = CalculateStandaloneFulfilmentInvoiceTransactionAmounts::make()->action($invoiceTransaction);
+        
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoiceTransaction->invoice);
 
         return $invoiceTransaction;
@@ -48,11 +50,11 @@ class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
     }
 
 
-    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): InvoiceTransaction
+    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request)
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
 
-        return $this->handle($invoiceTransaction, $this->validatedData);
+        $this->handle($invoiceTransaction, $this->validatedData);
     }
 
 
