@@ -184,6 +184,7 @@ use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Banner\DeleteBanner;
 use App\Actions\Web\Banner\PublishBanner;
+use App\Actions\Web\Banner\ShutdownBanner;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\Banner\UpdateBannerState;
@@ -500,10 +501,10 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
 
             Route::patch('', UpdateBanner::class)->name('update')->withoutScopedBindings();
 
-            Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
-            Route::delete('', DeleteBanner::class)->name('delete');
-            Route::patch('shutdown', PublishBanner::class)->name('shutdown');
-            Route::patch('switch-on', PublishBanner::class)->name('switch-on');
+            Route::patch('state/{state}', UpdateBannerState::class)->name('update-state')->withoutScopedBindings();
+            Route::delete('', DeleteBanner::class)->name('delete')->withoutScopedBindings();
+            Route::patch('shutdown', ShutdownBanner::class)->name('shutdown')->withoutScopedBindings();
+            Route::patch('switch-on', PublishBanner::class)->name('switch-on')->withoutScopedBindings();
         });
     });
 
