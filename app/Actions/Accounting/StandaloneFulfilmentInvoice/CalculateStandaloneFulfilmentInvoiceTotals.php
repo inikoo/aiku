@@ -54,8 +54,8 @@ class CalculateStandaloneFulfilmentInvoiceTotals extends OrgAction
 
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
-        CustomerHydrateInvoices::dispatch($invoice->fulfilmentCustomer)->delay($this->hydratorsDelay);
-        ShopHydrateInvoices::dispatch($invoice->fulfilment)->delay($this->hydratorsDelay);
+        CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
+        ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
 
         return $invoice;
     }
