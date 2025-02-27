@@ -117,6 +117,7 @@ class IndexInvoices extends OrgAction
                 'invoices.type',
                 'invoices.created_at',
                 'invoices.updated_at',
+                'invoices.in_process',
                 'invoices.slug',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
