@@ -77,7 +77,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
             ];
 
         $actions = [];
-        if (!app()->environment('production')) {
+        
             $actions[] = [
                 'type'    => 'button',
                 'style'   => 'secondary',
@@ -120,7 +120,6 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                         ]
                     ]
                 ];
-        }
 
         return Inertia::render(
             'Org/Accounting/InvoiceManual',
