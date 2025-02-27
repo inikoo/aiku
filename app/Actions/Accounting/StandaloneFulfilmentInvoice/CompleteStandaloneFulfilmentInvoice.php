@@ -92,6 +92,10 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
     {
         $invoice=$request->route()->parameter('invoice');
 
+        if(!$invoice->customer->fulfilmentCustomer->rentalAgreement)
+        {
+            $validator->errors()->add('invoice', 'Invoice customer must have rental agreement');
+        }
 
         if( !in_array($invoice->customer->status,[CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])  ){
             $validator->errors()->add('invoice', 'Invoice must be from an approved customer');
@@ -101,7 +105,7 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
             $validator->errors()->add('invoice', 'Invoice must be from a fulfilment shop');
         }
 
-        if($invoice->transactions->count() == 0){
+        if($invoice->invoiceTransactions->count() == 0){
             $validator->errors()->add('invoice', 'Invoice must have at least one transaction');
         }
 
