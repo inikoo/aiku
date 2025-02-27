@@ -32,6 +32,7 @@ const props = defineProps<{
   }
   invoices?: object
   refunds?: object
+  in_process?: {}
 }>()
 
 
@@ -45,6 +46,7 @@ if (props.tabs) {
       const components = {
         invoices: TableInvoices,
         refunds: TableRefunds,
+        in_process: TableInvoices
       };
       return components[currentTab.value];
   });

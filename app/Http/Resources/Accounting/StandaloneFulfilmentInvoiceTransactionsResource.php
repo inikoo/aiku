@@ -31,6 +31,14 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             $editType = $service->edit_type ?? null;
         }
 
+        $originalPrice = floatval($this->historic_asset_price);
+        $discountedPrice = floatval($this->net_amount);
+
+        $discountPercentage = 0;
+        if ($originalPrice > 0) {
+            $discountPercentage = (($originalPrice - $discountedPrice) / $originalPrice) * 100;
+        }
+
         return [
             'id'                        => $this->id,
             'in_process'                => $this->in_process,
@@ -51,6 +59,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             'asset_slug'                => $this->asset_slug,
             'currency_code'             => $this->currency_code,
             'edit_type'                 => $editType,
+            'discount'                  => $discountPercentage,
 
             'updateRoute'               => [
                 'name' => 'grp.models.standalone-invoice-transaction.update',
