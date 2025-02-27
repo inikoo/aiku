@@ -9,6 +9,7 @@
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\CompleteStandaloneFulfilmentInvoice;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\DeleteStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UpdateStandaloneFulfilmentInvoiceTransaction;
@@ -23,6 +24,7 @@ Route::name('invoice.')->prefix('invoice/{invoice:id}')->group(function () {
 });
 
 Route::name('standalone-invoice.')->prefix('standalone-invoice/{invoice:id}')->group(function () {
+    Route::post('complete', CompleteStandaloneFulfilmentInvoice::class)->name('complete');
     Route::post('transaction/{historicAsset:id}', StoreStandaloneFulfilmentInvoiceTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 

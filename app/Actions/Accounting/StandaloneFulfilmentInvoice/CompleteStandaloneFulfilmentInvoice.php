@@ -25,6 +25,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Invoice;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class CompleteStandaloneFulfilmentInvoice extends OrgAction
@@ -78,6 +80,16 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
         $this->initialisationFromShop($invoice->shop, $request);
 
         return $this->handle($invoice);
+    }
+
+    public function htmlResponse(Invoice $invoice): RedirectResponse
+    {
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.invoices.show', [
+            'organisation' => $invoice->organisation->slug,
+            'fulfilment'   => $invoice->shop->fulfilment->slug,
+            'fulfilmentCustomer'     => $invoice->customer->fulfilmentCustomer->slug,
+            'invoice'      => $invoice->slug
+        ]);
     }
 
 }

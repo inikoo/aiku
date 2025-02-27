@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Models\Billables\Service;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -23,6 +24,12 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $editType = null;
+        if ($this->model_type == 'Service') {
+            $service = Service::find($this->item_id);
+            $editType = $service->edit_type ?? null;
+        }
+
         return [
             'id'                        => $this->id,
             'in_process'                => $this->in_process,
@@ -42,6 +49,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             'asset_type'                => $this->asset_type,
             'asset_slug'                => $this->asset_slug,
             'currency_code'             => $this->currency_code,
+            'edit_type'                 => $editType    
             
         ];
     }

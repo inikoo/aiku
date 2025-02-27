@@ -142,7 +142,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     'key'   => 'send-invoice',
                     'route' => [
                         'method'     => 'post',
-                        'name'       => 'grp.models.invoice.send_invoice',
+                        'name'       => 'grp.models.standalone-invoice.complete',
                         'parameters' => [
                             'invoice' => $invoice->id
                         ]
