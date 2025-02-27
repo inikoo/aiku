@@ -78,12 +78,13 @@ console.log(props)
 				</div>
 
 				<div
-					class="absolute bottom-0 w-full h-1/4  to-transparent rounded-b-xl flex items-end font-semibold  text-sm p-2 truncate">
+					class="absolute bottom-0 w-full h-1/4  rounded-b-xl flex items-center justify-center font-semibold text-sm p-2 truncate">
 					{{ block.name }}
 				</div>
 			</div>
 		</div>
 	</div>
+
 
 
 </template>
