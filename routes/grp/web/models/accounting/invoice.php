@@ -8,7 +8,7 @@
 
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\DeleteRefundInProcessInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoice\CompleteStandaloneFulfilmentInvoice;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\DeleteStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
@@ -33,6 +33,6 @@ Route::name('standalone-invoice-transaction.')->prefix('standalone-invoice-trans
     Route::delete('delete', DeleteStandaloneFulfilmentInvoiceTransaction::class)->name('delete');
 });
 
-Route::name('invoice_transaction.')->prefix('invoice_transaction/{invoiceTransaction:id}')->group(function () {
-    Route::delete('delete', DeleteInvoiceTransaction::class)->name('delete');
+Route::name('refund_transaction.')->prefix('refund_transaction/{invoiceTransaction:id}')->group(function () {
+    Route::delete('delete', DeleteRefundInProcessInvoiceTransaction::class)->name('delete');
 });

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 27-02-2025-10h-51m
@@ -9,20 +10,13 @@
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
-use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
-use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStandaloneFulfilmentInvoiceTransactions extends OrgAction

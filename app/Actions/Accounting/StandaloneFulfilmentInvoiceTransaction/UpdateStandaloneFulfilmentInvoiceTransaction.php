@@ -12,29 +12,28 @@ namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoice\CalculateStandaloneFulfilmentInvoiceTotals;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Models\Accounting\InvoiceTransaction;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
     use WithOrderExchanges;
-    use WithNoStrictRules;
 
     public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
         if (Arr::exists($modelData, 'net_amount')) {
             $netAmount = Arr::get($modelData, 'net_amount');
-            $quantity = $netAmount / $invoiceTransaction->historicAsset->price;
+            $quantity  = $netAmount / $invoiceTransaction->historicAsset->price;
             data_set($modelData, 'quantity', $quantity);
         }
 
         $invoiceTransaction = UpdateInvoiceTransaction::make()->action($invoiceTransaction, $modelData);
 
-        $invoiceTransaction = CalculateStandaloneFulfilmentInvoiceTransactionAmounts::make()->action($invoiceTransaction);
-        
+        $invoiceTransaction = CalculateStandaloneFulfilmentInvoiceTransactionAmounts::run($invoiceTransaction);
+
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoiceTransaction->invoice);
 
         return $invoiceTransaction;
@@ -42,19 +41,25 @@ class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
-            'quantity'            => ['sometimes', 'numeric', 'min:0'],
-            'net_amount'          => ['sometimes', 'numeric'],
+        return [
+            'quantity'   => ['sometimes', 'numeric', 'min:0'],
+            'net_amount' => ['sometimes', 'numeric'],
         ];
-        return $rules;
     }
 
 
-    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request)
+    public function asController(InvoiceTransaction $invoiceTransaction, ActionRequest $request): InvoiceTransaction
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
 
         $this->handle($invoiceTransaction, $this->validatedData);
+
+        return $invoiceTransaction;
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return back();
     }
 
 

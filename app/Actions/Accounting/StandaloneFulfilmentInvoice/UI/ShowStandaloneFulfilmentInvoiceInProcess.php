@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 27-02-2025-09h-49m
@@ -9,22 +10,16 @@
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoice\UI;
 
 use App\Actions\Accounting\Invoice\UI\IsInvoiceUI;
-use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UI\IndexStandaloneFulfilmentInvoiceTransactions;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
-use App\Http\Resources\Accounting\InvoiceTransactionsResource;
-use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Accounting\StandaloneFulfilmentInvoiceTransactionsResource;
 use App\Models\Accounting\Invoice;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -60,66 +55,66 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
         $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
 
-            $serviceRoute = [
-                'name'       => 'grp.json.fulfilment.invoice.services.index',
-                'parameters' => [
-                    'fulfilment' => $invoice->shop->fulfilment->slug,
-                    'scope'      => $invoice->slug
-                ]
-            ];
+        $serviceRoute = [
+            'name'       => 'grp.json.fulfilment.invoice.services.index',
+            'parameters' => [
+                'fulfilment' => $invoice->shop->fulfilment->slug,
+                'scope'      => $invoice->slug
+            ]
+        ];
 
-            $productRoute = [
-                'name'       => 'grp.json.fulfilment.invoice.physical-goods.index',
-                'parameters' => [
-                    'fulfilment' => $invoice->shop->fulfilment->slug,
-                    'scope'      => $invoice->slug
-                ]
-            ];
+        $productRoute = [
+            'name'       => 'grp.json.fulfilment.invoice.physical-goods.index',
+            'parameters' => [
+                'fulfilment' => $invoice->shop->fulfilment->slug,
+                'scope'      => $invoice->slug
+            ]
+        ];
 
         $actions = [];
-        
-            $actions[] = [
-                'type'    => 'button',
-                'style'   => 'secondary',
-                'icon'    => 'fal fa-plus',
-                'key'     => 'add-service',
-                'label'   => __('add service'),
-                'tooltip' => __('Add single service'),
-                'route'   => [
-                    'name'       => 'grp.models.standalone-invoice.transaction.store',
+
+        $actions[] = [
+            'type'    => 'button',
+            'style'   => 'secondary',
+            'icon'    => 'fal fa-plus',
+            'key'     => 'add-service',
+            'label'   => __('add service'),
+            'tooltip' => __('Add single service'),
+            'route'   => [
+                'name'       => 'grp.models.standalone-invoice.transaction.store',
+                'parameters' => [
+                    'invoice' => $invoice->id
+                ]
+            ]
+        ];
+        $actions[]  =   [
+            'type'    => 'button',
+            'style'   => 'secondary',
+            'icon'    => 'fal fa-plus',
+            'key'     => 'add-physical-good',
+            'label'   => __('add physical good'),
+            'tooltip' => __('Add physical good'),
+            'route'   => [
+                'name'       => 'grp.models.standalone-invoice.transaction.store',
+                'parameters' => [
+                    'invoice' => $invoice->id
+                ]
+            ]
+        ];
+        $actions[] =
+            [
+                'type'  => 'button',
+                // 'style' => 'tertiary',
+                'label' => __('complete invoice'),
+                'key'   => 'send-invoice',
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.standalone-invoice.complete',
                     'parameters' => [
                         'invoice' => $invoice->id
                     ]
                 ]
             ];
-            $actions[]  =   [
-                'type'    => 'button',
-                'style'   => 'secondary',
-                'icon'    => 'fal fa-plus',
-                'key'     => 'add-physical-good',
-                'label'   => __('add physical good'),
-                'tooltip' => __('Add physical good'),
-                'route'   => [
-                    'name'       => 'grp.models.standalone-invoice.transaction.store',
-                    'parameters' => [
-                        'invoice' => $invoice->id
-                    ]
-                ]
-            ];
-            $actions[] =
-                [
-                    'type'  => 'button',
-                    // 'style' => 'tertiary',
-                    'label' => __('complete invoice'),
-                    'key'   => 'send-invoice',
-                    'route' => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.standalone-invoice.complete',
-                        'parameters' => [
-                            'invoice' => $invoice->id
-                        ]
-                    ]
-                ];
 
         return Inertia::render(
             'Org/Accounting/InvoiceManual',
@@ -201,7 +196,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     ]
                 ],
                 'box_stats'      => $this->getBoxStats($invoice),
-                
+
                 'service_list_route'       => $serviceRoute,
                 'physical_good_list_route' => $productRoute,
 

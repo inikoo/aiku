@@ -9,37 +9,23 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
-use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\DeleteRefundInProcessInvoiceTransaction;
 use App\Actions\Accounting\StandaloneFulfilmentInvoice\CalculateStandaloneFulfilmentInvoiceTotals;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Traits\WithOrderExchanges;
 use App\Models\Accounting\InvoiceTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
-    use WithOrderExchanges;
-    use WithNoStrictRules;
-
     public function handle(InvoiceTransaction $invoiceTransaction): void
     {
         $invoice = $invoiceTransaction->invoice;
-        DeleteInvoiceTransaction::make()->action($invoiceTransaction);
 
+
+        DeleteRefundInProcessInvoiceTransaction::make()->action($invoiceTransaction);
         $invoice->refresh();
-
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoice);
-        $invoiceTransaction;
-    }
 
-    public function rules(): array
-    {
-        $rules = [
-            'quantity'            => ['sometimes', 'numeric', 'min:0'],
-            'net_amount'          => ['sometimes', 'numeric'],
-        ];
-        return $rules;
     }
 
 
@@ -47,7 +33,7 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
     {
         $this->initialisationFromShop($invoiceTransaction->shop, $request);
 
-        $this->handle($invoiceTransaction, $this->validatedData);
+        $this->handle($invoiceTransaction);
     }
 
 

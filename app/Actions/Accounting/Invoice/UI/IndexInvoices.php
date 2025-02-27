@@ -291,7 +291,7 @@ class IndexInvoices extends OrgAction
             $afterTitle = [
                 'label' => __('invoices')
             ];
-            $actions[] = 
+            $actions[] =
             [
                 'type'  => 'button',
                 'style' => 'create',

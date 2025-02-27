@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 27-02-2025-11h-17m
@@ -50,7 +51,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             'asset_slug'                => $this->asset_slug,
             'currency_code'             => $this->currency_code,
             'edit_type'                 => $editType,
-            
+
             'updateRoute'               => [
                 'name' => 'grp.models.standalone-invoice-transaction.update',
                 'parameters' => [
@@ -65,7 +66,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
                 ],
                 'method' => 'delete'
             ]
-            
+
         ];
     }
 }

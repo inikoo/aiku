@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 27-02-2025-12h-15m
@@ -8,12 +9,12 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
-use App\Actions\OrgAction;
 use App\Models\Accounting\InvoiceTransaction;
-use App\Models\Fulfilment\RecurringBillTransaction;
+use Lorisleiva\Actions\Concerns\AsObject;
 
-class CalculateStandaloneFulfilmentInvoiceTransactionAmounts extends OrgAction
+class CalculateStandaloneFulfilmentInvoiceTransactionAmounts
 {
+    use AsObject;
     public function handle(InvoiceTransaction $invoiceTransaction): InvoiceTransaction
     {
         $grossAmount = $invoiceTransaction->historicAsset->price * $invoiceTransaction->quantity;
@@ -26,13 +27,5 @@ class CalculateStandaloneFulfilmentInvoiceTransactionAmounts extends OrgAction
         return $invoiceTransaction;
     }
 
-    public function action(InvoiceTransaction $invoiceTransaction, int $hydratorsDelay = 0): InvoiceTransaction
-    {
-        $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($invoiceTransaction->shop, []);
-
-        return $this->handle($invoiceTransaction);
-    }
 
 }

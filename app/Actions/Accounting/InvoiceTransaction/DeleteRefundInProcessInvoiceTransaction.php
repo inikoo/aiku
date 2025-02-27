@@ -28,6 +28,11 @@ class DeleteRefundInProcessInvoiceTransaction extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
+
+        if ($this->asAction) {
+            return;
+        }
+
         $invoiceTransaction = $request->route()->parameter('invoiceTransaction');
 
         if ($invoiceTransaction->invoice->type != InvoiceTypeEnum::REFUND) {
@@ -50,7 +55,9 @@ class DeleteRefundInProcessInvoiceTransaction extends OrgAction
 
     public function action(InvoiceTransaction $invoiceTransaction): void
     {
+        $this->asAction = true;
         $this->initialisationFromShop($invoiceTransaction->shop, []);
+
 
         $this->handle($invoiceTransaction);
     }
