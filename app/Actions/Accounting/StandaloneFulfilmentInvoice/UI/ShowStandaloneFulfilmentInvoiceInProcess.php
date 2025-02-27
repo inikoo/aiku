@@ -104,40 +104,38 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
         $actions = [];
         if (!app()->environment('production')) {
-            $actions[] =  $actions = [
-                [
-                    'type'    => 'button',
-                    'style'   => 'secondary',
-                    'icon'    => 'fal fa-plus',
-                    'key'     => 'add-service',
-                    'label'   => __('add service'),
-                    'tooltip' => __('Add single service'),
-                    'route'   => [
-                        'name'       => 'grp.models.standalone-invoice.transaction.store',
-                        'parameters' => [
-                            'invoice' => $invoice->id
-                        ]
+            $actions[] = [
+                'type'    => 'button',
+                'style'   => 'secondary',
+                'icon'    => 'fal fa-plus',
+                'key'     => 'add-service',
+                'label'   => __('add service'),
+                'tooltip' => __('Add single service'),
+                'route'   => [
+                    'name'       => 'grp.models.standalone-invoice.transaction.store',
+                    'parameters' => [
+                        'invoice' => $invoice->id
                     ]
-                ],
-                [
-                    'type'    => 'button',
-                    'style'   => 'secondary',
-                    'icon'    => 'fal fa-plus',
-                    'key'     => 'add_physical_good',
-                    'label'   => __('add physical good'),
-                    'tooltip' => __('Add physical good'),
-                    'route'   => [
-                        'name'       => 'grp.models.standalone-invoice.transaction.store',
-                        'parameters' => [
-                            'invoice' => $invoice->id
-                        ]
+                ]
+            ];
+            $actions[]  =   [
+                'type'    => 'button',
+                'style'   => 'secondary',
+                'icon'    => 'fal fa-plus',
+                'key'     => 'add-physical-good',
+                'label'   => __('add physical good'),
+                'tooltip' => __('Add physical good'),
+                'route'   => [
+                    'name'       => 'grp.models.standalone-invoice.transaction.store',
+                    'parameters' => [
+                        'invoice' => $invoice->id
                     ]
                 ]
             ];
             $actions[] =
                 [
                     'type'  => 'button',
-                    'style' => 'tertiary',
+                    // 'style' => 'tertiary',
                     'label' => __('complete invoice'),
                     'key'   => 'send-invoice',
                     'route' => [
@@ -151,7 +149,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Accounting/Invoice',
+            'Org/Accounting/InvoiceManual',
             [
                 'title'       => __('invoice'),
                 'breadcrumbs' => $this->getBreadcrumbs(
