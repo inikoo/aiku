@@ -23,7 +23,6 @@ const isLoading = ref(false);
 
 const getRouteShow = () => {
     const params = route().params;
-    console.log(params);
     if (params.isInWorkshop) {
         if (params.fulfilment) {
             return route("grp.org.fulfilments.show.web.banners.show", {
