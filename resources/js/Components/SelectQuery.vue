@@ -210,7 +210,7 @@ defineExpose({
         :close-on-select="props.closeOnSelect"
         :disabled="disabled"
         :searchable="props.searchable"
-        :caret="props.caret"
+        :caret="disabled ? false : props.caret"
         :canClear="props.canClear"
         :options="optionData"
         :mode="props.mode"

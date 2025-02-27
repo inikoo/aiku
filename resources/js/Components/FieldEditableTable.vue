@@ -93,7 +93,7 @@ const onChange = (value : Any) => {
             :maxValue="max"
         >
             <template #suffix>
-                <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
+                <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1">
                     <span v-if="get(pallet, ['form', 'processing'], false)">
                         <FontAwesomeIcon :icon="['fad', 'spinner-third']" class='animate-spin' fixed-width
                             aria-hidden="true" />
