@@ -27,8 +27,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Accounting\Invoice;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -90,22 +88,21 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $invoice=$request->route()->parameter('invoice');
+        $invoice = $request->route()->parameter('invoice');
 
-        if(!$invoice->customer->fulfilmentCustomer->rentalAgreement)
-        {
+        if (!$invoice->customer->fulfilmentCustomer->rentalAgreement) {
             $validator->errors()->add('invoice', 'Invoice customer must have rental agreement');
         }
 
-        if( !in_array($invoice->customer->status,[CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])  ){
+        if (!in_array($invoice->customer->status, [CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])) {
             $validator->errors()->add('invoice', 'Invoice must be from an approved customer');
         }
 
-        if($invoice->shop->type != ShopTypeEnum::FULFILMENT){
+        if ($invoice->shop->type != ShopTypeEnum::FULFILMENT) {
             $validator->errors()->add('invoice', 'Invoice must be from a fulfilment shop');
         }
 
-        if($invoice->invoiceTransactions->count() == 0){
+        if ($invoice->invoiceTransactions->count() == 0) {
             $validator->errors()->add('invoice', 'Invoice must have at least one transaction');
         }
 

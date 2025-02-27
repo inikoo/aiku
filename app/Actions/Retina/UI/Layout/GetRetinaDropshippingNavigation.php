@@ -39,7 +39,7 @@ class GetRetinaDropshippingNavigation
                 'icon' => ['fal', 'fa-pallet'],
                 'root' => 'retina.dashboard.',
                 'route' => [
-                    'name' => 'retina.dashboard.show'
+                    'name' => 'retina.dropshipping.portfolios.index'
                 ],
                 'topMenu' => [
 

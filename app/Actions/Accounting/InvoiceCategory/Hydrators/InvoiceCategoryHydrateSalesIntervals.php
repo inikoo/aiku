@@ -40,21 +40,21 @@ class InvoiceCategoryHydrateSalesIntervals
 
         $stats = [];
 
-        $queryBase = Invoice::where('in_process',false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_'
         );
 
-        $queryBase = Invoice::where('in_process',false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_grp_currency_'
         );
 
-        $queryBase = Invoice::where('in_process',false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('invoice_category_id', $invoiceCategory->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,

@@ -40,14 +40,14 @@ class InvoiceCategoryHydrateOrderingIntervals
     {
         $stats = [];
 
-        $queryBase = Invoice::where('in_process',false)->where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'invoices_'
         );
 
-        $queryBase = Invoice::where('in_process',false)->where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::REFUND)->selectRaw(' count(*) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('invoice_category_id', $invoiceCategory->id)->where('type', InvoiceTypeEnum::REFUND)->selectRaw(' count(*) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
