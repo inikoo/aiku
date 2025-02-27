@@ -343,7 +343,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 ),
             ),
 
-            'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+            'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show',
             => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -354,7 +354,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'invoice'])
                         ]
                     ],
