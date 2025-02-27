@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\StandaloneFulfilmentInvoice\UI;
 use App\Actions\Accounting\Invoice\UI\IsInvoiceUI;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UI\IndexStandaloneFulfilmentInvoiceTransactions;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -21,6 +22,7 @@ use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
+use App\Http\Resources\Accounting\StandaloneFulfilmentInvoiceTransactionsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -238,8 +240,8 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 ],
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                    fn () => StandaloneFulfilmentInvoiceTransactionsResource::collection(IndexStandaloneFulfilmentInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => StandaloneFulfilmentInvoiceTransactionsResource::collection(IndexStandaloneFulfilmentInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))

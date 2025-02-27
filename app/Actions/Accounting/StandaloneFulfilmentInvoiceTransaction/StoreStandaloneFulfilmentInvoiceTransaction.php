@@ -25,14 +25,14 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
     use WithOrderExchanges;
     use WithNoStrictRules;
 
-    public function handle(Invoice $invoice, HistoricAsset $model, array $modelData): InvoiceTransaction
+    public function handle(Invoice $invoice, HistoricAsset $historicAsset, array $modelData): InvoiceTransaction
     {
-        $amount = $model->price * Arr::get($modelData, 'quantity');
+        $amount = $historicAsset->price * Arr::get($modelData, 'quantity');
         data_set($modelData, 'tax_category_id', $invoice->tax_category_id);
         data_set($modelData, 'gross_amount', $amount);
         data_set($modelData, 'net_amount', $amount);
         data_set($modelData, 'in_process', true);
-        $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $model, $modelData);
+        $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $historicAsset, $modelData);
 
         CalculateStandaloneFulfilmentInvoiceTotals::run($invoice);
 
@@ -49,11 +49,11 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
     }
 
 
-    public function asController(Invoice $invoice, HistoricAsset $model, ActionRequest $request): InvoiceTransaction
+    public function asController(Invoice $invoice, HistoricAsset $historicAsset, ActionRequest $request): InvoiceTransaction
     {
         $this->initialisationFromShop($invoice->shop, $request);
 
-        return $this->handle($invoice, $model, $this->validatedData);
+        return $this->handle($invoice, $historicAsset, $this->validatedData);
     }
 
 
