@@ -284,6 +284,44 @@ test('UI Index suppliers', function () {
     });
 });
 
+test('UI Index suppliers product in supplier', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $response = $this->get(route('grp.supply-chain.suppliers.supplier_products.index', [
+        $supplier->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplierProducts')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('upload_spreadsheet')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Index suppliers product in agent', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $supplier->update(['agent_id' => Agent::first()->id]);
+    $response = $this->get(route('grp.supply-chain.agents.show.supplier_products.index', [
+        $supplier->agent->slug,
+        $supplier->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplierProducts')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('upload_spreadsheet')
+            ->has('breadcrumbs', 4);
+    });
+});
+
 test('UI show supplier', function () {
     $supplier = Supplier::first();
     $this->withoutExceptionHandling();
