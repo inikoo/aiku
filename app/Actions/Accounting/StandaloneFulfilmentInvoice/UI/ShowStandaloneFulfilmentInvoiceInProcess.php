@@ -38,42 +38,14 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
     use IsInvoiceUI;
     use WithFulfilmentCustomerSubNavigation;
 
-    private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
+    private FulfilmentCustomer $parent;
 
     public function handle(Invoice $invoice): Invoice
     {
         return $invoice;
     }
-
-
-    public function asController(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
-
-        return $this->handle($invoice);
-    }
-
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
-    {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(InvoiceTabsEnum::values());
-
-        return $this->handle($invoice);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Invoice $invoice, ActionRequest $request): Invoice
-    {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
-
-        return $this->handle($invoice);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
@@ -83,9 +55,10 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-        $subNavigation = [];
-        if ($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        $navigation = InvoiceTabsEnum::navigation();
+        unset($navigation[InvoiceTabsEnum::PAYMENTS->value]);
+
+        $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
 
             $serviceRoute = [
                 'name'       => 'grp.json.fulfilment.invoice.services.index',
@@ -101,8 +74,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                     'fulfilment' => $invoice->shop->fulfilment->slug,
                     'scope'      => $invoice->slug
                 ]
-                ];
-        }
+            ];
 
         $actions = [];
         if (!app()->environment('production')) {
@@ -175,7 +147,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => InvoiceTabsEnum::navigation()
+                    'navigation' => $navigation
                 ],
 
                 'order_summary' => [
