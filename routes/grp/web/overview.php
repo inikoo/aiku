@@ -12,7 +12,6 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\Billables\Charge\UI\IndexCharges;
-use App\Actions\Billables\Service\UI\IndexServices;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
@@ -38,6 +37,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\UI\Catalogue\Rentals\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\UI\Catalogue\Services\IndexFulfilmentServices;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
@@ -94,7 +94,7 @@ Route::name('billables.')->prefix('billables')->group(function () {
     // Route::get('/shipping', [IndexShippingZoneSchemas::class, 'inGroup'])->name('shipping.index');
     Route::get('/rentals', [IndexFulfilmentRentals::class, 'inGroup'])->name('rentals.index');
     Route::get('/charges', [IndexCharges::class, 'inGroup'])->name('charges.index');
-    Route::get('/services', [IndexServices::class, 'inGroup'])->name('services.index');
+    Route::get('/services', [IndexFulfilmentServices::class, 'inGroup'])->name('services.index');
 });
 
 Route::name('offer.')->prefix('offer')->group(function () {

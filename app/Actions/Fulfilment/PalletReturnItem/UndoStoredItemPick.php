@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\PalletReturnItem;
 
 use App\Actions\Fulfilment\PalletStoredItem\RunPalletStoredItemQuantity;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Models\Fulfilment\PalletReturnItem;
@@ -21,7 +21,7 @@ use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 
 class UndoStoredItemPick extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithActionUpdate;
 
 

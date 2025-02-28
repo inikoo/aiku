@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
@@ -32,7 +32,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInCustomer extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
 

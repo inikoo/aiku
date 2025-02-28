@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -24,7 +24,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInStoredItem extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private StoredItem $storedItem;
 

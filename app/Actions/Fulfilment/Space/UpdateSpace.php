@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\Space;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSpace extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithActionUpdate;
 
     public function handle(Space $space, array $modelData): Space

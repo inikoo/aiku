@@ -16,7 +16,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -41,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletDelivery extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
@@ -932,19 +932,19 @@ class ShowPalletDelivery extends OrgAction
                                 'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
                             ]
                         ],
-                        'header' => ['type', 'customer_reference', 'notes'],
+                        'header' => ['pallet_type', 'pallet_customer_reference', 'pallet_notes'],
                         'rows' => [
                             [
-                                'type' => 'Pallet',
-                                'customer_reference' => 'PALLET1',
-                                'notes' => 'notes',
+                                'pallet_type' => 'Pallet',
+                                'pallet_customer_reference' => 'PALLET1',
+                                'pallet_notes' => 'notes',
                             ],
                         ]
                     ],
                     'upload_spreadsheet'    => [
                         'event'           => 'action-progress',
                         'channel'         => 'grp.personal.'.$this->organisation->id,
-                        'required_fields' => ['customer_reference', 'notes', 'stored_items', 'type'],
+                        'required_fields' => ['pallet_customer_reference', 'pallet_notes', 'pallet_type'],
                         'template'        => [
                             'label' => 'Download template (.xlsx)',
                         ],
@@ -985,22 +985,22 @@ class ShowPalletDelivery extends OrgAction
                                 'label' => __('The valid type is ') . PalletTypeEnum::PALLET->value . ', ' . PalletTypeEnum::BOX->value . ', or ' . PalletTypeEnum::OVERSIZE->value . '. By default is ' . PalletTypeEnum::PALLET->value . '.'
                             ]
                         ],
-                        'header' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name'],
+                        'header' => ['pallet_type', 'pallet_customer_reference', 'pallet_notes', 'sku_reference', 'sku_quantity', 'sku_name'],
                         'rows' => [
                             [
-                                'type' => 'Pallet',
-                                'customer_reference' => 'PALLET1',
-                                'notes' => 'notes',
-                                'stored_item_reference' => 'SKU1',
-                                'quantity'  => 10,
-                                'stored_item_name' => 'SKU 1'
+                                'pallet_type' => 'Pallet',
+                                'pallet_customer_reference' => 'PALLET1',
+                                'pallet_notes' => 'notes',
+                                'sku_reference' => 'SKU1',
+                                'sku_quantity'  => 10,
+                                'sku_name' => 'SKU 1'
                             ],
                         ]
                     ],
                     'upload_spreadsheet'    => [
                         'event'           => 'action-progress',
                         'channel'         => 'grp.personal.'.$this->organisation->id,
-                        'required_fields' => ['type', 'customer_reference', 'notes', 'stored_item_reference', 'quantity', 'stored_item_name' ],
+                        'required_fields' => ['pallet_type', 'pallet_customer_reference', 'pallet_notes', 'sku_reference', 'sku_quantity', 'sku_name' ],
                         'template'        => [
                             'label' => 'Download template (.xlsx)',
                         ],
