@@ -1,14 +1,30 @@
 <script setup lang="ts">
+import { Collapse } from 'vue-collapsed'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle } from '@fas';
 import { faHeart } from '@far';
+import { ref } from 'vue'
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle);
 
 const props = withDefaults(defineProps<{
     navigations: Array<any>;
 }>(), {});
+
+const isOpen = ref<number | null>(null)
+
+const timeout = ref(null)
+const onMouseEnterMenu = () => {
+    if(timeout.value) {
+        clearTimeout(timeout.value)
+    }
+}
+const onMouseLeaveMenu = () => {
+    timeout.value = setTimeout(() => {
+        isOpen.value = null
+    }, 300)
+}
 </script>
 
 <template>
@@ -19,6 +35,8 @@ const props = withDefaults(defineProps<{
             <!-- Navigation List -->
             <nav class="relative flex text-sm text-gray-600 w-full">
                 <div v-for="(navigation, idxNavigation) in navigations" :key="idxNavigation"
+                    @mouseenter="() => (onMouseEnterMenu(), isOpen = idxNavigation)"
+                    @mouseleave="() => onMouseLeaveMenu()"
                     class="group w-full hover:bg-gray-100 hover:text-orange-500 p-4 flex items-center justify-center cursor-pointer transition duration-200">
                     <FontAwesomeIcon v-if="navigation.icon" :icon="navigation.icon" class="mr-2" />
                     <div v-if="navigation.type == 'multiple'" class="text-center">{{ navigation.label }}</div>
@@ -26,28 +44,33 @@ const props = withDefaults(defineProps<{
                     <a v-else :href="navigation?.link?.href" :target="navigation?.link?.target" class="text-center">{{ navigation.label }}</a>
                     
                     <FontAwesomeIcon v-if="navigation.type == 'multiple'" icon="fas fa-chevron-down"
-                        class="ml-2 text-[11px]" />
-
+                        class="ml-2 text-[11px]" fixed-width />
 
                     <!-- Sub-navigation -->
-                    <div v-if="navigation.subnavs"
-                        class="hidden group-hover:grid absolute left-0 top-full bg-white border border-gray-300 w-full grid-cols-4 gap-6 p-6 shadow-lg z-50">
-                        <div v-for="subnav in navigation.subnavs" :key="subnav.title" class="space-y-4">
-                            <div v-if="!subnav?.link?.href" class="font-semibold text-gray-700">{{ subnav.title }}</div>
-
-                            <!-- Sub-navigation Links -->
-                            <div class="flex flex-col gap-y-3">
-                                <div v-for="link in subnav.links" :key="link.url" class="flex items-center gap-x-3">
-                                    <FontAwesomeIcon :icon="link.icon || 'fas fa-chevron-right'"
-                                        class="text-[10px] text-gray-400" />
-                                    <a :href="link?.link?.href" :target="link?.link?.target"
-                                        class="text-gray-500 hover:text-orange-500 hover:underline transition duration-200">
-                                        {{ link.label }}
-                                    </a>
+                    <Collapse
+                        v-if="navigation.subnavs"
+                        :when="isOpen === idxNavigation"
+                        as="div"
+                        class="absolute left-0 top-full bg-white border border-gray-300 w-full shadow-lg"
+                        :class="isOpen === idxNavigation ? 'z-50' : 'z-0'"
+                    >
+                        <div class="grid grid-cols-4 gap-3 p-6">
+                            <div v-for="subnav in navigation.subnavs" :key="subnav.title" class="space-y-4">
+                                <div v-if="!subnav?.link?.href && subnav.title" class="font-semibold text-gray-700">{{ subnav.title }}</div>
+                                <!-- Sub-navigation Links -->
+                                <div class="flex flex-col gap-y-3">
+                                    <div v-for="link in subnav.links" :key="link.url" class="flex items-center gap-x-3">
+                                        <FontAwesomeIcon :icon="link.icon || 'fas fa-chevron-right'"
+                                            class="text-[10px] text-gray-400" />
+                                        <a :href="link?.link?.href" :target="link?.link?.target"
+                                            class="text-gray-500 hover:text-orange-500 hover:underline transition duration-200">
+                                            {{ link.label }}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Collapse>
                 </div>
             </nav>
         </div>
