@@ -145,7 +145,7 @@ class SendSesEmail
         } while ($attempt < $numberAttempts);
 
         DispatchedEmailHydrateEmailTracking::dispatch($dispatchedEmail);
-        OutboxHydrateEmails::dispatch($dispatchedEmail->outbox);
+        OutboxHydrateEmails::run($dispatchedEmail->outbox);
 
         return $dispatchedEmail;
     }

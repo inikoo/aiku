@@ -52,8 +52,7 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
     {
         $disable = true;
         $tooltip = 'add at least one transaction to complete';
-        if($invoice->invoiceTransactions()->count() > 0)
-        {
+        if ($invoice->invoiceTransactions()->count() > 0) {
             $disable = false;
             $tooltip = 'complete invoice';
         }

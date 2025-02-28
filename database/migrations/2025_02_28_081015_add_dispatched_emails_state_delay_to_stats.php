@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 28 Feb 2025 16:10:23 Malaysia Time, Kuala Lumpur, Malaysia
@@ -9,8 +10,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class () extends Migration {
     public function up(): void
     {
         if (!Schema::hasColumn('group_comms_stats', 'number_dispatched_emails_state_delay')) {
