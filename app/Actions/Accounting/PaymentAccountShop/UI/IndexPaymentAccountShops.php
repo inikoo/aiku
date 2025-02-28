@@ -19,7 +19,6 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -34,6 +33,7 @@ class IndexPaymentAccountShops extends OrgAction
 {
     use WithPaymentAccountSubNavigation;
     use WithAccountingSubNavigation;
+
     private PaymentAccount|Shop|Fulfilment $parent;
 
     public function handle(PaymentAccount|Shop|Fulfilment $parent, $prefix = null): LengthAwarePaginator
@@ -41,7 +41,9 @@ class IndexPaymentAccountShops extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('payment_accounts.code', $value)
-                        ->orWhereStartWith('shops.name', $value);
+                    ->orWhereAnyWordStartWith('payment_accounts.name', $value)
+                    ->orWhereStartWith('shops.code', $value)
+                    ->orWhereAnyWordStartWith('shops.name', $value);
             });
         });
 
@@ -73,10 +75,14 @@ class IndexPaymentAccountShops extends OrgAction
                 'shops.code as shop_code',
                 'shops.name as shop_name',
                 'shops.slug as shop_slug',
+                'payment_accounts.slug as payment_account_slug',
+                'payment_accounts.code as payment_account_code',
+                'payment_accounts.name as payment_account_name',
+
                 'payment_account_shop_stats.number_payments',
                 'payment_account_shop_stats.amount_successfully_paid',
             ])
-            ->allowedSorts(['shop_code', 'shop_name', 'number_payments', 'amount_successfully_paid'])
+            ->allowedSorts(['shop_code', 'shop_name', 'number_payments', 'amount_successfully_paid', 'payment_account_code', 'payment_account_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -95,26 +101,24 @@ class IndexPaymentAccountShops extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
-                        'title'       => __('no shops'),
-                        'count'       => $parent->stats->number_pas,
+                        'title' => __('no shops'),
+                        'count' => $parent->stats->number_pas,
                     ]
-                )
-                ->column(key: 'shop_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'amount_successfully_paid', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type:'number')
+                );
+
+            if ($parent instanceof PaymentAccount) {
+                $table->column(key: 'shop_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'payment_account_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+
+            $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount_successfully_paid', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->defaultSort('id');
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-        $this->canEdit = $request->user()->authTo("accounting.{$this->organisation->id}.edit");
-
-        return $request->user()->authTo("accounting.{$this->organisation->id}.view");
-    }
 
     public function jsonResponse(LengthAwarePaginator $paymentAccounts): AnonymousResourceCollection
     {
@@ -132,6 +136,7 @@ class IndexPaymentAccountShops extends OrgAction
         } elseif ($this->parent instanceof Fulfilment) {
             $subNavigation = $this->getSubNavigation($this->parent);
         }
+
         return Inertia::render(
             'Org/Accounting/PaymentAccountShops',
             [
@@ -142,16 +147,17 @@ class IndexPaymentAccountShops extends OrgAction
                 'title'       => __('Payment Account Shops'),
                 'pageHead'    => [
                     'subNavigation' => $subNavigation,
-                    'icon'      => ['fal', 'fa-store-alt'],
-                    'title'     => __('Payment Account Shops'),
+                    'icon'          => ['fal', 'fa-store-alt'],
+                    'title'         => __('Payment Account Shops'),
                 ],
-                'data'             => PaymentAccountShopsResource::collection($paymentAccountShops)
+                'data'        => PaymentAccountShopsResource::collection($paymentAccountShops)
 
 
             ]
         )->table($this->tableStructure($this->parent));
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
@@ -160,6 +166,7 @@ class IndexPaymentAccountShops extends OrgAction
         return $this->handle($shop);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
@@ -169,7 +176,7 @@ class IndexPaymentAccountShops extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request)
+    public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $paymentAccount;
         $this->initialisation($organisation, $request);
