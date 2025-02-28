@@ -175,7 +175,7 @@ class StoreInvoice extends OrgAction
 
         InvoiceRecordSearch::dispatch($invoice);
 
-        if($this->strict){
+        if ($this->strict) {
             SendInvoiceEmailToCustomer::dispatch($invoice);
         }
 
