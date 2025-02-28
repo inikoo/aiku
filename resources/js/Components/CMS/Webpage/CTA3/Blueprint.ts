@@ -41,6 +41,12 @@ export default {
 					type: "text",
 				},
 				{
+					key: ["container",'properties',"dimension"],
+					label : "Dimension", 
+					type: "dimension",
+					props_data: {},
+				},
+				{
 					key: ["container",'properties',"text"],
 					type: "textProperty",
 				},
