@@ -1,13 +1,14 @@
 <?php
-
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 21 Sep 2023 08:23:57 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 28-02-2025-08h-36m
+ * github: https://github.com/KirinZero0
+ * copyright 2025
+*/
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Exports\Pallets\PalletStoredItemTemplateExport;
 use App\Exports\Pallets\PalletTemplateExport;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -19,7 +20,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class DownloadPalletsTemplate
+class DownloadPalletStoredItemTemplate
 {
     use AsAction;
     use WithAttributes;
@@ -27,7 +28,7 @@ class DownloadPalletsTemplate
     public function handle(): BinaryFileResponse
     {
 
-        return Excel::download(new PalletTemplateExport(), 'pallets_template.xlsx');
+        return Excel::download(new PalletStoredItemTemplateExport(), 'pallet_stored_items_template.xlsx');
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery): BinaryFileResponse

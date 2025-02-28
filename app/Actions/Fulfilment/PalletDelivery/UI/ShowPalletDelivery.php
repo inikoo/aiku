@@ -1018,7 +1018,7 @@ class ShowPalletDelivery extends OrgAction
                                 ]
                             ],
                             'download' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets-stored-item.uploads.templates',
                                 'parameters' => [
                                     'organisation'       => $palletDelivery->organisation->slug,
                                     'fulfilment'         => $palletDelivery->fulfilment->slug,
