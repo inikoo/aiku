@@ -125,9 +125,11 @@ class ReceivePalletDelivery extends OrgAction
                 ]
             );
         }
-
+        $palletDelivery->refresh();
         $palletsInDelivery = $palletDelivery->pallets()
-            ->where('state', PalletStateEnum::RECEIVED);
+        ->where('state', PalletStateEnum::RECEIVED)
+        ->get();
+
         foreach ($palletsInDelivery as $pallet) {
             $startDate = now();
             StoreRecurringBillTransaction::make()->action(
