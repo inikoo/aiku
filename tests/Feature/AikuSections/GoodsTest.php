@@ -9,6 +9,8 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Goods\Ingredient\StoreIngredient;
+use App\Actions\Goods\Ingredient\UpdateIngredient;
 use App\Actions\Goods\MasterProductCategory\StoreMasterProductCategory;
 use App\Actions\Goods\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Goods\MasterShop\StoreMasterShop;
@@ -22,6 +24,7 @@ use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterProductCategoryOrderingIntervals;
 use App\Models\Goods\MasterProductCategoryOrderingStats;
@@ -127,11 +130,11 @@ test('activate draft stock', function (Stock $stock) {
         $stock,
         [
             'state' => StockStateEnum::ACTIVE
-        ]
+            ]
     );
 
     expect($stock->state)->toBe(StockStateEnum::ACTIVE)
-        ->and($this->group->goodsStats->number_stocks_state_in_process)->toBe(0)
+    ->and($this->group->goodsStats->number_stocks_state_in_process)->toBe(0)
         ->and($this->group->goodsStats->number_current_stocks)->toBe(2);
 
     return $stock;
@@ -144,6 +147,26 @@ test('delete stock family', function ($stockFamily) {
 
     return $deletedStockFamily;
 })->depends('create stock family');
+
+test('store ingredient', function () {
+    $ingredient = StoreIngredient::make()->action($this->group, [
+        'name' => 'test'
+    ]);
+
+    expect($ingredient)->toBeInstanceOf(Ingredient::class)
+        ->and($ingredient->name)->toBe('test');
+
+    return $ingredient;
+});
+
+test('update ingredient', function (Ingredient $ingredient) {
+    $ingredient = UpdateIngredient::make()->action($ingredient, [
+        'name' => 'update'
+    ]);
+
+    expect($ingredient)->toBeInstanceOf(Ingredient::class)
+        ->and($ingredient->name)->toBe('update');
+})->depends('store ingredient');
 
 test("UI Show Goods Dashboard", function () {
     $response    = get(
@@ -296,6 +319,55 @@ test("UI Create Stock in Group", function () {
             );
     });
 });
+
+test('UI index goods ingredients', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.goods.ingredients.index'
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Goods/Ingredients')
+            ->where('title', 'Ingredients')
+            ->has('breadcrumbs', 3)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Ingredients')
+                    ->etc()
+            );
+    });
+});
+
+test('UI show goods ingredients', function (Ingredient $ingredient) {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.goods.ingredients.show',
+            [
+                $ingredient->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($ingredient) {
+        $page
+            ->component('Goods/Ingredient')
+            ->where('title', 'ingredient')
+            ->has('breadcrumbs', 3)
+            ->has('tabs')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $ingredient->name)
+                    ->etc()
+            );
+    });
+})->depends('store ingredient');
 
 test("UI Edit Stock in Group", function () {
     $stock    = Stock::first();
