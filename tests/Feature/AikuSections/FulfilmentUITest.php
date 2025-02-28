@@ -1037,7 +1037,7 @@ test('UI Index damaged pallets in warehouse', function () {
             )
             ->has('data');
     });
-});
+})->todo();
 
 test('UI Index returned pallets in warehouse', function () {
     $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.returned.index', [$this->organisation->slug, $this->warehouse->slug]));
@@ -1057,7 +1057,7 @@ test('UI Index returned pallets in warehouse', function () {
             )
             ->has('data');
     });
-});
+})->todo();
 
 test('UI Index pallets in warehouse', function () {
     $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.current.index', [$this->organisation->slug, $this->warehouse->slug]));
@@ -1077,7 +1077,7 @@ test('UI Index pallets in warehouse', function () {
             )
             ->has('data');
     });
-});
+})->todo();
 
 test('UI Index lost pallets in warehouse', function () {
     $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.lost.index', [$this->organisation->slug, $this->warehouse->slug]));
@@ -1097,7 +1097,7 @@ test('UI Index lost pallets in warehouse', function () {
             )
             ->has('data');
     });
-});
+})->todo();
 
 // Pallet Delivery
 

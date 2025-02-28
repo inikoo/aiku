@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Web\Banner\DeleteBanner;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
@@ -311,7 +312,15 @@ test('update hello banner', function (Banner $banner) {
     expect($banner)->toBeInstanceOf(Banner::class)
         ->and($banner->name)->toBe('hello2')
         ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
+    return $banner;
 })->depends('store hello banner');
+
+test('delete hello banner', function (Banner $banner) {
+    $banner = DeleteBanner::make()->action($banner);
+
+    expect($banner)->toBeInstanceOf(Banner::class)
+        ->and($banner->trashed())->toBeTrue();
+})->depends('update hello banner');
 
 test('websites search', function () {
     $this->artisan('search:websites')->assertExitCode(0);

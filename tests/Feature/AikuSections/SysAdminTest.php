@@ -1205,6 +1205,26 @@ test('UI show dashboard group', function () {
     });
 });
 
+test('UI show goods dashboard group', function () {
+    $this->withoutExceptionHandling();
+
+    actingAs(User::first());
+
+    $response = get(
+        route(
+            'grp.goods.dashboard',
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Goods/GoodsDashboard')
+            ->has('breadcrumbs', 2)
+            ->has('pageHead', fn (AssertableInertia $page) => $page->where('title', 'goods strategy')->etc())
+            ->has('flatTreeMaps');
+    });
+});
+
 test('UI show dashboard group (tab invoice_shops)', function () {
     $this->withoutExceptionHandling();
 
