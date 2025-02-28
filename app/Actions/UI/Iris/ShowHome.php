@@ -8,9 +8,7 @@
 
 namespace App\Actions\UI\Iris;
 
-use App\Models\Web\Banner;
 use App\Models\Web\Website;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -23,41 +21,23 @@ class ShowHome
     public function handle(ActionRequest $request, $path = null): Response
     {
         /** @var Website $website */
-        $website   = $request->get('website');
-        $webpage      = $website->storefront;
-        $webPageLayout = $webpage->published_layout;
-
-        if ($path && !$webpage = $website->webpages()->where('url', $path)->first()) {
-            abort(404, 'Webpage not found');
-        }
-
-        $webBlocks = collect(Arr::get($webPageLayout, 'web_blocks'));
-        foreach ($webBlocks as $key => $webBlock) {
-            if (Arr::get($webBlock, 'type') === 'banner') {
-                $fieldValue = Arr::get($webBlock, 'web_block.layout.data.fieldValue', []);
-                $bannerId = Arr::get($fieldValue, 'banner_id');
-
-                if ($banner = Banner::find($bannerId)) {
-                    $fieldValue['compiled_layout'] = $banner->compiled_layout;
-
-                    data_set($webBlock, 'web_block.layout.data.fieldValue', $fieldValue);
-                }
-
-                $webBlocks[$key] = $webBlock;
+        $website   = request()->get('website');
+        if ($path) {
+            $webpage    = $website->webpages()->where('url', $path)->first();
+            if (!$webpage & $path !== '') {
+                abort(404, 'Webpage not found');
             }
         }
 
-        $webPageLayout['web_blocks'] = $webBlocks->toArray();
-
+        $home      = $website->storefront;
         return Inertia::render(
             'Home',
             [
                 'head' => [
-                    'title' => $webpage?->title,
-                    'description' => $webpage?->description,
+                    'title' => $webpage?->title ?? $home->title,
+                    'description' => $webpage?->description ?? $home->description,
                 ],
-                'blocks' => $webPageLayout,
-                'banners' => [],
+                'blocks' => $webpage?->published_layout ?? $home->published_layout,
                 'data' => $website,
             ]
         );
