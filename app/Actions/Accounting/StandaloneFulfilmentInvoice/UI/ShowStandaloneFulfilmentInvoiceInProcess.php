@@ -50,6 +50,12 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
+        $disable = true;
+        $tooltip = 'add at least one transaction to complete';
+        if ($invoice->invoiceTransactions()->count() > 0) {
+            $disable = false;
+            $tooltip = 'complete invoice';
+        }
         $navigation = InvoiceTabsEnum::navigation();
         unset($navigation[InvoiceTabsEnum::PAYMENTS->value]);
 
@@ -107,6 +113,8 @@ class ShowStandaloneFulfilmentInvoiceInProcess extends OrgAction
                 // 'style' => 'tertiary',
                 'label' => __('complete invoice'),
                 'key'   => 'send-invoice',
+                'disabled' => $disable,
+                'tooltip'  => $tooltip,
                 'route' => [
                     'method'     => 'post',
                     'name'       => 'grp.models.standalone-invoice.complete',

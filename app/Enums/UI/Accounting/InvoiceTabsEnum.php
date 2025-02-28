@@ -19,7 +19,7 @@ enum InvoiceTabsEnum: string
     case ITEMS                  = 'items';
     case HISTORY                = 'history';
     case PAYMENTS               = 'payments';
-
+    case EMAIL = 'email';
 
     public function blueprint(): array
     {
@@ -30,6 +30,13 @@ enum InvoiceTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
                 'icon'  => 'fal fa-credit-card',
+            ],
+
+            InvoiceTabsEnum::EMAIL => [
+                'align' => 'right',
+                'title' => __('email'),
+                'icon'  => 'fal fa-envelope',
+                'type'  => 'icon'
             ],
 
             InvoiceTabsEnum::HISTORY     => [
