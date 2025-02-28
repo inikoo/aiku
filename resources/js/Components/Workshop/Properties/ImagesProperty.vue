@@ -122,6 +122,11 @@ const blueprint = [
         }
     }, */
     {
+        key: ["alt"],
+        label: "Alt",
+        type: "text",
+    },
+    {
         key: ["object_fit"],
         label: "Object Image",
         type: "select",
