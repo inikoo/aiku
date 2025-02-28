@@ -14,6 +14,7 @@ use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
+use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Analytics\AikuScopedSection;
@@ -404,6 +405,43 @@ test('show banner', function () {
             ->has('tabs');
     });
 });
+
+test('edit banner', function () {
+    $oldState = $this->banner->state;
+    if ($this->banner != BannerStateEnum::LIVE->value) {
+        $this->banner->update([
+            'state' => BannerStateEnum::LIVE->value
+        ]);
+    }
+    $response = get(
+        route(
+            'grp.org.shops.show.web.banners.edit',
+            [
+                $this->organisation->slug,
+                $this->shop->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug,
+                'section' => 'properties'
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 1)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->banner->name)->etc()
+            )
+            ->has('formData');
+    });
+
+    $this->banner->update([
+        'state' => $oldState
+    ]);
+});
+
 
 test('show fulfilment banner workshop', function () {
     $this->withoutExceptionHandling();
