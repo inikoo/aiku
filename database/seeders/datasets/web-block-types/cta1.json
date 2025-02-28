@@ -1,12 +1,12 @@
 {
 	"slug": "cta",
 	"code": "cta1",
-	"name": "Call to action 1",
+	"name": "CTA (with Image)",
 	"scope": "webpage",
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {
-			"text": "<h2><span style='font-size: 14px; color: rgb(196, 0, 255)'><strong>Award winning support </strong></span></h2><h2><span style='color: rgb(255, 255, 255)'><strong>We’re here to help</strong></span></h2><p><span style='color: rgb(209, 213, 219)'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et, egestas tempus tellus etiam sed. Quam a scelerisque amet ullamcorper eu enim et fermentum, augue. Aliquet amet volutpat quisque ut interdum tincidunt duis.</span></p>",
+			"text": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
 			"button": {
 				"link": {
 					"type" : "internal",

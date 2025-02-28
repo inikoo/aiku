@@ -8,21 +8,23 @@
 
 namespace App\Actions\Web\Banner;
 
-use App\Models\CRM\Customer;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteBanner
+class DeleteBanner extends OrgAction
 {
+    use WithWebsiteEditAuthorisation;
     use AsAction;
     use WithAttributes;
 
-    public bool $isAction = false;
-
-    public function handle(Customer $customer, Banner $banner): Banner
+    public function handle(Banner $banner): Banner
     {
         $banner->delete();
 
@@ -30,32 +32,28 @@ class DeleteBanner
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
+    public function action(Banner $banner): Banner
     {
-        if ($this->isAction) {
-            return true;
-        }
-
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
+        return $this->handle($banner);
     }
 
-    public function action(Customer $customer, Banner $banner): Banner
+    public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        return $this->handle($customer, $banner);
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($banner);
     }
-
-    public function asController(Banner $banner, ActionRequest $request): Banner
-    {
-        $request->validate();
-
-        return $this->handle($request->get('customer'), $banner);
-    }
-
 
     public function htmlResponse(Banner $banner): RedirectResponse
     {
         return redirect()->route(
-            'customer.banners.banners.index',
+            'grp.org.shops.show.web.banners.index',
+            [
+                'organisation' => $banner->organisation->slug,
+                'shop' => $banner->shop->slug,
+                'website' => $banner->website->slug,
+                'banner' => $banner->slug
+            ]
         );
     }
 }

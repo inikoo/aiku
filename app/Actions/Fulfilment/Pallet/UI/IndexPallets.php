@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
@@ -31,7 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPallets extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithPalletsSubNavigation;
 
 

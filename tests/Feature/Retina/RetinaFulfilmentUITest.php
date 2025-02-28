@@ -13,6 +13,8 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
@@ -22,15 +24,21 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
+use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
+use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\getJson;
 
 uses()->group('ui');
 
@@ -108,6 +116,29 @@ beforeEach(function () {
     }
 
     $this->palletReturn = $palletReturn;
+
+    $storedItem = StoredItem::first();
+    if (!$storedItem) {
+        data_set($storeData, 'reference', 'stored-item-ref');
+
+        $storedItem = StoreStoredItem::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->storedItem = $storedItem;
+
+    $storedItemAudit = StoredItemAudit::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$storedItemAudit) {
+        $storedItemAudit = StoreStoredItemAudit::make()->action(
+            $this->customer->fulfilmentCustomer,
+            [
+                'warehouse_id' => $this->warehouse->id,
+            ]
+        );
+    }
+    $this->storedItemAudit = $storedItemAudit;
 
     $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
     if (!$rentalAgreement) {
@@ -270,6 +301,22 @@ test('index pallet deliveries', function () {
     });
 });
 
+test('index pallet deliveries (tabs upload)', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.index', [
+        'tab' => PalletDeliveriesTabsEnum::UPLOADS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDeliveries')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(PalletDeliveriesTabsEnum::UPLOADS->value);
+    });
+});
+
 test('show pallet delivery (pallet tab)', function () {
     // $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
@@ -288,6 +335,96 @@ test('show pallet delivery (pallet tab)', function () {
             ->has('tabs');
 
     });
+});
+
+test('show pallet delivery (attachments tab)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [
+        $this->palletDelivery->slug,
+        'tab' => PalletDeliveryTabsEnum::ATTACHMENTS->value
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('show pallet delivery state in process', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $palletDelivery = $this->palletDelivery;
+
+    if ($palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
+        $palletDelivery->update(['state' => PalletDeliveryStateEnum::IN_PROCESS]);
+    }
+
+    $palletDelivery->fulfilmentCustomer->rentalAgreement->update([
+        'pallets_limit' => 10,
+    ]);
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [$this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    $palletDelivery->update(['state' => PalletDeliveryStateEnum::CONFIRMED]);
+    $palletDelivery->fulfilmentCustomer->rentalAgreement->update([
+        'pallets_limit' => null,
+    ]);
+});
+
+test('show pallet delivery state booked in or booking in', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+
+    $palletDelivery = $this->palletDelivery;
+
+    if ($palletDelivery->state != PalletDeliveryStateEnum::BOOKED_IN || $palletDelivery->state != PalletDeliveryStateEnum::BOOKING_IN) {
+        $palletDelivery->update(['state' => PalletDeliveryStateEnum::BOOKED_IN]);
+    }
+
+    $response = $this->get(route('retina.fulfilment.storage.pallet_deliveries.show', [$this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    $palletDelivery->update(['state' => PalletDeliveryStateEnum::CONFIRMED]);
 });
 
 test('show pallet delivery (services tab)', function () {
@@ -531,6 +668,29 @@ test('index stored item audits', function () {
     });
 });
 
+test('show stored item audit', function () {
+    $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items_audits.show', [
+        $this->storedItemAudit->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItemsAudit')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', "'SKUs audit")
+                        ->etc()
+            )
+            ->has('pallets')
+            ->has('data');
+
+    });
+});
+
 test('show dropshipping dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.dropshipping.platform.dashboard'));
@@ -558,7 +718,7 @@ test('index pricing', function () {
             ->has('assets');
 
     });
-});
+})->todo();
 
 test('index pricing (goods)', function () {
     // $this->withoutExceptionHandling();
@@ -689,3 +849,147 @@ test('show next bill', function () {
 
     });
 });
+
+
+test('show pallet return with stored item', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.storage.pallet_returns.with-stored-items.show', [
+        $this->palletReturn->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('box_stats')
+            ->has('notes_data')
+            ->has('tabs');
+
+    });
+});
+
+test('show stored item', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.show', [
+        $this->storedItem->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has('showcase')
+            ->has('tabs');
+    });
+});
+
+test('show stored item (tab pallets)', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.show', [
+        $this->storedItem->slug,
+        'tab' => StoredItemTabsEnum::PALLETS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has(StoredItemTabsEnum::PALLETS->value)
+            ->has('tabs');
+    });
+});
+
+test('show stored item (tab audits)', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.show', [
+        $this->storedItem->slug,
+        'tab' => StoredItemTabsEnum::AUDITS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has(StoredItemTabsEnum::AUDITS->value)
+            ->has('tabs');
+    });
+});
+
+test('show stored item (tab movements)', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.show', [
+        $this->storedItem->slug,
+        'tab' => StoredItemTabsEnum::MOVEMENTS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has(StoredItemTabsEnum::MOVEMENTS->value)
+            ->has('tabs');
+    });
+});
+
+test('show stored item (tab history)', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.itemised_storage.stored_items.show', [
+        $this->storedItem->slug,
+        'tab' => StoredItemTabsEnum::HISTORY->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaStoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has(StoredItemTabsEnum::HISTORY->value)
+            ->has('tabs');
+    });
+});
+
+// test('UI json get pallet return whole pallet', function () {
+//     $this->withoutExceptionHandling();
+//     $response = getJson(route('retina.json.fulfilment.return.physical-goods.index', [
+//         $this->palletReturn->slug
+//     ]));
+//     $response->assertStatus(200)
+//         ->assertJsonStructure([
+//             'data',
+//         ]);
+// });

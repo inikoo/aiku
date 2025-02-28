@@ -9,6 +9,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\StoreRefund;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\StoreStandaloneFulfilmentInvoice;
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
@@ -38,6 +39,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -420,7 +422,7 @@ test('UI Index fulfilment assets', function () {
 });
 
 test('UI Index fulfilment physical goods', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.catalogue.outers.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.physical_goods.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value)->toBe('physical_goods');
 
@@ -862,6 +864,60 @@ test('UI show fulfilment customer invoice sub navigation', function () {
     });
 });
 
+test('UI show fulfilment customer invoice sub navigation (tab in process)', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.index', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->slug,
+        'tab' => InvoicesTabsEnum::IN_PROCESS->value
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Accounting/Invoices')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $this->customer->name)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 4);
+        if (!app()->environment('production')) {
+            $page->has(InvoicesTabsEnum::IN_PROCESS->value);
+            $page->has('tabs');
+        } else {
+            $page->has('data');
+        }
+    });
+});
+
+test('UI show standalone invoice fulfilment customer', function () {
+    $standaloneInvoice = StoreStandaloneFulfilmentInvoice::make()->action($this->customer->fulfilmentCustomer, []);
+
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show', [
+        $this->organisation->slug, $this->fulfilment->slug, $this->customer->slug,
+        $standaloneInvoice->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($standaloneInvoice) {
+        $page
+            ->component('Org/Accounting/InvoiceManual')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', $standaloneInvoice->reference)
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('tabs')
+            ->has('order_summary')
+            ->has('exportPdfRoute')
+            ->has('box_stats')
+            ->has('invoice')
+            ->has('breadcrumbs', 4);
+    });
+});
+
 
 test('UI show recurring bills in fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.recurring_bills.show', [
@@ -1165,6 +1221,53 @@ test('UI show pallet return', function () {
     });
 });
 
+test('UI show pallet return with stored items', function () {
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->palletReturn->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('interest')
+            ->has('updateRoute')
+            ->has('deleteServiceRoute')
+            ->has('deletePhysicalGoodRoute')
+            ->has('routeStorePallet')
+            ->has('upload_spreadsheet')
+            ->has('attachmentRoutes')
+            ->has('data')
+            ->has('box_stats')
+            ->has('notes_data')
+            ->has('stored_items_count')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+
+test('UI json get pallet return whole pallet', function () {
+    $this->withoutExceptionHandling();
+    $response = getJson(route('grp.json.pallet-return.pallets.index', [
+        $this->palletReturn->slug
+    ]));
+    $response->assertStatus(200)
+        ->assertJsonStructure([
+            'data',
+        ]);
+});
+
 test('UI show pallet return (physical goods tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=physical_goods');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -1335,7 +1438,7 @@ test('UI create service', function () {
 // Physical Goods
 
 test('UI show physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PhysicalGood')
@@ -1353,7 +1456,7 @@ test('UI show physical goods', function () {
 });
 
 test('UI edit physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -1371,7 +1474,7 @@ test('UI edit physical goods', function () {
 });
 
 test('UI create physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')

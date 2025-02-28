@@ -73,6 +73,7 @@ class IndexInvoices extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Invoice::class);
         $queryBuilder->where('invoices.type', InvoiceTypeEnum::INVOICE);
+        $queryBuilder->whereNot('invoices.in_process', true);
 
         if ($this->bucket) {
             if ($this->bucket == 'unpaid') {
@@ -117,6 +118,7 @@ class IndexInvoices extends OrgAction
                 'invoices.type',
                 'invoices.created_at',
                 'invoices.updated_at',
+                'invoices.in_process',
                 'invoices.slug',
                 'currencies.code as currency_code',
                 'currencies.symbol as currency_symbol',
@@ -279,7 +281,7 @@ class IndexInvoices extends OrgAction
         $afterTitle = null;
         $iconRight  = null;
         $model      = null;
-        $actions    = null;
+        $actions    = [];
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $icon       = ['fal', 'fa-user'];
@@ -289,6 +291,20 @@ class IndexInvoices extends OrgAction
             ];
             $afterTitle = [
                 'label' => __('invoices')
+            ];
+            $actions[] =
+            [
+                'type'  => 'button',
+                'style' => 'create',
+                'label' => __('Create standalone invoice'),
+                'fullLoading'   => true,
+                'route' => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.standalone-invoice.store',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $this->parent->id
+                    ]
+                ]
             ];
         } elseif ($this->parent instanceof CustomerClient) {
             $iconRight  = $icon;
@@ -339,6 +355,10 @@ class IndexInvoices extends OrgAction
                         InvoicesTabsEnum::REFUNDS->value => $this->tab == InvoicesTabsEnum::REFUNDS->value
                             ? fn () => InvoicesResource::collection(IndexRefunds::run($this->parent, InvoicesTabsEnum::REFUNDS->value))
                             : Inertia::lazy(fn () => InvoicesResource::collection(IndexRefunds::run($this->parent, InvoicesTabsEnum::REFUNDS->value))),
+
+                        InvoicesTabsEnum::IN_PROCESS->value => $this->tab == InvoicesTabsEnum::IN_PROCESS->value
+                            ? fn () => InvoicesResource::collection(IndexInvoicesInProcess::run($this->parent, InvoicesTabsEnum::IN_PROCESS->value))
+                            : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoicesInProcess::run($this->parent, InvoicesTabsEnum::IN_PROCESS->value))),
             ];
         } else {
             $data = [
@@ -371,9 +391,11 @@ class IndexInvoices extends OrgAction
 
         if ($this->tab && !app()->environment('production')) {
             $inertiaRender->table($this->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::INVOICES->value))
-                ->table(IndexRefunds::make()->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::REFUNDS->value));
+                ->table(IndexRefunds::make()->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::REFUNDS->value))
+                ->table(IndexInvoicesInProcess::make()->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::IN_PROCESS->value));
         } else {
-            $inertiaRender = $inertiaRender->table($this->tableStructure(parent: $this->parent));
+            $inertiaRender = $inertiaRender->table($this->tableStructure(parent: $this->parent))
+                                            ->table(IndexInvoicesInProcess::make()->tableStructure(parent: $this->parent, prefix: InvoicesTabsEnum::IN_PROCESS->value));
         }
         return $inertiaRender;
     }

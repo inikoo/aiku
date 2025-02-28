@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStoredItemAuditForPallet extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private Fulfilment|Location|FulfilmentCustomer $parent;
@@ -262,7 +262,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show' =>
             array_merge(
-                ShowPallet::make()->getBreadcrumbs($storedItemAudit->fulfilmentCustomer, $routeName, $routeParameters),
+                ShowPallet::make()->getBreadcrumbs($storedItemAudit->fulfilmentCustomer, $routeParameters),
                 $headCrumb(
                     [
                         'index' => [

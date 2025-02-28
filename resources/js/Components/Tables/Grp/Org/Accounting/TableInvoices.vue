@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Icon from '@/Components/Icon.vue'
+import { trans } from 'laravel-vue-i18n'
 library.add(faFileInvoiceDollar, faCircle,faCheckCircle,faQuestionCircle)
 
 
@@ -37,8 +38,11 @@ function invoiceRoute(invoice: Invoice) {
                 [route().params['organisation'], route().params['fulfilment'], invoice.slug])
         case 'grp.org.fulfilments.show.crm.customers.show.invoices.index':
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.invoices.show',
-                [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], invoice.slug])
+                invoice.in_process 
+                    ? 'grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show' 
+                    : 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
+                [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], invoice.slug]
+            );
         case 'grp.overview.ordering.invoices.index':
             return route(
                 'grp.org.accounting.invoices.show',
@@ -70,6 +74,7 @@ function invoiceRoute(invoice: Invoice) {
             <Link :href="invoiceRoute(invoice)" class="primaryLink py-0.5">
             {{ invoice.reference }}
             </Link>
+            <FontAwesomeIcon v-if="invoice.in_process" v-tooltip="trans('In process')" icon='fal fa-seedling' class='text-green-500' fixed-width aria-hidden='true' />
         </template>
 
         <!-- Column: Date -->

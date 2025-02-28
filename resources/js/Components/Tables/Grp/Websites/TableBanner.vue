@@ -27,6 +27,7 @@ const props = defineProps<{
 
 
 function bannerRoute(banner: Banner) {
+  console.log(route().current())
     switch (route().current()) {
         case "grp.org.shops.show.web.banners.index":
             return route(
@@ -34,6 +35,15 @@ function bannerRoute(banner: Banner) {
                 [
                     route().params.organisation,
                     route().params.shop,
+                    route().params.website,
+                    banner.slug,
+                ]);
+      case "grp.org.fulfilments.show.web.banners.index":
+            return route(
+                "grp.org.fulfilments.show.web.banners.show",
+                [
+                    route().params.organisation,
+                    route().params.fulfilment,
                     route().params.website,
                     banner.slug,
                 ]);

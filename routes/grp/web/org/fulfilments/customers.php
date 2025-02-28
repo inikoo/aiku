@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\Invoice\UI\ShowRefund;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\UI\ShowStandaloneFulfilmentInvoiceInProcess;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomerClients;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -27,6 +28,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersApprove
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersPendingApproval;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersRejected;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
+use App\Actions\Fulfilment\Pallet\DownloadPalletStoredItemTemplate;
 use App\Actions\Fulfilment\Pallet\PdfPallet;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
@@ -115,6 +117,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
         Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
+        Route::get('{palletDelivery}/pallet-stored-item-templates', DownloadPalletStoredItemTemplate::class)->name('pallets-stored-item.uploads.templates');
     });
 
     Route::prefix('pallet-returns')->as('.pallet_returns.')->group(function () {
@@ -126,7 +129,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}/pallets-histories', [IndexRecentUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
         Route::get('pallets/export', ExportPalletReturnPallet::class)->name('pallets.export');
-        Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
     });
 
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {
@@ -145,6 +147,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('invoices')->as('.invoices.')->group(function () {
         Route::get('', [IndexInvoices::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{invoice}/in-process', ShowStandaloneFulfilmentInvoiceInProcess::class)->name('in-process.show');
         Route::get('{invoice}/edit', [EditInvoice::class, 'inFulfilmentCustomer'])->name('edit');
 
         Route::prefix('{invoice}/refunds')->as('show.refunds.')->group(function () {

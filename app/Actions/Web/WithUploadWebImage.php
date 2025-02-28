@@ -9,7 +9,6 @@
 namespace App\Actions\Web;
 
 use App\Actions\Helpers\Media\StoreMediaFromFile;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Http\Resources\Helpers\ImageResource;
 use App\Models\SysAdmin\Group;
@@ -20,10 +19,7 @@ use Illuminate\Support\Collection;
 
 trait WithUploadWebImage
 {
-    // Todo WithWebEditAuthorisation here
-    //use HasWebAuthorisation;
     use WithAttachMediaToModel;
-
     public function handle(WebBlock|Website|Group $model, string $scope, array $modelData): Collection
     {
         $medias = [];

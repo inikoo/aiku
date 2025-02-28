@@ -11,7 +11,7 @@ namespace App\Actions\Traits\Authorisations;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use Lorisleiva\Actions\ActionRequest;
 
-trait WithBannerAuthorisation
+trait WithWebsiteAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {

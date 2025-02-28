@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -24,7 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStoredItemDeltasInProcessForPallet extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private FulfilmentCustomer $parent;

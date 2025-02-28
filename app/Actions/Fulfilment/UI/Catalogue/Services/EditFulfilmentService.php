@@ -6,9 +6,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Billables\Service\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Services;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Enums\Billables\Service\ServiceEditTypeEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Billables\Service;
@@ -18,40 +19,20 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditService extends OrgAction
+class EditFulfilmentService extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(Service $service): Service
     {
         return $service;
     }
 
-    public function authorize(ActionRequest $request): bool
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Service
     {
-        // dd($this->shop);
-        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
-    // public function inOrganisation(Asset $product, ActionRequest $request): Asset
-    // {
-    //     $this->initialisation($request);
-
-    //     return $this->handle($product);
-    // }
-
-    // /** @noinspection PhpUnusedParameterInspection */
-    // public function inShop(Shop $shop, Asset $product, ActionRequest $request): Asset
-    // {
-    //     $this->initialisation($request);
-
-    //     return $this->handle($product);
-    // }
-
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Service
-    {
-        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($service);
     }
 
@@ -60,21 +41,20 @@ class EditService extends OrgAction
      */
     public function htmlResponse(Service $service, ActionRequest $request): Response
     {
-
-
         if ($service->edit_type == ServiceEditTypeEnum::QUANTITY) {
             $fixedPrice = true;
             $disableNet = false;
-        } elseif ($service->edit_type == ServiceEditTypeEnum::NET) {
+        } else {
             $fixedPrice = false;
             $disableNet = true;
         }
 
-        if ($service->status == false || $service->state == ServiceStateEnum::DISCONTINUED) {
+        if (!$service->status || $service->state == ServiceStateEnum::DISCONTINUED) {
             $active = false;
         } else {
             $active = true;
         }
+
         return Inertia::render(
             'EditModel',
             [
@@ -83,18 +63,18 @@ class EditService extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($service, $request),
                     'next'     => $this->getNext($service, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $service->code,
-                    'icon'     =>
+                    'title'   => $service->code,
+                    'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('product')
                         ],
-                    'actions'  => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -110,23 +90,23 @@ class EditService extends OrgAction
                         [
                             'title'  => __('Edit Service'),
                             'fields' => [
-                                'in_public' => [
-                                    'type'    => 'toggle',
-                                    'label'   => __('public'),
-                                    'value'   => $service->is_public
+                                'in_public'   => [
+                                    'type'  => 'toggle',
+                                    'label' => __('public'),
+                                    'value' => $service->is_public
                                 ],
-                                'active' => [
-                                    'type'    => 'toggle',
-                                    'label'   => __('active'),
-                                    'value'   => $active
+                                'active'      => [
+                                    'type'  => 'toggle',
+                                    'label' => __('active'),
+                                    'value' => $active
                                 ],
-                                'code' => [
+                                'code'        => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
                                     'value'    => $service->code,
                                     'readonly' => true
                                 ],
-                                'name' => [
+                                'name'        => [
                                     'type'     => 'input',
                                     'label'    => __('label'),
                                     'value'    => $service->name,
@@ -137,21 +117,21 @@ class EditService extends OrgAction
                                     'label' => __('description'),
                                     'value' => $service->description
                                 ],
-                                'unit' => [
+                                'unit'        => [
                                     'type'     => 'input',
                                     'label'    => __('unit'),
                                     'value'    => $service->unit,
                                     'readonly' => true
                                 ],
                                 'fixed_price' => [
-                                    'type'    => 'toggle',
-                                    'label'   => __('fixed price'),
-                                    'value'   => $fixedPrice
+                                    'type'  => 'toggle',
+                                    'label' => __('fixed price'),
+                                    'value' => $fixedPrice
                                 ],
-                                'price' => [
-                                    'type'    => 'input',
-                                    'label'   => __('price'),
-                                    'value'   => $service->price,
+                                'price'       => [
+                                    'type'   => 'input',
+                                    'label'  => __('price'),
+                                    'value'  => $service->price,
                                     'hidden' => $disableNet
                                 ],
 
@@ -176,7 +156,7 @@ class EditService extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowService::make()->getBreadcrumbs(
+        return ShowFulfilmentService::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
@@ -185,14 +165,15 @@ class EditService extends OrgAction
 
     public function getPrevious(Service $service, ActionRequest $request): ?array
     {
-        $previous = Service::where('slug', '<', $service->slug)->orderBy('slug', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+        $previous = Service::where('shop_id', $this->shop->id)->where('slug', '<', $service->slug)->orderBy('slug', 'desc')->first();
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Service $service, ActionRequest $request): ?array
     {
-        $next = Service::where('slug', '>', $service->slug)->orderBy('slug')->first();
+        $next = Service::where('shop_id', $this->shop->id)->where('slug', '>', $service->slug)->orderBy('slug')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -201,24 +182,16 @@ class EditService extends OrgAction
         if (!$service) {
             return null;
         }
-        return match ($routeName) {
-            'shops.products.edit' => [
-                'label' => $service->name,
-                'route' => [
-                    'name'      => $routeName,
-                    'parameters' => [
-                        'product' => $service->slug
-                    ]
 
-                ]
-            ],
-            'shops.show.products.edit' => [
+        return match ($routeName) {
+            'grp.org.fulfilments.show.catalogue.services.edit' => [
                 'label' => $service->name,
                 'route' => [
-                    'name'      => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'shop'   => $service->shop->slug,
-                        'product' => $service->slug
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment'   => $this->fulfilment->slug,
+                        'service'      => $service->slug
                     ]
 
                 ]

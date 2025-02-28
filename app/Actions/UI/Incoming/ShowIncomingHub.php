@@ -10,22 +10,18 @@ namespace App\Actions\UI\Incoming;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowIncomingHub extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
 
-    public function handle($scope)
+    public function handle(Warehouse $warehouse): Warehouse
     {
-        return $scope;
+        return $warehouse;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -33,15 +29,19 @@ class ShowIncomingHub extends OrgAction
         return $request->user()->authTo("incoming.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse): Organisation
+    public function asController(Organisation $organisation, Warehouse $warehouse): Warehouse
     {
         $this->initialisationFromWarehouse($warehouse, []);
-        return $this->handle($organisation);
+
+        return $this->handle($warehouse);
     }
 
 
-    public function htmlResponse(Organisation $scope, ActionRequest $request): Response
+    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
+        $palletDeliveries = $warehouse->stats->number_pallet_deliveries_state_confirmed + $warehouse->stats->number_pallet_deliveries_state_received + $warehouse->stats->number_pallet_deliveries_state_booking_in;
+
+
         return Inertia::render(
             'Org/Incoming/IncomingHub',
             [
@@ -57,28 +57,28 @@ class ShowIncomingHub extends OrgAction
                     'model' => __('Goods in'),
                     'title' => __('Incoming Hub'),
                 ],
-                'box_stats' => [
+                'box_stats'   => [
                     [
-                        'name' => __('Stock Deliveries'),
-                        'value' => $scope->procurementStats->number_stock_deliveries,
+                        'name'  => __('Stock Deliveries'),
+                        'value' => $warehouse->organisation->procurementStats->number_stock_deliveries,
                         'route' => [
                             'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'icon'  => [
-                            'icon' => 'fal fa-truck-container',
+                            'icon'    => 'fal fa-truck-container',
                             'tooltip' => __('Stock Deliveries')
                         ]
                     ],
                     [
-                        'name' => __('Fulfilment Deliveries'),
-                        'value' => $scope->fulfilmentStats->number_pallet_deliveries,
+                        'name'  => __('Fulfilment Deliveries'),
+                        'value' => $palletDeliveries,
                         'route' => [
                             'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'icon'  => [
-                            'icon'  => 'fal fa-truck-couch',
+                            'icon'    => 'fal fa-truck-couch',
                             'tooltip' => __('Fulfilment Deliveries')
                         ]
                     ],

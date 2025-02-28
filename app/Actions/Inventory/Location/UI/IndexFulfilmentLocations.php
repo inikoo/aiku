@@ -9,7 +9,7 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\FulfilmentLocationsResource;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentLocations extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
 
     private Warehouse $parent;

@@ -9,33 +9,18 @@
 namespace App\Actions\Web\ModelHasWebBlocks;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
-use App\Events\BroadcastPreviewWebpage;
-use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteModelHasWebBlocks extends OrgAction
 {
-    use HasWebAuthorisation;
+    use WithWebsiteEditAuthorisation;
 
 
     public function handle(ModelHasWebBlocks $modelHasWebBlocks): ModelHasWebBlocks
     {
-        // $webBlockUsed = ModelHasWebBlocks::where('web_block_id', $modelHasWebBlocks->web_block_id)->count();
-        // if ($webBlockUsed === 1) {
-        //     $modelHasWebBlocks->webBlock()->delete();
-        // }
-
-        // $modelHasWebBlocks->delete();
-
-        // UpdateWebpageContent::run($modelHasWebBlocks->webpage);
-
-        // BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
-
-        // return $modelHasWebBlocks;
-
 
         $modelHasWebBlocks->delete();
 
@@ -45,20 +30,13 @@ class DeleteModelHasWebBlocks extends OrgAction
         }
 
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
-        /* BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage); */
 
         return $modelHasWebBlocks;
     }
 
-    /*     public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
-        {
-            WebpageResource::make($modelHasWebBlocks->webpage);
-        } */
-
     public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): void
     {
-        $this->scope = $modelHasWebBlocks->organisation;
-        $this->initialisation($modelHasWebBlocks->organisation, $request);
+        $this->initialisationFromShop($modelHasWebBlocks->shop, $request);
         $this->handle($modelHasWebBlocks);
     }
 
@@ -66,7 +44,7 @@ class DeleteModelHasWebBlocks extends OrgAction
     {
         $this->asAction = true;
 
-        $this->initialisation($modelHasWebBlocks->organisation, $modelData);
+        $this->initialisationFromShop($modelHasWebBlocks->shop, $modelData);
 
         return $this->handle($modelHasWebBlocks);
     }

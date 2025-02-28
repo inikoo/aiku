@@ -1079,3 +1079,22 @@ test('create 10th prospect (Email Unsubscribed)', function () {
 
     return $prospect;
 });
+
+test('UI Index polls', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.polls.index', [$this->organisation->slug, $this->shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Polls')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $this->shop->name)
+                    ->has('subNavigation')
+                    ->etc()
+            )
+            ->has('data');
+    });
+});

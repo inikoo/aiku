@@ -24,6 +24,9 @@ class SeedFulfilmentOutboxes
     use AsAction;
     use WithOutboxBuilder;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Fulfilment $fulfilment): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
@@ -60,6 +63,9 @@ class SeedFulfilmentOutboxes
 
     public string $commandSignature = 'fulfilment:seed_outboxes {fulfilment? : The fulfilment slug}';
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
         if ($command->argument('fulfilment') == null) {

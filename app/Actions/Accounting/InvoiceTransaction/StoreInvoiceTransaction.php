@@ -97,6 +97,7 @@ class StoreInvoiceTransaction extends OrgAction
             'net_amount'      => ['required', 'numeric'],
             'org_exchange'    => ['sometimes', 'numeric'],
             'grp_exchange'    => ['sometimes', 'numeric'],
+            'in_process'      => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {

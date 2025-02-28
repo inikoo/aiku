@@ -35,7 +35,6 @@ const props = defineProps<{
     deliveries?: {}
     uploads?: {}
 }>()
-
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 

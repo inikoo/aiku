@@ -12,7 +12,7 @@ use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithBannerEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
@@ -27,7 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 class PublishBanner extends OrgAction
 {
     use WithActionUpdate;
-    use WithBannerEditAuthorisation;
+    use WithWebsiteEditAuthorisation;
 
     public bool $isAction = false;
 
@@ -95,7 +95,7 @@ class PublishBanner extends OrgAction
         UpdateBannerImage::run($banner);
 
 
-        Cache::put('banner_compiled_layout_'.$banner->ulid, $banner->compiled_layout, 86400);
+        Cache::put('banner_compiled_layout_'.$banner->slug, $banner->compiled_layout, 86400);
 
 
         return $banner;

@@ -22,6 +22,7 @@ class IndexRetinaPricing extends RetinaAction
     use WithRetinaPricingSubNavigation;
     public function asController(ActionRequest $request): FulfilmentCustomer
     {
+        abort(401);
         $this->initialisation($request);
 
         return $this->customer->fulfilmentCustomer;

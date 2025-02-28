@@ -33,7 +33,7 @@ const props = defineProps<{
     title: string
     pageHead: any
     banner: Banner
-    bannerLayout: BannerWorkshop
+    bannerLayout?: BannerWorkshop
     imagesUploadRoute: routeType
     autoSaveRoute: routeType
     publishRoute: routeType

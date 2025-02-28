@@ -264,7 +264,7 @@ class IndexSupplierProducts extends GrpAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
-                'upload_spreadsheet' => $spreadsheetRoute,
+                'upload_spreadsheet' => $spreadsheetRoute ?? null,
                 'data'        => SupplierProductsResource::collection($supplier_products),
             ]
         )->table($this->tableStructure());

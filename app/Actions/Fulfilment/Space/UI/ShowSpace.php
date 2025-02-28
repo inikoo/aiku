@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Space\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\UI\Fulfilment\SpaceTabsEnum;
 use App\Http\Resources\Fulfilment\SpaceResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSpace extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     public function handle(Space $space): Space
     {
@@ -35,11 +35,26 @@ class ShowSpace extends OrgAction
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Space $space, ActionRequest $request): Space
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(SpaceTabsEnum::values());
+
         return $this->handle($space);
     }
 
     public function htmlResponse(Space $space, ActionRequest $request): Response
     {
+        $actions = null;
+        if ($request->user()->authTo("supervisor-fulfilment-shop.".$this->fulfilment->id)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'edit',
+                    'route' => [
+                        'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ]
+            ];
+        }
+
         return Inertia::render(
             'Org/Fulfilment/Space',
             [
@@ -48,31 +63,21 @@ class ShowSpace extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($space, $request),
                     'next'     => $this->getNext($space, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $space->reference,
-                    'model'     => __('Space'),
-                    'icon'      =>
+                    'title'   => $space->reference,
+                    'model'   => __('Space'),
+                    'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-parking'],
                             'title' => __('space')
                         ],
-                     'actions' => [
-                         [
-                             'type'  => 'button',
-                             'style' => 'edit',
-                             'route' => [
-                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ]
-                     ],
-                    // 'subNavigation' => $this->getCollectionSubNavigation($collection),
+                    'actions' => $actions
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => SpaceTabsEnum::navigation()
                 ],
@@ -147,14 +152,15 @@ class ShowSpace extends OrgAction
 
     public function getPrevious(Space $space, ActionRequest $request): ?array
     {
-        $previous = Space::where('slug', '<', $space->slug)->orderBy('id', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+        $previous = Space::where('fulfilment_id', $this->fulfilment->id)->where('slug', '<', $space->slug)->orderBy('id', 'desc')->first();
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Space $space, ActionRequest $request): ?array
     {
-        $next = Space::where('slug', '>', $space->slug)->orderBy('id')->first();
+        $next = Space::where('fulfilment_id', $this->fulfilment->id)->where('slug', '>', $space->slug)->orderBy('id')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -168,7 +174,7 @@ class ShowSpace extends OrgAction
             'grp.org.fulfilments.show.crm.customers.show.spaces.show' => [
                 'label' => $space->reference,
                 'route' => [
-                    'name'      => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $space->organisation->slug,
                         'fulfilment'         => $space->fulfilment->slug,

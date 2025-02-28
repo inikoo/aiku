@@ -36,21 +36,21 @@ class AssetHydrateSales
     {
         $stats = [];
 
-        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
+        $queryBase = InvoiceTransaction::where('in_process', false)->where('asset_id', $asset->id)->selectRaw('sum(net_amount) as  sum_aggregate  ');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_'
         );
 
-        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
+        $queryBase = InvoiceTransaction::where('in_process', false)->where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'sales_grp_currency_'
         );
 
-        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
+        $queryBase = InvoiceTransaction::where('in_process', false)->where('asset_id', $asset->id)->selectRaw('sum(org_net_amount) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
@@ -59,14 +59,6 @@ class AssetHydrateSales
 
 
         $asset->salesIntervals->update($stats);
-    }
-
-    public string $commandSignature = 'asset:hydrate-sales';
-
-    public function asCommand($command)
-    {
-        $asset = Asset::find(476);
-        $this->handle($asset);
     }
 
 

@@ -10,7 +10,7 @@ use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
-use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Inventory\GoodsIn\UI\ShowWarehousePalletDelivery;
 use App\Actions\Inventory\Location\UI\IndexFulfilmentLocations;
 use App\Actions\Inventory\Location\UI\ShowFulfilmentLocation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
@@ -36,4 +36,4 @@ Route::prefix('locations')->as('locations.')->group(function () {
 
 
 Route::get('deliveries', [IndexPalletDeliveries::class, 'inWarehouse'])->name('pallet-deliveries.index');
-Route::get('deliveries/{palletDelivery}', [ShowPalletDelivery::class, 'inWarehouse'])->name('pallet-deliveries.show');
+Route::get('deliveries/{palletDelivery}', ShowWarehousePalletDelivery::class)->name('pallet-deliveries.show');

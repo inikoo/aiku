@@ -6,14 +6,12 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Catalogue\Product\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\PhysicalGoods;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -21,39 +19,18 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditPhysicalGoods extends OrgAction
+class EditFulfilmentPhysicalGoods extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(Product $product): Product
     {
         return $product;
     }
 
-    public function authorize(ActionRequest $request): bool
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
     {
-        // dd($this->shop);
-        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
-    // public function inOrganisation(Asset $product, ActionRequest $request): Asset
-    // {
-    //     $this->initialisation($request);
-
-    //     return $this->handle($product);
-    // }
-
-    // /** @noinspection PhpUnusedParameterInspection */
-    // public function inShop(Shop $shop, Asset $product, ActionRequest $request): Asset
-    // {
-    //     $this->initialisation($request);
-
-    //     return $this->handle($product);
-    // }
-
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
-    {
-        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($product);
     }
@@ -137,15 +114,7 @@ class EditPhysicalGoods extends OrgAction
                                     'value'   => $product->state,
                                     'options' => Options::forEnum(AssetStateEnum::class)
                                 ],
-                                // 'type' => [
-                                //     'type'          => 'select',
-                                //     'label'         => __('type'),
-                                //     'placeholder'   => 'Select a Asset Type',
-                                //     'options'       => Options::forEnum(AssetTypeEnum::class)->toArray(),
-                                //     'required'      => true,
-                                //     'mode'          => 'single',
-                                //     'value'         => $product->type
-                                // ]
+
                             ]
                         ]
 
@@ -165,7 +134,7 @@ class EditPhysicalGoods extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowPhysicalGoods::make()->getBreadcrumbs(
+        return ShowFulfilmentPhysicalGood::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
@@ -174,14 +143,14 @@ class EditPhysicalGoods extends OrgAction
 
     public function getPrevious(Product $product, ActionRequest $request): ?array
     {
-        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Product::where('shop_id', $this->shop->id)->where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Product $product, ActionRequest $request): ?array
     {
-        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Product::where('shop_id', $this->shop->id)->where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -191,22 +160,13 @@ class EditPhysicalGoods extends OrgAction
             return null;
         }
         return match ($routeName) {
-            'shops.products.edit' => [
+            'grp.org.fulfilments.show.catalogue.physical_goods.edit' => [
                 'label' => $product->name,
                 'route' => [
                     'name'      => $routeName,
                     'parameters' => [
-                        'product' => $product->slug
-                    ]
-
-                ]
-            ],
-            'shops.show.products.edit' => [
-                'label' => $product->name,
-                'route' => [
-                    'name'      => $routeName,
-                    'parameters' => [
-                        'shop'   => $product->shop->slug,
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment' => $this->fulfilment->slug,
                         'product' => $product->slug
                     ]
 

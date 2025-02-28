@@ -17,7 +17,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
@@ -40,7 +40,7 @@ class ShowFulfilmentCustomer extends OrgAction
     use WithWebUserMeta;
     use HasRentalAgreement;
     use WithFulfilmentCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomer
     {

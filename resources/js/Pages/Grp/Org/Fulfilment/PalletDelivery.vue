@@ -47,6 +47,7 @@ import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import UploadAttachment from '@/Components/Upload/UploadAttachment.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import HelpArticles from '@/Components/Utils/HelpArticles.vue'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faPaperclip, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil, faUndoAlt)
 
@@ -121,6 +122,13 @@ const props = defineProps<{
 	}[]
     upload_pallet: UploadSection
     upload_stored_item: UploadSection
+
+    help_articles: {
+        label: string
+        description: string
+        url: string
+        type?: 'video' | 'article'
+    }[]
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -740,7 +748,7 @@ const isModalUploadFileOpen = ref(false)
             :state="props.data?.data?.state"
             :tab="currentTab"
             :tableKey="tableKey"
-            @renderTableKey="changeTableKey"
+            @xxrenderTableKey="changeTableKey"
             :locationRoute="locationRoute"
             :storedItemsRoute="storedItemsRoute"
             :rentalRoute="rentalRoute"
@@ -788,6 +796,10 @@ const isModalUploadFileOpen = ref(false)
         progressDescription="Adding Pallet Deliveries"
         :attachmentRoutes
         :options="props.option_attach_file"
+    />
+
+    <HelpArticles
+        :articles="help_articles"
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
