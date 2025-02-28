@@ -199,7 +199,7 @@ class IndexPalletsInCustomer extends OrgAction
                 $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
             }
             if ($this->fulfilmentCustomer->items_storage) {
-                $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
+                $table->column(key: 'stored_items', label: __("Customer's SKUs"), canBeHidden: false);
             }
 
             if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
