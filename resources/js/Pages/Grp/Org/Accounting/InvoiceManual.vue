@@ -136,75 +136,75 @@ const component = computed(() => {
 
 
 // Section: Payment invoice
-const listPaymentMethod = ref([])
-const isLoadingFetch = ref(false)
-const fetchPaymentMethod = async () => {
-    try {
-        isLoadingFetch.value = true
-        const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
-        listPaymentMethod.value = data.data
-    } catch (error) {
-        notify({
-            title: trans('Something went wrong'),
-            text: trans('Failed to fetch payment method list'),
-            type: 'error',
-        })
-    }
-    finally {
-        isLoadingFetch.value = false
-    }
-}
+// const listPaymentMethod = ref([])
+// const isLoadingFetch = ref(false)
+// const fetchPaymentMethod = async () => {
+//     try {
+//         isLoadingFetch.value = true
+//         const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
+//         listPaymentMethod.value = data.data
+//     } catch (error) {
+//         notify({
+//             title: trans('Something went wrong'),
+//             text: trans('Failed to fetch payment method list'),
+//             type: 'error',
+//         })
+//     }
+//     finally {
+//         isLoadingFetch.value = false
+//     }
+// }
 
-const paymentData = ref({
-    payment_method: null as number | null,
-    payment_amount: 0 as number | null,
-    payment_reference: ''
-})
-const isOpenModalPayment = ref(false)
-const isLoadingPayment = ref(false)
-const errorPaymentMethod = ref<null | unknown>(null)
-const onSubmitPayment = () => {
-    try {
-        router[props.box_stats.information.routes.submit_payment.method || 'post'](
-            route(props.box_stats.information.routes.submit_payment.name, {
-                ...props.box_stats.information.routes.submit_payment.parameters,
-                paymentAccount: paymentData.value.payment_method
-            }),
-            {
-                amount: paymentData.value.payment_amount,
-                reference: paymentData.value.payment_reference,
-                status: 'success',
-                state: 'completed',
-            },
-            {
-                onStart: () => isLoadingPayment.value = true,
-                onFinish: () => {
-                    isLoadingPayment.value = false,
-                    isOpenModalPayment.value = false,
-                    notify({
-                        title: trans('Success'),
-                        text: 'Successfully add payment invoice',
-                        type: 'success',
-                    })
-                },
-                onSuccess: () => {
-                    paymentData.value.payment_method = null,
-                    paymentData.value.payment_amount = 0,
-                    paymentData.value.payment_reference = ''
-                }
-            }
-        )
+// const paymentData = ref({
+//     payment_method: null as number | null,
+//     payment_amount: 0 as number | null,
+//     payment_reference: ''
+// })
+// const isOpenModalPayment = ref(false)
+// const isLoadingPayment = ref(false)
+// const errorPaymentMethod = ref<null | unknown>(null)
+// const onSubmitPayment = () => {
+//     try {
+//         router[props.box_stats.information.routes.submit_payment.method || 'post'](
+//             route(props.box_stats.information.routes.submit_payment.name, {
+//                 ...props.box_stats.information.routes.submit_payment.parameters,
+//                 paymentAccount: paymentData.value.payment_method
+//             }),
+//             {
+//                 amount: paymentData.value.payment_amount,
+//                 reference: paymentData.value.payment_reference,
+//                 status: 'success',
+//                 state: 'completed',
+//             },
+//             {
+//                 onStart: () => isLoadingPayment.value = true,
+//                 onFinish: () => {
+//                     isLoadingPayment.value = false,
+//                     isOpenModalPayment.value = false,
+//                     notify({
+//                         title: trans('Success'),
+//                         text: 'Successfully add payment invoice',
+//                         type: 'success',
+//                     })
+//                 },
+//                 onSuccess: () => {
+//                     paymentData.value.payment_method = null,
+//                     paymentData.value.payment_amount = 0,
+//                     paymentData.value.payment_reference = ''
+//                 }
+//             }
+//         )
 
-    } catch (error: unknown) {
-        errorPaymentMethod.value = error
-    }
-}
+//     } catch (error: unknown) {
+//         errorPaymentMethod.value = error
+//     }
+// }
 
-watch(paymentData, () => {
-    if (errorPaymentMethod.value) {
-        errorPaymentMethod.value = null
-    }
-})
+// watch(paymentData, () => {
+//     if (errorPaymentMethod.value) {
+//         errorPaymentMethod.value = null
+//     }
+// })
 
 // Section: Send Invoice
 const isVisitWorkshopOutbox = ref(false)
@@ -678,72 +678,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab" />
-
-    <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
-        <div class="isolate bg-white px-6 lg:px-8">
-            <div class="mx-auto max-w-2xl text-center">
-                <h2 class="text-lg font-bold tracking-tight sm:text-2xl">{{ trans('Invoice Payment') }}</h2>
-                <p class="text-xs leading-5 text-gray-400">
-                    {{ trans('Information about payment from customer') }}
-                </p>
-            </div>
-
-            <div class="mt-7 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-                <div class="col-span-2">
-                    <label for="first-name" class="block text-sm font-medium leading-6">
-                        <span class="text-red-500">*</span> {{ trans('Select payment method') }}
-                    </label>
-                    <div class="mt-1">
-                        <PureMultiselect
-                            v-model="paymentData.payment_method"
-                            :options="listPaymentMethod"
-                            :isLoading="isLoadingFetch"
-                            label="name"
-                            valueProp="id"
-                            required
-                            caret
-                        />
-                    </div>
-                </div>
-
-                <div class="col-span-2">
-                    <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount') }}</label>
-                    <div class="mt-1">
-                        <PureInputNumber v-model="paymentData.payment_amount" />
-                    </div>
-                    <div class="space-x-1">
-                        <span class="text-xxs text-gray-500">{{ trans('Need to pay') }}: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.pay_amount)) }}</span>
-                        <Button @click="() => paymentData.payment_amount = box_stats.information.pay_amount" :disabled="paymentData.payment_amount === box_stats.information.pay_amount" type="tertiary" label="Pay all" size="xxs" />
-                    </div>
-                </div>
-
-                <div class="col-span-2">
-                    <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Reference') }}</label>
-                    <div class="mt-1">
-                        <PureInput v-model="paymentData.payment_reference" placeholder="#000000"/>
-                    </div>
-                </div>
-
-                <!-- <div class="col-span-2">
-                    <label for="message" class="block text-sm font-medium leading-6">Note</label>
-                    <div class="mt-1">
-                        <PureTextarea
-                            v-model="paymentData.payment_reference"
-                            name="message"
-                            id="message" rows="4"
-                        />
-                    </div>
-                </div> -->
-            </div>
-
-            <div class="mt-6 mb-4 relative">
-                <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
-                <Transition name="spin-to-down">
-                    <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
-                </Transition>
-            </div>
-        </div>
-    </Modal>
 
     <Modal :isOpen="isModalSendInvoice" @onClose="isModalSendInvoice = false" width="w-[600px]">
         <div>

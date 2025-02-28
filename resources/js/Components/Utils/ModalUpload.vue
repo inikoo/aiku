@@ -370,7 +370,7 @@ const isLoadingVisitHistory = ref<string | null>(null)
                                                     <th v-if="index != compIndexStoredItemInPreview || isIncludeStoreItems" :key="index"
                                                         class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
                                                         :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
-                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? trans('Correct column') : trans('This column is not match, will not be processed')"
+                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? trans('Correct column') : trans('This column is not match, will not be processed.') + (upload_spreadsheet?.required_fields?.length > 0 ? (' Must be one of these:') + ' ' + upload_spreadsheet?.required_fields?.join(', ') : null)"
                                                     >
                                                         {{ header }} 
                                                         <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase())" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
