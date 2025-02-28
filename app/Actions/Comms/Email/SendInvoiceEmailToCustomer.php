@@ -57,7 +57,9 @@ class SendInvoiceEmailToCustomer extends OrgAction
         $dispatchedEmail->refresh();
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
-
+        if(!$emailHtmlBody){
+            return null;
+        }
 
         $baseUrl = 'https://fulfilment.test';
         if (app()->isProduction()) {
