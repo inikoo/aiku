@@ -18,6 +18,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -26,6 +27,11 @@ use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -38,8 +44,12 @@ use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
@@ -54,6 +64,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
@@ -559,7 +570,7 @@ test('Delivery state change and recurring bill transaction monitor', function (P
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
         ->and($palletDelivery->recurring_bill_id)->toBe($fulfilmentCustomer->current_recurring_bill_id);
 
-    expect($recurringBill->stats->number_transactions)->toBe(3);
+    expect($recurringBill->stats->number_transactions)->toBe(5);
 
     // Transactions added in Received and Pallet Rentals Added in Booked in
     $palletDelivery =  StartBookingPalletDelivery::make()->action($palletDelivery);
@@ -579,7 +590,7 @@ test('Delivery state change and recurring bill transaction monitor', function (P
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN);
     expect($fulfilmentCustomer->number_pallets_state_storing)->toBe(2);
-    expect($recurringBill->stats->number_transactions)->toBe(3);
+    expect($recurringBill->stats->number_transactions)->toBe(5);
 
     return $palletDelivery;
 })->depends('setup delivery');
@@ -595,7 +606,7 @@ test('add service after delivery booked in', function (PalletDelivery $palletDel
     $palletDelivery->refresh();
     $recurringBill = $palletDelivery->recurringBill;
     expect($palletDelivery->stats->number_services)->toBe(3);
-    expect($recurringBill->stats->number_transactions)->toBe(4);
+    expect($recurringBill->stats->number_transactions)->toBe(6);
 
     return $fulfilmentTransaction;
 
@@ -618,4 +629,103 @@ test('update quantity from pallet delivery and Recurring Bill', function (Fulfil
     expect(intval($recurringBillTransaction->quantity))->toBe(15);
     expect(intval($fulfilmentTransaction->quantity))->toBe(15);
 
+    $fulfilmentCustomer = $fulfilmentTransaction->fulfilmentCustomer;
+
+    return $fulfilmentCustomer;
 })->depends('add service after delivery booked in');
+
+test('setup pallet return (whole pallet)', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $palletReturn = StorePalletReturn::make()->action($fulfilmentCustomer, [
+        'type' => PalletReturnTypeEnum::PALLET
+    ]);
+
+    $palletReturn->refresh();
+    $fulfilmentCustomer->refresh();
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    expect($recurringBill->stats->number_transactions)->toBe(6);
+    expect($fulfilmentCustomer->number_pallet_returns)->toBe(1);
+    $pallet = $fulfilmentCustomer->pallets()->where('state', PalletStateEnum::STORING)->first();
+
+    $palletReturn = AttachPalletToReturn::make()->action(
+        $palletReturn, 
+        $pallet
+    );
+
+    $pallet->refresh();
+    $palletReturn->refresh();
+
+    expect($pallet->state)->toBe(PalletStateEnum::REQUEST_RETURN_IN_PROCESS);
+
+    expect($palletReturn->stats->number_pallets)->toBe(1)
+        ->and($palletReturn->stats->number_services)->toBe(1);
+
+    $palletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+    $pallet->refresh();
+    $palletReturn->refresh();
+
+    expect($pallet->state)->toBe(PalletStateEnum::REQUEST_RETURN_CONFIRMED);
+    expect($palletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED);
+
+    $palletReturn = PickingPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $pallet->refresh();
+    $palletReturn->refresh();
+
+    expect($pallet->state)->toBe(PalletStateEnum::PICKING);
+    expect($palletReturn->state)->toBe(PalletReturnStateEnum::PICKING);
+
+    $palletReturn= PickedPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $pallet->refresh();
+    $palletReturn->refresh();
+
+    expect($pallet->state)->toBe(PalletStateEnum::PICKED);
+    expect($palletReturn->state)->toBe(PalletReturnStateEnum::PICKED);
+
+    $palletReturn = DispatchPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $pallet->refresh();
+    $palletReturn->refresh();
+
+    expect($pallet->state)->toBe(PalletStateEnum::DISPATCHED);
+    expect($palletReturn->state)->toBe(PalletReturnStateEnum::DISPATCHED);
+
+    return $palletReturn;
+})->depends('update quantity from pallet delivery and Recurring Bill');
+
+test('add service after return dispatched', function (PalletReturn $palletReturn) {
+    $service = Service::where('is_auto_assign', false)->skip(1)->first();
+
+    $fulfilmentTransaction = StoreFulfilmentTransaction::make()->action($palletReturn, [
+        'quantity' => 10,
+        'historic_asset_id' => $service->current_historic_asset_id
+    ]);
+
+    $palletReturn->refresh();
+    $recurringBill = $palletReturn->recurringBill;
+    expect($palletReturn->stats->number_services)->toBe(2);
+    expect($recurringBill->stats->number_transactions)->toBe(7);
+
+    return $fulfilmentTransaction;
+
+})->depends('setup pallet return (whole pallet)');
+
+test('update quantity from pallet return and Recurring Bill', function (FulfilmentTransaction $fulfilmentTransaction) {
+    $fulfilmentTransaction = UpdateFulfilmentTransaction::make()->action($fulfilmentTransaction, [
+        'quantity' => 20
+    ]);
+
+    $recurringBillTransaction = $fulfilmentTransaction->recurringBillTransaction;
+    expect(intval($fulfilmentTransaction->quantity))->toBe(20);
+    expect(intval($recurringBillTransaction->quantity))->toBe(20);
+
+    $recurringBillTransaction = UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
+        'quantity'  => 15
+    ]);
+
+    $fulfilmentTransaction = $recurringBillTransaction->fulfilmentTransaction;
+    expect(intval($recurringBillTransaction->quantity))->toBe(15);
+    expect(intval($fulfilmentTransaction->quantity))->toBe(15);
+
+    $fulfilmentCustomer = $fulfilmentTransaction->fulfilmentCustomer;
+
+    return $fulfilmentCustomer;
+})->depends('add service after return dispatched');
