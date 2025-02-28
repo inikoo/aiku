@@ -24,6 +24,7 @@ use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
 
 uses()->group('ui');
@@ -441,6 +442,36 @@ test('edit fulfilment banner', function () {
     $this->banner->update([
         'state' => $oldState
     ]);
+});
+
+test('delete banner in shop', function () {
+    $this->withoutExceptionHandling();
+    $banner = StoreBanner::make()->action($this->shop->website, [
+        'name' => 'delete shop banner',
+        'type' => BannerTypeEnum::LANDSCAPE,
+    ]);
+
+    $response = delete(
+        route(
+            'grp.models.shop.website.banner.delete',
+            [
+                $this->shop->id,
+                $this->shop->website->id,
+                $banner->id,
+            ]
+        )
+    );
+    $response->assertRedirect(
+        route(
+            'grp.org.shops.show.web.banners.index',
+            [
+                'organisation' => $this->organisation->slug,
+                'shop' => $this->shop->slug,
+                'website' => $this->shop->website->slug,
+                'banner' => $banner->slug
+            ]
+        )
+    );
 });
 
 
