@@ -16,7 +16,7 @@ use App\Actions\Fulfilment\RecurringBillTransaction\UI\IndexRecurringBillTransac
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -41,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowRecurringBill extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
     private Fulfilment|FulfilmentCustomer $parent;
     private string $bucket;

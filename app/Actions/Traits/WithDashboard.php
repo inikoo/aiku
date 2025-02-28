@@ -135,9 +135,38 @@ trait WithDashboard
         return $result;
     }
 
+    public function getAllIntervalPercentage($intervalData, string $prefix): array
+    {
+        $result = [];
+
+        foreach (DateIntervalEnum::cases() as $interval) {
+            $key = $interval->value;
+            if ($key == 'all') {
+                $result[] = [
+                    'name' => __(strtolower(str_replace('_', ' ', $interval->name))),
+                    'amount' => $intervalData->{$prefix . '_all'} ?? null,
+                ];
+                continue;
+            }
+
+            $result[] = [
+                'name' => __(strtolower(str_replace('_', ' ', $interval->name))),
+                'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
+                'amount_ly' => $intervalData->{$prefix . '_' . $key . '_ly'} ?? null,
+                'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                    ? $this->calculatePercentageIncrease(
+                        $intervalData->{$prefix . '_' . $key},
+                        $intervalData->{$prefix . '_' . $key . '_ly'}
+                    )
+                    : null,
+            ];
+        }
+
+        return $result;
+    }
+
     public function getDateIntervalFilter($interval): string
     {
-        // TODO: #1461
         $intervals = [
             '1y' => now()->subYear(),
             '1q' => now()->subQuarter(),

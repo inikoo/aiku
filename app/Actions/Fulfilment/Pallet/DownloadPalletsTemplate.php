@@ -34,9 +34,4 @@ class DownloadPalletsTemplate
     {
         return $this->handle();
     }
-
-    public function inReturn(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): BinaryFileResponse
-    {
-        return $this->handle();
-    }
 }

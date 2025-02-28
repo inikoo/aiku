@@ -55,6 +55,17 @@ class StoreStandaloneFulfilmentInvoice extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+
     public function htmlResponse(Invoice $invoice)
     {
         return Redirect::route('grp.org.fulfilments.show.crm.customers.show.invoices.in-process.show', [

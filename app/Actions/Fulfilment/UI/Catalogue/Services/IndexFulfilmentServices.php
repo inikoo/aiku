@@ -10,12 +10,12 @@ namespace App\Actions\Fulfilment\UI\Catalogue\Services;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Billables\Service;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -29,9 +29,18 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentServices extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
+
+        return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
+    }
+
+
     protected function getElementGroups(Fulfilment $parent): array
     {
-
         return [
 
             'state' => [
@@ -100,36 +109,31 @@ class IndexFulfilmentServices extends OrgAction
             ]);
 
 
-        return $queryBuilder->allowedSorts(['code','price','name','state'])
+        return $queryBuilder->allowedSorts(['code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
     }
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
-
-        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
-
-        return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
-    }
-
-
-
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
     {
+        $actions = null;
+        if ($request->user()->authTo("supervisor-fulfilment-shop.".$this->fulfilment->id)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'primary',
+                    'icon'  => 'fal fa-plus',
+                    'label' => __('Create service'),
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.services.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ],
+            ];
+        }
+
+
         return Inertia::render(
             'Org/Fulfilment/Services',
             [
@@ -140,22 +144,11 @@ class IndexFulfilmentServices extends OrgAction
                 'pageHead'    => [
                     'icon'    => [
                         'icon'  => ['fal', 'fa-concierge-bell'],
-                        'title' => __('services')
+                        'title' => __('Services')
                     ],
-                    'model'    => __('Catalogue'),
-                    'title'         => __('services'),
-                    'actions'       => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'primary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('Create service'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.services.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                    ]
+                    'model'   => __('Catalogue'),
+                    'title'   => __('Services'),
+                    'actions' => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
