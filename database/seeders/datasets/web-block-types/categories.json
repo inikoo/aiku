@@ -3,6 +3,7 @@
 	"slug": "categories",
 	"code": "categories",
 	"name": "Categories",
+	"fixed": true,
 	"icon": ["fal", "bars"],
 	"data": {
 		"fieldValue": {

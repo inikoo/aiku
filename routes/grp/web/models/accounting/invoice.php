@@ -8,7 +8,11 @@
 
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\DeleteRefundInProcessInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\CompleteStandaloneFulfilmentInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\DeleteStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UpdateStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Comms\Email\SendInvoiceEmailToCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +23,16 @@ Route::name('invoice.')->prefix('invoice/{invoice:id}')->group(function () {
     Route::post('send-invoice', SendInvoiceEmailToCustomer::class)->name('send_invoice');
 });
 
-Route::name('invoice_transaction.')->prefix('invoice_transaction/{invoiceTransaction:id}')->group(function () {
-    Route::delete('delete', DeleteInvoiceTransaction::class)->name('delete');
+Route::name('standalone-invoice.')->prefix('standalone-invoice/{invoice:id}')->group(function () {
+    Route::post('complete', CompleteStandaloneFulfilmentInvoice::class)->name('complete');
+    Route::post('transaction/{historicAsset:id}', StoreStandaloneFulfilmentInvoiceTransaction::class)->name('transaction.store')->withoutScopedBindings();
+});
+
+Route::name('standalone-invoice-transaction.')->prefix('standalone-invoice-transaction/{invoiceTransaction:id}')->group(function () {
+    Route::patch('update', UpdateStandaloneFulfilmentInvoiceTransaction::class)->name('update');
+    Route::delete('delete', DeleteStandaloneFulfilmentInvoiceTransaction::class)->name('delete');
+});
+
+Route::name('refund_transaction.')->prefix('refund_transaction/{invoiceTransaction:id}')->group(function () {
+    Route::delete('delete', DeleteRefundInProcessInvoiceTransaction::class)->name('delete');
 });

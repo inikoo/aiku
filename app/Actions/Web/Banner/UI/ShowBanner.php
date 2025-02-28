@@ -11,7 +11,7 @@ namespace App\Actions\Web\Banner\UI;
 use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\Authorisations\WithBannerAuthorisation;
+use App\Actions\Traits\Authorisations\WithWebsiteAuthorisation;
 use App\Enums\Web\Banner\BannerTabsEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\BannerResource;
@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowBanner extends OrgAction
 {
     use WithActionButtons;
-    use WithBannerAuthorisation;
+    use WithWebsiteAuthorisation;
 
     private Website $parent;
 
@@ -82,7 +82,6 @@ class ShowBanner extends OrgAction
                     ],
                     'iconRight' => $banner->state->stateIcon()[$banner->state->value],
                     'actions'   => [
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                         $this->canEdit ? [
                             'type'  => 'button',

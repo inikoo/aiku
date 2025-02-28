@@ -9,7 +9,7 @@
 namespace App\Actions\CRM\Poll;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Authorisations\WithCRMEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePoll extends OrgAction
 {
-    use HasWebAuthorisation;
+    use WithCRMEditAuthorisation;
     use WithNoStrictRules;
 
     public function handle(Shop $shop, array $modelData): Poll

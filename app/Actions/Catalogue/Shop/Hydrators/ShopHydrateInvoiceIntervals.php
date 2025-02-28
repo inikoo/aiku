@@ -41,14 +41,14 @@ class ShopHydrateInvoiceIntervals
 
         $stats = [];
 
-        $queryBase = Invoice::where('shop_id', $shop->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('shop_id', $shop->id)->where('type', InvoiceTypeEnum::INVOICE)->selectRaw('count(*) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,
             statField: 'invoices_'
         );
 
-        $queryBase = Invoice::where('shop_id', $shop->id)->where('type', InvoiceTypeEnum::REFUND)->selectRaw(' count(*) as  sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('shop_id', $shop->id)->where('type', InvoiceTypeEnum::REFUND)->selectRaw(' count(*) as  sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,

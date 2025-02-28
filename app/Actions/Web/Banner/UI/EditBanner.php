@@ -8,35 +8,44 @@
 
 namespace App\Actions\Web\Banner\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Enums\Web\Banner\BannerStateEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditBanner extends InertiaAction
+class EditBanner extends OrgAction
 {
+    use WithWebsiteEditAuthorisation;
+
     public function handle(Banner $banner): Banner
     {
         return $banner;
     }
 
-    public function authorize(ActionRequest $request): bool
+
+    public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        $this->canEdit = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
-
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
-
-    public function asController(Banner $banner, ActionRequest $request): Banner
-    {
-        $this->initialisation($request);
-
+        $this->initialisationFromShop($banner->shop, $request);
         return $this->handle($banner);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
+    {
+
+        $this->initialisationFromShop($banner->shop, $request);
+        return $this->handle($banner);
+    }
+
 
     /**
      * @throws Exception
@@ -72,11 +81,14 @@ class EditBanner extends InertiaAction
                             'icon'  => ['fal', 'fa-power-off'],
                             'label' => __('Shutdown banner'),
                             'route' => [
-                                'name'       => 'customer.models.banner.shutdown',
+                                'method' => 'patch',
+                                'name'       => 'grp.models.shop.website.banner.shutdown',
                                 'parameters' => [
-                                    'banner' => $banner->id
+                                    'shop' => $banner->shop_id,
+                                    'website' => $banner->website_id,
+                                    'banner' => $banner->id,
                                 ]
-                            ]
+                            ],
                         ],
                     ]
                 ]
@@ -93,13 +105,15 @@ class EditBanner extends InertiaAction
                         'type'  => 'button',
                         'style' => 'delete',
                         'label' => __('delete banner'),
-                        'method' => 'delete',
                         'route' => [
-                            'name'       => 'customer.models.banner.delete',
+                            'method' => 'delete',
+                            'name'       => 'grp.models.shop.website.banner.delete',
                             'parameters' => [
-                                'banner' => $banner->id
+                                'shop' => $banner->shop_id,
+                                'website' => $banner->website_id,
+                                'banner' => $banner->id,
                             ]
-                        ]
+                        ],
                     ],
                 ]
             ]
@@ -118,10 +132,6 @@ class EditBanner extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($banner, $request),
-                    'next'     => $this->getNext($banner, $request),
-                ],
                 'pageHead'    => [
                     'title'     => $banner->name,
                     'icon'      => [
@@ -146,8 +156,12 @@ class EditBanner extends InertiaAction
                     'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'customer.models.banner.update',
-                            'parameters' => $banner->id
+                            'name'       => 'grp.models.shop.website.banner.update',
+                            'parameters' => [
+                                'shop' => $banner->shop_id,
+                                'website' => $banner->website_id,
+                                'banner' => $banner->id,
+                            ]
                         ],
                     ]
                 ],
@@ -164,20 +178,6 @@ class EditBanner extends InertiaAction
             $routeParameters,
             suffix: '('.__('editing').')'
         );
-    }
-
-    public function getPrevious(Banner $banner, ActionRequest $request): ?array
-    {
-        $previous = Banner::where('slug', '<', $banner->slug)->orderBy('slug', 'desc')->first();
-
-        return $this->getNavigation($previous, $request);
-    }
-
-    public function getNext(Banner $banner, ActionRequest $request): ?array
-    {
-        $next = Banner::where('slug', '>', $banner->slug)->orderBy('slug')->first();
-
-        return $this->getNavigation($next, $request);
     }
 
     private function getNavigation(?Banner $banner, ActionRequest $request): ?array

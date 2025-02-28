@@ -185,6 +185,25 @@ test('create supplier product in agent supplier', function ($supplier) {
 })->depends('create supplier in agent');
 
 
+test('UI show suppliers product in supplier', function (SupplierProduct $supplierProduct) {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.suppliers.supplier_products.show', [
+        $supplierProduct->supplier->slug,
+        $supplierProduct->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplierProduct')
+            ->has('title')
+            ->has('pageHead')
+            ->has('supplier')
+            ->has('tabs')
+            ->has('breadcrumbs', 1);
+    });
+})->depends('create supplier product independent supplier');
+
+
 test('create trade unit', function () {
     $tradeUnit = StoreTradeUnit::make()->action(
         $this->group,
@@ -281,6 +300,76 @@ test('UI Index suppliers', function () {
             ->has('pageHead')
             ->has('data')
             ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index suppliers product in supplier', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $response = $this->get(route('grp.supply-chain.suppliers.supplier_products.index', [
+        $supplier->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplierProducts')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('upload_spreadsheet')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI supply chain dashboard', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $response = $this->get(route('grp.supply-chain.dashboard'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplyChainDashboard')
+            ->has('title')
+            ->has('pageHead')
+            ->has('flatTreeMaps')
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('UI create suppliers product in supplier', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $response = $this->get(route('grp.supply-chain.suppliers.supplier_products.create', [
+        $supplier->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI Index suppliers product in agent', function () {
+    $this->withoutExceptionHandling();
+    $supplier = Supplier::first();
+    $supplier->update(['agent_id' => Agent::first()->id]);
+    $response = $this->get(route('grp.supply-chain.agents.show.supplier_products.index', [
+        $supplier->agent->slug,
+        $supplier->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/SupplierProducts')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('upload_spreadsheet')
+            ->has('breadcrumbs', 4);
     });
 });
 

@@ -8,27 +8,24 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Actions\GrpAction;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Events\BroadcastPreviewWebpage;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebsiteEditAuthorisation;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class ReorderWebBlocks extends GrpAction
+class ReorderWebBlocks extends OrgAction
 {
-    use HasWebAuthorisation;
+    use WithWebsiteEditAuthorisation;
 
     protected Shop $shop;
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
-        $webpage->webBlocks()->syncWithoutDetaching($modelData);
-
+        $webpage->webBlocks()->syncWithoutDetaching(Arr::get($modelData, 'positions', []));
         UpdateWebpageContent::run($webpage->refresh());
-
-        /*   BroadcastPreviewWebpage::dispatch($webpage); */
 
         return $webpage;
     }
@@ -38,16 +35,24 @@ class ReorderWebBlocks extends GrpAction
         return WebpageResource::make($webpage);
     }
 
+    public function rules(): array
+    {
+        return [
+            'positions' => ['required', 'array']
+        ];
+    }
+
     public function asController(Webpage $webpage, ActionRequest $request): void
     {
-        $this->handle($webpage, $request->input('positions'));
+        $this->initialisationFromShop($webpage->shop, $request);
+        $this->handle($webpage, $this->validatedData);
     }
 
     public function action(Webpage $webpage, array $modelData): Webpage
     {
         $this->asAction = true;
 
-        $this->initialisation($webpage->group, $modelData);
+        $this->initialisationFromShop($webpage->shop, $modelData);
 
         return $this->handle($webpage, $this->validatedData);
     }

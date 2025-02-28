@@ -8,6 +8,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Actions\Traits\WithDashboard;
 use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -15,9 +16,12 @@ use Lorisleiva\Actions\Concerns\AsObject;
 class GetPhysicalGoodShowcase
 {
     use AsObject;
+    use WithDashboard;
 
     public function handle(Product $product): array
     {
+        $sales = $product->asset->salesIntervals;
+        $stats = $this->getAllIntervalPercentage($sales, 'sales');
         return [
             'uploadImageRoute' => [
                 'name'       => 'grp.models.org.product.images.store',
@@ -35,7 +39,7 @@ class GetPhysicalGoodShowcase
                 ]
             ],
             'product' => ProductResource::make($product),
-            'stats'   => $product->salesIntervals
+            'stats' => $stats,
         ];
     }
 }

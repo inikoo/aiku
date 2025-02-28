@@ -14,6 +14,7 @@ use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
+use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Analytics\AikuScopedSection;
@@ -23,6 +24,7 @@ use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
 
 uses()->group('ui');
@@ -355,13 +357,13 @@ test('UI index websites in organisation', function () {
     });
 });
 
-test('index banner', function () {
+test('index fulfilment banner', function () {
     $response = get(
         route(
-            'grp.org.shops.show.web.banners.index',
+            'grp.org.fulfilments.show.web.banners.index',
             [
                 $this->organisation->slug,
-                $this->shop->slug,
+                $this->fulfilment->slug,
                 $this->fulfilmentWebsite->slug
             ]
         )
@@ -379,13 +381,13 @@ test('index banner', function () {
     });
 });
 
-test('show banner', function () {
+test('show fulfilment banner', function () {
     $response = get(
         route(
-            'grp.org.shops.show.web.banners.show',
+            'grp.org.fulfilments.show.web.banners.show',
             [
                 $this->organisation->slug,
-                $this->shop->slug,
+                $this->fulfilment,
                 $this->fulfilmentWebsite->slug,
                 $this->banner->slug
             ]
@@ -402,6 +404,131 @@ test('show banner', function () {
                 fn (AssertableInertia $page) => $page->where("title", $this->banner->name)->etc()
             )
             ->has('tabs');
+    });
+});
+
+test('edit fulfilment banner', function () {
+    $this->withoutExceptionHandling();
+    $oldState = $this->banner->state;
+    if ($this->banner != BannerStateEnum::LIVE->value) {
+        $this->banner->update([
+            'state' => BannerStateEnum::LIVE->value
+        ]);
+    }
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.banners.edit',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug,
+                'section' => 'properties'
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 1)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->banner->name)->etc()
+            )
+            ->has('formData');
+    });
+
+    $this->banner->update([
+        'state' => $oldState
+    ]);
+});
+
+test('delete banner in shop', function () {
+    $this->withoutExceptionHandling();
+    $banner = StoreBanner::make()->action($this->shop->website, [
+        'name' => 'delete shop banner',
+        'type' => BannerTypeEnum::LANDSCAPE,
+    ]);
+
+    $response = delete(
+        route(
+            'grp.models.shop.website.banner.delete',
+            [
+                $this->shop->id,
+                $this->shop->website->id,
+                $banner->id,
+            ]
+        )
+    );
+    $response->assertRedirect(
+        route(
+            'grp.org.shops.show.web.banners.index',
+            [
+                'organisation' => $this->organisation->slug,
+                'shop' => $this->shop->slug,
+                'website' => $this->shop->website->slug,
+                'banner' => $banner->slug
+            ]
+        )
+    );
+});
+
+
+test('show fulfilment banner workshop', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.banners.workshop',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Banners/BannerWorkshop')
+            ->has('title')
+            ->has('navigation')
+            ->has('breadcrumbs', 1)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'Workshop')->etc()
+            )
+            ->has('publishRoute')
+            ->has('imagesUploadRoute')
+            ->has('galleryRoute')
+            ->has('banner');
+    });
+});
+
+test('show fulfilment edit website', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.edit',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('navigation')
+            ->has('breadcrumbs', 2)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'Settings')->etc()
+            )
+            ->has('formData');
     });
 });
 

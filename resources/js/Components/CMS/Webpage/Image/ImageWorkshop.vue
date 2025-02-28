@@ -191,7 +191,7 @@ console.log(props.modelValue)
 </script>
 
 <template>
-	<div :style="getStyles(modelValue.container.properties)" class="flex flex-wrap overflow-hidden">
+	<div :style="getStyles(modelValue?.container?.properties)" class="flex flex-wrap overflow-hidden">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="`${index}-${modelValue?.value?.images?.[index - 1]?.source?.avif}`"
@@ -203,19 +203,11 @@ console.log(props.modelValue)
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full"
 				@click="(e) => (isInWorkshop ? e.preventDefault() : null)">
-				
-				<img
-					v-if="modelValue?.value?.images?.[index - 1]?.source?.original"
-					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
-					:src="modelValue?.value?.images?.[index - 1]?.source?.original"
-					class="w-full object-cover object-center group-hover:opacity-75" 
-					@click="openImageGallery(index - 1)" 
-				/>
 				<Image
-					v-else
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75" 
+					:imageCover="'w-full object-cover object-center group-hover:opacity-75'" 
+					:alt="modelValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
 					@click="openImageGallery(index - 1)" 
 				/>
 			</a>

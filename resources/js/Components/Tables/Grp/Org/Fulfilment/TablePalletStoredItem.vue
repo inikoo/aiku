@@ -134,9 +134,12 @@ const generateLinkStoredItems = (storedItem: {}) => {
         </template>
 
         <template #cell(reference)="{ item: pallet }">
-            <Link :href="generateLinkStoredItems(pallet)" class="primaryLink">
+            <Link v-if="pallet?.slug" :href="generateLinkStoredItems(pallet)" class="primaryLink">
                 {{ pallet['reference'] }}
             </Link>
+            <div v-else>
+                {{ pallet['reference'] }}
+            </div>
         </template>
 
         <template #cell(actions)="{ item: pallet }">

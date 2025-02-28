@@ -166,7 +166,10 @@ const handleIframeMessage = (event: MessageEvent) => {
 };
 
 const openFullScreenPreview = () => {
-    window.open(iframeSrc + '?isInWorkshop=true', '_blank')
+    const url = new URL(iframeSrc, window.location.origin);
+    url.searchParams.set('isInWorkshop', 'true');
+    url.searchParams.set('mode', 'iris');
+    window.open(url.toString(), '_blank');
 }
 
 onMounted(() => {

@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class DetachPalletFromReturn extends OrgAction
 {
     use WithActionUpdate;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool

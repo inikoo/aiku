@@ -3,9 +3,9 @@ import React, {} from 'react';
 import { SafeAreaView } from 'react-native';
 import BottomTabs from '@/src/components/BottomTabs'
 
-import OrgStocks from '@/src/screens/OrgStock/OrgStocks';
-import Pallet from '@/src/screens/Pallet/Pallets'
-import StoredItem from '@/src/screens/StoredItem/StoredItems'
+import OrgStocks from '@/src/screens/Fulfilment/OrgStock/OrgStocks';
+import Pallet from '@/src/screens/Fulfilment/Pallet/Pallets'
+import StoredItem from '@/src/screens/Fulfilment/StoredItem/StoredItems'
 
 import { faBoxesAlt, faPallet, faNarwhal } from '@/private/fa/pro-regular-svg-icons';
 

@@ -37,7 +37,7 @@ class GroupHydrateSales
     {
         $stats = [];
 
-        $queryBase = Invoice::where('group_id', $group->id)->selectRaw('sum(grp_net_amount) as sum_aggregate');
+        $queryBase = Invoice::where('in_process', false)->where('group_id', $group->id)->selectRaw('sum(grp_net_amount) as sum_aggregate');
         $stats     = $this->getIntervalsData(
             stats: $stats,
             queryBase: $queryBase,

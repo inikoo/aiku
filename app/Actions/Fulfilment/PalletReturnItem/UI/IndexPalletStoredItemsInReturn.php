@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\PalletReturnItem\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletStoredItemsInPalletReturnResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -28,7 +28,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class IndexPalletStoredItemsInReturn extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     private Fulfilment|Warehouse $parent;
 
     public function handle(PalletReturn $palletReturn, $prefix = null): LengthAwarePaginator

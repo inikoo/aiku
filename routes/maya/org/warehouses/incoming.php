@@ -7,8 +7,8 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
-use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Inventory\GoodsIn\UI\IndexWarehousePalletDeliveries;
+use App\Actions\Inventory\GoodsIn\UI\ShowWarehousePalletDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\UI\Incoming\ShowIncomingHub;
@@ -20,9 +20,9 @@ Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inWarehouse'])->na
 Route::get('stock-deliveries/{stockDelivery:id}', [ShowStockDelivery::class, 'inWarehouse'])->name('stock_deliveries.show');
 
 
-Route::get('handling-fulfilment-deliveries', [IndexPalletDeliveries::class, 'inWarehouseHandling'])->name('pallet_deliveries.handling.index');
-Route::get('booked-in-fulfilment-deliveries', [IndexPalletDeliveries::class, 'inWarehouseBookedIn'])->name('pallet_deliveries.booked_in.index');
+Route::get('handling-fulfilment-deliveries', [IndexWarehousePalletDeliveries::class, 'inWarehouseHandling'])->name('pallet_deliveries.handling.index');
+Route::get('booked-in-fulfilment-deliveries', [IndexWarehousePalletDeliveries::class, 'inWarehouseBookedIn'])->name('pallet_deliveries.booked_in.index');
 
 
-Route::get('fulfilment-deliveries/{palletDelivery:id}', [ShowPalletDelivery::class, 'inWarehouse'])->name('pallet_deliveries.show');
+Route::get('fulfilment-deliveries/{palletDelivery:id}', ShowWarehousePalletDelivery::class)->name('pallet_deliveries.show');
 Route::get('fulfilment-deliveries/{palletDelivery:id}/pallets', IndexPalletsInDelivery::class)->name('pallet_deliveries.show.pallets');

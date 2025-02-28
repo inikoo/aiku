@@ -44,8 +44,6 @@ const showWebpage = (activityItem) => {
     <meta name="keywords" content="head.keywords">
   </Head>
 
-  <Head :title="title" />
-
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
@@ -53,6 +51,7 @@ const showWebpage = (activityItem) => {
         <component
             v-if="showWebpage(activityItem)"
             :is="getIrisComponent(activityItem.type)"
+            :theme="data.published_layout.theme"
             :key="activityItemIdx"
             :fieldValue="activityItem.web_block.layout.data.fieldValue" />
       </div>
@@ -65,5 +64,5 @@ const showWebpage = (activityItem) => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap'); */
 </style>

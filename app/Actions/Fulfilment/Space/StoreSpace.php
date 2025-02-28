@@ -15,7 +15,7 @@ use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransactio
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSpaces;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSpaces;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Enums\Fulfilment\Space\SpaceStateEnum;
@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreSpace extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithActionUpdate;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Space

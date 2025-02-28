@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\Json;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -24,7 +25,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentPhysicalGoods extends OrgAction
 {
-    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill $scope): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill|Invoice $scope): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -44,6 +45,8 @@ class GetFulfilmentPhysicalGoods extends OrgAction
             $queryBuilder->whereNotIn('products.asset_id', $scope->services()->pluck('asset_id'));
         } elseif ($scope instanceof RecurringBill) {
             $queryBuilder->whereNotIn('products.asset_id', $scope->transactions()->pluck('asset_id'));
+        } elseif ($scope instanceof Invoice) {
+            $queryBuilder->whereNotIn('products.asset_id', $scope->invoiceTransactions()->pluck('asset_id'));
         }
 
 
@@ -99,6 +102,13 @@ class GetFulfilmentPhysicalGoods extends OrgAction
     }
 
     public function inRecurringBill(Fulfilment $fulfilment, RecurringBill $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $scope);
+    }
+
+    public function inInvoice(Fulfilment $fulfilment, Invoice $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 

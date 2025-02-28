@@ -30,9 +30,6 @@ class ShowOutboxWorkshop extends OrgAction
     use WithActionButtons;
 
 
-    /**
-     * @var \App\Models\Catalogue\Shop|\App\Models\Fulfilment\Fulfilment
-     */
     private Fulfilment|Shop $parent;
 
     public function handle(Outbox $outbox): Email

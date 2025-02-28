@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
@@ -39,7 +39,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexStoredItems extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private Group|FulfilmentCustomer $parent;
 

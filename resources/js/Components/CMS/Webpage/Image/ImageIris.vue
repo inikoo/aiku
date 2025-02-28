@@ -4,7 +4,6 @@ import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Image from "@/Components/Image.vue"
 import { getStyles } from "@/Composables/styles"
-import { ref } from "vue"
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -77,29 +76,22 @@ const getImageSlots = (layoutType: string) => {
 			return 1
 	}
 }
+
 </script>
 
 <template>
-	<div v-if="fieldValue?.value?.images" class="flex flex-wrap overflow-hidden" :style="getStyles(fieldValue.container.properties)">
-		<div
-			v-for="index in getImageSlots(fieldValue?.value?.layout_type)"
-			:key="index"
-			class="relative p-2"
-			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)"
-		>
-			<component
-				v-if="fieldValue?.value?.images?.[index - 1]?.source"
-				:is="getHref(index - 1) ? 'a' : 'div'"
-				:href="getHref(index - 1) || '#'"
-				target="_blank"
-				rel="noopener noreferrer"
+	<div v-if="fieldValue?.value?.images" class="flex flex-wrap overflow-hidden"
+		:style="getStyles(fieldValue?.container?.properties)">
+		<div v-for="index in getImageSlots(fieldValue?.value?.layout_type)" :key="index"
+			class="group relative p-2 hover:bg-white/40"
+			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
+			<a v-if="fieldValue?.value?.images?.[index - 1]?.source" :is="getHref(index - 1) ? 'a' : 'div'"
+				:href="getHref(index - 1) || '#'" target="_blank" rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
-				<img
-					:src="fieldValue?.value?.images?.[index - 1]?.source?.original"
-					class="w-full object-cover object-center group-hover:opacity-75"
-					:alt="fieldValue?.value?.images?.[index - 1]?.alt || ''"
-				/>
-			</component>
+				<Image :src="fieldValue?.value?.images?.[index - 1]?.source"
+					:imageCover="'w-full object-cover object-center group-hover:opacity-75'"
+					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'Image aiku'" />
+			</a>
 		</div>
 	</div>
 

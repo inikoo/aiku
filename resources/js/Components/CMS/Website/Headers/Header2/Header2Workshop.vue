@@ -77,6 +77,7 @@ const emits = defineEmits<{
 
 const _menu = ref()
 const _textRef = ref<HTMLElement | null>(null) // Correct reference type
+const _parentComponent = ref<HTMLElement | null>(null);
 
 // Ensure Moveable gets the correct target
 onMounted(() => {
@@ -92,9 +93,40 @@ function onSave() {
 	emits("update:modelValue", props.modelValue)
 }
 
+let dragOffset = { x: 0, y: 0 };
+
+function onMouseDown(e) {
+  const elementRect = e.target.getBoundingClientRect();
+  // Set the offset to half the element's dimensions.
+  dragOffset.x = elementRect.width / 2;
+  dragOffset.y = elementRect.height / 2;
+}
+
 // Dragging function for Moveable
 function onDragText(e) {
-	const { target, beforeTranslate } = e
+	e.target.style.transform = e.transform
+
+	if (_parentComponent.value) {
+		const parentRect = _parentComponent.value.getBoundingClientRect()
+		// Calculate the element's position relative to the parent
+		const relativeLeft = e.clientX - parentRect.left - dragOffset.x;
+   		const relativeTop = e.clientY - parentRect.top - dragOffset.y;
+
+		// Convert to percentages relative to the parent's dimensions
+		const leftPercent = (relativeLeft / parentRect.width) * 100
+		const topPercent = (relativeTop / parentRect.height) * 100
+
+		e.target.style.left = `${leftPercent}%`
+		e.target.style.top = `${topPercent}%`
+		e.target.style.transform = "" // Reset transform
+
+		// Update the model values in percentage.
+		props.modelValue.text.container.properties.position.left = `${leftPercent}%`
+		props.modelValue.text.container.properties.position.top = `${topPercent}%`
+
+		onSave()
+	}
+	/* const { target, beforeTranslate } = e
 	const parent = target.parentElement
 	if (!parent) return
 
@@ -118,7 +150,7 @@ function onDragText(e) {
 		props.modelValue.text.container.properties.position.top = `${topPercent}%`
 
 		onSave()
-	}
+	} */
 }
 
 
@@ -171,7 +203,7 @@ const editable = ref(true)
 				<div class="relative justify-self-center w-full max-w-md"></div>
 
 				<!-- Text (Movable & Resizable) -->
-				<div ref="_textRef" class="absolute" :style="{
+				<div ref="_textRef" @mousedown="onMouseDown" class="absolute" :style="{
 					width: modelValue.text?.container?.properties?.width || 'auto',
 						height: modelValue.text?.container?.properties?.height || 'auto',
 						top: modelValue.text?.container?.properties?.position?.top || 'auto',
@@ -195,9 +227,7 @@ const editable = ref(true)
 					:resizable="true"
 					:scalable="true"
 					:keepRatio="false"
-					:throttleDrag="5"
-					:throttleResize="1"
-					:renderDirections="['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']"
+	
 					@drag="onDragText"
 					@resize="onResizeText"
 					@scale="onTextScale"
@@ -242,10 +272,7 @@ const editable = ref(true)
 </template>
 
 <style scoped>
-.moveable {
-	z-index: 9999;
-	position: absolute;
-}
+
 
 .resizable-box {
 	display: inline-block;

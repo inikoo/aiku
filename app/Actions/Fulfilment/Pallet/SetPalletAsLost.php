@@ -16,6 +16,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class SetPalletAsLost extends OrgAction
@@ -27,6 +28,7 @@ class SetPalletAsLost extends OrgAction
 
     public function handle(Pallet $pallet, $modelData): Pallet
     {
+        $reporterId = Arr::pull($modelData, 'reporter_id');
         data_set($modelData, 'state', PalletStateEnum::LOST);
         data_set($modelData, 'status', PalletStatusEnum::INCIDENT);
         data_set($modelData, 'set_as_incident_at', now());
@@ -34,7 +36,7 @@ class SetPalletAsLost extends OrgAction
         data_set($modelData, 'incident_report', [
                 'type'        => PalletStateEnum::LOST->value,
                 'message'     => Arr::get($modelData, 'message'),
-                'reporter_id' => request()->user()->id,
+                'reporter_id' => $reporterId,
                 'date'        => now()
         ]);
 
@@ -54,8 +56,16 @@ class SetPalletAsLost extends OrgAction
     public function rules(): array
     {
         return [
-            'message' => ['nullable', 'string']
+            'message' => ['nullable', 'string'],
+            'reporter_id' => ['sometimes', 'required', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
         ];
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if (!$this->asAction) {
+            $this->set('reporter_id', $request->user()->id);
+        }
     }
 
     public function asController(Pallet $pallet, ActionRequest $request): Pallet

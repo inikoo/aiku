@@ -114,19 +114,6 @@ class IndexFulfilmentRentals extends OrgAction
             ->withQueryString();
     }
 
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-
-        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
@@ -149,21 +136,25 @@ class IndexFulfilmentRentals extends OrgAction
         $title = __('fulfilment');
         $icon = [
             'icon'  => ['fal', 'fa-garage'],
-            'title' => __('rentals')
+            'title' => __('Rentals')
         ];
-        $pageHeadTitle = __('rentals');
-        $actions = [
-            [
-                'type'    => 'button',
-                'style'   => 'primary',
-                'icon'    => 'fal fa-plus',
-                'label'   => __('Create rental'),
-                'route'   => [
-                    'name'       => 'grp.org.fulfilments.show.catalogue.rentals.create',
-                    'parameters' => array_values($request->route()->originalParameters())
+        $pageHeadTitle = __('Rentals');
+
+        $actions = null;
+        if ($request->user()->authTo("supervisor-fulfilment-shop.".$this->fulfilment->id)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'primary',
+                    'icon'  => 'fal fa-plus',
+                    'label' => __('Create rental'),
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.rentals.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
                 ]
-            ]
-        ];
+            ];
+        }
 
         if ($this->parent instanceof Group) {
             $title = __('rentals');
@@ -244,7 +235,7 @@ class IndexFulfilmentRentals extends OrgAction
             }
             $table
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
+                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, align: 'right', className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
                 ->column(key: 'sales', label: __('sales'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
@@ -261,8 +252,6 @@ class IndexFulfilmentRentals extends OrgAction
     {
         $this->parent = group();
         $this->initialisationFromGroup($this->parent, $request)->withTab(RentalsTabsEnum::values());
-        ;
-
         return $this->handle($this->parent, RentalsTabsEnum::RENTALS->value);
     }
 

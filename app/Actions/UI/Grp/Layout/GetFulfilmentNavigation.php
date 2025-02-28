@@ -20,9 +20,10 @@ class GetFulfilmentNavigation
     {
         $navigation = [];
 
-        if ($user->hasAnyPermission([
-            "fulfilment-shop.{$fulfilment->id}.view",
-            "accounting.{$fulfilment->organisation_id}.view"
+        if ($user->authTo([
+            "fulfilment-shop.$fulfilment->id.view",
+            "supervisor-fulfilment-shop.".$fulfilment->id,
+            "accounting.$fulfilment->organisation_id.view"
         ])) {
             $navigation['operations'] = [
                 'root'  => 'grp.org.fulfilments.show.operations.',
@@ -144,22 +145,13 @@ class GetFulfilmentNavigation
                         [
                             'label' => __('goods'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'root'  => 'grp.org.fulfilments.show.catalogue.outers.',
+                            'root'  => 'grp.org.fulfilments.show.catalogue.physical_goods.',
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.outers.index',
+                                'name'       => 'grp.org.fulfilments.show.catalogue.physical_goods.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
-                        [
-                            "label"   => __("Shipping"),
-                            "tooltip" => __("Shipping"),
-                            "icon"    => ["fal", "fa-shipping-fast"],
-                            'root'    => 'grp.org.fulfilments.show.catalogue.outers.',
-                            "route"   => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.shipping.index',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                            ],
-                        ],
+
 
                     ]
                 ]
@@ -167,7 +159,10 @@ class GetFulfilmentNavigation
             ];
 
 
-            if ($fulfilment->shop->website and $user->hasPermissionTo("fulfilment-shop.{$fulfilment->id}.view")) {
+            if ($fulfilment->shop->website and $user->authTo([
+                    "fulfilment-shop.$fulfilment->id.view",
+                    "supervisor-fulfilment-shop.".$fulfilment->id,
+                ])) {
                 $navigation['web'] = [
                     'root'    => 'grp.org.fulfilments.show.web.',
                     'scope'   => 'websites',
@@ -284,7 +279,10 @@ class GetFulfilmentNavigation
                 ]
 
             ];
-            if ($user->hasPermissionTo("fulfilment-shop.{$fulfilment->id}.view")) {
+            if ($user->authTo([
+                "fulfilment-shop.$fulfilment->id.view",
+                "supervisor-fulfilment-shop.".$fulfilment->id
+            ])) {
                 $navigation['setting'] = [
                     "root"    => "grp.org.fulfilments.show.settings.",
                     "icon"    => ["fal", "fa-sliders-h"],

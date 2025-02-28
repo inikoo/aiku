@@ -2,7 +2,8 @@
 	"scope": "webpage",
 	"code": "cta2",
 	"slug": "cta2",
-	"name": "Call to action 2",
+	"name": "CTA (C) to delete",
+	"fixed": true,
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {

@@ -20,6 +20,7 @@ enum InvoicesTabsEnum: string
 
     case INVOICES                  = 'invoices';
     case REFUNDS                = 'refunds';
+    case IN_PROCESS                = 'in_process';
 
     public function blueprint(): array
     {
@@ -33,6 +34,12 @@ enum InvoicesTabsEnum: string
             InvoicesTabsEnum::REFUNDS     => [
                 'title' => __('Refunds'),
                 'icon'    => 'fal fa-hand-holding-usd',
+            ],
+
+            InvoicesTabsEnum::IN_PROCESS => [
+                'title' => __('in process'),
+                'icon'  => 'fal fa-file-invoice-dollar',
+                'align' => 'right',
             ],
         };
     }

@@ -98,9 +98,9 @@ const onCloseGallery = () => {
     </div>
   </div>
 
-  <Gallery :open="openGallery" @on-close="onCloseGallery"
+  <!-- <Gallery :open="openGallery" @on-close="onCloseGallery"
     :uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })" @onPick="setImage"
     @onUpload="onUpload">
-  </Gallery>
+  </Gallery> -->
 
 </template>

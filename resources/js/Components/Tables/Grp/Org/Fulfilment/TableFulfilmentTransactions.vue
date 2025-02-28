@@ -35,9 +35,9 @@ const props = defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject("layout", layoutStructure)
-const emits = defineEmits<{
-	(e: "renderTableKey"): void
-}>()
+// const emits = defineEmits<{
+// 	(e: "renderTableKey"): void
+// }>()
 
 // const layout = inject('layout', layoutStructure)
 
@@ -111,7 +111,7 @@ const userCanEdit = (item) => {
 		<!-- Column: Code -->
 		<template #cell(code)="{ item }">
 			{{ item.code || '-' }}
-			<FontAwesomeIcon v-if="item.is_auto_assign" :icon="faUserRobot" />
+			<FontAwesomeIcon v-if="item.is_auto_assign" v-tooltip="trans('Auto assign')" :icon="faUserRobot" />
 		</template>
 
 		<!-- Column: Name -->

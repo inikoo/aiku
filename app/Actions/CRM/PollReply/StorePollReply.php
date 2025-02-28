@@ -9,7 +9,7 @@
 namespace App\Actions\CRM\PollReply;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Authorisations\WithCRMEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\CRM\Poll;
@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 class StorePollReply extends OrgAction
 {
-    use HasWebAuthorisation;
+    use WithCRMEditAuthorisation;
     use WithNoStrictRules;
 
 

@@ -69,7 +69,7 @@ class EditMailshot extends OrgAction
             ]
         ];
 
-        $tags = explode(',', $request->get('tags'));
+
 
         $fields[] = [
             'title'  => '',

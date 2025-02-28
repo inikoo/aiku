@@ -69,13 +69,13 @@ const props = defineProps<{
     }
 
     loginMode:Boolean
-    previewMode:Boolean
+    previewMode?:Boolean
 }>()
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
 }>()
-
+const { mode } = route().params;
 </script>
 
 <template>
@@ -97,7 +97,7 @@ const emits = defineEmits<{
         <!-- Section: Header -->
         <component
             v-if="data?.header?.code"
-            :is="getComponent(data?.header?.code)"
+            :is="mode == 'iris' ? getIrisComponent(data?.header?.code) : getComponent(data?.header?.code)"
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
             :fieldValue="data.header.data.fieldValue"

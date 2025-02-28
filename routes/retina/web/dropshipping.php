@@ -45,6 +45,12 @@ Route::prefix('portfolios')->as('portfolios.')->group(function () {
     Route::get('my-portfolio', IndexRetinaDropshippingPortfolio::class)->name('index');
     Route::get('my-portfolio/{product}', ShowRetinaProduct::class)->name('show');
     Route::get('products', IndexRetinaDropshippingProducts::class)->name('products.index');
+
+    Route::prefix('platforms/shopify')->as('platforms.shopify.')->group(function () {
+        Route::get('my-portfolio', IndexRetinaDropshippingPortfolio::class)->name('index');
+        Route::get('my-portfolio/{product}', ShowRetinaProduct::class)->name('show');
+        Route::get('products', IndexRetinaDropshippingProducts::class)->name('products.index');
+    });
 });
 
 Route::prefix('orders')->as('orders.')->group(function () {

@@ -185,8 +185,12 @@ const autoSave = async (data: {}) => {
 }
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 const openFullScreenPreview = () => {
-    window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
+    const url = new URL(iframeSrc, window.location.origin);
+    url.searchParams.set('isInWorkshop', 'true');
+    url.searchParams.set('mode', 'iris');
+    window.open(url.toString(), '_blank');
 }
+
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }

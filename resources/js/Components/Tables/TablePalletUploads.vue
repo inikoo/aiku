@@ -35,11 +35,19 @@ function uploadRoutes(upload: {}) {
                     upload.id
                 ]);
         default:
-            return route(
-                'grp.helpers.uploads.records.show',
-                [
-                    upload.id
-                ]);
+            if (route().current().startsWith('retina')) {
+                return route(
+                    'retina.helpers.uploads.records.show',
+                    [
+                        upload.id
+                    ]);
+            } else {
+                return route(
+                    'grp.helpers.uploads.records.show',
+                    [
+                        upload.id
+                    ]);
+            }
     }
 }
 

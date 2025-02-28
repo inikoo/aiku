@@ -33,6 +33,7 @@ class InvoiceResource extends JsonResource
             ],
             'tax_liability_at' => $invoice->tax_liability_at,
             'paid_at'          => $invoice->paid_at,
+            'in_process'        => $invoice->in_process,
             'created_at'       => $invoice->created_at,
             'updated_at'       => $invoice->updated_at,
             'currency_code'    => $invoice->currency->code,
