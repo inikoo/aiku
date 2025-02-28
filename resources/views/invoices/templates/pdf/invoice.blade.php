@@ -325,12 +325,13 @@
         </tr>
     @endforeach
     </tbody>
+
 </table>
 <br>
 <br>
 
 @if($invoice->footer)
-    <div style="text-align: center; font-style: italic;">
+    <div>
         {!! $invoice->footer !!}
     </div>
 @endif
