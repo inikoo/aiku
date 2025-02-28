@@ -37,12 +37,7 @@ const isModalGallery = ref(false)
 			>
 			<div class="absolute inset-0">
 				<a :href="fieldValue?.image?.url || '#'" target="_blank" rel="noopener noreferrer">
-					<img
-						v-if="!fieldValue?.image"
-						src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg"
-						alt="Informative Image"
-						class="h-full w-full object-cover" />
-					<Image :src="fieldValue?.image?.source" class="h-full w-full object-cover" />
+					<Image :src="fieldValue?.image?.source" :alt="fieldValue?.image?.source?.alt || 'image'" class="h-full w-full object-cover" />
 				</a>
 			</div>
 		</div>
