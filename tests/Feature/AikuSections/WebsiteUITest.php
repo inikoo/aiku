@@ -356,13 +356,13 @@ test('UI index websites in organisation', function () {
     });
 });
 
-test('index banner', function () {
+test('index fulfilment banner', function () {
     $response = get(
         route(
-            'grp.org.shops.show.web.banners.index',
+            'grp.org.fulfilments.show.web.banners.index',
             [
                 $this->organisation->slug,
-                $this->shop->slug,
+                $this->fulfilment->slug,
                 $this->fulfilmentWebsite->slug
             ]
         )
@@ -380,13 +380,13 @@ test('index banner', function () {
     });
 });
 
-test('show banner', function () {
+test('show fulfilment banner', function () {
     $response = get(
         route(
-            'grp.org.shops.show.web.banners.show',
+            'grp.org.fulfilments.show.web.banners.show',
             [
                 $this->organisation->slug,
-                $this->shop->slug,
+                $this->fulfilment,
                 $this->fulfilmentWebsite->slug,
                 $this->banner->slug
             ]
@@ -406,7 +406,8 @@ test('show banner', function () {
     });
 });
 
-test('edit banner', function () {
+test('edit fulfilment banner', function () {
+    $this->withoutExceptionHandling();
     $oldState = $this->banner->state;
     if ($this->banner != BannerStateEnum::LIVE->value) {
         $this->banner->update([
@@ -415,10 +416,10 @@ test('edit banner', function () {
     }
     $response = get(
         route(
-            'grp.org.shops.show.web.banners.edit',
+            'grp.org.fulfilments.show.web.banners.edit',
             [
                 $this->organisation->slug,
-                $this->shop->slug,
+                $this->fulfilment->slug,
                 $this->fulfilmentWebsite->slug,
                 $this->banner->slug,
                 'section' => 'properties'
