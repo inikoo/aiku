@@ -21,11 +21,11 @@
 					"properties": {
 						"dimension": {
 							"height": {
-								"value": "100",
+								"value": "auto",
 								"unit": "px"
 							},
 							"width": {
-								"value": "100",
+								"value": "70",
 								"unit": "%"
 							}
 						},
