@@ -151,6 +151,26 @@ beforeEach(function () {
     actingAs($this->adminGuest->getUser());
 });
 
+test('UI show procurement dashboard', function () {
+    // dd($this->orgSupplier);
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.procurement.dashboard', [$this->organisation->slug,]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/ProcurementDashboard')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'procurement')
+                        ->etc()
+            )
+            ->has('flatTreeMaps');
+
+    });
+});
+
 test('UI Index org suppliers', function () {
 
     $this->withoutExceptionHandling();

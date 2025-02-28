@@ -113,8 +113,8 @@ enum PalletStatusEnum: string
             'returning'    => [
                 'tooltip' => __('Returning'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-green-400',
-                'color'   => 'green',
+                'class'   => 'text-yellow-400',
+                'color'   => 'yellow',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
@@ -123,6 +123,8 @@ enum PalletStatusEnum: string
             'returned'     => [
                 'tooltip' => __('Returned'),
                 'icon'    => 'fal fa-arrow-alt-from-left',
+                'class'   => 'text-amber-400',
+                'color'   => 'amber',
                 'app'     => [
                     'name' => 'check',//todo need to change icon
                     'type' => 'font-awesome-5'
