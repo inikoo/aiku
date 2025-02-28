@@ -6,7 +6,7 @@
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {
-			"text": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
+			"text": "<h2 style='text-align: center'><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
 			"button": {
 				"link": {
 					"type" : "internal",

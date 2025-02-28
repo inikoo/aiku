@@ -3139,11 +3139,13 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
 
     $palletStoredItem = $palletStoredItems->first();
 
-    $storedItem = StoreStoredItem::make()->action($fulfilmentCustomer,
-    [
+    $storedItem = StoreStoredItem::make()->action(
+        $fulfilmentCustomer,
+        [
         'reference' => 'refff',
         'name'      => 'jeff'
-    ]);
+    ]
+    );
 
     $storedItemAuditDelta = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
         'pallet_id' => $palletStoredItem->pallet_id,

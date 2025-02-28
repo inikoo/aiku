@@ -18,7 +18,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowDispatchHub extends OrgAction
 {
-
     public function handle(Warehouse $warehouse): Warehouse
     {
         return $warehouse;

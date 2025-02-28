@@ -13,6 +13,7 @@ use App\Actions\Comms\Traits\WithSendBulkEmails;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -30,8 +31,13 @@ class SendInvoiceEmailToCustomer extends OrgAction
 
     private Email $email;
 
-    public function handle(Invoice $invoice): DispatchedEmail
+    public function handle(Invoice $invoice): ?DispatchedEmail
     {
+        // Todo remove this
+        if ($invoice->shop->type != ShopTypeEnum::FULFILMENT) {
+            return null;
+        }
+
         $customer = $invoice->customer;
 
         /** @var Outbox $outbox */
@@ -48,12 +54,17 @@ class SendInvoiceEmailToCustomer extends OrgAction
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
+
         $baseUrl = 'https://fulfilment.test';
         if (app()->isProduction()) {
             $baseUrl = 'https://'.$invoice->shop->website->domain;
         }
 
-        $invoiceUrl =  $baseUrl.'/app/fulfilment/billing/invoices/'.$invoice->slug;
+        $invoiceUrl = $baseUrl.'/app/billing/invoices/'.$invoice->slug; // todo give correct link for B2B and DS shops
+        if ($invoice->shop->type == ShopTypeEnum::FULFILMENT) {
+            $invoiceUrl = $baseUrl.'/app/fulfilment/billing/invoices/'.$invoice->slug;
+        }
+
 
         return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
