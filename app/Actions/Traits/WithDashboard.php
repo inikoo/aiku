@@ -93,7 +93,7 @@ trait WithDashboard
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float
     {
         if ($lastYear == 0) {
-            return $thisYear > 0 ? null : 0;
+            return $thisYear > 0 ? 100 : 0;
         }
 
         return (($thisYear - $lastYear) / $lastYear) * 100;
