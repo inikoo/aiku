@@ -24,6 +24,7 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import { getStyles } from "@/Composables/styles"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImages, faPlus } from "@fas"
+import Image from "@/Components/Image.vue"
 
 library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
 
@@ -172,21 +173,23 @@ onMounted(() => {
     </div>
 
     <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug" class="h-64">
-    <div class="flex justify-center gap-6 h-full border border-dashed border-gray-300 rounded-md p-6">
-        <a target="_blank" :href="getRouteCreate()" class="flex flex-col items-center justify-center w-40 h-40 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
-            <FontAwesomeIcon :icon="faPlus" class="text-4xl"></FontAwesomeIcon>
-            <span class="mt-2 text-sm font-medium">Create Banner</span>
-        </a>
-        <button @click="() => {isModalOpen = true , getBannersList()}" class="flex flex-col items-center justify-center w-40 h-40 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-            <FontAwesomeIcon :icon="faImages" class="text-4xl"></FontAwesomeIcon>
-            <span class="mt-2 text-sm font-medium">Banner Gallery</span>
-        </button>
+        <div class="flex justify-center gap-6 h-full border border-dashed border-gray-300 rounded-md p-6">
+            <a target="_blank" :href="getRouteCreate()"
+                class="flex flex-col items-center justify-center w-40 h-40 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
+                <FontAwesomeIcon :icon="faPlus" class="text-4xl"></FontAwesomeIcon>
+                <span class="mt-2 text-sm font-medium">Create Banner</span>
+            </a>
+            <button @click="() => { isModalOpen = true, getBannersList() }"
+                class="flex flex-col items-center justify-center w-40 h-40 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                <FontAwesomeIcon :icon="faImages" class="text-4xl"></FontAwesomeIcon>
+                <span class="mt-2 text-sm font-medium">Banner Gallery</span>
+            </button>
+        </div>
     </div>
-</div>
 
 
 
-    <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative" >
+    <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative">
         <div v-if="data.state != 'switch_off'" :style="getStyles(modelValue?.container?.properties)">
             <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
             <SliderSquare v-else :data="data.compiled_layout" :production="true" />
@@ -197,7 +200,7 @@ onMounted(() => {
                     @click="() => { isModalOpen = true, getBannersList() }" />
             </div>
         </div>
-        <div v-else >
+        <div v-else>
             <div class="absolute top-2 right-2 flex space-x-2 z-10">
                 <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
                     @click="() => { isModalOpen = true, getBannersList() }" />
@@ -214,32 +217,27 @@ onMounted(() => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <div class="h-96">
             <div class="text-center font-semibold text-2xl mb-4">
-                {{ trans('Select banners') }}
+                {{ trans('Banners Gallery') }}
             </div>
 
             <div v-if="!isLoadingFetching" class="">
-                <ul v-if="bannersList.length" role="list" class="flex flex-wrap gap-x-4 gap-y-2.5">
+                <ul v-if="bannersList.length" role="list" class="flex flex-wrap gap-4">
                     <li v-for="banner in bannersList" :key="banner.slug" @click="() => onPickBanner(banner)"
-                        class="relative overflow-hidden rounded-lg bg-white shadow cursor-pointer ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-600">
-                        <div class="aspect-[16/9] overflow-hidden h-28 aspect-w-1 w-full">
-                            <img v-if="banner.image_thumbnail" :src="banner.image_thumbnail"
-                                class="w-full object-cover object-center group-hover:opacity-75" />
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                                <defs>
-                                    <pattern id="pattern_mQij" patternUnits="userSpaceOnUse" width="13" height="13"
-                                        patternTransform="rotate(45)">
-                                        <line x1="0" y="0" x2="0" y2="13" stroke="#CCCCCC" stroke-width="12" />
-                                    </pattern>
-                                </defs>
-                                <rect width="100%" height="100%" fill="url(#pattern_mQij)" opacity="0.4" />
-                            </svg>
+                        class="relative overflow-hidden rounded-xl bg-white shadow-md cursor-pointer ring-1 ring-gray-300 transition-all hover:ring-2 hover:ring-gray-600 hover:shadow-lg">
+
+                        <div class="w-full h-[120px] flex justify-center items-center bg-gray-100 rounded-t-xl">
+                            <Image v-if="banner.image_thumbnail" :src="banner.image_thumbnail"
+                                class="max-w-[300px] max-h-[100px] w-auto h-auto object-contain object-center transition-transform duration-300 hover:scale-105" />
                         </div>
-                        <div class="py-1">
-                            <div class="font-bold text-xs px-2">{{ banner.name }}</div>
-                            <div class="text-xxs px-2 text-gray-400 italic">{{ useFormatTime(banner.date) }}</div>
+
+                        <div class="p-3">
+                            <div class="font-semibold text-sm text-gray-900">{{ banner.name }}</div>
+                            <div class="text-xs text-gray-500 italic">{{ useFormatTime(banner.date) }}</div>
                         </div>
                     </li>
                 </ul>
+
+
 
                 <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
                     <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
