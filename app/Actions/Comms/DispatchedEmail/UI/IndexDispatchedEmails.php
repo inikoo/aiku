@@ -19,6 +19,8 @@ use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
+use App\Models\CRM\Customer;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -32,9 +34,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDispatchedEmails extends OrgAction
 {
-    private Group|Organisation|Shop $parent;
+    private Group|Organisation|Shop|FulfilmentCustomer $parent;
 
-    public function handle(Group|Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Mailshot|Outbox|PostRoom|Organisation|Shop|Customer|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -50,6 +52,14 @@ class IndexDispatchedEmails extends OrgAction
         $queryBuilder->leftJoin('organisations', 'dispatched_emails.organisation_id', '=', 'organisations.id')
             ->leftJoin('shops', 'dispatched_emails.shop_id', '=', 'shops.id')
             ->leftJoin('email_addresses', 'dispatched_emails.email_address_id', '=', 'email_addresses.id');
+
+        if ($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('dispatched_emails.recipient_type', 'Customer');
+            $queryBuilder->where('dispatched_emails.recipient_id', $parent->customer_id);
+        } elseif ($parent instanceof Customer) {
+            $queryBuilder->where('dispatched_emails.recipient_type', 'Customer');
+            $queryBuilder->where('dispatched_emails.recipient_id', $parent->id);
+        }
 
         if (is_array($this->elementGroups) || is_object($this->elementGroups) && !($parent instanceof Group)) {
             foreach ($this->elementGroups as $key => $elementGroup) {
