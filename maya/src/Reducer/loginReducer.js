@@ -35,6 +35,9 @@ export const loginReducer = (prevState, action) => {
       return {
         ...prevState,
         organisation: action.organisation,
+        warehouse : null,
+        fulfilment: null,
+        warehouse: null
       };
     case 'SET_FULFILMENT_WAREHOUSE':
       return {

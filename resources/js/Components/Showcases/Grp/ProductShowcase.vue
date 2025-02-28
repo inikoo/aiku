@@ -139,8 +139,8 @@ function changeSelectedImage(index: number) {
 
 const showAllStats = ref(false)
 const displayedStats = computed(() => {
-	const filtered = props.data.stats.filter(item => !item.name.toLowerCase().includes("all"))
-    return showAllStats.value ? filtered : filtered.slice(0, 6)
+	const filtered = props.data.stats.filter((item) => !item.name.toLowerCase().includes("all"))
+	return showAllStats.value ? filtered : filtered.slice(0, 6)
 })
 
 const isModalGallery = ref(false)
@@ -243,7 +243,6 @@ const isModalGallery = ref(false)
 									</div>
 								</Tab>
 
-								<!-- New: "Show more" card if there are more than 6 images and not all are shown -->
 								<div
 									v-if="
 										!showAllImages &&
@@ -315,17 +314,26 @@ const isModalGallery = ref(false)
 
 		<!-- Revenue -->
 		<div class="pt-8 p-4 md:col-span-3">
-			<!-- Adjusted header: Removed "All" -->
-			<h3 class="text-base font-semibold leading-6">All Sales: {{ useLocaleStore().currencyFormat(data.product.data.currency_code,data.stats[0].amount) }}</h3>
+			<!-- Header with responsive text sizes -->
+			<h3 class="text-base md:text-lg font-semibold leading-6">
+				All Sales:
+				{{
+					useLocaleStore().currencyFormat(
+						data.product.data.currency_code,
+						data.stats[0].amount
+					)
+				}}
+			</h3>
+			<!-- Responsive grid for stat cards -->
 			<dl
-				class="mt-5 grid grid-cols-1 overflow-hidden rounded bg-white md:grid-cols-3 md:gap-x-2 md:gap-y-4">
+				class="mt-5 grid grid-cols-1 gap-4 overflow-hidden rounded bg-white md:grid-cols-3 md:gap-x-2 md:gap-y-4">
 				<!-- Loop over displayedStats instead of full props.data.stats -->
 				<div
 					v-for="item in displayedStats"
 					:key="item.name"
 					class="px-4 py-5 sm:p-6 border border-gray-200 rounded-md">
 					<dt class="text-base font-normal">{{ item.name }}</dt>
-					<dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+					<dd class="mt-1 flex flex-col sm:flex-row items-baseline justify-between">
 						<div class="flex items-baseline text-2xl font-semibold text-indigo-600">
 							{{
 								useLocaleStore().currencyFormat(
@@ -333,7 +341,9 @@ const isModalGallery = ref(false)
 									item.amount
 								)
 							}}
-							<span class="ml-2 text-sm font-medium text-gray-500">
+							<span
+								class="ml-2 text-sm font-medium text-gray-500"
+								v-tooltip="'Last Year Sales'">
 								from
 								{{
 									useLocaleStore().currencyFormat(
@@ -365,14 +375,14 @@ const isModalGallery = ref(false)
 						</div>
 					</dd>
 				</div>
-				<!-- "Show more" card with fixed small width and centered -->
 			</dl>
-				<div
-					v-if="props.data.stats.length > 6 && !showAllStats"
-					@click="showAllStats = true"
-					class="cursor-pointer border border-dashed border-gray-300 rounded-md mt-3 flex items-center justify-center p-4 w-40 mx-auto">
-					<span class="text-sm font-medium">Show more</span>
-				</div>
+			<!-- "Show more" card: full width on mobile, fixed width on larger screens -->
+			<div
+				v-if="props.data.stats.length > 6 && !showAllStats"
+				@click="showAllStats = true"
+				class="cursor-pointer border border-dashed border-gray-300 rounded-md mt-3 flex items-center justify-center p-4 w-full sm:w-40 mx-auto">
+				<span class="text-sm font-medium">Show more</span>
+			</div>
 		</div>
 
 		<!-- <pre>{{ data.product }}</pre> -->

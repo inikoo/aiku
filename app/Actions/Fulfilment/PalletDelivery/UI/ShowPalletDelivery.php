@@ -710,6 +710,15 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
+                'help_articles' => [
+                    [
+                        'label'         => __('How to add a pallet'),
+                        'type'          => 'video',
+                        'description'   => __('Learn how to add a pallet to a pallet delivery'),
+                        'url'           => 'https://drive.google.com/file/d/1egAxAHT6eTDy3xz2xWfnto4-TbL4oIht/view'
+                    ]
+                ],
+
                 // 'uploadRoutes' => [
                 //     'upload'  => [
                 //         'name'       => 'grp.models.pallet-delivery.pallet.upload',
