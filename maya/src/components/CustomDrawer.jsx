@@ -12,8 +12,7 @@ import {faWarehouse} from '@/private/fa/pro-regular-svg-icons';
 import {logout} from '@/src/user';
 
 const CustomDrawer = props => {
-    const {signOut, userData, warehouse, organisation} =
-        useContext(AuthContext);
+    const {signOut, userData, warehouse, organisation} = useContext(AuthContext);
     const [imageError, setImageError] = useState(false);
     const handleImageError = () => setImageError(true);
     const getInitials = name => {
@@ -24,39 +23,6 @@ const CustomDrawer = props => {
             .join('')
             .toUpperCase();
     };
-
-/*     const renderListMenu = () => {
-        return (
-            <View className="bg-white pt-2">
-                <DrawerItemList
-                    {...props}
-                    contentContainerStyle={{padding: 0}}
-                />
-            </View>
-        );
-    };
-
-    const renderMenu = () => {
-        return (
-            <View className="bg-white border border-gray-300 rounded-md m-2 relative mt-10">
-                <View className="absolute top-0 left-0 w-full h-[2px] bg-gray-300" />
-
-                <View className="absolute top-[-10px] left-4 bg-white px-2 flex flex-row items-center gap-2">
-                    <FontAwesomeIcon icon={faWarehouse} size={18} />
-                    <Text className="text-lg font-bold">
-                        {warehouse.label || warehouse.name}
-                    </Text>
-                </View>
-
-                <View className="pt-6 px-2">
-                    <DrawerItemList
-                        {...props}
-                        contentContainerStyle={{padding: 0}}
-                    />
-                </View>
-            </View>
-        );
-    }; */
 
     return (
         <View className="flex-1">
