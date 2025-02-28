@@ -1,9 +1,9 @@
 import React, {} from 'react';
 
 import Home from '@/src/screens/Home';
-import Organisation from '@/src/screens/Organisation';
-import Warehouse from '@/src/screens/Warehouse'
-import Fulfilment from '@/src/screens/Fulfilment';
+import AgentStockControl from '@/src/screens/Agent/StockControl/AgentStockControl'
+import AgentsGoodOut from '@/src/screens/Agent/GoodsOut/AgentsGoodOut'
+import AgentGoodsIn from '@/src/screens/Agent/GoodsIn/AgentGoodsIn'
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
@@ -27,7 +27,7 @@ const agentMenu = (fulfilment,warehouse) => {
         },
         {
             name: 'Stock Control',
-            component: Fulfilment,
+            component: AgentStockControl,
             options: {
                 drawerIcon: ({color}) => (
                     <FontAwesomeIcon
@@ -40,7 +40,7 @@ const agentMenu = (fulfilment,warehouse) => {
         },
         {
             name: 'Goods In',
-            component: Fulfilment,
+            component: AgentGoodsIn,
             options: {
                 drawerIcon: ({color}) => (
                     <FontAwesomeIcon
@@ -53,7 +53,7 @@ const agentMenu = (fulfilment,warehouse) => {
         },
         {
             name: 'Goods Out',
-            component: Fulfilment,
+            component: AgentsGoodOut,
             options: {
                 drawerIcon: ({color}) => (
                     <FontAwesomeIcon
