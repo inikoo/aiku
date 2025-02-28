@@ -1396,8 +1396,8 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
 
-    expect($recurringBill->stats->number_transactions)->toBe(5)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(3)
+    expect($recurringBill->stats->number_transactions)->toBe(9)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(7)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
 
@@ -1435,8 +1435,8 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(2)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
+    expect($recurringBill->stats->number_transactions)->toBe(3)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
     $firstPallet = $palletDelivery->pallets->first();
@@ -2761,7 +2761,7 @@ test('set sixth pallet delivery as booked in', function (PalletDelivery $palletD
 test('check current recurring bill', function ($fulfilmentCustomer) {
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
     expect($recurringBill)->toBeInstanceOf(RecurringBill::class)
-        ->and($recurringBill->transactions()->count())->toBe(3);
+        ->and($recurringBill->transactions()->count())->toBe(5);
 
     return $fulfilmentCustomer;
 })->depends('set sixth pallet delivery as booked in');
@@ -2832,7 +2832,7 @@ test('pay invoice (full)', function ($fulfilmentCustomer) {
     $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
     $paymentAccount = $paymentAccountShop->paymentAccount;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 312,
+        'amount' => $invoice->total_amount,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -3139,6 +3139,12 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
 
     $palletStoredItem = $palletStoredItems->first();
 
+    $storedItem = StoreStoredItem::make()->action($fulfilmentCustomer,
+    [
+        'reference' => 'refff',
+        'name'      => 'jeff'
+    ]);
+
     $storedItemAuditDelta = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
         'pallet_id' => $palletStoredItem->pallet_id,
         'stored_item_id' => $palletStoredItem->stored_item_id,
@@ -3146,22 +3152,34 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
         'user_id'       => $this->user->id
     ]);
 
+    $storedItemAuditDelta2 = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
+        'pallet_id' => $palletStoredItem->pallet_id,
+        'stored_item_id' => $storedItem->id,
+        'audited_quantity'  => 10,
+        'user_id'       => $this->user->id
+    ]);
+
     $storedItemAudit->refresh();
 
     expect($storedItemAuditDelta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($storedItemAuditDelta->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
+    expect($storedItemAuditDelta2)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($storedItemAuditDelta2->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
 
     $storedItemAudit = CompleteStoredItemAudit::make()->action($storedItemAudit, []);
 
     $storedItemAudit->refresh();
 
     $delta = $storedItemAudit->deltas()->first();
+    $delta2 = $storedItemAudit->deltas()->skip(1)->first();
 
     expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
         ->and($storedItemAudit->state)->toBe(StoredItemAuditStateEnum::COMPLETED);
 
     expect($delta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($delta->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
+    expect($delta2)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($delta2->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
 
     return $storedItemAudit;
 })->depends('delete stored item audit delta');

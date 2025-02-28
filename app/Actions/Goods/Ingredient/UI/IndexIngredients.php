@@ -19,7 +19,6 @@ use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -98,11 +97,6 @@ class IndexIngredients extends GrpAction
                 ->column(key: 'number_trade_units', label: __('Master Products'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
-    }
-
-    public function jsonResponse(LengthAwarePaginator $ingredients): AnonymousResourceCollection
-    {
-        return IngredientsResource::collection($ingredients);
     }
 
     public function htmlResponse(LengthAwarePaginator $ingredients, ActionRequest $request): Response
