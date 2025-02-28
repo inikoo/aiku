@@ -25,6 +25,7 @@ trait IsInvoiceUI
     public function authorize(ActionRequest $request): bool
     {
 
+        return true;
         if ($this->parent instanceof Organisation) {
             return $request->user()->authTo("accounting.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
