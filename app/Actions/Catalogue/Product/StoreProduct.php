@@ -273,7 +273,7 @@ class StoreProduct extends OrgAction
         $this->initialisationFromShop($fulfilment->shop, $request);
         $product = $this->handle($fulfilment->shop, $this->validatedData);
 
-        return Redirect::route('grp.org.fulfilments.show.catalogue.outers.show', [
+        return Redirect::route('grp.org.fulfilments.show.catalogue.physical_goods.show', [
             'organisation' => $organisation->slug,
             'fulfilment'   => $fulfilment->slug,
             'product'      => $product->slug

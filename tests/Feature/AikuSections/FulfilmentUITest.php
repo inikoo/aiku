@@ -422,7 +422,7 @@ test('UI Index fulfilment assets', function () {
 });
 
 test('UI Index fulfilment physical goods', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.catalogue.outers.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.catalogue.physical_goods.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     expect(PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value)->toBe('physical_goods');
 
@@ -1438,7 +1438,7 @@ test('UI create service', function () {
 // Physical Goods
 
 test('UI show physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PhysicalGood')
@@ -1456,7 +1456,7 @@ test('UI show physical goods', function () {
 });
 
 test('UI edit physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -1474,7 +1474,7 @@ test('UI edit physical goods', function () {
 });
 
 test('UI create physical goods', function () {
-    $response = get(route('grp.org.fulfilments.show.catalogue.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = get(route('grp.org.fulfilments.show.catalogue.physical_goods.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')

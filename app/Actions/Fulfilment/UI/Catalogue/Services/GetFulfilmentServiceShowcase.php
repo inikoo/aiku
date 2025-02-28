@@ -6,12 +6,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Billables\Service\UI;
+namespace App\Actions\Fulfilment\UI\Catalogue\Services;
 
 use App\Models\Billables\Service;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetServiceShowcase
+class GetFulfilmentServiceShowcase
 {
     use AsObject;
 

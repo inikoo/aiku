@@ -10,22 +10,18 @@ namespace App\Actions\UI\Dispatch;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowDispatchHub extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
 
-    public function handle($scope)
+    public function handle(Warehouse $warehouse): Warehouse
     {
-        return $scope;
+        return $warehouse;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -33,16 +29,16 @@ class ShowDispatchHub extends OrgAction
         return $request->user()->authTo("dispatching.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse): Organisation
+    public function asController(Organisation $organisation, Warehouse $warehouse): Warehouse
     {
         $this->initialisationFromWarehouse($warehouse, []);
-        return $this->handle($organisation);
+        return $this->handle($warehouse);
     }
 
 
 
 
-    public function htmlResponse(Organisation $scope, ActionRequest $request): Response
+    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
 
 
@@ -65,7 +61,7 @@ class ShowDispatchHub extends OrgAction
                 'box_stats' => [
                     [
                         'name' => __('Delivery Notes'),
-                        'value' => $scope->orderingStats->number_delivery_notes,
+                        'value' => $warehouse->organisation->orderingStats->number_delivery_notes_state_handling,
                         'route' => [
                             'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
                             'parameters' => $request->route()->originalParameters()
@@ -77,7 +73,7 @@ class ShowDispatchHub extends OrgAction
                     ],
                     [
                         'name' => __('Fulfilment Returns'),
-                        'value' => $scope->fulfilmentStats->number_pallet_returns,
+                        'value' => $warehouse->stats->number_pallet_returns_state_picking,
                         'route' => [
                             'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
                             'parameters' => $request->route()->originalParameters()

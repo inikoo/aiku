@@ -28,6 +28,7 @@ class ProductResource extends JsonResource
             'code'            => $product->code,
             'name'            => $product->name,
             'price'           => $product->price,
+            'currency_code'   => $product->currency->code,
             'description'     => $product->description,
             'state'           => $product->state,
             'created_at'      => $product->created_at,

@@ -8,16 +8,12 @@
 
 namespace App\Actions\Fulfilment\UI\Catalogue\Rentals;
 
-use App\Actions\Catalogue\Shop\UI\IndexShops;
-use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentRentalTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Models\Billables\Rental;
-use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -26,70 +22,25 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowRental extends OrgAction
 {
-    private Organisation|Shop|Fulfilment|ProductCategory $parent;
-
     public function handle(Rental $rental): Rental
     {
         return $rental;
     }
 
-    public function authorize(ActionRequest $request): bool
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
-        if ($this->parent instanceof Fulfilment) {
-            $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof Organisation) {
-            $this->canEdit   = $request->user()->authTo("shops.{$this->organisation->id}.edit");
-            $this->canDelete = $request->user()->authTo("shops.{$this->organisation->id}.edit");
-            return $request->user()->authTo("shops.{$this->organisation->id}.view");
-        } else {
-            $this->canEdit   = $request->user()->authTo("products.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->authTo("products.{$this->shop->id}.edit");
-            return $request->user()->authTo("products.{$this->shop->id}.view");
-        }
-
-
-    }
-
-    public function inOrganisation(Organisation $organisation, Rental $rental, ActionRequest $request): Rental
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(FulfilmentRentalTabsEnum::values());
-        return $this->handle($rental);
-    }
-
-    public function asController(Organisation $organisation, Shop $shop, Rental $rental, ActionRequest $request): Rental
-    {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
-        return $this->handle($rental);
-    }
-
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Rental $rental, ActionRequest $request): Rental
-    {
-        $this->parent = $department;
-        $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
-
-        return $this->handle($rental);
-    }
-
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
-    {
-        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentRentalTabsEnum::values());
         return $this->handle($rental);
     }
 
     public function htmlResponse(Rental $rental, ActionRequest $request): Response
     {
-        // dd($rental);
         return Inertia::render(
             'Org/Fulfilment/Rental',
             [
                 'title'       => __('rental'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
+                    $rental,
                     $request->route()->originalParameters()
                 ),
                 'navigation'   => [
@@ -134,7 +85,7 @@ class ShowRental extends OrgAction
         return new RentalsResource($rental);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(Rental $rental, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (Rental $rental, array $routeParameters, $suffix) {
             return [
@@ -158,65 +109,23 @@ class ShowRental extends OrgAction
             ];
         };
 
-        $rental = Rental::where('slug', $routeParameters['rental'])->first();
-
-        return match ($routeName) {
-            'shops.products.show' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs('grp.org.shops.index', $routeParameters['organisation']),
-                $headCrumb(
-                    $routeParameters['product'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.products.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
-                            'name'       => 'shops.products.show',
-                            'parameters' => $routeParameters
-                        ]
+        return array_merge(
+            (new ShowFulfilmentCatalogueDashboard())->getBreadcrumbs($routeParameters),
+            $headCrumb(
+                $rental,
+                [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.rentals.index',
+                        'parameters' => $routeParameters
                     ],
-                    $suffix
-                )
-            ),
-            'grp.org.shops.show.catalogue.products.show' =>
-            array_merge(
-                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $rental,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.shops.show.catalogue.products.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.shops.show.catalogue.products.show',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
-            'grp.org.fulfilments.show.catalogue.rentals.show' =>
-            array_merge(
-                (new ShowFulfilmentCatalogueDashboard())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $rental,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.catalogue.rentals.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.catalogue.rentals.show',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
-            default => []
-        };
+                    'model' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.rentals.show',
+                        'parameters' => $routeParameters
+                    ]
+                ],
+                $suffix
+            )
+        );
     }
 
     public function getPrevious(Rental $rental, ActionRequest $request): ?array

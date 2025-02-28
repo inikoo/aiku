@@ -10,14 +10,13 @@ namespace App\Actions\Fulfilment\UI\Catalogue\PhysicalGoods;
 
 use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -30,6 +29,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentPhysicalGoods extends OrgAction
 {
+    use WithFulfilmentShopAuthorisation;
+
     protected function getElementGroups(Fulfilment $parent): array
     {
         return [
@@ -101,17 +102,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
     }
 
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($request->user() instanceof WebUser) {
-            return true;
-        }
 
-        $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
@@ -120,18 +111,26 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         return $this->handle($fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
     }
 
-    public function fromRetina(ActionRequest $request): LengthAwarePaginator
-    {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
-        $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($this->fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
-    }
 
     public function htmlResponse(LengthAwarePaginator $physicalGoods, ActionRequest $request): Response
     {
+
+        $actions = null;
+        if ($request->user()->authTo("supervisor-fulfilment-shop.".$this->fulfilment->id)) {
+            $actions = [
+                [
+                    'type'  => 'button',
+                    'style' => 'primary',
+                    'icon'  => 'fal fa-plus',
+                    'label' => __('Create good'),
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.catalogue.physical_goods.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ],
+            ];
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PhysicalGoods',
             [
@@ -145,18 +144,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                         'title' => __('physical goods')
                     ],
                     'title'         => __('Physical goods'),
-                    'actions'       => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'primary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('Create good'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.catalogue.outers.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                    ]
+                    'actions'       => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -216,7 +204,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono', align: 'right')
+                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, align: 'right', className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'))
                 ->defaultSort('code');
         };
@@ -250,7 +238,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 ShowFulfilmentCatalogueDashboard::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.catalogue.outers.index',
+                        'name'       => 'grp.org.fulfilments.show.catalogue.physical_goods.index',
                         'parameters' => $routeParameters
                     ]
                 )
