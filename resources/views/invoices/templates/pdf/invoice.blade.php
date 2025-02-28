@@ -297,6 +297,7 @@
 
 <br>
 
+@if($invoice->payments->count() >0)
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <tr class="title">
         <td colspan="5">{{ __('Payments') }}</td>
@@ -327,6 +328,7 @@
     </tbody>
 
 </table>
+@endif
 <br>
 <br>
 
