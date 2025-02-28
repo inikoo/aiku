@@ -59,6 +59,9 @@ const onChangeImage = (image) => {
 </script>
 
 <template>
+<pre>
+	{{ modelValue }}
+</pre>	
 	<div :style="getStyles(modelValue?.container?.properties)">
 		<div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
 			<Editor v-model="modelValue.title" @update:modelValue="() => emits('autoSave')" />
