@@ -8,7 +8,7 @@
 
 
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomerFromWebhook;
-use App\Actions\Web\Banner\UI\DeliverBanner;
+/* use App\Actions\Web\Banner\UI\DeliverBanner; */
 use Illuminate\Support\Facades\Route;
 use App\Actions\CRM\WebUser\Retina\RetinaLogin;
 use Inertia\Inertia;
@@ -20,7 +20,7 @@ Route::get('/register', function () {return Inertia::render('Register');})->name
 
 Route::get('webhooks/{fulfilmentCustomer:webhook_access_key}', IndexFulfilmentCustomerFromWebhook::class)->name('fulfilment-customer.webhook.show');
 
-Route::get('banners/{banner}', DeliverBanner::class)->name('banners.deliver');
+/* Route::get('banners/{banner}', DeliverBanner::class)->name('banners.deliver'); */
 
 //Route::get('/appointment', ShowPublicAppointment::class)->name('.appointment');
 
