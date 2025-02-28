@@ -29,16 +29,19 @@ use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToSettledStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
+use App\Actions\Procurement\StockDeliveryItem\UpdateStockDeliveryItem;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\Search\ReindexSupplierProductsSearch;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Models\Goods\Stock;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
@@ -354,6 +357,17 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
     return $stockDelivery;
 })->depends('attach supplier to organisation');
 
+test('update supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStockDelivery::make()->action($stockDelivery, [
+        'reference' => 'AGAGA'
+    ]);
+    $stockDelivery->refresh();
+    expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
+        ->and($stockDelivery->reference)->toBe('AGAGA');
+
+    return $stockDelivery;
+})->depends('create supplier delivery');
+
 
 test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     $supplier        = StoreSupplier::make()->action(
@@ -373,11 +387,22 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
     $orgStock = $this->orgStocks[0];
     // dd($orgStock);
-    $supplier = StoreStockDeliveryItem::make()->action($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $orgStock, StockDeliveryItem::factory()->definition());
+    $stockDeliveryItem = StoreStockDeliveryItem::make()->action($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $orgStock, StockDeliveryItem::factory()->definition());
 
-    expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
+    expect($stockDeliveryItem->stock_delivery_id)->toBe($stockDelivery->id);
     $stockDelivery->refresh();
     return $stockDelivery;
+})->depends('create supplier delivery');
+
+test('update supplier delivery items', function (StockDelivery $stockDelivery) {
+    $stockDeliveryItem = $stockDelivery->items()->first();
+    $stockDeliveryItem = UpdateStockDeliveryItem::make()->action($stockDeliveryItem, [
+        'unit_quantity' => 100
+    ]);
+
+    expect(intval($stockDeliveryItem->unit_quantity))->toBe(100);
+    $stockDeliveryItem->refresh();
+    return $stockDeliveryItem;
 })->depends('create supplier delivery');
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
