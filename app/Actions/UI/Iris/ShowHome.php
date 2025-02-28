@@ -24,12 +24,13 @@ class ShowHome
     {
         /** @var Website $website */
         $website   = $request->get('website');
-        $webpage      = $website->storefront;
-        $webPageLayout = $webpage->published_layout;
 
+        $webpage      = $website->storefront; 
         if ($path && !$webpage = $website->webpages()->where('url', $path)->first()) {
             abort(404, 'Webpage not found');
         }
+
+        $webPageLayout = $webpage->published_layout;
 
         $webBlocks = collect(Arr::get($webPageLayout, 'web_blocks'));
         foreach ($webBlocks as $key => $webBlock) {
@@ -56,8 +57,7 @@ class ShowHome
                     'title' => $webpage?->title,
                     'description' => $webpage?->description,
                 ],
-                'blocks' => $webPageLayout,
-                'banners' => [],
+                'blocks' => $webPageLayout ,
                 'data' => $website,
             ]
         );

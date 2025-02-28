@@ -1,88 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
-import { router } from "@inertiajs/vue3";
-import { notify } from "@kyvg/vue3-notification";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faPresentation, faLink, faExternalLink } from "@fal";
-import { faSpinnerThird } from "@fad";
-import axios from "axios";
-
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue";
 import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue";
-import EmptyState from "@/Components/Utils/EmptyState.vue";
 import { getStyles } from "@/Composables/styles";
-import Skeleton from 'primevue/skeleton';
-import { v4 as uuidv4 } from 'uuid';
 
-library.add(faPresentation, faLink, faExternalLink, faSpinnerThird);
 
-const props = defineProps<{ fieldValue: { banner_slug?: string } }>();
-
-const data = ref(null);
-const isLoading = ref(false);
-
-const getRouteShow = () => {
-    const params = route().params;
-    if (params.isInWorkshop) {
-        if (params.fulfilment) {
-            return route("grp.org.fulfilments.show.web.banners.show", {
-                organisation: params?.organisation,
-                fulfilment: params?.fulfilment,
-                website: params?.website,
-                banner: props.fieldValue.banner_slug,
-            });
-        } else if (params.shop) {
-            return route("grp.org.shops.show.web.banners.show", {
-                organisation: params?.organisation,
-                shop: params?.shop,
-                website: params?.website,
-                banner: props.fieldValue.banner_slug,
-            });
-        }
-    } else {
-        return route('iris.banners.deliver', { banner: props.fieldValue.banner_slug });
-    }
-};
-
-const getDataBanner = async () => {
-    if (props.fieldValue.banner_slug) {
-        try {
-            isLoading.value = true;
-            const url = getRouteShow();
-
-            const response = await axios.get(url, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            data.value = response.data;
-            console.log(response)
-        } catch (error) {
-            console.error(error);
-            notify({
-                title: "Failed to fetch banners data",
-                text: error.message || 'An error occurred',
-                type: "error",
-            });
-        } finally {
-            isLoading.value = false;
+const props = defineProps<{ 
+    fieldValue: { 
+        compiled_layout?: any, 
+        container : { 
+            properties : any
         }
     }
-};
+}>();
 
-
-onMounted(getDataBanner);
-watch(() => props.fieldValue.banner_slug, getDataBanner);
 </script>
 
 <template>
-  <div v-if="isLoading" class="h-36 flex flex-col space-y-2">
-    <Skeleton width="100%" height="335px" />
-  </div>
-  <div v-else-if="data?.type && data.state != 'switch_off'"  :style="getStyles(fieldValue?.container?.properties)">
-    <SliderLandscape v-if="data.type === 'landscape'" :data="data.compiled_layout" :production="true" :key="uuidv4()" />
-    <SliderSquare v-else :data="data.compiled_layout" :production="true" :key="uuidv4()"/>
-  </div>
-  <div v-else >
-  </div>
+    <div :style="getStyles(fieldValue?.container?.properties)">
+        <SliderLandscape v-if="fieldValue.compiled_layout.type === 'landscape'" :data="fieldValue.compiled_layout"
+            :production="true" />
+        <SliderSquare v-else :data="fieldValue.compiled_layout" :production="true" />
+    </div>
 </template>

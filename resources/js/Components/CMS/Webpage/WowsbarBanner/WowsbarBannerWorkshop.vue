@@ -37,7 +37,6 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-console.log(route().params)
 const bannersList = ref([])
 const isModalOpen = ref(false)
 const data = ref(null)
@@ -187,8 +186,8 @@ onMounted(() => {
 
 
 
-    <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data">
-        <div v-if="data.state != 'switch_off'" class="relative" :style="getStyles(modelValue?.container?.properties)">
+    <section v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative" >
+        <div v-if="data.state != 'switch_off'" :style="getStyles(modelValue?.container?.properties)">
             <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
             <SliderSquare v-else :data="data.compiled_layout" :production="true" />
 
@@ -198,7 +197,7 @@ onMounted(() => {
                     @click="() => { isModalOpen = true, getBannersList() }" />
             </div>
         </div>
-        <div v-else class="relative">
+        <div v-else >
             <div class="absolute top-2 right-2 flex space-x-2 z-10">
                 <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
                     @click="() => { isModalOpen = true, getBannersList() }" />
