@@ -45,7 +45,6 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -648,7 +647,7 @@ test('setup pallet return (whole pallet)', function (FulfilmentCustomer $fulfilm
     $pallet = $fulfilmentCustomer->pallets()->where('state', PalletStateEnum::STORING)->first();
 
     $palletReturn = AttachPalletToReturn::make()->action(
-        $palletReturn, 
+        $palletReturn,
         $pallet
     );
 
@@ -674,7 +673,7 @@ test('setup pallet return (whole pallet)', function (FulfilmentCustomer $fulfilm
     expect($pallet->state)->toBe(PalletStateEnum::PICKING);
     expect($palletReturn->state)->toBe(PalletReturnStateEnum::PICKING);
 
-    $palletReturn= PickedPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $palletReturn = PickedPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
     $pallet->refresh();
     $palletReturn->refresh();
 
