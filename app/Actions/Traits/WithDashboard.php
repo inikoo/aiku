@@ -135,9 +135,22 @@ trait WithDashboard
         return $result;
     }
 
+    public function getAllIntervalPercentage($intervalData, string $prefix, $tooltip = '', $currencyCode = 'USD'): array
+    {
+        $result = [];
+
+        foreach (DateIntervalEnum::cases() as $interval) {
+            $result[] = array_merge(
+                $this->getIntervalPercentage($intervalData, $prefix, $interval->value, $tooltip, $currencyCode),
+                ['label'      => __(strtolower(str_replace('_', ' ', $interval->name)))],
+            );
+        }
+
+        return $result;
+    }
+
     public function getDateIntervalFilter($interval): string
     {
-        // TODO: #1461
         $intervals = [
             '1y' => now()->subYear(),
             '1q' => now()->subQuarter(),
