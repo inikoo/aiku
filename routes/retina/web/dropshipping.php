@@ -17,6 +17,7 @@ use App\Actions\Retina\Dropshipping\Client\UI\CreateRetinaCustomerClient;
 use App\Actions\Retina\Dropshipping\Client\UI\IndexRetinaCustomerClients;
 use App\Actions\Retina\Dropshipping\Client\UI\ShowRetinaCustomerClient;
 use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
+use App\Actions\Retina\Dropshipping\Orders\IndexRetinaPlatformDropshippingOrders;
 use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
 use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
 use App\Actions\Retina\Dropshipping\ShowRetinaDropshipping;
@@ -65,7 +66,7 @@ Route::prefix('platforms/{platform}')->as('platforms.')->group(function () {
     });
 
     Route::prefix('orders')->as('orders.')->group(function () {
-        Route::get('/', [IndexRetinaDropshippingOrders::class, 'inPlatform'])->name('index');
+        Route::get('/', [IndexRetinaPlatformDropshippingOrders::class, 'inPlatform'])->name('index');
     });
 });
 
