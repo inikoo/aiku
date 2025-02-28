@@ -72,7 +72,6 @@ createInertiaApp(
         resolve: name => {
             const irisPages = import.meta.glob('./Pages/Iris/**/*.vue', { eager: true })
             let page = irisPages[`./Pages/Iris/${name}.vue`] // need improvement in the future
-            console.log('page', page)
             if(!page) console.error(`File './Pages/Iris/${name}.vue' is not exist`)
             page.default.layout = page.default.layout || IrisLayout
             return page

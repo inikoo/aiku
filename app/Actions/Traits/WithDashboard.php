@@ -93,7 +93,7 @@ trait WithDashboard
     public function calculatePercentageIncrease($thisYear, $lastYear): ?float
     {
         if ($lastYear == 0) {
-            return $thisYear > 0 ? null : 0;
+            return $thisYear > 0 ? 100 : 0;
         }
 
         return (($thisYear - $lastYear) / $lastYear) * 100;
@@ -135,15 +135,31 @@ trait WithDashboard
         return $result;
     }
 
-    public function getAllIntervalPercentage($intervalData, string $prefix, $tooltip = '', $currencyCode = 'USD'): array
+    public function getAllIntervalPercentage($intervalData, string $prefix): array
     {
         $result = [];
 
         foreach (DateIntervalEnum::cases() as $interval) {
-            $result[] = array_merge(
-                $this->getIntervalPercentage($intervalData, $prefix, $interval->value, $tooltip, $currencyCode),
-                ['label'      => __(strtolower(str_replace('_', ' ', $interval->name)))],
-            );
+            $key = $interval->value;
+            if ($key == 'all') {
+                $result[] = [
+                    'name' => __(strtolower(str_replace('_', ' ', $interval->name))),
+                    'amount' => $intervalData->{$prefix . '_all'} ?? null,
+                ];
+                continue;
+            }
+
+            $result[] = [
+                'name' => __(strtolower(str_replace('_', ' ', $interval->name))),
+                'amount'     => $intervalData->{$prefix . '_' . $key} ?? null,
+                'amount_ly' => $intervalData->{$prefix . '_' . $key . '_ly'} ?? null,
+                'percentage' => isset($intervalData->{$prefix . '_' . $key}, $intervalData->{$prefix . '_' . $key . '_ly'})
+                    ? $this->calculatePercentageIncrease(
+                        $intervalData->{$prefix . '_' . $key},
+                        $intervalData->{$prefix . '_' . $key . '_ly'}
+                    )
+                    : null,
+            ];
         }
 
         return $result;
