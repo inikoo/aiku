@@ -30,12 +30,11 @@ class FetchAuroraInvoice extends FetchAurora
                 return;
             }
 
-            if (!$this->auroraModelData->{'Invoice Order Key'}) {
-                print "No Invoice Order Key\n";
-                // just ignore as well
-                return;
-            }
-
+//            if (!$this->auroraModelData->{'Invoice Order Key'}) {
+//                print "No Invoice Order Key\n";
+//                // just ignore as well
+//                return;
+//            }
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         } else {
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});

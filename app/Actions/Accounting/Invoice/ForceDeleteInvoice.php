@@ -36,8 +36,8 @@ class ForceDeleteInvoice
         try {
             DB::transaction(function () use ($invoice, $command) {
                 // Delete associated transactions first
-                $transactionCount = $invoice->invoiceTransactions()->count();
-                $invoice->invoiceTransactions()->forceDelete();
+                $transactionCount = $invoice->invoiceTransactions()->withTrashed()->count();
+                $invoice->invoiceTransactions()->withTrashed()->forceDelete();
 
                 // Delete the invoice
                 $invoice->forceDelete();
@@ -61,7 +61,7 @@ class ForceDeleteInvoice
     {
         $invoiceId = $command->argument('id');
 
-        $invoice = Invoice::find($invoiceId);
+        $invoice = Invoice::withTrashed()->find($invoiceId);
 
         if (!$invoice) {
             $command->error("Invoice with ID $invoiceId not found.");
