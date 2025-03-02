@@ -42,14 +42,6 @@ class InvoiceCategoryHydrateInvoices
         $invoiceCategory->stats()->update($stats);
     }
 
-    public string $commandSignature = 'invoice_category:invoices';
 
-    public function asCommand($command)
-    {
-        $f = InvoiceCategory::all();
-        foreach ($f as $key => $value) {
-            $this->handle($value);
-        }
-    }
 
 }
