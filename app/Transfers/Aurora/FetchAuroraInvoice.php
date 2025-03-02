@@ -47,6 +47,11 @@ class FetchAuroraInvoice extends FetchAurora
 
         $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
 
+        if(is_null($billingAddressData['country_id'])){
+            $billingAddressData['country_id'] = $shop->country_id;
+        }
+
+
         $date = $this->parseDatetime($this->auroraModelData->{'Invoice Date'});
         $date = new Carbon($date);
 
