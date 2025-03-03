@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 
 // import 'https://cdn.luigisbox.com/search.js'  // For search
 // import 'https://cdn.luigisbox.com/autocomplete.js'  // For autocomplete
-import { debounce } from 'lodash'
+// import { debounce } from 'lodash-es'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
 
