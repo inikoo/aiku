@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
-const props = defineProps<{
-	dataTable?: any
-	type?: string
-	section?: string
-	totalAmount?: any
-	totalTooltip?: any
-}>()
+const props = withDefaults(
+	defineProps<{
+		dataTable?: any
+		type?: string
+		section?: string
+		totalAmount?: any
+		totalTooltip?: any
+		settings?: any
+	}>(),
+	{
+		dataTable: {},
+		type: "defaultType",
+		section: "defaultSection",
+		totalAmount: 0,
+		totalTooltip: "",
+		settings: {},
+	}
+)
 </script>
 
 <template>
@@ -57,10 +68,14 @@ const props = defineProps<{
 						'text-[14px]',
 						'md:text-[16px]',
 						'font-mono',
-						(totalAmount?.[type + '_percentages'] ?? 0) === 0 ? 'pr-4' : 'pr-1',
+						(settings === 'all' || (totalAmount?.[type + '_percentages'] ?? 0) === 0)
+              ? 'pr-4'
+              : 'pr-1',
 					]">
 					{{
-						totalAmount?.[type + "_percentages"]
+						settings === "all"
+							? "0.00%"
+							: totalAmount?.[type + "_percentages"]
 							? `${totalAmount[type + "_percentages"] > 0 ? "+" : ""}${totalAmount[
 									type + "_percentages"
 							  ].toFixed(2)}%`
@@ -68,7 +83,7 @@ const props = defineProps<{
 					}}
 				</span>
 				<FontAwesomeIcon
-					v-if="totalAmount?.[type + '_percentages']"
+					v-if="settings !== 'all' && totalAmount?.[type + '_percentages']"
 					:icon="totalAmount[type + '_percentages'] < 0 ? 'fas fa-play' : 'fas fa-play'"
 					class="md:text-[16px] text-[9px] opacity-60"
 					:class="
