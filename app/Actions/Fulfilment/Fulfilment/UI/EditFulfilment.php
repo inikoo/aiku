@@ -175,6 +175,17 @@ class EditFulfilment extends OrgAction
                             ],
                         ],
                         [
+                            'label'  => __('sender email'),
+                            'icon'   => 'fa-light fa-envelope',
+                            'fields' => [
+                                'sender_email' => [
+                                    'type'  => 'input',
+                                    'label' => __('email'),
+                                    'value' => $fulfilment->shop?->senderEmail?->email_address,
+                                ],
+                            ],
+                        ],
+                        [
                             'title'  => __('recurring bill settings'),
                             'icon'   => 'fa-light fa-flag-checkered',
                             'label'  => __('cut off day'),

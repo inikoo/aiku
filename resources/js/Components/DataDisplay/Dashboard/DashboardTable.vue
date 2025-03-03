@@ -286,8 +286,20 @@ function useTabChangeDashboard(tab_slug: string) {
 					<Row>
 						<Column footer="Total"> Total </Column>
 						<Column
-							:footer="totalAmount.total_refunds.toString()"
-							footerStyle="text-align:right" />
+							
+							footerStyle="text-align:right">
+							<template #footer>
+								<div class="whitespace-nowrap text-[#474545]">
+									<span  class="text-[16px] md:text-[18px] font-mono">
+										{{
+											locale.number(
+												totalAmount.total_refunds || 0
+											)
+										}}
+									</span>
+								</div>
+							</template>
+						</Column>
 						<Column footerStyle="text-align:right">
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
@@ -295,19 +307,32 @@ function useTabChangeDashboard(tab_slug: string) {
 										:totalAmount="totalAmount"
 										:totalTooltip="total_tooltip"
 										type="total_refunds"
+										:settings="props.settings.db_settings.selected_interval"
 										section="footer" />
 								</div>
 							</template>
 						</Column>
 						<Column
-							:footer="locale.number(Number(totalAmount.total_invoices.toString()))"
-							footerStyle="text-align:right" />
+							footerStyle="text-align:right"  >
+							<template #footer>
+								<div class="whitespace-nowrap text-[#474545]">
+									<span  class="text-[16px] md:text-[18px] font-mono">
+										{{
+											locale.number(
+												totalAmount.total_invoices || 0
+											)
+										}}
+									</span>
+								</div>
+							</template>
+						</Column>
 						<Column footerStyle="text-align:right">
 							<template #footer>
 								<div class="whitespace-nowrap  text-[#474545]">
 									<DeltaItemDashboard
 										:totalAmount="totalAmount"
 										:totalTooltip="total_tooltip"
+										:settings="props.settings.db_settings.selected_interval"
 										type="total_invoices"
 										section="footer" />
 								</div>
@@ -327,7 +352,7 @@ function useTabChangeDashboard(tab_slug: string) {
 									? useLocaleStore().CurrencyShort(
 											props.currency_code,
 											Number(totalAmount.total_sales),
-											props.settings.selected_amount
+											props.settings
 									  )
 									: ''
 							"
@@ -344,6 +369,7 @@ function useTabChangeDashboard(tab_slug: string) {
 									<DeltaItemDashboard
 										:totalAmount="totalAmount"
 										:totalTooltip="total_tooltip"
+										:settings="props.settings.db_settings.selected_interval"
 										type="total_sales"
 										section="footer" />
 								</div>
