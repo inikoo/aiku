@@ -30,11 +30,11 @@ class FetchAuroraInvoice extends FetchAurora
                 return;
             }
 
-//            if (!$this->auroraModelData->{'Invoice Order Key'}) {
-//                print "No Invoice Order Key\n";
-//                // just ignore as well
-//                return;
-//            }
+            //            if (!$this->auroraModelData->{'Invoice Order Key'}) {
+            //                print "No Invoice Order Key\n";
+            //                // just ignore as well
+            //                return;
+            //            }
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         } else {
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
@@ -47,7 +47,7 @@ class FetchAuroraInvoice extends FetchAurora
 
         $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
 
-        if(is_null($billingAddressData['country_id'])){
+        if (is_null($billingAddressData['country_id'])) {
             $billingAddressData['country_id'] = $shop->country_id;
         }
 

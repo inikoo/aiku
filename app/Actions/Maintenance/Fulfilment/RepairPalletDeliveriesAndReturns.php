@@ -109,56 +109,56 @@ class RepairPalletDeliveriesAndReturns
                 print "Ohh shit space no even a recurring bill $space->id  (TODO)\n";
             } elseif ($currentRecurringBill->status != RecurringBillStatusEnum::CURRENT) {
 
-               if($this->checkIfSpaceInRecurringBillTransaction($space)){
-                   print "Ohh shit space $space->id mmm  it is in the RCT  \n";
-                   $currentRecurringBill=$space->fulfilmentCustomer->currentRecurringBill;
-                   $space->update(
-                       [
-                           'current_recurring_bill_id'=>$currentRecurringBill->id
-                       ]
-                   );
-               } else{
-                   print "Ohh shit space $space->id  $space->fulfilment_id  \n";
+                if ($this->checkIfSpaceInRecurringBillTransaction($space)) {
+                    print "Ohh shit space $space->id mmm  it is in the RCT  \n";
+                    $currentRecurringBill = $space->fulfilmentCustomer->currentRecurringBill;
+                    $space->update(
+                        [
+                            'current_recurring_bill_id' => $currentRecurringBill->id
+                        ]
+                    );
+                } else {
+                    print "Ohh shit space $space->id  $space->fulfilment_id  \n";
 
-                   $currentRecurringBill=$space->fulfilmentCustomer->currentRecurringBill;
-                   if($currentRecurringBill){
-                       if($currentRecurringBill->status!=RecurringBillStatusEnum::CURRENT){
-                           print "oh shit  current RB in space customer is not actually current\n";
-                       }
-                   }else{
-                       print "oh shit not even current RB in space customer\n";
-                   }
+                    $currentRecurringBill = $space->fulfilmentCustomer->currentRecurringBill;
+                    if ($currentRecurringBill) {
+                        if ($currentRecurringBill->status != RecurringBillStatusEnum::CURRENT) {
+                            print "oh shit  current RB in space customer is not actually current\n";
+                        }
+                    } else {
+                        print "oh shit not even current RB in space customer\n";
+                    }
 
-                    $startDate=$space->start_at;
-                   if($startDate<$currentRecurringBill->start_date){
-                       $startDate=$currentRecurringBill->start_date;
-                   }
+                    $startDate = $space->start_at;
+                    if ($startDate < $currentRecurringBill->start_date) {
+                        $startDate = $currentRecurringBill->start_date;
+                    }
 
-//                   print_r( [
-//                       'start_date'                => $startDate,
-//                       'quantity'                  => 1
-//                   ]);
+                    //                   print_r( [
+                    //                       'start_date'                => $startDate,
+                    //                       'quantity'                  => 1
+                    //                   ]);
 
-                   StoreRecurringBillTransaction::make()->action(
-                       $currentRecurringBill,
-                       $space,
-                       [
-                           'start_date'                => $startDate,
-                           'quantity'                  => 1
-                       ]
-                   );
-                   $space->update(
-                       [
-                           'current_recurring_bill_id'=>$currentRecurringBill->id
-                       ]
-                   );
+                    StoreRecurringBillTransaction::make()->action(
+                        $currentRecurringBill,
+                        $space,
+                        [
+                            'start_date'                => $startDate,
+                            'quantity'                  => 1
+                        ]
+                    );
+                    $space->update(
+                        [
+                            'current_recurring_bill_id' => $currentRecurringBill->id
+                        ]
+                    );
 
 
-               }
+                }
 
 
             } else {
-               // print "Ohh yes space $space->id\n";
+                // print "Ohh yes space $space->id\n";
             }
         }
     }
@@ -166,8 +166,8 @@ class RepairPalletDeliveriesAndReturns
 
     public function checkIfSpaceInRecurringBillTransaction(Space $space)
     {
-        return DB::table('recurring_bill_transactions')->leftJoin('recurring_bills','recurring_bills.id','recurring_bill_transactions.recurring_bill_id')
-            ->where('item_type','Space')->where('item_id',$space->id)->where('recurring_bills.status',RecurringBillStatusEnum::CURRENT->value)->first();
+        return DB::table('recurring_bill_transactions')->leftJoin('recurring_bills', 'recurring_bills.id', 'recurring_bill_transactions.recurring_bill_id')
+            ->where('item_type', 'Space')->where('item_id', $space->id)->where('recurring_bills.status', RecurringBillStatusEnum::CURRENT->value)->first();
     }
 
     public function fixPalletDispatchedAt(): void
