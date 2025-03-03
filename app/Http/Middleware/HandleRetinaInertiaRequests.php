@@ -33,7 +33,7 @@ class HandleRetinaInertiaRequests extends Middleware
         if (!$request->inertia() or Session::get('reloadLayout')) {
             $firstLoadOnlyProps          = GetRetinaFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-                return array_merge((new Ziggy())->toArray(), [
+                return array_merge((new Ziggy('retina'))->toArray(), [
                     'location' => $request->url(),
                 ]);
             };

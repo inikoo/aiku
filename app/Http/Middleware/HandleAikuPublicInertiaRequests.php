@@ -20,23 +20,11 @@ class HandleAikuPublicInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $firstLoadOnlyProps = [
-            'grpDomain'   => (app()->environment('local') ? 'http' : 'https').'://app.'.config('app.domain'),
             'environment' => app()->environment(),
-            'navigation'  => [
-                [
-                    'title' => 'Home',
-                    'link'  => route('aiku-public.features')
-                ],
-                [
-                    'title' => __('About us'),
-                    'link'  => route('aiku-public.about-us')
-                ],
-
-            ],
         ];
 
         $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-            return array_merge((new Ziggy())->toArray(), [
+            return array_merge((new Ziggy('aiku-public'))->toArray(), [
                 'location' => $request->url(),
             ]);
         };

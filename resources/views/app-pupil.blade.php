@@ -23,7 +23,7 @@
         @endif
 
         <!-- Scripts -->
-        @routes('shopify')
+        @routes('pupil')
         {{Vite::useHotFile('pupil.hot')->useBuildDirectory('pupil')->withEntryPoints(['resources/js/app-pupil.js'])}}
         @inertiaHead
     </head>

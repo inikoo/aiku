@@ -9,8 +9,10 @@
 return [
     'groups' => [
         'grp'         => ['grp.*'],
-        'public'      => ['iris.*'],
+        'iris'        => ['iris.*'],
         'retina'      => ['retina.*'],
         'aiku-public' => ['aiku-public.*'],
+        'cornea'      => ['cornea.*'],
+        'pupil'      => ['pupil.*'],
     ],
 ];
