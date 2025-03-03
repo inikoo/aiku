@@ -179,7 +179,7 @@ test("UI Show Goods Dashboard", function () {
             ->has("title")
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                 $page->where("title", 'goods strategy')
                     ->etc()
             )
@@ -429,7 +429,7 @@ test("UI Index Master Shops", function () {
             ->has("data")
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                     $page->has('subNavigation')->etc()
             );
     });
@@ -479,7 +479,7 @@ test("UI Show master shop", function (MasterShop $masterShop) {
             ->has("breadcrumbs", 1)
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                 $page->where("title", $masterShop->name)
                         ->has('subNavigation')
                         ->etc()
@@ -557,7 +557,7 @@ test("UI Index Master Departments", function (MasterShop $masterShop) {
             ->has("data")
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                     $page->has('subNavigation')->etc()
             );
     });
@@ -575,7 +575,7 @@ test("UI Index Master Families", function (MasterShop $masterShop) {
             ->has("data")
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                     $page->has('subNavigation')->etc()
             );
     });
@@ -593,7 +593,7 @@ test("UI Index Master SubDepartments", function (MasterShop $masterShop) {
             ->has("data")
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => 
+                fn (AssertableInertia $page) =>
                     $page->has('subNavigation')->etc()
             );
     });

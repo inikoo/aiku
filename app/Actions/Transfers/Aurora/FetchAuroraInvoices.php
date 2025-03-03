@@ -34,12 +34,14 @@ class FetchAuroraInvoices extends FetchAuroraAction
         }
 
         $invoiceData = $organisationSource->fetchInvoice($organisationSourceId);
+
         if (!$invoiceData) {
             return null;
         }
 
 
         if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])->first()) {
+
             try {
                 $invoice = UpdateInvoice::make()->action(
                     invoice: $invoice,
@@ -57,7 +59,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
             if ($invoiceData['invoice']['data']['foot_note'] == '') {
                 unset($invoiceData['invoice']['data']['foot_note']);
             }
-            try {
+         //   try {
                 $invoice = StoreInvoice::make()->action(
                     parent: $invoiceData['parent'],
                     modelData: $invoiceData['invoice'],
@@ -79,11 +81,11 @@ class FetchAuroraInvoices extends FetchAuroraAction
                 DB::connection('aurora')->table('Invoice Dimension')
                     ->where('Invoice Key', $sourceData[1])
                     ->update(['aiku_id' => $invoice->id]);
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
-
-                return null;
-            }
+//            } catch (Exception|Throwable $e) {
+//                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
+//
+//                return null;
+//            }
         }
 
 

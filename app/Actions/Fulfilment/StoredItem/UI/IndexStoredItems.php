@@ -138,7 +138,7 @@ class IndexStoredItems extends OrgAction
         $subNavigation = [];
         $actions       = [];
         $icon          = ['fal', 'fa-narwhal'];
-        $title         = __("customer's sKUs");
+        $title         = __("Customer's SKUs");
         $afterTitle    = null;
         $iconRight     = null;
 
@@ -203,7 +203,7 @@ class IndexStoredItems extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
-                'title'                                             => __("customer's sKUs"),
+                'title'                                             => __("Customer's SKUs"),
                 'pageHead'                                          => [
                     'title'         => $title,
                     'afterTitle'    => $afterTitle,

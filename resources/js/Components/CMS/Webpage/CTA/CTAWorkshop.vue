@@ -51,14 +51,14 @@ const onUpload = (e) => {
 <template>
 	<div class="relative" :style="getStyles(modelValue.container.properties)">
 		<div
-			class="relative h-80 overflow-hidden bg-indigo-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
+			class="relative h-80 overflow-hidden md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
 			<!-- Edit button to open the gallery, conditionally shown based on isEditable -->
 			<button
 				@click.stop="openGallery.value = !openGallery.value"
 				style="position: absolute; top: 10px; left: 10px; z-index: 10">
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
 			</button>
-
+			
 			<!-- Fallback image wrapped in a clickable link if no custom image is available -->
 			<a
 				v-if="!modelValue?.image?.source"
@@ -81,7 +81,7 @@ const onUpload = (e) => {
 				class="block h-full w-full">
 				<Image
 					:src="modelValue?.image?.source"
-					:alt="modelValue?.image?.alt"
+					:alt="modelValue?.image?.alt || 'image'"
 					class="h-full w-full object-cover" />
 			</a>
 		</div>
