@@ -52,6 +52,9 @@ watch(dateFilterValue, (newValue) => {
             },
             onError: (e) => {
                 // console.log('eeerr', e)
+            },
+            headers: {
+                'X-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
             }
         }
     )

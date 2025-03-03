@@ -109,7 +109,7 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
-                        [
+                        /* [
                             'type' => 'button',
                             'style' => 'exit',
                             'label' => __('Toggle'),
@@ -132,7 +132,7 @@ class ShowOutboxWorkshop extends OrgAction
                                 ],
                                 default => []
                             }
-                        ],
+                        ], */
                     ]
 
                 ],
