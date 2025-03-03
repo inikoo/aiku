@@ -389,6 +389,19 @@ test('UI Index stock deliveries', function () {
     });
 });
 
+test('UI create stock delivery', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.procurement.stock_deliveries.create', [$this->organisation->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('formData')
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
+    });
+});
+
 test('UI show stock delivery', function () {
     $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $this->stockDelivery->slug]));
@@ -405,5 +418,18 @@ test('UI show stock delivery', function () {
             )
             ->has('tabs');
 
+    });
+});
+
+test('UI edit stock delivery', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.procurement.stock_deliveries.edit', [$this->organisation->slug, $this->stockDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData')
+            ->has('pageHead')
+            ->has('breadcrumbs', 3);
     });
 });

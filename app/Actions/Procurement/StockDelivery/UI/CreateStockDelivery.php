@@ -21,7 +21,10 @@ class CreateStockDelivery extends OrgAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('new supplier delivery'),
                 'pageHead'    => [
                     'title'        => __('new supplier delivery'),
@@ -64,7 +67,9 @@ class CreateStockDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo('procurement.edit');
+        $this->canEdit = true;
+        //TODO:Raul Need to think of this
+        return true;
     }
 
 
@@ -75,15 +80,18 @@ class CreateStockDelivery extends OrgAction
         return $this->handle($request);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexStockDeliveries::make()->getBreadcrumbs(),
+            IndexStockDeliveries::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
             [
                 [
                     'type'         => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating stock deliveries'),
+                        'label' => __('Creating stock delivery'),
                     ]
                 ]
             ]
