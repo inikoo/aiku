@@ -43,14 +43,14 @@ function RouteDashboardTable(shop: any, type: string) {
 			</p>
 		</div>
         <div v-else-if="type === 'refunds' || type ==='invoices'" :key="dataTable.interval_percentages?.[type]?.amount || 0">
-            <Link v-if="dataTable.interval_percentages?.[type]?.amount" :href="RouteDashboardTable(dataTable, type)" class="hover-underline text-[16px] md:text-[18px]" >
+            <Link v-if="dataTable.interval_percentages?.[type]?.amount" :href="RouteDashboardTable(dataTable, type)" class="hover-underline font-mono text-[16px] md:text-[18px]" >
                 {{
                     locale.number(
                         dataTable?.interval_percentages?.[type]?.amount || 0
                     )
                 }}
             </Link>
-            <span v-else class="text-[16px] md:text-[18px]">
+            <span v-else class="text-[16px] md:text-[18px] font-mono">
                 {{
                     locale.number(
                         dataTable?.interval_percentages?.[type]?.amount || 0

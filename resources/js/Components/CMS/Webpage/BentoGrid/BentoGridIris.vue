@@ -49,7 +49,7 @@ const emits = defineEmits<{
 							<div class="absolute">
 								<Image
 									:src="fieldValue?.column1?.source"
-									:alt="fieldValue?.column1?.source?.alt || 'Image aiku'"
+									:alt="fieldValue?.column1?.alt || 'Image aiku'"
 									class="w-full h-full object-cover rounded-lg" />
 							</div>
 						</div>
@@ -76,7 +76,7 @@ const emits = defineEmits<{
 							<div class="relative w-full max-lg:max-w-xs">
 								<Image
 									:src="fieldValue?.column2?.source"
-									:alt="fieldValue?.column2?.source?.alt || 'Image aiku'"
+									:alt="fieldValue?.column2?.alt || 'Image aiku'"
 									class="w-full object-cover rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -101,7 +101,7 @@ const emits = defineEmits<{
 							<div class="relative w-full max-lg:max-w-xs">
 								<Image
 									:src="fieldValue?.column3?.source"
-									:alt="fieldValue?.column3?.source?.alt || 'Image aiku'"
+									:alt="fieldValue?.column3?.alt || 'Image aiku'"
 									class="h-[min(152px,40cqw)] object-cover object-center rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -127,7 +127,7 @@ const emits = defineEmits<{
 							<div class="absolute">
 								<Image
 									:src="fieldValue?.column4?.source"
-									:alt="fieldValue?.column4?.source?.alt || 'Image aiku'"
+									:alt="fieldValue?.column4?.alt || 'Image aiku'"
 									class="size-full object-cover object-top" />
 							</div>
 						</div>

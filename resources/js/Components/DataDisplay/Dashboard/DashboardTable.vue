@@ -374,6 +374,7 @@ function useTabChangeDashboard(tab_slug: string) {
 ::v-deep .p-datatable-tfoot > tr > td {
 	padding: 0.25em !important;
 	color: #7c7c7c !important;
+	border-top: 1px solid rgba(59, 59, 59, 0.5) !important;
 }
 
 ::v-deep .p-datatable-column-footer {

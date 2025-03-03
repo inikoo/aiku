@@ -155,7 +155,7 @@ const updateAmountFormat = (amountFormat: string) => {
 				class="flex flex-wrap justify-between items-center gap-4 lg:gap-8 mb-2">
 				<!-- Shop Toggle (for tableType === 'org') -->
 				<div
-					v-if="tableType === 'org' || tabDashboardInterval === 'shops'"
+					v-if="tableType === 'org' || tabDashboardInterval === 'shops' || tabDashboardInterval === 'invoice_shops'"
 					class="flex items-center space-x-4">
 					<p
 						class="font-medium"
