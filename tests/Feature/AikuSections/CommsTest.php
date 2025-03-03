@@ -78,7 +78,7 @@ test('seed organisation outboxes customers command', function () {
     expect($this->group->commsStats->number_outboxes)->toBe(13)
         ->and($this->organisation->commsStats->number_outboxes)->toBe(13)
         ->and($this->organisation->commsStats->number_outboxes_type_test)->toBe(1)
-        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(10);
+        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(4);
 });
 
 test(

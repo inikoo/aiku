@@ -3202,7 +3202,7 @@ test('store standalone invoice', function () {
     return $invoice;
 });
 
-test('store standalone invoice transaction', function (Invoice $invoice) {  
+test('store standalone invoice transaction', function (Invoice $invoice) {
     /** @var Service $service */
     $service = Service::first();
     $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
@@ -3218,7 +3218,7 @@ test('store standalone invoice transaction', function (Invoice $invoice) {
     return $invoiceTransaction;
 })->depends('store standalone invoice');
 
-test('update standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {  
+test('update standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
     $invoiceTransaction = UpdateStandaloneFulfilmentInvoiceTransaction::make()->action($invoiceTransaction, [
         'quantity' => 100
     ]);
@@ -3231,7 +3231,7 @@ test('update standalone invoice transaction', function (InvoiceTransaction $invo
     return $invoiceTransaction;
 })->depends('store standalone invoice transaction');
 
-test('delete standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {  
+test('delete standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
     $invoice = $invoiceTransaction->invoice;
     expect($invoice->invoiceTransactions()->count())->toBe(1);
 
@@ -3243,7 +3243,7 @@ test('delete standalone invoice transaction', function (InvoiceTransaction $invo
     return $invoice;
 })->depends('update standalone invoice transaction');
 
-test('complete standalone invoice', function (Invoice $invoice) {  
+test('complete standalone invoice', function (Invoice $invoice) {
     $service = Service::first();
     $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
         'quantity' => 1000
