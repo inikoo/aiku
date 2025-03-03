@@ -17,6 +17,7 @@ use App\Actions\Billables\Service\Search\ReindexServiceSearch;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Billables\Service\UpdateService;
 use App\Actions\Catalogue\Collection\AttachCollectionToModels;
+use App\Actions\Catalogue\Collection\DetachModelFromCollection;
 use App\Actions\Catalogue\Collection\Search\ReindexCollectionSearch;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
@@ -674,7 +675,6 @@ test('update charge', function ($charge) {
     return $updatedCharge;
 })->depends('create charge');
 
-
 test('add items to collection', function (Collection $collection) {
     $data = [
         'collections' => [2],
@@ -686,11 +686,20 @@ test('add items to collection', function (Collection $collection) {
     $collection = AttachCollectionToModels::make()->action($collection, $data);
     $collection->refresh();
     expect($collection)->toBeInstanceOf(Collection::class);
-    //  ->and($collection->collections()->count())->toBe(1)  todo check this
-    //  ->and($collection->departments()->count())->toBe(2)  todo check this
-    //  ->and($collection->families()->count())->toBe(1)  todo check this
-    //  ->and($collection->products()->count())->toBe(1); todo check this
+
+    return $collection;
 })->depends('update collection');
+
+test('remove items to collection', function (Collection $collection) {
+    $collection = DetachModelFromCollection::make()->action($collection, [
+        'department' => 1
+    ]);
+    $collection->refresh();
+
+    expect($collection)->toBeInstanceOf(Collection::class)
+        ->and($collection->stats->number_departments)->toBe(1);
+
+})->depends('add items to collection');
 
 test('hydrate shops', function (Shop $shop) {
     HydrateShops::run($shop);
