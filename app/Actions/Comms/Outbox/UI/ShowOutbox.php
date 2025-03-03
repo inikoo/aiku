@@ -98,9 +98,20 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
-        $actions = [];
+        $actions = [
+            [
+                'type'  => 'button',
+                'style' => 'edit',
+                'label' => __('edit'),
+                'route' => [
+                    'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                    'parameters' => array_values($request->route()->originalParameters())
+                ]
+            ]
+        ];
+
         if ($outbox->builder !== OutboxBuilderEnum::BLADE) {
-            $actions = [
+            $actions[] =
                 [
                     'type'  => 'button',
                     'style' => 'secondary',
@@ -110,8 +121,7 @@ class ShowOutbox extends OrgAction
                         'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
                         'parameters' => array_values($request->route()->originalParameters())
                     ]
-                ]
-            ];
+                ];
         }
 
         $navigation = OutboxTabsEnum::navigation();

@@ -75,6 +75,13 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
         return $this->handle($invoice, $historicAsset, $this->validatedData);
     }
 
+    public function action(Invoice $invoice, HistoricAsset $historicAsset, array $modelData): InvoiceTransaction
+    {
+        $this->initialisationFromShop($invoice->shop, $modelData);
+
+        return $this->handle($invoice, $historicAsset, $this->validatedData);
+    }
+
     public function htmlResponse(): RedirectResponse
     {
         return back();

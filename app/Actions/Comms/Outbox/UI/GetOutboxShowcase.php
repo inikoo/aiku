@@ -31,7 +31,9 @@ class GetOutboxShowcase
 
         return [
                 'outbox' => [
-                    'slug'  => $outbox->slug
+                    'slug'  => $outbox->slug,
+                    'subject' => $outbox->emailOngoingRun?->email?->subject,
+                    'sender' => $outbox->shop?->senderEmail?->email_address
                 ],
                 'state' => $outbox->state,
                 'builder' => $outbox->builder,

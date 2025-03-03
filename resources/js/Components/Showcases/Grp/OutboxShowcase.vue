@@ -30,14 +30,17 @@ library.add(faInboxOut);
 const props = defineProps<{
     data: {
         outbox: {
-            slug: string
+            slug: string,
+            sender : String,
+            subject : String
         }
         stats: Array<any>
         compiled_layout: HtmlHTMLAttributes
         dashboard_stats: String
-        builder: String
+        builder: String,
     };
 }>();
+console.log(props)
 const previewOpen = ref(false)
 const iframeClass = ref('w-full h-full')
 // const totalValue = (props.data.stats.map((item) => item.value || 0)).reduce((acc, val) => acc + val, 0);
@@ -105,9 +108,9 @@ const isLoadingVisit = ref(false)
 
                     <!-- Email Preview Header -->
                     <div class="mb-4 border-b pb-2">
-                        <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.sender || 'Unknown Sender' }}
+                        <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.outbox.sender || 'Unknown Sender' }}
                         </p>
-                        <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.subject || '(No Subject)' }}
+                        <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.outbox.subject || '(No Subject)' }}
                         </p>
                     </div>
 
@@ -133,9 +136,9 @@ const isLoadingVisit = ref(false)
                 <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
             </div>
             <div class="mb-4 border-b pb-2 p-2">
-                <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.sender || 'Unknown Sender' }}
+                <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.outbox.sender || 'Unknown Sender' }}
                 </p>
-                <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.subject || '(No Subject)' }}
+                <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.outbox.subject || '(No Subject)' }}
                 </p>
             </div>
             <div v-html="data.compiled_layout"></div>
