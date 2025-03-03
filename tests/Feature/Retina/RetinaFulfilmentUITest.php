@@ -8,16 +8,20 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
+use App\Enums\Billables\Rental\RentalTypeEnum;
+use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -28,11 +32,13 @@ use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Models\Fulfilment\Space;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use Inertia\Testing\AssertableInertia;
@@ -167,6 +173,37 @@ beforeEach(function () {
     }
 
     $this->recurringBill = $recurringBill;
+
+    $rental = Rental::first();
+    if (!$rental) {
+        $rental = StoreRental::make()->action(
+            $this->fulfilment->shop,
+            [
+                'code' => 'rent-code',
+                'name' => 'rento',
+                'price'  => 10,
+                'unit'  => RentalUnitEnum::DAY->value,
+                'type'   => RentalTypeEnum::SPACE
+            ]
+        );
+    }
+
+    $this->rental = $rental;
+
+    $space = Space::first();
+    if (!$space) {
+        $space = StoreSpace::make()->action(
+            $this->customer->fulfilmentCustomer,
+            [
+                'reference' => 'space-ref',
+                'exclude_weekend' => true,
+                'start_at'  => now(),
+                'rental_id' => $this->rental->id
+            ]
+        );
+    }
+
+    $this->space = $space;
 
     $this->webUser  = createWebUser($this->customer);
 
@@ -800,6 +837,27 @@ test('index spaces', function () {
     });
 });
 
+test('show space', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.fulfilment.spaces.show', [$this->space->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Space/RetinaSpace')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->space->reference)
+                        ->etc()
+            )
+            ->has('tabs')
+            ->has('showcase');
+
+    });
+});
+
 test('show billing dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.fulfilment.billing.dashboard'));
@@ -980,6 +1038,46 @@ test('show stored item (tab history)', function () {
             )
             ->has(StoredItemTabsEnum::HISTORY->value)
             ->has('tabs');
+    });
+});
+
+test('show web user', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.sysadmin.web-users.show', [
+        $this->webUser->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/RetinaWebUser')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->webUser->username)
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('edit web user', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.sysadmin.web-users.edit', [
+        $this->webUser->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Edit web user')
+                        ->etc()
+            )
+            ->has('formData');
     });
 });
 
