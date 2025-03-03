@@ -84,7 +84,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
             ];
             $editDeltas = [
                 'stored_items' => $pallet->getEditStoredItemDeltasQuery($pallet->id, $storedItemAudit->id)
-                ->where('pallet_stored_items.pallet_id', $this->id)
+                ->where('pallet_stored_items.pallet_id', $pallet->id)
                 ->get()->map(fn ($item) => [
                     'stored_item_audit_id'       => $storedItemAudit->id,
                     'pallet_id'                  => $item->pallet_id,
