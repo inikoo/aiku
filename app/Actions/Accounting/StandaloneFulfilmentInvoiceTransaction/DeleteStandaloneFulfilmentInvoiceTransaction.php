@@ -36,5 +36,12 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
         $this->handle($invoiceTransaction);
     }
 
+    public function action(InvoiceTransaction $invoiceTransaction): void
+    {
+        $this->initialisationFromShop($invoiceTransaction->shop, []);
+
+        $this->handle($invoiceTransaction);
+    }
+
 
 }
