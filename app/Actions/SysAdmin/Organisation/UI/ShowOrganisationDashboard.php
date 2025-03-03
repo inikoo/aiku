@@ -88,13 +88,13 @@ class ShowOrganisationDashboard extends OrgAction
                     'type'     => 'table',
                     'data' => null
                 ],
-                // [
-                //     'tab_label' => __('Invoices categories'),
-                //     'tab_slug'  => 'invoice_categories',
-                //     'tab_icon'  => 'fal fa-sitemap',
-                //     'type'     => 'table',
-                //     'data' => null
-                // ]
+                [
+                    'tab_label' => __('Invoices categories'),
+                    'tab_slug'  => 'invoice_categories',
+                    'tab_icon'  => 'fal fa-sitemap',
+                    'type'     => 'table',
+                    'data' => null
+                ]
             ],
             'widgets'          => [
                 'column_count' => 5,
@@ -111,22 +111,20 @@ class ShowOrganisationDashboard extends OrgAction
                 $shopCurrencies[] = $shop->currency->symbol;
             }
             $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
+        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
+            if ($selectedShopState == 'open') {
+                $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
+            } else {
+                $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
+            }
+            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
+
+            $invoiceCategoryCurrencies   = [];
+            foreach ($invoiceCategories as $invoiceCategory) {
+                $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
+            }
+            $shopCurrenciesSymbol = implode('/', array_unique($invoiceCategoryCurrencies));
         }
-
-        // elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-        //     if ($selectedShopState == 'open') {
-        //         $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
-        //     } else {
-        //         $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
-        //     }
-        //     $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
-
-        //     $invoiceCategoryCurrencies   = [];
-        //     foreach ($invoiceCategories as $invoiceCategory) {
-        //         $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
-        //     }
-        //     $shopCurrenciesSymbol = implode('/', array_unique($invoiceCategoryCurrencies));
-        // }
 
         $dashboard['settings']['options_currency'][1]['label'] = $shopCurrenciesSymbol;
 
