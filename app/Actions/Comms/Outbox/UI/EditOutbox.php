@@ -63,11 +63,11 @@ class EditOutbox extends OrgAction
                     ],
                 ],
                 'formData' => [
-                    'fullLayout' => true,
                     'blueprint' =>
                         [
                             [
-                                'title' => __('name'),
+                                "label"   => __("Settings"),
+                                "icon"    => "fa-light fa-sliders-h",
                                 'fields' => array_merge(...array_map(fn ($item) => $item['fields'], $fields))
                             ]
                         ],
