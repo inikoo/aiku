@@ -57,6 +57,15 @@ class UpdateStandaloneFulfilmentInvoiceTransaction extends OrgAction
         return $invoiceTransaction;
     }
 
+    public function action(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
+    {
+        $this->initialisationFromShop($invoiceTransaction->shop, $modelData);
+
+        $this->handle($invoiceTransaction, $this->validatedData);
+
+        return $invoiceTransaction;
+    }
+
     public function htmlResponse(): RedirectResponse
     {
         return back();

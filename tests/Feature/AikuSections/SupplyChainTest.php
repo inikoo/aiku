@@ -303,6 +303,20 @@ test('UI Index suppliers', function () {
     });
 });
 
+test('UI create supplier', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.suppliers.create'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
 test('UI Index suppliers product in supplier', function () {
     $this->withoutExceptionHandling();
     $supplier = Supplier::first();
@@ -389,6 +403,26 @@ test('UI show supplier', function () {
                     ->etc()
             )
             ->has('tabs');
+    });
+});
+
+test('UI edit supplier', function () {
+    $agent = Agent::first();
+    $supplier = $agent->suppliers()->first();
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.show.suppliers.edit', [$agent->slug, $supplier->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($supplier) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $supplier->code)
+                    ->etc()
+            )
+            ->has('formData');
     });
 });
 
