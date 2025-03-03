@@ -204,7 +204,7 @@ class ShowStoredItemAuditForPallet extends OrgAction
                 ],
 
                 'data'                    => StoredItemAuditResource::make($storedItemAudit),
-                'xeditDeltas' => $editDeltas,
+                'editDeltas' => $editDeltas,
                 'stored_item_deltas'      => $deltas,
                 'fulfilment_customer'     => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
