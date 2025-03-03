@@ -32,7 +32,7 @@ class HandlePupilInertiaRequests extends Middleware
 
             $firstLoadOnlyProps          = GetPupilFirstLoadProps::run($request, $webUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-                return array_merge((new Ziggy())->toArray(), [
+                return array_merge((new Ziggy('pupil'))->toArray(), [
                     'location' => $request->url(),
                 ]);
             };

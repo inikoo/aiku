@@ -224,9 +224,11 @@ const isLoadingNavigation = ref<string | boolean>(false)
                     <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Shop')" />
                 </Transition>
 
-                <div v-if="(numberOptions || 0) > 1" @click="() => set(layout, ['organisationsState', layout?.currentParams?.organisation, generateCurrentString(currentNavigation()?.type)], '')" class="text-red-300 hover:text-red-500 cursor-pointer hover:underline text-xxs w-fit px-0.5 py leading-[14px]">
-                    {{ trans("Unselect") }}
-                </div>
+                <Transition name="slide-to-left">
+                    <div v-if="layout.leftSidebar.show && (numberOptions || 0) > 1" @click="() => set(layout, ['organisationsState', layout?.currentParams?.organisation, generateCurrentString(currentNavigation()?.type)], '')" class="text-red-300 hover:text-red-500 cursor-pointer hover:underline text-xxs w-fit px-0.5 py leading-[14px]">
+                        {{ trans("Unselect") }}
+                    </div>
+                </Transition>
             </div>
 
             

@@ -153,29 +153,28 @@ class ShowOrganisationDashboard extends OrgAction
             $selectedInterval,
             function ($child) use ($selectedInterval, $organisation) {
                 $routes = [
-                            'route'         => [
-                    'name'       => 'grp.org.shops.show.dashboard',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop'         => $child->slug
-                    ]
-                ],
-                'route_invoice' => [
-                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop' => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                    ]
-                ],
-                'route_refund' => [
-                    'name'       => 'grp.org.shops.show.ordering.refunds.index',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop'        => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                    ]
-                ],
+                    'route'         => [
+                        'name'       => 'grp.org.shops.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'shop'         => $child->slug
+                        ]
+                    ],
+                    'route_invoice' => [
+                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'shop' => $child->slug,
+                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                        ]
+                    ],
+                    'route_refund' => [
+                        'name'       => 'grp.org.accounting.refunds.index',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                        ]
+                    ],
                 ];
 
                 if ($child->type == ShopTypeEnum::FULFILMENT) {
@@ -188,14 +187,6 @@ class ShowOrganisationDashboard extends OrgAction
                     ];
                     $routes['route_invoice'] = [
                         'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-                        'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'fulfilment'   => $child->slug,
-                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                        ]
-                    ];
-                    $routes['route_refund'] = [
-                        'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
                         'parameters' => [
                             'organisation' => $organisation->slug,
                             'fulfilment'   => $child->slug,

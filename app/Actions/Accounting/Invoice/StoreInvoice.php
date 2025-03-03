@@ -56,7 +56,7 @@ class StoreInvoice extends OrgAction
     public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
     {
 
-        if(!Arr::has($modelData, 'footer')) {
+        if (!Arr::has($modelData, 'footer')) {
             data_set($modelData, 'footer', $this->shop->invoice_footer);
         }
 

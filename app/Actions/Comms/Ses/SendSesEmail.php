@@ -36,7 +36,7 @@ class SendSesEmail
             return $dispatchedEmail;
         }
 
-        $emailTo=$dispatchedEmail->emailAddress->email;
+        $emailTo = $dispatchedEmail->emailAddress->email;
 
 
         $actuallySend = false;
@@ -45,8 +45,8 @@ class SendSesEmail
         } elseif (config('app.send_email_in_non_production_env') or $dispatchedEmail->is_test) {
             $actuallySend = true;
 
-            $emailTo=config('app.test_email_to_address');
-            if(!$emailTo){
+            $emailTo = config('app.test_email_to_address');
+            if (!$emailTo) {
                 $actuallySend = false;
             }
         }
