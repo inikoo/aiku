@@ -98,7 +98,14 @@ class ShowGroupDashboard extends OrgAction
                     'tab_icon'  => 'fal fa-shopping-cart',
                     'type'      => 'table',
                     'data'      => null
-                ]
+                ],
+                // [
+                //     'tab_label' => __('Invoice categories'),
+                //     'tab_slug'  => 'invoice_categories',
+                //     'tab_icon'  => 'fal fa-sitemap',
+                //     'type'      => 'table',
+                //     'data'      => null
+                // ]
             ],
             'widgets'          => [
                 'column_count' => 5,
