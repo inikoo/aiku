@@ -27,15 +27,18 @@ use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductVariant;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
 use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\Search\ReindexProductCategorySearch;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
@@ -60,6 +63,8 @@ use App\Models\Helpers\Country;
 use App\Models\Helpers\Language;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
+use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -124,6 +129,19 @@ test('create shop', function () {
     return $shop;
 });
 
+test('create shop website', function (Shop $shop) {
+    $website = StoreWebsite::make()->action(
+        $shop,
+        Website::factory()->definition(),
+    );
+    $shop->refresh();
+
+    expect($website)->toBeInstanceOf(Website::class);
+    expect($shop->website->id)->toBe($website->id);
+
+    return $shop;
+})->depends('create shop');
+
 test('create shop by command', function () {
     $organisation = $this->organisation;
     $this->artisan('shop:create', [
@@ -183,6 +201,17 @@ test('create department', function ($shop) {
 
     return $department;
 })->depends('create shop');
+
+test('create product category webpage', function (ProductCategory $department) {
+    $webpage = StoreProductCategoryWebpage::make()->action($department);
+    $department->refresh();
+
+    expect($webpage)->toBeInstanceOf(Webpage::class)
+    ->and($webpage->model_type)->toBe('ProductCategory')
+    ->and(intval($webpage->model_id))->toBe(intval($department->id));
+
+    return $department;
+})->depends('create department');
 
 test('create sub department', function ($productCategory) {
     $subDepartmentData = ProductCategory::factory()->definition();
@@ -426,6 +455,18 @@ test('update second product variant', function (Product $productVariant) {
     return $product;
 })->depends('add variant to product');
 
+test('store product webpage', function (Product $product) {
+    $webpage = StoreProductWebpage::make()->action($product);
+    $product->refresh();
+
+    // expect($product->webpage)->not->toBeNull();
+
+    expect($webpage)->toBeInstanceOf(Webpage::class)
+        ->and($webpage->model_type)->toBe('Product')
+        ->and(intval($webpage->model_id))->toBe(intval($product->id));
+
+    return $webpage;
+})->depends('update second product variant');
 
 test('delete product', function ($product) {
     $shop = $product->shop;
