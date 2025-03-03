@@ -112,7 +112,8 @@ class ShowOrganisationDashboard extends OrgAction
             }
             $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            if ($selectedShopState == 'open') {
+            $selectedInvoiceCategoryState = Arr::get($userSettings, 'selected_invoice_category_state', 'open');
+            if ($selectedInvoiceCategoryState == 'open') {
                 $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
             } else {
                 $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
