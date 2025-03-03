@@ -12,7 +12,8 @@
         "dev.retina": "vite --config vite.retina.config.js",
         "build.retina": "vite build --config vite.retina.config.js",
         "dev.pupil": "vite --config vite.pupil.config.js",
-        "build.pupil": "vite build --config vite.pupil.config.js"
+        "build.pupil": "vite build --config vite.pupil.config.js",
+        "postinstall": "patch-package"
     },
     "devDependencies": {
         "@codecov/vite-plugin": "^0.0.1-beta.6",
@@ -101,6 +102,7 @@
         "md5": "^2.3.0",
         "node-html-parser": "^6.1.13",
         "papaparse": "^5.4.1",
+        "patch-package": "^8.0.0",
         "pinia": "^2.0.20",
         "primevue": "^4.0.4",
         "pusher-js": "^8.4.0-rc2",
