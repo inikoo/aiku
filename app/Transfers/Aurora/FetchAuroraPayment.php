@@ -21,9 +21,10 @@ class FetchAuroraPayment extends FetchAurora
         $data = [];
 
         $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
 
 
-        $shop=$this->parsedData['customer']->shop;
+
 
         if ($this->auroraModelData->{'Payment Currency Exchange Rate'} and
             $this->auroraModelData->{'Payment Currency Exchange Rate'} != 1) {
@@ -92,10 +93,13 @@ class FetchAuroraPayment extends FetchAurora
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
             'shop_id'         => $shop->id,
-            'customer_id'     => $this->parsedData['customer']->id,
 
         ];
 
+
+        if($this->parsedData['customer'] ){
+            $this->parsedData['payment']['customer_id'] = $this->parsedData['customer']->id;
+        }
 
 
     }
