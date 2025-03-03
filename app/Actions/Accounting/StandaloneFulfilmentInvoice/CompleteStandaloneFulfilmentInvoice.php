@@ -88,21 +88,21 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if(!$this->asAction){
+        if (!$this->asAction) {
             $invoice = $request->route()->parameter('invoice');
-    
+
             if (!$invoice->customer->fulfilmentCustomer->rentalAgreement) {
                 $validator->errors()->add('invoice', 'Invoice customer must have rental agreement');
             }
-    
+
             if (!in_array($invoice->customer->status, [CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])) {
                 $validator->errors()->add('invoice', 'Invoice must be from an approved customer');
             }
-    
+
             if ($invoice->shop->type != ShopTypeEnum::FULFILMENT) {
                 $validator->errors()->add('invoice', 'Invoice must be from a fulfilment shop');
             }
-    
+
             if ($invoice->invoiceTransactions->count() == 0) {
                 $validator->errors()->add('invoice', 'Invoice must have at least one transaction');
             }
