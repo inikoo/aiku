@@ -110,7 +110,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:email_tracking_events',
             'fetch:queries',
             'fetch:subscription_events',
-            'fetch:offer_components'
+            'fetch:offer_components',
+            'fetch:credits'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
