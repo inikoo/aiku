@@ -19,7 +19,9 @@ const props = defineProps<{
 			selected_currency_in_org?: string
 			selected_shop_open?: string
 			selected_shop_closed?: string
+			selected_invoice_category_state?: string
 		}
+		selected_invoice_category_state?: string
 		selected_shop_state?: string
 		key_currency?: string
 		key_shop?: string
@@ -117,6 +119,26 @@ const updateShop = (shop_scope: string) => {
 	)
 }
 
+const updateInvoiceCategory = (state: string) => {
+	router.patch(
+		route("grp.models.profile.update"),
+		{
+			settings: {
+				selected_invoice_category_state: state,
+			},
+		},
+		{
+			onStart: () => {
+				isLoadingShop.value = true
+			},
+			onFinish: () => {
+				isLoadingShop.value = false
+			},
+			preserveScroll: true,
+		}
+	)
+}
+
 const updateAmountFormat = (amountFormat: string) => {
 	router.patch(
 		route("grp.models.profile.update"),
@@ -149,36 +171,65 @@ const updateAmountFormat = (amountFormat: string) => {
 				class="text-2xl text-indigo-500 cursor-pointer hover:text-indigo-600 transition" />
 		</div>
 		<div class="pr-12 mb-2">
-			<!-- Toggles Section (Shop and Currency) -->
 			<div
 				v-show="isSectionVisible"
 				class="flex flex-wrap justify-between items-center gap-4 lg:gap-8 mb-2">
-				<!-- Shop Toggle (for tableType === 'org') -->
+
 				<div
-					v-if="tableType === 'org' || tabDashboardInterval === 'shops' || tabDashboardInterval === 'invoice_shops'"
+					v-if="tabDashboardInterval === 'invoice_categories'"
 					class="flex items-center space-x-4">
 					<p
 						class="font-medium"
 						:class="[
-							settings.selected_shop_state ===
+							settings.selected_invoice_category_state ===
 							settings.options_shop[1].value
 								? 'text-black font-bold'
 								: 'opacity-50',
 						]">
 						{{ settings.options_shop[1].label }}
 					</p>
+					<ToggleSwitch
+						:modelValue="settings.selected_invoice_category_state === 'open'"
+						:disabled="isLoadingShop"
+						@update:modelValue="
+							(value) => updateInvoiceCategory(value ? 'open' : 'closed')
+						" />
+					<p
+						class="font-medium"
+						:class="[
+							settings.selected_invoice_category_state ===
+							settings.options_shop[0].value
+								? 'text-black font-bold'
+								: 'opacity-50',
+						]">
+						{{ settings.options_shop[0].label }}
+					</p>
+				</div>
 
-					<!-- Shop Toggle Switch -->
+				<div
+					v-else-if="
+						tableType === 'org' ||
+						tabDashboardInterval === 'shops' ||
+						tabDashboardInterval === 'invoice_shops'
+					"
+					class="flex items-center space-x-4">
+					<p
+						class="font-medium"
+						:class="[
+							settings.selected_shop_state === settings.options_shop[1].value
+								? 'text-black font-bold'
+								: 'opacity-50',
+						]">
+						{{ settings.options_shop[1].label }}
+					</p>
 					<ToggleSwitch
 						:modelValue="settings.selected_shop_state === 'open'"
 						:disabled="isLoadingShop"
 						@update:modelValue="(value) => updateShop(value ? 'open' : 'closed')" />
-
 					<p
 						class="font-medium"
 						:class="[
-							settings.selected_shop_state ===
-							settings.options_shop[0].value
+							settings.selected_shop_state === settings.options_shop[0].value
 								? 'text-black font-bold'
 								: 'opacity-50',
 						]">
