@@ -10,12 +10,10 @@ namespace App\Actions\Comms\Outbox;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Comms\Outbox;
-use App\Models\SysAdmin\Organisation;
-use App\Rules\IUnique;
-use Illuminate\Validation\Rule;
+use App\Models\Fulfilment\Fulfilment;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOutbox extends OrgAction
@@ -26,38 +24,19 @@ class UpdateOutbox extends OrgAction
 
     public function handle(Outbox $outbox, array $modelData): Outbox
     {
-        return $this->update($outbox, $modelData, ['data']);
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
+        if ($subject = Arr::pull($modelData, 'subject')) {
+            $this->update($outbox->emailOngoingRun?->email, [
+                'subject' => $subject
+            ]);
         }
 
-        return $request->user()->authTo("mail.edit");
+        return $this->update($outbox, $modelData, ['data']);
     }
 
     public function rules(): array
     {
         return [
-            'fulfilment_id' => ['sometimes', 'required', 'integer'],
-            'state'    => ['sometimes', 'required', Rule::Enum(OutboxStateEnum::class)],
-            'model_id' => ['sometimes', 'required', 'integer'],
-            'name'     => [
-                'sometimes',
-                'required',
-                new IUnique(
-                    table: 'outboxes',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                        ['column' => 'shop_id', 'value' => $this->outbox->shop_id],
-                        ['column' => 'id', 'value' => $this->outbox->id, 'operator' => '!=']
-                    ]
-                ),
-                'string',
-                'max:255'
-            ],
+            'subject' => ['sometimes', 'required', 'string']
         ];
     }
 
@@ -70,11 +49,9 @@ class UpdateOutbox extends OrgAction
         return $this->handle($outbox, $this->validatedData);
     }
 
-
-    public function asController(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
+    public function asController(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $this->outbox = $outbox;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($outbox->organisation, $request);
 
         return $this->handle($outbox, $this->validatedData);
     }

@@ -14,7 +14,7 @@ function RouteDashboardTable(shop: any, type: string) {
     if (type === 'invoices') {
         return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
     } else if (type === 'refunds') {
-        return route(shop?.route_refund?.name, shop?.route_invoice?.parameters)
+        return route(shop?.route_refund?.name, shop?.route_refund?.parameters)
         
     }
 }

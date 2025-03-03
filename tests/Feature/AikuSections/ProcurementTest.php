@@ -26,7 +26,6 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSettled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
-use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrderTransaction\UpdatePurchaseOrderTransaction;
