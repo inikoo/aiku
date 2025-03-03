@@ -22,6 +22,7 @@ class StoreProductWebpage extends OrgAction
     public function handle(Product $product): Webpage
     {
         $webpageData = [
+            'title'      => $product->name,
             'code'       => $product->code,
             'url'        => strtolower($product->code),
             'sub_type'    => WebpageSubTypeEnum::PRODUCT,
@@ -52,6 +53,13 @@ class StoreProductWebpage extends OrgAction
     }
 
     public function asController(Product $product): Webpage
+    {
+        $this->initialisationFromShop($product->shop, []);
+
+        return $this->handle($product);
+    }
+
+    public function action(Product $product): Webpage
     {
         $this->initialisationFromShop($product->shop, []);
 

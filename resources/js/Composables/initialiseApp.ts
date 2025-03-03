@@ -81,7 +81,6 @@ export const initialiseApp = () => {
                 }))
             }
 
-            // console.log('qq', usePage().props.auth.user)
 
             const dataActiveUser = {
                 ...usePage().props.auth.user,

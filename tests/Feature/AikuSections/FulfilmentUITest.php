@@ -1385,6 +1385,28 @@ test('UI edit rental agreement', function () {
     });
 })->skip('Known issue with $webUser->email being null');
 
+// Billables
+
+test('UI billables dashboard', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.billables.dashboard', [$this->organisation->slug, $this->fulfilment->shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Billables/BillablesDashboard')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'billables dashboard')
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+})->todo('permissions issue');
+
+
 // Service
 
 test('UI show service', function () {
