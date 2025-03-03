@@ -1149,6 +1149,24 @@ test('UI show pallet delivery', function () {
     });
 });
 
+test('UI edit pallet delivery', function () {
+    // $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Edit Pallet Delivery')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
 test('UI show pallet delivery (Services Tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=services');
     $response->assertInertia(function (AssertableInertia $page) {
