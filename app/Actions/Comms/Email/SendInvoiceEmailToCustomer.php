@@ -40,7 +40,7 @@ class SendInvoiceEmailToCustomer extends OrgAction
 
         $customer = $invoice->customer;
         $recipient       = $customer;
-        if(!$recipient->email){
+        if (!$recipient->email) {
             return null;
         }
 
@@ -57,7 +57,7 @@ class SendInvoiceEmailToCustomer extends OrgAction
         $dispatchedEmail->refresh();
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
-        if(!$emailHtmlBody){
+        if (!$emailHtmlBody) {
             return null;
         }
 

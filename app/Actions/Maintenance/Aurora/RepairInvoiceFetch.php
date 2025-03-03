@@ -47,8 +47,8 @@ class RepairInvoiceFetch
     public function findNotFetchedInvoices(): void
     {
         $counter = 0;
-        DB::connection('aurora')->table('Invoice Dimension')->orderBy('Invoice Key','desc')->chunk(
-          1000,
+        DB::connection('aurora')->table('Invoice Dimension')->orderBy('Invoice Key', 'desc')->chunk(
+            1000,
             function ($chunkedData) use ($counter) {
                 foreach ($chunkedData as $auroraData) {
                     $sourceId = $this->organisationSource->organisation->id.':'.$auroraData->{'Invoice Key'};

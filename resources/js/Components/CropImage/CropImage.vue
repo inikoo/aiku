@@ -115,7 +115,7 @@ const addComponent = async () => {
     } catch (error) {
         console.log(error)
         form.value = new FormData()
-        catchError.value = error
+        catchError.value = error.response.data.message || "Failed to Upload"
         // props.response(error.response)
         loadingState.value = false
     }
@@ -163,9 +163,9 @@ const generateGif = (file: File) => {
                 </li>
             </ul>
         </div>
-        <div v-if="catchError?.response" class="text-red-500">
+        <div v-if="catchError" class="text-red-500">
             <FontAwesomeIcon icon='fas fa-exclamation' class='' aria-hidden='true' />
-            {{ catchError.response.statusText}}
+            {{ catchError}}
         </div>
     </div>
     <div class="">
