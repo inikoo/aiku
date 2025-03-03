@@ -9,6 +9,7 @@ import { MenuItem } from '@headlessui/vue'
 import Image from '@/Components/Image.vue'
 import { Image as ImageTS } from '@/types/Image'
 import axios from 'axios'
+import { set } from 'lodash'
 
 const props = defineProps<{
     menuItems: {
@@ -28,6 +29,14 @@ const layout = inject('layout', layoutStructure)
 
 const onClickOrg = async (slug?: string) => {
     if (!slug) return
+
+    // If current route is in Shop or Fulfilment, redirect to index
+    if (route().current()?.includes('grp.org.shops') || route().current()?.includes('grp.org.fulfilments')) {
+        router.visit(route('grp.org.shops.index', { organisation: slug }))
+        set(layout, ['organisationsState', slug, 'currentShop'], '')
+        set(layout, ['organisationsState', slug, 'currentFulfilment'], '')
+        return
+    }
 
     try {      
         if (!route().current()?.includes('grp.org.')) {
