@@ -88,13 +88,13 @@ class ShowOrganisationDashboard extends OrgAction
                     'type'     => 'table',
                     'data' => null
                 ],
-                [
-                    'tab_label' => __('Invoices categories'),
-                    'tab_slug'  => 'invoice_categories',
-                    'tab_icon'  => 'fal fa-sitemap',
-                    'type'     => 'table',
-                    'data' => null
-                ]
+                // [
+                //     'tab_label' => __('Invoices categories'),
+                //     'tab_slug'  => 'invoice_categories',
+                //     'tab_icon'  => 'fal fa-sitemap',
+                //     'type'     => 'table',
+                //     'data' => null
+                // ]
             ],
             'widgets'          => [
                 'column_count' => 5,
@@ -111,20 +111,22 @@ class ShowOrganisationDashboard extends OrgAction
                 $shopCurrencies[] = $shop->currency->symbol;
             }
             $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
-        } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            if ($selectedShopState == 'open') {
-                $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
-            } else {
-                $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
-            }
-            $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
-
-            $invoiceCategoryCurrencies   = [];
-            foreach ($invoiceCategories as $invoiceCategory) {
-                $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
-            }
-            $shopCurrenciesSymbol = implode('/', array_unique($invoiceCategoryCurrencies));
         }
+
+        // elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
+        //     if ($selectedShopState == 'open') {
+        //         $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
+        //     } else {
+        //         $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
+        //     }
+        //     $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
+
+        //     $invoiceCategoryCurrencies   = [];
+        //     foreach ($invoiceCategories as $invoiceCategory) {
+        //         $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
+        //     }
+        //     $shopCurrenciesSymbol = implode('/', array_unique($invoiceCategoryCurrencies));
+        // }
 
         $dashboard['settings']['options_currency'][1]['label'] = $shopCurrenciesSymbol;
 
@@ -153,29 +155,28 @@ class ShowOrganisationDashboard extends OrgAction
             $selectedInterval,
             function ($child) use ($selectedInterval, $organisation) {
                 $routes = [
-                            'route'         => [
-                    'name'       => 'grp.org.shops.show.dashboard',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop'         => $child->slug
-                    ]
-                ],
-                'route_invoice' => [
-                    'name'       => 'grp.org.shops.show.ordering.invoices.index',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop' => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                    ]
-                ],
-                'route_refund' => [
-                    'name'       => 'grp.org.shops.show.ordering.refunds.index',
-                    'parameters' => [
-                        'organisation' => $organisation->slug,
-                        'shop'        => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                    ]
-                ],
+                    'route'         => [
+                        'name'       => 'grp.org.shops.show.dashboard',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'shop'         => $child->slug
+                        ]
+                    ],
+                    'route_invoice' => [
+                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'shop' => $child->slug,
+                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                        ]
+                    ],
+                    'route_refund' => [
+                        'name'       => 'grp.org.accounting.refunds.index',
+                        'parameters' => [
+                            'organisation' => $organisation->slug,
+                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                        ]
+                    ],
                 ];
 
                 if ($child->type == ShopTypeEnum::FULFILMENT) {
@@ -188,14 +189,6 @@ class ShowOrganisationDashboard extends OrgAction
                     ];
                     $routes['route_invoice'] = [
                         'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-                        'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'fulfilment'   => $child->slug,
-                            'between[date]' => $this->getDateIntervalFilter($selectedInterval)
-                        ]
-                    ];
-                    $routes['route_refund'] = [
-                        'name'       => 'grp.org.fulfilments.show.operations.invoices.refunds.index',
                         'parameters' => [
                             'organisation' => $organisation->slug,
                             'fulfilment'   => $child->slug,

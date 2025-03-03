@@ -114,7 +114,7 @@ class IndexInvoiceTransactions extends OrgAction
                     $table->column(key: 'action', label: __('action'), canBeHidden: false, sortable: false, searchable: false);
                 }
             }
-            $table->defaultSort('-invoice_transactions.updated_at');
+            $table->defaultSort('code');
         };
     }
 
