@@ -250,6 +250,62 @@ test('index pallets', function () {
     });
 });
 
+test('index pallets sub nav storing', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.fulfilment.storage.pallets.storing_pallets.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has('data');
+    });
+});
+
+test('index pallets sub nav returned', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.fulfilment.storage.pallets.returned_pallets.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has('data');
+    });
+});
+
+test('index pallets sub nav in process', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.fulfilment.storage.pallets.in_process_pallets.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has('data');
+    });
+});
+
+test('index pallets sub nav incidents', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.fulfilment.storage.pallets.incidents_pallets.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has('data');
+    });
+});
+
 test('show pallet', function () {
     $this->withoutExceptionHandling();
     actingAs($this->webUser, 'retina');
