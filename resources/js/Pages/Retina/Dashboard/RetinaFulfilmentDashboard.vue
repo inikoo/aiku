@@ -109,8 +109,8 @@ const props = defineProps<{
     tab: string
 }>()
 // Mendapatkan data customer dari props
-const customer = usePage().props.layout.customer;
-const fulfilment = usePage().props.layout.fulfilment;
+const customer = usePage().props?.layout?.customer;
+const fulfilment = usePage().props?.layout?.fulfilment;
 
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
@@ -148,7 +148,7 @@ const isLoadingButtonRentalAgreement = ref(false)
 
 <template>
   <div class="p-8 pb-3 text-4xl font-bold">
-    Welcome, {{ customer.contact_name }}!
+    Welcome, {{ customer?.contact_name }}!
   </div>
      <!-- Section: Radiobox, Recurring bills balance, Rental agreement-->
      <div class="px-8 grid max-w-2xl grid-cols-1 gap-x-2 gap-y-8 lg:max-w-7xl lg:grid-cols-3 pt-4">
@@ -280,7 +280,7 @@ const isLoadingButtonRentalAgreement = ref(false)
             </div>
         </div>
       </div>
-        <div v-if="data.route_action" class=" flex">
+        <div v-if="data.route_action && customer?.status != 'pending_approval'" class=" flex">
           <div class="w-64 border-gray-300 ">
               <div class="p-1" v-for="(btn, index) in data.route_action" :key="index">
               <ButtonWithLink
