@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithDashboard;
+use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Organisation\OrgDashboardIntervalTabsEnum;
 use App\Models\SysAdmin\Organisation;
@@ -111,7 +112,11 @@ class ShowOrganisationDashboard extends OrgAction
             }
             $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            $invoiceCategories = $organisation->invoiceCategories;
+            if ($selectedShopState == 'open') {
+                $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
+            } else {
+                $invoiceCategories = $organisation->invoiceCategories->where('state', InvoiceCategoryStateEnum::CLOSED->value);
+            }
             $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
 
             $invoiceCategoryCurrencies   = [];
@@ -223,6 +228,8 @@ class ShowOrganisationDashboard extends OrgAction
     {
         $visualData = [];
         $data = [];
+
+
 
         $this->setDashboardTableData(
             $organisation,

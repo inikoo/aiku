@@ -32,6 +32,7 @@ class ShowGroupDashboard extends OrgAction
         return Inertia::render(
             'Dashboard/GrpDashboard',
             [
+                'title'       => __('Dashboard Group'),
                 'breadcrumbs'     => $this->getBreadcrumbs(__('Dashboard')),
                 'dashboard_stats' => $this->getDashboardInterval($group, $userSettings),
             ]
