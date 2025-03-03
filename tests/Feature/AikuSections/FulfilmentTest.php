@@ -9,6 +9,11 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\PayInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\CompleteStandaloneFulfilmentInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\StoreStandaloneFulfilmentInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\DeleteStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UpdateStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
@@ -101,6 +106,7 @@ use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\Payment;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -3185,3 +3191,75 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
 
     return $storedItemAudit;
 })->depends('delete stored item audit delta');
+
+test('store standalone invoice', function () {
+    $fulfilmentCustomer = FulfilmentCustomer::first();
+
+    $invoice = StoreStandaloneFulfilmentInvoice::make()->action($fulfilmentCustomer, []);
+
+    expect($invoice)->toBeInstanceOf(Invoice::class);
+
+    return $invoice;
+});
+
+test('store standalone invoice transaction', function (Invoice $invoice) {  
+    /** @var Service $service */
+    $service = Service::first();
+    $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
+        'quantity' => 10
+    ]);
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(true);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(10);
+
+    return $invoiceTransaction;
+})->depends('store standalone invoice');
+
+test('update standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {  
+    $invoiceTransaction = UpdateStandaloneFulfilmentInvoiceTransaction::make()->action($invoiceTransaction, [
+        'quantity' => 100
+    ]);
+    $invoiceTransaction->refresh();
+
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(100);
+
+    return $invoiceTransaction;
+})->depends('store standalone invoice transaction');
+
+test('delete standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {  
+    $invoice = $invoiceTransaction->invoice;
+    expect($invoice->invoiceTransactions()->count())->toBe(1);
+
+    DeleteStandaloneFulfilmentInvoiceTransaction::make()->action($invoiceTransaction);
+    $invoice->refresh();
+
+    expect($invoice->invoiceTransactions()->count())->toBe(0);
+
+    return $invoice;
+})->depends('update standalone invoice transaction');
+
+test('complete standalone invoice', function (Invoice $invoice) {  
+    $service = Service::first();
+    $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
+        'quantity' => 1000
+    ]);
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(true);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(1000);
+
+    $invoice = CompleteStandaloneFulfilmentInvoice::make()->action($invoice);
+
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(false);
+
+    return $invoice;
+})->depends('delete standalone invoice transaction');
