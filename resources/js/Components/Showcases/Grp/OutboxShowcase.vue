@@ -38,7 +38,6 @@ const props = defineProps<{
         builder: String
     };
 }>();
-// console.log('asdasd', props)
 const previewOpen = ref(false)
 const iframeClass = ref('w-full h-full')
 // const totalValue = (props.data.stats.map((item) => item.value || 0)).reduce((acc, val) => acc + val, 0);
@@ -63,13 +62,10 @@ const isLoadingVisit = ref(false)
             description: trans('You can edit it in workshop')
         }">
             <template #button-empty-state>
-                <Link :href="route('grp.org.fulfilments.show.operations.comms.outboxes.workshop', { organisation: route().params?.organisation, fulfilment: route().params?.fulfilment, outbox: data.outbox?.slug })" @start="() => isLoadingVisit = true" class="mt-4 block w-fit mx-auto">
-                    <Button
-                        label="workshop"
-                        type="secondary"
-                        icon="fal fa-drafting-compass"
-                        :loading="isLoadingVisit"
-                    />
+                <Link
+                    :href="route('grp.org.fulfilments.show.operations.comms.outboxes.workshop', { organisation: route().params?.organisation, fulfilment: route().params?.fulfilment, outbox: data.outbox?.slug })"
+                    @start="() => isLoadingVisit = true" class="mt-4 block w-fit mx-auto">
+                <Button label="workshop" type="secondary" icon="fal fa-drafting-compass" :loading="isLoadingVisit" />
                 </Link>
             </template>
         </EmptyState>
@@ -77,9 +73,8 @@ const isLoadingVisit = ref(false)
 
     <div v-else class="card p-4">
         <!-- Stats Section -->
-        <Dashboard
-            :dashboard="props.data.dashboard_stats"/>
-      <!--   <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
+        <Dashboard :dashboard="props.data.dashboard_stats" />
+        <!--   <div class="grid grid-cols-4 md:grid-cols-4 gap-2">
             <div class="md:col-span-4 grid sm:grid-cols-1 md:grid-cols-6 gap-2 h-auto mb-3">
                 <div v-for="item in data.stats" :key="item.key"
                  
@@ -107,45 +102,27 @@ const isLoadingVisit = ref(false)
                         class="absolute top-2 right-2 bg-gray-300 text-white px-2 py-1 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
                         <FontAwesomeIcon :icon="faExpand" />
                     </button>
+
+                    <!-- Email Preview Header -->
+                    <div class="mb-4 border-b pb-2">
+                        <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.sender || 'Unknown Sender' }}
+                        </p>
+                        <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.subject || '(No Subject)' }}
+                        </p>
+                    </div>
+
+                    <!-- Email Content -->
                     <div v-if="data.compiled_layout" v-html="data.compiled_layout"></div>
                     <div v-else>
-                        <EmptyState :data="{
-                            title: 'you dont have any preview'
-                        }" />
+                        <EmptyState :data="{ title: 'You don’t have any preview' }" />
                     </div>
                 </div>
             </div>
-<!--
-            <div class="h-auto mb-3">
-                <!-- Conditional Rendering for the Chart 
-                <div class="chart-container bg-white p-4 w-full rounded-lg shadow drop-shadow-2xl relative">
-                    <Pie :data="dataSet" :options="{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        /plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        const value = context.raw;
-                                        return `${context.label}: ${value} (${value > 1 ? '' : '0'})`;
-                                    }
-                                }
-                            }
-                        } 
-                    }" />
-
-                    <div v-if="totalValue == 0"
-                        class="absolute top-0 left-0 flex justify-center items-center bg-gray-300 rounded-full h-[18rem] w-[18rem]"
-                        style="transform: translate(-50%, -50%); top: 56%; left: 50%;">
-                        <span class="text-gray-500 text-lg">No Data Available</span>
-                    </div>
-                </div>
-            </div>
-            -->
         </div>
+
     </div>
-    
-    
+
+
 
     <!-- <pre>{{ props }}</pre> -->
 
@@ -154,6 +131,12 @@ const isLoadingVisit = ref(false)
         <div class="border">
             <div class="bg-gray-300">
                 <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
+            </div>
+            <div class="mb-4 border-b pb-2 p-2">
+                <p class="text-sm text-gray-500"><strong>From:</strong> {{ data.sender || 'Unknown Sender' }}
+                </p>
+                <p class="text-sm text-gray-500"><strong>Subject:</strong> {{ data.subject || '(No Subject)' }}
+                </p>
             </div>
             <div v-html="data.compiled_layout"></div>
         </div>
