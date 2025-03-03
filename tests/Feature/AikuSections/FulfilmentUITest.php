@@ -50,6 +50,7 @@ use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -1368,22 +1369,28 @@ test('UI create rental agreement', function () {
 
 test('UI edit rental agreement', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $fulfilmentCustomer = FulfilmentCustomer::find($this->rentalAgreement->fulfilment_customer_id);
+    // dd($fulfilmentCustomer->fulfilment);
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit', [
+        $fulfilmentCustomer->organisation->slug,
+        $fulfilmentCustomer->fulfilment->slug,
+        $fulfilmentCustomer->slug
+    ]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 6)
+            ->has('formData.blueprint.0.fields', 3)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.rental-agreement.update')
-                        ->where('parameters', $this->rentalAgreement->id)
+                        ->where('parameters', ['rentalAgreement' => $this->rentalAgreement->id])
             )
             ->has('breadcrumbs', 4);
     });
-})->skip('Known issue with $webUser->email being null');
+});
 
 // Billables
 
