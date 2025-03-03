@@ -15,9 +15,15 @@ use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
+use App\Actions\Fulfilment\PalletDelivery\ReceivePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
+use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
@@ -35,6 +41,7 @@ use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
@@ -1143,6 +1150,24 @@ test('UI show pallet delivery', function () {
     });
 });
 
+test('UI edit pallet delivery', function () {
+    // $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Edit Pallet Delivery')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
 test('UI show pallet delivery (Services Tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=services');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -1178,6 +1203,129 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 
     });
 });
+
+
+test('UI show pallet delivery (confirmed)', function () {
+    $palletDelivery = $this->palletDelivery;
+
+    StorePalletFromDelivery::make()->action($palletDelivery, 
+    [
+        'type' => PalletTypeEnum::PALLET,
+        'customer_reference' => 'SASASasas'
+    ]);
+
+    $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.show', [$this->organisation->slug, $this->fulfilment->slug, $palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('box_stats')
+            ->has('data')
+            ->has('tabs');
+
+    });
+
+    return $palletDelivery;
+});
+
+test('UI show pallet delivery (received)', function (PalletDelivery $palletDelivery) {
+    StoreRental::make()->action(
+        $palletDelivery->fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => RentalUnitEnum::WEEK->value,
+            'code'  => 'R00002',
+            'name'  => 'Rental Asset B',
+            'auto_assign_asset'      => 'Pallet',
+            'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
+        ]
+    );
+    
+    $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.show', [$this->organisation->slug, $this->fulfilment->slug, $palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('box_stats')
+            ->has('data')
+            ->has('tabs');
+    });
+
+    return $palletDelivery;
+})->depends('UI show pallet delivery (confirmed)');
+
+test('UI show pallet delivery (booking in)', function (PalletDelivery $palletDelivery) {
+    $palletDelivery =  StartBookingPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+    $location = $this->warehouse->locations()->first();
+
+    foreach ($palletDelivery->pallets as $pallet) {
+        BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    }
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.show', [$this->organisation->slug, $this->fulfilment->slug, $palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('box_stats')
+            ->has('data')
+            ->has('tabs');
+    });
+
+    return $palletDelivery;
+})->depends('UI show pallet delivery (received)');
+
+test('UI show pallet delivery (booked in)', function (PalletDelivery $palletDelivery) {
+    $palletDelivery =  SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.show', [$this->organisation->slug, $this->fulfilment->slug, $palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('box_stats')
+            ->has('data')
+            ->has('tabs');
+    });
+
+    return $palletDelivery;
+})->depends('UI show pallet delivery (booking in)');
 
 // Pallet Return
 
