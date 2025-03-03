@@ -9,12 +9,14 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Procurement\StockDelivery;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStockDelivery extends InertiaAction
+class EditStockDelivery extends OrgAction
 {
     public function handle(StockDelivery $stockDelivery): StockDelivery
     {
@@ -23,13 +25,14 @@ class EditStockDelivery extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->authTo('procurement.edit');
-        return $request->user()->authTo("procurement.view");
+        $this->canEdit = true;
+        //TODO:Raul Need to think of this
+        return true;
     }
 
-    public function asController(StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
+    public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($stockDelivery);
     }
@@ -40,10 +43,10 @@ class EditStockDelivery extends InertiaAction
             'EditModel',
             [
                 'title'                                 => __('supplier delivery'),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($stockDelivery, $request),
-                    'next'     => $this->getNext($stockDelivery, $request),
-                ],
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $stockDelivery,
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'title'     => $stockDelivery->reference,
                     'actions'   => [
@@ -86,35 +89,12 @@ class EditStockDelivery extends InertiaAction
         );
     }
 
-    public function getPrevious(StockDelivery $stockDelivery, ActionRequest $request): ?array
+    public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters): array
     {
-        $previous = StockDelivery::where('number', '<', $stockDelivery->number)->orderBy('number', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
-
-    }
-
-    public function getNext(StockDelivery $stockDelivery, ActionRequest $request): ?array
-    {
-        $next = StockDelivery::where('number', '>', $stockDelivery->number)->orderBy('number')->first();
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
-    {
-        if (!$stockDelivery) {
-            return null;
-        }
-        return match ($routeName) {
-            'grp.org.procurement.stock_deliveries.edit' => [
-                'label' => $stockDelivery->reference,
-                'route' => [
-                    'name'      => $routeName,
-                    'parameters' => [
-                        'employee' => $stockDelivery->number
-                    ]
-
-                ]
-            ]
-        };
+        return ShowStockDelivery::make()->getBreadcrumbs(
+            stockDelivery: $stockDelivery,
+            routeParameters: $routeParameters,
+            suffix: '('.__('Editing').')'
+        );
     }
 }

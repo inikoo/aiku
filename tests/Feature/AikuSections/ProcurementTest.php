@@ -29,6 +29,7 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
+use App\Actions\Procurement\PurchaseOrderTransaction\UpdatePurchaseOrderTransaction;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
@@ -219,9 +220,13 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
     $orgSupplierProduct2 = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
     $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct2->supplierProduct->historicSupplierProduct, $this->orgStocks[2], PurchaseOrderTransaction::factory()->definition());
 
-
+    $purchaseOrderTransaction3 = UpdatePurchaseOrderTransaction::make()->action($purchaseOrderTransaction3, [
+        'quantity_ordered' => 65
+    ]);
+    $purchaseOrderTransaction3->refresh();
     expect($purchaseOrderTransaction2)->toBeInstanceOf(PurchaseOrderTransaction::class)
         ->and($purchaseOrderTransaction3)->toBeInstanceOf(PurchaseOrderTransaction::class)
+        ->and(intval($purchaseOrderTransaction3->quantity_ordered))->toBe(65)
         ->and($purchaseOrder->purchaseOrderTransactions()->count())->toBe(3);
 
     return $purchaseOrder;
