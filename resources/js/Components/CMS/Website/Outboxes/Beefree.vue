@@ -5,8 +5,6 @@ import Bee from "@mailupinc/bee-plugin";
 import { routeType } from "@/types/route";
 import EmptyState from "@/Components/Utils/EmptyState.vue";
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-import { mergetags } from "@/Composables/variableList";
-import { notify } from "@kyvg/vue3-notification";
 
 
 const props = withDefaults(defineProps<{
@@ -47,7 +45,6 @@ const beeConfig = () => {
         client_secret: props.apiKey.client_secret,
     };
     var headers = {
-        /* Authorization: token.value ? `Bearer ${token.value.access_token}` : null, */
         'Content-Type': 'application/json',
     }
     axios
@@ -59,7 +56,6 @@ const beeConfig = () => {
             console.log('vdv',props.mergeTags)
 
             const config = {
-                /* uid: token.value.userName, */
                 uid: 'CmsUserName', // Do not modify this
                 container: "bee-plugin-container",
                 language: "en-US",
@@ -138,10 +134,6 @@ defineExpose({
 </script>
 
 <template>
-   <!--  <div class="bg-yellow-500 font-bold text-white flex justify-center">
-        This is Real Beefree api key from Aurora be careful
-    </div> -->
-
     <div v-if="showBee" id="app">
         <div id="bee-plugin-container" class="beefree"></div>
     </div>
