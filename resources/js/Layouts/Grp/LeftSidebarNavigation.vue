@@ -43,6 +43,8 @@ const iconList: { [key: string]: string } = {
     fulfilment: 'fal fa-hand-holding-box',
 }
 
+console.log('layout 11', layout)
+console.log('layout', layout?.navigation?.org?.[layout.currentParams.organisation])
 </script>
 
 <template>
