@@ -39,14 +39,6 @@ class StoreShipper extends OrgAction
         return $shipper;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("dispatching.{$this->organisation->id}.edit");
-    }
 
     public function prepareForValidation(ActionRequest $request): void
     {

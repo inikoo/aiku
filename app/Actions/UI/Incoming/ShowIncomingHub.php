@@ -25,7 +25,8 @@ class ShowIncomingHub extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo("incoming.{$this->organisation->id}.view");
+
+        return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse): Warehouse
@@ -53,7 +54,6 @@ class ShowIncomingHub extends OrgAction
                         'icon'  => ['fal', 'fa-arrow-to-bottom'],
                         'title' => __('incoming')
                     ],
-                    'model' => __('Goods in'),
                     'title' => __('Incoming Hub'),
                 ],
                 'box_stats'   => [

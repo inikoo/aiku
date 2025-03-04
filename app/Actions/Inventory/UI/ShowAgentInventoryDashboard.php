@@ -2,8 +2,8 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 28 May 2024 16:54:45 British Summer Time, Sheffield, UK
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Tue, 04 Mar 2025 18:39:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Inventory\UI;
@@ -11,14 +11,15 @@ namespace App\Actions\Inventory\UI;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
-use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
+use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use App\Stubs\Migrations\HasInventoryStats;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowInventoryDashboard extends OrgAction
+class ShowAgentInventoryDashboard extends OrgAction
 {
     use HasInventoryStats;
     use HasInventoryAuthorisation;
@@ -33,6 +34,10 @@ class ShowInventoryDashboard extends OrgAction
 
     public function htmlResponse(ActionRequest $request): Response
     {
+
+        /** @var Agent $agent */
+        $agent = $this->organisation->agent;
+
         $routeParameters = $request->route()->originalParameters();
 
 
@@ -43,7 +48,6 @@ class ShowInventoryDashboard extends OrgAction
                 'title'          => __('Inventory'),
                 'pageHead'       => [
                     'title'          => __('Inventory'),
-                    'model'         => __('warehouse'),
                     'icon'           => [
                         'icon' => 'fal fa-pallet-alt'
                     ],
@@ -54,90 +58,57 @@ class ShowInventoryDashboard extends OrgAction
                 ],
                 'flatTreeMaps'   => [
                     [
-                        [
-                            'name'  => __('SKUs families'),
-                            'icon'  => ['fal', 'fa-boxes-alt'],
-                            'route'  => [
-                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.index',
-                                'parameters' => $routeParameters
-                            ],
-                            'index' => [
-                                'number' => $this->organisation->inventoryStats->number_current_org_stock_families
-                            ]
 
-                        ],
                         [
                             'name'          => 'SKUs',
                             'icon'          => ['fal', 'fa-box'],
                             'description'   => __('current'),
                             'route'          => [
-                                'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
+                                'name'       => 'grp.org.warehouses.show.agent_inventory.supplier_products.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
-                                'number' => $this->organisation->inventoryStats->number_current_org_stocks
+                                'number' => $this->organisation->agent->stats->number_current_supplier_products
                             ],
-                            'sub_data'  => $this->getDashboardStats()['stock']['cases']
+                            'sub_data'  => $this->getDashboardStats($agent)['supplier_products']['cases']
                         ]
                     ]
                 ],
-                // 'dashboardStats' => $this->getDashboardStats(),
-                'dashboard' => $this->getDashboard(),
+                'dashboard' => $this->getDashboard($agent),
 
             ]
         );
     }
 
-    public function getDashboard(): array
+    public function getDashboard(Agent $agent): array
     {
 
 
         $dashboard = [];
-        foreach ($this->organisation->warehouses as $warehouse) {
-            $utilization = 0;
-            if ($warehouse->stats->number_locations) {
-                $utilization = ($warehouse->stats->number_locations - $warehouse->stats->number_empty_locations) / $warehouse->stats->number_locations * 100;
-            }
-            $dashboard['columns'][] = [
-                'widgets' => [
-                    [
-                        'label' => __($warehouse->name),
-                        'type' => 'stat_progress_card',
-                        'data' => [
-                            'stockValue' => $warehouse->stats->stock_value,
-                            'utilization' => $utilization
-                        ]
-                    ]
-                ]
-            ];
-        }
 
         return $dashboard;
     }
 
-    public function getDashboardStats(): array
+    public function getDashboardStats(Agent $agent): array
     {
+
+
         $stats = [];
 
-        $stats['stock'] = [
-            'label' => __('Stocks'),
+        $stats['supplier_products'] = [
+            'label' => __('SKUs'),
             'count' => $this->organisation->inventoryStats->number_current_org_stocks
         ];
 
-        foreach (OrgStockStateEnum::cases() as $case) {
+        foreach (SupplierProductStateEnum::cases() as $case) {
 
-            $count = OrgStockStateEnum::count($this->organisation)[$case->value];
+            $count = SupplierProductStateEnum::count($agent)[$case->value];
 
-            if ($case == OrgStockStateEnum::SUSPENDED and $count == 0) {
-                continue;
-            }
-
-
-            $stats['stock']['cases'][] = [
+            $stats['supplier_products']['cases'][] = [
                 'value' => $case->value,
-                'icon'  => OrgStockStateEnum::stateIcon()[$case->value],
+                'icon'  => SupplierProductStateEnum::stateIcon()[$case->value],
                 'count' => $count,
-                'label' => OrgStockStateEnum::labels()[$case->value]
+                'label' => SupplierProductStateEnum::labels()[$case->value]
             ];
         }
 

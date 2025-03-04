@@ -8,6 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
@@ -42,7 +43,13 @@ trait WithLayoutNavigation
 
         /** @var Warehouse $warehouse */
         foreach ($user->authorisedWarehouses()->where('org_id', $organisation->id)->get() as $warehouse) {
-            $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
+
+            if ($warehouse->organisation->type == OrganisationTypeEnum::AGENT) {
+                $navigation['warehouses_navigation'][$warehouse->slug] = GetAgentWarehouseNavigation::run($warehouse, $user);
+            } else {
+                $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
+            }
+
         }
 
         return $navigation;
@@ -272,6 +279,58 @@ trait WithLayoutNavigation
                 "topMenu" => [
                     "subSections" => [
 
+                    ],
+                ],
+            ];
+        }
+
+        return $navigation;
+    }
+
+    public function getLocationsNavs(User $user, Warehouse $warehouse, array $navigation)
+    {
+        if ($user->hasPermissionTo("locations.$warehouse->id.view")) {
+            $navigation["warehouse"] = [
+                "root"    => "grp.org.warehouses.show.infrastructure.",
+                "label"   => __("locations"),
+                "icon"    => ["fal", "fa-inventory"],
+                "route"   => [
+                    "name"       => "grp.org.warehouses.show.infrastructure.dashboard",
+                    "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "root"    => "grp.org.warehouses.show.infrastructure.dashboard",
+                            "tooltip" => __("warehouses"),
+                            "icon"    => ["fal", "fa-warehouse-alt"],
+                            "route"   => [
+                                "name"       => "grp.org.warehouses.show.infrastructure.dashboard",
+                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                            ],
+                            "label"   => null,
+                        ],
+                        [
+                            "root"    => "grp.org.warehouses.show.infrastructure.warehouse_areas.",
+                            "label"   => __("areas"),
+                            "tooltip" => __("Warehouse Areas"),
+                            "icon"    => ["fal", "fa-map-signs"],
+                            "route"   => [
+                                "name"       =>
+                                    "grp.org.warehouses.show.infrastructure.warehouse_areas.index",
+                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                            ],
+                        ],
+                        [
+                            "root"    => "grp.org.warehouses.show.infrastructure.locations.",
+                            "label"   => __("locations"),
+                            "tooltip" => __("Locations"),
+                            "icon"    => ["fal", "fa-inventory"],
+                            "route"   => [
+                                "name"       => "grp.org.warehouses.show.infrastructure.locations.index",
+                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                            ],
+                        ],
                     ],
                 ],
             ];

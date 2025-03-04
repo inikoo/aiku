@@ -28,6 +28,9 @@ Route::prefix('{warehouse}')
                 Route::prefix('inventory')->name('.inventory.')
                     ->group(__DIR__."/inventory.php");
 
+                Route::prefix('agent-inventory')->name('.agent_inventory.')
+                    ->group(__DIR__."/agent_inventory.php");
+
                 Route::prefix('incoming')->name('.incoming.')
                     ->group(__DIR__."/incoming.php");
 

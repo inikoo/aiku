@@ -15,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GetWarehouseNavigation
 {
     use AsAction;
+    use WithLayoutNavigation;
 
     public function handle(Warehouse $warehouse, User $user): array
     {
@@ -23,8 +24,8 @@ class GetWarehouseNavigation
 
         if ($user->hasAnyPermission([
             "inventory.{$warehouse->organisation->id}.view",
-            "stocks.{$warehouse->id}.view",
-            "fulfilment.{$warehouse->id}.view",
+            "stocks.$warehouse->id.view",
+            "fulfilment.$warehouse->id.view",
         ])) {
             $navigation["inventory"] = [
                 "root"    => "grp.org.warehouses.show.inventory.",
@@ -46,7 +47,7 @@ class GetWarehouseNavigation
                         ],
                         $user->hasAnyPermission([
                             "inventory.{$warehouse->organisation->id}.view",
-                            "stocks.{$warehouse->id}.view",
+                            "stocks.$warehouse->id.view",
                         ])
                             ? [
                             "label"   => __("SKUs Families"),
@@ -60,7 +61,7 @@ class GetWarehouseNavigation
                         ] : null,
                         $user->hasAnyPermission([
                             "inventory.{$warehouse->organisation->id}.view",
-                            "stocks.{$warehouse->id}.view",
+                            "stocks.$warehouse->id.view",
                         ])
                             ? [
                             "label" => __("SKUs"),
@@ -73,7 +74,7 @@ class GetWarehouseNavigation
                         ] : null,
 
 
-                        $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("fulfilment.$warehouse->id.view") ?
                             [
                                 "label"   => __("Stored pallets"),
                                 "tooltip" => __("Fulfilment: Stored pallets"),
@@ -85,7 +86,7 @@ class GetWarehouseNavigation
                                 ],
                             ] : null,
 
-                        $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("fulfilment.$warehouse->id.view") ?
                             [
                                 "label"   => __("Stored items"),
                                 "tooltip" => __("Fulfilment: Stored items"),
@@ -102,52 +103,7 @@ class GetWarehouseNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("locations.$warehouse->id.view")) {
-            $navigation["warehouse"] = [
-                "root"    => "grp.org.warehouses.show.infrastructure.",
-                "label"   => __("locations"),
-                "icon"    => ["fal", "fa-inventory"],
-                "route"   => [
-                    "name"       => "grp.org.warehouses.show.infrastructure.dashboard",
-                    "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
-                ],
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "root"    => "grp.org.warehouses.show.infrastructure.dashboard",
-                            "tooltip" => __("warehouses"),
-                            "icon"    => ["fal", "fa-warehouse-alt"],
-                            "route"   => [
-                                "name"       => "grp.org.warehouses.show.infrastructure.dashboard",
-                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
-                            ],
-                            "label"   => null,
-                        ],
-                        [
-                            "root"    => "grp.org.warehouses.show.infrastructure.warehouse_areas.",
-                            "label"   => __("areas"),
-                            "tooltip" => __("Warehouse Areas"),
-                            "icon"    => ["fal", "fa-map-signs"],
-                            "route"   => [
-                                "name"       =>
-                                    "grp.org.warehouses.show.infrastructure.warehouse_areas.index",
-                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
-                            ],
-                        ],
-                        [
-                            "root"    => "grp.org.warehouses.show.infrastructure.locations.",
-                            "label"   => __("locations"),
-                            "tooltip" => __("Locations"),
-                            "icon"    => ["fal", "fa-inventory"],
-                            "route"   => [
-                                "name"       => "grp.org.warehouses.show.infrastructure.locations.index",
-                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
-                            ],
-                        ],
-                    ],
-                ],
-            ];
-        }
+        $this->getLocationsNavs($user, $warehouse, $navigation);
 
         if ($user->hasAnyPermission([
             "incoming.$warehouse->id.view",
@@ -177,7 +133,7 @@ class GetWarehouseNavigation
                                 ],
                             ]
                         ],
-                        $user->hasPermissionTo("incoming.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("incoming.$warehouse->id.view") ?
                         [
                             'label' => __('stock deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
@@ -190,7 +146,7 @@ class GetWarehouseNavigation
                                 ],
                             ]
                         ] : null,
-                        $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("fulfilment.$warehouse->id.view") ?
                         [
                             'label' => __('fulfilment deliveries'),
                             'icon'  => ['fal', 'fa-truck-couch'],
@@ -235,7 +191,7 @@ class GetWarehouseNavigation
                                 ],
                             ]
                         ],
-                        $user->hasPermissionTo("dispatching.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("dispatching.$warehouse->id.view") ?
                         [
                             'label' => __('delivery notes'),
                             'icon'  => ['fal', 'fa-truck'],
@@ -248,7 +204,7 @@ class GetWarehouseNavigation
                                 ],
                             ]
                         ] : null,
-                        $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
+                        $user->hasPermissionTo("fulfilment.$warehouse->id.view") ?
                         [
                             'label'   => __('Fulfilment Returns'),
                             'tooltip' => __('Fulfilment returns'),
