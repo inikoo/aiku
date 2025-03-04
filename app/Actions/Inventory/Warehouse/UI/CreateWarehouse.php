@@ -8,8 +8,11 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWarehouseManagementEditAuthorisation;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -65,6 +68,21 @@ class CreateWarehouse extends OrgAction
                                     'value'    => '',
                                     'required' => true
                                 ],
+                                'address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => $this->organisation->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ]
 
                             ]
                         ]
