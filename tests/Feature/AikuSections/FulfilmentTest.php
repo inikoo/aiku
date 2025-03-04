@@ -75,6 +75,7 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAuditFromPallet;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAuditDelta\DeleteStoredItemAuditDelta;
 use App\Actions\Fulfilment\StoredItemAuditDelta\StoreStoredItemAuditDelta;
@@ -3263,3 +3264,13 @@ test('complete standalone invoice', function (Invoice $invoice) {
 
     return $invoice;
 })->depends('delete standalone invoice transaction');
+
+test('store audit for pallet', function () {
+    $fulfilmentCustomer = FulfilmentCustomer::skip(1)->first();
+    $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id', $fulfilmentCustomer->id)->first();
+    $palletAudit = StoreStoredItemAuditFromPallet::make()->action($pallet, []);
+
+    expect($palletAudit)->toBeInstanceOf(StoredItemAudit::class)
+        ->and($palletAudit->fulfilment_customer_id)->toBe($fulfilmentCustomer->id)
+        ->and($palletAudit->state)->toBe(StoredItemAuditStateEnum::IN_PROCESS);
+});
