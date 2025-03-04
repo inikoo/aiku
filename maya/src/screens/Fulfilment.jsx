@@ -6,10 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheckCircle } from '@/private/fa/pro-solid-svg-icons';
 
 const GroupItem = ({ item, navigation, selectedfulfilment }) => {
-  const { setFulfilmentWarehouse, userData } = useContext(AuthContext);
+  const { setFulfilmentWarehouse, userData, organisation } = useContext(AuthContext);
   const isActive = selectedfulfilment?.id === item.id;
+
   const onPickFulfilment = () => {
-    setFulfilmentWarehouse({ ...userData, fulfilment : item, warehouse : item.warehouse[0] })
+    setFulfilmentWarehouse({ ...userData, organisation : organisation,  fulfilment : item, warehouse : item.warehouse[0] })
     navigation.navigate('home-drawer')
   }
 

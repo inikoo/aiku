@@ -13,6 +13,7 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedShopifyAddress;
 use App\Actions\RetinaAction;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,10 +34,15 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
 
         if (!$response['errors']) {
             foreach ($response['body']['customers'] as $customer) {
-                $address = Arr::get($customer, 'addresses')[0];
+                $customer = $customer->toArray();
+                $address = Arr::get($customer, 'default_address', []);
                 $existsClient = $this->parent->clients()->where('email', $customer['email'])->first();
 
-                $attributes = $this->getAttributes($customer['container'], $address['container']);
+                $attributes = $this->getAttributes($customer, $address);
+
+                if (blank($address)) {
+                    data_set($attributes, 'address', $shopifyUser->customer?->deliveryAddress?->toArray());
+                }
 
                 if (!$existsClient) {
                     StoreCustomerClient::make()->action($this->parent, $attributes);
@@ -56,6 +62,14 @@ class FetchRetinaCustomerClientFromShopify extends RetinaAction
      * @throws \Throwable
      */
     public function asController(ActionRequest $request): void
+    {
+        $this->initialisation($request);
+        $this->parent = $this->customer;
+
+        $this->handle();
+    }
+
+    public function inPlatform(Platform $platform, ActionRequest $request): void
     {
         $this->initialisation($request);
         $this->parent = $this->customer;

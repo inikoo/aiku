@@ -56,6 +56,11 @@ class Platform extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(PlatformStats::class);

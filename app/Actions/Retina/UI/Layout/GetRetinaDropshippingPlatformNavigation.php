@@ -9,13 +9,14 @@
 namespace App\Actions\Retina\UI\Layout;
 
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\Platform;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetRetinaDropshippingPlatformNavigation
 {
     use AsAction;
 
-    public function handle(WebUser $webUser): array
+    public function handle(WebUser $webUser, Platform $platform): array
     {
         $platformNavigation = [];
 
@@ -27,9 +28,10 @@ class GetRetinaDropshippingPlatformNavigation
                     [
                         'label' => __('All Products'),
                         'icon' => ['fal', 'fa-cube'],
-                        'root' => 'retina.dropshipping.portfolios.products.index',
+                        'root' => 'retina.dropshipping.platforms.portfolios.products.index',
                         'route' => [
-                            'name' => 'retina.dropshipping.portfolios.products.index'
+                            'name' => 'retina.dropshipping.platforms.portfolios.products.index',
+                            'parameters' => [$platform->slug]
                         ],
                     ]
                 ];
@@ -38,18 +40,20 @@ class GetRetinaDropshippingPlatformNavigation
             $platformNavigation['portfolios'] = [
                 'label' => __('Portfolios'),
                 'icon' => ['fal', 'fa-cube'],
-                'root' => 'retina.dropshipping.portfolios.',
+                'root' => 'retina.dropshipping.platforms.portfolios.',
                 'route' => [
-                    'name' => 'retina.dropshipping.portfolios.platforms.shopify.index'
+                    'name' => 'retina.dropshipping.platforms.portfolios.index',
+                    'parameters' => [$platform->slug]
                 ],
                 'topMenu' => [
                     'subSections' => [
                         [
                             'label' => __('My Portfolio'),
                             'icon' => ['fal', 'fa-cube'],
-                            'root' => 'retina.dropshipping.portfolios.index',
+                            'root' => 'retina.dropshipping.platforms.portfolios.index',
                             'route' => [
-                                'name' => 'retina.dropshipping.portfolios.index'
+                                'name' => 'retina.dropshipping.platforms.portfolios.index',
+                                'parameters' => [$platform->slug]
                             ],
                         ],
                         ...$tabs
@@ -61,18 +65,20 @@ class GetRetinaDropshippingPlatformNavigation
         $platformNavigation['client'] = [
             'label' => __('Client'),
             'icon' => ['fal', 'fa-user-friends'],
-            'root' => 'retina.dropshipping.client.',
+            'root' => 'retina.dropshipping.platforms.client.',
             'route' => [
-                'name' => 'retina.dropshipping.client.index'
+                'name' => 'retina.dropshipping.platforms.client.index',
+                'parameters' => [$platform->slug]
             ],
         ];
 
         $platformNavigation['orders'] = [
             'label' => __('Orders'),
             'icon' => ['fal', 'fa-money-bill-wave'],
-            'root' => 'retina.dropshipping.orders.',
+            'root' => 'retina.dropshipping.platforms.orders.',
             'route' => [
-                'name' => 'retina.dropshipping.orders.index'
+                'name' => 'retina.dropshipping.platforms.orders.index',
+                'parameters' => [$platform->slug]
             ],
         ];
 

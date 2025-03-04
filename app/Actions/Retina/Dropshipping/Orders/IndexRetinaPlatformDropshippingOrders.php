@@ -11,11 +11,12 @@ namespace App\Actions\Retina\Dropshipping\Orders;
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Fulfilment\RetinaDropshippingOrdersResources;
+use App\Http\Resources\Fulfilment\RetinaDropshippingFulfilmentOrdersResources;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
-use App\Models\Ordering\Order;
+use App\Models\ShopifyUserHasFulfilment;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -24,7 +25,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexRetinaDropshippingOrders extends RetinaAction
+class IndexRetinaPlatformDropshippingOrders extends RetinaAction
 {
     public function handle(ShopifyUser|Customer $parent, $prefix = null): LengthAwarePaginator
     {
@@ -39,18 +40,14 @@ class IndexRetinaDropshippingOrders extends RetinaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(Order::class);
+        $query = QueryBuilder::for(ShopifyUserHasFulfilment::class);
 
-        if ($parent instanceof Customer) {
-            $query->where('customer_id', $parent->id);
-        }
+        $query->where('shopify_user_has_fulfilments.shopify_user_id', $parent->id);
+        $query->with('model');
+        $query->defaultSort('id');
 
-        $query->leftJoin('order_stats', 'order_stats.order_id', '=', 'orders.id');
-
-        $query->defaultSort('orders.id');
-
-        return $query->defaultSort('orders.id')
-            ->allowedSorts(['orders.id'])
+        return $query->defaultSort('id')
+            ->allowedSorts(['id'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -65,9 +62,18 @@ class IndexRetinaDropshippingOrders extends RetinaAction
     {
         $this->initialisation($request);
 
-        $customer = $request->user()->customer;
+        $shopifyUser = $request->user()->customer->shopifyUser;
 
-        return $this->handle($customer);
+        return $this->handle($shopifyUser);
+    }
+
+    public function inPlatform(Platform $platform, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($request);
+
+        $shopifyUser = $request->user()->customer->shopifyUser;
+
+        return $this->handle($shopifyUser);
     }
 
     public function htmlResponse(LengthAwarePaginator $orders): Response
@@ -86,7 +92,7 @@ class IndexRetinaDropshippingOrders extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'orders' => RetinaDropshippingOrdersResources::collection($orders)
+                'orders' => RetinaDropshippingFulfilmentOrdersResources::collection($orders)
             ]
         )->table($this->tableStructure('orders'));
     }
@@ -113,9 +119,9 @@ class IndexRetinaDropshippingOrders extends RetinaAction
             $table ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             // $table->column(key: 'model', label: __('model'), canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, searchable: true);
-            $table->column(key: 'number_transactions', label: __('quantity'), canBeHidden: false, searchable: true);
+            $table->column(key: 'shopify_order_id', label: __('shopify order id'), canBeHidden: false, searchable: true);
             // $table->column(key: 'client_name', label: __('client'), canBeHidden: false, searchable: true);
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, searchable: true);
+            $table->column(key: 'reason_notes', label: __('reason message'), canBeHidden: false, searchable: true);
             // $table->column(key: 'actions', label: __('actions'), canBeHidden: false, searchable: true);
         };
     }

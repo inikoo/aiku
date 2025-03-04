@@ -19,6 +19,7 @@ import {useDelivery} from '@/src/components/Context/delivery';
 import {getFilteredActionsDelivery} from '@/src/utils';
 import SetStateButton from '@/src/components/SetStateButton';
 import {Alert, AlertText} from '@/src/components/ui/alert';
+import ModalMoveLocation from '@/src/components/MoveLocationModal';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -109,11 +110,11 @@ const GroupItem = ({item: initialItem, navigation}) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const SWIPE_THRESHOLD = 60;
   const MAX_SWIPE = 100;
-  const {control, handleSubmit, reset, setValue} = useForm({
+  /* const {control, handleSubmit, reset, setValue} = useForm({
     defaultValues: {
       location: '',
     },
-  });
+  }); */
 
   const panResponder = useRef(
     PanResponder.create({
@@ -369,7 +370,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
         </TouchableOpacity>
       </Animated.View>
 
-      <Modal
+   {/*    <Modal
         isVisible={showModalMovePallet}
         title="Move Pallet"
         onClose={() => setShowModalMovePallet(false)}>
@@ -404,7 +405,15 @@ const GroupItem = ({item: initialItem, navigation}) => {
             )}
           </Button>
         </View>
-      </Modal>
+      </Modal> */}
+
+      <ModalMoveLocation 
+       isVisible={showModalMovePallet}
+       title='Move Pallet'
+       onClose={() => setShowModalMovePallet(false)}
+       onSave={onSubmitSetLocation}
+       location={item.location_code}
+      />
     </View>
   );
 };

@@ -13,6 +13,7 @@ use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,6 +32,15 @@ class IndexRetinaDropshippingProducts extends RetinaAction
     }
 
     public function asController(ActionRequest $request): ShopifyUser
+    {
+        $this->initialisation($request);
+
+        $shopifyUser = $request->user()->customer->shopifyUser;
+
+        return $this->handle($shopifyUser);
+    }
+
+    public function inPlatform(Platform $platform, ActionRequest $request): ShopifyUser
     {
         $this->initialisation($request);
 
