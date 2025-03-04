@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -23,6 +24,103 @@ class InvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
+
+        $getRoute = function ($type, $slug) use ($request) {
+            $org = $request->route('organisation');
+            $fulfilment = $request->route('fulfilment');
+            // if (str_starts_with($request->route()->getName(), 'retina')) {
+            //     // return null;
+            //     return match ($type) {
+            //         'Product' => [
+            //             'name' => 'grp.org.fulfilments.show.catalogue.physical_goods.show',
+            //             'parameters' => [
+            //                 'organisation' => $org->slug,
+            //                 'fulfilment' => $fulfilment->slug,
+            //                 'product' => $slug
+            //             ]
+            //         ],
+            //         'Rental' => [
+            //             'name' => 'grp.org.fulfilments.show.catalogue.rentals.show',
+            //             'parameters' => [
+            //                 'organisation' => $org->slug,
+            //                 'fulfilment' => $fulfilment->slug,
+            //                 'rental' => $slug
+            //             ]
+            //         ],
+            //         'Service' => [
+            //             'name' => 'grp.org.fulfilments.show.catalogue.services.show',
+            //             'parameters' => [
+            //                 'organisation' => $org->slug,
+            //                 'fulfilment' => $fulfilment->slug,
+            //                 'service' => $slug
+            //             ]
+            //         ],
+            //         default => null,
+            //     };
+            // }
+
+            if (!$fulfilment) {
+                return null;
+                // return match ($type) {
+                //     'Product' => [
+                //         'name' => 'grp.org.shops.show.catalogue.products.current_products.show',
+                //         'parameters' => [
+                //             'organisation' => $org->slug,
+                //             'shop' => ,
+                //             'product' => $slug
+                //         ]
+                //     ],
+                //     'Rental' => [
+                //         'name' => 'grp.org.fulfilments.show.catalogue.rentals.show',
+                //         'parameters' => [
+                //             'organisation' => $org->slug,
+                //             'fulfilment' => $fulfilment->slug,
+                //             'rental' => $slug
+                //         ]
+                //     ],
+                //     'Service' => [
+                //         'name' => 'grp.org.fulfilments.show.catalogue.services.show',
+                //         'parameters' => [
+                //             'organisation' => $org->slug,
+                //             'fulfilment' => $fulfilment->slug,
+                //             'service' => $slug
+                //         ]
+                //     ],
+                //     default => null,
+                // };
+            }
+
+
+            return match ($type) {
+                'Product' => [
+                    'name' => 'grp.org.fulfilments.show.catalogue.physical_goods.show',
+                    'parameters' => [
+                        'organisation' => $org->slug,
+                        'fulfilment' => $fulfilment->slug,
+                        'product' => $slug
+                    ]
+                ],
+                'Rental' => [
+                    'name' => 'grp.org.fulfilments.show.catalogue.rentals.show',
+                    'parameters' => [
+                        'organisation' => $org->slug,
+                        'fulfilment' => $fulfilment->slug,
+                        'rental' => $slug
+                    ]
+                ],
+                'Service' => [
+                    'name' => 'grp.org.fulfilments.show.catalogue.services.show',
+                    'parameters' => [
+                        'organisation' => $org->slug,
+                        'fulfilment' => $fulfilment->slug,
+                        'service' => $slug
+                    ]
+                ],
+                default => null,
+            };
+        };
+
+
         return [
             'code'                      => $this->code,
             'name'                      => $this->name,
@@ -30,6 +128,7 @@ class InvoiceTransactionsResource extends JsonResource
             'net_amount'                => $this->net_amount,
             'currency_code'             => $this->currency_code,
             'in_process'                => $this->in_process,
+            'route_desc'                => $getRoute($this->model_type, $this->slug),
             'refund_route'              => [
                 'name'       => 'grp.models.invoice_transaction.refund_transaction.store',
                 'parameters' => [
