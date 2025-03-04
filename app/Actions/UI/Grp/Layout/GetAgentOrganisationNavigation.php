@@ -9,6 +9,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,6 +21,47 @@ class GetAgentOrganisationNavigation
     public function handle(User $user, Organisation $organisation): array
     {
         $navigation = [];
+
+
+        if ($user->authTo(['org-supervisor.'.$organisation->id, 'warehouses-view.'.$organisation->id])) {
+
+
+
+            $navigation['warehouses_index'] = [
+                'label'   => __('Warehouses'),
+                'scope'   => 'warehouses',
+                'icon'    => ['fal', 'fa-warehouse-alt'],
+                'root'    => 'grp.org.warehouses.index',
+                'route'   => [
+                    'name'       => 'grp.org.warehouses.index',
+                    'parameters' => [$organisation->slug],
+                ],
+                'topMenu' => [
+                    'links' => [
+                        [
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
+                        ]
+                    ]
+                ]
+            ];
+        }
+
+
+        $navigation['warehouses_navigation'] = [];
+        foreach (
+            $organisation->authorisedModels()->where('user_id', $user->id)
+                ->where('model_type', 'Warehouse')
+                ->get() as $authorisedModel
+        ) {
+            /** @var Warehouse $warehouse */
+            $warehouse                                             = $authorisedModel->model;
+
+            $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
+        }
+
+
+
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
                 'root'    => 'grp.org.procurement',
@@ -39,16 +81,7 @@ class GetAgentOrganisationNavigation
                                 'parameters' => [$organisation->slug],
                             ]
                         ],
-                        // [
-                        //     'label' => __('agents'),
-                        //     'icon'  => ['fal', 'fa-people-arrows'],
-                        //     'root'  => 'grp.org.procurement.org_agents.',
-                        //     'route' => [
-                        //         'name'       => 'grp.org.procurement.org_agents.index',
-                        //         'parameters' => [$organisation->slug],
 
-                        //     ]
-                        // ],
                         [
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
@@ -217,16 +250,7 @@ class GetAgentOrganisationNavigation
 
                             ]
                         ],
-                        // [
-                        //     'label' => __('calendar'),
-                        //     'icon'  => ['fal', 'fa-calendar'],
-                        //     'root'  => 'grp.org.hr.calendars.',
-                        //     'route' => [
-                        //         'name'       => 'grp.org.hr.calendars.index',
-                        //         'parameters' => [$organisation->slug],
 
-                        //     ]
-                        // ],
 
                         [
                             'label' => __('clocking machines'),
@@ -295,6 +319,8 @@ class GetAgentOrganisationNavigation
                 ],
             ];
         }
+
+
 
         return $navigation;
     }
