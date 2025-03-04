@@ -118,6 +118,23 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
     }
 }
 
+function orderRoute(palletReturn: PalletDelivery) {
+    switch (route().current()) {
+        case 'retina.dropshipping.orders.index':
+            return route(
+                'retina.dropshipping.orders.show',
+                [
+                    palletReturn.slug
+                ]);
+        default:
+            return route(
+                'retina.dropshipping.orders.show',
+                [
+                    palletReturn.slug
+                ]);
+        }
+    }
+
 </script>
 
 <template>
@@ -129,6 +146,10 @@ function storedItemReturnRoute(palletReturn: PalletDelivery) {
             </Link>
 
             <Link v-else-if="palletReturn.type === 'stored_item'" :href="storedItemReturnRoute(palletReturn)" class="primaryLink">
+                {{ palletReturn['reference'] }}
+            </Link>
+
+            <Link v-else-if="palletReturn.model === 'Order'" :href="orderRoute(palletReturn)" class="primaryLink">
                 {{ palletReturn['reference'] }}
             </Link>
 
