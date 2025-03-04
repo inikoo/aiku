@@ -58,19 +58,8 @@ createServer(
                         "./Pages/Iris/**/*.vue",
                         { eager: true })
                     let page = pages[`./Pages/Iris/${name}.vue`]
-                    page.default.layout = page.default.layout ||
-                        Layout
                     return page
                 },
-                // build: {
-                //     transpile: [
-                //         '@fortawesome/fontawesome-svg-core',
-                //         '@fortawesome/pro-solid-svg-icons',
-                //         '@fortawesome/pro-regular-svg-icons',
-                //         '@fortawesome/pro-light-svg-icons',
-                //         '@fortawesome/free-brands-svg-icons'
-                //     ]
-                // },
                 setup({ App, props, plugin }) {
                     return createSSRApp(
                         { render: () => h(App, props) })

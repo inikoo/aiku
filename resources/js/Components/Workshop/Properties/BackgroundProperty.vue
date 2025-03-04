@@ -15,7 +15,7 @@ import { ImageData } from '@/types/Image'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import RadioButton from 'primevue/radiobutton'
-import { set } from 'lodash'
+import { set } from 'lodash-es'
 library.add(faImage, faPalette)
 
 interface BackgroundProperty {

@@ -11,6 +11,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
 import { getIrisComponent } from '@/Composables/getIrisComponents'
+import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{
   head: {
@@ -58,7 +59,7 @@ const showWebpage = (activityItem) => {
     </template>
 
     <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16 pb-20">
-      This page have no data
+      {{ trans("This page have no data") }}
     </div>
   </div>
 </template>

@@ -17,7 +17,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faPhotoVideo, faLink } from "@fal"
 import { routeType } from "@/types/route"
-import { cloneDeep } from "lodash"
+import { cloneDeep } from "lodash-es"
 
 library.add(faImage, faPhotoVideo, faLink)
 

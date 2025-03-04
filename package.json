@@ -9,6 +9,7 @@
         "build.aiku-public": "vite build --config vite.aiku-public.config.js",
         "dev.iris": "vite --config vite.iris.config.js",
         "build.iris": "vite build --config vite.iris.config.js && vite build --config vite.iris.config.js --ssr",
+        "build.iris.ssr": "vite build --config vite.iris.config.js --ssr",
         "dev.retina": "vite --config vite.retina.config.js",
         "build.retina": "vite build --config vite.retina.config.js",
         "dev.pupil": "vite --config vite.pupil.config.js",

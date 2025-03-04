@@ -2,7 +2,7 @@
 import { onBeforeMount } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
-import { set, get } from 'lodash'
+import { set, get } from 'lodash-es'
 import { onMounted } from 'vue'
 import { inject } from 'vue'
 

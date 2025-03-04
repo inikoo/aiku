@@ -16,7 +16,7 @@ import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
 import { irisStyleVariables, setIframeView } from '@/Composables/Workshop'
 import ProgressSpinner from 'primevue/progressspinner';
 import { useColorTheme } from '@/Composables/useStockList'
-import { set, get } from 'lodash'
+import { set, get } from 'lodash-es'
 import ToggleSwitch from 'primevue/toggleswitch';
 
 import { routeType } from "@/types/route"
