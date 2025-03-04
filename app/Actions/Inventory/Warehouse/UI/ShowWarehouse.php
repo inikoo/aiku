@@ -70,7 +70,7 @@ class ShowWarehouse extends OrgAction
                     'title'   => $warehouse->name,
                     'model'   => __('Warehouse'),
                     'actions' => [
-                        $this->canEdit ?
+                       /*  $this->canEdit ?
                             [
                                 'type'    => 'button',
                                 'style'   => 'create',
@@ -82,7 +82,7 @@ class ShowWarehouse extends OrgAction
                                 ]
                             ]
                             : null,
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                        $this->canEdit ? $this->getEditActionIcon($request) : null, */
 
                     ],
                 ],
