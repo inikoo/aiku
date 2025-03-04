@@ -65,7 +65,7 @@ class JobPositionHydrateEmployees
         $stats['number_employees_currently_working'] = $stats['number_employees_state_working'] + $stats['number_employees_state_leaving'];
 
         $jobPosition->stats()->update($stats);
-        if($jobPosition->organisation){
+        if ($jobPosition->organisation) {
             OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
         }
     }

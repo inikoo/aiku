@@ -79,6 +79,6 @@ const onMouseLeaveMenu = () => {
 
 <style scoped>
 .container {
-    max-width: 1200px;
+    max-width: 1980px;
 }
 </style>

@@ -1051,6 +1051,29 @@ test('UI show pallet', function () {
     });
 });
 
+test('UI show pallet in fulfilment customer', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $this->pallet->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallet')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->pallet->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+    });
+});
+
 test('UI show pallet (Stored Items Tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/pallets/'.$this->pallet->slug.'?tab=stored_items');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -1146,7 +1169,7 @@ test('UI Index pallets in warehouse', function () {
             )
             ->has('data');
     });
-})->todo();
+});
 
 test('UI Index lost pallets in warehouse', function () {
     $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.lost.index', [$this->organisation->slug, $this->warehouse->slug]));
@@ -1269,11 +1292,13 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 test('UI show pallet delivery (confirmed)', function () {
     $palletDelivery = $this->palletDelivery;
 
-    StorePalletFromDelivery::make()->action($palletDelivery, 
-    [
+    StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
         'type' => PalletTypeEnum::PALLET,
         'customer_reference' => 'SASASasas'
-    ]);
+    ]
+    );
 
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
@@ -1311,7 +1336,7 @@ test('UI show pallet delivery (received)', function (PalletDelivery $palletDeliv
             'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
         ]
     );
-    
+
     $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
 

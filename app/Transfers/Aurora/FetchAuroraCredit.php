@@ -26,8 +26,8 @@ class FetchAuroraCredit extends FetchAurora
         }
 
 
-        if($payment and $payment->customer_id!=$customer->id){
-            $payment=null;
+        if ($payment and $payment->customer_id != $customer->id) {
+            $payment = null;
             print "\nError Payment Customer does not match Customer   ".$this->auroraModelData->{'Credit Transaction Date'}."   >>".$this->auroraModelData->{'Credit Transaction Key'}."<<  \n";
         }
 
