@@ -8,6 +8,9 @@
 import { Link } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import type { Links, Meta } from "@/types/Table"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
+import { inject } from "vue"
+import Icon from "@/Components/Icon.vue"
 
 defineProps<{
     data: {
@@ -32,14 +35,25 @@ function shopRoute(charge: {}) {
 }
 
 
+const locale = inject('locale', aikuLocaleStructure)
+
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: charge }">
+            <Icon :data="charge['state_icon']" />
+        </template>
         <template #cell(code)="{ item: charge }">
             <Link :href="shopRoute(charge)" class="primaryLink">
             {{ charge["code"] }}
             </Link>
         </template>
+        <template #cell(sales_all)="{ item: charge }">
+            {{ locale.currencyFormat(charge.currency_code, charge.sales_all) }}
+        </template>
+
+        
     </Table>
 </template>
