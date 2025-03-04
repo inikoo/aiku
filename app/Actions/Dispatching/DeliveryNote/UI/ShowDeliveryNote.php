@@ -33,7 +33,6 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -320,12 +319,6 @@ class ShowDeliveryNote extends OrgAction
         $this->set('canEdit', $request->user()->authTo('hr.edit'));
         $this->set('canViewUsers', $request->user()->authTo('users.view'));
     }
-
-    #[Pure] public function jsonResponse(DeliveryNote $deliveryNote): DeliveryNoteResource
-    {
-        return new DeliveryNoteResource($deliveryNote);
-    }
-
 
     public function getBreadcrumbs(DeliveryNote $deliveryNote, string $routeName, array $routeParameters, string $suffix = ''): array
     {
