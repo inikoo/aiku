@@ -53,19 +53,19 @@ class RepairInvoiceFetch
             ->where('Invoice Date', '>=', $sevenDays)
             ->orderBy('Invoice Date', 'desc')
             ->chunk(
-            1000,
-            function ($chunkedData) use ($counter) {
-                foreach ($chunkedData as $auroraData) {
-                    $sourceId = $this->organisationSource->organisation->id.':'.$auroraData->{'Invoice Key'};
-                    if (!Invoice::where('source_id', $sourceId)->exists()) {
-                        $counter++;
-                        print "$counter Invoice $sourceId  ".$auroraData->{'Invoice Date'}."  not fetched\n";
+                1000,
+                function ($chunkedData) use ($counter) {
+                    foreach ($chunkedData as $auroraData) {
+                        $sourceId = $this->organisationSource->organisation->id.':'.$auroraData->{'Invoice Key'};
+                        if (!Invoice::where('source_id', $sourceId)->exists()) {
+                            $counter++;
+                            print "$counter Invoice $sourceId  ".$auroraData->{'Invoice Date'}."  not fetched\n";
 
-                        FetchAuroraInvoices::make()->action($this->organisationSource->organisation->id, $auroraData->{'Invoice Key'}, ['full']);
+                            FetchAuroraInvoices::make()->action($this->organisationSource->organisation->id, $auroraData->{'Invoice Key'}, ['full']);
+                        }
                     }
                 }
-            }
-        );
+            );
     }
 
     public function checkCount(Command $command): void

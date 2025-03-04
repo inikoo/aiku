@@ -154,7 +154,7 @@ class FetchAuroraShop extends FetchAurora
 
         ];
 
-        if($this->auroraModelData->{'Store Invoice Message'}){
+        if ($this->auroraModelData->{'Store Invoice Message'}) {
             $this->parsedData['shop']['invoice_footer'] = $this->auroraModelData->{'Store Invoice Message'};
         }
 
