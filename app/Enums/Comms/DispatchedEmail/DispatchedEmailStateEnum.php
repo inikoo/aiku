@@ -73,7 +73,7 @@ enum DispatchedEmailStateEnum: string
             ],
             'error'                => [
 
-                'tooltip' => __('Ready'),
+                'tooltip' => __('Error'),
                 'icon'    => 'fal fa-exclamation-circle',
                 'class'   => 'text-red-500'
 

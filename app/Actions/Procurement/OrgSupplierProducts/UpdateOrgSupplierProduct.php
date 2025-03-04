@@ -13,7 +13,9 @@ use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydrateOrgSupplierProduct
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Procurement\OrgSupplierProduct;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrgSupplierProduct extends OrgAction
@@ -51,6 +53,8 @@ class UpdateOrgSupplierProduct extends OrgAction
         return [
             'source_id' => 'sometimes|nullable|string|max:64',
             'status'    => ['sometimes', 'required', 'boolean'],
+            'state'     => ['sometimes', 'required', Rule::enum(OrgSupplierProductStateEnum::class)],
+            'is_available'    => ['sometimes', 'required', 'boolean'],
         ];
     }
 

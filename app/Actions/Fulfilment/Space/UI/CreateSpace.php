@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Space\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalTypeEnum;
 use App\Models\Billables\Rental;
@@ -24,7 +24,7 @@ use Spatie\LaravelOptions\Options;
 
 class CreateSpace extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopEditAuthorisation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {

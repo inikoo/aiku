@@ -8,7 +8,11 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWarehouseManagementEditAuthorisation;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,22 +20,25 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateWarehouse extends OrgAction
 {
+    use WithWarehouseManagementEditAuthorisation;
+
     public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('new warehouse'),
                 'pageHead'    => [
-                    'title'        => __('new warehouse'),
-                    'icon'         => [
+                    'title'   => __('new warehouse'),
+                    'icon'    => [
                         'title' => __('Create warehouses'),
                         'icon'  => 'fal fa-warehouse'
                     ],
-                    'actions'      => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -43,7 +50,7 @@ class CreateWarehouse extends OrgAction
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('Create warehouse'),
@@ -61,22 +68,33 @@ class CreateWarehouse extends OrgAction
                                     'value'    => '',
                                     'required' => true
                                 ],
+                                'address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make(
+                                        new Address(
+                                            [
+                                                'country_id' => $this->organisation->country_id,
+
+                                            ]
+                                        )
+                                    )->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ]
 
                             ]
                         ]
                     ],
-                    'route'      => [
+                    'route'     => [
                         'name'       => 'grp.models.warehouse.store',
+                        'parameters' => [$this->organisation->id]
                     ]
                 ],
 
             ]
         );
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->authTo("warehouses.{$this->organisation->id}.edit");
     }
 
 
@@ -87,13 +105,13 @@ class CreateWarehouse extends OrgAction
         return $this->handle($request);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexWarehouses::make()->getBreadcrumbs($routeParameters),
+            IndexWarehouses::make()->getBreadcrumbs($routeName, $routeParameters),
             [
                 [
-                    'type'         => 'creatingModel',
+                    'type'          => 'creatingModel',
                     'creatingModel' => [
                         'label' => __('Creating warehouse'),
                     ]

@@ -14,7 +14,7 @@ function RouteDashboardTable(shop: any, type: string) {
     if (type === 'invoices') {
         return route(shop?.route_invoice?.name, shop?.route_invoice?.parameters)
     } else if (type === 'refunds') {
-        return route(shop?.route_refund?.name, shop?.route_invoice?.parameters)
+        return route(shop?.route_refund?.name, shop?.route_refund?.parameters)
         
     }
 }
@@ -24,6 +24,7 @@ function RouteDashboardTable(shop: any, type: string) {
 <template>
 	<Transition name="spin-to-down" mode="out-in">
 		<div
+            class="whitespace-nowrap font-mono"
             v-if="type === 'sales'"
 			v-tooltip="
 				useLocaleStore().currencyFormat(
@@ -43,14 +44,14 @@ function RouteDashboardTable(shop: any, type: string) {
 			</p>
 		</div>
         <div v-else-if="type === 'refunds' || type ==='invoices'" :key="dataTable.interval_percentages?.[type]?.amount || 0">
-            <Link v-if="dataTable.interval_percentages?.[type]?.amount" :href="RouteDashboardTable(dataTable, type)" class="hover-underline text-[16px] md:text-[18px]" >
+            <Link v-if="dataTable.interval_percentages?.[type]?.amount" :href="RouteDashboardTable(dataTable, type)" class="hover-underline font-mono text-[16px] md:text-[18px]" >
                 {{
                     locale.number(
                         dataTable?.interval_percentages?.[type]?.amount || 0
                     )
                 }}
             </Link>
-            <span v-else class="text-[16px] md:text-[18px]">
+            <span v-else class="text-[14px] md:text-[16px] font-mono">
                 {{
                     locale.number(
                         dataTable?.interval_percentages?.[type]?.amount || 0

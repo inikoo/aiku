@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
@@ -32,7 +32,7 @@ use App\Services\QueryBuilder;
 
 class IndexPalletsInCustomer extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
 
@@ -199,7 +199,7 @@ class IndexPalletsInCustomer extends OrgAction
                 $table->column(key: 'location_code', label: __('location'), canBeHidden: false, sortable: true, searchable: true);
             }
             if ($this->fulfilmentCustomer->items_storage) {
-                $table->column(key: 'stored_items', label: __("customer's sKUs"), canBeHidden: false);
+                $table->column(key: 'stored_items', label: __("Customer's SKUs"), canBeHidden: false);
             }
 
             if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {

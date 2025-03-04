@@ -19,46 +19,46 @@ use Throwable;
 
 class FetchAuroraCredits extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:credits {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:credits {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CreditTransaction
     {
         if ($creditData = $organisationSource->fetchCredit($organisationSourceId)) {
             if ($creditTransaction = CreditTransaction::where('source_id', $creditData['credit']['source_id'])->first()) {
-                try {
-                    $creditTransaction = UpdateCreditTransaction::make()->action(
-                        creditTransaction: $creditTransaction,
-                        modelData: $creditData['credit'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                    );
-                    $this->recordChange($organisationSource, $creditTransaction->wasChanged());
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'update');
-
-                    return null;
-                }
+                // try {
+                $creditTransaction = UpdateCreditTransaction::make()->action(
+                    creditTransaction: $creditTransaction,
+                    modelData: $creditData['credit'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                );
+                $this->recordChange($organisationSource, $creditTransaction->wasChanged());
+                //                } catch (Exception $e) {
+                //                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'update');
+                //
+                //                    return null;
+                //                }
             } else {
-                try {
-                    $creditTransaction = StoreCreditTransaction::make()->action(
-                        customer: $creditData['customer'],
-                        modelData: $creditData['credit'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                    );
+                // try {
+                $creditTransaction = StoreCreditTransaction::make()->action(
+                    customer: $creditData['customer'],
+                    modelData: $creditData['credit'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                );
 
 
-                    $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-                    $sourceData = explode(':', $creditTransaction->source_id);
-                    DB::connection('aurora')->table('Credit Transaction Fact')
-                        ->where('Credit Transaction Key', $sourceData[1])
-                        ->update(['aiku_id' => $creditTransaction->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'store');
-
-                    return null;
-                }
+                $sourceData = explode(':', $creditTransaction->source_id);
+                DB::connection('aurora')->table('Credit Transaction Fact')
+                    ->where('Credit Transaction Key', $sourceData[1])
+                    ->update(['aiku_id' => $creditTransaction->id]);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'store');
+                //
+                //                    return null;
+                //                }
             }
 
             return $creditTransaction;
@@ -69,15 +69,27 @@ class FetchAuroraCredits extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Credit Transaction Fact')
-            ->select('Credit Transaction Key as source_id')
-            ->orderBy('source_id');
+            ->select('Credit Transaction Key as source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        $query->orderBy('source_id');
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Credit Transaction Fact')->count();
+        $query = DB::connection('aurora')->table('Credit Transaction Fact');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 
 

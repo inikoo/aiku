@@ -30,9 +30,6 @@ class ShowOutboxWorkshop extends OrgAction
     use WithActionButtons;
 
 
-    /**
-     * @var \App\Models\Catalogue\Shop|\App\Models\Fulfilment\Fulfilment
-     */
     private Fulfilment|Shop $parent;
 
     public function handle(Outbox $outbox): Email
@@ -112,7 +109,7 @@ class ShowOutboxWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
-                        [
+                        /* [
                             'type' => 'button',
                             'style' => 'exit',
                             'label' => __('Toggle'),
@@ -135,7 +132,7 @@ class ShowOutboxWorkshop extends OrgAction
                                 ],
                                 default => []
                             }
-                        ],
+                        ], */
                     ]
 
                 ],

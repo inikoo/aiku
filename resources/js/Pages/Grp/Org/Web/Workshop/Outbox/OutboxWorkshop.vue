@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/UnlayerV2.vue"
 import Beetree from '@/Components/CMS/Website/Outboxes/Beefree.vue'
-import Publish from "@/Components/Publish.vue"
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
 import Dialog from 'primevue/dialog';
@@ -13,8 +12,6 @@ import PureInput from "@/Components/Pure/PureInput.vue";
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import SelectButton from 'primevue/selectbutton';
 import { trans } from "laravel-vue-i18n"
-import Popover from 'primevue/popover';
-import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css'
 import Multiselect from "@vueform/multiselect"
 import Tag from '@/Components/Tag.vue'
@@ -24,7 +21,6 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faPaperPlane, faCheckCircle, faCircle, faClock } from '@fal'
 import { routeType } from '@/types/route'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import PureRadio from '@/Components/Pure/PureRadio.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
@@ -87,12 +83,6 @@ const onSendPublish = async (data) => {
     }
 }
 
-const onPublish = (popover: {}) => {
-    if (props.builder === 'beefree' && _beefree.value?.beeInstance) {
-        _beefree.value.beeInstance.save()
-        popover.close();
-    }
-};
 
 const openSendTest = (data) => {
     visibleEmailTestModal.value = true
@@ -240,53 +230,6 @@ const schedulePublish = async () =>{
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #other>
-         <!--    <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
-                @onPublish="(popover) => onPublish(popover)">
-                <template #button="{ isOpen }">
-                    <Button :icon="faClock" class="rounded-r-none" @click="onSchedulePublish" />
-                    <Popover ref="_popover">
-                        <div>
-                            <div class="text-xl font-semibold border-b pb-2 text-org-500">{{trans("Select date and time")}}</div>
-                            <div class="my-2">
-                                <DatePicker expanded color='purple' transparent borderless v-model="date" mode="dateTime"
-                                    is24hr :min-date="new Date()" />
-                            </div>
-                            <div class="flex justify-between">
-                                <div @click="()=>_popover.hide()" class="p-[4px] cursor-pointer text-gray-400 hover:text-gray-600">Cancel</div>
-                                <Button @click="schedulePublish"  label="Schedule"  />
-                            </div>
-                        </div>
-                    </Popover>
-                    <Button v-if="!isOpen" class="rounded-l-none border-l-0" :label="'Publish'" :type="false
-                        ? 'disabled'
-                        : 'primary'"  :icon="'far fa-rocket-launch'" />
-                    <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel"  />
-                </template>
-            </Publish> -->
-        </template>
-        <template #button-toogle="action">
-            <div class=" rounded-md px-2 py-1">
-                <SelectButton v-model="active" :options="options" optionLabel="name" optionValue="value"
-                    :unstyled="true" @update:model-value="(e) => updateActiveValue(action.action.route)">
-                    <template #option="slotProps">
-                        <div class="px-3 py-1 text-center cursor-pointer transition duration-300 font-medium" :class="[
-                            active == slotProps.option.value ?
-                                slotProps.option.value == 'active' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-                            slotProps.index == 0 ? 'rounded-l-lg ' : 'rounded-r-lg '
-                        ]">
-                            <div>
-                                <FontAwesomeIcon :icon="active == slotProps.option.value ? faCheckCircle : faCircle"
-                                    class="mx-2" />
-                                <span class="mx-1">{{ slotProps.option.name }}</span>
-                            </div>
-
-
-                        </div>
-                    </template>
-                </SelectButton>
-            </div>
-        </template>
     </PageHeading>
 
     <!-- beefree -->

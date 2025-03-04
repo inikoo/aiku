@@ -11,6 +11,7 @@ namespace App\Actions\Inventory\Warehouse\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Overview\ShowGroupOverviewHub;
+use App\Actions\Traits\Authorisations\WithWarehouseManagementAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\UI\Inventory\WarehousesTabsEnum;
@@ -31,35 +32,20 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWarehouses extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Group) {
-            return $request->user()->authTo("group-overview");
-        }
-
-        $this->canEdit = $request->user()->authTo('org-supervisor.'.$this->organisation->id);
-
-        return $request->user()->authTo(
-            [
-                'org-supervisor.'.$this->organisation->id,
-                'warehouses-view.'.$this->organisation->id]
-        );
-    }
+    use WithWarehouseManagementAuthorisation;
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(WarehousesTabsEnum::values());
+
         return $this->handle($organisation, 'warehouses');
     }
 
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = group();
-        $this->scope = $this->parent;
         $this->initialisationFromGroup(group(), $request)->withTab(WarehousesTabsEnum::values());
 
-        return $this->handle($this->parent, WarehousesTabsEnum::WAREHOUSES->value);
+        return $this->handle(group(), WarehousesTabsEnum::WAREHOUSES->value);
     }
 
     protected function getElementGroups(Organisation|Group $parent): array
@@ -152,7 +138,7 @@ class IndexWarehouses extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __('no warehouses'),
+                        'title'       => __('No warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
                         'count'       => $parent->inventoryStats->number_warehouses,
                         'action'      => $this->canEdit ? [
@@ -188,6 +174,12 @@ class IndexWarehouses extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $warehouses, ActionRequest $request): Response
     {
+        if (str_starts_with($request->route()->getName(), 'grp.overview')) {
+            $parent = $this->group;
+        } else {
+            $parent = $this->organisation;
+        }
+
         return Inertia::render(
             'Org/Warehouse/Warehouses',
             [
@@ -203,10 +195,10 @@ class IndexWarehouses extends OrgAction
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions' => [
-                        $this->canEdit && $request->route()->routeName == 'grp.org.warehouses.index' ? [
+                        $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new warehouse'),
+                            'tooltip' => __('New warehouse'),
                             'label'   => __('warehouse'),
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.create',
@@ -215,7 +207,7 @@ class IndexWarehouses extends OrgAction
                         ] : false,
                     ]
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WarehousesTabsEnum::navigation(),
                 ],
@@ -230,12 +222,13 @@ class IndexWarehouses extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class, 'hst')))
 
 
-
             ]
-        )->table($this->tableStructure(
-            parent:$this->parent,
-            prefix:WarehousesTabsEnum::WAREHOUSES->value
-        ))->table(IndexHistory::make()->tableStructure(prefix: WarehousesTabsEnum::WAREHOUSES_HISTORIES->value));
+        )->table(
+            $this->tableStructure(
+                parent: $parent,
+                prefix: WarehousesTabsEnum::WAREHOUSES->value
+            )
+        )->table(IndexHistory::make()->tableStructure(prefix: WarehousesTabsEnum::WAREHOUSES_HISTORIES->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
@@ -253,18 +246,19 @@ class IndexWarehouses extends OrgAction
                 ],
             ];
         };
-        return match($routeName) {
+
+        return match ($routeName) {
             'grp.overview.inventory.warehouses.index' =>
-                array_merge(
-                    ShowGroupOverviewHub::make()->getBreadcrumbs(),
-                    $headCrumb(
-                        [
-                            'name'       => $routeName,
-                            'parameters' => $routeParameters
-                        ]
-                    )
-                ),
-            default =>  array_merge(
+            array_merge(
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            default => array_merge(
                 ShowGroupDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [

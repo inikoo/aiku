@@ -258,18 +258,20 @@ class ShowCollection extends OrgAction
             ]
         )->table(
             IndexDepartments::make()->tableStructure(
-                $collection,
+                parent: $collection,
                 prefix: CollectionTabsEnum::DEPARTMENTS->value,
+                sales: false
             )
         )->table(
             IndexFamilies::make()->tableStructure(
                 $collection,
-                prefix: CollectionTabsEnum::FAMILIES->value
+                prefix: CollectionTabsEnum::FAMILIES->value,
+                sales: false
             )
         )->table(
             IndexProducts::make()->tableStructure(
                 $collection,
-                prefix: CollectionTabsEnum::PRODUCTS->value
+                prefix: CollectionTabsEnum::PRODUCTS->value,
             )
         )->table(
             IndexCollection::make()->tableStructure(

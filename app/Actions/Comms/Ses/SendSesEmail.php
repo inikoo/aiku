@@ -8,8 +8,10 @@
 
 namespace App\Actions\Comms\Ses;
 
+use App\Actions\Comms\DispatchedEmail\Hydrators\DispatchedEmailHydrateEmailTracking;
 use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Comms\EmailAddress\Traits\AwsClient;
+use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmails;
 use App\Actions\CRM\Prospect\UpdateProspectEmailSent;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Models\Comms\DispatchedEmail;
@@ -34,11 +36,19 @@ class SendSesEmail
             return $dispatchedEmail;
         }
 
+        $emailTo = $dispatchedEmail->emailAddress->email;
+
+
         $actuallySend = false;
         if (app()->isProduction()) {
             $actuallySend = true;
         } elseif (config('app.send_email_in_non_production_env') or $dispatchedEmail->is_test) {
             $actuallySend = true;
+
+            $emailTo = config('app.test_email_to_address');
+            if (!$emailTo) {
+                $actuallySend = false;
+            }
         }
 
 
@@ -72,7 +82,7 @@ class SendSesEmail
         $emailData = $this->getEmailData(
             $subject,
             $sender,
-            $dispatchedEmail->emailAddress->email,
+            $emailTo,
             $emailHtmlBody,
             $unsubscribeUrl
         );
@@ -142,6 +152,8 @@ class SendSesEmail
             break;
         } while ($attempt < $numberAttempts);
 
+        DispatchedEmailHydrateEmailTracking::dispatch($dispatchedEmail);
+        OutboxHydrateEmails::run($dispatchedEmail->outbox);
 
         return $dispatchedEmail;
     }

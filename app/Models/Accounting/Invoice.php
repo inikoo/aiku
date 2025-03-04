@@ -119,8 +119,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop
- * @property-read TaxCategory $taxCategory
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
+ * @property-read TaxCategory $taxCategory
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
  * @method static Builder<static>|Invoice newModelQuery()

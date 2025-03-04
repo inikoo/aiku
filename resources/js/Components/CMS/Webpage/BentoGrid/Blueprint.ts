@@ -27,22 +27,22 @@ export default {
 			],
 		},
 		{
-			name: "Column 1",
+			name: "Column Left",
 			key: ["column1"],
             type: "upload_image",
 		},
 		{
-			name: "Column 2",
+			name: "Column middle top",
 			key: ["column2"],
             type: "upload_image",
 		},
 		{
-			name: "Column 3",
+			name: "Column middle bottom",
 			key: ["column3"],
             type: "upload_image",
 		},
 		{
-			name: "Column 4",
+			name: "Column right",
 			key: ["column4"],
             type: "upload_image",
 		},

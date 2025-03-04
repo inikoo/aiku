@@ -169,7 +169,28 @@ class EditFulfilment extends OrgAction
                                 'invoice_footer'  => [
                                     'type'        => 'textEditor',
                                     'label'       => __('invoice footer'),
+                                    'full'      => true,
                                     'value'       => $fulfilment->shop->invoice_footer
+                                ],
+                            ],
+                        ],
+                        [
+                            'label'  => __('sender email'),
+                            'icon'   => 'fa-light fa-envelope',
+                            'fields' => [
+                                'sender_email' => [
+                                    'type'  => 'input',
+                                    'label' => __('email'),
+                                    'verification' => [
+                                        'route' => [
+                                            'name' => 'grp.models.shop.sender_email.verify',
+                                            'parameters' => [
+                                                'shop' => $fulfilment->shop_id
+                                            ]
+                                        ],
+                                        'state' => $fulfilment->shop?->senderEmail?->state
+                                    ],
+                                    'value' => $fulfilment->shop?->senderEmail?->email_address,
                                 ],
                             ],
                         ],

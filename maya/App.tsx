@@ -25,6 +25,7 @@ function App(): React.JSX.Element {
     warehouse: null,
   };
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
+  console.log("loginState",loginState)
 
   const authContext = useMemo(
     () => ({
@@ -44,6 +45,7 @@ function App(): React.JSX.Element {
         });
       },
       setOrganisation: async user => {
+        console.log(user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -59,6 +61,7 @@ function App(): React.JSX.Element {
         });
       },
       setFulfilmentWarehouse: async user => {
+        console.log('setFulfilmentWarehouse',user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -95,11 +98,12 @@ function App(): React.JSX.Element {
       try {
         const storedUser = await getData('persist:user');
         const userToken = storedUser ? storedUser.token : null;
+        console.log(storedUser)
         dispatch({
           type: 'RETRIEVE_TOKEN',
           token: userToken,
           userData: storedUser,
-          organisation: storedUser?.organisation,
+          organisation: storedUser?.organisation, 
           fulfilment: storedUser?.fulfilment,
           warehouse: storedUser?.warehouse,
         });

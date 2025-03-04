@@ -9,6 +9,8 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Goods\Ingredient\StoreIngredient;
+use App\Actions\Goods\Ingredient\UpdateIngredient;
 use App\Actions\Goods\MasterProductCategory\StoreMasterProductCategory;
 use App\Actions\Goods\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Goods\MasterShop\StoreMasterShop;
@@ -22,6 +24,7 @@ use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\MasterProductCategory;
 use App\Models\Goods\MasterProductCategoryOrderingIntervals;
 use App\Models\Goods\MasterProductCategoryOrderingStats;
@@ -127,11 +130,11 @@ test('activate draft stock', function (Stock $stock) {
         $stock,
         [
             'state' => StockStateEnum::ACTIVE
-        ]
+            ]
     );
 
     expect($stock->state)->toBe(StockStateEnum::ACTIVE)
-        ->and($this->group->goodsStats->number_stocks_state_in_process)->toBe(0)
+    ->and($this->group->goodsStats->number_stocks_state_in_process)->toBe(0)
         ->and($this->group->goodsStats->number_current_stocks)->toBe(2);
 
     return $stock;
@@ -144,6 +147,45 @@ test('delete stock family', function ($stockFamily) {
 
     return $deletedStockFamily;
 })->depends('create stock family');
+
+test('store ingredient', function () {
+    $ingredient = StoreIngredient::make()->action($this->group, [
+        'name' => 'test'
+    ]);
+
+    expect($ingredient)->toBeInstanceOf(Ingredient::class)
+        ->and($ingredient->name)->toBe('test');
+
+    return $ingredient;
+});
+
+test('update ingredient', function (Ingredient $ingredient) {
+    $ingredient = UpdateIngredient::make()->action($ingredient, [
+        'name' => 'update'
+    ]);
+
+    expect($ingredient)->toBeInstanceOf(Ingredient::class)
+        ->and($ingredient->name)->toBe('update');
+})->depends('store ingredient');
+
+test("UI Show Goods Dashboard", function () {
+    $response    = get(
+        route("grp.goods.dashboard")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/GoodsDashboard")
+            ->has("breadcrumbs", 2)
+            ->has("title")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                $page->where("title", 'goods strategy')
+                    ->etc()
+            )
+            ->has("flatTreeMaps");
+    });
+});
 
 test("UI Edit stock family", function () {
     $stockFamily = StoreStockFamily::make()->action(
@@ -278,6 +320,55 @@ test("UI Create Stock in Group", function () {
     });
 });
 
+test('UI index goods ingredients', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.goods.ingredients.index'
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Goods/Ingredients')
+            ->where('title', 'Ingredients')
+            ->has('breadcrumbs', 3)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Ingredients')
+                    ->etc()
+            );
+    });
+});
+
+test('UI show goods ingredients', function (Ingredient $ingredient) {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.goods.ingredients.show',
+            [
+                $ingredient->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) use ($ingredient) {
+        $page
+            ->component('Goods/Ingredient')
+            ->where('title', 'ingredient')
+            ->has('breadcrumbs', 3)
+            ->has('tabs')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $ingredient->name)
+                    ->etc()
+            );
+    });
+})->depends('store ingredient');
+
 test("UI Edit Stock in Group", function () {
     $stock    = Stock::first();
     $response = get(
@@ -326,6 +417,25 @@ test("UI Create Stock in Stock Family Group", function () {
     });
 });
 
+test("UI Index Master Shops", function () {
+    $response = get(
+        route("grp.goods.catalogue.shops.index")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/MasterShops")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has("data")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                    $page->has('subNavigation')->etc()
+            );
+    });
+});
+
+
 test('create master shop', function () {
     $masterShop = StoreMasterShop::make()->action(
         $this->group,
@@ -357,6 +467,26 @@ test('create master shop', function () {
     return $masterShop;
 });
 
+test("UI Show master shop", function (MasterShop $masterShop) {
+    $this->withoutExceptionHandling();
+    $response  = get(
+        route("grp.goods.catalogue.shops.show", [$masterShop->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($masterShop) {
+        $page
+            ->component("Org/Catalogue/Shop")
+            ->has("title")
+            ->has("breadcrumbs", 1)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                $page->where("title", $masterShop->name)
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has("tabs");
+    });
+})->depends('create master shop');
 
 test('update master shop', function (MasterShop $masterShop) {
     $updatedMasterShop = UpdateMasterShop::make()->action(
@@ -415,6 +545,59 @@ test('assign master shop to shop', function () {
         ->and($masterShop->stats->number_current_shops)->toBe(0);
 });
 
+test("UI Index Master Departments", function (MasterShop $masterShop) {
+    $response = get(
+        route("grp.goods.catalogue.shops.show.departments.index", [$masterShop->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/MasterDepartments")
+            ->has("title")
+            ->has("breadcrumbs", 2)
+            ->has("data")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                    $page->has('subNavigation')->etc()
+            );
+    });
+})->depends('create master shop');
+
+test("UI Index Master Families", function (MasterShop $masterShop) {
+    $response = get(
+        route("grp.goods.catalogue.shops.show.families.index", [$masterShop->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/MasterFamilies")
+            ->has("title")
+            ->has("breadcrumbs", 2)
+            ->has("data")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                    $page->has('subNavigation')->etc()
+            );
+    });
+})->depends('create master shop');
+
+test("UI Index Master SubDepartments", function (MasterShop $masterShop) {
+    $response = get(
+        route("grp.goods.catalogue.shops.show.sub-departments.index", [$masterShop->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/MasterSubDepartments")
+            ->has("title")
+            ->has("breadcrumbs", 2)
+            ->has("data")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) =>
+                    $page->has('subNavigation')->etc()
+            );
+    });
+})->depends('create master shop');
 
 test('create master product category', function (MasterShop $masterShop) {
     $masterProductCategory = StoreMasterProductCategory::make()->action(

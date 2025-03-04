@@ -15,6 +15,7 @@ use App\Actions\SysAdmin\Group\Seeders\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\Authorisations\WithWarehouseManagementEditAuthorisation;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
@@ -36,6 +37,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreWarehouse extends OrgAction
 {
     use WithModelAddressActions;
+    use WithWarehouseManagementEditAuthorisation;
 
     /**
      * @throws \Throwable
@@ -43,6 +45,7 @@ class StoreWarehouse extends OrgAction
     public function handle(Organisation $organisation, $modelData): Warehouse
     {
         data_set($modelData, 'group_id', $organisation->group_id);
+        data_set($modelData, 'state', WarehouseStateEnum::OPEN, overwrite: false);
 
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
@@ -79,25 +82,17 @@ class StoreWarehouse extends OrgAction
         GroupHydrateWarehouses::dispatch($organisation->group)->delay($this->hydratorsDelay);
         OrganisationHydrateWarehouses::dispatch($organisation)->delay($this->hydratorsDelay);
         WarehouseRecordSearch::dispatch($warehouse);
-        SeedJobPositions::run($organisation);
+        SeedJobPositions::dispatch($organisation);
 
 
         return $warehouse;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("inventory.warehouses.edit");
-    }
 
     public function rules(): array
     {
         $rules = [
-            'code'     => [
+            'code'    => [
                 'required',
                 'between:2,4',
                 'alpha_dash',
@@ -108,17 +103,17 @@ class StoreWarehouse extends OrgAction
                     ]
                 ),
             ],
-            'name'     => ['required', 'max:250', 'string'],
-            'state'    => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
-            'address'  => ['sometimes', 'required', new ValidAddress()],
-            'settings' => ['sometimes', 'array'],
+            'name'    => ['required', 'max:250', 'string'],
+            'address' => ['sometimes', 'required', new ValidAddress()],
 
         ];
 
         if (!$this->strict) {
+            $rules['state']      = ['sometimes', Rule::enum(WarehouseStateEnum::class)];
             $rules['source_id']  = ['sometimes', 'string', 'max:64'];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['created_at'] = ['sometimes', 'date'];
+            $rules['settings']   = ['sometimes', 'array'];
         }
 
         return $rules;
@@ -154,7 +149,12 @@ class StoreWarehouse extends OrgAction
 
     public function htmlResponse(Warehouse $warehouse): RedirectResponse
     {
-        return Redirect::route('grp.org.warehouses.index');
+        return Redirect::route(
+            'grp.org.warehouses.index',
+            [
+                'organisation' => $warehouse->organisation->slug
+            ]
+        );
     }
 
     public string $commandSignature = 'warehouse:create {organisation : organisation slug} {code} {name}';
@@ -178,8 +178,9 @@ class StoreWarehouse extends OrgAction
         setPermissionsTeamId($organisation->group->id);
 
         $this->setRawAttributes([
-            'code' => $command->argument('code'),
-            'name' => $command->argument('name'),
+            'code'  => $command->argument('code'),
+            'name'  => $command->argument('name'),
+            'state' => WarehouseStateEnum::OPEN
         ]);
 
         try {

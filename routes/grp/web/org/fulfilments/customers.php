@@ -28,6 +28,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersApprove
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersPendingApproval;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomersRejected;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
+use App\Actions\Fulfilment\Pallet\DownloadPalletStoredItemTemplate;
 use App\Actions\Fulfilment\Pallet\PdfPallet;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
@@ -116,6 +117,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
         Route::get('{palletDelivery}/pallets-histories', [IndexRecentUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
+        Route::get('{palletDelivery}/pallet-stored-item-templates', DownloadPalletStoredItemTemplate::class)->name('pallets-stored-item.uploads.templates');
     });
 
     Route::prefix('pallet-returns')->as('.pallet_returns.')->group(function () {
@@ -127,7 +129,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}/pallets-histories', [IndexRecentUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
         Route::get('pallets/export', ExportPalletReturnPallet::class)->name('pallets.export');
-        Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
     });
 
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {

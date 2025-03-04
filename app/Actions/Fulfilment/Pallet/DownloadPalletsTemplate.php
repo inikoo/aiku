@@ -12,7 +12,6 @@ use App\Exports\Pallets\PalletTemplateExport;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -31,11 +30,6 @@ class DownloadPalletsTemplate
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery): BinaryFileResponse
-    {
-        return $this->handle();
-    }
-
-    public function inReturn(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): BinaryFileResponse
     {
         return $this->handle();
     }

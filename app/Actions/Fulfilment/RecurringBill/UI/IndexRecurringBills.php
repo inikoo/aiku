@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\RecurringBill\WithRecurringBillsSubNavigation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
@@ -35,7 +35,7 @@ class IndexRecurringBills extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
     use WithRecurringBillsSubNavigation;
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private Fulfilment|FulfilmentCustomer $parent;
     private string $bucket;

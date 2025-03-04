@@ -608,7 +608,7 @@ test("UI Index fulfilment locations", function () {
     $warehouse = Warehouse::first();
     $this->withoutExceptionHandling();
     $user = $this->user;
-    $user->givePermissionTo("fulfilment.{$warehouse->id}.view");
+    $user->givePermissionTo("fulfilment.$warehouse->id.view");
     $response = get(
         route("grp.org.warehouses.show.fulfilment.locations.index", [
             $this->organisation->slug,
@@ -953,7 +953,7 @@ test("UI index inventory stored item", function () {
             ->has("breadcrumbs", 4)
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => $page->where("title", "customer's sKUs")->etc()
+                fn (AssertableInertia $page) => $page->where("title", "Customer's SKUs")->etc()
             )
             ->has("tabs");
     });

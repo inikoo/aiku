@@ -1,7 +1,6 @@
 export const loginReducer = (prevState, action) => {
   switch (action.type) {
     case 'RETRIEVE_TOKEN':
-      console.log('RETRIEVE_TOKEN action:', action);
       return {
         ...prevState, // Jangan hapus properti lama
         userData: action.userData,
@@ -17,9 +16,9 @@ export const loginReducer = (prevState, action) => {
         userData: action.userData,
         userToken: action.token,
         isLoading: false,
-        organisation: action.organisation ?? null, // Pastikan tetap ada
-        fulfilment: action.fulfilment ?? null,
-        warehouse: action.warehouse ?? null
+        organisation: action.organisation, // Pastikan tetap ada
+        fulfilment: action.fulfilment,
+        warehouse: action.warehouse
       };
     case 'LOGOUT':
       return {
@@ -35,6 +34,9 @@ export const loginReducer = (prevState, action) => {
       return {
         ...prevState,
         organisation: action.organisation,
+        warehouse : null,
+        fulfilment: null,
+        warehouse: null
       };
     case 'SET_FULFILMENT_WAREHOUSE':
       return {
