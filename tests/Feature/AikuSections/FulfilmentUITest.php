@@ -32,6 +32,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAuditFromPallet;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
@@ -1050,6 +1051,29 @@ test('UI show pallet', function () {
     });
 });
 
+test('UI show pallet in fulfilment customer', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $this->pallet->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallet')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->pallet->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+    });
+});
+
 test('UI show pallet (Stored Items Tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/pallets/'.$this->pallet->slug.'?tab=stored_items');
     $response->assertInertia(function (AssertableInertia $page) {
@@ -1145,7 +1169,7 @@ test('UI Index pallets in warehouse', function () {
             )
             ->has('data');
     });
-})->todo();
+});
 
 test('UI Index lost pallets in warehouse', function () {
     $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.lost.index', [$this->organisation->slug, $this->warehouse->slug]));
@@ -1924,6 +1948,33 @@ test('UI show stored item audit', function () {
                 ->etc()
             )
             ->has('breadcrumbs', 4);
+    });
+});
+// ui stored item audit
+test('UI show stored item audit for pallet', function () {
+    $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id',  $this->customer->fulfilmentCustomer->id)->first();
+    $palletAudit = StoreStoredItemAuditFromPallet::make()->action($pallet, []);
+
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $pallet->slug,
+        $palletAudit->slug
+    ]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletAudit')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', "Audit")
+                ->has('subNavigation')
+                ->etc()
+            )
+            ->has('breadcrumbs', 5);
     });
 });
 
