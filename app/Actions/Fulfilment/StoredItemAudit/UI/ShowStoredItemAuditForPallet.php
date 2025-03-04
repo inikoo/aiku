@@ -185,11 +185,10 @@ class ShowStoredItemAuditForPallet extends OrgAction
 
                 'storedItemsRoute' => [
                     'index'  => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'name'       => 'grp.json.fulfilment-customer.audit.stored-items.index',
                         'parameters' => [
-                            'organisation'       => $storedItemAudit->organisation->slug,
-                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
                             'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'storedItemAudit'    => $storedItemAudit->slug
                         ]
                     ],
                     'store'  => [
