@@ -299,6 +299,69 @@ test('SetUserAuthorisedModels command', function (Guest $guest) {
 })->depends('create guest');
 
 
+test('UI index users (active)', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $response = get(
+        route(
+            'grp.sysadmin.users.index'
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Users')
+            ->has('breadcrumbs', 3)
+            ->has('title')
+            ->has('data')
+            ->has('pageHead');
+    });
+
+})->depends('SetUserAuthorisedModels command');
+
+test('UI index users (suspended)', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $response = get(
+        route(
+            'grp.sysadmin.users.suspended.index'
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Users')
+            ->has('breadcrumbs', 3)
+            ->has('title')
+            ->has('data')
+            ->has('pageHead');
+    });
+
+})->depends('SetUserAuthorisedModels command');
+
+test('UI index all users', function (User $user) {
+    $this->withoutExceptionHandling();
+    actingAs($user);
+
+    $response = get(
+        route(
+            'grp.sysadmin.users.all.index'
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Users')
+            ->has('breadcrumbs', 3)
+            ->has('title')
+            ->has('data')
+            ->has('pageHead');
+    });
+
+})->depends('SetUserAuthorisedModels command');
+
 test('UI show dashboard org', function (User $user) {
     $this->withoutExceptionHandling();
     actingAs($user);
@@ -872,8 +935,34 @@ test('employee job position in another organisation', function () {
         ->and($user->authorisedOrganisations()->where('model_type', 'Organisation')->where('model_id', $org2->id)->count())->toBe(1)
         ->and($user->authorisedOrganisations()->where('model_type', 'Organisation')->where('model_id', $org1->id)->count())->toBe(0);
 
-
+    return $employee;
 });
+
+test('UI index users (in Employee)', function (Employee $employee) {
+    $this->withoutExceptionHandling();
+    $user = $employee->getUser();
+    actingAs($user);
+
+    $response = get(
+        route(
+            'grp.org.hr.employees.show.users.index',
+            [
+                'organisation' => $employee->organisation->slug,
+                'employee'     => $employee->slug
+            ]
+        )
+    );
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SysAdmin/Users')
+            ->has('breadcrumbs', 3)
+            ->has('title')
+            ->has('data')
+            ->has('pageHead');
+    });
+
+})->depends('employee job position in another organisation')->todo('authorization');
 
 test('users search', function () {
     $this->artisan('search:users')->assertExitCode(0);
