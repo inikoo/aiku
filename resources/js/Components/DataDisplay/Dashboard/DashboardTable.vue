@@ -125,7 +125,7 @@ function useTabChangeDashboard(tab_slug: string) {
 						<div class="relative">
 							<Transition name="spin-to-down" mode="out-in">
 								<div :key="data.code">
-									<span class="text-[16px] md:text-[18px]">
+									<span class="text-[14px] md:text-[16px]">
 										{{ data.name }}
 									</span>
 								</div>
