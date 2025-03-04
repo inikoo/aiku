@@ -48,7 +48,7 @@ class SendCustomerRejectEmail extends OrgAction
         return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
             $outbox->emailOngoingRun->sender(),
-            $outbox->name,
+            $outbox->emailOngoingRun?->email?->subject,
             $emailHtmlBody,
             '',
             additionalData: [

@@ -24,6 +24,7 @@ function RouteDashboardTable(shop: any, type: string) {
 <template>
 	<Transition name="spin-to-down" mode="out-in">
 		<div
+            class="whitespace-nowrap font-mono"
             v-if="type === 'sales'"
 			v-tooltip="
 				useLocaleStore().currencyFormat(
@@ -50,7 +51,7 @@ function RouteDashboardTable(shop: any, type: string) {
                     )
                 }}
             </Link>
-            <span v-else class="text-[16px] md:text-[18px] font-mono">
+            <span v-else class="text-[14px] md:text-[16px] font-mono">
                 {{
                     locale.number(
                         dataTable?.interval_percentages?.[type]?.amount || 0

@@ -97,7 +97,7 @@ class FetchAuroraPayment extends FetchAurora
         ];
 
 
-        if($this->parsedData['customer'] ){
+        if ($this->parsedData['customer']) {
             $this->parsedData['payment']['customer_id'] = $this->parsedData['customer']->id;
         }
 
