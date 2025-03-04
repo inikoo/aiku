@@ -1268,11 +1268,13 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 test('UI show pallet delivery (confirmed)', function () {
     $palletDelivery = $this->palletDelivery;
 
-    StorePalletFromDelivery::make()->action($palletDelivery, 
-    [
+    StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
         'type' => PalletTypeEnum::PALLET,
         'customer_reference' => 'SASASasas'
-    ]);
+    ]
+    );
 
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
@@ -1310,7 +1312,7 @@ test('UI show pallet delivery (received)', function (PalletDelivery $palletDeliv
             'auto_assign_asset_type' => PalletTypeEnum::PALLET->value
         ]
     );
-    
+
     $palletDelivery = ReceivePalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
 
