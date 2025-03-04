@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\Invoice\ExportInvoices;
 use App\Actions\Accounting\Invoice\PdfInvoice;
+use App\Actions\Accounting\Invoice\UI\EditInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
@@ -84,6 +85,8 @@ Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 
 Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
 Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');
+Route::get('/invoices/{invoice}/edit', [EditInvoice::class, 'inOrganisation'])->name('invoices.edit');
+
 Route::get('/invoices/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.index');
 Route::get('/invoices/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.show');
 
