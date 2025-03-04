@@ -103,7 +103,7 @@ class GetWarehouseNavigation
             ];
         }
 
-        $this->getLocationsNavs($user, $warehouse, $navigation);
+        $navigation = $this->getLocationsNavs($user, $warehouse, $navigation);
 
         if ($user->hasAnyPermission([
             "incoming.$warehouse->id.view",

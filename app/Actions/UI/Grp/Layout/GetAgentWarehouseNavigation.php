@@ -69,18 +69,17 @@ class GetAgentWarehouseNavigation
             ];
         }
 
-        $this->getLocationsNavs($user, $warehouse, $navigation);
+        $navigation = $this->getLocationsNavs($user, $warehouse, $navigation);
 
         if ($user->hasAnyPermission([
             "incoming.$warehouse->id.view",
-            "fulfilment.$warehouse->id.view",
         ])) {
             $navigation["incoming"] = [
-                "root"    => "grp.org.warehouses.show.incoming.",
+                "root"    => "grp.org.warehouses.show.agent_incoming.",
                 "label"   => __("Goods in"),
                 "icon"    => ["fal", "fa-arrow-to-bottom"],
                 "route"   => [
-                    "name"       => "grp.org.warehouses.show.incoming.backlog",
+                    "name"       => "grp.org.warehouses.show.agent_incoming.backlog",
                     "parameters" => [
                         $warehouse->organisation->slug,
                         $warehouse->slug
@@ -90,9 +89,9 @@ class GetAgentWarehouseNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
-                            'root'  => 'grp.org.warehouses.show.incoming.backlog',
+                            'root'  => 'grp.org.warehouses.show.agent_incoming.backlog',
                             'route' => [
-                                "name"       => "grp.org.warehouses.show.incoming.backlog",
+                                "name"       => "grp.org.warehouses.show.agent_incoming.backlog",
                                 "parameters" => [
                                     $warehouse->organisation->slug,
                                     $warehouse->slug
@@ -103,9 +102,9 @@ class GetAgentWarehouseNavigation
                             [
                                 'label' => __('stock deliveries'),
                                 'icon'  => ['fal', 'fa-truck-container'],
-                                'root'  => 'grp.org.warehouses.show.incoming.stock_deliveries.',
+                                'root'  => 'grp.org.warehouses.show.agent_incoming.stock_deliveries.',
                                 'route' => [
-                                    "name"       => "grp.org.warehouses.show.incoming.stock_deliveries.index",
+                                    "name"       => "grp.org.warehouses.show.agent_incoming.stock_deliveries.index",
                                     "parameters" => [
                                         $warehouse->organisation->slug,
                                         $warehouse->slug
@@ -116,9 +115,9 @@ class GetAgentWarehouseNavigation
                             [
                                 'label' => __('fulfilment deliveries'),
                                 'icon'  => ['fal', 'fa-truck-couch'],
-                                'root'  => 'grp.org.warehouses.show.incoming.pallet_deliveries.',
+                                'root'  => 'grp.org.warehouses.show.agent_incoming.pallet_deliveries.',
                                 'route' => [
-                                    "name"       => "grp.org.warehouses.show.incoming.pallet_deliveries.index",
+                                    "name"       => "grp.org.warehouses.show.agent_incoming.pallet_deliveries.index",
                                     "parameters" => [
                                         $warehouse->organisation->slug,
                                         $warehouse->slug
@@ -132,13 +131,13 @@ class GetAgentWarehouseNavigation
         }
 
 
-        if ($user->hasAnyPermission(["dispatching.$warehouse->id.view", "fulfilment.$warehouse->id.view"])) {
+        if ($user->hasAnyPermission(["dispatching.$warehouse->id.view"])) {
             $navigation["dispatching"] = [
-                "root"    => "grp.org.warehouses.show.dispatching.",
+                "root"    => "grp.org.warehouses.show.agent_dispatching.",
                 "label"   => __("Goods out"),
                 "icon"    => ["fal", "fa-arrow-from-left"],
                 "route"   => [
-                    "name"       => "grp.org.warehouses.show.dispatching.backlog",
+                    "name"       => "grp.org.warehouses.show.agent_dispatching.backlog",
                     "parameters" => [
                         $warehouse->organisation->slug,
                         $warehouse->slug
@@ -148,9 +147,9 @@ class GetAgentWarehouseNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
-                            'root'  => 'grp.org.warehouses.show.dispatching.backlog',
+                            'root'  => 'grp.org.warehouses.show.agent_dispatching.backlog',
                             'route' => [
-                                "name"       => "grp.org.warehouses.show.dispatching.backlog",
+                                "name"       => "grp.org.warehouses.show.agent_dispatching.backlog",
                                 "parameters" => [
                                     $warehouse->organisation->slug,
                                     $warehouse->slug
@@ -161,9 +160,9 @@ class GetAgentWarehouseNavigation
                             [
                                 'label' => __('delivery notes'),
                                 'icon'  => ['fal', 'fa-truck'],
-                                'root'  => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                                'root'  => 'grp.org.warehouses.show.agent_dispatching.delivery-notes',
                                 'route' => [
-                                    "name"       => "grp.org.warehouses.show.dispatching.delivery-notes",
+                                    "name"       => "grp.org.warehouses.show.agent_dispatching.delivery-notes",
                                     "parameters" => [
                                         $warehouse->organisation->slug,
                                         $warehouse->slug
@@ -175,9 +174,9 @@ class GetAgentWarehouseNavigation
                                 'label'   => __('Fulfilment Returns'),
                                 'tooltip' => __('Fulfilment returns'),
                                 'icon'    => 'fal fa-sign-out',
-                                "root"    => "grp.org.warehouses.show.dispatching.pallet-returns.",
+                                "root"    => "grp.org.warehouses.show.agent_dispatching.pallet-returns.",
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
+                                    'name'       => 'grp.org.warehouses.show.agent_dispatching.pallet-returns.index',
                                     'parameters' => [$warehouse->organisation->slug, $warehouse->slug]
                                 ],
                             ] : null,
