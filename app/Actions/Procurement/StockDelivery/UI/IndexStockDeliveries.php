@@ -239,7 +239,7 @@ class IndexStockDeliveries extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.warehouses.show.incoming.stock_deliveries.index' => array_merge(
+            'grp.org.procurement.stock_deliveries.index' => array_merge(
                 ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
@@ -247,6 +247,22 @@ class IndexStockDeliveries extends OrgAction
                         'simple' => [
                             'route' => [
                                 'name' => 'grp.org.procurement.stock_deliveries.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Stock deliveries'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.warehouses.show.incoming.stock_deliveries.index' => array_merge(
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Stock deliveries'),

@@ -486,6 +486,7 @@ class ShowRefund extends OrgAction
                     ]
                 ]
             ],
+            default => null
         };
     }
 }

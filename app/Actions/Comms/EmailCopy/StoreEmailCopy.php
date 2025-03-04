@@ -26,7 +26,7 @@ class StoreEmailCopy extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'subject' => ['required', 'string'],
+            'subject' => ['nullable','string'],
             'body'    => ['required', 'string'],
         ];
 

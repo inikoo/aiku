@@ -57,29 +57,27 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
+
+        if ($user->hasPermissionTo('fulfilment.'.$fulfilmentCustomer->fulfilment->id.'.view')) {
+
+            $subNavigation[] = [
+                'route' => [
+                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
+                    'parameters' => $request->route()->originalParameters()
+
+                ],
+
+                'label'     => __('Web users'),
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-terminal',
+                    'tooltip' => __('Web users'),
+                ],
+                'number' => $fulfilmentCustomer->customer->stats->number_web_users
+
+            ];
+        }
+
         if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
-
-
-            if ($user->hasPermissionTo('fulfilment.'.$fulfilmentCustomer->fulfilment->id.'.view')) {
-
-                $subNavigation[] = [
-                    'route' => [
-                        'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
-                        'parameters' => $request->route()->originalParameters()
-
-                    ],
-
-                    'label'     => __('Web users'),
-                    'leftIcon'  => [
-                        'icon'    => 'fal fa-terminal',
-                        'tooltip' => __('Web users'),
-                    ],
-                    'number' => $fulfilmentCustomer->customer->stats->number_web_users
-
-                ];
-            }
-
-
             $subNavigation[] = [
                 'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',

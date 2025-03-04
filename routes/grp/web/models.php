@@ -39,6 +39,7 @@ use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\PublishOutbox;
 use App\Actions\Comms\Outbox\ToggleOutbox;
+use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Comms\Outbox\UpdateWorkshopOutbox;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\ApproveCustomer;
@@ -127,6 +128,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
+use App\Actions\Helpers\AwsEmail\SendIdentityEmailVerification;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -494,6 +496,10 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
         Route::patch('', [UpdateWebpage::class, 'inShop'])->name('update')->withoutScopedBindings();
     });
 
+    Route::name('sender_email.')->prefix('sender-email')->group(function () {
+        Route::post('verify', [SendIdentityEmailVerification::class, 'inShop'])->name('verify');
+    });
+
     Route::prefix('website/{website:id}/banner')->name('website.banner.')->group(function () {
 
 
@@ -524,6 +530,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
     Route::post('website/{website:id}/webpage', [StoreWebpage::class, 'inFulfilment'])->name('webpage.store')->withoutScopedBindings();
 
     Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+        Route::patch('/', UpdateOutbox::class)->name('update')->withoutScopedBindings();
         Route::patch('toggle', ToggleOutbox::class)->name('toggle')->withoutScopedBindings();
         Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
         Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();

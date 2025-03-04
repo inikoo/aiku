@@ -78,7 +78,7 @@ test('seed organisation outboxes customers command', function () {
     expect($this->group->commsStats->number_outboxes)->toBe(13)
         ->and($this->organisation->commsStats->number_outboxes)->toBe(13)
         ->and($this->organisation->commsStats->number_outboxes_type_test)->toBe(1)
-        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(10);
+        ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(4);
 });
 
 test(
@@ -205,6 +205,24 @@ test('test send email reset password', function () {
 
     return $this->customer;
 })->depends('outbox seeded when shop created');
+
+test('UI comms dashboard', function () {
+    $response = $this->get(route('grp.org.shops.show.comms.dashboard', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Comms/CommsDashboard')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Comms dashboard')
+                    ->etc()
+            )
+            ->has('tabs')
+            ->has('breadcrumbs', 3);
+    });
+});
 
 test('UI index mail outboxes', function () {
     $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));

@@ -132,10 +132,6 @@ class EditBanner extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($banner, $request),
-                    'next'     => $this->getNext($banner, $request),
-                ],
                 'pageHead'    => [
                     'title'     => $banner->name,
                     'icon'      => [
@@ -182,20 +178,6 @@ class EditBanner extends OrgAction
             $routeParameters,
             suffix: '('.__('editing').')'
         );
-    }
-
-    public function getPrevious(Banner $banner, ActionRequest $request): ?array
-    {
-        $previous = Banner::where('slug', '<', $banner->slug)->orderBy('slug', 'desc')->first();
-
-        return $this->getNavigation($previous, $request);
-    }
-
-    public function getNext(Banner $banner, ActionRequest $request): ?array
-    {
-        $next = Banner::where('slug', '>', $banner->slug)->orderBy('slug')->first();
-
-        return $this->getNavigation($next, $request);
     }
 
     private function getNavigation(?Banner $banner, ActionRequest $request): ?array

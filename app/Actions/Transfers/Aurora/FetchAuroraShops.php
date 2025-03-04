@@ -36,7 +36,8 @@ class FetchAuroraShops extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
     {
-        if ($shopData = $organisationSource->fetchShop($organisationSourceId)) {
+        $shopData = $organisationSource->fetchShop($organisationSourceId);
+        if ($shopData) {
             setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
 
 
@@ -105,9 +106,11 @@ class FetchAuroraShops extends FetchAuroraAction
             }
 
 
+
             $this->setShopSetOutboxesSourceId($shop);
 
             $sourceData = explode(':', $shop->source_id);
+
 
             foreach (
                 DB::connection('aurora')->table('Payment Account Dimension')
@@ -132,6 +135,8 @@ class FetchAuroraShops extends FetchAuroraAction
 
     public function fetchPaymentAccountShop(Shop $shop, $accountData): void
     {
+
+
         $paymentAccount = $this->parsePaymentAccount($shop->organisation->id.':'.$accountData->{'Payment Account Key'});
         if (!$paymentAccount) {
             exit('Error payment account not found in fetchPaymentAccountShop');

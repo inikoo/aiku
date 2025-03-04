@@ -177,6 +177,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         $argumentName   = ($prefix ? $prefix.'_' : '').'between';
 
         $filters = request()->input($argumentName, []);
+        $timezone = request()->header('X-Timezone');
 
         foreach ($allowedColumns as $column) {
             if (array_key_exists($column, $filters)) {
@@ -188,6 +189,14 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
                     $start = trim($start).' 00:00:00';
                     $end   = trim($end).' 23:59:59';
+
+                    $start = Carbon::createFromFormat('Ymd H:i:s', $start, $timezone)
+                        ->setTimezone('UTC')
+                        ->toDateTimeString();
+
+                    $end = Carbon::createFromFormat('Ymd H:i:s', $end, $timezone)
+                    ->setTimezone('UTC')
+                        ->toDateTimeString();
 
                     $this->whereBetween("$table.$column", [$start, $end]);
                 }

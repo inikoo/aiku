@@ -26,6 +26,7 @@ class FetchAuroraEmailCopy extends FetchAurora
 
         $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
 
+
         $this->parsedData['emailCopy'] = [
             'subject'         => $this->auroraModelData->{'Email Tracking Email Copy Subject'},
             'body'            => $body,

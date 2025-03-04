@@ -14,6 +14,7 @@ use App\Actions\Accounting\Invoice\DeleteInvoice;
 use App\Actions\Accounting\Invoice\DestroyRefund;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\StoreRefund;
+use App\Actions\Accounting\InvoiceCategory\HydrateInvoiceCategories;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
@@ -1375,4 +1376,9 @@ test('delete payment service provider', function () {
     DeletePaymentServiceProvider::make()->action($paymentServiceProvider);
     $group->refresh();
     expect($group->paymentServiceProviders()->count())->toBe(11);
+});
+
+test('hydrate invoice categories', function () {
+    $this->artisan('hydrate:invoice_categories')->assertExitCode(0);
+    HydrateInvoiceCategories::run(InvoiceCategory::first());
 });

@@ -6,7 +6,7 @@
 	"icon": ["fal", "rectangle-wide"],
 	"data": {
 		"fieldValue": {
-			"text": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
+			"text": "<h2 style='text-align: center'><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
 			"button": {
 				"link": {
 					"type" : "internal",
@@ -95,8 +95,8 @@
 			"image": {
 				"visible": "all",
 				"source": null,
-				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
-				"alt": ""
+				"url": "https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png",
+				"alt": "CTA Image"
 			},
 			"container": {
 				"properties": {

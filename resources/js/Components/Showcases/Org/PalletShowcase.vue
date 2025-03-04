@@ -13,6 +13,10 @@ import { faPencil, faPrint } from '@fal'
 import { printBarcode } from '@/Composables/printBarcode'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faEmptySet } from '@fas'
+import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
+import Icon from '@/Components/Icon.vue'
+import '@/Composables/Icon/PalletStateEnum'
+
 
 const props = defineProps<{
     data: {
@@ -108,11 +112,31 @@ const printBarcodePallet = (id: string, code: string) => {
 };
 
 
+const generateRouteEditBarcode = () => {
+    switch (route().current()) {
+        case 'grp.org.fulfilments.show.operations.pallets.current.show':
+            return {
+                name: 'grp.org.fulfilments.show.operations.pallets.current.edit',
+                parameters: { ...route().params }
+            }
+        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
+            return {
+                name: 'grp.org.fulfilments.show.crm.customers.show.pallets.edit',
+                parameters: { ...route().params }
+            }
+        case 'grp.org.warehouses.show.inventory.pallets.current.show':  // Warehouse
+            return {
+                name: 'grp.org.warehouses.show.inventory.pallets.current.edit',
+                parameters: { ...route().params }
+            }
+        default:
+            return null
+    }
+} 
 </script>
 
 
 <template>
-    <!--     <pre>{{ data.data }}</pre>-->
     <div
         class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
         <div class="col-span-2 w-full pb-4 border-b border-gray-300 overflow-x-auto whitespace-nowrap">
@@ -173,12 +197,14 @@ const printBarcodePallet = (id: string, code: string) => {
                     <Tag :class="'capitalize'" :label="data.data.state" ></Tag>
                 </dd>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">Status :
-                    <Tag label="" :class="'text-white'"
-                        :style="{ backgroundColor: data.data.status_icon.color }" >
-
+                    <Tag :label="data.data.status"
+                        :xxstyle="{ backgroundColor: data.data.status_icon?.color }"
+                        stringToColor
+                    >
                     <template #label>
                         <div class="flex gap-2 capitalize">
-                            <FontAwesomeIcon :icon="data.data.status_icon.icon"></FontAwesomeIcon>
+                            <!-- <FontAwesomeIcon :icon="data.data.status_icon.icon"></FontAwesomeIcon> -->
+                            <Icon :data="data?.data?.status_icon" />
                             <div>{{ data.data.status }}</div>
                         </div>
                     </template>
@@ -216,12 +242,21 @@ const printBarcodePallet = (id: string, code: string) => {
                 </div>
               </div>
               <!-- Hover Buttons -->
+               <!-- {{ route('grp.org.fulfilments.show.crm.customers.show.pallets.edit', route().params) }} -->
               <div
-                class="absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
-                <Link
-                  :href="route(!route().params.fulfilment ? 'grp.org.warehouses.show.inventory.pallets.current.edit' : 'grp.org.fulfilments.show.crm.customers.show.pallets.edit', { ...route().params })">
-                  <Button :icon="faPencil" size="xs" /> </Link>
-                <Button v-if="props.data.data.slug" :icon="faPrint" size="xs" type="white"
+                class="bg-white/50 absolute inset-0 flex items-center gap-3 justify-center opacity-0 group-hover:opacity-100 group-hover:visible transition duration-300">
+                <!-- <Link
+                    >
+                    <Button :icon="faPencil" size="xs" />
+                </Link> -->
+                <ButtonWithLink
+                    v-if="generateRouteEditBarcode()"
+                    :routeTarget="generateRouteEditBarcode()"
+                    icon="fal fa-pencil"
+                    xxsize="xs"
+                />
+                <Button v-if="props.data.data.slug" :icon="faPrint" xxsize="xs" type="white"
+                    class="border border-gray-300"
                   @click="() => printBarcodePallet('palletBarcode', props.data.data.slug)" />
               </div>
             </div>

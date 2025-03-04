@@ -29,7 +29,7 @@ class HandleIrisInertiaRequests extends Middleware
         $website                           = $request->get('website');
         $firstLoadOnlyProps['environment'] = app()->environment();
         $firstLoadOnlyProps['ziggy']       = function () use ($request) {
-            return array_merge((new Ziggy())->toArray(), [
+            return array_merge((new Ziggy('iris'))->toArray(), [
                 'location' => $request->url()
             ]);
         };

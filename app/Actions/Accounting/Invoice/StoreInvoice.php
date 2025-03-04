@@ -15,6 +15,7 @@ use App\Actions\Accounting\InvoiceCategory\Hydrators\InvoiceCategoryHydrateSales
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoiceIntervals;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
+use App\Actions\Comms\Email\SendInvoiceEmailToCustomer;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
@@ -54,7 +55,12 @@ class StoreInvoice extends OrgAction
      */
     public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
     {
-        data_set($modelData, 'footer', $parent->shop?->invoice_footer);
+
+        if (!Arr::has($modelData, 'footer')) {
+            data_set($modelData, 'footer', $this->shop->invoice_footer);
+        }
+
+
 
         if (!Arr::has($modelData, 'reference')) {
             data_set(
@@ -173,6 +179,10 @@ class StoreInvoice extends OrgAction
         GroupHydrateInvoiceIntervals::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
         InvoiceRecordSearch::dispatch($invoice);
+
+        if ($this->strict) {
+            SendInvoiceEmailToCustomer::dispatch($invoice);
+        }
 
         return $invoice;
     }

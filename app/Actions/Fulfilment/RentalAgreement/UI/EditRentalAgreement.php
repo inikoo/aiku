@@ -20,6 +20,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\SysAdmin\Organisation;
 use Exception;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -86,7 +87,7 @@ class EditRentalAgreement extends OrgAction
             ];
         }
 
-        $billing_weekdays_only_text =  $this->fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays']
+        $billing_weekdays_only_text =  Arr::get($this->fulfilment->settings, 'rental_agreement_cut_off.monthly.workdays')
             ? ' (' . __('Weekdays only') . ')'
             : null;
 

@@ -6,7 +6,7 @@ library.add(faExclamationTriangle)
 </script>
 
 <template>
-    <div class="z-30 fixed top-0 left-0 w-full bg-red-500 text-white flex items-center justify-center gap-x-2 py-1">
+    <div class="z-30 top-0 left-0 w-full bg-red-500 text-white flex items-center justify-center gap-x-2 py-1">
         <FontAwesomeIcon icon='fas fa-exclamation-triangle' class='text-xs' fixed-width aria-hidden='true' />
         <slot>
             <span class="text-sm">

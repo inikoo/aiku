@@ -90,9 +90,9 @@ class IndexRetinaStoredItemsInPalletDelivery extends RetinaAction
             'Fulfilment/StoredItems',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __("customer's sKUs"),
+                'title'       => __("Customer's SKUs"),
                 'pageHead'    => [
-                    'title'   => __("customer's sKUs"),
+                    'title'   => __("Customer's SKUs"),
                     'actions' => [
                         'buttons' => [
                             'route' => [

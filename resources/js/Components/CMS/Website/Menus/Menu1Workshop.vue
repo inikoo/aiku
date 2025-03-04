@@ -23,7 +23,7 @@ const onMouseEnterMenu = () => {
 const onMouseLeaveMenu = () => {
     timeout.value = setTimeout(() => {
         isOpen.value = null
-    }, 300)
+    }, 400)
 }
 </script>
 
@@ -79,6 +79,6 @@ const onMouseLeaveMenu = () => {
 
 <style scoped>
 .container {
-    max-width: 1200px;
+    max-width: 1980px;
 }
 </style>

@@ -109,7 +109,7 @@ const faqs = [
                             Reduce costs, minimize errors, and enhance customer satisfaction with our user-friendly software.
                         </p>
                         <a href="https://github.com/inikoo/aiku" target="_blank" class="mt-10 flex items-center justify-center gap-x-6">
-                            <Button type="white" label="Github" icon="fab fa-github" />
+
                         </a>
                     </div>
                 </div>

@@ -13,7 +13,7 @@ use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentWarehouseAuthorisation;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Enums\UI\Inventory\FulfilmentLocationTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -31,9 +31,8 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowFulfilmentLocation extends OrgAction
 {
     use WithActionButtons;
-    use WithFulfilmentShopAuthorisation;
+    use WithFulfilmentWarehouseAuthorisation;
 
-    private Warehouse $parent;
 
     public function handle(Location $location): Location
     {
@@ -42,7 +41,6 @@ class ShowFulfilmentLocation extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(FulfilmentLocationTabsEnum::values());
 
         return $this->handle($location);

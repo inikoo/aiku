@@ -11,11 +11,11 @@ namespace App\Actions\Fulfilment;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Fulfilment\RecurringBill;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsCommand;
 
 class ConsolidateRecurringBills
 {
-    use AsAction;
+    use AsCommand;
 
     public string $commandSignature = 'current_recurring_bills:consolidate';
 
@@ -23,7 +23,7 @@ class ConsolidateRecurringBills
     /**
      * @throws \Throwable
      */
-    public function handle(): void
+    public function asCommand($command): void
     {
         /** @var RecurringBill $recurringBill */
         foreach (RecurringBill::where('status', RecurringBillStatusEnum::CURRENT)->get() as $recurringBill) {
@@ -31,7 +31,10 @@ class ConsolidateRecurringBills
             $endDate = $recurringBill->end_date->startOfDay();
 
             if ($endDate->eq($today)) {
-                ConsolidateRecurringBill::make()->action($recurringBill);
+                $command->info('Consolidating recurring bill '.$recurringBill->id.' '.$recurringBill->reference);
+                $invoice = ConsolidateRecurringBill::make()->action($recurringBill);
+                $command->info('Recurring bill Consolidated invoice:'.$invoice->reference);
+                $command->info('');
             }
         }
     }

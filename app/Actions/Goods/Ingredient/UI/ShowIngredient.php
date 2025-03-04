@@ -13,7 +13,6 @@ use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\UI\ShowGoodsDashboard;
 use App\Actions\GrpAction;
 use App\Enums\UI\SupplyChain\IngredientTabsEnum;
-use App\Http\Resources\Goods\IngredientResource;
 use App\Models\Goods\Ingredient;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -86,12 +85,6 @@ class ShowIngredient extends GrpAction
                  ],
              ]
         );
-    }
-
-
-    public function jsonResponse(Ingredient $ingredient): IngredientResource
-    {
-        return new IngredientResource($ingredient);
     }
 
     public function getBreadcrumbs(Ingredient $ingredient, string $routeName, array $routeParameters, $suffix = null): array

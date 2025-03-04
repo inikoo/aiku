@@ -25,7 +25,7 @@ class ShowHome
         /** @var Website $website */
         $website   = $request->get('website');
 
-        $webpage      = $website->storefront; 
+        $webpage      = $website->storefront;
         if ($path && !$webpage = $website->webpages()->where('url', $path)->first()) {
             abort(404, 'Webpage not found');
         }

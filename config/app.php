@@ -264,5 +264,6 @@ return [
 
     'default_outbox_builder'              => env('DEFAULT_OUTBOX_BUILDER', 'beefree'),
     'send_email_in_non_production_env'    => env('SEND_EMAIL_IN_NON_PRODUCTION_ENV', false),
-    'email_address_in_non_production_env' => env('EMAIL_ADDRESS_IN_NON_PRODUCTION_ENV', 'dev@aw-advantage.com')
+    'email_address_in_non_production_env' => env('EMAIL_ADDRESS_IN_NON_PRODUCTION_ENV', 'dev@aiku.io'),
+    'test_email_to_address'               => env('TEST_EMAIL_TO_ADDRESS')
 ];

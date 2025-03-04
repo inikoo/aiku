@@ -32,7 +32,7 @@ class HandleInertiaGrpRequests extends Middleware
         if (!$request->inertia() or Session::get('reloadLayout')) {
             $firstLoadOnlyProps          = GetFirstLoadProps::run($user);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-                return array_merge((new Ziggy())->toArray(), [
+                return array_merge((new Ziggy('grp'))->toArray(), [
                     'location' => $request->url(),
                 ]);
             };

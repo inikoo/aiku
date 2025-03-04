@@ -34,41 +34,47 @@ class GetRetinaDropshippingNavigation
                 ]
             ];
 
-            $groupNavigation['portfolios'] = [
-                'label' => __('Portfolio'),
-                'icon' => ['fal', 'fa-pallet'],
-                'root' => 'retina.dashboard.',
-                'route' => [
-                    'name' => 'retina.dropshipping.portfolios.index'
-                ],
-                'topMenu' => [
-
-                ]
-            ];
+            if($webUser->customer->shopifyUser)
+            {
+                $groupNavigation['portfolios'] = [
+                    'label' => __('Portfolio'),
+                    'icon' => ['fal', 'fa-pallet'],
+                    'root' => 'retina.dashboard.',
+                    'route' => [
+                        'name' => 'retina.dropshipping.portfolios.index'
+                    ],
+                    'topMenu' => [
+    
+                    ]
+                ];
+            }
 
             $groupNavigation['clients'] = [
                 'label' => __('Clients'),
                 'icon' => ['fal', 'fa-user'],
-                'root' => 'retina.dashboard.',
+                'root' => 'retina.dropshipping.client.',
                 'route' => [
-                    'name' => 'retina.dashboard.show'
+                    'name' => 'retina.dropshipping.client.index'
                 ],
                 'topMenu' => [
 
                 ]
             ];
 
-            $groupNavigation['orders'] = [
-                'label' => __('Orders'),
-                'icon' => ['fal', 'fa-box'],
-                'root' => 'retina.dashboard.',
-                'route' => [
-                    'name' => 'retina.dashboard.show'
-                ],
-                'topMenu' => [
+            if($webUser->customer->shopifyUser)
+            {
+                $groupNavigation['orders'] = [
+                    'label' => __('Orders'),
+                    'icon' => ['fal', 'fa-box'],
+                    'root' => 'retina.dropshipping.orders.',
+                    'route' => [
+                        'name' => 'retina.dropshipping.orders.index'
+                    ],
+                    'topMenu' => [
 
-                ]
-            ];
+                    ]
+                ];
+            }
         }
 
         $groupNavigation['platform'] = [

@@ -70,7 +70,7 @@ class ShowStockDelivery extends OrgAction
                 // ],
                 'pageHead'    => [
                     'icon'  => ['fal', 'people-arrows'],
-                    'title' => $this->stockDelivery->id,
+                    'title' => $this->stockDelivery->reference,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),

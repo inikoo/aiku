@@ -78,7 +78,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                     // console.log('aaaaa', user)
 
                     // If user 'logout', no need to set the action to 'leave'
-                    if (this.liveUsers?.[user.id].action != 'logout') {
+                    if (this.liveUsers?.[user.id]?.action != 'logout') {
                         this.liveUsers[user.id].action = 'leave'
                         this.liveUsers[user.id].last_active = new Date()
                     }

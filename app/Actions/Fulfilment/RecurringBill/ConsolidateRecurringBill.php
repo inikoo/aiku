@@ -32,8 +32,7 @@ class ConsolidateRecurringBill extends OrgAction
      */
     public function handle(RecurringBill $recurringBill): Invoice
     {
-
-        $invoice = DB::transaction(function () use ($recurringBill) {
+        return DB::transaction(function () use ($recurringBill) {
             $recurringBill = $this->update($recurringBill, [
                 'status'   => RecurringBillStatusEnum::FORMER,
                 'end_date' => now()
@@ -54,30 +53,27 @@ class ConsolidateRecurringBill extends OrgAction
 
             $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
 
-            if ($recurringBill->stats->number_transactions > 2) {
-                InvoiceRecurringBillTransactions::dispatch($invoice, $recurringBill);
-            } else {
+            if ($recurringBill->stats->number_transactions < 50 or $this->asAction) {
                 InvoiceRecurringBillTransactions::run($invoice, $recurringBill);
+            } else {
+                InvoiceRecurringBillTransactions::dispatch($invoice, $recurringBill);
             }
+
+            foreach ($recurringBill->transactions as $transaction) {
+                if (!$transaction->end_date) {
+                    UpdateRecurringBillTransaction::make()->action($transaction, ['end_date' => now()]);
+                }
+            }
+
+            $this->update($recurringBill->fulfilmentCustomer, [
+                'current_recurring_bill_id'  => null,
+                'previous_recurring_bill_id' => $recurringBill->id
+            ]);
+
+            CreateNextRecurringBillPostConsolidation::run($recurringBill);
 
             return $invoice;
         });
-
-        foreach ($recurringBill->transactions as $transaction) {
-            if (!$transaction->end_date) {
-                UpdateRecurringBillTransaction::make()->action($transaction, ['end_date' => now()]);
-            }
-        }
-
-        $this->update($recurringBill->fulfilmentCustomer, [
-            'current_recurring_bill_id'  => null,
-            'previous_recurring_bill_id' => $recurringBill->id
-        ]);
-
-        CreateNextRecurringBillPostConsolidation::run($recurringBill);
-
-
-        return $invoice;
     }
 
     public function authorize(ActionRequest $request): bool

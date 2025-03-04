@@ -21,7 +21,7 @@ return [
         'enabled' => true,
 
         'url' => 'http://127.0.0.1:13714/render',
-        'bundle' => base_path('bootstrap/ssr/ssr-iris.mjs'),
+        'bundle' => base_path('bootstrap/ssr/ssr-aiku-public.mjs'),
 
 
     ],
