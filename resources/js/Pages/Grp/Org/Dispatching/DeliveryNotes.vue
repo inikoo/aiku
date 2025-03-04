@@ -23,30 +23,8 @@ library.add(faTags, faTasksAlt, faChartPie, faPaperPlane, faHourglassHalf, faUse
 const props = defineProps<{
     pageHead: TSPageHeading
     title: string
-    tabs: {
-        current: string
-        navigation: {}
-    },
-    backlog?: {}
-    notes?: {}
-    mailshots?: {}
-    stats?: {}
-    history?: {}
-
+    data?: {}
 }>()
-
-const currentTab = ref<string>(props.tabs.current)
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-
-const component = computed(() => {
-    const components: any = {
-        notes: TableDeliveryNotes,
-        history: TableHistories,
-    }
-
-    return components[currentTab.value]
-})
-
 
 </script>
 
@@ -55,6 +33,5 @@ const component = computed(() => {
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
+    <TableDeliveryNotes :data="data"  />
 </template>
