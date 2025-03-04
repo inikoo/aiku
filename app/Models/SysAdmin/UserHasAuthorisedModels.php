@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * App\Models\SysAdmin\OrganisationAuthorisedModels
+ * App\Models\SysAdmin\UserHasAuthorisedModels
  *
  * @property int|null $org_id Not using organisation_id to avoid confusion with the organisation_id column in the users table
  * @property int|null $user_id
@@ -24,12 +24,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\SysAdmin\User|null $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasAuthorisedModels newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasAuthorisedModels newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasAuthorisedModels query()
  * @mixin \Eloquent
  */
-class OrganisationAuthorisedModels extends Model
+class UserHasAuthorisedModels extends Model
 {
     protected $table = 'user_has_authorised_models';
 
@@ -37,7 +37,7 @@ class OrganisationAuthorisedModels extends Model
 
     public function organisation(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Organisation::class, 'org_id');
     }
 
     public function user(): BelongsTo
