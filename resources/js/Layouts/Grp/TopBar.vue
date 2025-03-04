@@ -101,7 +101,7 @@ const label = {
   warehouseSelect: trans("Select warehouses"),
   fulfilmentSelect: trans("Select fulfilments")
 };
-console.log("environment:", usePage().props.environment);
+// console.log("environment:", usePage().props.environment);
 
 </script>
 
@@ -317,14 +317,17 @@ console.log("environment:", usePage().props.environment);
 
               <!-- Dropdown: Warehouse -->
               <Menu
-                v-if="layoutStore.currentParams?.organisation && Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
+                v-if="
+                  layoutStore.currentParams?.organisation
+                  && Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1
+                  && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
                 as="div" class="relative inline-block text-left"
                 v-slot="{ close: closeMenu }"
               >
                 <TopBarSelectButton
                   icon="fal fa-warehouse-alt"
                   :activeButton="!!(layoutStore.currentParams.warehouse)"
-                  :label="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label ?? label.warehouseSelect"
+                  :label="(layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label || layoutStore.agents.data.find(agent => agent.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label) ?? label.warehouseSelect"
                 />
                 <transition>
                   <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
