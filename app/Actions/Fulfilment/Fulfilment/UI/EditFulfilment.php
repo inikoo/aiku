@@ -181,6 +181,15 @@ class EditFulfilment extends OrgAction
                                 'sender_email' => [
                                     'type'  => 'input',
                                     'label' => __('email'),
+                                    'verification' => [
+                                        'route' => [
+                                            'name' => 'grp.models.shop.sender_email.verify',
+                                            'parameters' => [
+                                                'shop' => $fulfilment->shop_id
+                                            ]
+                                        ],
+                                        'state' => $fulfilment->shop?->senderEmail?->state
+                                    ],
                                     'value' => $fulfilment->shop?->senderEmail?->email_address,
                                 ],
                             ],
