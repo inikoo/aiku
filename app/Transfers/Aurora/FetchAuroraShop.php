@@ -151,9 +151,12 @@ class FetchAuroraShop extends FetchAurora
             'settings'        => $settings,
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
-            'invoice_footer'  => $this->auroraModelData->{'Store Invoice Message'},
 
         ];
+
+        if($this->auroraModelData->{'Store Invoice Message'}){
+            $this->parsedData['shop']['invoice_footer'] = $this->auroraModelData->{'Store Invoice Message'};
+        }
 
 
         if ($type == ShopTypeEnum::FULFILMENT) {

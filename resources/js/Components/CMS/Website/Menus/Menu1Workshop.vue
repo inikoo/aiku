@@ -23,7 +23,7 @@ const onMouseEnterMenu = () => {
 const onMouseLeaveMenu = () => {
     timeout.value = setTimeout(() => {
         isOpen.value = null
-    }, 300)
+    }, 400)
 }
 </script>
 

@@ -149,6 +149,12 @@ class FetchAuroraInvoice extends FetchAurora
 
         ];
 
+        if($this->auroraModelData->{'Invoice Category Key'}) {
+            $invoiceCategory = $this->parseInvoiceCategory($this->organisation->id.':'.$this->auroraModelData->{'Invoice Category Key'});
+            if($invoiceCategory){
+                $this->parsedData['invoice']['invoice_category_id'] = $invoiceCategory->id;
+            }
+        }
 
         if ($salesChannel) {
             $this->parsedData['invoice']['sales_channel_id'] = $salesChannel->id;

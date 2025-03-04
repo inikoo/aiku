@@ -147,10 +147,10 @@
 					"dimension": {
 						"height": {
 							"value": "100%",
-							"unit": "px"
+							"unit": "%"
 						},
 						"width": {
-							"value": "50",
+							"value": "200",
 							"unit": "px"
 						}
 					}

@@ -30,7 +30,7 @@ class UpdateEmailCopy extends OrgAction
         $rules = [];
 
         if (!$this->strict) {
-            $rules['subject'] = ['sometimes', 'required', 'string'];
+            $rules['subject'] = ['sometimes', 'nullable', 'string'];
             $rules['body']   = ['sometimes', 'required', 'string'];
             $rules = $this->noStrictUpdateRules($rules);
         }

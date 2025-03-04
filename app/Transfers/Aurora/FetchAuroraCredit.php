@@ -25,6 +25,13 @@ class FetchAuroraCredit extends FetchAurora
             $payment  = $this->parsePayment($this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Payment Key'});
         }
 
+
+        if($payment and $payment->customer_id!=$customer->id){
+            $payment=null;
+            print "\nError Payment Customer does not match Customer   ".$this->auroraModelData->{'Credit Transaction Date'}."   >>".$this->auroraModelData->{'Credit Transaction Key'}."<<  \n";
+        }
+
+
         $date = $this->parseDatetime($this->auroraModelData->{'Credit Transaction Date'});
 
 

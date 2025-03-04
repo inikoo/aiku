@@ -30,20 +30,20 @@ class FetchAuroraEmailCopies extends FetchAuroraAction
             }
 
             if ($emailCopy = EmailCopy::where('source_id', $emailCopyData['emailCopy']['source_id'])->first()) {
-                try {
+                //try {
                     $emailCopy = UpdateEmailCopy::make()->action(
                         emailCopy: $emailCopy,
                         modelData: $emailCopyData['emailCopy'],
                         hydratorsDelay: 60,
                         strict: false,
                     );
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'update');
-
-                    return null;
-                }
+//                } catch (Exception $e) {
+//                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'update');
+//
+//                    return null;
+//                }
             } else {
-                try {
+                //try {
                     $emailCopy = StoreEmailCopy::make()->action(
                         dispatchedEmail: $emailCopyData['dispatchedEmail'],
                         modelData: $emailCopyData['emailCopy'],
@@ -56,11 +56,11 @@ class FetchAuroraEmailCopies extends FetchAuroraAction
                     DB::connection('aurora')->table('Email Tracking Email Copy')
                         ->where('Email Tracking Email Copy Key', $sourceData[1])
                         ->update(['aiku_id' => $emailCopy->id]);
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'store');
-
-                    return null;
-                }
+//                } catch (Exception $e) {
+//                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'store');
+//
+//                    return null;
+//                }
             }
 
 

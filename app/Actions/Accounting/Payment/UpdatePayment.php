@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Search\PaymentRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePayment extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(Payment $payment, array $modelData): Payment
     {
@@ -47,7 +49,9 @@ class UpdatePayment extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
+            $rules['shop_id'] = ['sometimes', 'required', 'exists:shops,id'];
+            $rules['customer_id'] = ['sometimes', 'required', 'exists:customers,id'];
         }
 
         return $rules;
