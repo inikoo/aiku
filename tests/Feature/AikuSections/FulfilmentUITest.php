@@ -42,11 +42,13 @@ use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Accounting\InvoicesTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
@@ -1950,6 +1952,83 @@ test('UI show stored item audit', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI create stored item audit for pallet (first time)', function () {
+    $rental = Rental::where('auto_assign_asset', 'Pallet')->first();
+    $pallet = StorePallet::make()->action($this->customer->fulfilmentCustomer, [
+        'customer_reference' => 'audit-pallet',
+        'state'              => PalletStateEnum::STORING,
+        'status'             => PalletStatusEnum::STORING,
+        'type'               => PalletTypeEnum::PALLET,
+        'warehouse_id'       => $this->warehouse->id,
+        'location_id'        => $this->warehouse->locations()->first()->id,
+        'rental_id'          => $rental->id
+    ]);
+    
+    $this->withoutExceptionHandling();
+        
+    $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
+        ->where('scope_type', 'Pallet')
+        ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
+        ->first();
+
+    expect($storedItemAudit)->toBeNull();
+    
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $pallet->slug,
+    ]), []);
+
+    $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
+    ->where('scope_type', 'Pallet')
+    ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
+    ->first();
+
+    expect($storedItemAudit)->not()->toBeNull();
+    
+    $response->assertRedirect(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $pallet->slug,
+        $storedItemAudit->slug,
+    ]));
+
+    return $storedItemAudit;
+});
+
+test('UI create stored item audit for pallet (already created)', function (StoredItemAudit $storedItemAudit) {
+    $pallet = $storedItemAudit->scope;
+    
+    $this->withoutExceptionHandling();
+        
+    $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
+        ->where('scope_type', 'Pallet')
+        ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
+        ->first();
+
+    expect($storedItemAudit)->not->toBeNull();
+    
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $pallet->slug,
+    ]), []);
+
+    $response->assertRedirect(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->customer->fulfilmentCustomer->slug,
+        $pallet->slug,
+        $storedItemAudit->slug,
+    ]));
+
+    return $storedItemAudit;
+})->depends('UI create stored item audit for pallet (first time)');
+
 // ui stored item audit
 test('UI show stored item audit for pallet', function () {
     $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id',  $this->customer->fulfilmentCustomer->id)->first();
