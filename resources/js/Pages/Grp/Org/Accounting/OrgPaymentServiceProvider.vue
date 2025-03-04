@@ -11,7 +11,8 @@ import {
     faCashRegister,
     faCoins,
     faMoneyCheckAlt,
-    faChartLine
+    faChartLine,
+    faFileInvoiceDollar,
 } from '@fal';
 
 import PageHeading from "@/Components/Headings/PageHeading.vue";
@@ -28,7 +29,7 @@ import PaymentProviderShowcase from "@/Components/Accounting/PaymentProviderShow
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));
 
-library.add(faCoins, faMoneyCheckAlt, faCashRegister, faChartLine);
+library.add(faCoins, faMoneyCheckAlt, faCashRegister, faChartLine, faFileInvoiceDollar);
 
 const props = defineProps<{
     title: string,
