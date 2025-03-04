@@ -72,6 +72,14 @@ class EditInvoice extends OrgAction
         return $this->handle($invoice);
     }
 
+    public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
+    {
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($invoice);
+    }
+
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
         return Inertia::render(
