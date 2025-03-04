@@ -39,6 +39,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexDeliveryNotes extends OrgAction
 {
     use WithCustomerSubNavigation;
+    use WithDeliveryNotesSubNavigation;
 
     private Group|Warehouse|Shop|Order|Customer|CustomerClient $parent;
     private string $bucket;
@@ -211,6 +212,8 @@ class IndexDeliveryNotes extends OrgAction
             } else {
                 $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
+        } elseif ($this->parent instanceof Warehouse) {
+            $subNavigation = $this->getDeliveryNotesSubNavigation($request);
         }
 
         $title      = __('Delivery notes');
@@ -261,17 +264,8 @@ class IndexDeliveryNotes extends OrgAction
                     'actions'       => $actions
                 ],
                 'data'                                       => DeliveryNotesResource::collection($deliveryNotes),
-                'tabs'                                       => [
-                    'current'    => $this->tab,
-                    'navigation' => DeliveryNotesTabsEnum::navigation(),
-                ],
-                DeliveryNotesTabsEnum::DELIVERY_NOTES->value => $this->tab == DeliveryNotesTabsEnum::DELIVERY_NOTES->value ?
-                    fn () => DeliveryNotesResource::collection($deliveryNotes)
-                    : Inertia::lazy(fn () => DeliveryNotesResource::collection($deliveryNotes)),
-
-
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: DeliveryNotesTabsEnum::DELIVERY_NOTES->value));
+        )->table($this->tableStructure(parent: $this->parent));
     }
 
 
@@ -279,6 +273,78 @@ class IndexDeliveryNotes extends OrgAction
     {
         $this->parent = $warehouse;
         $this->bucket = 'all';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function unassigned(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'unassigned';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function queued(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'queued';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function handling(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'handling';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function handlingBlocked(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'handling_blocked';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function packed(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'packed';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function finalised(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'finalised';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function dispatched(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'dispatched';
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($warehouse);
+    }
+
+    public function cancelled(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->bucket = 'cancelled';
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($warehouse);
@@ -337,7 +403,14 @@ class IndexDeliveryNotes extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.warehouses.show.dispatching.delivery-notes' =>
+            'grp.org.warehouses.show.dispatching.delivery-notes',
+            'grp.org.warehouses.show.dispatching.unassigned.delivery-notes',
+            'grp.org.warehouses.show.dispatching.queued.delivery-notes',
+            'grp.org.warehouses.show.dispatching.handling.delivery-notes',
+            'grp.org.warehouses.show.dispatching.handling-blocked.delivery-notes',
+            'grp.org.warehouses.show.dispatching.packed.delivery-notes',
+            'grp.org.warehouses.show.dispatching.finalised.delivery-notes',
+            'grp.org.warehouses.show.dispatching.dispatched.delivery-notes'=>
             array_merge(
                 ShowDispatchHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
