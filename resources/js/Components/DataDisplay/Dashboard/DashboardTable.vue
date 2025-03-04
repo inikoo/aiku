@@ -290,7 +290,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right">
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
-									<span  class="text-[16px] md:text-[18px] font-mono">
+									<span  class="text-[14px] md:text-[16px] font-mono">
 										{{
 											locale.number(
 												totalAmount.total_refunds || 0
@@ -316,7 +316,7 @@ function useTabChangeDashboard(tab_slug: string) {
 							footerStyle="text-align:right"  >
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
-									<span  class="text-[16px] md:text-[18px] font-mono">
+									<span  class="text-[14px] md:text-[16px] font-mono">
 										{{
 											locale.number(
 												totalAmount.total_invoices || 0
@@ -356,7 +356,7 @@ function useTabChangeDashboard(tab_slug: string) {
 									  )
 									: ''
 							"
-							footerStyle="text-align:right" />
+							footerStyle="text-align:right" class="font-mono" />
 						<Column footerStyle="text-align:right text-[#474545]">
 							<template
 								#footer
