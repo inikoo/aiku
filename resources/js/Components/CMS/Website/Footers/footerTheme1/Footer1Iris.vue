@@ -6,11 +6,11 @@ import { isObject } from 'lodash-es';
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown, faTriangle } from "@fas"
+import { faShieldAlt, faPlus, faTrash, faArrowSquareLeft, faTriangle } from "@fas"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook, faWhatsapp} from "@fortawesome/free-brands-svg-icons"
 import { faBars } from '@fal'
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faFacebook,faWhatsapp)
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faArrowSquareLeft, faFacebook,faWhatsapp)
 
 const props = defineProps<{
     fieldValue?: FieldValue,
@@ -35,7 +35,7 @@ const props = defineProps<{
                 <div style="font-size: 17px">{{ modelValue?.email }}</div>
                 <div
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
                 </div>
             </div>
 
@@ -48,7 +48,7 @@ const props = defineProps<{
 
                 <div
                     class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-0 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
                 </div>
             </div>
 
@@ -61,7 +61,7 @@ const props = defineProps<{
 
                 <div
                     class="p-1 absolute -left-0 -top-2 text-yellow-500 cursor-pointer group-hover:-top-4 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
                 </div>
             </div>
         </div>
@@ -271,8 +271,9 @@ const props = defineProps<{
                     <div v-html="modelValue?.columns.column_4.data.textBox4"></div>
                 </h2>
 
-                <div class="flex gap-x-6 justify-center">
+                <div v-if="modelValue?.socialMedia?.length" class="flex gap-x-6 justify-center">
                     <a v-for="socmed of modelValue?.socialMedia" target="_blank" :href="socmed.link">
+                        {{ socmed.icon }} =====
                         <FontAwesomeIcon :icon="socmed.icon" class="text-4xl md:text-2xl"></FontAwesomeIcon>
                     </a>
                 </div>

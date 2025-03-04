@@ -43,7 +43,7 @@ const onMouseLeaveMenu = () => {
                     
                     <a v-else :href="navigation?.link?.href" :target="navigation?.link?.target" class="text-center">{{ navigation.label }}</a>
                     
-                    <FontAwesomeIcon v-if="navigation.type == 'multiple'" icon="fas fa-chevron-down"
+                    <FontAwesomeIcon v-if="navigation.type == 'multiple'" :icon="faChevronDown"
                         class="ml-2 text-[11px]" fixed-width />
 
                     <!-- Sub-navigation -->
@@ -60,7 +60,7 @@ const onMouseLeaveMenu = () => {
                                 <!-- Sub-navigation Links -->
                                 <div class="flex flex-col gap-y-3">
                                     <div v-for="link in subnav.links" :key="link.url" class="flex items-center gap-x-3">
-                                        <FontAwesomeIcon :icon="link.icon || 'fas fa-chevron-right'"
+                                        <FontAwesomeIcon :icon="link.icon || faChevronRight"
                                             class="text-[10px] text-gray-400" />
                                         <a :href="link?.link?.href" :target="link?.link?.target"
                                             class="text-gray-500 hover:text-orange-500 hover:underline transition duration-200">
