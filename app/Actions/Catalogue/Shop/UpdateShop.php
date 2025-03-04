@@ -8,7 +8,6 @@
 
 namespace App\Actions\Catalogue\Shop;
 
-use App\Actions\Comms\SenderEmail\StoreSenderEmail;
 use App\Actions\Goods\MasterShop\Hydrators\MasterShopHydrateShops;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
@@ -72,14 +71,6 @@ class UpdateShop extends OrgAction
                 imageData: $imageData,
                 scope: 'avatar'
             );
-        }
-
-        if ($senderEmail = Arr::pull($modelData, 'sender_email')) {
-            $senderEmail = StoreSenderEmail::run($shop, [
-                'email_address' => $senderEmail
-            ]);
-
-            data_set($modelData, 'sender_email_id', $senderEmail->id);
         }
 
         foreach ($modelData as $key => $value) {
@@ -198,7 +189,6 @@ class UpdateShop extends OrgAction
             'registration_number' => ['sometimes', 'string'],
             'vat_number' => ['sometimes', 'string'],
             'invoice_footer' => ['sometimes', 'string', 'max:10000'],
-            'sender_email' => ['sometimes', 'email'],
             'image' => [
                 'sometimes',
                 'nullable',

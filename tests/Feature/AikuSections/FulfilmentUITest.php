@@ -2031,7 +2031,7 @@ test('UI create stored item audit for pallet (already created)', function (Store
 
 // ui stored item audit
 test('UI show stored item audit for pallet', function () {
-    $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id',  $this->customer->fulfilmentCustomer->id)->first();
+    $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
     $palletAudit = StoreStoredItemAuditFromPallet::make()->action($pallet, []);
 
     $this->withoutExceptionHandling();

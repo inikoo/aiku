@@ -27,6 +27,7 @@ const props = defineProps<{
         label: string
         verification?: {
             route: routeType
+            state: string
         }
         label_no_capitalize?: boolean  // To remove capitalize on label Fieldform
         value: any
@@ -66,10 +67,10 @@ const submit = () => {
 const classVerification = ref('')
 const isVerificationLoading = ref(false)
 const labelVerification = ref('')
+const verificationState = ref(props.fieldData?.verification?.state ?? '')
 const stampDirtyValue = ref(props.fieldData.value ?? '')
-
 const isVerificationDirty = computed(() => {
-    return (stampDirtyValue.value !== form[props.field])
+    return (stampDirtyValue.value !== form[props.field]) || verificationState.value === 'pending';
 })
 
 const checkVerification = async () => {
@@ -77,17 +78,18 @@ const checkVerification = async () => {
     try {
         const response = await axios.post(
             route(
-                props.fieldData.verification?.route.name,
-                props.fieldData.verification?.route.parameters
+                props.fieldData.verification?.route?.name,
+                props.fieldData.verification?.route?.parameters
             ),
             { [props.field]: form[props.field] },
         )
-        labelVerification.value = response.data
+        labelVerification.value = response.data?.message
+        verificationState.value = response.data?.state
         classVerification.value = 'text-lime-500'
 
     }
     catch (error: any) {
-        labelVerification.value = error.response.data.message
+        labelVerification.value = error.response?.data?.message
         classVerification.value = 'text-red-500'
     }
     isVerificationLoading.value = false
@@ -110,7 +112,7 @@ defineExpose({
                     <FontAwesomeIcon v-if="fieldData.required" icon="fas fa-asterisk" class="font-light text-[12px] text-red-400 mr-1"/>
                 </div>
             </dt>
-            
+
             <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
                 <div class="relative w-full">
                     <component :is="getComponent(fieldData.type)"
