@@ -22,6 +22,7 @@ use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexRecentPalletDeliveryUploads;
 use App\Actions\Fulfilment\PalletReturn\Json\GetPalletsInReturnPalletWholePallets;
+use App\Actions\Fulfilment\StoredItem\Json\GetPalletAuditStoredItems;
 use App\Actions\Helpers\Tag\GetTagOptions;
 use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProducts;
 use App\Actions\Web\Website\GetWebsiteCloudflareUniqueVisitors;
@@ -38,6 +39,8 @@ Route::get('fulfilment/{fulfilment}/recurring-bill/{scope}/physical-goods', [Get
 Route::get('fulfilment/{fulfilment}/invoice/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inInvoice'])->name('fulfilment.invoice.physical-goods.index');
 
 Route::get('pallet-return/{palletReturn}/pallets', GetPalletsInReturnPalletWholePallets::class)->name('pallet-return.pallets.index');
+
+Route::get('fulfilment-customer/{fulfilmentCustomer}/audit/{storedItemAudit}/stored-items', GetPalletAuditStoredItems::class)->name('fulfilment-customer.audit.stored-items.index');
 
 Route::get('tags', GetTagOptions::class)->name('tags');
 

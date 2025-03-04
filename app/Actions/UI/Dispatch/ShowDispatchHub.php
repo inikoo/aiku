@@ -60,7 +60,7 @@ class ShowDispatchHub extends OrgAction
                 'box_stats' => [
                     [
                         'name' => __('Delivery Notes'),
-                        'value' => $warehouse->organisation->orderingStats->number_delivery_notes_state_handling,
+                        'value' => $warehouse->organisation->orderingStats->number_delivery_notes,
                         'route' => [
                             'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
                             'parameters' => $request->route()->originalParameters()
