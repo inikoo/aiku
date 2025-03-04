@@ -82,7 +82,9 @@ const iconList: { [key: string]: string } = {
                     </template>
 
                     <!-- Warehouses index (if the warehouse length more than 1) -->
-                    <template v-if="itemKey == 'warehouses_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0) > 1">
+                    <template v-if="
+                        itemKey == 'warehouses_index'
+                        && ((layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0) > 1 || (layout.agents.data.find(agent => agent.slug == layout.currentParams.organisation)?.authorised_warehouses?.length || 0) > 1)">
                         <NavigationSimple v-if="!layout.organisationsState?.[layout.currentParams.organisation]?.currentWarehouse"
                             :nav="orgNav"
                             :navKey="itemKey"
@@ -105,9 +107,12 @@ const iconList: { [key: string]: string } = {
                         />
                     </template>
 
-                    <template v-if="itemKey == 'warehouses_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length">
+                    <template v-if="itemKey == 'warehouses_navigation' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || layout.agents.data.find(agent => agent.slug == layout.currentParams.organisation)?.authorised_warehouses.length)">
                         <!-- If: Warehouses length is 1 -->
-                        <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1">
+                        <template v-if="
+                            layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1
+                            || layout.agents.data.find(agent => agent.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1
+                        ">
                             <!-- <NavigationGroup
                                 :orgNav="orgNav"
                                 :itemKey="generateNavigationName(itemKey)"

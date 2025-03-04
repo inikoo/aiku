@@ -33,7 +33,7 @@ const layout = inject('layout', layoutStructure)
 
         <!-- List -->
         <div class="max-h-52x overflow-y-auto space-y-1.5">
-            <template v-for="(showare, idxSH) in layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navKey}s`]">
+            <template v-for="(showare, idxSH) in (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navKey}s`] || layout.agents.data.find(agent => agent.slug == layout.currentParams.organisation)?.[`authorised_${navKey}s`])">
             <!-- {{showare}} -->
                 <MenuItem v-if="showare.state != 'closed'"
                     v-slot="{ active }"
