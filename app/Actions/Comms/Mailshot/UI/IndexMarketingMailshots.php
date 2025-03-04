@@ -41,7 +41,7 @@ class IndexMarketingMailshots extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('mailshots.state', '~*', "\y$value\y")
-                    ->orWhere('mailshots.data', '=', $value);
+                ->orWhereWith('mailshots.subject', $value);
             });
         });
 
@@ -86,7 +86,7 @@ class IndexMarketingMailshots extends OrgAction
 
             ])
 
-            ->allowedSorts(['state', 'date'])
+            ->allowedSorts(['state', 'data', 'subject', 'date', 'sent', 'hard_bounce', 'soft_bounce', 'delivered', 'opened', 'clicked', 'spam'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
