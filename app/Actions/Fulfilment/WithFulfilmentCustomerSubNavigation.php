@@ -57,7 +57,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        
+
         if ($user->hasPermissionTo('fulfilment.'.$fulfilmentCustomer->fulfilment->id.'.view')) {
 
             $subNavigation[] = [

@@ -128,6 +128,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
+use App\Actions\Helpers\AwsEmail\SendIdentityEmailVerification;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -493,6 +494,10 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
 
     Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
         Route::patch('', [UpdateWebpage::class, 'inShop'])->name('update')->withoutScopedBindings();
+    });
+
+    Route::name('sender_email.')->prefix('sender-email')->group(function () {
+        Route::post('verify', [SendIdentityEmailVerification::class, 'inShop'])->name('verify');
     });
 
     Route::prefix('website/{website:id}/banner')->name('website.banner.')->group(function () {
