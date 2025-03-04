@@ -33,7 +33,7 @@ const isLoggedIn = ref(layout.iris.user_auth ? true : false)
 provide('isPreviewLoggedIn', isLoggedIn)
 
 const onLogoutAuth = (link) => {
-    router.post(route('retina.logout'), {},
+    router.post(route('iris.logout'), {},
         {
             onSuccess: () => {
                 /*    if(link) window.open(link) */

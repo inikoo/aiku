@@ -7,6 +7,7 @@
  */
 
 
+use App\Actions\CRM\WebUser\Retina\LogoutRetina;
 use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomerFromWebhook;
 /* use App\Actions\Web\Banner\UI\DeliverBanner; */
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,7 @@ use Inertia\Inertia;
 
 Route::get('/login', function () {return Inertia::render('RetinaLogin');})->name('login');
 Route::post('login', RetinaLogin::class)->name('login.store');
+Route::post('logout', LogoutRetina::class)->name('logout');
 
 Route::get('/register', function () {return Inertia::render('Register');})->name('register');
 
