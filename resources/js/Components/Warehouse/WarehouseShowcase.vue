@@ -7,8 +7,19 @@
 <script setup lang="ts">
 import SimpleBox from "@/Components/DataDisplay/SimpleBox.vue"
 import { routeType } from "@/types/route"
+import Fieldset from "primevue/fieldset"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faMapMarkedAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from "laravel-vue-i18n"
+library.add(faMapMarkedAlt)
+
 const props = defineProps<{
     data?: {
+        xxx: {}
+        address: {
+            formatted_address: string
+        }
         box_stats: {
             name: string
             number: number
@@ -24,8 +35,25 @@ const props = defineProps<{
 
 
 <template>
-    <SimpleBox v-if="data?.box_stats" :box_stats="data.box_stats" />
-    <div v-else>
-        Warehouse Showcase
+    <div class="grid grid-cols-2 gap-x-8 px-6">
+        <div>
+            <Fieldset legend="Address">
+                <template #legend>
+                    <div>
+                        <FontAwesomeIcon icon="fal fa-map-marked-alt" class="text-gray-500" fixed-width aria-hidden='true' />
+                        <span class="font-medium">&nbsp;{{ trans('Address') }}</span>
+                    </div>
+                </template>
+
+                <div v-html="data?.address?.formatted_address" class="text-gray-500"></div>
+            </Fieldset>
+        </div>
+
+        <div class="mt-1.5">
+            <SimpleBox v-if="data?.box_stats" :box_stats="data.box_stats" />
+            <div v-else>
+                Warehouse Showcase
+            </div>
+        </div>
     </div>
 </template>
