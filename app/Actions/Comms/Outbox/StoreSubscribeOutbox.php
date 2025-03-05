@@ -41,7 +41,7 @@ class StoreSubscribeOutbox extends OrgAction
                 'user_id' => $value,
                 'organisation_id' => $parent->organisation_id,
                 'group_id' => $parent->group_id,
-                'external_links' => json_encode(Arr::get($modelData, 'external_links')[$key])
+                'external_links' => json_encode(Arr::get($modelData, 'external_links')[$key]) ?: ''
             ]);
         }
     }
@@ -61,6 +61,8 @@ class StoreSubscribeOutbox extends OrgAction
             'user_id'       => [
                 'required',
                 'array',
+                'min:1',
+                'each:exists:users,id',
             ],
             'external_links' => [
                 'required_if:external_links,null',
@@ -80,9 +82,20 @@ class StoreSubscribeOutbox extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
-        $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
+        $this->initialisation($parent->organisation, $modelData);
 
         $this->handle($parent, $this->validatedData);
+    }
+
+    public string $commandSignature = 'xxx';
+
+    public function asCommand($command)
+    {
+        $o = Outbox::first();
+        $this->action($o, [
+            'user_id' => [999],
+            'external_links' => []
+        ]);
     }
 
     // public function htmlResponse(Location $location): RedirectResponse

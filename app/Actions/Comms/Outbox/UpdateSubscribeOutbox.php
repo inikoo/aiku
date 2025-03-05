@@ -42,11 +42,25 @@ class UpdateSubscribeOutbox extends OrgAction
         return $request->user()->authTo("locations.{$this->warehouse->id}.edit");
     }
 
+
+    public function action(Outbox $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true)
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($parent->organisation, $modelData);
+
+        $this->handle($parent, $this->validatedData);
+    }
+
+
     public function rules(): array
     {
         $rules = [
             'user_id'       => [
                 'sometimes',
+                'exists:users,id',
             ],
             'external_links' => [
                 'required_if:external_links,null',
