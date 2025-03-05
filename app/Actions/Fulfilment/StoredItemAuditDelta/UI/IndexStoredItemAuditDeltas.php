@@ -116,14 +116,13 @@ class IndexStoredItemAuditDeltas extends OrgAction
 
             $table->withGlobalSearch();
             $table->defaultSort('-audited_at');
-            
+
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
             $table->column(key: 'state', label: __('state'), canBeHidden: false, searchable: true, type: 'icon');
             if ($parent instanceof StoredItemAudit) {
-                if($parent->scope_type != 'Pallet')
-                {
+                if ($parent->scope_type != 'Pallet') {
                     $table->column(key: 'pallet_customer_reference', label: __('pallet'), canBeHidden: false, searchable: true);
                 }
             }

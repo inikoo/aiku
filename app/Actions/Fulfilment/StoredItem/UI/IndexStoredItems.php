@@ -156,9 +156,9 @@ class IndexStoredItems extends OrgAction
 
 
             if ($this->parent->items_storage) {
-                if($this->parent->number_pallets_state_storing > 0) {
+                if ($this->parent->number_pallets_state_storing > 0) {
                     $openStoredItemAudit = $this->parent->storedItemAudits()->whereNot('scope_type', 'Pallet')->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
-    
+
                     if ($openStoredItemAudit) {
                         $actions[] = [
                             'type'    => 'button',
@@ -180,7 +180,7 @@ class IndexStoredItems extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ];
-    
+
                     }
                 }
 
