@@ -10,6 +10,7 @@
 
 namespace App\Actions\Retina\Dropshipping;
 
+use App\Actions\Dropshipping\Tiktok\AuthenticateTiktokAccount;
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
 use Inertia\Inertia;
@@ -60,7 +61,10 @@ class ShowRetinaDropshipping extends RetinaAction
                     'url'       => route('pupil.authenticate', [
                         'shop' => $customer->shopifyUser?->name
                     ])
-                ] : null
+                ] : null,
+                'tiktokAuth' => [
+                    'url' => AuthenticateTiktokAccount::make()->redirectToTikTok()
+                ]
             ]
         );
     }
