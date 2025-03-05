@@ -87,17 +87,6 @@ class StoreSubscribeOutbox extends OrgAction
         $this->handle($parent, $this->validatedData);
     }
 
-    public string $commandSignature = 'xxx';
-
-    public function asCommand($command)
-    {
-        $o = Outbox::first();
-        $this->action($o, [
-            'user_id' => [999],
-            'external_links' => []
-        ]);
-    }
-
     // public function htmlResponse(Location $location): RedirectResponse
     // {
     //     if (!$location->warehouse_area_id) {
