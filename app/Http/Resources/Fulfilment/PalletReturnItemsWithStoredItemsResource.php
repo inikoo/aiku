@@ -10,6 +10,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -64,8 +65,10 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     'quantity_in_pallet'         => (int) $palletStoredItem->quantity,
                     'available_to_pick_quantity' => (int) ($palletReturnItem->quantity_ordered ?? 0),
                     'picked_quantity'            => (int) ($palletReturnItem->quantity_picked ?? 0),
+                    'pallet_id'                  => $palletStoredItem->pallet_id,
                     'state'                      => $palletReturnItem->state ?? null,
                     'pallet_return_item_id'      => $palletReturnItem->id ?? null,
+                    'all_items_returned' => $palletStoredItem->pallet->palletStoredItems->every(fn($item) => $item->state == PalletStoredItemStateEnum::RETURNED),
 
                     'syncRoute' => [
                         'name'       => 'grp.models.pallet-return.stored_item.store',

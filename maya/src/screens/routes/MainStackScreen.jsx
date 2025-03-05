@@ -16,6 +16,7 @@ import ShowStockDelivery from '@/src/screens/Fulfilment/Stock/ShowStockDelivery'
 import SessionExpired from '@/src/screens/SessionExpired';
 import ShowOrgStock from '@/src/screens/Fulfilment/OrgStock/ShowOrgStock';
 import EditProfile from '@/src/screens/EditProfile';
+import GlobalScanner from '@/src/screens/GlobalScanner';
 import Scanner from '@/src/screens/Scanner';
 import DrawerScreens from '@/src/screens/routes/drawerScreens';
 import {AuthContext} from '@/src/components/Context/context';
@@ -124,13 +125,19 @@ const HomeStack = () => {
                 }}
             />
             <Stack.Screen
-                name="scanner"
-                component={Scanner}
+                name="global-scanner"
+                component={GlobalScanner}
                 options={{
                     /*  headerShown: true, */
                     title: 'scanner',
                 }}
             />
+         {/*    <Stack.Screen
+                name="scanner"
+                component={Scanner}
+                options={{
+                }}
+            /> */}
             <Stack.Screen
                 name="show-org-stock"
                 component={ShowOrgStock}
