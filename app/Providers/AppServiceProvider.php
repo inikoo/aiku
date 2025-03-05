@@ -183,6 +183,7 @@ class AppServiceProvider extends ServiceProvider
                 'Email'                         => 'App\Models\Comms\Email',
                 'EmailBulkRun'                  => 'App\Models\Comms\EmailBulkRun',
                 'EmailOngoingRun'               => 'App\Models\Comms\EmailOngoingRun',
+                'OutBoxHasSubscriber'           => 'App\Models\Comms\OutBoxHasSubscriber',
 
 
                 // Catalogue

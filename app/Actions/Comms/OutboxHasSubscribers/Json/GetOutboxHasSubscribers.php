@@ -13,7 +13,7 @@ namespace App\Actions\Comms\OutboxHasSubscribers\Json;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OutboxHasSubscribersResource;
 use App\Models\Comms\Outbox;
-use App\Models\Comms\OutBoxHasSubscribers;
+use App\Models\Comms\OutBoxHasSubscriber;
 use App\Models\Fulfilment\Fulfilment;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -36,7 +36,7 @@ class GetOutboxHasSubscribers extends OrgAction
 
 
 
-        $queryBuilder = QueryBuilder::for(OutBoxHasSubscribers::class);
+        $queryBuilder = QueryBuilder::for(OutBoxHasSubscriber::class);
         $queryBuilder->where('outbox_id', $parent->id);
         $queryBuilder->leftJoin('users', 'outbox_has_subscribers.user_id', '=', 'users.id');
 
