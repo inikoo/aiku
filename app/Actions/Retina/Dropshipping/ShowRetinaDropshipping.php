@@ -63,7 +63,9 @@ class ShowRetinaDropshipping extends RetinaAction
                     ])
                 ] : null,
                 'tiktokAuth' => [
-                    'url' => AuthenticateTiktokAccount::make()->redirectToTikTok()
+                    'url' => AuthenticateTiktokAccount::make()->redirectToTikTok(),
+                    'isAuthenticated' => AuthenticateTiktokAccount::make()->checkIsAuthenticated($customer),
+                    'tiktokName' => $customer->tiktokUser?->name
                 ]
             ]
         );

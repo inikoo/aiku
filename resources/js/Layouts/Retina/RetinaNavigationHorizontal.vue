@@ -104,7 +104,7 @@ const nextNavigation = () => {
     return mergeNavigations[indexNavigation+1] || undefined
 }
 const routeArrow = (nav?: MergeNavigation) => {
-    // console.log('routeArrow', nav)
+    console.log('routeArrow', nav)
     if(!nav) return '#'
 }
 

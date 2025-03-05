@@ -11,6 +11,8 @@ namespace App\Actions\Dropshipping\Tiktok;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\TiktokUser;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
@@ -26,37 +28,45 @@ class AuthenticateTiktokAccount extends RetinaAction
 
     public function handle(Customer $customer, array $modelData)
     {
-        $response = Http::get("https://auth.tiktok-shops.com/api/v2/token/get", [
-            'app_key' => config('services.tiktok.client_id'),
-            'app_secret' => config('services.tiktok.client_secret'),
-            'auth_code' => Arr::get($modelData, 'code'),
-            'grant_type' => 'authorized_code'
-        ]);
+        try {
+            $response = Http::get("https://auth.tiktok-shops.com/api/v2/token/get", [
+                'app_key' => config('services.tiktok.client_id'),
+                'app_secret' => config('services.tiktok.client_secret'),
+                'auth_code' => Arr::get($modelData, 'code'),
+                'grant_type' => 'authorized_code'
+            ]);
 
-        $data = json_decode($response->getBody(), true);
+            $data = json_decode($response->getBody(), true);
 
-        if (isset($data['data']['access_token'])) {
-            $userData = $data['data'];
+            if (isset($data['data']['access_token'])) {
+                $userData = $data['data'];
 
-            if (isset($userData)) {
-                $userData = [
-                    'id' => $userData['open_id'],
-                    'name' => $userData['seller_name'],
-                    'access_token' => $userData['access_token'],
-                    'access_token_expire_in' => $userData['access_token_expire_in'],
-                    'refresh_token' => $userData['access_token_expire_in'],
-                    'refresh_token_expire_in' => $userData['refresh_token_expire_in'],
-                ];
+                if (isset($userData)) {
+                    $userData = [
+                        'tiktok_id' => $userData['open_id'],
+                        'name' => $userData['seller_name'],
+                        'username' => $userData['seller_name'],
+                        'access_token' => $userData['access_token'],
+                        'access_token_expire_in' => $userData['access_token_expire_in'],
+                        'refresh_token' => $userData['refresh_token'],
+                        'refresh_token_expire_in' => $userData['refresh_token_expire_in'],
+                    ];
 
-                // dd($userData);
+                    $tiktokUser = TiktokUser::where('tiktok_id', $userData['tiktok_id'])->first();
+
+                    if ($tiktokUser) {
+                        UpdateTiktokUser::make()->action($tiktokUser, $userData);
+                    } else {
+                        StoreTiktokUser::make()->action($customer, $userData);
+                    }
+                }
             }
 
-            // StoreTiktokUser::run();
+            throw ValidationException::withMessages(['message' => __('tiktok.access_token')]);
 
-            return redirect('/');
+        } catch (\Exception $e) {
+            //
         }
-
-        throw ValidationException::withMessages(['message' => __('tiktok.access_token')]);
     }
 
     public function redirectToTikTok()
@@ -66,6 +76,15 @@ class AuthenticateTiktokAccount extends RetinaAction
         $state = uniqid();
 
         return "https://auth.tiktok-shops.com/oauth/authorize?app_key={$clientId}&state={$state}&redirect_uri={$redirectUri}";
+    }
+
+    public function checkIsAuthenticated(Customer $customer): bool
+    {
+        if (!$customer->tiktokUser) {
+            return false;
+        }
+
+        return $customer->tiktokUser && now()->lessThan(Carbon::createFromTimestamp($customer->tiktokUser?->access_token_expire_in));
     }
 
     public function rules(): array

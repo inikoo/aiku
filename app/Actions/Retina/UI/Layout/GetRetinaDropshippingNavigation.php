@@ -107,12 +107,12 @@ class GetRetinaDropshippingNavigation
             ];
         }
 
-        if ($webUser->customer->shopifyUser) {
+        if ($webUser->customer->shopifyUser || $webUser->customer->tiktokUser) {
             $groupNavigation['platforms_navigation'] = [
                 'platforms_navigation'       => [
                     'label'      => __('platforms'),
                     'icon'       => "fal fa-store-alt",
-                    'navigation' => $platforms_navigation
+                    'navigation' => array_reverse($platforms_navigation)
                 ],
             ];
         }

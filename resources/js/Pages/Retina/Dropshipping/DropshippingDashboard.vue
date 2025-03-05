@@ -33,6 +33,8 @@ const props = defineProps<{
     fetchCustomerRoute: routeType
     tiktokAuth: {
         url: string
+        isAuthenticated: boolean
+        tiktokName: string
     }
 }>()
 
@@ -127,7 +129,7 @@ const onCreateStore = () => {
                 </div>
             </div>
 
-            <div class="bg-gray-50 border border-gray-200 rounded-md w-72 p-4">
+<!--            <div class="bg-gray-50 border border-gray-200 rounded-md w-72 p-4">
                 <div class="mb-4 border-b border-gray-300 pb-4 flex gap-x-4 items-center text-xl">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfkm8ggJ5zlVCHbmIzc9oTvtAiwMG4q3ROWA&s" alt="" class="h-12">
                     <div class="flex flex-col">
@@ -138,7 +140,7 @@ const onCreateStore = () => {
                 <div class="w-full flex justify-end">
                     <Button @click="() => isModalOpen = 'woocommerce'" label="Create" type="primary" full/>
                 </div>
-            </div>
+            </div>-->
 
             <div class="bg-gray-50 border border-gray-200 rounded-md w-72 p-4">
                 <div class="mb-4 border-b border-gray-300 pb-4 flex gap-x-4 items-center text-xl">
@@ -149,9 +151,10 @@ const onCreateStore = () => {
                     </div>
                 </div>
                 <div class="w-full flex justify-end">
-                    <a target="_blank" class="w-full" :href="tiktokAuth?.url">
+                    <a v-if="!tiktokAuth?.isAuthenticated" target="_blank" class="w-full" :href="tiktokAuth?.url">
                         <Button label="Connect" type="primary" full/>
                     </a>
+                    <Button v-else :capitalize="false" :label="`Connected: ${tiktokAuth?.tiktokName}`" type="positive" icon="fal fa-check" full/>
                 </div>
             </div>
         </div>
