@@ -187,10 +187,10 @@ const getImageSlots = (layoutType: string) => {
 	}
 }
 
-console.log(props.modelValue)
 </script>
 
 <template>
+	<pre>{{ modelValue }}</pre>
 	<div :style="getStyles(modelValue?.container?.properties)" class="flex flex-wrap overflow-hidden">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
