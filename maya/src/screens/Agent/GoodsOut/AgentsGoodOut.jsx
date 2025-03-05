@@ -5,7 +5,6 @@ import Config from 'react-native-config';
 
 const AgentGoodsOut = () => {
   const {userData} = useContext(AuthContext);
-  console.log('redux',useContext(AuthContext))
 
   return (
     <View className='flex-1 justify-center items-center'>

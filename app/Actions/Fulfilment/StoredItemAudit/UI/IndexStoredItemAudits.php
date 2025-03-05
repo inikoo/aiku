@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
@@ -126,7 +127,7 @@ class IndexStoredItemAudits extends OrgAction
     }
 
     public function tableStructure(
-        FulfilmentCustomer|Fulfilment $parent,
+        FulfilmentCustomer|Fulfilment|Pallet $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -149,6 +150,10 @@ class IndexStoredItemAudits extends OrgAction
                         'Fulfilment' => [
                             'title' => __("No audits found"),
                             'count' => $parent->stats->number_stored_item_audits,
+                        ],
+                        'Pallet' => [
+                            'title' => __("No audits found"),
+                            'count' => 0,
                         ],
                         default => null
                     }
@@ -190,6 +195,17 @@ class IndexStoredItemAudits extends OrgAction
             'grp.org.fulfilments.show.crm.customers.show.stored-items.index' =>
             array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.index' =>
+            array_merge(
+                ShowPallet::make()->getBreadcrumbs($this->parent->fulfilmentCustomer, $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

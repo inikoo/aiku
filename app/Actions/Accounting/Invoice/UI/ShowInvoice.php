@@ -149,6 +149,8 @@ class ShowInvoice extends OrgAction
 
         }
 
+        // dd($invoice->id);
+
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
