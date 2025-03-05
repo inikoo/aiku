@@ -4,7 +4,7 @@ import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
 import { ref, watch, onBeforeMount,reactive, inject, onMounted} from 'vue';
 import { notify } from "@kyvg/vue3-notification";
-import { debounce, set, get } from 'lodash';
+import { debounce, set, get } from 'lodash-es';
 import { Link, router } from "@inertiajs/vue3"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -23,6 +23,7 @@ import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 import { Collapse } from 'vue-collapsed'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import axios from 'axios'
+import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
 library.add(faCheck, faUndoAlt, faArrowDown)
 
 const props = defineProps<{
@@ -269,6 +270,36 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                             </div>
     
                             <div class="flex items-center flex-nowrap gap-x-2">
+                                <!-- {{ state === 'picked' || state === 'dispatched' }} -->
+                                <ModalConfirmation
+                                    v-if="pallet_stored_item.all_items_returned && (state === 'picked' || state === 'dispatched')"
+                                    :routeYes="{
+                                        name: 'grp.models.pallet.return',
+                                        parameters: {
+                                            pallet: pallet_stored_item.pallet_id
+                                        },
+                                        method: 'patch'
+                                    }"
+                                    :title="trans(`Return pallet ${pallet_stored_item.reference} to customer?`)"
+                                    :description="trans(`The pallet ${pallet_stored_item.reference} will be set as returned to the customer, and no longer exist in warehouse. This action cannot be reverse.`)"
+                                >
+                                    <template #default="{ changeModel }">
+                                        <Button
+                                            @click="() => changeModel()"
+                                            :label="trans('Return pallet')"
+                                            size="xs"
+                                        />
+                                    </template>
+
+                                    <template #btn-yes="{ isLoadingdelete, clickYes}">
+                                        <Button
+                                            :loading="isLoadingdelete"
+                                            @click="() => clickYes()"
+                                            :label="trans('Yes, return the pallet')"
+                                        />
+                                    </template>
+                                </ModalConfirmation>
+
                                 <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                                 <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="trans('Quantity of Customer\'s SKU that should be picked')" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
     
@@ -312,11 +343,12 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                                 <!-- Button: input number (picking) -->
                                 <template v-else-if="palletReturn.state === 'picking' && pallet_stored_item.state !== 'picked'">
                                     <div>
+                                        <!-- Not isUseAxios due timeline state is not auto updated -->
                                         <NumberWithButtonSave
                                             key="pickingpicked"
                                             noUndoButton
-                                            isUseAxios
-                                            @onSuccess="(newVal: number, oldVal: number) => {
+                                            xisUseAxios
+                                            @xonSuccess="(newVal: number, oldVal: number) => {
                                                 pallet_stored_item.state = 'picked',
                                                 pallet_stored_item.picked_quantity = newVal
                                             }"
@@ -537,7 +569,7 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                         </div>
                     </template>
                 </Popover>
-            </div>
+                </div>
             </div>
         </template>
 
