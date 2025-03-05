@@ -18,6 +18,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Outbox;
 use App\Models\Comms\Email;
 use App\Models\CRM\Customer;
 use Illuminate\Support\Arr;
@@ -45,7 +47,7 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
             }
             $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
                 'is_test'       => false,
-                'outbox_id'     => $outbox->id,
+                'outbox_id'     => Outbox::where('type', OutboxTypeEnum::USER_NOTIFICATION)->pluck('id')->first(),
                 'email_address' => $recipient->email ?? $recipient->external_email,
                 'provider'      => DispatchedEmailProviderEnum::SES
             ]);
