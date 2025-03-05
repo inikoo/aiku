@@ -8,12 +8,14 @@
 
 namespace App\Actions\Accounting\OrgPaymentServiceProvider\UI;
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\OrgPaymentServiceProviderTabsEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\OrgPaymentServiceProviderResource;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -138,6 +140,20 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                             prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                         )
                     )),
+                OrgPaymentServiceProviderTabsEnum::INVOICES->value => $this->tab == OrgPaymentServiceProviderTabsEnum::INVOICES->value
+                    ?
+                    fn () => InvoicesResource::collection(
+                        IndexInvoices::run(
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::INVOICES->value
+                        )
+                    )
+                    : Inertia::lazy(fn () => InvoicesResource::collection(
+                        IndexInvoices::run(
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::INVOICES->value
+                        )
+                    )),
 
                 OrgPaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == OrgPaymentServiceProviderTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgPaymentServiceProvider))
@@ -165,6 +181,10 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                     prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                 )
             )
+            ->table(IndexInvoices::make()->tableStructure(
+                parent: $orgPaymentServiceProvider,
+                prefix:OrgPaymentServiceProviderTabsEnum::INVOICES->value
+            ))
             ->table(IndexHistory::make()->tableStructure(
                 prefix:OrgPaymentServiceProviderTabsEnum::HISTORY->value
             ));
