@@ -115,7 +115,13 @@ class Login
     public function asController(ActionRequest $request): RedirectResponse
     {
         $this->handle($request);
-
+        
+        // If user organisation length is 1, redirect to Organisation dashboard (Check and uncomment below if okay)
+        // if (auth()->user()->authorisedOrganisations->count() === 1) {
+        //     $organisation = auth()->user()->authorisedOrganisations()->first();
+        //     return redirect()->intended(route('grp.org.dashboard.show', $organisation->slug));
+        // }
+        
         return redirect()->intended('/dashboard');
     }
 
