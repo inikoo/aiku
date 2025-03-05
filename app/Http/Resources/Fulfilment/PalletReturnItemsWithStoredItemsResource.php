@@ -10,6 +10,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -54,7 +55,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 $palletReturnItem = $palletStoredItem->palletReturnItems
                     ->where('pallet_return_id', $this->pallet_return_id)
                     ->first();
-
+                    
                 return [
                     'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
                     'id'                         => $palletStoredItem->id,
@@ -69,6 +70,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     'state'                      => $palletReturnItem->state ?? null,
                     'pallet_return_item_id'      => $palletReturnItem->id ?? null,
                     'all_items_returned' => $palletStoredItem->pallet->palletStoredItems->every(fn($item) => $item->state == PalletStoredItemStateEnum::RETURNED),
+                    'is_pallet_returned' => $palletStoredItem->pallet->status == PalletStatusEnum::RETURNED,
 
                     'syncRoute' => [
                         'name'       => 'grp.models.pallet-return.stored_item.store',

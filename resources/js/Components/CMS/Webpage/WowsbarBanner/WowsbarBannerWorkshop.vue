@@ -30,11 +30,6 @@ library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
 
 const props = defineProps<{
     modelValue: any
-    webpageData?: any
-    web_block: Object
-    id: Number,
-    type: String
-    properties: {}
 }>()
 
 const layout = inject('layout', layoutStructure)

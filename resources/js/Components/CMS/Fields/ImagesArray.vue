@@ -27,10 +27,14 @@ const emit = defineEmits(["update:modelValue"]);
 
 
 const onChangeProperty = (index, data) => {
-    const setData = toRaw(props.modelValue)
-    
-    setData[index] = data;
-    emit("update:modelValue", setData);
+   /*  const setData = [...props.modelValue]
+
+    setData[index] = data; */
+  /*   emit("update:modelValue", [...props.modelValue]); */
+
+     const updatedData = [...props.modelValue]; // Clone the array to maintain reactivity
+    updatedData[index] = { ...updatedData[index], ...data }; // Merge existing data with new changes
+    emit("update:modelValue", updatedData); // Emit the updated array
 };
 
 

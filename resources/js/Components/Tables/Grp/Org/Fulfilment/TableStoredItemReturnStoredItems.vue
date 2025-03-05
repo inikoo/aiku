@@ -272,11 +272,11 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                             <div class="flex items-center flex-nowrap gap-x-2">
                                 <!-- {{ state === 'picked' || state === 'dispatched' }} -->
                                 <ModalConfirmation
-                                    v-if="pallet_stored_item.all_items_returned && (state === 'picked' || state === 'dispatched')"
+                                    v-if="pallet_stored_item.all_items_returned && (state === 'picked' || state === 'dispatched') && !pallet_stored_item.is_pallet_returned"
                                     :routeYes="{
                                         name: 'grp.models.pallet.return',
                                         parameters: {
-                                            pallet: pallet_stored_item.id
+                                            pallet: pallet_stored_item.pallet_id
                                         },
                                         method: 'patch'
                                     }"
@@ -299,6 +299,15 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                                         />
                                     </template>
                                 </ModalConfirmation>
+
+                                <Tag
+                                    v-if="pallet_stored_item.is_pallet_returned"
+                                    v-tooltip="trans('Pallet was returned to customer')"
+                                    :label="trans('Pallet returned')"
+                                    :theme="8"
+                                    size="xs"
+                                    noHoverColor
+                                />
 
                                 <div v-if="palletReturn.state === 'in_process'" v-tooltip="trans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
                                 <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="trans('Quantity of Customer\'s SKU that should be picked')" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
