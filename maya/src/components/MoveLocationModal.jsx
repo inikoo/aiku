@@ -111,14 +111,14 @@ const ModalMoveLocation = ({
                                 </Input>
 
                                 {/* Barcode Button */}
-                                {/* <TouchableOpacity
+                                <TouchableOpacity
                                     className="p-2 bg-gray-300 rounded-r-lg"
                                     onPress={showingScanner}>
                                     <FontAwesomeIcon
                                         icon={faBarcodeRead}
                                         size={20}
                                     />
-                                </TouchableOpacity> */}
+                                </TouchableOpacity>
                             </View>
                         )}
                     />
@@ -148,7 +148,7 @@ const ModalMoveLocation = ({
                 </View>
             </Modal>
 
-            {/* <Modal
+            <Modal
                 isVisible={showScanner}
                 title={'Scan Location'}
                 onClose={() => setShowScanner(false)}>
@@ -160,16 +160,16 @@ const ModalMoveLocation = ({
                             device={device}
                             isActive={true}
                         />
-                        <RNHoleView
+                       {/*  <RNHoleView
                             holes={holesConfig()}
                             style={[
                                 globalStyles.scanner.rnholeView,
                                 globalStyles.scanner.fullScreenCamera,
                             ]}
-                        />
+                        /> */}
                     </>
                 </View>
-            </Modal> */}
+            </Modal>
         </View>
     );
 };

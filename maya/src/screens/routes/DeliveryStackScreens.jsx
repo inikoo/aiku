@@ -173,7 +173,7 @@ const DeliveryStackScreen = ({navigation, route}) => {
   );
 };
 
-const renderStackScreen = ({navigation, route}) => {
+const RenderStackScreen = ({navigation, route}) => {
   return (
     <DeliveryProvider>
       <DeliveryStackScreen navigation={navigation} route={route} />
@@ -181,4 +181,4 @@ const renderStackScreen = ({navigation, route}) => {
   );
 };
 
-export default renderStackScreen;
+export default RenderStackScreen;

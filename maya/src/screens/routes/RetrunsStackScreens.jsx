@@ -190,7 +190,7 @@ const ReturnStackScreen = ({navigation, route}) => {
   );
 };
 
-const renderStackScreen = ({navigation, route}) => {
+const RenderStackScreen = ({navigation, route}) => {
   return (
     <ReturnProvider>
       <ReturnStackScreen navigation={navigation} route={route} />
@@ -198,4 +198,4 @@ const renderStackScreen = ({navigation, route}) => {
   );
 };
 
-export default renderStackScreen;
+export default RenderStackScreen;
