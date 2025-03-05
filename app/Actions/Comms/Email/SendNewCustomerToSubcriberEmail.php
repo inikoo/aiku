@@ -32,35 +32,37 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
     public function handle(Customer $customer)
     {
         // /** @var Outbox $outbox */
-        $outboxes = $customer->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->get();
+        $outbox = $customer->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
 
-        foreach ($outboxes as $outbox) {
-            $subcribeUsers = $outbox->subscribedUsers;
-            /** @var OutBoxHasSubscribers $subcribeUser */
-            foreach ($subcribeUsers as $subcribeUser) {
-                $recipient       = $subcribeUser->user->email ?? $subcribeUser->external_email;
-                $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
-                    'is_test'       => false,
-                    'outbox_id'     => $outbox->id,
-                    'email_address' => $recipient->email,
-                    'provider'      => DispatchedEmailProviderEnum::SES
-                ]);
-                $dispatchedEmail->refresh();
-
-                $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
-
-                $this->sendEmailWithMergeTags(
-                    $dispatchedEmail,
-                    $outbox->emailOngoingRun->sender(),
-                    $outbox->emailOngoingRun?->email?->subject,
-                    $emailHtmlBody,
-                    '',
-                    additionalData: [
-                        'New customer name' => $customer->name,
-                        'New customer email' => $customer->email,
-                    ]
-                );
+        $subcribeUsers = $outbox->subscribedUsers;
+        /** @var OutBoxHasSubscribers $subcribeUser */
+        foreach ($subcribeUsers as $subcribeUser) {
+            // $recipient       = $subcribeUser->user->email ?? $subcribeUser->external_email;
+            if ($subcribeUser->user) {
+                $recipient = $subcribeUser->user;
+            } else {
+                $recipient = $subcribeUser;
             }
+            $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
+                'is_test'       => false,
+                'outbox_id'     => $outbox->id,
+                'email_address' => $recipient->email ?? $recipient->external_email,
+                'provider'      => DispatchedEmailProviderEnum::SES
+            ]);
+            $dispatchedEmail->refresh();
+
+            $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+
+            $this->sendEmailWithMergeTags(
+                $dispatchedEmail,
+                $outbox->emailOngoingRun->sender(),
+                $outbox->emailOngoingRun?->email?->subject,
+                $emailHtmlBody,
+                '',
+                additionalData: [
+                    'customer_name' => $customer->name
+                ]
+            );
         }
 
     }

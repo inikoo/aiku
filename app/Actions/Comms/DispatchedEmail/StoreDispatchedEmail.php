@@ -18,6 +18,7 @@ use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Mailshot;
+use App\Models\Comms\OutBoxHasSubscriber;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
@@ -31,7 +32,7 @@ class StoreDispatchedEmail extends OrgAction
     use WithNoStrictRules;
 
 
-    public function handle(EmailOngoingRun|EmailBulkRun|Mailshot $parent, WebUser|Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
+    public function handle(EmailOngoingRun|EmailBulkRun|Mailshot $parent, WebUser|Customer|Prospect|User|OutBoxHasSubscriber $recipient, array $modelData): DispatchedEmail
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
