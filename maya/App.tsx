@@ -116,8 +116,6 @@ function App(): React.JSX.Element {
                 },
             });
 
-            console.log('sss',user)
-
             dispatch({
                 type: 'RETRIEVE_TOKEN',
                 token: user.token,

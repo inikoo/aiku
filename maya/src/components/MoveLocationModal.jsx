@@ -1,22 +1,10 @@
-import React, {useContext, useRef, useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Modal from '@/src/components/Modal';
-import TextWithScanner from '@/src/components/TextWithScanner';
-import {Input, InputField, InputSlot} from '@/src/components/ui/input';
+import {Input, InputField } from '@/src/components/ui/input';
 import {useForm, Controller} from 'react-hook-form';
-import {
-    Camera,
-    useCameraDevice,
-    useCodeScanner,
-} from 'react-native-vision-camera';
-import {RNHoleView} from 'react-native-hole-view';
-import {
-    holesConfig,
-    handleCameraPermission,
-    ScannerConfig,
-} from '@/src/utils/Scanner';
-import globalStyles from '@/globalStyles';
+import ScannerModal from '@/src/components/ScannerModal';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -35,7 +23,6 @@ import {
     faFileInvoiceDollar,
     faInventory,
     faTimes as faTimesRegular,
-    faHistory,
     faSave,
     faBarcodeRead,
 } from '@/private/fa/pro-regular-svg-icons';
@@ -62,11 +49,6 @@ const ModalMoveLocation = ({
 }) => {
     const [loadingSave, setLoadingSave] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
-    const device = useCameraDevice('back');
-
-    useEffect(() => {
-        handleCameraPermission();
-    }, []);
     const {control, handleSubmit, reset, setValue} = useForm({
         defaultValues: {
             location: location,
@@ -78,18 +60,9 @@ const ModalMoveLocation = ({
         onClose();
     };
 
-    const codeScanner = useCodeScanner({
-        ...ScannerConfig,
-        onCodeScanned: codes => {
-            if (codes.length > 0) {
-                setActive(false);
-                handleLogin(codes[0].value);
-            }
-        },
-    });
 
     return (
-        <View>
+          <View style={styles.container}>
             <Modal isVisible={isVisible} title={title} onClose={onClose}>
                 <View className="w-full">
                     <Text className="text-sm font-semibold mb-1">Location</Text>
@@ -148,30 +121,14 @@ const ModalMoveLocation = ({
                 </View>
             </Modal>
 
-            <Modal
-                isVisible={showScanner}
-                title={'Scan Location'}
-                onClose={() => setShowScanner(false)}>
-                <View className="w-full">
-                    <>
-                        <Camera
-                            codeScanner={codeScanner}
-                            style={StyleSheet.absoluteFill}
-                            device={device}
-                            isActive={true}
-                        />
-                       {/*  <RNHoleView
-                            holes={holesConfig()}
-                            style={[
-                                globalStyles.scanner.rnholeView,
-                                globalStyles.scanner.fullScreenCamera,
-                            ]}
-                        /> */}
-                    </>
-                </View>
-            </Modal>
+            <ScannerModal visible={showScanner}  />
         </View>
     );
 };
+
+
+const styles = StyleSheet.create({
+    container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+});
 
 export default ModalMoveLocation;
