@@ -231,6 +231,14 @@ class ShowPallet extends OrgAction
             ]
         ];
 
+        $storedItemsList = array_map(function($palletStoredItem) {
+            return [
+                'name' => $palletStoredItem->storedItem->name,
+                'reference' => $palletStoredItem->storedItem->reference,
+                'quantity' => $palletStoredItem->quantity
+            ];
+        }, $pallet->palletStoredItems->all());
+
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
@@ -259,7 +267,7 @@ class ShowPallet extends OrgAction
                 ],
 
                 'pallet'        => PalletResource::make($pallet),
-                // 'list_stored_items'  => PalletStoredItemsResource::collection(IndexPalletStoredItems::run($pallet, PalletTabsEnum::STORED_ITEMS->value)),
+                'list_stored_items'  => $storedItemsList,
 
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
                     fn () => PalletResource::make($pallet) : Inertia::lazy(fn () => PalletResource::make($pallet)),
