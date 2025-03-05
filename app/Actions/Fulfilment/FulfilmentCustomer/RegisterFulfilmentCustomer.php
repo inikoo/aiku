@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCrmStats;
 use App\Actions\Comms\Email\SendCustomerWelcomeEmail;
+use App\Actions\Comms\Email\SendNewCustomerToSubcriberEmail;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\OrgAction;
@@ -60,6 +61,8 @@ class RegisterFulfilmentCustomer extends OrgAction
         $fulfilmentCustomer = UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, $fulfilmmentCustomerModelData);
 
         SendCustomerWelcomeEmail::run($fulfilmentCustomer->customer);
+
+        // SendNewCustomerToSubcriberEmail::run($fulfilmentCustomer->customer);
 
         ShopHydrateCrmStats::run($fulfilment->shop);
 

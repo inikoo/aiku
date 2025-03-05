@@ -27,11 +27,10 @@ const emit = defineEmits(["update:modelValue"]);
 
 
 const onChangeProperty = (index, data) => {
-  /*   const setData = toRaw(props.modelValue)
+    const setData = toRaw(props.modelValue)
     
     setData[index] = data;
-    console.log(setData,'asxx'); */
-    emit("update:modelValue", props.modelValue);
+    emit("update:modelValue", setData);
 };
 
 
