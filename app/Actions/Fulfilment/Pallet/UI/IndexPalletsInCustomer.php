@@ -264,9 +264,9 @@ class IndexPalletsInCustomer extends OrgAction
                     'parameters' => [$this->parent->id]
                 ]
             ];
-            if($this->parent->number_pallets_state_storing > 0) {
+            if ($this->parent->number_pallets_state_storing > 0) {
                 $openStoredItemAudit = $this->parent->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
-    
+
                 if ($openStoredItemAudit) {
                     $actions[] = [
                         'type'    => 'button',

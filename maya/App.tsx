@@ -11,6 +11,8 @@ import {AuthContext} from '@/src/components/Context/context';
 import {loginReducer} from '@/src/Reducer/loginReducer';
 import {AlertNotificationRoot} from 'react-native-alert-notification';
 import { navigationRef } from '@/src/utils/NavigationService';
+import {retrieveProfile} from '@/src/user';
+import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 import './global.css';
 
 const Stack = createNativeStackNavigator();
@@ -25,7 +27,6 @@ function App(): React.JSX.Element {
     warehouse: null,
   };
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
-  console.log("loginState",loginState)
 
   const authContext = useMemo(
     () => ({
@@ -45,7 +46,6 @@ function App(): React.JSX.Element {
         });
       },
       setOrganisation: async user => {
-        console.log(user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -61,7 +61,6 @@ function App(): React.JSX.Element {
         });
       },
       setFulfilmentWarehouse: async user => {
-        console.log('setFulfilmentWarehouse',user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -95,24 +94,46 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     const loadUserToken = async () => {
-      try {
-        const storedUser = await getData('persist:user');
-        const userToken = storedUser ? storedUser.token : null;
-        console.log(storedUser)
-        dispatch({
-          type: 'RETRIEVE_TOKEN',
-          token: userToken,
-          userData: storedUser,
-          organisation: storedUser?.organisation, 
-          fulfilment: storedUser?.fulfilment,
-          warehouse: storedUser?.warehouse,
-        });
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-      }
+        try {
+            const storedUser = await getData('persist:user');
+            if (!storedUser) return;
+
+            let user = storedUser;
+
+            await retrieveProfile({
+                accessToken: storedUser.token,
+                onSuccess: profileRes => {
+                    let organisation = profileRes.data.organisations.find((item)=>item.code === storedUser.organisation.code)
+                    user = { ...storedUser, ...profileRes.data, organisation : organisation };
+                },
+                onFailed: err => {
+                    Toast.show({
+                        type: ALERT_TYPE.DANGER,
+                        title: 'Error',
+                        textBody: err?.data.message || 'Failed to update profile data',
+                    });
+                    console.error('Profile Retrieval Failed:', err);
+                },
+            });
+
+            console.log('sss',user)
+
+            dispatch({
+                type: 'RETRIEVE_TOKEN',
+                token: user.token,
+                userData: user,
+                organisation: user.organisation,
+                fulfilment: user.fulfilment,
+                warehouse: user.warehouse,
+            });
+        } catch (error) {
+            console.error('Error retrieving token:', error);
+        }
     };
+
     loadUserToken();
-  }, []);
+}, []);
+
   
 
   if (loginState.isLoading) {

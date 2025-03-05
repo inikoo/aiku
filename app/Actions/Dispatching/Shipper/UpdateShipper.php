@@ -27,15 +27,6 @@ class UpdateShipper extends OrgAction
         return $this->update($shipper, $modelData, ['data']);
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->authTo("dispatching.{$this->organisation->id}.edit");
-    }
-
     public function prepareForValidation(ActionRequest $request): void
     {
         if ($this->has('website') and $this->get('website') != null) {

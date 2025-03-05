@@ -16,6 +16,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -64,6 +65,12 @@ class ShowStoredItemAuditForPallet extends OrgAction
         if ($storedItemAudit->state === StoredItemAuditStateEnum::IN_PROCESS) {
             $actions    = [
                 [
+                    'type'  => 'button',
+                    'style' => 'secondary',
+                    'key'   => 'add-sku',
+                    'label' => __('Add SKU'),
+                ],
+                [
                     'type'     => 'button',
                     'style'    => 'primary',
                     'label'    => __('Complete Audit'),
@@ -75,11 +82,6 @@ class ShowStoredItemAuditForPallet extends OrgAction
                             $storedItemAudit->id
                         ],
                     ]
-                ],
-                [
-                    'type'  => 'button',
-                    'style' => 'secondary',
-                    'label' => __('Add SKU'),
                 ]
             ];
             $editDeltas = [
@@ -185,11 +187,10 @@ class ShowStoredItemAuditForPallet extends OrgAction
 
                 'storedItemsRoute' => [
                     'index'  => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'name'       => 'grp.json.fulfilment-customer.audit.stored-items.index',
                         'parameters' => [
-                            'organisation'       => $storedItemAudit->organisation->slug,
-                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
                             'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'storedItemAudit'    => $storedItemAudit->slug
                         ]
                     ],
                     'store'  => [
@@ -203,8 +204,10 @@ class ShowStoredItemAuditForPallet extends OrgAction
                     ]
                 ],
 
+                'pallet'                  => PalletResource::make($pallet),
+
                 'data'                    => StoredItemAuditResource::make($storedItemAudit),
-                'editDeltas' => $editDeltas,
+                'editDeltas'              => $editDeltas,
                 'stored_item_deltas'      => $deltas,
                 'fulfilment_customer'     => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]

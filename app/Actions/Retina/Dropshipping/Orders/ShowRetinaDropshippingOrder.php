@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 04-03-2025-13h-50m
@@ -9,25 +10,18 @@
 namespace App\Actions\Retina\Dropshipping\Orders;
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\Ordering\Purge\UI\ShowPurge;
 use App\Actions\Ordering\Transaction\UI\IndexNonProductItems;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\CustomerClient;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -42,7 +36,6 @@ use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\Ordering\NonProductItemsResource;
 use App\Models\Helpers\Address;
-use App\Models\Ordering\Purge;
 use Illuminate\Support\Facades\DB;
 
 class ShowRetinaDropshippingOrder extends RetinaAction

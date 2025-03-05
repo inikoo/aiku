@@ -148,7 +148,7 @@ const onSaved = async () => {
 			newData = updatedStoredItems
 		}
 	} else {
-		newData = [...props.stored_items, { ...props.form.data() }]
+		newData = props.stored_items?.length ? [...props.stored_items, { ...props.form.data() }] : [props.form.data()]
 	}
 
 	const finalData = {}

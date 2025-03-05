@@ -11,9 +11,10 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt } from '@fal'
+import { faStickyNote, faCheck, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft } from '@fal'
 import { faCheckCircle } from '@fad'
-import { faPlus, faMinus, faStar } from '@fas'
+import { faEdit } from '@far'
+import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
 import { reactive, ref } from 'vue'
 import { Table as TableTS } from '@/types/Table'
 import TableStoredItemAuditDeltas from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemAuditDeltas.vue'
@@ -26,18 +27,21 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { debounce, get, set } from 'lodash'
 import { notify } from '@kyvg/vue3-notification'
 import InputNumber from 'primevue/inputnumber'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import CreateStoredItems from '@/Components/CreateStoredItems.vue'
+import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
+import BoxAuditStoredItems from '@/Components/Box/BoxAuditStoredItems.vue'
 
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
-library.add(faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faCheckCircle, faStar)
+library.add(faEdit, faStickyNote, faCheck, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft, faCheckCircle, faStar, fasCheckCircle)
 
 const props = defineProps<{
     data: {
-        data: PalletDelivery
+        data: {}
     }
     title: string
     pageHead: PageHeadingTypes
     notes_data: any
-    edit_stored_item_deltas: TableTS
     stored_item_deltas: TableTS
     fulfilment_customer: any
     route_list: {
@@ -53,10 +57,24 @@ const props = defineProps<{
         store: routeType  // Add stored items
         delete: routeType  // Delete stored items
     }
-    editDeltas: {}
+    editDeltas: {
+        stored_items: {
+            stored_item_audit_id: number
+            stored_item_audit_delta_id: number
+            stored_item_id: number
+            reference: string
+            quantity: number
+            audited_quantity: number
+            audit_type: string
+            is_edit: boolean
+        }[]
+    }
+    pallet: {
+        data: {}
+    }
 }>()
 
-console.log(props)
+console.log('prooooo', props)
 
 interface StoredItemsQuantity {
     [key: string]: number  // stored item id
@@ -84,9 +102,9 @@ const onUnselectNewStoredItem = (store_item_audit_deltas_id: number) => {
 
 // Section: store quantity stored item (first update)
 const isLoadingStoreQuantity = reactive<StoredItemsQuantity>({})
-const onStoreStoredItem = (idPallet: number, idStoredItem: number, quantity: number, idStoredItemAudit: number) => {
+const onStoreStoredItem = (idStoredItem: number, quantity: number, idStoredItemAudit: number) => {
     console.log('onStoreStoredItem', idStoredItem, props.route_list?.stored_item_audit_delta?.store?.name)
-    
+
     if (!props.route_list?.stored_item_audit_delta?.store?.name) {
         console.error('No id stored item audit')
         return
@@ -95,7 +113,7 @@ const onStoreStoredItem = (idPallet: number, idStoredItem: number, quantity: num
     router.post(
         route(props.route_list?.stored_item_audit_delta?.store.name, idStoredItemAudit),
         {
-            pallet_id: idPallet,
+            pallet_id: props.data?.data?.scope_id,
             stored_item_id: idStoredItem,
             audited_quantity: quantity
         },
@@ -119,7 +137,7 @@ const onStoreStoredItem = (idPallet: number, idStoredItem: number, quantity: num
         }
     )
 }
-const debounceStoreStoredItem = debounce((idPallet: number, idStoredItem: number, quantity: number, idStoredItemAudit: number) => onStoreStoredItem(idPallet, idStoredItem, quantity, idStoredItemAudit), 500)
+const debounceStoreStoredItem = debounce((idStoredItem: number, quantity: number, idStoredItemAudit: number) => onStoreStoredItem(idStoredItem, quantity, idStoredItemAudit), 500)
 
 
 
@@ -172,12 +190,53 @@ const statesBoxEdit = reactive<StoredItemsQuantity>({})
 const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean) => {
     return keep_is_edit ? 'edit' : audit_type === 'no_change' ? 'checked' : audit_type || is_edit ? 'edit' : false
 }
+
+const isModalOpened = ref(false)
 </script>
 
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #button-add-sku="{ }">
+            <!-- <Button
+                :label="trans('Add SKU')"
+                icon="fal fa-plus"
+                type="secondary"
+            /> -->
+
+            <StoredItemsProperty
+                :pallet="pallet?.data"
+                :storedItemsRoute
+                :editable="true"
+                :saveRoute="route_list.stored_item_audit_delta.store"
+                :sendToServerOptions="{
+                    preserveScroll: true,
+                    preserveState: true,
+                }"
+                :isModalOpened
+                @onCloseModal="() => isModalOpened = false"
+                @onSuccessSubmit="() => isModalOpened = false"
+            >
+                <template #default="{ openModal }">
+                    <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll
+                        :label="trans('Customer\'s SKU')" />
+                </template>
+
+                <template #modal="{ form, sendToServer, closeModal }">
+                    <!-- <pre>{{ item.id }}</pre> -->
+                    <CreateStoredItems :storedItemsRoute="storedItemsRoute" :form="form" @onSave="() => sendToServer(
+                        {
+                            pallet_id: pallet?.data?.id,
+                            stored_item_id: form.id,
+                            audited_quantity: form.quantity,
+                        },
+                        true
+                    )" :stored_items="pallet?.data?.stored_items" @closeModal="closeModal" :title="trans('Add Customer\'s SKU')" />
+                </template>
+            </StoredItemsProperty>
+        </template>
+    </PageHeading>
 
     <!-- <div class="grid grid-cols-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
         <BoxNote
@@ -188,27 +247,15 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
         />
     </div> -->
 
-    <!-- <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" /> -->
-    <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
-
+    <BoxAuditStoredItems isHidePalletCount :auditData="data.data" :boxStats="fulfilment_customer" />
     
-
-    <TableEditStoredItemAuditDeltas
-        v-if="edit_stored_item_deltas"
-        :data="edit_stored_item_deltas"
-        :route_list
-        :storedItemsRoute
-        tab="edit_stored_item_deltas"
-    />
-
     <TableStoredItemAuditDeltas
         v-if="stored_item_deltas"
         :data="stored_item_deltas"
         tab="stored_item_deltas"
     />
 
-    <pre>{{ editDeltas }}</pre>
-    <DataTable
+    <DataTable v-if="editDeltas"
         :value="[...editDeltas.stored_items, ...editDeltas.new_stored_items]">
         <Column field="reference" :header="trans('SKU')" class="">
             <template #body="{ data }">
@@ -218,13 +265,13 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
             </template>
         </Column>
 
-        <Column field="quantity" header="Current qty" class="">
+        <Column field="quantity" header="Current qty" sortable class="">
             <template #body="{ data }">
                 <div class="text-right">{{ data.quantity || '' }}</div>
             </template>
         </Column>
 
-        <Column field="quantity" header="Actions" class="">
+        <Column field="action" header="Actions" class="">
             <template #body="{ data }">
                 <!-- <pre>{{ data }}</pre>
                 stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
@@ -255,7 +302,7 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                         <div class="flex justify-center border border-gray-300 rounded gap-y-1">
                             <!-- Button: Check -->
                             <Button v-if="data.type !== 'new_item' && data.audit_type !== 'no_change' && data.audit_type !== 'addition' && !get(data, ['is_edit'], false) && edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [`id${data.stored_item_audit_delta_id?.toString()}`], false)) != 'edit'"
-                                @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(item.id, data.stored_item_id, data.quantity, data.stored_item_audit_id)"
+                                @click="() => data.audit_type === 'no_change' ? null : onStoreStoredItem(data.stored_item_id, data.quantity, data.stored_item_audit_id)"
                                 type="tertiary"
                                 :icon="data.audit_type === 'no_change' ? 'fas fa-check-circle' : 'fal fa-check-circle'"
                                 class="border-none rounded-none"
@@ -277,23 +324,27 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                             class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                             <!-- Button: Minus -->
                                             <div  @click="async () => (
-                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) >= 0 ? ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) : 0),
+                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, ((data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) - 1) >= 0 ? ((data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) - 1) : 0),
                                                     data.stored_item_audit_delta_id
                                                         ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
-                                                        : debounceStoreStoredItem(item.id, data.stored_item_id, get(data, `quantity`, data.quantity), data.stored_item_audit_id)
+                                                        : debounceStoreStoredItem(data.stored_item_id, get(data, `new_quantity`, data.quantity), data.stored_item_audit_id)
                                                     
                                                 )"
                                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                 <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
                                             </div>
+                                            
                                             <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
+                                                <!-- {{ data.audited_quantity }}
+                                                {{ data.new_quantity }}
+                                                {{ data.quantity }} -->
                                                 <InputNumber
-                                                    :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [`id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
+                                                    :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity) ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [`id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
                                                     @update:modelValue="(e) => (
-                                                        set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, e),
+                                                        set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, e),
                                                         data.stored_item_audit_delta_id
                                                             ? debounceChangeQuantity(data.stored_item_audit_delta_id, e)
-                                                            : debounceStoreStoredItem(item.id, data.stored_item_id, e, data.stored_item_audit_id)
+                                                            : debounceStoreStoredItem(data.stored_item_id, e, data.stored_item_audit_id)
                                                     )"
                                                     buttonLayout="horizontal" :min="0" style="width: 100%"
                                                     :inputStyle="{
@@ -302,13 +353,14 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                                         coloxxr: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
                                                     }" />
                                             </div>
+                                            
                                             <!-- Button: Plus -->
                                             <div  @click="async () => (
-                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, (data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) + 1),
-                                                    data.stored_item_audit_delta_id
-                                                        ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
-                                                        : debounceStoreStoredItem(item.id, data.stored_item_id, get(data, `quantity`, data.quantity), data.stored_item_audit_id)
-                                                )"
+                                                set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, (data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) + 1),
+                                                data.stored_item_audit_delta_id
+                                                    ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, (data.new_quantity ?? data.quantity)))
+                                                    : debounceStoreStoredItem(data.stored_item_id, get(data, `new_quantity`, data.quantity), data.stored_item_audit_id)
+                                            )"
                                                 type="tertiary" size="xs"
                                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                 <FontAwesomeIcon icon='fas fa-plus' class='' fixed-width
@@ -334,19 +386,23 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
                                 @clicccck="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
                                 v-tooltip="trans('Close input')"
                                 type="tertiary"
-                                icon="fal fa-undo-alt"
-                                class="border-none rounded-none text-gray-500"
+                                
+                                class="border-none rounded-none"
                                 :loading="!!get(isLoadingUnselect, [data.stored_item_audit_delta_id], false)"
-                            />
+                            >
+                                <template #icon>
+                                    <FontAwesomeIcon icon="fal fa-arrow-alt-to-left" fixed-width class="text-gray-500" aria-hidden="true"/>
+                                </template>
+                            </Button>
 
                             <Button
-                            v-else-if="   data.stored_item_audit_delta_id"
-                            @click="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
-                            v-tooltip="trans('Reset to original')"
-                            type="tertiary"
-                            icon="fal fa-undo"
-                            class="border-none rounded-none"
-                            :loading="!!get(isLoadingUnselect, [data.storedItemAuditDelta], false)"
+                                v-else-if="   data.stored_item_audit_delta_id"
+                                @click="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
+                                v-tooltip="trans('Reset to original')"
+                                type="tertiary"
+                                icon="fal fa-undo"
+                                class="border-none rounded-none text-red-500"
+                                :loading="!!get(isLoadingUnselect, [data.storedItemAuditDelta], false)"
                             />
                         </div>
 
@@ -389,6 +445,13 @@ const edit_block = (audit_type: string, is_edit: boolean, keep_is_edit: boolean)
     </template>
 </Column> -->
     </DataTable>
+
+    <div v-if="editDeltas" class="mx-auto px-4 w-10/12 mt-4">
+        <Button @click="isModalOpened = true" type="dashed" icon="fas fa-plus" full :label="trans('Customer\'s SKU')" />
+    </div>
+
+
+    <!-- <pre>{{ pallet }}</pre> -->
 
     <!-- <div v-else class="text-gray-400">
 

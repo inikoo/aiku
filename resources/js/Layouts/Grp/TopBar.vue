@@ -101,7 +101,7 @@ const label = {
   warehouseSelect: trans("Select warehouses"),
   fulfilmentSelect: trans("Select fulfilments")
 };
-console.log("environment:", usePage().props.environment);
+// console.log("environment:", usePage().props.environment);
 
 </script>
 
@@ -216,38 +216,38 @@ console.log("environment:", usePage().props.environment);
                     class="px-1 py-1 space-y-2.5 min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <!-- Dropdown: Group -->
                     <TopBarDropdownScope v-if="layoutStore.group" class=""
-                                         :menuItems="[{
-                                                label: layoutStore.group?.label,
-                                            }]"
-                                         menuKey="group"
-                                         :imageSkeleton="imageSkeleton"
-                                         :label="trans('corporates')"
-                                         icon="fal fa-user-tie"
+                        :menuItems="[{
+                            label: layoutStore.group?.label,
+                        }]"
+                        menuKey="group"
+                        :imageSkeleton="imageSkeleton"
+                        :label="trans('corporates')"
+                        icon="fal fa-user-tie"
                     />
 
                     <!-- Dropdown: Organisation -->
                     <TopBarDropdownScope v-if="layoutStore.organisations.data.length"
-                                         :menuItems="layoutStore.organisations.data"
-                                         :imageSkeleton="imageSkeleton"
-                                         :label="trans('E-commerce')"
-                                         icon="fal fa-cash-register"
+                        :menuItems="layoutStore.organisations.data"
+                        :imageSkeleton="imageSkeleton"
+                        :label="trans('E-commerce')"
+                        icon="fal fa-cash-register"
                     />
 
 
                     <!-- Dropdown: Agents -->
                     <TopBarDropdownScope v-if="layoutStore.agents?.data?.length"
-                                         :menuItems="layoutStore.agents?.data"
-                                         :imageSkeleton="imageSkeleton"
-                                         :label="trans('agents')"
-                                         icon="fal fa-people-arrows"
+                        :menuItems="layoutStore.agents?.data"
+                        :imageSkeleton="imageSkeleton"
+                        :label="trans('agents')"
+                        icon="fal fa-people-arrows"
                     />
 
                     <!-- Dropdown: Digital Agency -->
                     <TopBarDropdownScope v-if="layoutStore.digital_agency?.data?.length"
-                                         :menuItems="layoutStore.digital_agency?.data"
-                                         :imageSkeleton="imageSkeleton"
-                                         :label="trans('digital agency')"
-                                         icon="fal fa-laptop-house"
+                        :menuItems="layoutStore.digital_agency?.data"
+                        :imageSkeleton="imageSkeleton"
+                        :label="trans('digital agency')"
+                        icon="fal fa-laptop-house"
                     />
                   </MenuItems>
                 </transition>
@@ -259,79 +259,95 @@ console.log("environment:", usePage().props.environment);
           <div class="flex items-center gap-x-2 pl-2">
             <!-- Section: Dropdown -->
             <div
-              v-if="layoutStore.group
+                v-if="
+                    layoutStore.group
                     || (layoutStore.organisations.data?.length > 1)
-                    || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
+                    || (
+                            layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) &&
+                            (
+                                (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops')
+                                || layoutStore.currentRoute.includes('grp.org.dashboard.')
+                            )
+                        )
                     || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                 "
-              class="flex border border-gray-300 rounded"
+                class="flex border border-gray-300 rounded"
             >
               
 
 
-              <!-- Dropdown: Shops and Fulfilment-->
-              <Menu
+            <!-- Dropdown: Shops and Fulfilment-->
+            <Menu
                 v-if="
                     layoutStore.currentParams?.organisation
                     && ((layoutStore.isShopPage || layoutStore.isFulfilmentPage)
                         || layoutStore.currentRoute.includes('grp.org.dashboard.'))
                     && (layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length
-                        || layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length)
+                        || layoutStore.agents.data.find(agent => agent.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length)
                 "
                 as="div" class="relative inline-block text-left"
                 v-slot="{ close: closeMenu }"
-              >
+            >
                 <TopBarSelectButton
-                  :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
-                  :activeButton="
-                                        !!((layoutStore.isFulfilmentPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment)
-                                        || (layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop))
-                                    "
-                  :label="
-                                        layoutStore.isFulfilmentPage
-                                            ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentFulfilment || label.fulfilmentSelect
-                                            : layoutStore.isShopPage
-                                                ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect
-                                                : 'Select shops/fulfilments'
-                                    "
-                  :key="`shop` + layoutStore.currentParams.shop + layoutStore.currentParams.fulfilment"
+                    :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
+                    :activeButton="
+                        !!((layoutStore.isFulfilmentPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentFulfilment)
+                        || (layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop))
+                    "
+                    :label="
+                        layoutStore.isFulfilmentPage
+                            ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentFulfilment || label.fulfilmentSelect
+                            : layoutStore.isShopPage
+                                ? layoutStore.organisationsState?.[layoutStore.currentParams.organisation]?.currentShop || label.shopSelect
+                                : 'Select shops/fulfilments'
+                    "
+                    :key="`shop` + layoutStore.currentParams.shop + layoutStore.currentParams.fulfilment"
                 />
 
                 <transition>
-                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y-0 divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                    <MenuPopoverList
-                      v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
-                      icon="fal fa-store-alt"
-                      :navKey="'shop'"
-                      :closeMenu="closeMenu"
-                    />
-                    <MenuPopoverList
-                      v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
-                      icon="fal fa-hand-holding-box"
-                      :navKey="'fulfilment'"
-                      :closeMenu="closeMenu"
-                    />
-                  </MenuItems>
+                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y-0 divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                        <MenuPopoverList
+                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops?.length || layoutStore.agents.data.find(agent => agent.slug == layoutStore.currentParams.organisation)?.authorised_shops?.length"
+                            icon="fal fa-store-alt"
+                            :navKey="'shop'"
+                            :closeMenu="closeMenu"
+                        />
+                        
+                        <MenuPopoverList
+                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length || layoutStore.agents.data.find(agent => agent.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
+                            icon="fal fa-hand-holding-box"
+                            :navKey="'fulfilment'"
+                            :closeMenu="closeMenu"
+                        />
+                    </MenuItems>
                 </transition>
-              </Menu>
+            </Menu>
 
-              <!-- Dropdown: Warehouse -->
-              <Menu
-                v-if="layoutStore.currentParams?.organisation && Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')"
-                as="div" class="relative inline-block text-left"
+            <!-- Dropdown: Warehouse -->
+            <!-- {{ layoutStore.currentParams?.organisation }}
+            {{ Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1 }} -->
+            <Menu
+                v-if="
+                    layoutStore.currentParams?.organisation
+                    && Object.keys(layoutStore.navigation.org[layoutStore.currentParams?.organisation]?.warehouses_navigation || []).length > 1
+                    && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouses')
+                "
+                as="div"
+                class="relative inline-block text-left"
                 v-slot="{ close: closeMenu }"
-              >
+            >
                 <TopBarSelectButton
-                  icon="fal fa-warehouse-alt"
-                  :activeButton="!!(layoutStore.currentParams.warehouse)"
-                  :label="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label ?? label.warehouseSelect"
+                    icon="fal fa-warehouse-alt"
+                    :activeButton="!!(layoutStore.currentParams.warehouse)"
+                    :label="(layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label || layoutStore.agents.data.find(agent => agent.slug == layoutStore.currentParams.organisation)?.authorised_warehouses.find(warehouse => warehouse.slug == layoutStore.currentParams.warehouse)?.label) ?? label.warehouseSelect"
                 />
+
                 <transition>
-                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                    <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
-                  </MenuItems>
+                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                        <MenuPopoverList icon="fal fa-warehouse-alt" :navKey="'warehouse'" :closeMenu="closeMenu" />
+                    </MenuItems>
                 </transition>
-              </Menu>
+            </Menu>
 
               <!-- Dropdown: Fulfilment -->
               <!-- <Menu v-if="Object.keys(layoutStore.navigation.org[layoutStore.currentParams.organisation]?.fulfilments_navigation || []).length > 1 && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('fulfilment')"

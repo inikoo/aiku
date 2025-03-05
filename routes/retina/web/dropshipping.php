@@ -23,7 +23,6 @@ use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
 use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
 use App\Actions\Retina\Dropshipping\ShowRetinaDropshipping;
 use App\Actions\Retina\Dropshipping\ShowRetinaProduct;
-use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('platform')->as('platform.')->group(function () {

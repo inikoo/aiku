@@ -152,10 +152,11 @@ function orderRoute(palletReturn: PalletDelivery) {
             <Link v-else-if="palletReturn.model === 'Order'" :href="orderRoute(palletReturn)" class="primaryLink">
                 {{ palletReturn['reference'] }}
             </Link>
-
-            <div v-else>
+            
+            <Link v-else :href="orderRoute(palletReturn)" class="primaryLink">
                 {{ palletReturn.reference }}
-            </div>
+            </Link>
+
         </template>
 
         <!-- Column: Customer Reference -->

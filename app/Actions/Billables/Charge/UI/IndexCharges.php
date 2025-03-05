@@ -21,7 +21,6 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -81,7 +80,8 @@ class IndexCharges extends OrgAction
         // }
 
         $queryBuilder->leftJoin('organisations', 'charges.organisation_id', '=', 'organisations.id')
-        ->leftJoin('shops', 'charges.shop_id', '=', 'shops.id');
+        ->leftJoin('shops', 'charges.shop_id', '=', 'shops.id')
+        ->leftJoin('currencies', 'charges.currency_id', '=', 'currencies.id');
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('charges.shop_id', $parent->id);
@@ -108,6 +108,7 @@ class IndexCharges extends OrgAction
                 'charges.description',
                 'charges.created_at',
                 'charges.updated_at',
+                'currencies.code as currency_code',
                 'invoices_all',
                 'sales_all',
                 'customers_invoiced_all',
@@ -156,7 +157,7 @@ class IndexCharges extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon');
 
             if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
@@ -172,11 +173,6 @@ class IndexCharges extends OrgAction
                         ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
-    }
-
-    public function jsonResponse(LengthAwarePaginator $charges): AnonymousResourceCollection
-    {
-        return ChargesResource::collection($charges);
     }
 
     public function htmlResponse(LengthAwarePaginator $charges, ActionRequest $request): Response
