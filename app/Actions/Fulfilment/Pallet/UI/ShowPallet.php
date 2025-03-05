@@ -16,11 +16,13 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
+use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\PalletStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -160,8 +162,27 @@ class ShowPallet extends OrgAction
                         ]
                     ];
                 }
+
+                if($pallet->palletStoredItems->every(fn($item) => $item->state == PalletStoredItemStateEnum::RETURNED))
+                {
+                    $actions[] = [
+                        'type'    => 'button',
+                        'tooltip' => __("Return Pallet"),
+                        'label'   => __("Return Pallet"),
+                        'key'     => 'return-pallet',
+                        'route'   => [
+                            'name'       => 'grp.models.pallet.return',
+                            'parameters' => [
+                                'pallet' => $pallet->id
+                            ],
+                            'method'     => 'patch'
+                        ]
+                    ];
+                }
             }
         }
+
+
 
         $subNavigation = [];
         $navigation    = PalletTabsEnum::navigation($pallet);
@@ -210,6 +231,14 @@ class ShowPallet extends OrgAction
             ]
         ];
 
+        $storedItemsList = array_map(function($palletStoredItem) {
+            return [
+                'name' => $palletStoredItem->storedItem->name,
+                'reference' => $palletStoredItem->storedItem->reference,
+                'quantity' => $palletStoredItem->quantity
+            ];
+        }, $pallet->palletStoredItems->all());
+
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
@@ -236,6 +265,10 @@ class ShowPallet extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => $navigation,
                 ],
+
+                'pallet'        => PalletResource::make($pallet),
+                'list_stored_items'  => $storedItemsList,
+
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
                     fn () => PalletResource::make($pallet) : Inertia::lazy(fn () => PalletResource::make($pallet)),
 

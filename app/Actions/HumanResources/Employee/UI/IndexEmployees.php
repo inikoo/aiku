@@ -132,8 +132,6 @@ class IndexEmployees extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            // $table->betweenDates(['employment_start_at', 'created_at', 'updated_at']);
-
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
@@ -141,7 +139,6 @@ class IndexEmployees extends OrgAction
                     elements: $elementGroup['elements']
                 );
             }
-
 
             $table
                 ->withModelOperations($modelOperations)
@@ -206,7 +203,6 @@ class IndexEmployees extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request): Response
     {
-        // dd($employees);
         return Inertia::render(
             'Org/HumanResources/Employees',
             [
