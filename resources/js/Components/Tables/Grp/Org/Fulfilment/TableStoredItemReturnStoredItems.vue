@@ -276,7 +276,7 @@ const onUndoPick = async (routeTarget: routeType, pallet_stored_item: any, loadi
                                     :routeYes="{
                                         name: 'grp.models.pallet.return',
                                         parameters: {
-                                            pallet: pallet_stored_item.id
+                                            pallet: pallet_stored_item.pallet_id
                                         },
                                         method: 'patch'
                                     }"
