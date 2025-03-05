@@ -41,6 +41,7 @@ const props = defineProps<{
 interface MergeNavigation {
     key: string  // 'uk', 'awd'
     value: {
+        slug: string  // 'tiktok' | 'shopify'
         type?: string
         subNavigation: Navigation[]
     }
@@ -56,6 +57,7 @@ const platformsNav: () => MergeNavigation[] = () => {
         return {
             key: key,
             value: {
+                slug: subNavObject.slug,
                 type: subNavObject.type,
                 subNavigation: subNavObject.subNavigation
             },
@@ -104,8 +106,10 @@ const nextNavigation = () => {
     return mergeNavigations[indexNavigation+1] || undefined
 }
 const routeArrow = (nav?: MergeNavigation) => {
-    console.log('routeArrow', nav)
+    // console.log('routeArrow', nav)
     if(!nav) return '#'
+
+    return route('retina.dropshipping.platforms.portfolios.index', { platform: nav.value?.slug })
 }
 
 // Show this Horizontal depends on:

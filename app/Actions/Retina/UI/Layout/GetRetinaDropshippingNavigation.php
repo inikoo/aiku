@@ -103,6 +103,7 @@ class GetRetinaDropshippingNavigation
         ) {
             $platforms_navigation[$platform->slug] = [
                 'type'          => $platform->type,
+                'slug'          => $platform->slug,
                 'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser, $platform)
             ];
         }
