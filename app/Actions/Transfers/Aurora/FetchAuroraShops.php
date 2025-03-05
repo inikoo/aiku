@@ -10,6 +10,8 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
 use App\Actions\Accounting\PaymentAccountShop\UpdatePaymentAccountShop;
+use App\Actions\Comms\OutboxHasSubscribers\StoreOutboxHasSubscriber;
+use App\Actions\Comms\OutboxHasSubscribers\UpdateOutboxHasSubscriber;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
@@ -18,6 +20,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\OutBoxHasSubscriber;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -32,6 +35,7 @@ class FetchAuroraShops extends FetchAuroraAction
     use WithAuroraParsers;
 
     public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    private \App\Models\SysAdmin\Organisation $organisation;
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Shop
@@ -106,8 +110,9 @@ class FetchAuroraShops extends FetchAuroraAction
             }
 
 
-
+            $this->setOutboxSubscribers($shop, $organisationSource);
             $this->setShopSetOutboxesSourceId($shop);
+
 
             $sourceData = explode(':', $shop->source_id);
 
@@ -133,10 +138,93 @@ class FetchAuroraShops extends FetchAuroraAction
     }
 
 
+    protected function setOutboxSubscribers(Shop $shop): void
+    {
+        $this->organisation = $shop->organisation;
+        $sourceData = explode(':', $shop->source_id);
+
+        $auroraModelData = DB::connection('aurora')->table('Store Dimension')
+            ->where('Store Key', $sourceData[1])
+            ->first();
+
+        $settings = json_decode($auroraModelData->{'Store Settings'}, true);
+
+        $newCustomerOutbox = $shop->outboxes()->where('code', 'new_customer')->first();
+        if ($newCustomerOutbox) {
+            $newCustomerSubscribers = json_decode(Arr::get($settings, 'Store_Notification_New_Customer_Recipients', '{}'), true);
+            $externalEmails         = Arr::get($newCustomerSubscribers, 'external_emails', []);
+            $auroraUsersKeys        = Arr::get($newCustomerSubscribers, 'user_keys', []);
+
+            if (count($auroraUsersKeys) > 0) {
+                foreach ($auroraUsersKeys as $auroraUsersKey) {
+                    $user = $this->parseUser($shop->organisation->id.':'.$auroraUsersKey);
+
+                    $source_id = $shop->source_id.'-new_customer_user_'.$auroraUsersKey;
+
+
+                    $outboxHasSubscriber = OutBoxHasSubscriber::where('source_id', $source_id)->first();
+
+                    if ($user and $user->email) {
+
+                        if (!$outboxHasSubscriber) {
+                            StoreOutboxHasSubscriber::make()->action(
+                                outbox: $newCustomerOutbox,
+                                modelData: [
+                                    'user_id'    => $user->id,
+                                    'fetched_at' => now(),
+                                    'source_id'  => $source_id
+
+                                ],
+                                strict: false
+                            );
+                        } else {
+                            UpdateOutboxHasSubscriber::make()->action(
+                                outBoxHasSubscriber: $outboxHasSubscriber,
+                                modelData: [
+                                    'last_fetched_at' => now(),
+                                ],
+                                strict: false
+                            );
+                        }
+                    }
+                }
+            }
+
+
+            if (count($externalEmails) > 0) {
+                foreach ($externalEmails as $externalEmail) {
+                    $source_id = $shop->source_id.'-new_customer_external_'.$externalEmail;
+
+
+                    $outboxHasSubscriber = OutBoxHasSubscriber::where('source_id', $source_id)->first();
+
+                    if (!$outboxHasSubscriber) {
+                        StoreOutboxHasSubscriber::make()->action(
+                            outbox: $newCustomerOutbox,
+                            modelData: [
+                                'external_email' => $externalEmail,
+                                'fetched_at'     => now(),
+                                'source_id'      => $source_id
+
+                            ],
+                            strict: false
+                        );
+                    } else {
+                        UpdateOutboxHasSubscriber::make()->action(
+                            outBoxHasSubscriber: $outboxHasSubscriber,
+                            modelData: [
+                                'last_fetched_at' => now(),
+                            ],
+                            strict: false
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     public function fetchPaymentAccountShop(Shop $shop, $accountData): void
     {
-
-
         $paymentAccount = $this->parsePaymentAccount($shop->organisation->id.':'.$accountData->{'Payment Account Key'});
         if (!$paymentAccount) {
             exit('Error payment account not found in fetchPaymentAccountShop');
@@ -183,9 +271,8 @@ class FetchAuroraShops extends FetchAuroraAction
             if ($accountData->{'Payment Account Block'} == 'BTree' and $accountData->hide == 'yes') {
                 $data['btree_credit_card_hide'] = true;
             } elseif ($accountData->{'Payment Account Block'} == 'Checkout') {
-
                 if ($accountData->login and $accountData->password and !$accountData->public_key) {
-                    $data['legacy'] = true;
+                    $data['legacy']      = true;
                     $data['credentials'] = [
                         'public_key' => $accountData->login,
                         'secret_key' => $accountData->password
@@ -198,7 +285,7 @@ class FetchAuroraShops extends FetchAuroraAction
             } elseif ($accountData->{'Payment Account Block'} == 'Hokodo' and $accountData->login and !$accountData->password and $accountData->public_key) {
                 $data['credentials'] = [
                     'public_key' => $accountData->public_key,
-                    'id' => $accountData->login
+                    'id'         => $accountData->login
                 ];
             } else {
                 dd($accountData, $rawSettings);

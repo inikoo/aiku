@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_dispatched_emails_state_delay
  * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunStats newQuery()

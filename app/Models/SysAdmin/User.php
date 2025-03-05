@@ -14,6 +14,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Analytics\UserRequest;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\OutBoxHasSubscriber;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -99,10 +100,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $pseudoJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OutBoxHasSubscriber> $subscribedOutboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\UserTimeSeries> $timeSeries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\UserHasAuthorisedModels> $userAuthorisedModels
  * @property-read \Illuminate\Database\Eloquent\Collection<int, UserRequest> $userRequests
  * @method static \Database\Factories\SysAdmin\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
@@ -305,10 +308,15 @@ class User extends Authenticatable implements HasMedia, Auditable
     }
 
 
-
     public function timeSeries(): HasMany
     {
         return $this->hasMany(UserTimeSeries::class);
     }
+
+    public function subscribedOutboxes(): HasMany
+    {
+        return $this->hasMany(OutBoxHasSubscriber::class);
+    }
+
 
 }

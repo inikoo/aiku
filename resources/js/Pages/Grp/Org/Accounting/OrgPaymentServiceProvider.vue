@@ -26,6 +26,7 @@ import TablePaymentAccounts from "@/Components/Tables/Grp/Org/Accounting/TablePa
 import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import PaymentProviderShowcase from "@/Components/Accounting/PaymentProviderShowcase.vue"
+import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue"
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));
 
@@ -40,6 +41,7 @@ const props = defineProps<{
     },
     payment_accounts?: object
     payments?: object,
+    invoices?: object,
     history: object
     showcase: {}
 
@@ -56,7 +58,8 @@ const component = computed(() => {
         payment_accounts: TablePaymentAccounts,
         payments: TablePayments,
         details: ModelDetails,
-        history: TableHistories
+        history: TableHistories,
+        invoices: TableInvoices
     };
     return components[currentTab.value];
 

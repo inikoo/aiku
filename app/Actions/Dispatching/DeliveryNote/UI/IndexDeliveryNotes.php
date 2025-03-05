@@ -410,7 +410,7 @@ class IndexDeliveryNotes extends OrgAction
             'grp.org.warehouses.show.dispatching.handling-blocked.delivery-notes',
             'grp.org.warehouses.show.dispatching.packed.delivery-notes',
             'grp.org.warehouses.show.dispatching.finalised.delivery-notes',
-            'grp.org.warehouses.show.dispatching.dispatched.delivery-notes'=>
+            'grp.org.warehouses.show.dispatching.dispatched.delivery-notes' =>
             array_merge(
                 ShowDispatchHub::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
