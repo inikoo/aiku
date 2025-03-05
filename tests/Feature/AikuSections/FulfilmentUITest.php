@@ -1964,16 +1964,16 @@ test('UI create stored item audit for pallet (first time)', function () {
         'location_id'        => $this->warehouse->locations()->first()->id,
         'rental_id'          => $rental->id
     ]);
-    
+
     $this->withoutExceptionHandling();
-        
+
     $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
         ->where('scope_type', 'Pallet')
         ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
         ->first();
 
     expect($storedItemAudit)->toBeNull();
-    
+
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
         $this->organisation->slug,
         $this->fulfilment->slug,
@@ -1987,7 +1987,7 @@ test('UI create stored item audit for pallet (first time)', function () {
     ->first();
 
     expect($storedItemAudit)->not()->toBeNull();
-    
+
     $response->assertRedirect(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
         $this->organisation->slug,
         $this->fulfilment->slug,
@@ -2001,16 +2001,16 @@ test('UI create stored item audit for pallet (first time)', function () {
 
 test('UI create stored item audit for pallet (already created)', function (StoredItemAudit $storedItemAudit) {
     $pallet = $storedItemAudit->scope;
-    
+
     $this->withoutExceptionHandling();
-        
+
     $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
         ->where('scope_type', 'Pallet')
         ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
         ->first();
 
     expect($storedItemAudit)->not->toBeNull();
-    
+
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
         $this->organisation->slug,
         $this->fulfilment->slug,
