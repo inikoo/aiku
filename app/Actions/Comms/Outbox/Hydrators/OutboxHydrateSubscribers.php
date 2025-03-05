@@ -37,7 +37,7 @@ class OutboxHydrateSubscribers
     {
         $stats = [
             'number_subscribed_user' => DB::table('outbox_has_subscribers')->whereNotNull('user_id')->where('outbox_id', $outbox->id)->count(),
-            'number_subscribed_external_link' => DB::table('outbox_has_subscribers')->whereNotNull('external_email')->where('outbox_id', $outbox->id)->count(),
+            'number_subscribed_external_emails' => DB::table('outbox_has_subscribers')->whereNotNull('external_email')->where('outbox_id', $outbox->id)->count(),
         ];
 
         $outbox->stats()->update($stats);
