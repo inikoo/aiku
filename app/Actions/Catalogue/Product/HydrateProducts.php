@@ -8,31 +8,28 @@
 
 namespace App\Actions\Catalogue\Product;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavourited;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavouritedInCategories;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateGrossWeightFromTradeUnits;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
-use App\Actions\HydrateModel;
 use App\Models\Catalogue\Product;
-use Illuminate\Support\Collection;
 
-class HydrateProducts extends HydrateModel
+class HydrateProducts
 {
-    public string $commandSignature = 'hydrate:products {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:products {organisations?*} {--S|shop= shop slug} {--s|slugs=} ';
 
 
     public function handle(Product $product): void
     {
         ProductHydrateProductVariants::run($product);
-
+        ProductHydrateCustomersWhoFavourited::run($product);
+        ProductHydrateCustomersWhoFavouritedInCategories::run($product);
+        ProductHydrateCustomersWhoReminded::run($product);
+        ProductHydrateCustomersWhoRemindedInCategories::run($product);
+        ProductHydrateGrossWeightFromTradeUnits::run($product);
 
     }
 
-
-    protected function getModel(string $slug): Product
-    {
-        return Product::where('slug', $slug)->first();
-    }
-
-    protected function getAllModels(): Collection
-    {
-        return Product::withTrashed()->get();
-    }
 }
