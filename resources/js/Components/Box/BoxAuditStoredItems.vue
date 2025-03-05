@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faNarwhal, faPallet, faQuestionCircle, faEnvelope, faPhone, faIdCardAlt, faPlus, faMinus, faCheck, faLink, faLayerPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import Icon from '../Icon.vue'
 
 library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faPlus, faMinus,faCheck, faLink, faLayerPlus)
 
@@ -131,13 +132,13 @@ onMounted(() => {
             <div class="flex items-center w-full flex-none gap-x-2 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">{{ auditData.state_icon.tooltip }}</span>
-                    <FontAwesomeIcon
+                    <Icon :data="auditData.state_icon" />
+                    <!-- <FontAwesomeIcon
                         :icon='auditData.state_icon.icon'
                         :class='auditData.state_icon.class'
-                        class="text-white"
                         fixed-width
                         aria-hidden='true'
-                    />
+                    /> -->
                 </dt>
                 <dd class="text-base" :class='auditData.state_icon.class'>
                     {{ auditData.state_icon.tooltip }}

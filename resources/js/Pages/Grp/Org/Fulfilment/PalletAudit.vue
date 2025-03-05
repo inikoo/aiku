@@ -11,7 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft } from '@fal'
+import { faStickyNote, faCheck, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft } from '@fal'
 import { faCheckCircle } from '@fad'
 import { faEdit } from '@far'
 import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
@@ -30,9 +30,10 @@ import InputNumber from 'primevue/inputnumber'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import CreateStoredItems from '@/Components/CreateStoredItems.vue'
 import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
+import BoxAuditStoredItems from '@/Components/Box/BoxAuditStoredItems.vue'
 
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
-library.add(faEdit, faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft, faCheckCircle, faStar, fasCheckCircle)
+library.add(faEdit, faStickyNote, faCheck, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft, faCheckCircle, faStar, fasCheckCircle)
 
 const props = defineProps<{
     data: {
@@ -41,7 +42,6 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     notes_data: any
-    edit_stored_item_deltas: TableTS
     stored_item_deltas: TableTS
     fulfilment_customer: any
     route_list: {
@@ -57,7 +57,18 @@ const props = defineProps<{
         store: routeType  // Add stored items
         delete: routeType  // Delete stored items
     }
-    editDeltas: {}
+    editDeltas: {
+        stored_items: {
+            stored_item_audit_id: number
+            stored_item_audit_delta_id: number
+            stored_item_id: number
+            reference: string
+            quantity: number
+            audited_quantity: number
+            audit_type: string
+            is_edit: boolean
+        }[]
+    }
     pallet: {
         data: {}
     }
@@ -205,6 +216,7 @@ const isModalOpened = ref(false)
                 }"
                 :isModalOpened
                 @onCloseModal="() => isModalOpened = false"
+                @onSuccessSubmit="() => isModalOpened = false"
             >
                 <template #default="{ openModal }">
                     <Button @click="openModal" type="dashed" icon="fas fa-plus" fuxll
@@ -235,26 +247,15 @@ const isModalOpened = ref(false)
         />
     </div> -->
 
-    <!-- <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" /> -->
-    <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
-
+    <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
     
-
-    <TableEditStoredItemAuditDeltas
-        v-if="edit_stored_item_deltas"
-        :data="edit_stored_item_deltas"
-        :route_list
-        :storedItemsRoute
-        tab="edit_stored_item_deltas"
-    />
-
     <TableStoredItemAuditDeltas
         v-if="stored_item_deltas"
         :data="stored_item_deltas"
         tab="stored_item_deltas"
     />
 
-    <DataTable
+    <DataTable v-if="editDeltas"
         :value="[...editDeltas.stored_items, ...editDeltas.new_stored_items]">
         <Column field="reference" :header="trans('SKU')" class="">
             <template #body="{ data }">
@@ -264,13 +265,13 @@ const isModalOpened = ref(false)
             </template>
         </Column>
 
-        <Column field="quantity" header="Current qty" class="">
+        <Column field="quantity" header="Current qty" sortable class="">
             <template #body="{ data }">
                 <div class="text-right">{{ data.quantity || '' }}</div>
             </template>
         </Column>
 
-        <Column field="quantity" header="Actions" class="">
+        <Column field="action" header="Actions" class="">
             <template #body="{ data }">
                 <!-- <pre>{{ data }}</pre>
                 stored_item_audit_id: {{ data.stored_item_audit_id || '-' }} <br />
@@ -445,7 +446,7 @@ const isModalOpened = ref(false)
 </Column> -->
     </DataTable>
 
-    <div class="mx-auto px-4 w-10/12 mt-4">
+    <div v-if="editDeltas" class="mx-auto px-4 w-10/12 mt-4">
         <Button @click="isModalOpened = true" type="dashed" icon="fas fa-plus" full :label="trans('Customer\'s SKU')" />
     </div>
 
