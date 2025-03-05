@@ -80,7 +80,7 @@ const currentStateX = ref(false)
     <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
     <!-- <TableStoredItemsAudits :data="edit_stored_item_deltas" tab="edit_stored_item_deltas" :storedItemsRoute="storedItemsRoute" /> -->
 
-    
+    <!-- <pre>{{ edit_stored_item_deltas }}</pre> -->
 
     <TableEditStoredItemAuditDeltas
         v-if="edit_stored_item_deltas"

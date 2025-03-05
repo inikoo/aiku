@@ -56,11 +56,12 @@ class IndexPayments extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
+
         $queryBuilder = QueryBuilder::for(Payment::class);
         if (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('payments.organisation_id', $parent->id);
         } elseif (class_basename($parent) == 'OrgPaymentServiceProvider') {
-            $queryBuilder->where('payments.payment_service_provider_id', $parent->id);
+            $queryBuilder->where('payments.org_payment_service_provider_id', $parent->id);
         } elseif (class_basename($parent) == 'PaymentAccount') {
             $queryBuilder->where('payments.payment_account_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {

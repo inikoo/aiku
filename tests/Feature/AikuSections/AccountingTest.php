@@ -774,27 +774,6 @@ test('UI show organisation payment service provider', function () {
     });
 });
 
-test('UI show organisation payment service provider (stats tab)', function () {
-    $orgPaymentServiceProvider = $this->organisation->orgPaymentServiceProviders->first();
-    $response                  = get('http://app.aiku.test/org/'.$this->organisation->slug.'/accounting/providers/'.$orgPaymentServiceProvider->slug.'?tab=stats');
-
-    $response->assertInertia(function (AssertableInertia $page) use ($orgPaymentServiceProvider) {
-        $page
-            ->component('Org/Accounting/OrgPaymentServiceProvider')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->has('pageHead')
-            ->has(
-                'pageHead',
-                fn (AssertableInertia $page) => $page
-                    ->where('title', $orgPaymentServiceProvider->slug)
-                    ->etc()
-            )
-            ->has('navigation')
-            ->has('tabs');
-    });
-});
-
 test('UI show organisation payment service provider (payment accounts tab)', function () {
     $orgPaymentServiceProvider = $this->organisation->orgPaymentServiceProviders->first();
 

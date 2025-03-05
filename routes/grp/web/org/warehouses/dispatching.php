@@ -17,6 +17,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowDispatchHub::class)->name('backlog');
 Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes');
+Route::get('/delivery-notes/unassigned', [IndexDeliveryNotes::class, 'unassigned'])->name('unassigned.delivery-notes');
+Route::get('/delivery-notes/queued', [IndexDeliveryNotes::class, 'queued'])->name('queued.delivery-notes');
+Route::get('/delivery-notes/handling', [IndexDeliveryNotes::class, 'handling'])->name('handling.delivery-notes');
+Route::get('/delivery-notes/handling-blocked', [IndexDeliveryNotes::class, 'handlingBlocked'])->name('handling-blocked.delivery-notes');
+Route::get('/delivery-notes/packed', [IndexDeliveryNotes::class, 'packed'])->name('packed.delivery-notes');
+Route::get('/delivery-notes/finalised', [IndexDeliveryNotes::class, 'finalised'])->name('finalised.delivery-notes');
+Route::get('/delivery-notes/dispatched', [IndexDeliveryNotes::class, 'dispatched'])->name('dispatched.delivery-notes');
 Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
 Route::get('/delivery-notes/{deliveryNote}/pdf', PdfDeliveryNote::class)->name('delivery-notes.pdf');
 

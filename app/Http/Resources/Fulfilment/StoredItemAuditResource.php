@@ -28,10 +28,9 @@ class StoredItemAuditResource extends JsonResource
     public function toArray($request): array
     {
         // dd($this);
-        $scope = $this->scope ?? null;
         return [
             'id'                               => $this->id,
-            'scope_id'                         => $scope->id,
+            'scope_id'                         => $this->scope ? $this->scope->id : null,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
             'fulfilment_customer_name'         => $this->fulfilment_customer_name,

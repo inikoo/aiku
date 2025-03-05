@@ -90,8 +90,14 @@ class ShowInventoryDashboard extends OrgAction
 
     public function getDashboard(): array
     {
+
+
         $dashboard = [];
         foreach ($this->organisation->warehouses as $warehouse) {
+            $utilization = 0;
+            if ($warehouse->stats->number_locations) {
+                $utilization = ($warehouse->stats->number_locations - $warehouse->stats->number_empty_locations) / $warehouse->stats->number_locations * 100;
+            }
             $dashboard['columns'][] = [
                 'widgets' => [
                     [
@@ -99,7 +105,7 @@ class ShowInventoryDashboard extends OrgAction
                         'type' => 'stat_progress_card',
                         'data' => [
                             'stockValue' => $warehouse->stats->stock_value,
-                            'utilization' => ($warehouse->stats->number_locations - $warehouse->stats->number_empty_locations) / $warehouse->stats->number_locations * 100,
+                            'utilization' => $utilization
                         ]
                     ]
                 ]

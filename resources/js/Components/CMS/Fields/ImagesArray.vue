@@ -28,7 +28,7 @@ const emit = defineEmits(["update:modelValue"]);
 
 const onChangeProperty = (index, data) => {
     const setData = props.modelValue
-    setData[index].properties = data;
+    setData[index] = data;
     emit("update:modelValue", setData);
 };
 
@@ -44,7 +44,7 @@ const onChangeProperty = (index, data) => {
                     <span>Image {{ index + 1 }}</span>
                 </DisclosureButton>
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
-                   <ImagesProperty v-model="field.properties"  @update:model-value="(data) => onChangeProperty(index, data)"/>
+                   <ImagesProperty :modelValue="field"  @update:model-value="(data) => onChangeProperty(index, data)"/>
                 </DisclosurePanel>
             </Disclosure>
         </div>
