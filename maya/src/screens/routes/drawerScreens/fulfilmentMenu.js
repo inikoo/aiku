@@ -32,7 +32,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                 headerRight: () => (
                     <TouchableOpacity
                         className="mx-3"
-                        onPress={() => navigation.navigate('scanner')}
+                        onPress={() => navigation.navigate('global-scanner')}
                     >
                         <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
@@ -55,7 +55,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                 headerRight: () => (
                     <TouchableOpacity
                         className="mx-3"
-                        onPress={() => navigation.navigate('scanner')}
+                        onPress={() => navigation.navigate('global-scanner')}
                     >
                         <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
@@ -78,7 +78,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                 headerRight: () => (
                     <TouchableOpacity
                         className="mx-3"
-                        onPress={() => navigation.navigate('scanner')}
+                        onPress={() => navigation.navigate('global-scanner')}
                     >
                         <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
@@ -101,7 +101,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                 headerRight: () => (
                     <TouchableOpacity
                         className="mx-3"
-                        onPress={() => navigation.navigate('scanner')}
+                        onPress={() => navigation.navigate('global-scanner')}
                     >
                         <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
@@ -124,7 +124,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                 headerRight: () => (
                     <TouchableOpacity
                         className="mx-3"
-                        onPress={() => navigation.navigate('scanner')}
+                        onPress={() => navigation.navigate('global-scanner')}
                     >
                         <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
