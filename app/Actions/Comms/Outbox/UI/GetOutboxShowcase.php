@@ -11,7 +11,9 @@ namespace App\Actions\Comms\Outbox\UI;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
+use PhpOffice\PhpSpreadsheet\Chart\Layout;
 
 class GetOutboxShowcase
 {
@@ -38,7 +40,10 @@ class GetOutboxShowcase
                 ],
                 'state' => $outbox->state,
                 'builder' => $outbox->builder,
-                'compiled_layout' => $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout,
+               'compiled_layout' => ($outbox->builder->value == "blade") 
+                    ? Arr::get($outbox->emailOngoingRun?->email?->liveSnapshot?->layout, 'blade_template') 
+                    : $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout,
+
                 'dashboard_stats' => [
                     'widgets' => [
                         'column_count' => 2,
