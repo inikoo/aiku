@@ -17,20 +17,15 @@ enum OrgPaymentServiceProviderTabsEnum: string
     use HasTabs;
 
     case SHOWCASE         = 'showcase';
-    case STATS            = 'stats';
     case PAYMENT_ACCOUNTS = 'payment_accounts';
     case PAYMENTS         = 'payments';
+    case INVOICES         = 'invoices';
     case HISTORY          = 'history';
-    case DATA             = 'data';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            OrgPaymentServiceProviderTabsEnum::STATS             => [
-                'title' => __('stats'),
-                'icon'  => 'fal fa-chart-line',
-            ],
             OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS => [
                 'title' => __('payment accounts'),
                 'icon'  => 'fal fa-money-check-alt',
@@ -39,11 +34,9 @@ enum OrgPaymentServiceProviderTabsEnum: string
                 'title' => __('payments'),
                 'icon'  => 'fal fa-coins',
             ],
-            OrgPaymentServiceProviderTabsEnum::DATA     => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
+            OrgPaymentServiceProviderTabsEnum::INVOICES     => [
+                'title' => __('invoices'),
+                'icon'  => 'fal fa-file-invoice-dollar',
             ],
             OrgPaymentServiceProviderTabsEnum::HISTORY     => [
                 'title'  => __('history'),
@@ -52,8 +45,8 @@ enum OrgPaymentServiceProviderTabsEnum: string
                 'align'  => 'right',
             ],
             OrgPaymentServiceProviderTabsEnum::SHOWCASE => [
-                'title' => __('payment service provider'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

@@ -25,20 +25,20 @@ class ShowDispatchHub extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo("dispatching.{$this->organisation->id}.view");
+        return $request->user()->authTo("dispatching.{$this->warehouse->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse): Warehouse
     {
         $this->initialisationFromWarehouse($warehouse, []);
+
         return $this->handle($warehouse);
     }
 
 
-
-
     public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
     {
+        $stats = $this->shopOrganisationStats($warehouse, $request);
 
 
 
@@ -50,42 +50,48 @@ class ShowDispatchHub extends OrgAction
                 ),
                 'title'       => 'dispatch',
                 'pageHead'    => [
-                    'icon'      => [
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-conveyor-belt-alt'],
                         'title' => __('locations')
                     ],
-                    'model'     => __('Goods Out'),
-                    'title'     => __('Dispatching backlog'),
-                            ],
-                'box_stats' => [
-                    [
-                        'name' => __('Delivery Notes'),
-                        'value' => $warehouse->organisation->orderingStats->number_delivery_notes,
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'icon'  => [
-                            'icon'  => 'fal fa-truck',
-                            'tooltip' => __('Delivery Notes')
-                        ]
-                    ],
-                    [
-                        'name' => __('Fulfilment Returns'),
-                        'value' => $warehouse->stats->number_pallet_returns_state_picking,
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'icon'  => [
-                            'icon'  => 'fal fa-sign-out',
-                            'tooltip' => __('Fulfilment Returns')
-                        ]
-                    ],
+                    'title' => __('Dispatching backlog'),
                 ],
+                'box_stats'   => $stats
 
             ]
         );
+    }
+
+
+
+    public function shopOrganisationStats(Warehouse $warehouse, ActionRequest $request): array
+    {
+        return [
+            [
+                'name'  => __('Delivery Notes'),
+                'value' => $warehouse->organisation->orderingStats->number_delivery_notes,
+                'route' => [
+                    'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+                'icon'  => [
+                    'icon'    => 'fal fa-truck',
+                    'tooltip' => __('Delivery Notes')
+                ]
+            ],
+            [
+                'name'  => __('Fulfilment Returns'),
+                'value' => $warehouse->stats->number_pallet_returns_state_picking,
+                'route' => [
+                    'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+                'icon'  => [
+                    'icon'    => 'fal fa-sign-out',
+                    'tooltip' => __('Fulfilment Returns')
+                ]
+            ],
+        ];
     }
 
     public function getBreadcrumbs(array $routeParameters): array

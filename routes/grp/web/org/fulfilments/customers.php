@@ -42,7 +42,6 @@ use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
-use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
@@ -134,7 +133,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {
         Route::get('', [IndexRecurringBills::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{recurringBill}', [ShowRecurringBill::class, 'inFulfilmentCustomer'])->name('show');
-        Route::get('{recurringBill}/edit', [EditRecurringBill::class, 'inFulfilmentCustomer'])->name('edit');
     });
 
     Route::prefix('spaces')->as('.spaces.')->group(function () {
