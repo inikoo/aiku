@@ -17,7 +17,7 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
@@ -41,7 +41,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowPalletReturn extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
     private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 

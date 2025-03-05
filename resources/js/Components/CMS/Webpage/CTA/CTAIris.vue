@@ -25,7 +25,7 @@ const props = defineProps<{
 <template>
 	<div class="relative" :style="getStyles(fieldValue.container.properties)">
 		<div
-			class="relative h-80 overflow-hidden bg-indigo-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
+			class="relative h-80 overflow-hidden  md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
 			<button
 				style="position: absolute; top: 10px; left: 10px; z-index: 10">
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
@@ -52,12 +52,12 @@ const props = defineProps<{
 				class="block h-full w-full">
 				<Image
 					:src="fieldValue?.image?.source"
-					:alt="fieldValue?.image?.alt"
+					:alt="fieldValue?.image?.alt || 'image'"
 					class="h-full w-full object-cover" />
 			</a>
 		</div>
 
-		<div class=" max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
+		<div class=" py-24 sm:py-32 lg:px-8 lg:py-40">
 			<div class="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
 				<div v-html="fieldValue.text" />	
 				<a

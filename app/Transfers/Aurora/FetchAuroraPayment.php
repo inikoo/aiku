@@ -20,12 +20,17 @@ class FetchAuroraPayment extends FetchAurora
     {
         $data = [];
 
+        $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
+
+
+
+
         if ($this->auroraModelData->{'Payment Currency Exchange Rate'} and
             $this->auroraModelData->{'Payment Currency Exchange Rate'} != 1) {
             $data['exchange'] = $this->auroraModelData->{'Payment Currency Exchange Rate'};
         }
 
-        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
 
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
 
@@ -34,7 +39,6 @@ class FetchAuroraPayment extends FetchAurora
             dd('Error Payment Account not found');
         }
 
-        $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
 
         $state  = Str::lower($this->auroraModelData->{'Payment Transaction Status'});
@@ -88,8 +92,16 @@ class FetchAuroraPayment extends FetchAurora
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
+            'shop_id'         => $shop->id,
 
         ];
+
+
+        if ($this->parsedData['customer']) {
+            $this->parsedData['payment']['customer_id'] = $this->parsedData['customer']->id;
+        }
+
+
     }
 
     protected function fetchData($id): object|null

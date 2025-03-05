@@ -15,24 +15,30 @@ use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\Procurement\OrgSupplier\Search\ReindexOrgSupplierSearch;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\Search\ReindexPurchaseOrderSearch;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSettled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
-use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
+use App\Actions\Procurement\PurchaseOrderTransaction\UpdatePurchaseOrderTransaction;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToSettledStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
+use App\Actions\Procurement\StockDeliveryItem\UpdateStockDeliveryItem;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\Search\ReindexSupplierProductsSearch;
@@ -213,9 +219,13 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
     $orgSupplierProduct2 = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
     $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct2->supplierProduct->historicSupplierProduct, $this->orgStocks[2], PurchaseOrderTransaction::factory()->definition());
 
-
+    $purchaseOrderTransaction3 = UpdatePurchaseOrderTransaction::make()->action($purchaseOrderTransaction3, [
+        'quantity_ordered' => 65
+    ]);
+    $purchaseOrderTransaction3->refresh();
     expect($purchaseOrderTransaction2)->toBeInstanceOf(PurchaseOrderTransaction::class)
         ->and($purchaseOrderTransaction3)->toBeInstanceOf(PurchaseOrderTransaction::class)
+        ->and(intval($purchaseOrderTransaction3->quantity_ordered))->toBe(65)
         ->and($purchaseOrder->purchaseOrderTransactions()->count())->toBe(3);
 
     return $purchaseOrder;
@@ -301,15 +311,30 @@ test('change state to submitted purchase order', function ($purchaseOrder) {
     return $purchaseOrder;
 })->depends('add item to purchase order');
 
+test('change state to creating purchase order', function ($purchaseOrder) {
+    $purchaseOrder->refresh();
+
+    $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
+
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::IN_PROCESS);
+
+    return $purchaseOrder;
+})->depends('add item to purchase order');
+
+
 test('change purchase order state to confirmed', function ($purchaseOrder) {
-    try {
-        $purchaseOrder = UpdateStateToConfirmedPurchaseOrder::make()->action($purchaseOrder);
-    } catch (ValidationException) {
-    }
+    $purchaseOrder->refresh();
+
+    $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
+
+    $purchaseOrder->refresh();
+
+    $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder);
+
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
 
     return $purchaseOrder;
-})->depends('change state to submitted purchase order');
+})->depends('add item to purchase order');
 
 test('change purchase order state to settled', function ($purchaseOrder) {
     try {
@@ -321,7 +346,7 @@ test('change purchase order state to settled', function ($purchaseOrder) {
     return $purchaseOrder;
 })->depends('change purchase order state to confirmed');
 
-test('change purchase order state to not received ', function ($purchaseOrder) {
+test('change purchase order state to not received', function ($purchaseOrder) {
     try {
         $purchaseOrder = UpdatePurchaseOrderStateToNotReceived::make()->action($purchaseOrder);
     } catch (ValidationException) {
@@ -330,6 +355,16 @@ test('change purchase order state to not received ', function ($purchaseOrder) {
 
     return $purchaseOrder;
 })->depends('change purchase order state to settled');
+
+test('change purchase order state to cancelled', function ($purchaseOrder) {
+    $purchaseOrder->refresh();
+
+    $purchaseOrder = UpdatePurchaseOrderStateToCancelled::make()->action($purchaseOrder);
+
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CANCELLED);
+
+    return $purchaseOrder;
+})->depends('change purchase order state to not received');
 
 
 
@@ -354,6 +389,17 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
     return $stockDelivery;
 })->depends('attach supplier to organisation');
 
+test('update supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStockDelivery::make()->action($stockDelivery, [
+        'reference' => 'AGAGA'
+    ]);
+    $stockDelivery->refresh();
+    expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
+        ->and($stockDelivery->reference)->toBe('AGAGA');
+
+    return $stockDelivery;
+})->depends('create supplier delivery');
+
 
 test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     $supplier        = StoreSupplier::make()->action(
@@ -373,12 +419,47 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
     $orgStock = $this->orgStocks[0];
     // dd($orgStock);
-    $supplier = StoreStockDeliveryItem::make()->action($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $orgStock, StockDeliveryItem::factory()->definition());
+    $stockDeliveryItem = StoreStockDeliveryItem::make()->action($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $orgStock, StockDeliveryItem::factory()->definition());
 
-    expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
+    expect($stockDeliveryItem->stock_delivery_id)->toBe($stockDelivery->id);
     $stockDelivery->refresh();
     return $stockDelivery;
 })->depends('create supplier delivery');
+
+test('update supplier delivery items', function (StockDelivery $stockDelivery) {
+    $stockDeliveryItem = $stockDelivery->items()->first();
+    $stockDeliveryItem = UpdateStockDeliveryItem::make()->action($stockDeliveryItem, [
+        'unit_quantity' => 100
+    ]);
+
+    expect(intval($stockDeliveryItem->unit_quantity))->toBe(100);
+    $stockDeliveryItem->refresh();
+    return $stockDeliveryItem;
+})->depends('create supplier delivery');
+
+test('update org supplier product', function () {
+    $supplier        = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $supplierProductData = [
+        'code'    => 'ABC',
+        'name'    => 'ABC Asset',
+        'cost'    => 200,
+        'stock_id' => $this->stocks[0]->id,
+        'units_per_pack' => 10,
+        'units_per_carton' => 100
+    ];
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
+
+    $orgSupplierProduct = UpdateOrgSupplierProduct::make()->action($orgSupplierProduct, [
+        'is_available' => false
+    ]);
+
+    expect($orgSupplierProduct->is_available)->toBe(false);
+});
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
     $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderTransaction::run($stockDelivery, $items->pluck('id')->toArray());

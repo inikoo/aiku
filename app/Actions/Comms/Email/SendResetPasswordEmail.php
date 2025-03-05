@@ -44,12 +44,10 @@ class SendResetPasswordEmail extends OrgAction
 
         $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
 
-
-
         return $this->sendEmailWithMergeTags(
             $dispatchedEmail,
             $outbox->emailOngoingRun->sender(),
-            $outbox->name,
+            $outbox->emailOngoingRun?->email?->subject,
             $emailHtmlBody,
             '',
             passwordToken: $modelData['url']

@@ -1,18 +1,22 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap'); */
 /* @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap');
+@import url('https://fonts.bunny.net/css?family=fira-sans:200,400,500,700,900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,400;0,500;0,700;0,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@1,200;1,400;1,500;1,700;1,900&display=swap');
 
 
-/* Raleway */
-@font-face {
+/* Fira */
+/* @font-face {
     font-family: 'Fira';
     src: url(../art/branding/fonts/Fira.ttf);
     font-display: swap;
-}
+} */
 
 
 /* Raleway */
-@font-face {
+/* @font-face {
     font-family: 'Raleway';
     src: url('@fonts/Raleway/Raleway-100.ttf');
     font-display: swap;
@@ -64,7 +68,7 @@
     font-weight: 900;
     src: url('@fonts/Raleway/Raleway-900.ttf');
     font-display: swap;
-}
+} */
 
 
 /* Roman Melikhov */

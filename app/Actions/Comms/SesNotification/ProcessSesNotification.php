@@ -8,8 +8,10 @@
 
 namespace App\Actions\Comms\SesNotification;
 
+use App\Actions\Comms\DispatchedEmail\Hydrators\DispatchedEmailHydrateEmailTracking;
 use App\Actions\Comms\EmailTrackingEvent\PostProcessingEmailTrackingEvent;
 use App\Actions\Comms\EmailTrackingEvent\StoreEmailTrackingEvent;
+use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmails;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Utils\IsGoogleIp;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
@@ -141,6 +143,8 @@ class ProcessSesNotification
         $sesNotification->delete();
 
         PostProcessingEmailTrackingEvent::dispatch($emailProcessingTrackingEvent);
+        DispatchedEmailHydrateEmailTracking::dispatch($dispatchedEmail);
+        OutboxHydrateEmails::dispatch($dispatchedEmail->outbox);
 
         return null;
     }

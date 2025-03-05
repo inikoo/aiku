@@ -12,7 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStoredItemAudit extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
     private Fulfilment|Location|FulfilmentCustomer $parent;

@@ -8,9 +8,8 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentWarehouseAuthorisation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
@@ -30,11 +29,14 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemsInWarehouse extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
-    use WithFulfilmentCustomerSubNavigation;
+    use WithFulfilmentWarehouseAuthorisation;
 
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
 
-    private Warehouse $parent;
+        return $this->handle($warehouse);
+    }
 
     public function handle(Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
@@ -61,9 +63,9 @@ class IndexStoredItemsInWarehouse extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Warehouse $warehouse, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($warehouse, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -73,66 +75,46 @@ class IndexStoredItemsInWarehouse extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'FulfilmentCustomer' => [
-                            'title'       => __("No stored items found"),
-                            'count'       => $parent->count(),
-                            'description' => __("No items stored in this customer")
-                        ],
-                        default => []
-                    }
-                )
+                ->withEmptyState([])
                 ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'actions', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
-                // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
-
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
         return StoredItemResource::collection($storedItems);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
+        $warehouse     = $request->route()->parameters()['warehouse'];
         $subNavigation = [];
 
         $icon       = ['fal', 'fa-narwhal'];
-        $title      = __("customer's sKUs");
+        $title      = __("Customer's SKUs");
         $afterTitle = null;
         $iconRight  = null;
-
 
 
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
             [
-                'breadcrumbs'                                              => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'                                                    => __("customer's sKUs"),
-                'pageHead'                                                 => [
+                'breadcrumbs'                                       => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'                                             => __("Customer's SKUs"),
+                'pageHead'                                          => [
                     'title'         => $title,
                     'model'         => __('Inventory'),
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        'buttons' => [
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __("Customer's SKUs")
-                        ]
-                    ],
+                    'actions'       => [],
                 ],
-                'tabs'                                                     => [
+                'tabs'                                              => [
                     'current'    => $this->tab,
                     'navigation' => StoredItemsInWarehouseTabsEnum::navigation(),
                 ],
@@ -141,26 +123,17 @@ class IndexStoredItemsInWarehouse extends OrgAction
                     : Inertia::lazy(fn () => StoredItemResource::collection($storedItems)),
 
                 StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value => $this->tab == StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value ?
-                    fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
-                    : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
+                    fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($warehouse))
+                    : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($warehouse))),
 
             ]
-        )->table($this->tableStructure($storedItems, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
+        )->table($this->tableStructure($warehouse, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
             ->table(
                 IndexPalletStoredItems::make()->tableStructure(
-                    $this->parent,
+                    $warehouse,
                     prefix: StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value
                 )
             );
-    }
-
-
-    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
-
-        return $this->handle($warehouse);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

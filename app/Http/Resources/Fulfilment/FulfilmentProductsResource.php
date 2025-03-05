@@ -27,10 +27,11 @@ class FulfilmentProductsResource extends JsonResource
     {
         /** @var Asset $product */
         $product = $this;
-
         return [
             'slug'               => $this->slug,
             'code'               => $this->code,
+            'price'              => $product->price,
+            'currency_code'      => $product->currency_code,
             'name'               => $this->name,
             'state'              => $this->state,
             'state_label'        => $product->state->labels()[$product->state->value],

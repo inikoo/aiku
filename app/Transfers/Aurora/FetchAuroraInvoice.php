@@ -25,15 +25,16 @@ class FetchAuroraInvoice extends FetchAurora
 
         if ($shop->type != ShopTypeEnum::FULFILMENT) {
             if (!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'} == 0) {
+                print ">>>No Invoice Order Key and no total \n";
                 // just ignore it
                 return;
             }
 
-            if (!$this->auroraModelData->{'Invoice Order Key'}) {
-                // just ignore as well
-                return;
-            }
-
+            //            if (!$this->auroraModelData->{'Invoice Order Key'}) {
+            //                print "No Invoice Order Key\n";
+            //                // just ignore as well
+            //                return;
+            //            }
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         } else {
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
@@ -45,6 +46,11 @@ class FetchAuroraInvoice extends FetchAurora
         $data['foot_note'] = $this->auroraModelData->{'Invoice Message'};
 
         $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
+
+        if (is_null($billingAddressData['country_id'])) {
+            $billingAddressData['country_id'] = $shop->country_id;
+        }
+
 
         $date = $this->parseDatetime($this->auroraModelData->{'Invoice Date'});
         $date = new Carbon($date);
@@ -143,6 +149,12 @@ class FetchAuroraInvoice extends FetchAurora
 
         ];
 
+        if ($this->auroraModelData->{'Invoice Category Key'}) {
+            $invoiceCategory = $this->parseInvoiceCategory($this->organisation->id.':'.$this->auroraModelData->{'Invoice Category Key'});
+            if ($invoiceCategory) {
+                $this->parsedData['invoice']['invoice_category_id'] = $invoiceCategory->id;
+            }
+        }
 
         if ($salesChannel) {
             $this->parsedData['invoice']['sales_channel_id'] = $salesChannel->id;

@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -30,7 +30,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemPallets extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private bool $selectStoredPallets = false;
 

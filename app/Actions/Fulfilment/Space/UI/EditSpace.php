@@ -2,16 +2,14 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\Space\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
-use App\Enums\Billables\Rental\RentalTypeEnum;
-use App\Models\Billables\Rental;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Space;
@@ -19,11 +17,10 @@ use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class EditSpace extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopEditAuthorisation;
 
     public function handle(Space $space, ActionRequest $request): Response
     {

@@ -22,6 +22,8 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { notify } from '@kyvg/vue3-notification'
 import Multiselect from '@vueform/multiselect'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import { inject } from 'vue'
 library.add(faConciergeBell, faGarage, faExclamationTriangle, faPencil)
 
 
@@ -170,12 +172,20 @@ onUnmounted(() => {
     document.removeEventListener('keydown', () => false)
 })
 
+const locale = inject('locale', aikuLocaleStructure)
+
+
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(state)="{ item: product }">
             <Icon :data="product.state"> </Icon>
+        </template>
+
+        <template #cell(price)="{ item: product }">
+            {{ locale.currencyFormat(product.currency_code, product.price)  }}
         </template>
 
         <template #cell(code)="{ item: product }">

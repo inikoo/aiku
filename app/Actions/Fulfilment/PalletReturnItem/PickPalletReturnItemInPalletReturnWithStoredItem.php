@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAl
 use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemStateToReturned;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPicking;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class PickPalletReturnItemInPalletReturnWithStoredItem extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     use WithActionUpdate;
 
 

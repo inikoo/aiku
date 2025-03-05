@@ -9,7 +9,7 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentWarehouseAuthorisation;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\FulfilmentLocationsResource;
@@ -28,15 +28,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentLocations extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
-
-
-    private Warehouse $parent;
+    use WithFulfilmentWarehouseAuthorisation;
 
 
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
 
         return $this->handle(parent: $warehouse, prefix: 'locations');
@@ -88,9 +84,9 @@ class IndexFulfilmentLocations extends OrgAction
     }
 
 
-    public function tableStructure(Warehouse $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Warehouse $warehouse, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($warehouse, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -100,10 +96,10 @@ class IndexFulfilmentLocations extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
+                    match (class_basename($warehouse)) {
                         'Warehouse' => [
                             'title' => __("There is no locations assigned to fulfilment in this warehouse."),
-                            'count' => $parent->stats->number_locations_allow_fulfilment,
+                            'count' => $warehouse->stats->number_locations_allow_fulfilment,
                         ],
                         default => null
                     }
@@ -123,6 +119,8 @@ class IndexFulfilmentLocations extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request): Response
     {
+        $warehouse = $request->route()->parameters()['warehouse'];
+
         return Inertia::render(
             'Org/Warehouse/Fulfilment/Locations',
             [
@@ -141,12 +139,12 @@ class IndexFulfilmentLocations extends OrgAction
                 'data' => FulfilmentLocationsResource::collection($locations),
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: 'locations'));
+        )->table($this->tableStructure(warehouse: $warehouse, prefix: 'locations'));
     }
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return  array_merge(
+        return array_merge(
             ShowWarehouseFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [

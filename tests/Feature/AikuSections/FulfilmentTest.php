@@ -9,6 +9,11 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\PayInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\CompleteStandaloneFulfilmentInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoice\StoreStandaloneFulfilmentInvoice;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\DeleteStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\StoreStandaloneFulfilmentInvoiceTransaction;
+use App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction\UpdateStandaloneFulfilmentInvoiceTransaction;
 use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
@@ -70,6 +75,7 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAuditFromPallet;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAuditDelta\DeleteStoredItemAuditDelta;
 use App\Actions\Fulfilment\StoredItemAuditDelta\StoreStoredItemAuditDelta;
@@ -101,6 +107,7 @@ use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\Fulfilment\StoredItemAuditDelta\StoredItemAuditDeltaStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Accounting\Payment;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -1396,8 +1403,8 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
 
-    expect($recurringBill->stats->number_transactions)->toBe(5)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(3)
+    expect($recurringBill->stats->number_transactions)->toBe(9)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(7)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
 
@@ -1435,8 +1442,8 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(2)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
+    expect($recurringBill->stats->number_transactions)->toBe(3)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
     $firstPallet = $palletDelivery->pallets->first();
@@ -2761,7 +2768,7 @@ test('set sixth pallet delivery as booked in', function (PalletDelivery $palletD
 test('check current recurring bill', function ($fulfilmentCustomer) {
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
     expect($recurringBill)->toBeInstanceOf(RecurringBill::class)
-        ->and($recurringBill->transactions()->count())->toBe(3);
+        ->and($recurringBill->transactions()->count())->toBe(5);
 
     return $fulfilmentCustomer;
 })->depends('set sixth pallet delivery as booked in');
@@ -2832,7 +2839,7 @@ test('pay invoice (full)', function ($fulfilmentCustomer) {
     $paymentAccountShop     = $invoice->shop->paymentAccountShops()->first();
     $paymentAccount = $paymentAccountShop->paymentAccount;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
-        'amount' => 312,
+        'amount' => $invoice->total_amount,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
     ]);
@@ -3139,6 +3146,14 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
 
     $palletStoredItem = $palletStoredItems->first();
 
+    $storedItem = StoreStoredItem::make()->action(
+        $fulfilmentCustomer,
+        [
+        'reference' => 'refff',
+        'name'      => 'jeff'
+    ]
+    );
+
     $storedItemAuditDelta = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
         'pallet_id' => $palletStoredItem->pallet_id,
         'stored_item_id' => $palletStoredItem->stored_item_id,
@@ -3146,22 +3161,116 @@ test('complete stored item audit', function (StoredItemAudit $storedItemAudit) {
         'user_id'       => $this->user->id
     ]);
 
+    $storedItemAuditDelta2 = StoreStoredItemAuditDelta::make()->action($storedItemAudit, [
+        'pallet_id' => $palletStoredItem->pallet_id,
+        'stored_item_id' => $storedItem->id,
+        'audited_quantity'  => 10,
+        'user_id'       => $this->user->id
+    ]);
+
     $storedItemAudit->refresh();
 
     expect($storedItemAuditDelta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($storedItemAuditDelta->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
+    expect($storedItemAuditDelta2)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($storedItemAuditDelta2->state)->toBe(StoredItemAuditDeltaStateEnum::IN_PROCESS);
 
     $storedItemAudit = CompleteStoredItemAudit::make()->action($storedItemAudit, []);
 
     $storedItemAudit->refresh();
 
     $delta = $storedItemAudit->deltas()->first();
+    $delta2 = $storedItemAudit->deltas()->skip(1)->first();
 
     expect($storedItemAudit)->toBeInstanceOf(StoredItemAudit::class)
         ->and($storedItemAudit->state)->toBe(StoredItemAuditStateEnum::COMPLETED);
 
     expect($delta)->toBeInstanceOf(StoredItemAuditDelta::class)
         ->and($delta->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
+    expect($delta2)->toBeInstanceOf(StoredItemAuditDelta::class)
+        ->and($delta2->state)->toBe(StoredItemAuditDeltaStateEnum::COMPLETED);
 
     return $storedItemAudit;
 })->depends('delete stored item audit delta');
+
+test('store standalone invoice', function () {
+    $fulfilmentCustomer = FulfilmentCustomer::first();
+
+    $invoice = StoreStandaloneFulfilmentInvoice::make()->action($fulfilmentCustomer, []);
+
+    expect($invoice)->toBeInstanceOf(Invoice::class);
+
+    return $invoice;
+});
+
+test('store standalone invoice transaction', function (Invoice $invoice) {
+    /** @var Service $service */
+    $service = Service::first();
+    $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
+        'quantity' => 10
+    ]);
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(true);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(10);
+
+    return $invoiceTransaction;
+})->depends('store standalone invoice');
+
+test('update standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
+    $invoiceTransaction = UpdateStandaloneFulfilmentInvoiceTransaction::make()->action($invoiceTransaction, [
+        'quantity' => 100
+    ]);
+    $invoiceTransaction->refresh();
+
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(100);
+
+    return $invoiceTransaction;
+})->depends('store standalone invoice transaction');
+
+test('delete standalone invoice transaction', function (InvoiceTransaction $invoiceTransaction) {
+    $invoice = $invoiceTransaction->invoice;
+    expect($invoice->invoiceTransactions()->count())->toBe(1);
+
+    DeleteStandaloneFulfilmentInvoiceTransaction::make()->action($invoiceTransaction);
+    $invoice->refresh();
+
+    expect($invoice->invoiceTransactions()->count())->toBe(0);
+
+    return $invoice;
+})->depends('update standalone invoice transaction');
+
+test('complete standalone invoice', function (Invoice $invoice) {
+    $service = Service::first();
+    $invoiceTransaction = StoreStandaloneFulfilmentInvoiceTransaction::make()->action($invoice, $service->historicAsset, [
+        'quantity' => 1000
+    ]);
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(true);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and($invoiceTransaction->in_process)->toBe(true)
+        ->and(intval($invoiceTransaction->quantity))->toBe(1000);
+
+    $invoice = CompleteStandaloneFulfilmentInvoice::make()->action($invoice);
+
+    $invoice->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->in_process)->toBe(false);
+
+    return $invoice;
+})->depends('delete standalone invoice transaction');
+
+test('store audit for pallet', function () {
+    $fulfilmentCustomer = FulfilmentCustomer::skip(1)->first();
+    $pallet = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id', $fulfilmentCustomer->id)->first();
+    $palletAudit = StoreStoredItemAuditFromPallet::make()->action($pallet, []);
+
+    expect($palletAudit)->toBeInstanceOf(StoredItemAudit::class)
+        ->and($palletAudit->fulfilment_customer_id)->toBe($fulfilmentCustomer->id)
+        ->and($palletAudit->state)->toBe(StoredItemAuditStateEnum::IN_PROCESS);
+});

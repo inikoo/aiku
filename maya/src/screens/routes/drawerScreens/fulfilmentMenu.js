@@ -14,7 +14,7 @@ import {
     faInventory,
     faArrowToBottom,
     faArrowFromLeft,
-    faBarcodeScan,
+    faBarcodeRead,
 } from '@/private/fa/pro-regular-svg-icons';
 
 const fulfilmentMenu = (fulfilment,warehouse) => {
@@ -34,7 +34,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                         className="mx-3"
                         onPress={() => navigation.navigate('scanner')}
                     >
-                        <FontAwesomeIcon icon={faBarcodeScan} size={22} />
+                        <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
                 ),
             },
@@ -57,7 +57,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                         className="mx-3"
                         onPress={() => navigation.navigate('scanner')}
                     >
-                        <FontAwesomeIcon icon={faBarcodeScan} size={22} />
+                        <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
                 ),
             },
@@ -80,7 +80,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                         className="mx-3"
                         onPress={() => navigation.navigate('scanner')}
                     >
-                        <FontAwesomeIcon icon={faBarcodeScan} size={22} />
+                        <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
                 ),
             },
@@ -103,7 +103,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                         className="mx-3"
                         onPress={() => navigation.navigate('scanner')}
                     >
-                        <FontAwesomeIcon icon={faBarcodeScan} size={22} />
+                        <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
                 ),
             },
@@ -126,7 +126,7 @@ const fulfilmentMenu = (fulfilment,warehouse) => {
                         className="mx-3"
                         onPress={() => navigation.navigate('scanner')}
                     >
-                        <FontAwesomeIcon icon={faBarcodeScan} size={22} />
+                        <FontAwesomeIcon icon={faBarcodeRead} size={22} />
                     </TouchableOpacity>
                 ),
             },

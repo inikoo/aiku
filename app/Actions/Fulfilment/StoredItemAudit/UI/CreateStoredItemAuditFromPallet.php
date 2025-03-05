@@ -11,7 +11,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAuditFromPallet;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateStoredItemAuditFromPallet extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     private Fulfilment $parent;
     private Pallet $pallet;

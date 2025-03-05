@@ -28,7 +28,21 @@ class FetchAuroraShop extends FetchAurora
         }
 
         if (strtolower($this->auroraModelData->{'Store Type'}) == 'fulfilment') {
-            return null;
+            $this->parsedData['shop'] = [
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
+
+            ];
+
+            $auroraSettings = json_decode($this->auroraModelData->{'Store Settings'}, true);
+
+
+            $this->parsedData['tax_number'] = $this->parseTaxNumber(
+                number: $this->auroraModelData->{'Store VAT Number'},
+                countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
+            );
+            return $this->parsedData;
         }
 
         $code     = strtoupper($this->auroraModelData->{'Store Code'});
@@ -137,9 +151,12 @@ class FetchAuroraShop extends FetchAurora
             'settings'        => $settings,
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
-            'invoice_footer'  => $this->auroraModelData->{'Store Invoice Message'},
 
         ];
+
+        if ($this->auroraModelData->{'Store Invoice Message'}) {
+            $this->parsedData['shop']['invoice_footer'] = $this->auroraModelData->{'Store Invoice Message'};
+        }
 
 
         if ($type == ShopTypeEnum::FULFILMENT) {

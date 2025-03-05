@@ -21,7 +21,7 @@ import {
   InputIcon,
 } from '@/src/components/ui/input';
 /* import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faBarcodeScan} from '@/private/fa/pro-regular-svg-icons';
+import {faBarcodeRead} from '@/private/fa/pro-regular-svg-icons';
 import {faTimes} from '@/private/fa/pro-light-svg-icons'; */
 
 const BaseList = forwardRef((props, ref) => {

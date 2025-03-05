@@ -9,7 +9,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -25,7 +25,7 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItemMovements extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
     private Warehouse|Fulfilment|Customer $parent;
     /**
      * @var true

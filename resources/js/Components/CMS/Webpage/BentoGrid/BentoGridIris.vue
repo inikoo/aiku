@@ -28,25 +28,7 @@ const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
 
-const activeTextIndex = ref(-1)
-const activeImageIndex = ref(-1)
-const activeImageIndexModal = ref(null)
-const isModalGallery = ref(false)
 
-function onSave() {
-	emits("autoSave")
-}
-
-const onChangeImage = (image) => {
-	const data = { ...props.fieldValue }
-	console.log(data, "hehheeh")
-
-	/* data.image[activeImageIndexModal.value.source = { ...image[0].source }
-	isModalGallery.value = false
-	activeImageIndexModal.value = -1
-	props.modelValue = data */
-	onSave()
-}
 </script>
 
 <template>
@@ -66,7 +48,8 @@ const onChangeImage = (image) => {
 							<!-- Images Structure (renders only if images are present) -->
 							<div class="absolute">
 								<Image
-									:src="fieldValue.column1.source"
+									:src="fieldValue?.column1?.source"
+									:alt="fieldValue?.column1?.alt || 'Image aiku'"
 									class="w-full h-full object-cover rounded-lg" />
 							</div>
 						</div>
@@ -92,7 +75,8 @@ const onChangeImage = (image) => {
 							class="flex flex-1 items-center justify-center px-8 max-lg:pb-12 max-lg:pt-10 sm:px-10 lg:pb-2">
 							<div class="relative w-full max-lg:max-w-xs">
 								<Image
-									:src="fieldValue.column2.source"
+									:src="fieldValue?.column2?.source"
+									:alt="fieldValue?.column2?.alt || 'Image aiku'"
 									class="w-full object-cover rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -116,7 +100,8 @@ const onChangeImage = (image) => {
 							class="flex flex-1 items-center justify-center px-8 max-lg:py-6 lg:pb-2">
 							<div class="relative w-full max-lg:max-w-xs">
 								<Image
-									:src="fieldValue.column3.source"
+									:src="fieldValue?.column3?.source"
+									:alt="fieldValue?.column3?.alt || 'Image aiku'"
 									class="h-[min(152px,40cqw)] object-cover object-center rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -141,7 +126,8 @@ const onChangeImage = (image) => {
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<div class="absolute">
 								<Image
-									:src="fieldValue.column4.source"
+									:src="fieldValue?.column4?.source"
+									:alt="fieldValue?.column4?.alt || 'Image aiku'"
 									class="size-full object-cover object-top" />
 							</div>
 						</div>

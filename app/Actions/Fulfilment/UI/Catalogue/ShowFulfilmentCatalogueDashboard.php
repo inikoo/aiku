@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\UI\Catalogue;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentAuthorisation;
+use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -31,7 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ShowFulfilmentCatalogueDashboard extends OrgAction
 {
-    use WithFulfilmentAuthorisation;
+    use WithFulfilmentShopAuthorisation;
 
     protected function getElementGroups(Fulfilment $fulfilment): array
     {
@@ -79,6 +79,7 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
         $queryBuilder = QueryBuilder::for(Asset::class);
         $queryBuilder->where('assets.shop_id', $fulfilment->shop_id);
 
+        $queryBuilder->leftJoin('currencies', 'assets.currency_id', 'currencies.id');
         foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -91,10 +92,12 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
         $queryBuilder
             ->defaultSort('assets.code')
             ->select([
+                'currencies.code as currency_code',
                 'assets.code',
                 'assets.name',
                 'assets.state',
                 'assets.type',
+                'assets.price',
                 'assets.created_at',
                 'assets.updated_at',
                 'assets.slug'
@@ -102,7 +105,7 @@ class ShowFulfilmentCatalogueDashboard extends OrgAction
             ->leftJoin('asset_stats', 'assets.id', 'asset_stats.asset_id');
 
 
-        return $queryBuilder->allowedSorts(['code', 'name'])
+        return $queryBuilder->allowedSorts(['code', 'name', 'price'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

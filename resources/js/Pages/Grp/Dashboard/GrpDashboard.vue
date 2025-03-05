@@ -39,10 +39,12 @@ import Tab from "primevue/tab"
 import TabPanels from "primevue/tabpanels"
 import TabPanel from "primevue/tabpanel"
 import Dashboard from "@/Components/DataDisplay/Dashboard/Dashboard.vue"
+import { capitalize } from "@/Composables/capitalize"
 
 library.add(faTriangle, faChevronDown, faSeedling, faTimesCircle, faFolderOpen, faPlay, faCog, faChartLine)
 
 const props = defineProps<{
+	title: string
 	groupStats: {
 		currency: {
 			code: string
@@ -251,7 +253,7 @@ console.log(layout.user.id, "layoutt")
 </script>
 
 <template>
-	<Head :title="trans('Dashboard')" />
+	<Head :title="capitalize(title)" />
 
 	<div class="grid grid-cols-12 m-3 gap-4">
 		<div class="col-span-12">

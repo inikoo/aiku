@@ -25,6 +25,7 @@ class StoreProductCategoryWebpage extends OrgAction
 
         if ($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
             $webpageData = [
+                'title' => $productCategory->name,
                 'code'  => $productCategory->code,
                 'url'   => strtolower($productCategory->code),
                 'sub_type'   => WebpageSubTypeEnum::FAMILY,
@@ -34,6 +35,7 @@ class StoreProductCategoryWebpage extends OrgAction
             ];
         } else {
             $webpageData = [
+                'title' => $productCategory->name,
                 'code'  => $productCategory->code,
                 'url'   => strtolower($productCategory->code),
                 'sub_type'   => WebpageSubTypeEnum::DEPARTMENT,
@@ -65,6 +67,12 @@ class StoreProductCategoryWebpage extends OrgAction
     }
 
     public function asController(ProductCategory $productCategory): Webpage
+    {
+        $this->initialisationFromShop($productCategory->shop, []);
+        return $this->handle($productCategory);
+    }
+
+    public function action(ProductCategory $productCategory): Webpage
     {
         $this->initialisationFromShop($productCategory->shop, []);
         return $this->handle($productCategory);

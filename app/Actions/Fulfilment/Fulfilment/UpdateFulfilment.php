@@ -69,6 +69,7 @@ class UpdateFulfilment extends OrgAction
             'vat_number',
             'invoice_footer',
             'image',
+            'sender_email'
         ]);
 
         $modelData = Arr::except($modelData, array_keys($shopData));
@@ -167,6 +168,7 @@ class UpdateFulfilment extends OrgAction
             'registration_number'        => ['sometimes', 'string'],
             'vat_number'                 => ['sometimes', 'string'],
             'invoice_footer'             => ['sometimes', 'string'],
+            'sender_email'             => ['sometimes', 'email'],
             'image'                      => [
                 'sometimes',
                 'nullable',

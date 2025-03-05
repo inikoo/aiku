@@ -30,8 +30,8 @@ class DetachModelFromCollection extends OrgAction
 
         foreach ($modelTypes as $key => $modelClass) {
             $id = Arr::get($modelData, $key);
-
             $model = $modelClass::find($id);
+
             if ($model) {
                 $this->detachModel($collection, $model);
             }
@@ -63,12 +63,12 @@ class DetachModelFromCollection extends OrgAction
         $this->asAction       = true;
         $this->initialisationFromShop($collection->shop, $modelData);
 
-        return $this->handle($collection, $this->validatedData);
+        return $this->handle($collection, $modelData);
     }
 
-    public function asController(Collection $collection, ActionRequest $request): Collection
+    public function asController(Collection $collection, ActionRequest $request)
     {
         $this->initialisationFromShop($collection->shop, $request);
-        return $this->handle($collection, $this->validatedData);
+        $this->handle($collection, $request->all());
     }
 }

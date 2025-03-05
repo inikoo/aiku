@@ -35,7 +35,7 @@ class ShowRetinaSpace extends RetinaAction
     public function htmlResponse(Space $space, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Space/Space',
+            'Space/RetinaSpace',
             [
                 'title'       => __('Space'),
                 'breadcrumbs' => $this->getBreadcrumbs(

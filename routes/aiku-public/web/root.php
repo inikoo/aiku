@@ -10,5 +10,3 @@ use App\Actions\UI\AikuPublic\ShowHome;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowHome::class)->name('home');
-Route::get('/features', ShowHome::class)->name('features');
-Route::get('/about-us', ShowHome::class)->name('about-us');

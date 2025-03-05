@@ -16,6 +16,7 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Address;
@@ -128,6 +129,7 @@ test("UI Index dispatching show delivery-notes", function () {
                 fn (AssertableInertia $page) => $page
                 ->where("title", $this->deliveryNote->reference)
                 ->where("model", 'Delivery Note')
+                ->where('actions.0.route.name', 'grp.models.delivery-note.state.in-queue')
                 ->etc()
             )
             ->has('delivery_note')
@@ -136,9 +138,41 @@ test("UI Index dispatching show delivery-notes", function () {
             ->has("timelines")
             ->has("box_stats")
             ->has("routes")
+            ->has(DeliveryNoteTabsEnum::ITEMS->value)
             ->has("tabs");
     });
 });
+
+test("UI Index dispatching show delivery-notes (tab picking)", function () {
+    $response = get(
+        route("grp.org.warehouses.show.dispatching.delivery-notes.show", [
+            $this->organisation->slug,
+            $this->warehouse->slug,
+            $this->deliveryNote->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Dispatching/DeliveryNote")
+            ->where("title", 'delivery note')
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page
+                ->where("title", $this->deliveryNote->reference)
+                ->where("model", 'Delivery Note')
+                ->etc()
+            )
+            ->has('delivery_note')
+            ->has("alert")
+            ->has("notes")
+            ->has("timelines")
+            ->has("box_stats")
+            ->has("routes")
+            ->has(DeliveryNoteTabsEnum::PICKINGS->value)
+            ->has("tabs");
+    });
+})->todo();
 
 test('UI get section route dispatching show', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.show.dispatching.delivery-notes.show', [

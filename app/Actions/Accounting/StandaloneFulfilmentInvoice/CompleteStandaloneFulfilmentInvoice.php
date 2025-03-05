@@ -88,24 +88,25 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $invoice = $request->route()->parameter('invoice');
+        if (!$this->asAction) {
+            $invoice = $request->route()->parameter('invoice');
 
-        if (!$invoice->customer->fulfilmentCustomer->rentalAgreement) {
-            $validator->errors()->add('invoice', 'Invoice customer must have rental agreement');
+            if (!$invoice->customer->fulfilmentCustomer->rentalAgreement) {
+                $validator->errors()->add('invoice', 'Invoice customer must have rental agreement');
+            }
+
+            if (!in_array($invoice->customer->status, [CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])) {
+                $validator->errors()->add('invoice', 'Invoice must be from an approved customer');
+            }
+
+            if ($invoice->shop->type != ShopTypeEnum::FULFILMENT) {
+                $validator->errors()->add('invoice', 'Invoice must be from a fulfilment shop');
+            }
+
+            if ($invoice->invoiceTransactions->count() == 0) {
+                $validator->errors()->add('invoice', 'Invoice must have at least one transaction');
+            }
         }
-
-        if (!in_array($invoice->customer->status, [CustomerStatusEnum::APPROVED,CustomerStatusEnum::BANNED ])) {
-            $validator->errors()->add('invoice', 'Invoice must be from an approved customer');
-        }
-
-        if ($invoice->shop->type != ShopTypeEnum::FULFILMENT) {
-            $validator->errors()->add('invoice', 'Invoice must be from a fulfilment shop');
-        }
-
-        if ($invoice->invoiceTransactions->count() == 0) {
-            $validator->errors()->add('invoice', 'Invoice must have at least one transaction');
-        }
-
     }
 
     /**
@@ -114,6 +115,17 @@ class CompleteStandaloneFulfilmentInvoice extends OrgAction
     public function asController(Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->initialisationFromShop($invoice->shop, $request);
+
+        return $this->handle($invoice);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Invoice $invoice): Invoice
+    {
+        $this->asAction = true;
+        $this->initialisationFromShop($invoice->shop, []);
 
         return $this->handle($invoice);
     }

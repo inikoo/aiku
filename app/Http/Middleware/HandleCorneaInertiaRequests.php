@@ -32,7 +32,7 @@ class HandleCorneaInertiaRequests extends Middleware
 
             $firstLoadOnlyProps          = GetCorneaFirstLoadProps::run($request, $supplierUser);
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
-                return array_merge((new Ziggy())->toArray(), [
+                return array_merge((new Ziggy('cornea'))->toArray(), [
                     'location' => $request->url(),
                 ]);
             };
