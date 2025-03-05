@@ -43,6 +43,7 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: null,
           warehouse: null,
+          isLoading:false
         });
       },
       setOrganisation: async user => {
@@ -58,6 +59,7 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: null,
           warehouse: null,
+          isLoading:false
         });
       },
       setFulfilmentWarehouse: async user => {
@@ -73,6 +75,7 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: user.fulfilment,
           warehouse: user.warehouse,
+          isLoading:false
         });
       },
       signOut: async () => {
@@ -87,6 +90,7 @@ function App(): React.JSX.Element {
       organisation: loginState.organisation,  // ✅ Ambil dari loginState
       fulfilment: loginState.fulfilment,  // ✅ Ambil dari loginState
       warehouse: loginState.warehouse,  // ✅ Ambil dari loginState
+      isLoading: loginState.isLoading,  // ✅ Ambil dari loginState
     }),
     [loginState],
   );
@@ -96,15 +100,35 @@ function App(): React.JSX.Element {
     const loadUserToken = async () => {
         try {
             const storedUser = await getData('persist:user');
-            if (!storedUser) return;
+            console.log('Stored User:', storedUser); // ✅ Check if data is null or undefined
+
+            if (!storedUser) {
+                dispatch({ type: 'LOGOUT' }); // Ensure app doesn't stay stuck
+                return;
+            }
 
             let user = storedUser;
 
             await retrieveProfile({
                 accessToken: storedUser.token,
                 onSuccess: profileRes => {
-                    let organisation = profileRes.data.organisations.find((item)=>item.code === storedUser.organisation.code)
-                    user = { ...storedUser, ...profileRes.data, organisation : organisation };
+                    console.log('Profile Response:', profileRes);
+
+                    let organisation = profileRes.data.organisations.find(
+                        item => item.code === storedUser.organisation.code
+                    );
+
+                    user = { ...storedUser, ...profileRes.data, organisation };
+                    
+                    dispatch({
+                        type: 'RETRIEVE_TOKEN',
+                        token: user.token,
+                        userData: user,
+                        organisation: user.organisation,
+                        fulfilment: user.fulfilment,
+                        warehouse: user.warehouse,
+                        isLoading: false, // ✅ Ensure this is false
+                    });
                 },
                 onFailed: err => {
                     Toast.show({
@@ -112,27 +136,28 @@ function App(): React.JSX.Element {
                         title: 'Error',
                         textBody: err?.data.message || 'Failed to update profile data',
                     });
-                    console.error('Profile Retrieval Failed:', err);
+                    dispatch({
+                      type: 'RETRIEVE_TOKEN',
+                      token: user.token,
+                      userData: user,
+                      organisation: user.organisation,
+                      fulfilment: user.fulfilment,
+                      warehouse: user.warehouse,
+                      isLoading: false, // ✅ Ensure this is false
+                  });
                 },
             });
 
-            dispatch({
-                type: 'RETRIEVE_TOKEN',
-                token: user.token,
-                userData: user,
-                organisation: user.organisation,
-                fulfilment: user.fulfilment,
-                warehouse: user.warehouse,
-            });
         } catch (error) {
             console.error('Error retrieving token:', error);
+            /* dispatch({ type: 'LOGOUT' });  */
         }
     };
 
     loadUserToken();
 }, []);
 
-  
+
 
   if (loginState.isLoading) {
     return (
