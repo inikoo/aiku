@@ -20,12 +20,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
  * @property-read User|null $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscribers newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscribers newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscribers query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscriber newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscriber newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutBoxHasSubscriber query()
  * @mixin \Eloquent
  */
-class OutBoxHasSubscribers extends Model
+class OutBoxHasSubscriber extends Model
 {
     use InOrganisation;
 

@@ -68,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Comms\OutboxStats|null $stats
- * @property-read Collection<int, \App\Models\Comms\OutBoxHasSubscribers> $subscribedUsers
+ * @property-read Collection<int, \App\Models\Comms\OutBoxHasSubscriber> $subscribedUsers
  * @property-read Collection<int, \App\Models\Comms\OutboxTimeSeries> $timeSeries
  * @property-read Website|null $website
  * @method static \Database\Factories\Comms\OutboxFactory factory($count = null, $state = [])
@@ -206,7 +206,7 @@ class Outbox extends Model
 
     public function subscribedUsers(): HasMany
     {
-        return $this->hasMany(OutBoxHasSubscribers::class);
+        return $this->hasMany(OutBoxHasSubscriber::class);
     }
 
 }

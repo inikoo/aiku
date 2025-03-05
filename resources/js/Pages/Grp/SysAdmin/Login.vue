@@ -27,10 +27,10 @@ const submit = () => {
             isLoading.value = false
         ),
         onFinish: () => {
-            console.log('length', useLayoutStore().organisations.data.length)
-            useLayoutStore().organisations.data.length === 1
-                ? router.get(route('grp.org.dashboard.show', useLayoutStore().organisations.data[0].slug))
-                : false
+            console.log('Org length', useLayoutStore().organisations.data.length)
+            // useLayoutStore().organisations.data.length === 1
+            //     ? router.get(route('grp.org.dashboard.show', useLayoutStore().organisations.data[0].slug))
+            //     : false
         },
         onSuccess: () => {
             form.reset('password')
