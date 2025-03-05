@@ -77,6 +77,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $number_outboxes_type_send_invoice_to_customer
+ * @property int $number_dispatched_emails_state_delay
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
  * @method static Builder<static>|PostRoomStats newModelQuery()
  * @method static Builder<static>|PostRoomStats newQuery()

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 04-03-2025-15h-15m
@@ -8,8 +9,6 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
-use App\Models\CRM\Customer;
-use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithDeliveryNotesSubNavigation

@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_dispatched_emails_state_delay
+ * @property int $number_subscribed_user
+ * @property int $number_subscribed_external_emails
  * @property-read \App\Models\Comms\Outbox|null $outbox
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OutboxStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OutboxStats newQuery()

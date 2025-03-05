@@ -17,6 +17,7 @@ import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
+import WarehouseAreaShowcase from '@/Components/Showcases/Grp/WarehouseAreaShowcase.vue'
 library.add(
     faInventory,
     faWarehouse,
@@ -45,6 +46,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
+        showcase: WarehouseAreaShowcase,
         locations: TableLocations,
         details: ModelDetails,
         history: TableHistories,
