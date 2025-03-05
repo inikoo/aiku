@@ -247,7 +247,7 @@ const isModalOpened = ref(false)
         />
     </div> -->
 
-    <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
+    <BoxAuditStoredItems isHidePalletCount :auditData="data.data" :boxStats="fulfilment_customer" />
     
     <TableStoredItemAuditDeltas
         v-if="stored_item_deltas"

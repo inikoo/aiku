@@ -10,6 +10,7 @@ import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import Icon from '@/Components/Icon.vue'
+import { trans } from 'laravel-vue-i18n'
 
 
 library.add(faCheck, faTimes)
@@ -27,6 +28,16 @@ const locale = inject('locale', aikuLocaleStructure)
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(state)="{ item: storedItemAudit }">
             <Icon :data="storedItemAudit['state_icon']" class="px-1" />
+        </template>
+
+        <template #cell(pallet_customer_reference)="{ item: storedItemAudit }">
+            {{ storedItemAudit.pallet_customer_reference }}
+            <div v-if="storedItemAudit.pallet_customer_reference">
+                {{ storedItemAudit.pallet_customer_reference }}
+            </div>
+            <div v-else class="text-gray-400 italic text-xs">
+                {{ trans('No pallet customer\'s reference') }}
+            </div>
         </template>
 
         <template #cell(description)="{ item }">
