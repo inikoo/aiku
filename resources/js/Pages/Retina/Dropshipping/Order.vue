@@ -648,7 +648,7 @@ const openModal = (action :any) => {
 			@update:tab="handleTabUpdate"/>
     </div>
 
-	<ModalProductList v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  v-model:currentTab="currentTab" :typeModel="'order'" />
+	<ModalProductList v-if="routes?.products_list?.name" v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  v-model:currentTab="currentTab" :typeModel="'order'" />
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
