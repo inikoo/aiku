@@ -144,7 +144,10 @@ const props = defineProps<{
     routes?: {
         updateOrderRoute: routeType
         products_list: routeType
-        delivery_note: routeType
+        delivery_note: {
+            deliveryNoteRoute: routeType
+            deliveryNotePdfRoute: routeType
+        }
     }
     // nonProductItems: {}
     transactions: {}
@@ -596,7 +599,7 @@ const openModal = (action :any) => {
 
             <div v-if="delivery_note" class="mt-1 flex items-center w-full flex-none justify-between">
                 <Link
-                    :href="route(routes.delivery_note.deliveryNoteRoute.name, routes.delivery_note.deliveryNoteRoute.parameters)"
+                    :href="routes?.delivery_note?.deliveryNoteRoute?.name ? route(routes.delivery_note.deliveryNoteRoute.name, routes.delivery_note.deliveryNoteRoute.parameters) : '#'"
                     class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-truck' fixed-width aria-hidden='true' class="text-gray-500" />
@@ -605,7 +608,7 @@ const openModal = (action :any) => {
                     {{ delivery_note?.reference }}
                 </dd>
                 </Link>
-                <a :href="route(routes.delivery_note.deliveryNotePdfRoute.name, routes.delivery_note.deliveryNotePdfRoute.parameters)"
+                <a v-if="routes?.delivery_note?.deliveryNotePdfRoute?.name" :href="routes?.delivery_note?.deliveryNotePdfRoute?.name ? route(routes.delivery_note.deliveryNotePdfRoute.name, routes.delivery_note.deliveryNotePdfRoute.parameters) : '#'"
                     as="a" target="_blank" class="flex items-center">
                     <button class="flex items-center">
                         <div class="flex-none">
