@@ -11,6 +11,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
@@ -49,12 +50,12 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
         $palletDelivery = SetPalletDeliveryDate::run($palletDelivery);
+        PalletDeliveryHydratePallets::dispatch($palletDelivery);
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
         WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
         FulfilmentCustomerHydratePalletDeliveries::dispatch($palletDelivery->fulfilmentCustomer);
         FulfilmentHydratePalletDeliveries::dispatch($palletDelivery->fulfilment);
-
         SendPalletDeliveryNotification::dispatch($palletDelivery);
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
 
