@@ -229,7 +229,7 @@ class IndexTimesheets extends OrgAction
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                     'actions' => [
-                        [
+                        class_basename($this->parent) !== class_basename(Organisation::class) ? [
                             'type'   => 'button',
                             'style'  => 'tertiary',
                             'label'  => 'PDF',
@@ -253,7 +253,7 @@ class IndexTimesheets extends OrgAction
                                     ],
                                 },
                             ]
-                        ]
+                        ] : []
                     ]
         ],
 
