@@ -16,7 +16,7 @@ use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OutboxHydrateEmails
+class OutboxHydrateSubcribers
 {
     use AsAction;
     use WithEnumStats;
