@@ -49,6 +49,8 @@ trait WithHydrateCommand
             }
         }
 
+
+
         if ($command->hasOption('slug') && $command->option('slug')) {
             $query->where('slug', $command->option('slug'));
         }

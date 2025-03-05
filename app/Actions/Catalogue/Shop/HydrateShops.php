@@ -41,7 +41,7 @@ class HydrateShops
 {
     use WithHydrateCommand;
 
-    public string $commandSignature = 'hydrate:shops {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:shops {organisations?*} {--s|slug=}';
 
     public function __construct()
     {

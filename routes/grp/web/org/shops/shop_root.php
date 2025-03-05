@@ -26,7 +26,7 @@ Route::prefix('{shop}')->name('show.')
 
         Route::name("dashboard.")->prefix('dashboard')
             ->group(__DIR__."/dashboard.php");
-        
+
         Route::name("catalogue.")->prefix('catalogue')
             ->group(__DIR__."/catalogue.php");
 

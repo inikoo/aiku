@@ -118,6 +118,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_dynamic_queries is_static=false
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $number_current_product_variants state: active+discontinuing
+ * @property int $number_product_variants_state_in_process
+ * @property int $number_product_variants_state_active
+ * @property int $number_product_variants_state_discontinuing
+ * @property int $number_product_variants_state_discontinued
+ * @property int $number_product_variants_status_in_process
+ * @property int $number_product_variants_status_for_sale
+ * @property int $number_product_variants_status_not_for_sale
+ * @property int $number_product_variants_status_out_of_stock
+ * @property int $number_product_variants_status_discontinued
+ * @property int $number_product_variants_trade_config_auto
+ * @property int $number_product_variants_trade_config_force_offline
+ * @property int $number_product_variants_trade_config_force_out_of_stock
+ * @property int $number_product_variants_trade_config_force_for_sale
+ * @property int $number_products_with_variants
+ * @property int $number_current_products_with_variants state: active+discontinuing
+ * @property int $number_products_with_variants_state_in_process
+ * @property int $number_products_with_variants_state_active
+ * @property int $number_products_with_variants_state_discontinuing
+ * @property int $number_products_with_variants_state_discontinued
+ * @property int $number_products_with_variants_status_in_process
+ * @property int $number_products_with_variants_status_for_sale
+ * @property int $number_products_with_variants_status_not_for_sale
+ * @property int $number_products_with_variants_status_out_of_stock
+ * @property int $number_products_with_variants_status_discontinued
+ * @property int $number_products_with_variants_trade_config_auto
+ * @property int $number_products_with_variants_trade_config_force_offline
+ * @property int $number_products_with_variants_trade_config_force_out_of_stock
+ * @property int $number_products_with_variants_trade_config_force_for_sale
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Catalogue\ProductCategory|null $top1dDepartment
  * @property-read \App\Models\Catalogue\ProductCategory|null $top1dFamily
