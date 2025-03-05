@@ -23,6 +23,7 @@ use App\Models\CRM\Customer;
 class HydrateCustomers
 {
     use WithHydrateCommand;
+
     public string $commandSignature = 'hydrate:customers {organisations?*} {--S|shop= shop slug} {--s|slug=}';
 
     public function __construct()
@@ -45,9 +46,7 @@ class HydrateCustomers
         if ($customer->fulfilmentCustomer) {
             HydrateFulfilmentCustomer::run($customer->fulfilmentCustomer);
         }
-
     }
-
 
 
 }

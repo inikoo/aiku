@@ -14,12 +14,19 @@ use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateGrossWeightFromTradeUnits;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Catalogue\Product;
 
 class HydrateProducts
 {
-    public string $commandSignature = 'hydrate:products {organisations?*} {--S|shop= shop slug} {--s|slugs=} ';
+    use WithHydrateCommand;
 
+    public string $commandSignature = 'hydrate:products {organisations?*} {--S|shop= shop slug} {--s|slug=} ';
+
+    public function __construct()
+    {
+        $this->model = Product::class;
+    }
 
     public function handle(Product $product): void
     {
@@ -29,7 +36,6 @@ class HydrateProducts
         ProductHydrateCustomersWhoReminded::run($product);
         ProductHydrateCustomersWhoRemindedInCategories::run($product);
         ProductHydrateGrossWeightFromTradeUnits::run($product);
-
     }
 
 }
