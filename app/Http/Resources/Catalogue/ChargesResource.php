@@ -36,6 +36,8 @@ class ChargesResource extends JsonResource
             'code'                   => $this->code,
             'name'                   => $this->name,
             'description'            => $this->description,
+            'currency_code'          => $this->currency_code,
+            'state_icon'             => $this->state->stateIcon()[$this->state->value],
             'created_at'             => $this->created_at,
             'updated_at'             => $this->updated_at,
             'customers_invoiced_all' => $this->customers_invoiced_all,

@@ -30,7 +30,7 @@ class CreateStoredItemAudit extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
     {
-        $storedItemAudit = $fulfilmentCustomer->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
+        $storedItemAudit = $fulfilmentCustomer->storedItemAudits()->whereNot('scope_type', 'Pallet')->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
 
 
         if (!$storedItemAudit) {

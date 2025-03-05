@@ -221,6 +221,12 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->hasMany(UserRequest::class);
     }
 
+
+    public function userAuthorisedModels(): HasMany
+    {
+        return $this->hasMany(UserHasAuthorisedModels::class);
+    }
+
     public function authorisedOrganisations(): MorphToMany
     {
         return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->withTimestamps();

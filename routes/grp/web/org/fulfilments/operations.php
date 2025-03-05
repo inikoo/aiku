@@ -27,7 +27,6 @@ use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowStoredItemReturn;
-use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
@@ -88,7 +87,6 @@ Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('former', [IndexRecurringBills::class, 'former'])->name('.former.index');
 
     Route::get('{recurringBill}', ShowRecurringBill::class)->name('.show');
-    Route::get('{recurringBill}/edit', EditRecurringBill::class)->name('.edit');
 
     Route::get('current/{recurringBill}', [ShowRecurringBill::class, 'current'])->name('.current.show');
     Route::get('former/{recurringBill}', [ShowRecurringBill::class, 'former'])->name('.former.show');

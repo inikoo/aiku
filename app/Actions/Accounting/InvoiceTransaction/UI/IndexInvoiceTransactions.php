@@ -47,11 +47,14 @@ class IndexInvoiceTransactions extends OrgAction
 
         $queryBuilder->select(
             [
-                'invoice_transactions.id',
+                'invoice_transactions.invoice_id',
+                'invoice_transactions.model_type',
                 'invoice_transactions.in_process',
                 'historic_assets.code',
                 'historic_assets.name',
-                'assets.slug',
+                'invoice_transactions.historic_asset_id',
+                'assets.id',
+                'assets.shop_id',
                 DB::raw('SUM(invoice_transactions.quantity) as quantity'),
                 DB::raw('SUM(invoice_transactions.net_amount) as net_amount'),
             ]
@@ -63,22 +66,30 @@ class IndexInvoiceTransactions extends OrgAction
             ->leftJoin('currencies', 'invoices.currency_id', 'currencies.id')
             ->addSelect("currencies.code AS currency_code")
             ->groupBy(
-                'invoice_transactions.id',
                 'historic_assets.code',
+                'invoice_transactions.invoice_id',
                 'historic_assets.name',
-                'assets.slug',
-                'currencies.code'
+                'assets.id',
+                'invoice_transactions.in_process',
+                'currencies.code',
+                'invoice_transactions.historic_asset_id',
+                'assets.shop_id',
+                'invoice_transactions.model_type'
             );
         } else {
             $queryBuilder->where('invoice_transactions.invoice_id', $parent->id)
             ->addSelect(
-                DB::raw("'{$parent->currency->code}' AS currency_code")
+                DB::raw("'{$parent->currency->code}' AS currency_code"),
             )
             ->groupBy(
-                'invoice_transactions.id',
                 'historic_assets.code',
+                'invoice_transactions.invoice_id',
                 'historic_assets.name',
-                'assets.slug'
+                'assets.id',
+                'invoice_transactions.in_process',
+                'invoice_transactions.historic_asset_id',
+                'assets.shop_id',
+                'invoice_transactions.model_type'
             );
         }
 

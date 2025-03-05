@@ -156,30 +156,32 @@ class IndexStoredItems extends OrgAction
 
 
             if ($this->parent->items_storage) {
-                $openStoredItemAudit = $this->parent->storedItemAudits()->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
-
-                if ($openStoredItemAudit) {
-                    $actions[] = [
-                        'type'    => 'button',
-                        'style'   => 'secondary',
-                        'tooltip' => __("Continue customer's SKUs audit"),
-                        'label'   => __("Continue customer's SKUs audit"),
-                        'route'   => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
-                            'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
-                        ]
-                    ];
-                } else {
-                    $actions[] = [
-                        'type'    => 'button',
-                        'tooltip' => __("Start customer's SKUs audit"),
-                        'label'   => __("Start customer's SKUs audit"),
-                        'route'   => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
-                            'parameters' => $request->route()->originalParameters()
-                        ]
-                    ];
-
+                if($this->parent->number_pallets_state_storing > 0) {
+                    $openStoredItemAudit = $this->parent->storedItemAudits()->whereNot('scope_type', 'Pallet')->where('state', StoredItemAuditStateEnum::IN_PROCESS)->first();
+    
+                    if ($openStoredItemAudit) {
+                        $actions[] = [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'tooltip' => __("Continue customer's SKUs audit"),
+                            'label'   => __("Continue customer's SKUs audit"),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show',
+                                'parameters' => array_merge($request->route()->originalParameters(), ['storedItemAudit' => $openStoredItemAudit->slug])
+                            ]
+                        ];
+                    } else {
+                        $actions[] = [
+                            'type'    => 'button',
+                            'tooltip' => __("Start customer's SKUs audit"),
+                            'label'   => __("Start customer's SKUs audit"),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ];
+    
+                    }
                 }
 
                 $actions[] = [

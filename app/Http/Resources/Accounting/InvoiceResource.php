@@ -37,6 +37,7 @@ class InvoiceResource extends JsonResource
             'created_at'       => $invoice->created_at,
             'updated_at'       => $invoice->updated_at,
             'currency_code'    => $invoice->currency->code,
+            'currency'         => $invoice->currency,
             'address'          => AddressResource::make($invoice->address)
 
         ];

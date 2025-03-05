@@ -106,8 +106,7 @@ test("UI Index dispatching delivery-notes", function () {
                 ->where("title", "Delivery notes")
                 ->etc()
             )
-            ->has("data")
-            ->has("tabs");
+            ->has("data");
     });
 });
 

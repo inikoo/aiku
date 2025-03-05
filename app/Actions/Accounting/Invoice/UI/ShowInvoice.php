@@ -126,15 +126,30 @@ class ShowInvoice extends OrgAction
                 ];
         }
 
-        $actions[] = [
-            'type'  => 'button',
-            'style' => 'edit',
-            'label' => __('edit'),
-            'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
-                'parameters' => $request->route()->originalParameters()
-            ],
-        ];
+        if ($this->parent instanceof Organisation) {
+            $actions[] = [
+                'type'  => 'button',
+                'style' => 'edit',
+                'label' => __('edit'),
+                'route' => [
+                    'name'       => 'grp.org.accounting.invoices.edit',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+            ];
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
+            $actions[] = [
+                'type'  => 'button',
+                'style' => 'edit',
+                'label' => __('edit'),
+                'route' => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.edit',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+            ];
+
+        }
+
+        // dd($invoice->id);
 
         return Inertia::render(
             'Org/Accounting/Invoice',
