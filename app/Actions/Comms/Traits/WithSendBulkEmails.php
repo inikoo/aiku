@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Traits;
 
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\OutBoxHasSubscriber;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
@@ -55,6 +56,8 @@ trait WithSendBulkEmails
 
         if ($dispatchedEmail->recipient instanceof WebUser) {
             $customerName = $dispatchedEmail->recipient->customer->name;
+        } elseif ($dispatchedEmail instanceof OutBoxHasSubscriber) {
+            $customerName = Arr::get($additionalData, 'customer_name');
         } else {
             $customerName = $dispatchedEmail->recipient->name;
         }
