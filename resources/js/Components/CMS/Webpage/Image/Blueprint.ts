@@ -1,6 +1,22 @@
 export default {
     blueprint: [
       {
+        name: "Images",
+        key: ["value"],
+        replaceForm: [
+          {
+            key: ["layout_type"],
+            label:"Layout",
+            type: "layout_type",
+          },
+          {
+            label: "Images",
+            key: ["images"],
+            type: "images-property",
+          }
+        ],
+      },
+      {
         name: "Properties",
         key: ["container", "properties"],
         replaceForm: [
@@ -9,12 +25,12 @@ export default {
             label:"Background",
             type: "background",
           },
-          {
+         /*  {
             key: ["dimension"],
             type: "dimension",
             label : "Dimension",
             props_data: {},
-          },
+          }, */
           {
             key: ["padding"],
             label:"Padding",
@@ -32,22 +48,5 @@ export default {
           },
         ],
       },
-      {
-        name: "Images",
-        key: ["value"],
-        replaceForm: [
-          {
-            key: ["layout_type"],
-            label:"Layout",
-            type: "layout_type",
-          },
-          {
-            label: "Images",
-            key: ["images"],
-            type: "images-property",
-          }
-        ],
-      },
-     
     ]
   }
