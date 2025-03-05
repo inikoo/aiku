@@ -16,10 +16,11 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Email;
-use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
+use Illuminate\Support\Arr;
 
 class SendNewCustomerToSubcriberEmail extends OrgAction
 {
@@ -35,7 +36,6 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
         $outbox = $customer->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
 
         $subcribeUsers = $outbox->subscribedUsers;
-        /** @var OutBoxHasSubscribers $subcribeUser */
         foreach ($subcribeUsers as $subcribeUser) {
             // $recipient       = $subcribeUser->user->email ?? $subcribeUser->external_email;
             if ($subcribeUser->user) {
@@ -51,7 +51,11 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
             ]);
             $dispatchedEmail->refresh();
 
-            $emailHtmlBody = $outbox->emailOngoingRun->email->liveSnapshot->compiled_layout;
+            if ($outbox->builder == OutboxBuilderEnum::BLADE) {
+                $emailHtmlBody = Arr::get($outbox->emailOngoingRun?->email?->liveSnapshot?->layout, 'blade_template');
+            } else {
+                $emailHtmlBody = $outbox->emailOngoingRun?->email?->liveSnapshot?->compiled_layout;
+            }
 
             $this->sendEmailWithMergeTags(
                 $dispatchedEmail,
@@ -66,4 +70,26 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
         }
 
     }
+
+    // public string $commandSignature = 'xxx';
+
+    // public function asCommand($command){
+    //     $c = Customer::first();
+    //     // $outbox = $c->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
+    //     // // 'external_email' => 'dev@aw-advantage.com',
+
+    //     // StoreOutboxHasSubscriber::make()->action(
+    //     //     Outbox::find(158),
+    //     //     [
+    //     //         'external_email' => 'artha@aw-advantage.com',
+    //     //     ]
+    //     // );
+
+
+
+    //     $this->handle($c);
+    // }
+
+
+
 }

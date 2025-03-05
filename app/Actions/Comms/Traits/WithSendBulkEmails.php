@@ -56,7 +56,7 @@ trait WithSendBulkEmails
 
         if ($dispatchedEmail->recipient instanceof WebUser) {
             $customerName = $dispatchedEmail->recipient->customer->name;
-        } elseif ($dispatchedEmail instanceof OutBoxHasSubscriber) {
+        } elseif ($dispatchedEmail->recipient instanceof OutBoxHasSubscriber) {
             $customerName = Arr::get($additionalData, 'customer_name');
         } else {
             $customerName = $dispatchedEmail->recipient->name;
