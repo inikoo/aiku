@@ -12,14 +12,14 @@ namespace App\Actions\Comms\OutboxHasSubscribers;
 
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateSubscribers;
 use App\Actions\OrgAction;
-
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\OutBoxHasSubscriber;
-
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreOutboxHasSubscriber extends OrgAction
 {
@@ -67,8 +67,8 @@ class StoreOutboxHasSubscriber extends OrgAction
         }
 
         if ($this->get('user_id')) {
-            $user=User::find($this->get('user_id'));
-            if(!$user->email){
+            $user = User::find($this->get('user_id'));
+            if (!$user->email) {
                 $validator->errors()->add('user_id', 'User does not have an email address');
 
             }
@@ -88,5 +88,11 @@ class StoreOutboxHasSubscriber extends OrgAction
         return $this->handle($outbox, $this->validatedData);
     }
 
+    public function inFulfilment(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request)
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($outbox, $this->validatedData);
+    }
 
 }
