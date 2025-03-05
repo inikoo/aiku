@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faNarwhal, faPallet, faQuestionCircle, faEnvelope, faPhone, faIdCardAlt, faPlus, faMinus, faCheck, faLink, faLayerPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+import Icon from '../Icon.vue'
 
 library.add(faNarwhal, faPallet, faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faPlus, faMinus,faCheck, faLink, faLayerPlus)
 
@@ -46,6 +47,7 @@ const props = defineProps<{
         slug: string
         number_pallets: number
     }
+    isHidePalletCount?: boolean
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -131,13 +133,13 @@ onMounted(() => {
             <div class="flex items-center w-full flex-none gap-x-2 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">{{ auditData.state_icon.tooltip }}</span>
-                    <FontAwesomeIcon
+                    <Icon :data="auditData.state_icon" />
+                    <!-- <FontAwesomeIcon
                         :icon='auditData.state_icon.icon'
                         :class='auditData.state_icon.class'
-                        class="text-white"
                         fixed-width
                         aria-hidden='true'
-                    />
+                    /> -->
                 </dt>
                 <dd class="text-base" :class='auditData.state_icon.class'>
                     {{ auditData.state_icon.tooltip }}
@@ -167,7 +169,7 @@ onMounted(() => {
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
             <dl class="flex flex-col gap-y-2 text-gray-500 rounded-lg px-4 py-2">
                 <div class="pt-2 first:pt-0 pr-2 flex flex-col gap-y-1.5 ">
-                    <div class="grid grid-cols-7 gap-x-4 items-center justify-between">
+                    <div v-if="!isHidePalletCount" class="grid grid-cols-7 gap-x-4 items-center justify-between">
                         <dt class="col-span-5 flex items-center gap-x-1.5">
                             <FontAwesomeIcon v-tooltip="trans('Pallet')" icon='fal fa-pallet' class='text-gray-400 text-sm' fixed-width aria-hidden='true' />
                             <span>{{ trans("Audited") }}</span>

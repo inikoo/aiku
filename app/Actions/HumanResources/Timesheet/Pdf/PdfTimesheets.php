@@ -12,11 +12,11 @@ use App\Actions\Traits\WithExportData;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
-use Symfony\Component\HttpFoundation\Response;
 
 class PdfTimesheets
 {
@@ -29,6 +29,9 @@ class PdfTimesheets
      */
     public function handle(Organisation $parent)
     {
+        ini_set("pcre.backtrack_limit", "5000000");
+        ini_set("pcre.recursion_limit", "5000000");
+
         $filename = __('Timesheets - ') . $parent->name . '.pdf';
         $config = [
             'title' => $filename,
@@ -66,14 +69,17 @@ class PdfTimesheets
             $pdf->getMpdf()->WriteHTML($html);
         }
 
-        return $pdf->stream($filename);
+        $filePath = "pdfs/{$filename}.pdf";
+        Storage::put($filePath, $pdf->output('', 'S'));
+
+        return $filePath;
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(Organisation $organisation, ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): void
     {
-        return $this->handle($organisation);
+        self::dispatch($organisation);
     }
 }

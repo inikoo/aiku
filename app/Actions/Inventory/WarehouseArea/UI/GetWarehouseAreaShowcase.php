@@ -19,9 +19,14 @@ class GetWarehouseAreaShowcase
     public function handle(WarehouseArea $warehouseArea): array
     {
         return [
-            [
-
-            ]
+            'created_at'            => $warehouseArea->created_at,
+            'id'            => $warehouseArea->id,
+            'name'          => $warehouseArea->name,
+            'warehouse'     => $warehouseArea->warehouse,
+            'code'          => $warehouseArea->code,
+            'unit_quantity'          => (int) $warehouseArea->unit_quantity,
+            'stats'          => $warehouseArea->stats,
+            'xxx'           => $warehouseArea,
         ];
     }
 }

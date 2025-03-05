@@ -29,6 +29,7 @@ use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
 use App\Actions\HumanResources\Timesheet\Pdf\PdfTimesheet;
+use App\Actions\HumanResources\Timesheet\Pdf\PdfTimesheets;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\Timesheet\UI\ShowTimesheet;
 use App\Actions\HumanResources\Workplace\UI\CreateWorkplace;
@@ -80,7 +81,7 @@ Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
 Route::get('/timesheets', IndexTimesheets::class)->name('timesheets.index');
-Route::get('/timesheets-export', PdfTimesheet::class)->name('timesheets.export');
+Route::get('/timesheets-export', PdfTimesheets::class)->name('timesheets.export');
 Route::get('/timesheets/{timesheet}', ShowTimesheet::class)->name('timesheets.show');
 
 Route::get('/workplaces', IndexWorkplaces::class)->name('workplaces.index');

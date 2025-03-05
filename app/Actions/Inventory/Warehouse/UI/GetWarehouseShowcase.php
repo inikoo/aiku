@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -19,6 +20,8 @@ class GetWarehouseShowcase
     public function handle(Warehouse $warehouse, $routeParameters): array
     {
         return [
+            'xxx'       => $warehouse,
+            'address'   => AddressResource::make($warehouse->address),
             'box_stats' => [
                 [
                     'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
