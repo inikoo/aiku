@@ -143,7 +143,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
- * @property-read LaravelCollection<int, \App\Models\SysAdmin\UserHasAuthorisedModels> $authorisedModels
  * @property-read \App\Models\SysAdmin\OrganisationCatalogueStats|null $catalogueStats
  * @property-read LaravelCollection<int, Charge> $charges
  * @property-read LaravelCollection<int, CustomerClient> $clients
@@ -239,6 +238,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Upload> $uploads
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\UserHasAuthorisedModels> $userAuthorisedModels
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
