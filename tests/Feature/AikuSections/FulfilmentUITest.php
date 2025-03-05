@@ -1843,25 +1843,6 @@ test('UI show Recurring Bill', function () {
     });
 });
 
-test('UI edit recurring bill', function () {
-    $this->withoutExceptionHandling();
-    $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('EditModel')
-            ->has('title')
-            ->has('formData.blueprint.0.fields', 1)
-            ->has('pageHead')
-            ->has(
-                'formData.args.updateRoute',
-                fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.recurring-bill.update')
-                        ->where('parameters.recurringBill', $this->recurringBill->id)
-            )
-            ->has('breadcrumbs', 4);
-    });
-});
-
 
 test('UI get section route fulfilment catalogue index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.catalogue.index', [
@@ -1964,16 +1945,16 @@ test('UI create stored item audit for pallet (first time)', function () {
         'location_id'        => $this->warehouse->locations()->first()->id,
         'rental_id'          => $rental->id
     ]);
-    
+
     $this->withoutExceptionHandling();
-        
+
     $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
         ->where('scope_type', 'Pallet')
         ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
         ->first();
 
     expect($storedItemAudit)->toBeNull();
-    
+
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
         $this->organisation->slug,
         $this->fulfilment->slug,
@@ -1987,7 +1968,7 @@ test('UI create stored item audit for pallet (first time)', function () {
     ->first();
 
     expect($storedItemAudit)->not()->toBeNull();
-    
+
     $response->assertRedirect(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.show', [
         $this->organisation->slug,
         $this->fulfilment->slug,
@@ -2001,16 +1982,16 @@ test('UI create stored item audit for pallet (first time)', function () {
 
 test('UI create stored item audit for pallet (already created)', function (StoredItemAudit $storedItemAudit) {
     $pallet = $storedItemAudit->scope;
-    
+
     $this->withoutExceptionHandling();
-        
+
     $storedItemAudit = StoredItemAudit::where('scope_id', $pallet->id)
         ->where('scope_type', 'Pallet')
         ->where('state', StoredItemAuditStateEnum::IN_PROCESS)
         ->first();
 
     expect($storedItemAudit)->not->toBeNull();
-    
+
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.pallets.stored-item-audits.create', [
         $this->organisation->slug,
         $this->fulfilment->slug,

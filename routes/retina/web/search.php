@@ -1,9 +1,9 @@
 <?php
 
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Tue, 07 Mar 2023 11:12:51 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 05 Mar 2025 00:37:45 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 use App\Actions\Helpers\RetinaSearch\UI\IndexRetinalSearch;

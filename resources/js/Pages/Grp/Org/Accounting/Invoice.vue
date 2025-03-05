@@ -58,6 +58,7 @@ import { notify } from '@kyvg/vue3-notification'
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import TableDispatchedEmails from '@/Components/Tables/TableDispatchedEmails.vue'
+import InputNumber from 'primevue/inputnumber'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -200,6 +201,12 @@ watch(paymentData, () => {
 // Section: Send Invoice
 const isVisitWorkshopOutbox = ref(false)
 const isModalSendInvoice = ref(false)
+
+const errorInvoicePayment = ref({
+    payment_method: null,
+    payment_amount: null,
+    payment_reference: null
+})
 </script>
 
 
@@ -403,9 +410,11 @@ const isModalSendInvoice = ref(false)
                     <label for="first-name" class="block text-sm font-medium leading-6">
                         <span class="text-red-500">*</span> {{ trans('Select payment method') }}
                     </label>
-                    <div class="mt-1">
+                    <div class="mt-1" :class="errorInvoicePayment.payment_method ? 'errorShake' : ''">
                         <PureMultiselect
                             v-model="paymentData.payment_method"
+                            @update:modelValue="() => errorInvoicePayment.payment_method = null"
+                            @input="() => errorInvoicePayment.payment_method = null"
                             :options="listPaymentMethod"
                             :isLoading="isLoadingFetch"
                             label="name"
@@ -414,12 +423,35 @@ const isModalSendInvoice = ref(false)
                             caret
                         />
                     </div>
+                    <Transition name="spin-to-down">
+                        <p v-if="errorInvoicePayment.payment_method" class="text-red-500 italic text-sm mt-1">*{{ errorInvoicePayment.payment_method }}</p>
+                    </Transition>
                 </div>
 
                 <div class="col-span-2">
                     <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount') }}</label>
-                    <div class="mt-1">
-                        <PureInputNumber v-model="paymentData.payment_amount" />
+                    <div class="mt-1" :class="errorInvoicePayment.payment_amount ? 'errorShake' : ''">
+                        <!-- <PureInputNumber v-model="paymentData.payment_amount" /> -->
+                        <InputNumber 
+                            v-model="paymentData.payment_amount" 
+                            @update:modelValue="(e) => paymentData.payment_amount = e"
+                            @input="(e) => paymentData.payment_amount = e.value"
+                            buttonLayout="horizontal" 
+                            :min="0"
+                            :max="box_stats.information.pay_amount || null"
+                            :maxFractionDigits="2"
+                            style="width: 100%"
+                            inputClass="border border-gray-300"
+                            :inputStyle="{
+                                fontSize: '14px',
+                                paddingTop: '10px',
+                                paddingBottom: '10px',
+                                width: '50px',
+                                background: 'transparent',
+                            }"
+                            mode="currency"
+                            :currency="invoice?.currency?.code"
+                        />
                     </div>
                     <div class="space-x-1">
                         <span class="text-xxs text-gray-500">{{ trans('Need to pay') }}: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.pay_amount)) }}</span>
@@ -447,7 +479,8 @@ const isModalSendInvoice = ref(false)
             </div>
 
             <div class="mt-6 mb-4 relative">
-                <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
+                <div v-if="!(!!paymentData.payment_method)" @click="() => errorInvoicePayment.payment_method = trans('Payment method can\'t empty')" class="absolute inset-0" />
+                <Button @click="() => onSubmitPayment()" :label="trans('Submit')" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
                 <Transition name="spin-to-down">
                     <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
                 </Transition>

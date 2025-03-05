@@ -11,7 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { Pallet, PalletDelivery } from '@/types/Pallet'
 import { routeType } from "@/types/route"
 
-import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt } from '@fal'
+import { faStickyNote, faCheckCircle as falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft } from '@fal'
 import { faCheckCircle } from '@fad'
 import { faEdit } from '@far'
 import { faPlus, faMinus, faStar, faCheckCircle as fasCheckCircle } from '@fas'
@@ -32,7 +32,7 @@ import CreateStoredItems from '@/Components/CreateStoredItems.vue'
 import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
 
 // import QuantityInput from '@/Components/Utils/QuantityInput.vue'
-library.add(faEdit, faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faCheckCircle, faStar, fasCheckCircle)
+library.add(faEdit, faStickyNote, faPlus, faMinus, falCheckCircle, faUndo, faArrowToLeft, faTrashAlt, faUndoAlt, faArrowAltToLeft, faCheckCircle, faStar, fasCheckCircle)
 
 const props = defineProps<{
     data: {
@@ -323,20 +323,24 @@ const isModalOpened = ref(false)
                                             class="relative flex flex-nowrap items-center justify-center gap-y-1 gap-x-1">
                                             <!-- Button: Minus -->
                                             <div  @click="async () => (
-                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) >= 0 ? ((data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) - 1) : 0),
+                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, ((data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) - 1) >= 0 ? ((data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) - 1) : 0),
                                                     data.stored_item_audit_delta_id
                                                         ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
-                                                        : debounceStoreStoredItem(data.stored_item_id, get(data, `quantity`, data.quantity), data.stored_item_audit_id)
+                                                        : debounceStoreStoredItem(data.stored_item_id, get(data, `new_quantity`, data.quantity), data.stored_item_audit_id)
                                                     
                                                 )"
                                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                 <FontAwesomeIcon icon='fas fa-minus' class='' fixed-width aria-hidden='true' />
                                             </div>
+                                            
                                             <div class="text-center tabular-nums border border-transparent hover:border-dashed hover:border-gray-300 group-focus:border-dashed group-focus:border-gray-300">
+                                                <!-- {{ data.audited_quantity }}
+                                                {{ data.new_quantity }}
+                                                {{ data.quantity }} -->
                                                 <InputNumber
-                                                    :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [`id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
+                                                    :modelValue="data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity) ||   edit_block(data.audit_type, data.is_edit, !!get(isStoredItemEdited, [`id${data.stored_item_audit_delta_id?.toString()}`], false)) =='edit'  "
                                                     @update:modelValue="(e) => (
-                                                        set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, e),
+                                                        set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, e),
                                                         data.stored_item_audit_delta_id
                                                             ? debounceChangeQuantity(data.stored_item_audit_delta_id, e)
                                                             : debounceStoreStoredItem(data.stored_item_id, e, data.stored_item_audit_id)
@@ -348,13 +352,14 @@ const isModalOpened = ref(false)
                                                         coloxxr: data.audited_quantity > data.quantity ? '#00d200' : data.audited_quantity === data.quantity ? 'gray' : 'red'
                                                     }" />
                                             </div>
+                                            
                                             <!-- Button: Plus -->
                                             <div  @click="async () => (
-                                                    set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'quantity'}`, (data.stored_item_audit_delta_id ? data.audited_quantity : data.quantity) + 1),
-                                                    data.stored_item_audit_delta_id
-                                                        ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, data.quantity))
-                                                        : debounceStoreStoredItem(data.stored_item_id, get(data, `quantity`, data.quantity), data.stored_item_audit_id)
-                                                )"
+                                                set(data, `${data.stored_item_audit_delta_id ? 'audited_quantity' : 'new_quantity'}`, (data.stored_item_audit_delta_id ? data.audited_quantity : (data.new_quantity ?? data.quantity)) + 1),
+                                                data.stored_item_audit_delta_id
+                                                    ? debounceChangeQuantity(data.stored_item_audit_delta_id, get(data, `audited_quantity`, (data.new_quantity ?? data.quantity)))
+                                                    : debounceStoreStoredItem(data.stored_item_id, get(data, `new_quantity`, data.quantity), data.stored_item_audit_id)
+                                            )"
                                                 type="tertiary" size="xs"
                                                 class="leading-4 cursor-pointer inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed min-w-max bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70 rounded px-1 py-1.5 text-xs justify-self-center">
                                                 <FontAwesomeIcon icon='fas fa-plus' class='' fixed-width
@@ -380,19 +385,23 @@ const isModalOpened = ref(false)
                                 @clicccck="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
                                 v-tooltip="trans('Close input')"
                                 type="tertiary"
-                                icon="fal fa-undo-alt"
-                                class="border-none rounded-none text-gray-500"
+                                
+                                class="border-none rounded-none"
                                 :loading="!!get(isLoadingUnselect, [data.stored_item_audit_delta_id], false)"
-                            />
+                            >
+                                <template #icon>
+                                    <FontAwesomeIcon icon="fal fa-arrow-alt-to-left" fixed-width class="text-gray-500" aria-hidden="true"/>
+                                </template>
+                            </Button>
 
                             <Button
-                            v-else-if="   data.stored_item_audit_delta_id"
-                            @click="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
-                            v-tooltip="trans('Reset to original')"
-                            type="tertiary"
-                            icon="fal fa-undo"
-                            class="border-none rounded-none"
-                            :loading="!!get(isLoadingUnselect, [data.storedItemAuditDelta], false)"
+                                v-else-if="   data.stored_item_audit_delta_id"
+                                @click="() => onUnselectNewStoredItem(data.stored_item_audit_delta_id)"
+                                v-tooltip="trans('Reset to original')"
+                                type="tertiary"
+                                icon="fal fa-undo"
+                                class="border-none rounded-none text-red-500"
+                                :loading="!!get(isLoadingUnselect, [data.storedItemAuditDelta], false)"
                             />
                         </div>
 

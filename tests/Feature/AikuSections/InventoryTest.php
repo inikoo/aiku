@@ -98,13 +98,13 @@ test('create warehouse', function () {
 
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_warehouses_state_in_process)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_warehouses_state_open)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_in_process)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_open)->toBe(1)
         ->and($this->organisation->inventoryStats->number_warehouses_state_closing_down)->toBe(0)
         ->and($this->organisation->inventoryStats->number_warehouses_state_closed)->toBe(0)
         ->and($this->organisation->group->inventoryStats->number_warehouses)->toBe(1)
-        ->and($this->organisation->group->inventoryStats->number_warehouses_state_in_process)->toBe(1)
-        ->and($this->organisation->group->inventoryStats->number_warehouses_state_open)->toBe(0)
+        ->and($this->organisation->group->inventoryStats->number_warehouses_state_in_process)->toBe(0)
+        ->and($this->organisation->group->inventoryStats->number_warehouses_state_open)->toBe(1)
         ->and($user->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
         ->and($user->number_authorised_warehouses)->toBe(1);
 

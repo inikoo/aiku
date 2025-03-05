@@ -14,7 +14,6 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Http\Resources\Accounting\SelectOrgPaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -44,27 +43,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
         $queryBuilder = QueryBuilder::for(PaymentServiceProvider::class);
 
         $queryBuilder->where('payment_service_providers.group_id', $parent->group_id);
-        /*
 
-        if($parent instanceof Organisation) {
-            $queryBuilder->where('organisation_id', $parent->id);
-        } else {
-            $queryBuilder->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
-            $queryBuilder->where('payment_service_provider_shop.shop_id', $parent->id);
-        }
-
-*/
-
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-        */
 
         return $queryBuilder
             ->defaultSort('payment_service_providers.code')
@@ -73,7 +52,6 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                 'org_payment_service_providers',
                 function ($leftJoin) use ($parent) {
                     $leftJoin->on('payment_service_providers.id', '=', 'org_payment_service_providers.payment_service_provider_id')
-
                         ->where('org_payment_service_providers.organisation_id', '=', $parent->id)
                      ->leftJoin('org_payment_service_provider_stats', 'org_payment_service_providers.id', 'org_payment_service_provider_stats.org_payment_service_provider_id');
 
@@ -82,9 +60,6 @@ class SelectOrgPaymentServiceProviders extends OrgAction
             )
 
             ->with('media')
-
-            //'payment_service_providers.id', 'org_payment_service_providers.payment_service_provider_id'
-
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -109,7 +84,6 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                 ->defaultSort('code')
                 ->column(key: 'adoption', label: '', type: 'icon')
                 ->column(key: 'logo', label: '')
-
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_payment_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)

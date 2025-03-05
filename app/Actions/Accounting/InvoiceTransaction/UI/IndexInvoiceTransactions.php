@@ -48,6 +48,7 @@ class IndexInvoiceTransactions extends OrgAction
         $queryBuilder->select(
             [
                 'invoice_transactions.id',
+                'assets.model_type',
                 'invoice_transactions.in_process',
                 'historic_assets.code',
                 'historic_assets.name',
@@ -67,18 +68,20 @@ class IndexInvoiceTransactions extends OrgAction
                 'historic_assets.code',
                 'historic_assets.name',
                 'assets.slug',
-                'currencies.code'
+                'currencies.code',
+                'assets.model_type'
             );
         } else {
             $queryBuilder->where('invoice_transactions.invoice_id', $parent->id)
             ->addSelect(
-                DB::raw("'{$parent->currency->code}' AS currency_code")
+                DB::raw("'{$parent->currency->code}' AS currency_code"),
             )
             ->groupBy(
                 'invoice_transactions.id',
                 'historic_assets.code',
                 'historic_assets.name',
-                'assets.slug'
+                'assets.slug',
+                'assets.model_type'
             );
         }
 
