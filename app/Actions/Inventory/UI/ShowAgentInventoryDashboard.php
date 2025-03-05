@@ -129,7 +129,7 @@ class ShowAgentInventoryDashboard extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.inventory.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Inventory'),
+                            'label' => __('Agent Inventory'),
                         ]
                     ]
                 ]
