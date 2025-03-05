@@ -8,20 +8,25 @@
  *
 */
 
+
 namespace App\Actions\Comms\OutboxHasSubscribers\Json;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OutboxHasSubscribersResource;
+use App\Http\Resources\Mail\OutboxUsersResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\OutBoxHasSubscribers;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\User;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class GetOutboxHasSubscribers extends OrgAction
+class GetOutboxUsers extends OrgAction
 {
     public function handle(Outbox $parent): LengthAwarePaginator
     {
@@ -29,28 +34,24 @@ class GetOutboxHasSubscribers extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
 
             $query->where(function ($query) use ($value) {
-                $query->whereWith('users.email', $value)
-                    ->orWhereWith('outbox_has_subscribers.external_links', $value);
+                $query->whereWith('users.email', $value);
             });
         });
 
 
 
-        $queryBuilder = QueryBuilder::for(OutBoxHasSubscribers::class);
-        $queryBuilder->where('outbox_id', $parent->id);
-        $queryBuilder->leftJoin('users', 'outbox_has_subscribers.user_id', '=', 'users.id');
+        $queryBuilder = QueryBuilder::for(User::class);
+        $queryBuilder->where('group_id', $parent->group_id);
 
         $queryBuilder
-            ->defaultSort('services.id')
+            ->defaultSort('email')
             ->select([
-                'outbox_has_subscribers.id',
-                'users.id as user_id',
-                'users.email as user_email',
-                'outbox_has_subscribers.external_email'
+                'users.id',
+                'users.email',
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','user_id','user_email','external_email'])
+        return $queryBuilder->allowedSorts(['id','email'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(null)
             ->withQueryString();
@@ -78,6 +79,6 @@ class GetOutboxHasSubscribers extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $subcriberOutbox): AnonymousResourceCollection
     {
-        return OutboxHasSubscribersResource::collection($subcriberOutbox);
+        return OutboxUsersResource::collection($subcriberOutbox);
     }
 }

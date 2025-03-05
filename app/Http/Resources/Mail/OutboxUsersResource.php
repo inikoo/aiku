@@ -33,16 +33,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $is_auto_assign
  * @property mixed $historic_asset_id
  */
-class OutboxHasSubscribersResource extends JsonResource
+class OutboxUsersResource extends JsonResource
 {
     public function toArray($request): array
     {
 
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
-            'user_email' => $this->user_email,
-            'external_email' => $this->external_email,
+            'email' => $this->email,
         ];
     }
 }

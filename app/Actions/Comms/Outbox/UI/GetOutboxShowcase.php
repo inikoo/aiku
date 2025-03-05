@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\Outbox\UI;
 
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -41,13 +42,18 @@ class GetOutboxShowcase
                 'dashboard_stats' => [
                     'widgets' => [
                         'column_count' => 2,
-                        'components' => [
+                        'components' => array_filter([
                             [
                                 'type' => 'circle_display',
 
                                 'data' => $stats
-                            ]
-                        ]
+                            ],
+                            $outbox->code == OutboxCodeEnum::NEW_CUSTOMER ?
+                            [
+                                'type' => '',
+                                'data' => $outbox->subscribers,
+                            ] : null
+                        ])
                     ]
                 ]
         ];
