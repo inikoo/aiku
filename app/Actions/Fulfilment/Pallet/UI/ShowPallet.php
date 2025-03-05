@@ -22,6 +22,7 @@ use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\PalletStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -168,11 +169,13 @@ class ShowPallet extends OrgAction
                         'type'    => 'button',
                         'tooltip' => __("Return Pallet"),
                         'label'   => __("Return Pallet"),
+                        'key'     => 'return-pallet',
                         'route'   => [
                             'name'       => 'grp.models.pallet.return',
                             'parameters' => [
                                 'pallet' => $pallet->id
-                            ]
+                            ],
+                            'method'     => 'patch'
                         ]
                     ];
                 }
@@ -228,6 +231,14 @@ class ShowPallet extends OrgAction
             ]
         ];
 
+        $storedItemsList = array_map(function($palletStoredItem) {
+            return [
+                'name' => $palletStoredItem->storedItem->name,
+                'reference' => $palletStoredItem->storedItem->reference,
+                'quantity' => $palletStoredItem->quantity
+            ];
+        }, $pallet->palletStoredItems->all());
+
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
@@ -254,6 +265,10 @@ class ShowPallet extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => $navigation,
                 ],
+
+                'pallet'        => PalletResource::make($pallet),
+                'list_stored_items'  => $storedItemsList,
+
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
                     fn () => PalletResource::make($pallet) : Inertia::lazy(fn () => PalletResource::make($pallet)),
 

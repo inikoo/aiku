@@ -20,9 +20,6 @@ library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
 	modelValue: any
-	webpageData?: any
-	blockData?: Object
-	// uploadRoutes: routeType
 }>()
 
 const emits = defineEmits<{
@@ -190,7 +187,6 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-	<pre>{{ modelValue }}</pre>
 	<div :style="getStyles(modelValue?.container?.properties)" class="flex flex-wrap overflow-hidden">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"

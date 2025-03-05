@@ -21,6 +21,9 @@ import StockItemsMovements from '@/Components/Showcases/Grp/StockItemsMovements.
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faExchange, faFragile, faNarwhal } from '@fal'
 import TableStoredItemsInWarehouse from '@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemsInWarehouse.vue'
+import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { trans } from 'laravel-vue-i18n'
 
 library.add(faFragile, faNarwhal, faExchange)
 
@@ -28,6 +31,9 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     tabs: TSTabs
+    pallet: {}
+    list_stored_items?: {}
+
     stored_items?: {}
     history?: {}
     movements?: {}
@@ -51,7 +57,32 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #button-return-pallet="{ action }">
+            <!-- {{ action }} -->
+            <ModalConfirmation
+                :routeYes="action.route"
+                :title="trans(`Return pallet ${pallet.data?.reference} to customer?`)"
+                :description="trans(`The pallet ${pallet.data?.reference} will be set as returned to the customer, and no longer exist in warehouse. This action cannot be reverse.`)"
+            >
+                <template #default="{ changeModel }">
+                    <Button
+                        @click="() => changeModel()"
+                        :label="trans('Set pallet as returned')"
+                        type="secondary"
+                    />
+                </template>
+
+                <template #btn-yes="{ isLoadingdelete, clickYes}">
+                    <Button
+                        :loading="isLoadingdelete"
+                        @click="() => clickYes()"
+                        :label="trans('Yes, return the pallet')"
+                    />
+                </template>
+            </ModalConfirmation>
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :list_stored_items></component>
 </template>
