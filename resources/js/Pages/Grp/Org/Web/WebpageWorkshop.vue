@@ -97,6 +97,8 @@ const openWebsite = () => {
   window.open('https://'+ props.webpage.domain + '/' + props.webpage.url, "_blank")
 }
 const debounceSaveWorkshop = (block) => {
+	console.log('debounceSaveWorkshop', block.web_block.layout);
+	
 	// If the debounce timer exists, cancel it
 	if (debounceTimers.value[block.id]) {
 		clearTimeout(debounceTimers.value[block.id])
