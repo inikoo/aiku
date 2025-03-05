@@ -8,7 +8,7 @@
  *
 */
 
-namespace App\Actions\Comms\Outbox;
+namespace App\Actions\Comms\OutboxHasSubscribers;
 
 use App\Actions\OrgAction;
 // use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
@@ -17,7 +17,7 @@ use App\Models\Comms\Outbox;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateSubscribeOutbox extends OrgAction
+class UpdateOutboxHasSubscribers extends OrgAction
 {
     use WithNoStrictRules;
 

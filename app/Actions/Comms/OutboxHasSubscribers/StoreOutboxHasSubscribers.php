@@ -8,7 +8,7 @@
  *
 */
 
-namespace App\Actions\Comms\Outbox;
+namespace App\Actions\Comms\OutboxHasSubscribers;
 
 use App\Actions\OrgAction;
 // use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
@@ -23,7 +23,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreSubscribeOutbox extends OrgAction
+class StoreOutboxHasSubscribers extends OrgAction
 {
     use WithNoStrictRules;
 
@@ -62,7 +62,9 @@ class StoreSubscribeOutbox extends OrgAction
                 'required',
                 'array',
                 'min:1',
-                'each:exists:users,id',
+            ],
+            'user_id.*'     => [
+                'exists:users,id',
             ],
             'external_links' => [
                 'required_if:external_links,null',
