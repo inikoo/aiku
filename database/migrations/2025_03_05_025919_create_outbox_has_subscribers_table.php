@@ -24,6 +24,10 @@ return new class () extends Migration {
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('external_email')->nullable()->index()->comment('null if user_id is set');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
+
         });
     }
 
