@@ -51,7 +51,7 @@ class GetOutboxShowcase
                             $outbox->code == OutboxCodeEnum::NEW_CUSTOMER ?
                             [
                                 'type' => '',
-                                'data' => $outbox->subscribers,
+                                'data' => $outbox->subscribedUsers,
                             ] : null
                         ])
                     ]
