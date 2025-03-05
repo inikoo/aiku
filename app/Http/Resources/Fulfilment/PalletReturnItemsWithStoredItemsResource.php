@@ -55,7 +55,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                 $palletReturnItem = $palletStoredItem->palletReturnItems
                     ->where('pallet_return_id', $this->pallet_return_id)
                     ->first();
-                    
+
                 return [
                     'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
                     'id'                         => $palletStoredItem->id,
@@ -69,7 +69,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     'pallet_id'                  => $palletStoredItem->pallet_id,
                     'state'                      => $palletReturnItem->state ?? null,
                     'pallet_return_item_id'      => $palletReturnItem->id ?? null,
-                    'all_items_returned' => $palletStoredItem->pallet->palletStoredItems->every(fn($item) => $item->state == PalletStoredItemStateEnum::RETURNED),
+                    'all_items_returned' => $palletStoredItem->pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED),
                     'is_pallet_returned' => $palletStoredItem->pallet->status == PalletStatusEnum::RETURNED,
 
                     'syncRoute' => [

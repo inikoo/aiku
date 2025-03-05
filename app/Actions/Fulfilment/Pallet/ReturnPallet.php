@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 05-03-2025-14h-04m
@@ -11,27 +12,15 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
-use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
-use App\Actions\Fulfilment\PalletReturn\AutomaticallySetPalletReturnAsPickedIfAllItemsPicked;
 use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
-use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
-use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Rules\IUnique;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class ReturnPallet extends OrgAction
@@ -47,7 +36,7 @@ class ReturnPallet extends OrgAction
             'status' => PalletStatusEnum::RETURNED,
             'dispatched_at' => now()
         ]);
-        
+
         if ($pallet->current_recurring_bill_id && $pallet->fulfilmentCustomer->current_recurring_bill_id == $pallet->fulfilmentCustomer->current_recurring_bill_id) {
             $recurringBillTransaction = $pallet->currentRecurringBillTransaction;
             UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [

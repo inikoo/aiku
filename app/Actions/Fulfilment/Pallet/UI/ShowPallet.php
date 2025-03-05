@@ -22,7 +22,6 @@ use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\PalletStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -163,8 +162,7 @@ class ShowPallet extends OrgAction
                     ];
                 }
 
-                if($pallet->palletStoredItems->every(fn($item) => $item->state == PalletStoredItemStateEnum::RETURNED))
-                {
+                if ($pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED)) {
                     $actions[] = [
                         'type'    => 'button',
                         'tooltip' => __("Return Pallet"),
@@ -231,7 +229,7 @@ class ShowPallet extends OrgAction
             ]
         ];
 
-        $storedItemsList = array_map(function($palletStoredItem) {
+        $storedItemsList = array_map(function ($palletStoredItem) {
             return [
                 'name' => $palletStoredItem->storedItem->name,
                 'reference' => $palletStoredItem->storedItem->reference,
