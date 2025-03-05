@@ -456,7 +456,7 @@ test('UI show shop', function (User $user, Shop $shop) {
 
     $response = get(
         route(
-            'grp.org.shops.show.dashboard',
+            'grp.org.shops.show.dashboard.show',
             [
                 $shop->organisation->slug,
                 $shop->slug

@@ -20,7 +20,7 @@ Route::prefix("hr")
 
 Route::prefix("shops")
     ->name("shops.")
-    ->group(__DIR__."/shops/shop.php");
+    ->group(__DIR__."/shops/shop_root.php");
 
 Route::prefix("websites")
     ->name("websites.")

@@ -17,21 +17,23 @@ Route::get('create', CreateShop::class)->name('create');
 Route::get('{shop}', ShowShop::class)->name('show');
 
 Route::get('{shop}', function ($organisation, $shop) {
-    return redirect()->route('grp.org.shops.show.dashboard', [$organisation, $shop]);
+    return redirect()->route('grp.org.shops.show.dashboard.show', [$organisation, $shop]);
 });
 
 
 Route::prefix('{shop}')->name('show.')
     ->group(function () {
-        Route::get('dashboard', ShowShop::class)->name('dashboard');
+
+        Route::name("dashboard.")->prefix('dashboard')
+            ->group(__DIR__."/dashboard.php");
+        
         Route::name("catalogue.")->prefix('catalogue')
             ->group(__DIR__."/catalogue.php");
 
         Route::name("billables.")->prefix('billables')
             ->group(__DIR__."/billables.php");
 
-        Route::name("comms.")->prefix('comms')
-            ->group(__DIR__."/comms.php");
+
 
         Route::name("crm.")->prefix('crm')->group(
             function () {
@@ -66,7 +68,5 @@ Route::prefix('{shop}')->name('show.')
             ->name("settings.")
             ->group(__DIR__."/settings.php");
 
-        Route::prefix("payments")
-            ->name("payments.")
-            ->group(__DIR__."/payments.php");
+
     });

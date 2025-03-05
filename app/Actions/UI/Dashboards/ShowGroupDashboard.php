@@ -200,14 +200,14 @@ class ShowGroupDashboard extends OrgAction
             function ($child) use ($selectedInterval) {
                 $routes = [
                     'route'         => [
-                        'name'       => 'grp.org.shops.show.dashboard',
+                        'name'       => 'grp.org.shops.show.dashboard.show',
                         'parameters' => [
                             'organisation' => $child->organisation->slug,
                             'shop'         => $child->slug
                         ]
                     ],
                     'route_invoice' => [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.index',
                         'parameters' => [
                             'organisation'  => $child->organisation->slug,
                             'shop'          => $child->slug,

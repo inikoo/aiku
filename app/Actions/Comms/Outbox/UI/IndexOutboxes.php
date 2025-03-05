@@ -232,15 +232,15 @@ class IndexOutboxes extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.index' =>
+            'grp.org.shops.show.dashboard.comms.outboxes.index' =>
             array_merge(
                 ShowCommsDashboard::make()->getBreadcrumbs(
-                    'grp.org.shops.show.comms.dashboard',
+                    'grp.org.shops.show.dashboard.comms.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.comms.outboxes.index',
+                        'name'       => 'grp.org.shops.show.dashboard.comms.outboxes.index',
                         'parameters' => $routeParameters
                     ]
                 )
@@ -312,7 +312,7 @@ class IndexOutboxes extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.shops.show.comms.outboxes.dispatched-email.show' =>
+            'grp.org.shops.show.dashboard.comms.outboxes.dispatched-email.show' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -320,7 +320,7 @@ class IndexOutboxes extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.comms.outboxes.index',
+                                'name'       => 'grp.org.shops.show.dashboard.comms.outboxes.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Outboxes')

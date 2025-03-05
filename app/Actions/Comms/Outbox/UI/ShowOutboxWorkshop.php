@@ -205,10 +205,10 @@ class ShowOutboxWorkshop extends OrgAction
         $outbox = Outbox::firstWhere('slug', $routeParameters['outbox']);
 
         return match ($routeName) {
-            'org.crm.shop.prospects.mailshots.workshop', 'grp.org.shops.show.comms.outboxes.workshop' =>
+            'org.crm.shop.prospects.mailshots.workshop', 'grp.org.shops.show.dashboard.comms.outboxes.workshop' =>
             array_merge(
                 ShowOutbox::make()->getBreadcrumbs(
-                    'grp.org.shops.show.comms.outboxes.workshop',
+                    'grp.org.shops.show.dashboard.comms.outboxes.workshop',
                     $routeParameters
                 ),
                 $headCrumb(
@@ -216,11 +216,11 @@ class ShowOutboxWorkshop extends OrgAction
                     $outbox->emailOngoingRun->email,
                     [
                         'index' => [
-                            'name' => 'grp.org.shops.show.comms.outboxes.show',
+                            'name' => 'grp.org.shops.show.dashboard.comms.outboxes.show',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name' => 'grp.org.shops.show.comms.outboxes.workshop',
+                            'name' => 'grp.org.shops.show.dashboard.comms.outboxes.workshop',
                             'parameters' => $routeParameters
                         ]
                     ],

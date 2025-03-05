@@ -123,7 +123,7 @@ class ShowDispatchedEmail extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.shops.show.comms.outboxes.dispatched-email.show',
+            'grp.org.shops.show.dashboard.comms.outboxes.dispatched-email.show',
             => array_merge(
                 ShowOutbox::make()->getBreadcrumbs($routeName, $routeParameters),
                 [

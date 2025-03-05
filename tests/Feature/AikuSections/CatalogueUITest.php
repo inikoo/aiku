@@ -608,7 +608,7 @@ test('UI get section route shop edit', function () {
 });
 
 test('UI get section route shop dashboard', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.dashboard', [
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.dashboard.show', [
         'organisation' => $this->organisation->slug,
         'shop'         => $this->shop->slug
     ]);
