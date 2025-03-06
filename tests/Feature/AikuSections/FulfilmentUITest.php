@@ -51,6 +51,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
@@ -175,6 +176,19 @@ beforeEach(function () {
     }
 
     $this->palletReturn = $palletReturn;
+
+    $storedItemReturn = PalletReturn::where('type', PalletReturnTypeEnum::STORED_ITEM)->first();
+    if (!$storedItemReturn) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
+
+        $storedItemReturn = StorePalletReturn::make()->actionWithStoredItems(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->storedItemReturn = $storedItemReturn;
 
     $rental = Rental::first();
     if (!$rental) {
@@ -1462,42 +1476,6 @@ test('UI show pallet return', function () {
     });
 });
 
-test('UI show pallet return with stored items', function () {
-
-    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
-        $this->organisation->slug,
-        $this->fulfilment->slug,
-        $this->palletReturn->slug
-    ]));
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/PalletReturn')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->has('interest')
-            ->has('updateRoute')
-            ->has('deleteServiceRoute')
-            ->has('deletePhysicalGoodRoute')
-            ->has('routeStorePallet')
-            ->has('upload_spreadsheet')
-            ->has('attachmentRoutes')
-            ->has('data')
-            ->has('box_stats')
-            ->has('notes_data')
-            ->has('stored_items_count')
-            ->has(
-                'pageHead',
-                fn (AssertableInertia $page) => $page
-                        ->where('title', $this->palletReturn->reference)
-                        ->etc()
-            )
-            ->has('tabs');
-
-    });
-});
-
-
 test('UI json get pallet return whole pallet', function () {
     $this->withoutExceptionHandling();
     $response = getJson(route('grp.json.pallet-return.pallets.index', [
@@ -1643,6 +1621,42 @@ test('UI show pallet return (dispatched)', function (PalletReturn $palletReturn)
 
     return $palletReturn;
 })->depends('UI show pallet return (picked)');
+
+
+test('UI show pallet return with stored items', function () {
+    dd($this->customer->fulfilmentCustomer->pallets);
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->storedItemReturn->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('interest')
+            ->has('updateRoute')
+            ->has('deleteServiceRoute')
+            ->has('deletePhysicalGoodRoute')
+            ->has('routeStorePallet')
+            ->has('upload_spreadsheet')
+            ->has('attachmentRoutes')
+            ->has('data')
+            ->has('box_stats')
+            ->has('notes_data')
+            ->has('stored_items_count')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
 
 // Rental
 
