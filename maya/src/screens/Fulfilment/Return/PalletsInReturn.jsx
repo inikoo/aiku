@@ -78,13 +78,19 @@ const PalletsInReturn = ({navigation, route, onChangeState}) => {
     <View style={globalStyles.container}>
       {data.state != 'dispatched' ? (
         <SetStateButton
-          button1={{
+          /* button1={{
             size: 'md', 
             variant: 'outline',
             action: 'primary',
             style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
             onPress: null,
             text: `To do : ${data.number_pallet_picked + data.number_pallets_state_other_incident + data.number_pallets_state_lost + data.number_pallets_state_damaged} / ${data.type == 'pallet' ? (data.number_pallets + data.number_oversizes + data.number_boxes ) : data.number_stored_items  || 0}`,
+          }} */
+          progress={{
+            value: data.number_pallet_picked + data.number_pallets_state_other_incident,
+            size: 'lg',
+            total: data.number_pallets,
+            orientation: 'horizontal',
           }}
           button2={{
             size: 'md',

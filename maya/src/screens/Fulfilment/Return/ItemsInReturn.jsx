@@ -71,7 +71,7 @@ const ItemsInReturn = ({navigation, route, onChangeState}) => {
         <View style={globalStyles.container}>
             {data.state != 'dispatched' ? (
                 <SetStateButton
-                    button1={{
+                  /*   button1={{
                         size: 'md',
                         variant: 'outline',
                         action: 'primary',
@@ -89,7 +89,15 @@ const ItemsInReturn = ({navigation, route, onChangeState}) => {
                                 ? data?.number_pallets
                                 : data?.number_stored_items)
                         }`,
-                    }}
+                    }} */
+                    progress={{
+                        value: data.type == 'pallet'
+                        ? data?.number_pallet_pick
+                        : data?.number_stored_items,
+                        size: 'lg',
+                        total: data.number_pallets,
+                        orientation: 'horizontal',
+                      }}
                     button2={{
                         size: 'md',
                         action: 'primary',
