@@ -8,12 +8,15 @@
 
 namespace App\Actions\Dropshipping\ShopifyUser;
 
+use App\Actions\CRM\Customer\AttachCustomerToPlatform;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\Platform;
+use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,13 +36,17 @@ class StoreRetinaShopifyUser extends OrgAction
         data_set($modelData, 'username', Str::random(4));
         data_set($modelData, 'password', Str::random(8));
 
-        $customer->shopifyUser()->create($modelData);
+        $shopifyUserNeedParent = ShopifyUser::whereNull('customer_id')
+            ->where('name', Arr::get($modelData, 'name'))->first();
 
-        $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
-            'group_id'        => $customer->group_id,
-            'organisation_id' => $customer->organisation_id,
-            'shop_id'         => $customer->shop_id
-        ]);
+        if ($shopifyUserNeedParent) {
+            data_set($modelData, 'customer_id', $customer->id);
+            $this->update($shopifyUserNeedParent, $modelData);
+        } else {
+            $customer->shopifyUser()->create($modelData);
+        }
+
+        AttachCustomerToPlatform::make()->action($customer, Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), []);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -54,13 +61,15 @@ class StoreRetinaShopifyUser extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain'), Rule::unique('shopify_users', 'name')]
+            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain'), Rule::unique('shopify_users', 'name')->whereNotNull('customer_id')]
         ];
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->set('name', $request->input('name').'.'.config('shopify-app.myshopify_domain'));
+        $shopifyFullName = $request->input('name').'.'.config('shopify-app.myshopify_domain');
+
+        $this->set('name', $shopifyFullName);
     }
 
     public function asController(ActionRequest $request): void

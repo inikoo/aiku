@@ -8,9 +8,12 @@
 
 namespace App\Actions\Dropshipping\ShopifyUser;
 
+use App\Actions\CRM\Customer\DetachCustomerToPlatform;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -29,6 +32,8 @@ class DeleteRetinaShopifyUser extends OrgAction
             'slug' => $shopifyUser->slug . '-deleted-' . rand(00, 99),
             'status' => false
         ]);
+
+        DetachCustomerToPlatform::run($shopifyUser->customer, Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first());
 
         $shopifyUser->delete();
     }

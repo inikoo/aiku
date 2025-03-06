@@ -15,6 +15,7 @@ use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Http\Resources\Fulfilment\MayaPalletResource;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
@@ -42,10 +43,11 @@ class BookInPallet extends OrgAction
         if ($pallet->palletDelivery) {
             UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
         }
-        
+
         PalletDeliveryHydratePallets::dispatch($pallet->palletDelivery);
         LocationHydratePallets::dispatch($pallet->location);
         PalletRecordSearch::dispatch($pallet);
+
         return $pallet;
     }
 
@@ -92,8 +94,11 @@ class BookInPallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function jsonResponse(Pallet $pallet): PalletResource
+    public function jsonResponse(Pallet $pallet,  ActionRequest $request): PalletResource|MayaPalletResource
     {
+        if ($request->hasHeader('Maya-Version')) {
+            return MayaPalletResource::make($pallet);
+        }
         return new PalletResource($pallet);
     }
 }

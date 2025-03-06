@@ -25,6 +25,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Dropshipping\TiktokUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\Stock;
@@ -395,6 +396,11 @@ class Customer extends Model implements HasMedia, Auditable
     public function wooCommerceUser(): HasOne
     {
         return $this->hasOne(WooCommerceUser::class);
+    }
+
+    public function tiktokUser(): HasOne
+    {
+        return $this->hasOne(TiktokUser::class);
     }
 
     public function deliveryNotes(): HasMany

@@ -10,6 +10,7 @@
 
 use App\Actions\Dropshipping\ShopifyUser\DeleteRetinaShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreRetinaShopifyUser;
+use App\Actions\Dropshipping\Tiktok\AuthenticateTiktokAccount;
 use App\Actions\Dropshipping\WooCommerce\AuthorizeRetinaWooCommerceUser;
 use App\Actions\Dropshipping\WooCommerce\StoreRetinaWooCommerceUser;
 use App\Actions\Retina\Dropshipping\Client\FetchRetinaCustomerClientFromShopify;
@@ -69,6 +70,11 @@ Route::prefix('platforms/{platform}')->as('platforms.')->group(function () {
         Route::get('/', [IndexRetinaPlatformDropshippingOrders::class, 'inPlatform'])->name('index');
     });
 });
+
+Route::prefix('tiktok')->name('tiktok.')->group(function () {
+    Route::get('callback', AuthenticateTiktokAccount::class)->name('callback');
+});
+
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');
 // Route::get('/users/{user}', ShowUser::class)->name('web-users.show');
