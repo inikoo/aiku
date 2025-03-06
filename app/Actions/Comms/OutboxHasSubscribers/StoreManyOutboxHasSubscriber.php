@@ -20,7 +20,7 @@ class StoreManyOutboxHasSubscriber extends OrgAction
 {
     use WithNoStrictRules;
 
-    public function handle(Outbox $outbox, array $modelData): array
+    public function handle(Outbox $outbox, array $modelData): void
     {
         $externalEmails = $modelData['external_emails'] ?? [];
         $usersId = $modelData['users_id'] ?? [];
@@ -33,8 +33,6 @@ class StoreManyOutboxHasSubscriber extends OrgAction
         foreach ($subscribersData as $data) {
             StoreOutboxHasSubscriber::make()->action($outbox, $data);
         }
-
-        return $outbox->subscribers()->get()->toArray();
     }
 
     public function rules(): array
@@ -56,6 +54,6 @@ class StoreManyOutboxHasSubscriber extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($outbox, $this->validatedData);
+        $this->handle($outbox, $this->validatedData);
     }
 }
