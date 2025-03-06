@@ -92,7 +92,6 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 					<!-- Search bar can be added here if needed -->
 				</div>
 
-				<!-- Gold Member Button -->
 				<div
 					class="absolute"
 					:style="{

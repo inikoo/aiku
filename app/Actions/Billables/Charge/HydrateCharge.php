@@ -19,7 +19,7 @@ use Illuminate\Support\Collection;
 
 class HydrateCharge extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:charges {organisations?*} {--slugs=} ';
+    public string $commandSignature = 'hydrate:charges {organisations?*} {--slugs=}';
 
 
     public function handle(Asset $asset): void

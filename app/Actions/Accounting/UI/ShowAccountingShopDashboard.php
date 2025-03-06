@@ -96,7 +96,7 @@ class ShowAccountingShopDashboard extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.shops.show.comms.dashboard' =>
+            'grp.org.shops.show.dashboard.comms.dashboard' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -104,7 +104,7 @@ class ShowAccountingShopDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.comms.dashboard',
+                                'name'       => 'grp.org.shops.show.dashboard.comms.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Comms')

@@ -31,23 +31,23 @@ class ProductHydrateGrossWeightFromTradeUnits
     public function handle(Product $product): void
     {
         $changed = false;
-        $weight  = 0;
+        $grossWeight  = 0;
 
         foreach ($product->tradeUnits as $tradeUnit) {
             if (is_numeric($tradeUnit->gross_weight) and is_numeric($tradeUnit->pivot->quantity)) {
                 $changed = true;
-                $weight += $tradeUnit->gross_weight * $tradeUnit->pivot->quantity;
+                $grossWeight += $tradeUnit->gross_weight * $tradeUnit->pivot->quantity;
             }
         }
 
         if (!$changed) {
-            $weight = null;
+            $grossWeight = null;
         }
 
 
         $product->updateQuietly(
             [
-                'weight' => $weight
+                'gross_weight' => $grossWeight
             ]
         );
 

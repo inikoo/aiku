@@ -123,7 +123,7 @@ class ShowOrganisationSalesReport extends OrgAction
                         ]
                     ]
                     : [
-                        'name'       => 'grp.org.shops.show.dashboard',
+                        'name'       => 'grp.org.shops.show.dashboard.show',
                         'parameters' => [
                             'organisation' => $organisation->slug,
                             'shop'         => $shop->slug

@@ -7,8 +7,10 @@
  */
 
 use App\Actions\Inventory\UI\ShowAgentInventoryDashboard;
-use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexAgentSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\UI\ShowSupplierProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowAgentInventoryDashboard::class)->name('dashboard');
-Route::get('/products', IndexSupplierProducts::class)->name('supplier_products.index');
+Route::get('/skus', IndexAgentSupplierProducts::class)->name('supplier_products.index');
+Route::get('/skus/{supplierProduct}', ShowSupplierProduct::class)->name('supplier_products.show');

@@ -235,15 +235,15 @@ class IndexOrgPostRooms extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.comms.post-rooms.index' =>
+            'grp.org.shops.show.dashboard.comms.post-rooms.index' =>
             array_merge(
                 ShowCommsDashboard::make()->getBreadcrumbs(
-                    'grp.org.shops.show.comms.dashboard',
+                    'grp.org.shops.show.dashboard.comms.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.comms.post-rooms.index',
+                        'name'       => 'grp.org.shops.show.dashboard.comms.post-rooms.index',
                         'parameters' => $routeParameters
                     ]
                 )

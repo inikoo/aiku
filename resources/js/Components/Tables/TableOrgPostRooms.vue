@@ -16,9 +16,9 @@
   
   function orgPostRoomRoute(orgPostRoom: {}) {
       switch (route().current()) {
-          case 'grp.org.shops.show.comms.post-rooms.index':
+          case 'grp.org.shops.show.dashboard.comms.post-rooms.index':
           return route(
-                  'grp.org.shops.show.comms.post-rooms.show',
+                  'grp.org.shops.show.dashboard.comms.post-rooms.show',
                   [route().params['organisation'], route().params['shop'], orgPostRoom.slug])
           default:
               return null

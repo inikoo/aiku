@@ -37,6 +37,10 @@ class ShopHydrateFamilies
     {
         $stats = [
             'number_families' => $shop->getFamilies()->count(),
+            'number_current_families' => $shop->getFamilies()->whereIn('state', [
+                ProductCategoryStateEnum::ACTIVE,
+                ProductCategoryStateEnum::DISCONTINUING,
+            ])->count(),
         ];
 
         $stats = array_merge(
@@ -51,7 +55,6 @@ class ShopHydrateFamilies
                 }
             )
         );
-
         $shop->stats()->update($stats);
     }
 

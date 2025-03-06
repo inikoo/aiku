@@ -213,7 +213,7 @@ BaseList.defaultProps = {
   args: [],
   params: {},
   height : 120,
-  showTotalResults, // ✅ Now it's defined before being used
+  showTotalResults,
 };
 
 

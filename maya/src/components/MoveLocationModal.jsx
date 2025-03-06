@@ -1,23 +1,30 @@
-import React, {useContext, useRef, useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    Modal as ModalNative,
+    TextInput,
+} from 'react-native';
 import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Modal from '@/src/components/Modal';
-import TextWithScanner from '@/src/components/TextWithScanner';
-import {Input, InputField, InputSlot} from '@/src/components/ui/input';
+import {Input, InputField} from '@/src/components/ui/input';
 import {useForm, Controller} from 'react-hook-form';
-import {
-    Camera,
-    useCameraDevice,
-    useCodeScanner,
-} from 'react-native-vision-camera';
-import {RNHoleView} from 'react-native-hole-view';
+import ScannerModal from '@/src/components/ScannerModal';
+
 import {
     holesConfig,
     handleCameraPermission,
     ScannerConfig,
 } from '@/src/utils/Scanner';
+import {
+    Camera,
+    useCameraDevice,
+    useCodeScanner,
+} from 'react-native-vision-camera';
 import globalStyles from '@/globalStyles';
-
+import {RNHoleView} from 'react-native-hole-view';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -35,7 +42,6 @@ import {
     faFileInvoiceDollar,
     faInventory,
     faTimes as faTimesRegular,
-    faHistory,
     faSave,
     faBarcodeRead,
 } from '@/private/fa/pro-regular-svg-icons';
@@ -62,11 +68,6 @@ const ModalMoveLocation = ({
 }) => {
     const [loadingSave, setLoadingSave] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
-    const device = useCameraDevice('back');
-
-    useEffect(() => {
-        handleCameraPermission();
-    }, []);
     const {control, handleSubmit, reset, setValue} = useForm({
         defaultValues: {
             location: location,
@@ -78,12 +79,18 @@ const ModalMoveLocation = ({
         onClose();
     };
 
+    const device = useCameraDevice('back');
     const codeScanner = useCodeScanner({
         ...ScannerConfig,
         onCodeScanned: codes => {
-            if (codes.length > 0) {
-                setActive(false);
-                handleLogin(codes[0].value);
+            if (codes[0].value) {
+                setValue('location', codes[0].value);
+                setShowScanner(false);
+
+                // ✅ Ensure form data is submitted properly
+                setTimeout(() => {
+                    handleSubmit(onSave)();
+                }, 200);
             }
         },
     });
@@ -97,22 +104,21 @@ const ModalMoveLocation = ({
                         name="location"
                         control={control}
                         render={({field}) => (
-                            <View className="flex-row items-center space-x-2">
+                            <View className="flex-row items-center border border-gray-400 rounded-lg overflow-hidden">
                                 {/* Input Field */}
-                                <Input
-                                    variant="outline"
-                                    size="md"
-                                    className="flex-1 rounded-l-lg">
-                                    <InputField
-                                        placeholder="location code"
-                                        value={field.value}
-                                        onChangeText={field.onChange}
-                                    />
-                                </Input>
+                                <TextInput
+                                    className="flex-1 p-3 bg-white"
+                                    placeholder="Location Code"
+                                    value={field.value}
+                                    onChangeText={field.onChange}
+                                    onSubmitEditing={handleSubmit(onSave)} 
+                                    blurOnSubmit={false}
+                                    returnKeyType="done" 
+                                />
 
                                 {/* Barcode Button */}
                                 <TouchableOpacity
-                                    className="p-2 bg-gray-300 rounded-r-lg"
+                                    className="p-4 bg-gray-300 border-l border-gray-400"
                                     onPress={showingScanner}>
                                     <FontAwesomeIcon
                                         icon={faBarcodeRead}
@@ -148,30 +154,37 @@ const ModalMoveLocation = ({
                 </View>
             </Modal>
 
-            <Modal
-                isVisible={showScanner}
-                title={'Scan Location'}
-                onClose={() => setShowScanner(false)}>
-                <View className="w-full">
-                    <>
+            <View style={styles.container}>
+                <ModalNative
+                    visible={showScanner}
+                    animationType="slide"
+                    transparent={false}
+                    onRequestClose={() => setShowScanner(false)}
+                    presentationStyle="fullScreen">
+                    <View style={styles.modalContent}>
                         <Camera
                             codeScanner={codeScanner}
-                            style={StyleSheet.absoluteFill}
+                            style={styles.camera}
                             device={device}
                             isActive={true}
                         />
-                       {/*  <RNHoleView
+                        <RNHoleView
                             holes={holesConfig()}
                             style={[
                                 globalStyles.scanner.rnholeView,
                                 globalStyles.scanner.fullScreenCamera,
                             ]}
-                        /> */}
-                    </>
-                </View>
-            </Modal>
+                        />
+                    </View>
+                </ModalNative>
+            </View>
         </View>
     );
 };
 
+const styles = StyleSheet.create({
+    container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+    modalContent: {flex: 1, backgroundColor: 'black'},
+    camera: {flex: 1},
+});
 export default ModalMoveLocation;

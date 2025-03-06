@@ -99,18 +99,18 @@ class ShowEmailBulkRun extends OrgAction
         $emailBulkRun = EmailBulkRun::where('id', $routeParameters['emailBulkRun'])->first();
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.show' =>
+            'grp.org.shops.show.dashboard.comms.outboxes.show' =>
             array_merge(
                 ShowOutbox::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     $emailBulkRun,
                     [
                         'index' => [
-                            'name'       => 'grp.org.shops.show.comms.outboxes.show',
+                            'name'       => 'grp.org.shops.show.dashboard.comms.outboxes.show',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.shops.show.comms.outboxes.show.email-bulk-runs.show',
+                            'name'       => 'grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -141,7 +141,7 @@ class ShowEmailBulkRun extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.show.email-bulk-runs.show' => [
+            'grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show' => [
                 'label' => $emailBulkRun->subject,
                 'route' => [
                     'name'      => $routeName,

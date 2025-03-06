@@ -74,7 +74,7 @@ trait WithAccountingSubNavigation
                 "label"    => __("Shop Accounting Dashboard"),
 
                 "route"    => [
-                    "name"       => "grp.org.shops.show.payments.accounting.dashboard",
+                    "name"       => "grp.org.shops.show.dashboard.payments.accounting.dashboard",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
@@ -85,7 +85,7 @@ trait WithAccountingSubNavigation
             [
                 "label"    => __("Accounts"),
                 "route"    => [
-                    "name"       => "grp.org.shops.show.payments.accounting.accounts.index",
+                    "name"       => "grp.org.shops.show.dashboard.payments.accounting.accounts.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
@@ -96,7 +96,7 @@ trait WithAccountingSubNavigation
             [
                 "label"    => __("Payments"),
                 "route"    => [
-                    "name"       => "grp.org.shops.show.payments.accounting.payments.index",
+                    "name"       => "grp.org.shops.show.dashboard.payments.accounting.payments.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
@@ -107,7 +107,7 @@ trait WithAccountingSubNavigation
             [
                 "label"    => __("customers balance"),
                 "route"    => [
-                    "name"       => "grp.org.shops.show.payments.accounting.customer_balances.index",
+                    "name"       => "grp.org.shops.show.dashboard.payments.accounting.customer_balances.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [

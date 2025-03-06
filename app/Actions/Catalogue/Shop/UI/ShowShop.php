@@ -208,7 +208,7 @@ class ShowShop extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.shops.show.dashboard',
+                                    'name'       => 'grp.org.shops.show.dashboard.show',
                                     'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
                                 ],
                                 'label' => $shop->code,
@@ -244,7 +244,7 @@ class ShowShop extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.dashboard' => [
+            'grp.org.shops.show.dashboard.show' => [
                 'label' => $shop->name,
                 'route' => [
                     'name'       => $routeName,

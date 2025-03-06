@@ -127,14 +127,14 @@ class ShowOrgPostRoom extends OrgAction
         $orgPostRoom = OrgPostRoom::where('slug', $routeParameters['orgPostRoom'])->first();
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.post-rooms.show' =>
+            'grp.org.shops.show.dashboard.comms.post-rooms.show' =>
             array_merge(
-                IndexOrgPostRooms::make()->getBreadcrumbs('grp.org.shops.show.comms.post-rooms.index', $routeParameters),
+                IndexOrgPostRooms::make()->getBreadcrumbs('grp.org.shops.show.dashboard.comms.post-rooms.index', $routeParameters),
                 $headCrumb(
                     $orgPostRoom,
                     [
 
-                        'name'       => 'grp.org.shops.show.comms.post-rooms.show',
+                        'name'       => 'grp.org.shops.show.dashboard.comms.post-rooms.show',
                         'parameters' => $routeParameters
 
                     ],
@@ -165,7 +165,7 @@ class ShowOrgPostRoom extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.post-rooms.show' => [
+            'grp.org.shops.show.dashboard.comms.post-rooms.show' => [
                 'label' => $orgPostRoom->name,
                 'route' => [
                     'name'      => $routeName,

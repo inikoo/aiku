@@ -45,15 +45,15 @@ trait WithInvoicesSubNavigation
 
         } else {
             $total = $parent->orderingStats?->number_invoices ?? 10;
-            $routeName = 'grp.org.shops.show.ordering.invoices';
+            $routeName = 'grp.org.shops.show.dashboard.invoices';
             $param = [$parent->organisation->slug, $parent->slug];
             $numberUnpaid = $parent->orderingStats?->number_unpaid_invoices ?? 0;
             $numberPaid = $parent->orderingStats?->number_invoices - $numberUnpaid ?? 0;
             $numberRefunds = $parent->orderingStats?->number_invoices_type_refund ?? 0;
             $allInvoicesRouteName = $routeName . '.index';
-            $unpaidRouteName = preg_replace('/invoices/', 'unpaid_invoices', $routeName).'.index';
-            $refundsRouteName = preg_replace('/invoices/', 'refunds', $routeName).'.index';
-            $deletedInvoicesRouteName = preg_replace('/invoices/', 'deleted_invoices', $routeName).'.index';
+            $unpaidRouteName = preg_replace('/invoices/', 'invoices.unpaid', $routeName).'.index';
+            $refundsRouteName = preg_replace('/invoices/', 'invoices.refunds', $routeName).'.index';
+            $deletedInvoicesRouteName = preg_replace('/invoices/', 'invoices.deleted', $routeName).'.index';
         }
 
         return [
