@@ -15,7 +15,10 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AskLlamaResource;
 use App\Models\Helpers\Chunk;
 use Cloudstudio\Ollama\Facades\Ollama;
+use DeepSeek\DeepSeekClient;
+use DeepSeek\Enums\Models;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Lorisleiva\Actions\ActionRequest;
@@ -154,18 +157,36 @@ class AskLlama extends OrgAction
 
         $prompt = $this->promptTemplate(json_encode($context), $q);
 
-        $response = Ollama::prompt($prompt)
-            ->model('llama3.2:3b')
-            ->options(['temperature' => 0.8])
-            ->stream(false)
-            ->ask();
-        if (isset($response['error'])) {
-            data_set($response, 'status', 422);
-            data_set($response, 'error', 'model not found');
-        }
-        if (!$response) {
-            data_set($response, 'status', 503);
-            data_set($response, 'error', 'model not setup yet');
+
+        if (env('BOT_ENV') == 'r1') {
+            $response = DeepSeekClient::build(env('R1_API_KEY'))
+                ->withModel(Models::CHAT->value)
+                ->query($prompt)
+                ->setTemperature(1.5)
+                ->run();
+            if (isset($response['error'])) {
+                data_set($response, 'status', 422);
+                data_set($response, 'error', 'model not found');
+            }
+            if (!$response) {
+                data_set($response, 'status', 503);
+                data_set($response, 'error', 'model not setup yet');
+            }
+        } else {
+
+            $response = Ollama::prompt($prompt)
+                ->model('llama3.2:3b')
+                ->options(['temperature' => 0.8])
+                ->stream(false)
+                ->ask();
+            if (isset($response['error'])) {
+                data_set($response, 'status', 422);
+                data_set($response, 'error', 'model not found');
+            }
+            if (!$response) {
+                data_set($response, 'status', 503);
+                data_set($response, 'error', 'model not setup yet');
+            }
         }
 
         return $response;
@@ -173,18 +194,28 @@ class AskLlama extends OrgAction
 
     public function asController(ActionRequest $request): AskLlamaResource|JsonResponse
     {
-        $res = $this->handle($request->input('q'));
-        // dd('kena');
 
+        $q = $request->input('q');
+        if (env('BOT_ENV') == 'r1') {
+            $response = DeepSeekClient::build(env('R1_API_KEY'))
+                ->withModel(Models::CHAT->value)
+                ->query($q)
+                ->run();
+
+            $response = [
+                'response' => Arr::get(json_decode($response, true), 'choices.0.message.content')
+            ];
+            return AskLlamaResource::make($response);
+        }
+        $res = $this->handle($q);
         if (isset($res['error'])) {
             return response()->json(AskLlamaResource::make($res), $res['status']);
         }
 
-
         return AskLlamaResource::make($res);
     }
 
-    public $commandSignature = 'ask:llama {q}';
+    public $commandSignature = 'ask:bot {q}';
 
     public function asCommand($command): void
     {
@@ -199,7 +230,14 @@ class AskLlama extends OrgAction
         //     ChunkText::make()->handle(json_encode($content), $metadata);
         // }
         // dd('done');
+        // $client = DeepSeekClient::build(apiKey:env('R1_API_KEY'), baseUrl:'https://api.deepseek.com/v3', timeout:30, clientType:'guzzle');
 
-        dd(AskLlamaResource::collection($this->handle($command->argument('q'))));
+        // $response = $client
+        // ->query($command->argument('q'))
+        // ->withModel(Model)
+        // ->setTemperature(1.5)
+        // ->run();
+        // dd(AskLlamaResource::collection($this->handle($command->argument('q'))));
+
     }
 }
