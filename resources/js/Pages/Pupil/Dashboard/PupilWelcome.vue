@@ -38,6 +38,7 @@ const props = defineProps<{
     shop: string
     shopUrl: string
     showIntro: boolean
+    shops: object
     routes: {
         products: routeType
         store_product: routeType
@@ -122,8 +123,10 @@ const openWebsite = () => {
         <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-500">
             You can visit your account in our fulfilment website to see more.
         </p>
-        <div class="mt-10 flex items-center justify-center gap-x-6">
-            <Button @click="openWebsite" type="black" size="l" label="Visit Fulfilment Website" />
+        <div>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+                <Button @click="openWebsite" type="black" size="l" :label="`Open ${}`" />
+            </div>
         </div>
     </div>
 </template>

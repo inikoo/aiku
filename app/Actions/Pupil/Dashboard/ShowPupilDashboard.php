@@ -10,6 +10,8 @@
 
 namespace App\Actions\Pupil\Dashboard;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Shop;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,14 +27,13 @@ class ShowPupilDashboard
     {
         /** @var \App\Models\Dropshipping\ShopifyUser $shopifyUser */
         $shopifyUser = $request->user('pupil');
-        // dd(session('_token'));
+
         return Inertia::render('Dashboard/PupilWelcome', [
              'shop'                  => $shopifyUser->customer->shop->name,
              'shopUrl'                  => 'https://'.$shopifyUser->customer->shop->website->domain . '/app',
-            // 'token'                 => session()->all(),
-            // 'token_request'         => $request->get('token'),
             'user'                  => $shopifyUser,
             'showIntro'             => !Arr::get($shopifyUser->settings, 'webhooks'),
+            'shops' => Shop::where('type', ShopTypeEnum::FULFILMENT->value)->get(),
             'routes'                => [
                 'products' => [
                     'name'       => 'pupil.products',
