@@ -51,29 +51,6 @@ const dataStats = {
     ]
 }
 
-const config = {
-    type: 'line',
-    data: dataStats,
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Chart.js Line Chart'
-            }
-        }
-    },
-}
-
-const stats = [
-    { id: 1, name: 'Total revenue', value: '$8,280' },
-    { id: 2, name: 'Increased revenue', value: '13.7%' },
-    { id: 3, name: 'Sales', value: '1,843' },
-    { id: 4, name: 'Stocks', value: '319' },
-]
 
 </script>
 

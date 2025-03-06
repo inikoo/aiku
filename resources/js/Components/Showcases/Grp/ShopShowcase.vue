@@ -5,10 +5,14 @@
   -->
 
 <script setup lang="ts">
+import Dashboard from '@/Components/DataDisplay/Dashboard/Dashboard.vue'
+
 
 
 const props = defineProps<{
-    data: {}
+    data: {
+        dashboard_stats: {}
+    }
     tab: string
 }>()
 
@@ -17,5 +21,9 @@ const props = defineProps<{
 
 
 <template>
-    <div>/Grp/ShopShowcase.vue</div>
+    <div>
+        <Dashboard class="p-4"
+            :dashboard="data.dashboard_stats"
+        />
+    </div>
 </template>

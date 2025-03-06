@@ -39,10 +39,13 @@ function RouteDashboard(shop: any) {
 		</div>
 		<div class="flex justify-between text-xs text-gray-500 mt-1">
 			<span>{{ progressPercentage.toFixed(1) }}%</span>
-			<span v-if="progressBar?.right_label" class="primaryLink">
-				<Link :href="RouteDashboard(progressBar.right_label.route)" class="primaryLink">
+			<span v-if="progressBar?.right_label">
+				<Link v-if="progressBar.right_label.route" :href="RouteDashboard(progressBar.right_label.route)" class="primaryLink">
 					{{progressBar.right_label.label}}
 				</Link>
+				<template v-else>
+					{{ progressBar.right_label.label }}
+				</template>
 			</span>
 			<span v-else>{{ progressBar.max }}</span>
 		</div>
