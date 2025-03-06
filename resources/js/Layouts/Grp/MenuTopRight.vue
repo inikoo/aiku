@@ -74,9 +74,9 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             </button>
             
             <button v-if="isAskBotEnabled === 'true'" @click="showAskBot = !showAskBot" id="ask-bot"
-                class="bg-yellow-100 ring-1 ring-yellow-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
+                class="bg-fuchsia-100 ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
                 <div class="flex gap-x-1 items-center ">
-                    <FontAwesomeIcon icon="fad fa-sparkles" class="text-yellow-500" fixed-width aria-hidden="true" />
+                    <FontAwesomeIcon icon="fad fa-sparkles" class="text-fuchsia-500" fixed-width aria-hidden="true" />
                     <h1 class="animate-linear bg-gradient-to-r from-blue-400 via-pink-500 to-blue-400 bg-[length:200%_auto] bg-clip-text font-bold text-transparent">
                         <span class="">AI</span>
                     </h1>
