@@ -63,7 +63,7 @@ class ShowShop extends OrgAction
 
                         $this->getWidget(
                             data: [
-                                'value'       => 555,
+                                'value'       => $shop->orderingStats->number_invoices,
                                 'description' => __('invoices'),
                                 'type'        => 'number',
                                 // 'route'       => [
@@ -77,11 +77,11 @@ class ShowShop extends OrgAction
                             visual: [
                                 'label'       => __('Paid'),
                                 'type'        => 'MeterGroup',
-                                'value'       => 222,
-                                'max'         => 333,
+                                'value'       => $shop->orderingStats->number_invoices - $shop->orderingStats->number_unpaid_invoices,
+                                'max'         => $shop->orderingStats->number_invoices,
                                 'color'       => 'bg-blue-500',
                                 'right_label' => [
-                                    'label' => __('Unpaid'),
+                                    'label' => __('Unpaid').' '. $shop->orderingStats->number_unpaid_invoices,
                                     // 'route' => [
                                     //     'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
                                     //     'parameters' => [
@@ -96,53 +96,54 @@ class ShowShop extends OrgAction
                         ),
 
 
-                        $this->getWidget(
-                            data: [
-                                'value'         => 111,
-                                'description'   => __('Next Bills'),
-                                'type'          => 'currency',
-                                // 'status'        => $fulfilment->stats->current_recurring_bills_amount < 0 ? 'danger' : '',
-                                // 'currency_code' => $fulfilment->shop->currency->code,
-                                // 'route'         => [
-                                //     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
-                                //     'parameters' => [
-                                //         $fulfilment->organisation->slug,
-                                //         $fulfilment->slug
-                                //     ]
-                                // ]
-                            ],
-                            visual: [
-                                'label' => __('Bills'),
-                                'type'  => 'number_with_label',
-                                'value' => 444,
-                                // 'route' => [
-                                //     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
-                                //     'parameters' => [
-                                //         $fulfilment->organisation->slug,
-                                //         $fulfilment->slug
-                                //     ]
-                                // ]
-                            ],
-                        ),
+                        // $this->getWidget(
+                        //     data: [
+                        //         'value'         => $shop->stats->current_recurring_bills_amount,
+                        //         'description'   => __('Next Bills'),
+                        //         'type'          => 'currency',
+                        //         // 'status'        => $fulfilment->stats->current_recurring_bills_amount < 0 ? 'danger' : '',
+                        //         // 'currency_code' => $fulfilment->shop->currency->code,
+                        //         // 'route'         => [
+                        //         //     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
+                        //         //     'parameters' => [
+                        //         //         $fulfilment->organisation->slug,
+                        //         //         $fulfilment->slug
+                        //         //     ]
+                        //         // ]
+                        //     ],
+                        //     visual: [
+                        //         'label' => __('Bills'),
+                        //         'type'  => 'number_with_label',
+                        //         'value' => 444,
+                        //         // 'route' => [
+                        //         //     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.current.index',
+                        //         //     'parameters' => [
+                        //         //         $fulfilment->organisation->slug,
+                        //         //         $fulfilment->slug
+                        //         //     ]
+                        //         // ]
+                        //     ],
+                        // ),
 
                         $this->getWidget(
                             data: [
-                                'value'       => 222,
+                                'value'       => $shop->crmStats->number_customers_state_active,
                                 'description' => __('Active Customers'),
                                 'type'        => 'number',
                                 // 'route'       => [
-                                //     'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                                //     'name'       => 'grp.org.shops.show.crm.customers.index',
                                 //     'parameters' => [
-                                //         'organisation'     => $fulfilment->organisation->slug,
-                                //         'fulfilment'       => $fulfilment->slug,
-                                //         'elements[status]' => 'active'
+                                //         'organisation'     => $shop->organisation->slug,
+                                //         'shop'       => $shop->slug,
+                                //         'tab' => 'customers',
+                                //         'customers_elements[state]' => 'active'
                                 //     ]
                                 // ]
                             ],
                             visual: [
                                 'label' => __('Pending Approval Customers'),
                                 'type'  => 'number_with_label',
-                                'value' => 333,
+                                'value' => $shop->crmStats->number_customers_status_approved,
                                 // 'route' => [
                                 //     'name'       => 'grp.org.fulfilments.show.crm.customers.pending_approval.index',
                                 //     'parameters' => [
@@ -154,16 +155,17 @@ class ShowShop extends OrgAction
                         ),
                         $this->getWidget(
                             data: [
-                                'value'       => 666,
+                                'value'       => $shop->orderingStats->number_orders_state_submitted,
                                 'description' => __('New Orders'),
                                 'type'        => 'number',
-                                // 'route'       => [
-                                //     'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
-                                //     'parameters' => [
-                                //         'organisation' => $fulfilment->organisation->slug,
-                                //         'fulfilment'   => $fulfilment->slug,
-                                //     ]
-                                // ]
+                                'route'       => [
+                                    'name'       => 'grp.org.shops.show.ordering.orders.index',
+                                    'parameters' => [
+                                        'organisation' => $shop->organisation->slug,
+                                        'shop'   => $shop->slug,
+                                        'orders_elements[state]' => 'submitted'
+                                    ]
+                                ]
                             ],
                         ),
 
