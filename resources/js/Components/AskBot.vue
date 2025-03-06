@@ -47,8 +47,8 @@ const fetchApi = debounce(async (query: string) => {
 			background: 'linear-gradient(to right top, #d946ef, #f9a8d4, #ec4899)'
 		}"
 	>
-		<div class="animate-linear bg-gradient-to-r from-lime-50 via-teal-200 to-lime-50 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
-			<FontAwesomeIcon icon="fad fa-sparkles" class="text-teal-300" fixed-width aria-hidden="true" />
+		<div class="animate-linear bg-gradient-to-r from-teal-300 via-pink-100 to-teal-300 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
+			<FontAwesomeIcon icon="fas fa-sparkles" class="text-pink-600" fixed-width aria-hidden="true" />
 			{{ trans('Ask AI anything..')}}
 		</div>
 

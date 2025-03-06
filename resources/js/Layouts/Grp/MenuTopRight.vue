@@ -26,11 +26,9 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-const isAskBotEnabled =  import.meta.env.VITE_ASK_BOT_UI;
 // const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
 const showAskBot = ref(false)
-console.log(isAskBotEnabled);
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
@@ -74,11 +72,11 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             </button>
             
             <!-- Search: AI -->
-            <button v-if="isAskBotEnabled === 'true'" @click="showAskBot = !showAskBot" id="ask-bot"
-                class="bg-gradient-to-tr from-fuchsia-500 via-pink-200 to-pink-500 border-none ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
+            <button @click="showAskBot = !showAskBot" id="ask-bot"
+                class="bg-gradient-to-tr from-pink-200 xvia-pink-200 to-pink-100 border-none ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
                 <div class="flex gap-x-1 items-center ">
-                    <FontAwesomeIcon icon="fas fa-sparkles" class="text-teal-300" fixed-width aria-hidden="true" />
-                    <h1 class="animate-linear bg-gradient-to-r from-lime-50 via-teal-200 to-lime-50 bg-[length:200%_auto] bg-clip-text font-bold text-transparent">
+                    <FontAwesomeIcon icon="fas fa-sparkles" class="text-pink-500" fixed-width aria-hidden="true" />
+                    <h1 class="animate-linear bg-gradient-to-r from-fuchsia-300 via-pink-500 to-fuchsia-300 bg-[length:200%_auto] bg-clip-text font-bold text-transparent">
                         <span class="">AI</span>
                     </h1>
                 </div>
