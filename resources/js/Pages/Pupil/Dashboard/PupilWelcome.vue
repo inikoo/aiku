@@ -38,6 +38,7 @@ const props = defineProps<{
     shop: string
     shopUrl: string
     showIntro: boolean
+    shops: object
     routes: {
         products: routeType
         store_product: routeType
@@ -98,8 +99,8 @@ const onClickGetStarted = () => {
         }
     })
 }
-const openWebsite = () => {
-    window.open(props.shopUrl, '_blank');
+const openWebsite = (url) => {
+    window.open(url, '_blank');
 };
 </script>
 
@@ -115,15 +116,28 @@ const openWebsite = () => {
             <Button @click="() => onClickGetStarted()" type="black" size="l" label="Configure" />
         </div>
     </div>
-    <div v-else class="relative isolate overflow-hidden px-6 py-8 text-center sm:rounded-3xl sm:px-12">
+    <div v-else-if="props.shop" class="relative isolate overflow-hidden px-6 py-8 text-center sm:rounded-3xl sm:px-12">
         <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
             {{ trans(`Welcome to ${props.shop}!`) }}
         </h2>
         <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-500">
-            You can visit your account in our fulfilment website to see more.
+            You can manage your orders and products in our fulfilment website.
         </p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
-            <Button @click="openWebsite" type="black" size="l" label="Visit Fulfilment Website" />
+            <Button @click="openWebsite(props.shopUrl)" type="black" size="l" :label="`Open ${props.shop}`" />
+        </div>
+    </div>
+    <div v-else class="relative isolate overflow-hidden px-6 py-8 text-center sm:rounded-3xl sm:px-12">
+        <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
+            {{ trans(`Welcome to Ancient Wisdom Connect!`) }}
+        </h2>
+        <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-500">
+            You need to create an account in one of these store.
+        </p>
+        <div v-for="shop in props.shops">
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+                <Button @click="openWebsite(shop.domain)" type="black" size="l" :label="`Open ${shop.name}`" />
+            </div>
         </div>
     </div>
 </template>
