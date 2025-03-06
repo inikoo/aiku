@@ -16,6 +16,8 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
@@ -162,21 +164,21 @@ class ShowPallet extends OrgAction
                     ];
                 }
 
-                if ($pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED)) {
-                    $actions[] = [
-                        'type'    => 'button',
-                        'tooltip' => __("Return Pallet"),
-                        'label'   => __("Return Pallet"),
-                        'key'     => 'return-pallet',
-                        'route'   => [
-                            'name'       => 'grp.models.pallet.return',
-                            'parameters' => [
-                                'pallet' => $pallet->id
-                            ],
-                            'method'     => 'patch'
-                        ]
-                    ];
-                }
+            }
+            if ($pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED) && $pallet->status != PalletStatusEnum::RETURNED) {
+                $actions[] = [
+                    'type'    => 'button',
+                    'tooltip' => __("Return Pallet"),
+                    'label'   => __("Return Pallet"),
+                    'key'     => 'return-pallet',
+                    'route'   => [
+                        'name'       => 'grp.models.pallet.return',
+                        'parameters' => [
+                            'pallet' => $pallet->id
+                        ],
+                        'method'     => 'patch'
+                    ]
+                ];
             }
         }
 
@@ -233,7 +235,8 @@ class ShowPallet extends OrgAction
             return [
                 'name' => $palletStoredItem->storedItem->name,
                 'reference' => $palletStoredItem->storedItem->reference,
-                'quantity' => $palletStoredItem->quantity
+                'quantity' => $palletStoredItem->quantity,
+                'state' => $palletStoredItem->state
             ];
         }, $pallet->palletStoredItems->all());
 

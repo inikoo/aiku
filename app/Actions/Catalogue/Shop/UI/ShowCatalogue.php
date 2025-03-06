@@ -295,7 +295,7 @@ class ShowCatalogue extends OrgAction
                             ]
                         ],
                         'icon'  => 'fal fa-folder',
-                        "color" => "#facc15",
+                        "color" => "#e879f9",
                         'value' => $shop->stats->number_current_families,
                         'metas' => [
                             [
