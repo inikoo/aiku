@@ -69,6 +69,17 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
                     'customer_name' => $customer->name,
                     'customer_email' => $customer->email,
                     'customer_shop' => $customer->shop->name,
+                    'customer_organisation' => $customer->organisation->name,
+                    'customer_url' => $customer->shop->fulfilment ? route('grp.org.fulfilments.show.crm.customers.show', [
+                        $customer->organisation->slug,
+                        $customer->shop->fulfilment->slug,
+                        $customer->fulfilmentCustomer->slug
+                    ]) : route('grp.org.shops.show.crm.customers.show', [
+                        $customer->organisation->slug,
+                        $customer->shop->slug,
+                        $customer->slug
+                    ]),
+                    'customer_created_date' => $customer->created_at->format('d-m-Y H:i:s')
                 ]
             );
         }
