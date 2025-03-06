@@ -20,6 +20,7 @@ use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\Maintenance\SysAdmin\RepairUsersAdminsAuth;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -1354,4 +1355,11 @@ test('UI show dashboard group (tab invoice_shops)', function () {
                 ->etc()
             );
     });
+});
+
+test('test repair admins command', function () {
+    $this->artisan('users:repair_admins_auth')->assertSuccessful();
+    RepairUsersAdminsAuth::run(User::first());
+
+
 });
