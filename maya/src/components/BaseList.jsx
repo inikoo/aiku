@@ -1,4 +1,4 @@
-import React, {forwardRef, useEffect, useState, useImperativeHandle } from 'react';
+import React, {forwardRef, useEffect, useState, useImperativeHandle,useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -28,14 +28,14 @@ const BaseList = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFetching, setIsFetching] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [meta, setMeta] = useState();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
 
   // Fetch Data
-  const getDataFromServer = async (isLoadMore = false, newPage = 1) => {
+  const getDataFromServer =  useCallback(async (isLoadMore = false, newPage = 1) => {
     if (isLoadMore) setIsLoadingMore(true);
     else setIsFetching(true);
     request({
@@ -76,7 +76,7 @@ const BaseList = forwardRef((props, ref) => {
         setIsLoadingMore(false);
       },
     });
-  };
+  }, [props.urlKey, props.args, props.params, searchQuery]);
 
   const fetchMoreData = (isLoadMore = false) => {
     if (isLoadMore) {
@@ -86,8 +86,6 @@ const BaseList = forwardRef((props, ref) => {
       getDataFromServer(false);
     }
   };
-
-
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -115,6 +113,10 @@ const BaseList = forwardRef((props, ref) => {
     fetchMoreData(false);
   }, [searchQuery]);
 
+  const renderItem = useMemo(() => ({ item }) => (
+    props.listItem ? props.listItem({ item, navigation: props.navigation }) : <GroupItem item={item} navigation={props.navigation} />
+  ), [props.listItem, props.navigation]);
+
   return (
     <View
       style={{flex: 1}}
@@ -138,7 +140,7 @@ const BaseList = forwardRef((props, ref) => {
       </View>
 
       {/* List Container */}
-      <View style={{flex: 1, marginBottom: 60}}>
+      <View style={[props.listContainerStyle]}>
         {isFetching ? (
           // Show Loading Indicator on First Fetch
           <View
@@ -166,13 +168,7 @@ const BaseList = forwardRef((props, ref) => {
                 </View>
               ) : null
             }
-            renderItem={({item}) =>
-              props.listItem ? (
-                props.listItem({item: item, navigation: props.navigation})
-              ) : (
-                <GroupItem item={item} navigation={props.navigation} />
-              )
-            }
+            renderItem={renderItem}
           />
         )}
       </View>
@@ -213,6 +209,7 @@ BaseList.defaultProps = {
   args: [],
   params: {},
   height : 120,
+  listContainerStyle : {flex: 1, marginBottom : 60 },
   showTotalResults,
 };
 

@@ -22,6 +22,10 @@ module.exports = {
                 }]
             },
             keyframes: {
+                background: {
+                    '0%, 100%': { backgroundPosition: 'left 0% bottom 0%' },
+                    '50%': { backgroundPosition: 'left 200% bottom 0%' },
+                },
                 shimmer: {
                     '100%': {
                         transform: 'translateX(100%)',
@@ -33,6 +37,10 @@ module.exports = {
                     '50%': { transform: 'translateX(5px)' },
                     '75%': { transform: 'translateX(-5px)' },
                 },
+                backgroundLinear: {
+                    '0%': { backgroundPosition: '0% 50%' },
+                    '100%': { backgroundPosition: '200% 50%' },
+                },
             },
             colors: {
                 retina: {
@@ -40,6 +48,8 @@ module.exports = {
                 }
             },
             animation: {
+                linear: 'backgroundLinear 1s linear infinite',
+                background_move: 'background 2s ease-in-out infinite',
                 skeleton: 'shimmer 1.3s ease-in-out infinite',
                 shimmer: 'shimmer 2.5s ease-in-out infinite',
                 error_shake: 'errorShake 0.3s ease-in-out',
