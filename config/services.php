@@ -29,6 +29,13 @@ return [
         'key'    => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-    ]
+    ],
 
+    'tiktok' => [
+        'url'    => env('TIKTOK_BUSINESS_URL'),
+        'redirect_uri' => env('TIKTOK_REDIRECT_URI'),
+        'client_id' => env('TIKTOK_CLIENT_ID'),
+        'client_secret' => env('TIKTOK_CLIENT_SECRET'),
+        'scopes' => env('TIKTOK_SCOPES')
+    ]
 ];
