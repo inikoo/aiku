@@ -21,6 +21,8 @@ Route::prefix('{warehouse:id}')
         Route::name('show')
             ->group(function () {
 
+                Route::prefix('agent-inventory')->name('.agent_inventory.')
+                    ->group(__DIR__."/agent_inventory.php");
 
                 Route::prefix('inventory')->name('.inventory.')
                     ->group(__DIR__."/inventory.php");
