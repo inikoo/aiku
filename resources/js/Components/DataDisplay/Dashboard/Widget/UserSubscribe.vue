@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { inject, ref, computed } from "vue"
 import axios from "axios"
-import { router } from "@inertiajs/vue3" // Import Inertia router
+import { router, useForm } from "@inertiajs/vue3" // Inertia router
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faEdit, faTrash, faSave, faSignOutAlt } from "@fortawesome/free-solid-svg-icons"
-import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { faPlus } from "@far"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
+import ConfirmPopup from "primevue/confirmpopup"
+import { useConfirm } from "primevue/useconfirm"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { faExclamationTriangle } from "@fal"
+import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
 
 // Add icons to the library
-library.add(faEdit, faTrash, faPlus, faSave, faSignOutAlt)
+library.add(faEdit, faTrash, faPlus, faSave, faSignOutAlt, faExclamationTriangle)
 
 // Global key for the search query parameter
 const SEARCH_PARAM_KEY = "global"
@@ -22,35 +26,36 @@ const SEARCH_PARAM_KEY = "global"
 const props = withDefaults(
 	defineProps<{
 		showRedBorder: boolean
-		widget: any[] // Expecting an array of objects with id, contact_name, email, etc.
+		widget: any[] // Array of objects with id, contact_name, email, etc.
 		visual?: any
 	}>(),
-	{
-		widget: () => [],
-	}
+	{ widget: () => [] }
 )
 
-// Create a reactive copy of the widget items for deletion handling
-const widgetItems = ref([...props.widget])
+// Create reactive copy for deletion handling
+const widgetItems = ref(props.widget)
 
-// Inject global locale and layout stores if needed
+// Inject global locale and layout stores
 const locale = inject("locale", aikuLocaleStructure)
 const layoutStore = inject("layout", layoutStructure)
 
-// Track whether we are in edit mode
-const isEditing = ref(false)
+// PrimeVue confirmation instance
+const confirm = useConfirm()
 
-// Flag to indicate unsaved changes
+// Track edit mode and unsaved changes
+const isEditing = ref(false)
 const hasChanges = ref(false)
 
-// Reactive array for newly added user inputs (with search capability)
-// Each object: { query: string, suggestions: string[] }
+// Reactive arrays for new inputs
 const newUserInputs = ref<{ query: string; suggestions: string[] }[]>([])
-
-// Reactive array for newly added external email inputs (strings)
 const newExternalEmailInputs = ref<string[]>([])
+const dataUserList = ref([])
+const formAddUser = useForm({ user_id: [] })
+const routeIndexUser = {
+	name: "grp.json.fulfilment.outbox.users.index",
+	parameters: { fulfilment: route().params["fulfilment"], outbox: route().params["outbox"] },
+}
 
-// Computed property to check if there are any subscriptions (existing or new)
 const hasSubscriptions = computed(() => {
 	return (
 		widgetItems.value.length > 0 ||
@@ -59,74 +64,72 @@ const hasSubscriptions = computed(() => {
 	)
 })
 
-// Toggle edit mode
+// Mode toggles
 const toggleEdit = () => {
 	isEditing.value = true
 }
-
-// Exit edit mode
 const exitEdit = () => {
 	isEditing.value = false
 }
 
-// Handler for "Add User" – adds a new user input with search capability
+// Handlers for adding new inputs
 const addUser = () => {
-	console.log("Add User clicked")
 	newUserInputs.value.push({ query: "", suggestions: [] })
 	hasChanges.value = true
 }
-
-// Handler for "Add External Email" – adds a new external email input
 const addExternalEmail = () => {
-	console.log("Add External Email clicked")
 	newExternalEmailInputs.value.push("")
 	hasChanges.value = true
 }
 
-// Delete an existing subscriber using the delete endpoint
-const deleteWidgetItem = async (index: number) => {
-	const item = widgetItems.value[index]
-	try {
-		await axios.delete("grp.models.fulfilment.outboxes.subscriber.delete", {
-			params: { id: item.id },
-		})
-		widgetItems.value.splice(index, 1)
-		hasChanges.value = true
-	} catch (error) {
-		console.error("Error deleting subscriber", error)
+// Delete an existing subscriber using Inertia's router.delete
+const deleteWidgetItem = (item: any, index: number) => {
+	const subscriber_id = item.subscriber_id
+
+	const routeToDelete = {
+		name: "grp.models.fulfilment.outboxes.subscriber.delete",
+		parameters: [route().params["fulfilment"], route().params["outbox"], subscriber_id],
 	}
+	router.delete(route(routeToDelete.name, routeToDelete.parameters), {
+		preserveScroll: true,
+		onSuccess: () => {
+			notify({
+				title: trans("Succes"),
+				text: trans("Successful Delete"),
+				type: "success",
+			})
+			/* widgetItems.value.splice(index, 1) */
+			hasChanges.value = true
+		},
+		onError: (error: any) => {
+			console.error("Error deleting subscriber", error)
+		},
+	})
 }
 
-// Delete a newly added user input field
+// Delete functions for new inputs
 const deleteUserInput = (index: number) => {
 	newUserInputs.value.splice(index, 1)
 	hasChanges.value = true
 }
-
-// Delete a newly added external email input field
 const deleteExternalEmailInput = (index: number) => {
 	newExternalEmailInputs.value.splice(index, 1)
 	hasChanges.value = true
 }
 
-// Save changes using the Inertia router
 const saveChanges = () => {
-	console.log("Save clicked")
 	const payload: any = {}
-	// If external email inputs exist, send only external_emails.
-	// Otherwise, if user inputs exist, send only users_id.
 	if (newExternalEmailInputs.value.length > 0) {
 		payload.external_emails = newExternalEmailInputs.value
 	} else if (newUserInputs.value.length > 0) {
-		payload.users_id = newUserInputs.value.map((input) => input.query)
+		payload.users_id =Array.isArray(formAddUser.user_id)
+    ? formAddUser.user_id
+    : [formAddUser.user_id];
 	}
-
-	// Define routeToSubmit for the store endpoint
 	const routeToSubmit = {
 		name: "grp.models.fulfilment.outboxes.subscriber.store",
 		parameters: [route().params["fulfilment"], route().params["outbox"]],
 	}
-
 	router.post(route(routeToSubmit.name, routeToSubmit.parameters), payload, {
 		preserveScroll: true,
 		onSuccess: () => {
@@ -140,7 +143,7 @@ const saveChanges = () => {
 			hasChanges.value = false
 		},
 		onError: (errors: any) => {
-			console.log(errors, "as")
+			console.log(errors)
 			notify({
 				title: trans("Something went wrong."),
 				text: trans("Failed to attach"),
@@ -151,7 +154,7 @@ const saveChanges = () => {
 	})
 }
 
-// Handle input change for user field to perform search query via API
+// Handle user search input
 const handleUserInput = async (index: number) => {
 	hasChanges.value = true
 	const query = newUserInputs.value[index].query
@@ -160,11 +163,9 @@ const handleUserInput = async (index: number) => {
 		return
 	}
 	try {
-		// Use the global key for the query parameter
 		const response = await axios.get("grp.json.fulfilment.outbox.users.index", {
 			params: { [SEARCH_PARAM_KEY]: query },
 		})
-		// Ensure we assign an array even if the API response is not an array
 		newUserInputs.value[index].suggestions = Array.isArray(response.data) ? response.data : []
 	} catch (error) {
 		console.error("Error fetching user suggestions", error)
@@ -172,85 +173,126 @@ const handleUserInput = async (index: number) => {
 	}
 }
 
-// When a suggestion is clicked, set it as the input value and clear suggestions
+// When a suggestion is clicked, update the input
 const selectUserSuggestion = (index: number, suggestion: string) => {
 	newUserInputs.value[index].query = suggestion
 	newUserInputs.value[index].suggestions = []
 	hasChanges.value = true
 }
+
+const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
+	confirm.require({
+		target: event.currentTarget,
+		appendTo: "body",
+		message: "Are you sure you want to delete this record?",
+		icon: "pi pi-exclamation-triangle",
+		rejectProps: {
+			label: "No",
+			severity: "secondary",
+			outlined: true,
+		},
+		acceptProps: {
+			label: "Yes",
+			severity: "danger",
+		},
+		accept: () => {
+			deleteWidgetItem(item, index)
+		},
+		reject: () => {
+			// Optionally handle rejection
+		},
+	})
+}
 </script>
 
 <template>
+	<ConfirmPopup>
+		<template #icon>
+			<FontAwesomeIcon :icon="faExclamationTriangle" class="text-yellow-500" />
+		</template>
+	</ConfirmPopup>
 	<dl class="mb-2 grid grid-cols-1 md:grid-cols-2 gap-3">
-		<div class=" rounded-lg bg-white shadow border border-gray-200">
-			<!-- Card Header with Title -->
+		<div class="rounded-lg bg-white shadow border border-gray-200">
+			<!-- Card Header -->
 			<div class="px-4 py-1 flex items-center justify-between">
-				<dt class="text-lg font-semibold text-gray-500 capitalize ">Subscribe</dt>
-				<!-- Toggle edit / sign-out icon outside the widget list -->
+				<dt class="text-lg font-semibold text-gray-500 capitalize">Subscribe</dt>
 				<FontAwesomeIcon
 					:icon="isEditing ? faSignOutAlt : faEdit"
 					class="text-blue-500 cursor-pointer"
 					@click="isEditing ? exitEdit() : toggleEdit()" />
 			</div>
-			<!-- Card Body -->
 			<div class="p-4">
-				<!-- Existing widget items -->
 				<div
-					v-for="(item, index) in widgetItems"
-					:key="index"
+					v-for="(item, index) in props.widget"
+					:key="item.id"
 					class="flex items-center justify-between border-b border-gray-100 py-1">
-					<!-- Display contact_name and email in italic -->
 					<span class="text-gray-600">
-						{{ item.contact_name }} <i>({{ item.email }})</i>
+						{{ item.contact_name }}
+						<i>
+							<template v-if="item.email"> ({{ item.email }}) </template>
+							<template v-else>
+								(<FontAwesomeIcon
+									:icon="faExclamationTriangle"
+									class="text-red-500 mr-1" />
+								no email set)
+							</template>
+						</i>
 					</span>
-					<!-- Delete icon appears in edit mode -->
+
 					<div v-if="isEditing">
-						<FontAwesomeIcon
-							:icon="faTrash"
-							class="text-red-500 cursor-pointer"
-							@click="deleteWidgetItem(index)" />
+						<span
+							class="inline-block p-2"
+							@click="confirmDeleteWidgetItem($event, item, index)">
+							<FontAwesomeIcon :icon="faTrash" class="text-red-500 cursor-pointer" />
+						</span>
 					</div>
 				</div>
-
-				<!-- Newly added User Inputs with search suggestions -->
+				<!-- New user inputs -->
 				<div v-if="newUserInputs.length" class="mt-2">
 					<div
 						v-for="(input, index) in newUserInputs"
 						:key="'user-' + index"
-						class="border-b border-gray-100 py-2">
-						<div class="flex items-center justify-between">
-							<input
-								type="text"
-								v-model="input.query"
-								@input="handleUserInput(index)"
-								placeholder="Enter User"
-								class="w-full border border-gray-300 rounded p-2" />
-							<FontAwesomeIcon
-								:icon="faTrash"
-								class="text-red-500 cursor-pointer ml-2"
-								@click="deleteUserInput(index)" />
-						</div>
-						<!-- Suggestions dropdown -->
-						<ul
-							v-if="input.suggestions.length"
-							class="mt-1 border border-gray-300 rounded bg-white">
-							<li
-								v-for="(suggestion, sIndex) in input.suggestions"
-								:key="sIndex"
-								class="px-2 py-1 hover:bg-gray-100 cursor-pointer"
-								@click="selectUserSuggestion(index, suggestion)">
-								{{ suggestion }}
-							</li>
-						</ul>
+						class="border-b py-2">
+						<PureMultiselectInfiniteScroll
+							v-model="formAddUser.user_id"
+							:fetchRoute="routeIndexUser"
+							:placeholder="trans('Select User')"
+							valueProp="id"
+							@optionsList="(options) => (dataUserList = options)">
+							<template #singlelabel="{ value }">
+								<div class="w-full text-left pl-4">
+									{{ value.username }}
+									<span class="text-sm text-gray-400">
+										<template v-if="value.email">
+											{{ value.email }}
+										</template>
+										<template v-else>
+											<FontAwesomeIcon
+												:icon="faExclamationTriangle"
+												class="text-red-500 mr-1" />
+											no email set
+										</template>
+									</span>
+								</div>
+							</template>
+
+							<template #option="{ option, isSelected, isPointed }">
+								<div class="">
+									{{ option.username }}
+									<span class="text-sm text-gray-400"
+										>| {{ option.contact_name }}</span
+									>
+								</div>
+							</template>
+						</PureMultiselectInfiniteScroll>
 					</div>
 				</div>
-
-				<!-- Newly added External Email Inputs -->
+				<!-- New external email inputs -->
 				<div v-if="newExternalEmailInputs.length" class="mt-2">
 					<div
 						v-for="(input, index) in newExternalEmailInputs"
 						:key="'external-' + index"
-						class="flex items-center justify-between border-b border-gray-100 py-2">
+						class="flex items-center justify-between border-b py-2">
 						<input
 							type="text"
 							v-model="newExternalEmailInputs[index]"
@@ -263,13 +305,11 @@ const selectUserSuggestion = (index: number, suggestion: string) => {
 							@click="deleteExternalEmailInput(index)" />
 					</div>
 				</div>
-
-				<!-- If there are no subscriptions, display a placeholder text -->
+				<!-- Placeholder if no subscriptions exist -->
 				<div v-if="!hasSubscriptions" class="mt-2">
 					<p class="text-gray-600 italic">not subscribe set</p>
 				</div>
-
-				<!-- Action Buttons to add new inputs and Save button -->
+				<!-- Action Buttons -->
 				<div v-if="isEditing" class="mt-2 flex items-center space-x-4">
 					<Button
 						label="Add User"
@@ -283,7 +323,6 @@ const selectUserSuggestion = (index: number, suggestion: string) => {
 						size="s"
 						@click="addExternalEmail"
 						iconRight="far fa-plus" />
-					<!-- Save button with icon; enabled only when there are changes -->
 					<Button
 						label="Save"
 						:type="'primary'"
