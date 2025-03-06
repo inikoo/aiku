@@ -57,6 +57,7 @@ class GetOutboxShowcase
                                 'type' => '',
                                 'data' => $outbox->subscribedUsers->map(function ($subscribedUser) {
                                     return $subscribedUser->user ? [
+                                        'id' => $subscribedUser->user->id,
                                         'username' => $subscribedUser->user->username,
                                         'contact_name' => $subscribedUser->user->contact_name,
                                         'email' => $subscribedUser->user->email,
