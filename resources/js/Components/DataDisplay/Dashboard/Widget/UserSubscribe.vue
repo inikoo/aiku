@@ -121,7 +121,8 @@ const saveChanges = () => {
 	const payload: any = {}
 	if (newExternalEmailInputs.value.length > 0) {
 		payload.external_emails = newExternalEmailInputs.value
-	} else if (newUserInputs.value.length > 0) {
+	} 
+	if (newUserInputs.value.length > 0) {
 		payload.users_id =Array.isArray(formAddUser.user_id)
     ? formAddUser.user_id
     : [formAddUser.user_id];
