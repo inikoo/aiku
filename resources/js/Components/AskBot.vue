@@ -42,9 +42,13 @@ const fetchApi = debounce(async (query: string) => {
 </script>
 
 <template>
-	<Modal :isOpen="isOpen" @onClose="() => (isOpen = false)" width="w-3/4" height="h-[80%]">
-		<div class="animate-linear bg-gradient-to-r from-blue-400 via-pink-500 to-blue-400 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
-			<FontAwesomeIcon icon="fad fa-sparkles" class="text-yellow-300" fixed-width aria-hidden="true" />
+	<Modal :isOpen="isOpen" @onClose="() => (isOpen = false)" width="w-3/4" height="h-[80%]"
+		:dialogStyle="{
+			background: 'linear-gradient(to right top, #d946ef, #f9a8d4, #ec4899)'
+		}"
+	>
+		<div class="animate-linear bg-gradient-to-r from-lime-50 via-teal-200 to-lime-50 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
+			<FontAwesomeIcon icon="fad fa-sparkles" class="text-teal-300" fixed-width aria-hidden="true" />
 			{{ trans('Ask AI anything..')}}
 		</div>
 
