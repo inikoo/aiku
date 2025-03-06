@@ -153,7 +153,6 @@ trait IsInvoiceUI
                         'name'       => 'grp.models.invoice.payment.store',
                         'parameters' => [
                             'invoice'  => $invoice->id,
-                            'customer' => $invoice->customer_id,
                         ]
                     ]
 
