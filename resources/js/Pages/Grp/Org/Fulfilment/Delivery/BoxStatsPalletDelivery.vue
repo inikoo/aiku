@@ -119,7 +119,7 @@ const onUpdateCustomerReference = () => {
 			<!-- Field: Reference -->
 			<Link
 				as="a"
-				v-if="boxStats.fulfilment_customer.customer.reference"
+				v-if="boxStats?.fulfilment_customer?.customer?.reference"
 				:href="
 					route('grp.org.fulfilments.show.crm.customers.show', [
 						route().params.organisation,
@@ -142,7 +142,7 @@ const onUpdateCustomerReference = () => {
 
 			<!-- Field: Contact name -->
 			<div
-				v-if="boxStats.fulfilment_customer.customer.contact_name"
+				v-if="boxStats?.fulfilment_customer?.customer.contact_name"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="'Contact name'" class="flex-none">
 					<span class="sr-only">Contact name</span>
@@ -160,7 +160,7 @@ const onUpdateCustomerReference = () => {
 
 			<!-- Field: Company name -->
 			<div
-				v-if="boxStats.fulfilment_customer.customer.company_name"
+				v-if="boxStats?.fulfilment_customer?.customer.company_name"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="'Company name'" class="flex-none">
 					<span class="sr-only">Company name</span>
@@ -178,7 +178,7 @@ const onUpdateCustomerReference = () => {
 
 			<!-- Field: Email -->
 			<div
-				v-if="boxStats.fulfilment_customer?.customer.email"
+				v-if="boxStats?.fulfilment_customer?.customer.email"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Email')" class="flex-none">
 					<span class="sr-only">Email</span>
@@ -198,7 +198,7 @@ const onUpdateCustomerReference = () => {
 
 			<!-- Field: Phone -->
 			<div
-				v-if="boxStats.fulfilment_customer?.customer.phone"
+				v-if="boxStats?.fulfilment_customer?.customer.phone"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="'Phone'" class="flex-none">
 					<span class="sr-only">Phone</span>
@@ -236,22 +236,22 @@ const onUpdateCustomerReference = () => {
 			<!-- <pre>{{ dataPalletDelivery }}</pre> -->
 			<div class="flex items-center w-full flex-none gap-x-2 mb-2">
 				<dt class="flex-none">
-					<span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
+					<span class="sr-only">{{ boxStats?.delivery_state.tooltip }}</span>
 					<FontAwesomeIcon
-						:icon="boxStats.delivery_state.icon"
-						:class="boxStats.delivery_state.class"
+						:icon="boxStats?.delivery_state.icon"
+						:class="boxStats?.delivery_state.class"
 						fixed-width
 						aria-hidden="true" />
 				</dt>
-				<dd class="text-gray-500" :class="boxStats.delivery_state.class">
-					{{ boxStats.delivery_state.tooltip }}
+				<dd class="text-gray-500" :class="boxStats?.delivery_state.class">
+					{{ boxStats?.delivery_state.tooltip }}
 				</dd>
 			</div>
 
 			<!-- Set estimated date -->
 			<div class="flex items-center w-full gap-x-2">
 				<dt v-tooltip="'Estimated received date'" class="flex-none">
-					<span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
+					<span class="sr-only">{{ boxStats?.delivery_state.tooltip }}</span>
 					<FontAwesomeIcon
 						:icon="['fal', 'calendar-day']"
 						class="text-gray-400"
@@ -369,8 +369,8 @@ const onUpdateCustomerReference = () => {
 					</Link>
 				</div>
 				<OrderSummary
-					:order_summary="boxStats.order_summary"
-					:currency_code="boxStats.order_summary.currency.data.code" />
+					:order_summary="boxStats?.order_summary"
+					:currency_code="boxStats?.order_summary.currency.data.code" />
 
 				<!-- <div class="mt-6">
                     <button type="submit"
