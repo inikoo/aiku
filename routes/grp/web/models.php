@@ -543,7 +543,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment}')->group(function () {
-    Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
+    Route::name('outboxes.')->prefix('outboxes/{outbox}')->group(function () {
         Route::post('subscriber', [StoreOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.store')->withoutScopedBindings();
         Route::delete('subscriber/{outBoxHasSubscriber:id}', [DeleteOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.delete')->withoutScopedBindings();
     });
