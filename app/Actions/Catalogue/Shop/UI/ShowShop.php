@@ -66,13 +66,13 @@ class ShowShop extends OrgAction
                                 'value'       => $shop->orderingStats->number_invoices,
                                 'description' => __('invoices'),
                                 'type'        => 'number',
-                                // 'route'       => [
-                                //     'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
-                                //     'parameters' => [
-                                //         $fulfilment->organisation->slug,
-                                //         $fulfilment->slug
-                                //     ]
-                                // ]
+                                'route'       => [
+                                    'name'       => 'grp.org.shops.show.dashboard.invoices.index',
+                                    'parameters' => [
+                                        $shop->organisation->slug,
+                                        $shop->slug
+                                    ]
+                                ]
                             ],
                             visual: [
                                 'label'       => __('Paid'),
@@ -82,13 +82,13 @@ class ShowShop extends OrgAction
                                 'color'       => 'bg-blue-500',
                                 'right_label' => [
                                     'label' => __('Unpaid').' '. $shop->orderingStats->number_unpaid_invoices,
-                                    // 'route' => [
-                                    //     'name'       => 'grp.org.fulfilments.show.operations.invoices.unpaid_invoices.index',
-                                    //     'parameters' => [
-                                    //         $fulfilment->organisation->slug,
-                                    //         $fulfilment->slug
-                                    //     ]
-                                    // ]
+                                    'route' => [
+                                        'name'       => 'grp.org.shops.show.dashboard.invoices.unpaid.index',
+                                        'parameters' => [
+                                            $shop->organisation->slug,
+                                            $shop->slug
+                                        ]
+                                    ]
                                 ]
 
 
