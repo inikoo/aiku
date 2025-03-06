@@ -36,10 +36,10 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
     {
         // /** @var Outbox $outbox */
         $outbox = $customer->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
+        $outboxDispatch = $customer->shop->outboxes()->where('type', OutboxTypeEnum::USER_NOTIFICATION)->first();
 
         $subcribeUsers = $outbox->subscribedUsers;
         foreach ($subcribeUsers as $subcribeUser) {
-            // $recipient       = $subcribeUser->user->email ?? $subcribeUser->external_email;
             if ($subcribeUser->user) {
                 $recipient = $subcribeUser->user;
             } else {
@@ -47,7 +47,7 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
             }
             $dispatchedEmail = StoreDispatchedEmail::run($outbox->emailOngoingRun, $recipient, [
                 'is_test'       => false,
-                'outbox_id'     => Outbox::where('type', OutboxTypeEnum::USER_NOTIFICATION)->pluck('id')->first(),
+                'outbox_id'     => $outboxDispatch->id,
                 'email_address' => $recipient->email ?? $recipient->external_email,
                 'provider'      => DispatchedEmailProviderEnum::SES
             ]);
@@ -66,31 +66,34 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
                 $emailHtmlBody,
                 '',
                 additionalData: [
-                    'customer_name' => $customer->name
+                    'customer_name' => $customer->name,
+                    'customer_email' => $customer->email,
+                    'customer_shop' => $customer->shop->name,
                 ]
             );
         }
 
     }
 
-    // public string $commandSignature = 'xxx';
+    public string $commandSignature = 'xxx';
 
-    // public function asCommand($command){
-    //     $c = Customer::first();
-    //     // $outbox = $c->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
-    //     // // 'external_email' => 'dev@aw-advantage.com',
+    public function asCommand($command)
+    {
+        $c = Customer::first();
+        // $outbox = $c->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
+        // // 'external_email' => 'dev@aw-advantage.com',
 
-    //     // StoreOutboxHasSubscriber::make()->action(
-    //     //     Outbox::find(158),
-    //     //     [
-    //     //         'external_email' => 'artha@aw-advantage.com',
-    //     //     ]
-    //     // );
+        // StoreOutboxHasSubscriber::make()->action(
+        //     Outbox::find(158),
+        //     [
+        //         'external_email' => 'artha@aw-advantage.com',
+        //     ]
+        // );
 
 
 
-    //     $this->handle($c);
-    // }
+        $this->handle($c);
+    }
 
 
 
