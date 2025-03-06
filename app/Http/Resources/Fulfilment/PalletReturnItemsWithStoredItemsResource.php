@@ -50,12 +50,22 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
             'total_quantity_ordered' => (int) ($this->total_quantity_ordered ?? 0),
             'is_checked'             => (bool) $this->pallet_return_state === PalletStateEnum::IN_PROCESS->value ? $this->pallet_return_id : false,
             'pallet_return_state'    => $this->pallet_return_state ?? null,
-            'pallet_stored_items'    => $storedItem->palletStoredItems->map(function ($palletStoredItem) {
-                // Cache palletReturnItem once per iteration
-                $palletReturnItem = $palletStoredItem->palletReturnItems
-                    ->where('pallet_return_id', $this->pallet_return_id)
-                    ->first();
-
+            'pallet_stored_items'    => $storedItem->palletStoredItems()
+                ->when(
+                    in_array($this->pallet_return_state, [PalletStateEnum::PICKED->value, PalletStateEnum::DISPATCHED->value]),
+                    fn ($query) => $query->where(function ($q) {
+                        $q->where('state', '!=', PalletStoredItemStateEnum::RETURNED)
+                        ->orWhereHas('palletReturnItems', fn ($subQuery) => 
+                            $subQuery->where('pallet_return_id', $this->pallet_return_id)
+                        );
+                    }),
+                    fn ($query) => $query->where('state', '!=', PalletStoredItemStateEnum::RETURNED)
+                )
+                ->get()
+                ->map(function ($palletStoredItem) {
+                    $palletReturnItem = $palletStoredItem->palletReturnItems
+                        ->where('pallet_return_id', $this->pallet_return_id)
+                        ->first();
                 return [
                     'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
                     'id'                         => $palletStoredItem->id,
