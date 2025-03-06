@@ -101,9 +101,10 @@ class GetRetinaDropshippingNavigation
         foreach (
             $customer->platforms()->get() as $platform
         ) {
-            $platforms_navigation[$platform->slug] = [
+            $platforms_navigation[] = [
                 'type'          => $platform->type,
                 'slug'          => $platform->slug,
+                'root'          => 'retina.dropshipping.platforms.',
                 'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser, $platform)
             ];
         }
