@@ -164,21 +164,21 @@ class ShowPallet extends OrgAction
                     ];
                 }
 
-                if ($pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED) && $pallet->status != PalletStatusEnum::RETURNED) {
-                    $actions[] = [
-                        'type'    => 'button',
-                        'tooltip' => __("Return Pallet"),
-                        'label'   => __("Return Pallet"),
-                        'key'     => 'return-pallet',
-                        'route'   => [
-                            'name'       => 'grp.models.pallet.return',
-                            'parameters' => [
-                                'pallet' => $pallet->id
-                            ],
-                            'method'     => 'patch'
-                        ]
-                    ];
-                }
+            }
+            if ($pallet->palletStoredItems->every(fn ($item) => $item->state == PalletStoredItemStateEnum::RETURNED) && $pallet->status != PalletStatusEnum::RETURNED) {
+                $actions[] = [
+                    'type'    => 'button',
+                    'tooltip' => __("Return Pallet"),
+                    'label'   => __("Return Pallet"),
+                    'key'     => 'return-pallet',
+                    'route'   => [
+                        'name'       => 'grp.models.pallet.return',
+                        'parameters' => [
+                            'pallet' => $pallet->id
+                        ],
+                        'method'     => 'patch'
+                    ]
+                ];
             }
         }
 
