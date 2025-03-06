@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Dropshipping\Shopify\Product\GetApiProductsFromShopify;
+use App\Actions\Dropshipping\Tiktok\DeleteTiktokUser;
 use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
@@ -130,8 +131,9 @@ Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
     //     Route::post('orders/{shopifyHasFulfilmentId:id}/release-hold', StoreRetinaProductShopify::class)->name('orders.release_hold')->withoutScopedBindings();
     Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
-
     Route::get('shopify-user/{shopifyUser:id}/sync-products', GetApiProductsFromShopify::class)->name('shopify_user.product.sync')->withoutScopedBindings();
+
+    Route::delete('tiktok/{tiktokUser:id}', DeleteTiktokUser::class)->name('tiktok.delete')->withoutScopedBindings();
 });
 
 Route::name('web-users.')->prefix('web-users')->group(function () {
