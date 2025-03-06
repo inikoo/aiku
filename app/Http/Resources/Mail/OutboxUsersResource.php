@@ -43,6 +43,7 @@ class OutboxUsersResource extends JsonResource
             'email' => $this->email,
             'username' => $this->username,
             'contact_name' => $this->contact_name,
+            'disabled' => $this->email ? false : true,
         ];
     }
 }
