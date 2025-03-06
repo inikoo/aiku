@@ -98,6 +98,7 @@ class GetRetinaDropshippingNavigation
         ];
 
         $platforms_navigation = [];
+
         foreach (
             $customer->platforms()->get() as $platform
         ) {
