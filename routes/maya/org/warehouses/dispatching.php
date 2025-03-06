@@ -26,7 +26,7 @@ Route::get('handling-fulfilment-returns', [IndexWarehousePalletReturns::class, '
 Route::get('dispatched-fulfilment-returns', [IndexWarehousePalletReturns::class, 'inWarehouseDispatched'])->name('pallet_returns.dispatched.index');
 
 
-Route::get('fulfilment-returns/{palletReturn:id}', ShowPalletReturn::class)->name('pallet-returns.show')->withoutScopedBindings();
+Route::get('fulfilment-returns/{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show')->withoutScopedBindings();
 Route::get('fulfilment-return-stored-items/{palletReturn:id}', [ShowStoredItemReturn::class, 'inWarehouse'])->name('pallet-return-with-stored-items.show')->withoutScopedBindings();
 Route::get('fulfilment-returns/{palletReturn:id}/pallets', IndexPalletsInReturn::class)->name('pallet-returns.pallets.index')->withoutScopedBindings();
 Route::get('fulfilment-returns/{palletReturn:id}/stored-items', IndexPalletStoredItemsInReturn::class)->name('pallet-returns.stored-items.index')->withoutScopedBindings();

@@ -15,6 +15,7 @@ use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -24,8 +25,12 @@ use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -1440,7 +1445,6 @@ test('UI Index pallet returns', function () {
 });
 
 test('UI show pallet return', function () {
-
     $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -1540,6 +1544,105 @@ test('UI show pallet return (services tab)', function () {
 
     });
 });
+
+test('UI show pallet return (confirmed)', function () {
+    $palletReturn = $this->palletReturn;
+    $fulfilmentCustomer = $this->customer->fulfilmentCustomer;
+    $pallet = $fulfilmentCustomer->pallets()->where('status', PalletStatusEnum::STORING)->first();
+    AttachPalletToReturn::make()->action(
+        $palletReturn,
+        $pallet,
+    );
+
+    $palletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+});
+
+test('UI show pallet return (picking)', function (PalletReturn $palletReturn) {
+    $palletReturn = PickingPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (confirmed)');
+
+test('UI show pallet return (picked)', function (PalletReturn $palletReturn) {
+    $palletReturn = PickedPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (picking)');
+
+test('UI show pallet return (dispatched)', function (PalletReturn $palletReturn) {
+    $palletReturn = DispatchPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (picked)');
 
 // Rental
 

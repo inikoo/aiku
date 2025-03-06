@@ -1741,7 +1741,6 @@ test('picking pallet to return', function (PalletReturn $submittedPalletReturn) 
 
 
     $pickingPalletReturn = PickingPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $submittedPalletReturn,
     );
     // dd($storedPallet);
@@ -1763,7 +1762,6 @@ test('picked pallet to return', function (PalletReturn $pickingPalletReturn) {
 
 
     $pickedPalletReturn = PickedPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $pickingPalletReturn,
     );
     // dd($storedPallet);
@@ -1814,7 +1812,6 @@ test('dispatch pallet return', function (PalletReturn $palletReturn) {
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $dispatchedPalletReturn = DispatchPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $palletReturn
     );
     $fulfilmentCustomer->refresh();
@@ -2537,7 +2534,6 @@ test('picking second pallet to return', function (PalletReturn $submittedPalletR
 
 
     $pickingPalletReturn = PickingPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $submittedPalletReturn,
     );
     // dd($storedPallet);
