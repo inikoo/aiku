@@ -236,7 +236,7 @@ class ShowPallet extends OrgAction
             return [
                 'name' => $palletStoredItem->storedItem->name,
                 'reference' => $palletStoredItem->storedItem->reference,
-                'quantity' => $palletStoredItem->quantity,
+                'quantity' => (int) $palletStoredItem->quantity,
                 'state' => $palletStoredItem->state
             ];
         }, $pallet->palletStoredItems->all());
