@@ -196,7 +196,7 @@ class AskLlama extends OrgAction
     {
 
         $q = $request->input('q');
-        if (env('BOT_ENV') == 'r1') {
+        if (env('AI_PROVIDER') == 'r1') {
             $response = DeepSeekClient::build(env('R1_API_KEY'))
                 ->withModel(Models::CHAT->value)
                 ->query($q)
