@@ -24,7 +24,7 @@ const AgentSkus = ({navigation}) => {
       <BaseList
         navigation={navigation}
         urlKey='get-agent-skus'
-        height="0"
+        listContainerStyle={{flex: 1}}
         args={[organisation.id, warehouse.id]}
         listItem={({item, navigation}) => (
           <GroupItem item={item} navigation={navigation} />

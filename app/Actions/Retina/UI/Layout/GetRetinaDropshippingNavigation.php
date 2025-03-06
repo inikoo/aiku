@@ -98,21 +98,24 @@ class GetRetinaDropshippingNavigation
         ];
 
         $platforms_navigation = [];
+
         foreach (
             $customer->platforms()->get() as $platform
         ) {
-            $platforms_navigation[$platform->slug] = [
+            $platforms_navigation[] = [
                 'type'          => $platform->type,
+                'slug'          => $platform->slug,
+                'root'          => 'retina.dropshipping.platforms.',
                 'subNavigation' => GetRetinaDropshippingPlatformNavigation::run($webUser, $platform)
             ];
         }
 
-        if ($webUser->customer->shopifyUser) {
+        if ($webUser->customer->shopifyUser || $webUser->customer->tiktokUser) {
             $groupNavigation['platforms_navigation'] = [
                 'platforms_navigation'       => [
                     'label'      => __('platforms'),
                     'icon'       => "fal fa-store-alt",
-                    'navigation' => $platforms_navigation
+                    'navigation' => array_reverse($platforms_navigation)
                 ],
             ];
         }

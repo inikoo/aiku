@@ -47,6 +47,7 @@ use App\Actions\Transfers\Aurora\Api\ProcessAuroraTimesheet;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraTopUp;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraWarehouse;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraWarehouseArea;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraWebUser;
 use Illuminate\Support\Facades\Route;
 
 Route::name('bk_api.')->group(function () {
@@ -92,6 +93,8 @@ Route::name('bk_api.')->group(function () {
             Route::post('warehouse', ProcessAuroraWarehouse::class)->name('warehouse');
             Route::post('favourite', ProcessAuroraFavourites::class)->name('favourites');
             Route::post('delete-favourite', ProcessAuroraDeleteFavourites::class)->name('favourites.delete');
+            Route::post('web-user', ProcessAuroraWebUser::class)->name('web_user');
+
         });
     });
 });

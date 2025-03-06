@@ -96,31 +96,67 @@ const ShowFulfilmentDelivery = ({navigation, route, onChangeState, handleRefresh
       refreshControl={
         <RefreshControl  onRefresh={()=>handleRefresh()} />
       }>
-      {data.state != "booked_in" ? (
-        <SetStateButton
-          button1={{
-            size: 'md',
-            variant: 'outline',
-            action: 'primary',
-            style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
-            onPress: null,
-            text: `To do : ${data.number_pallets_state_not_received + data.number_pallets_state_booked_in }/ ${data.number_pallets + data.number_boxes + data.number_oversizes || 0}`,
-          }}
-          button2={{
-            size: 'md',
-            action: 'primary',
-            style: {borderTopLeftRadius: 0, borderBottomLeftRadius: 0},
-            onPress: () =>
-              onChangeState(getFilteredActionsDelivery(data.state).id),
-            text: 'Set to ' + getFilteredActionsDelivery(data.state).title,
-          }}
-        />
-      ) : (
-        <Alert action="success" variant="solid">
-          <FontAwesomeIcon icon={faCheckCircle} color="green" />
-          <AlertText>Already Booked In</AlertText>
-        </Alert>
-      )}
+        {data.state != 'booked_in' ? (
+              <SetStateButton
+                  progress={{
+                      value:
+                          data.number_pallets_state_not_received +
+                          data.number_pallets_state_booked_in + data.number_pallet_storing,
+                      size: 'lg',
+                      total: data.number_pallets,
+                      orientation: 'horizontal',
+                  }}
+                  button2={{
+                      size: 'md',
+                      action: 'primary',
+                      variant: 'link',
+                      style: {
+                          borderTopLeftRadius: 0,
+                          borderBottomLeftRadius: 0,
+                      },
+                      onPress: () =>
+                          onChangeState(
+                              getFilteredActionsDelivery(data.state).id,
+                          ),
+                      text:
+                          'Set to ' +
+                          getFilteredActionsDelivery(data.state).title,
+                  }}
+              />
+          ) : (
+              <SetStateButton
+                  renderButton2={({button2}) => (
+                      <Alert action="success" variant="solid">
+                          <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                          <AlertText>Already Booked In</AlertText>
+                      </Alert>
+                  )}
+                  progress={{
+                      value:
+                          data.number_pallets_state_not_received +
+                          data.number_pallets_state_booked_in,
+                      size: 'lg',
+                      total: data.number_pallets,
+                      orientation: 'horizontal',
+                  }}
+                  button2={{
+                      size: 'md',
+                      action: 'primary',
+                      variant: 'link',
+                      style: {
+                          borderTopLeftRadius: 0,
+                          borderBottomLeftRadius: 0,
+                      },
+                      onPress: () =>
+                          onChangeState(
+                              getFilteredActionsDelivery(data.state).id,
+                          ),
+                      text:
+                          'Set to ' +
+                          getFilteredActionsDelivery(data.state).title,
+                  }}
+              />
+          )}
 
       <Card className="mt-4">
         <Heading>Delivery Details</Heading>
