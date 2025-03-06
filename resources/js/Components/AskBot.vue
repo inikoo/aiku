@@ -5,6 +5,7 @@ import { ref } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faLampDesk } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { trans } from "laravel-vue-i18n"
 
 library.add(faLampDesk)
 
@@ -42,6 +43,11 @@ const fetchApi = debounce(async (query: string) => {
 
 <template>
 	<Modal :isOpen="isOpen" @onClose="() => (isOpen = false)" width="w-3/4" height="h-[80%]">
+		<div class="animate-linear bg-gradient-to-r from-blue-400 via-pink-500 to-blue-400 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
+			<FontAwesomeIcon icon="fad fa-sparkles" class="text-yellow-300" fixed-width aria-hidden="true" />
+			{{ trans('Ask AI anything..')}}
+		</div>
+
 		<div class="relative">
 			<input
 				v-model="searchValue"
