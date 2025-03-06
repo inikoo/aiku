@@ -107,6 +107,7 @@ class IndexWebUsers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
+
         $subNavigation = [];
 
         $icon       = ['fal', 'fa-terminal'];
@@ -289,7 +290,7 @@ class IndexWebUsers extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $customer;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(WebUserTabsEnum::values());
 
         return $this->handle(parent: $customer, prefix: WebUserTabsEnum::WEB_USERS->value);
     }
