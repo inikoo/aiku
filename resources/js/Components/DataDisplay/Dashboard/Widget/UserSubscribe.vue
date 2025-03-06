@@ -4,7 +4,7 @@ import axios from "axios"
 import { router } from "@inertiajs/vue3" // Import Inertia router
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faEdit, faTrash, faSave, faTimes } from "@fortawesome/free-solid-svg-icons"
+import { faEdit, faTrash, faSave, faSignOutAlt } from "@fortawesome/free-solid-svg-icons"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -13,7 +13,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
 
 // Add icons to the library
-library.add(faEdit, faTrash, faPlus, faSave, faTimes)
+library.add(faEdit, faTrash, faPlus, faSave, faSignOutAlt)
 
 // Global key for the search query parameter
 const SEARCH_PARAM_KEY = "global"
@@ -113,12 +113,12 @@ const deleteExternalEmailInput = (index: number) => {
 const saveChanges = () => {
 	console.log("Save clicked")
 	const payload: any = {}
-	// If external email inputs exist, send only external_email.
-	// Otherwise, if user inputs exist, send only user_id.
+	// If external email inputs exist, send only external_emails.
+	// Otherwise, if user inputs exist, send only users_id.
 	if (newExternalEmailInputs.value.length > 0) {
-		payload.external_email = newExternalEmailInputs.value
+		payload.external_emails = newExternalEmailInputs.value
 	} else if (newUserInputs.value.length > 0) {
-		payload.user_id = newUserInputs.value.map((input) => input.query)
+		payload.users_id = newUserInputs.value.map((input) => input.query)
 	}
 
 	// Define routeToSubmit for the store endpoint
@@ -164,8 +164,8 @@ const handleUserInput = async (index: number) => {
 		const response = await axios.get("grp.json.fulfilment.outbox.users.index", {
 			params: { [SEARCH_PARAM_KEY]: query },
 		})
-		// Assuming the API returns an array of user suggestions
-		newUserInputs.value[index].suggestions = response.data
+		// Ensure we assign an array even if the API response is not an array
+		newUserInputs.value[index].suggestions = Array.isArray(response.data) ? response.data : []
 	} catch (error) {
 		console.error("Error fetching user suggestions", error)
 		newUserInputs.value[index].suggestions = []
@@ -182,10 +182,15 @@ const selectUserSuggestion = (index: number, suggestion: string) => {
 
 <template>
 	<dl class="mb-2 grid grid-cols-1 md:grid-cols-2 gap-3">
-		<div class="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+		<div class=" rounded-lg bg-white shadow border border-gray-200">
 			<!-- Card Header with Title -->
-			<div class="px-4 py-1">
-				<h2 class="text-lg font-semibold">Subscribe</h2>
+			<div class="px-4 py-1 flex items-center justify-between">
+				<dt class="text-lg font-semibold text-gray-500 capitalize ">Subscribe</dt>
+				<!-- Toggle edit / sign-out icon outside the widget list -->
+				<FontAwesomeIcon
+					:icon="isEditing ? faSignOutAlt : faEdit"
+					class="text-blue-500 cursor-pointer"
+					@click="isEditing ? exitEdit() : toggleEdit()" />
 			</div>
 			<!-- Card Body -->
 			<div class="p-4">
@@ -194,17 +199,10 @@ const selectUserSuggestion = (index: number, suggestion: string) => {
 					v-for="(item, index) in widgetItems"
 					:key="index"
 					class="flex items-center justify-between border-b border-gray-100 py-1">
-					<div class="flex items-center space-x-2">
-						<!-- Show edit icon or exit icon in the same position -->
-						<FontAwesomeIcon
-							:icon="isEditing ? faTimes : faEdit"
-							class="text-blue-500 cursor-pointer"
-							@click="isEditing ? exitEdit() : toggleEdit()" />
-						<!-- Display contact_name and email in italic -->
-						<span class="text-gray-600">
-							{{ item.contact_name }} <i>({{ item.email }})</i>
-						</span>
-					</div>
+					<!-- Display contact_name and email in italic -->
+					<span class="text-gray-600">
+						{{ item.contact_name }} <i>({{ item.email }})</i>
+					</span>
 					<!-- Delete icon appears in edit mode -->
 					<div v-if="isEditing">
 						<FontAwesomeIcon
