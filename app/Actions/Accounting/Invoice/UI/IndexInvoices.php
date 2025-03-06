@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -540,6 +541,7 @@ class IndexInvoices extends OrgAction
 
 
 
+
         return match ($routeName) {
             'grp.org.accounting.invoices.index' =>
             array_merge(
@@ -586,12 +588,12 @@ class IndexInvoices extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.shops.show.ordering.invoices.index' =>
+            'grp.org.shops.show.dashboard.invoices.index' =>
             array_merge(
-                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.index',
                         'parameters' => $routeParameters
                     ]
                 )

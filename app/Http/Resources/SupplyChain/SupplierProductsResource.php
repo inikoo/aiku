@@ -11,6 +11,7 @@ namespace App\Http\Resources\SupplyChain;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
+ * @property string $id
  * @property string $code
  * @property string $name
  * @property string $slug
@@ -23,6 +24,7 @@ class SupplierProductsResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            "id"    => $this->id,
             'code'          => $this->code,
             'name'          => $this->name,
             'slug'          => $this->slug,

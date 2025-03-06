@@ -42,7 +42,7 @@ trait WithLayoutNavigation
         $navigation['warehouses_navigation'] = [];
 
         /** @var Warehouse $warehouse */
-        foreach ($user->authorisedWarehouses()->where('org_id', $organisation->id)->get() as $warehouse) {
+        foreach ($user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get() as $warehouse) {
 
             if ($warehouse->organisation->type == OrganisationTypeEnum::AGENT) {
                 $navigation['warehouses_navigation'][$warehouse->slug] = GetAgentWarehouseNavigation::run($warehouse, $user);

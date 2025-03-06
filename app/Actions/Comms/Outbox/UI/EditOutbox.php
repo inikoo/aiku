@@ -131,16 +131,16 @@ class EditOutbox extends OrgAction
         $outbox = Outbox::where('slug', $routeParameters['outbox'])->first();
 
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.show',
-            'grp.org.shops.show.comms.outboxes.edit',
-            'grp.org.shops.show.comms.outboxes.workshop' =>
+            'grp.org.shops.show.dashboard.comms.outboxes.show',
+            'grp.org.shops.show.dashboard.comms.outboxes.edit',
+            'grp.org.shops.show.dashboard.comms.outboxes.workshop' =>
             array_merge(
-                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.comms.outboxes.index', $routeParameters),
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.dashboard.comms.outboxes.index', $routeParameters),
                 $headCrumb(
                     $outbox,
                     [
 
-                        'name' => 'grp.org.shops.show.comms.outboxes.show',
+                        'name' => 'grp.org.shops.show.dashboard.comms.outboxes.show',
                         'parameters' => $routeParameters
 
                     ],
@@ -194,7 +194,7 @@ class EditOutbox extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.shops.show.comms.outboxes.dispatched-email.show' =>
+            'grp.org.shops.show.dashboard.comms.outboxes.dispatched-email.show' =>
             array_merge(
                 IndexOutboxes::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
@@ -202,7 +202,7 @@ class EditOutbox extends OrgAction
                         'type' => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.org.shops.show.comms.outboxes.show',
+                                'name' => 'grp.org.shops.show.dashboard.comms.outboxes.show',
                                 'parameters' => array_merge($routeParameters, [
                                     'tab' => 'dispatched_emails'
                                 ])
@@ -236,8 +236,8 @@ class EditOutbox extends OrgAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.shops.show.comms.outboxes.show',
-            'grp.org.shops.show.comms.outboxes.edit' => [
+            'grp.org.shops.show.dashboard.comms.outboxes.show',
+            'grp.org.shops.show.dashboard.comms.outboxes.edit' => [
                 'label' => $outbox->name,
                 'route' => [
                     'name' => $routeName,

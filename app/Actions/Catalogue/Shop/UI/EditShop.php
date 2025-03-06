@@ -64,7 +64,7 @@ class EditShop extends OrgAction
                             'type'  => 'button',
                             'style' => 'exitEdit',
                             'route' => [
-                                'name'       => 'grp.org.shops.show.dashboard',
+                                'name'       => 'grp.org.shops.show.dashboard.show',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]

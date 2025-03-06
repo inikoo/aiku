@@ -440,12 +440,12 @@ class IndexInvoicesDeleted extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.shops.show.ordering.invoices.index' =>
+            'grp.org.shops.show.dashboard.invoices.index' =>
             array_merge(
                 ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.index',
                         'parameters' => $routeParameters
                     ]
                 )

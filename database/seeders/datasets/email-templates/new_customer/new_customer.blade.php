@@ -104,7 +104,7 @@
             <td class="alert alert-warning"
                 style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; color: #fff; font-weight: 500; text-align: center; border-radius: 3px 3px 0 0; background-color:#26A65B; margin: 0; padding: 20px;"
                 align="center" bgcolor="#26A65B" valign="top">
-              New customer registration {{$customer->shop->name}}
+              New customer registration [Customer Name]
             </td>
           </tr>
           <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
@@ -113,7 +113,7 @@
                 <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                   <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;"
                       valign="top">
-                    New customer {{$customer->name}} @if ($customer->emaill)({{$customer->email}})@endif
+                    New customer [Customer Name] 
                   </td>
                 </tr>
 
@@ -134,7 +134,7 @@
               <td class="aligncenter content-block"
                   style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 12px; vertical-align: top; color: #999; text-align: center; margin: 0; padding: 0 0 20px;"
                   align="center" valign="top">
-                {{$customer->organisation->name}}<br/>{{now()}}
+                  [Customer Name]<br/>{{now()}}
               </td>
             </tr>
 

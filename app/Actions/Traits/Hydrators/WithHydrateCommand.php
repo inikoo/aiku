@@ -8,6 +8,7 @@
 
 namespace App\Actions\Traits\Hydrators;
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -22,6 +23,7 @@ trait WithHydrateCommand
     use AsAction;
 
     private string $model;
+    private ?string $restriction = null;
 
     protected function getOrganisationsIds(Command $command): array
     {
@@ -47,6 +49,8 @@ trait WithHydrateCommand
             }
         }
 
+
+
         if ($command->hasOption('slug') && $command->option('slug')) {
             $query->where('slug', $command->option('slug'));
         }
@@ -54,6 +58,15 @@ trait WithHydrateCommand
             $this->getOrganisationsIds($command);
             $query->whereIn('organisation_id', $this->getOrganisationsIds($command));
         }
+
+        if ($this->restriction == 'department') {
+            $query->where('type', ProductCategoryTypeEnum::DEPARTMENT);
+        } elseif ($this->restriction == 'family') {
+            $query->where('type', ProductCategoryTypeEnum::FAMILY);
+        } elseif ($this->restriction == 'sub_department') {
+            $query->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT);
+        }
+
 
         $count = $query->count();
 

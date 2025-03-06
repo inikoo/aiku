@@ -71,7 +71,8 @@ class IndexPalletsInCustomer extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
-                    ->orWhereWith('pallets.reference', $value);
+                    ->orWhereWith('pallets.reference', $value)
+                    ->orWhereWith('pallets.notes', $value);
             });
         });
 
@@ -170,7 +171,6 @@ class IndexPalletsInCustomer extends OrgAction
             }
 
 
-
             $emptyStateData = [
                 'icons'       => ['fal fa-pallet'],
                 'title'       => __('No pallets found'),
@@ -220,8 +220,6 @@ class IndexPalletsInCustomer extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-
-
         $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->fulfilmentCustomer, $request);
 
         $icon       = ['fal', 'fa-user'];
@@ -238,27 +236,26 @@ class IndexPalletsInCustomer extends OrgAction
 
         if ($this->parent->number_pallets_status_storing) {
             $actions[] = [
-                'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
-                    'label'   => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
-                    'fullLoading'   => true,
-                    'route'   => [
-                        'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                        'parameters' => [$this->parent->id]
-                    ]
-                ];
+                'type'        => 'button',
+                'style'       => 'create',
+                'tooltip'     => $this->parent->items_storage ? __('Create new return (whole pallet)') : __('Create new return'),
+                'label'       => $this->parent->items_storage ? __('Return (whole pallet)') : __('Return'),
+                'fullLoading' => true,
+                'route'       => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                    'parameters' => [$this->parent->id]
+                ]
+            ];
         }
         if ($this->parent->items_storage) {
-
             $actions[] = [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('Create new return (Customer SKUs)'),
-                'label'   => __('Return (Customer SKUs)'),
-                'fullLoading'   => true,
-                'route'   => [
+                'type'        => 'button',
+                'style'       => 'create',
+                'tooltip'     => __('Create new return (Customer SKUs)'),
+                'label'       => __('Return (Customer SKUs)'),
+                'fullLoading' => true,
+                'route'       => [
                     'method'     => 'post',
                     'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
                     'parameters' => [$this->parent->id]
@@ -308,7 +305,7 @@ class IndexPalletsInCustomer extends OrgAction
 
                     'subNavigation' => $subNavigation,
 
-                    'actions'       => $actions
+                    'actions' => $actions
                 ],
 
                 'tabs' => [
@@ -323,7 +320,6 @@ class IndexPalletsInCustomer extends OrgAction
                 FulfilmentCustomerPalletsTabsEnum::INCOMING->value => $this->tab == FulfilmentCustomerPalletsTabsEnum::INCOMING->value ?
                     fn () => PalletsResource::collection($pallets)
                     : Inertia::lazy(fn () => PalletsResource::collection($pallets)),
-
 
 
                 FulfilmentCustomerPalletsTabsEnum::RETURNED->value => $this->tab == FulfilmentCustomerPalletsTabsEnum::RETURNED->value ?
@@ -345,16 +341,14 @@ class IndexPalletsInCustomer extends OrgAction
             ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::INCOMING->value))
             ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::RETURNED->value))
             ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::INCIDENT->value))
-            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::ALL->value))
-
-        ;
+            ->table($this->tableStructure($this->fulfilmentCustomer, FulfilmentCustomerPalletsTabsEnum::ALL->value));
     }
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->parent = $fulfilmentCustomer;// This is needed fot authorisation checks
+        $this->parent             = $fulfilmentCustomer;// This is needed fot authorisation checks
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerPalletsTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer, $request->get('tab', FulfilmentCustomerPalletsTabsEnum::STORING->value));

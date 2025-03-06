@@ -8,11 +8,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\UserHasAuthorisedModels;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -26,7 +22,7 @@ class GetOrganisationNavigation
         $navigation = [];
 
 
-        if ($user->authTo([ 'accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
+        if ($user->authTo(['accounting.'.$organisation->id.'.view', 'org-supervisor.'.$organisation->id, 'shops-view.'.$organisation->id])) {
             $navigation['shops_index'] = [
                 'label'   => __('Shops'),
                 'scope'   => 'shops',
@@ -49,12 +45,8 @@ class GetOrganisationNavigation
         }
 
         $shops_navigation = [];
-        /** @var UserHasAuthorisedModels $authorisedModel */
-        foreach (
-            $organisation->userAuthorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
-        ) {
-            /** @var Shop $shop */
-            $shop                          = $authorisedModel->model;
+        foreach ($user->authorisedShops->where('organisation_id', $organisation->id) as $shop) {
+
             $shops_navigation[$shop->slug] = [
                 'type'          => $shop->type,
                 'subNavigation' => GetShopNavigation::run($shop, $user)
@@ -83,14 +75,10 @@ class GetOrganisationNavigation
         }
 
         $fulfilments_navigation = [];
-        foreach (
-            $organisation->userAuthorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel
-        ) {
-            /** @var Fulfilment $fulfilment */
-            $fulfilment                                = $authorisedModel->model;
+        foreach ($user->authorisedFulfilments->where('organisation_id', $organisation->id) as $fulfilment) {
             $fulfilments_navigation[$fulfilment->slug] = [
-                'type'              => $fulfilment->type ?? 'fulfilment',
-                'subNavigation'     => GetFulfilmentNavigation::run($fulfilment, $user)
+                'type'          => $fulfilment->type ?? 'fulfilment',
+                'subNavigation' => GetFulfilmentNavigation::run($fulfilment, $user)
             ];
         }
 
@@ -108,22 +96,13 @@ class GetOrganisationNavigation
         ];
 
         $navigation['productions_navigation'] = [];
-        foreach (
-            $organisation->userAuthorisedModels()->where('user_id', $user->id)
-                ->where('model_type', 'Production')
-                ->get() as $authorisedModel
-        ) {
-            /** @var Production $production */
-            $production         = $authorisedModel->model;
+        foreach ($user->authorisedProductions->where('organisation_id', $organisation->id) as $production) {
             $navigation['productions_navigation']
             [$production->slug] = GetProductionNavigation::run($production, $user);
         }
 
 
-
-
         $navigation = $this->getWarehouseNavs($user, $organisation, $navigation);
-
 
 
         if ($user->authTo("procurement.$organisation->id.view")) {
@@ -194,8 +173,6 @@ class GetOrganisationNavigation
         $navigation = $this->getHumanResourcesNavs($user, $organisation, $navigation);
 
 
-        // if ($user->authTo('org-overview.'.$organisation->id)) {
-        // }
         $navigation['overview'] = [
             'label'   => __('Overview'),
             'tooltip' => __('Overview'),
