@@ -12,7 +12,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle } from '@fas'
-import { faSparkles } from '@fad'
+import { faSparkles } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import AskBot from '@/Components/AskBot.vue'
 import { faLampDesk } from '@fal'
@@ -26,11 +26,9 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-const isAskBotEnabled =  import.meta.env.VITE_ASK_BOT_UI;
 // const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
 const showAskBot = ref(false)
-console.log(isAskBotEnabled);
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
@@ -73,21 +71,22 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                 <SearchBar v-model="showSearchDialog" />
             </button>
             
-            <button v-if="isAskBotEnabled === 'true'" @click="showAskBot = !showAskBot" id="ask-bot"
-                class="bg-fuchsia-100 ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
+            <!-- Search: AI -->
+            <button @click="showAskBot = !showAskBot" id="ask-bot"
+                class="bg-gradient-to-tr from-pink-200 xvia-pink-200 to-pink-100 border-none ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
                 <div class="flex gap-x-1 items-center ">
-                    <FontAwesomeIcon icon="fad fa-sparkles" class="text-fuchsia-500" fixed-width aria-hidden="true" />
-                    <h1 class="animate-linear bg-gradient-to-r from-blue-400 via-pink-500 to-blue-400 bg-[length:200%_auto] bg-clip-text font-bold text-transparent">
+                    <FontAwesomeIcon icon="fas fa-sparkles" class="text-pink-500" fixed-width aria-hidden="true" />
+                    <h1 class="animate-linear bg-gradient-to-r from-fuchsia-300 via-pink-500 to-fuchsia-300 bg-[length:200%_auto] bg-clip-text font-bold text-transparent">
                         <span class="">AI</span>
                     </h1>
                 </div>
                 
-                <FontAwesomeIcon icon='fal fa-lamp-desk' size="sm" class='ml-1 text-gray-600' fixed-width aria-hidden='true' />
+                <!-- <FontAwesomeIcon icon='fal fa-lamp-desk' size="sm" class='ml-1 text-gray-600' fixed-width aria-hidden='true' /> -->
                 <div class="hidden whitespace-nowrap md:flex items-center justify-end text-gray-500/80 tracking-tight space-x-1">
-                    <span v-if="isUserMac" class="ring-1 ring-gray-300 bg-white px-2 leading-none text-xl rounded">⌘</span>
-                    <span v-else class="ring-1 ring-gray-300 bg-white px-2 py-0.5 text-xs rounded">Ctrl</span>
-                    <span class="ring-1 ring-gray-300 bg-white px-2 py-0.5 text-xs rounded">Shift</span>
-                    <span class="ring-1 ring-gray-300 bg-white px-1.5 py-0.5 text-xs rounded">K</span>
+                    <span v-if="isUserMac" class="ring-1 ring-fuchsia-400 bg-fuchsia-50 text-fuchsia-500 px-2 leading-none text-xl rounded">⌘</span>
+                    <span v-else class="ring-1 ring-fuchsia-400 bg-fuchsia-50 text-fuchsia-500 px-2 py-0.5 text-xs rounded">Ctrl</span>
+                    <span class="ring-1 ring-fuchsia-400 bg-fuchsia-50 text-fuchsia-500 px-2 py-0.5 text-xs rounded">Shift</span>
+                    <span class="ring-1 ring-fuchsia-400 bg-fuchsia-50 text-fuchsia-500 px-1.5 py-0.5 text-xs rounded">K</span>
                 </div>
                 <AskBot v-model="showAskBot" />
             </button>

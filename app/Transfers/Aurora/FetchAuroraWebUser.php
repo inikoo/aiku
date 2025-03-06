@@ -21,12 +21,11 @@ class FetchAuroraWebUser extends FetchAurora
 
         $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
 
-        if ($customer->shop->type == ShopTypeEnum::FULFILMENT) {
+        if (!$customer) {
             return;
         }
 
-
-        if (!$customer) {
+        if ($customer->shop->type == ShopTypeEnum::FULFILMENT) {
             return;
         }
 

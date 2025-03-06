@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useRef, useState, memo, useCallback} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -56,37 +56,58 @@ library.add(
   faFileInvoiceDollar,
 );
 
-const PalletInDeliveries = ({navigation, route, onChangeState}) => {
-  const {organisation, warehouse} = useContext(AuthContext);
-  const {data} = useDelivery();
-  const {id} = route.params;
+const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
+  const { organisation, warehouse } = useContext(AuthContext);
+  const { data, setData } = useDelivery();
+  const { id } = route.params;
+
+  // Menggunakan useCallback agar fungsi tidak berubah di setiap render
+  const ChangeData = useCallback((newData) => {
+    setData(newData);
+  }, [setData]);
 
   return (
     <View style={globalStyles.container}>
-      {data.state != 'booked_in' ? (
+      {data.state !== 'booked_in' ? (
         <SetStateButton
-          button1={{
-            size: 'md',
-            variant: 'outline',
-            action: 'primary',
-            style: {borderTopRightRadius: 0, borderBottomRightRadius: 0},
-            onPress: null,
-            text: `To do : ${data.number_pallets_state_not_received + data.number_pallets_state_booked_in }/ ${data.number_pallets + data.number_boxes + data.number_oversizes || 0}`,
+          progress={{
+            value: data.number_pallets_state_not_received + data.number_pallets_state_booked_in + data.number_pallet_storing,
+            size: 'lg',
+            total: data.number_pallets,
+            orientation: 'horizontal',
           }}
           button2={{
             size: 'md',
             action: 'primary',
-            style: {borderTopLeftRadius: 0, borderBottomLeftRadius: 0},
-            onPress: () =>
-              onChangeState(getFilteredActionsDelivery(data.state).id),
+            variant: 'link',
+            style: { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 },
+            onPress: () => onChangeState(getFilteredActionsDelivery(data.state).id),
             text: 'Set to ' + getFilteredActionsDelivery(data.state).title,
           }}
         />
       ) : (
-        <Alert action="success" variant="solid">
-          <FontAwesomeIcon icon={faCheckCircle} color="green" />
-          <AlertText>Already Booked In</AlertText>
-        </Alert>
+        <SetStateButton
+          renderButton2={() => (
+            <Alert action="success" variant="solid">
+              <FontAwesomeIcon icon={faCheckCircle} color="green" />
+              <AlertText>Already Booked In</AlertText>
+            </Alert>
+          )}
+          progress={{
+            value: data.number_pallets_state_not_received + data.number_pallets_state_booked_in,
+            size: 'lg',
+            total: data.number_pallets,
+            orientation: 'horizontal',
+          }}
+          button2={{
+            size: 'md',
+            action: 'primary',
+            variant: 'link',
+            style: { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 },
+            onPress: () => onChangeState(getFilteredActionsDelivery(data.state).id),
+            text: 'Set to ' + getFilteredActionsDelivery(data.state).title,
+          }}
+        />
       )}
 
       <BaseList
@@ -94,17 +115,18 @@ const PalletInDeliveries = ({navigation, route, onChangeState}) => {
         urlKey="get-pallets-delivery"
         args={[organisation.id, warehouse.id, id]}
         height={80}
-        listItem={({item, navigation}) => (
-          <GroupItem item={item} navigation={navigation} />
+        listItem={({ item, navigation }) => (
+          <GroupItem item={item} navigation={navigation} ChangeData={ChangeData} />
         )}
       />
     </View>
   );
 };
 
-const GroupItem = ({item: initialItem, navigation}) => {
+
+const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
   const [item, setItem] = useState(initialItem);
-  const {data} = useDelivery();
+  const {data, setData} = useDelivery();
   const [showModalMovePallet, setShowModalMovePallet] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -229,6 +251,9 @@ const GroupItem = ({item: initialItem, navigation}) => {
       args: [item.id, formData.location],
       data: formData,
       onSuccess: response => {
+        
+        ChangeData(response.data.pallet_delivery.number_pallets_state_booked_in);
+
         setItem(prevItem => ({
           ...prevItem,
           location_code: response.data.location.resource.code,
@@ -412,7 +437,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
        title='Move Pallet'
        onClose={() => setShowModalMovePallet(false)}
        onSave={onSubmitSetLocation}
-       location={item.location_code}
+       location={item.location_slug}
       />
     </View>
   );
