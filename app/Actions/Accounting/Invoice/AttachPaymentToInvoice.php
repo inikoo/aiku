@@ -20,19 +20,23 @@ class AttachPaymentToInvoice extends OrgAction
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
         SetInvoicePaymentState::run($invoice);
-        $amount = Arr::get($modelData, 'amount', $payment->amount);
+        $paymentAmount = Arr::get($modelData, 'amount', $payment->amount);
         $toPay = $invoice->total_amount - $invoice->payment_amount;
 
         $amountToCredit = 0;
-        if ($amount > $toPay) {
+        if ($paymentAmount > $toPay) {
             $amount = $toPay;
-            $amountToCredit = $amount - $toPay;
+            $amountToCredit = $paymentAmount - $toPay;
+        } else {
+            $amount = $paymentAmount;
         }
+
         $invoice->payments()->attach($payment, [
             'amount' => $amount,
         ]);
 
         if ($amountToCredit != 0) {
+
             StoreCreditTransaction::make()->action($invoice->customer, [
                 'amount' => $amountToCredit,
                 'type' => CreditTransactionTypeEnum::FROM_EXCESS,
