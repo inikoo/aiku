@@ -54,7 +54,7 @@ class GetOutboxShowcase
                             ],
                             $outbox->code == OutboxCodeEnum::NEW_CUSTOMER ?
                             [
-                                'type' => '',
+                                'type' => 'user_subscribe',
                                 'data' => $outbox->subscribedUsers->map(function ($subscribedUser) {
                                     return $subscribedUser->user ? [
                                         'id' => $subscribedUser->user->id,
