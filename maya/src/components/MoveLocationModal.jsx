@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Modal as ModalNative,
+    TextInput,
 } from 'react-native';
 import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Modal from '@/src/components/Modal';
@@ -85,18 +86,17 @@ const ModalMoveLocation = ({
             if (codes[0].value) {
                 setValue('location', codes[0].value);
                 setShowScanner(false);
-                
+
                 // ✅ Ensure form data is submitted properly
                 setTimeout(() => {
                     handleSubmit(onSave)();
-                }, 200); 
+                }, 200);
             }
         },
     });
-    
 
     return (
-        <View style={styles.container}>
+        <View>
             <Modal isVisible={isVisible} title={title} onClose={onClose}>
                 <View className="w-full">
                     <Text className="text-sm font-semibold mb-1">Location</Text>
@@ -104,22 +104,21 @@ const ModalMoveLocation = ({
                         name="location"
                         control={control}
                         render={({field}) => (
-                            <View className="flex-row items-center space-x-2">
+                            <View className="flex-row items-center border border-gray-400 rounded-lg overflow-hidden">
                                 {/* Input Field */}
-                                <Input
-                                    variant="outline"
-                                    size="md"
-                                    className="flex-1 rounded-l-lg">
-                                    <InputField
-                                        placeholder="location code"
-                                        value={field.value}
-                                        onChangeText={field.onChange}
-                                    />
-                                </Input>
+                                <TextInput
+                                    className="flex-1 p-3 bg-white"
+                                    placeholder="Location Code"
+                                    value={field.value}
+                                    onChangeText={field.onChange}
+                                    onSubmitEditing={handleSubmit(onSave)} 
+                                    blurOnSubmit={false}
+                                    returnKeyType="done" 
+                                />
 
                                 {/* Barcode Button */}
                                 <TouchableOpacity
-                                    className="p-2 bg-gray-300 rounded-r-lg"
+                                    className="p-4 bg-gray-300 border-l border-gray-400"
                                     onPress={showingScanner}>
                                     <FontAwesomeIcon
                                         icon={faBarcodeRead}
