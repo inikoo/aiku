@@ -491,7 +491,7 @@ const isModalUploadFileOpen = ref(false)
         :can_edit_transactions="can_edit_transactions"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
         :palletReturn="data?.data"
-        :detachRoute="attachmentRoutes.detachRoute"
+        :detachRoute="attachmentRoutes?.detachRoute"
         @isStoredItemAdded="(e: boolean) => (console.log(e), e ? xstored_items_count++ : xstored_items_count--)"
     >
         <template #button-empty-state-attachments="{ action }">
@@ -507,6 +507,7 @@ const isModalUploadFileOpen = ref(false)
 
 
     <UploadExcel
+        v-if="upload_spreadsheet"
         v-model="isModalUploadOpen"
         scope="Pallet delivery"
         :title="{
