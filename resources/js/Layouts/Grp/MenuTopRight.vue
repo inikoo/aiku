@@ -26,6 +26,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
+const isAskBotEnabled =  import.meta.env.VITE_ASK_BOT_UI;
 // const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
 const showAskBot = ref(false)
@@ -72,7 +73,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             </button>
             
             <!-- Search: AI -->
-            <button @click="showAskBot = !showAskBot" id="ask-bot"
+            <button v-if="false" @click="showAskBot = !showAskBot" id="ask-bot"
                 class="bg-gradient-to-tr from-pink-200 xvia-pink-200 to-pink-100 border-none ring-1 ring-fuchsia-400 h-7 w-fit flex items-center justify-center gap-x-3 rounded-md px-3">
                 <div class="flex gap-x-1 items-center ">
                     <FontAwesomeIcon icon="fas fa-sparkles" class="text-pink-500" fixed-width aria-hidden="true" />
