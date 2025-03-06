@@ -4,7 +4,7 @@ import axios from "axios"
 import { router } from "@inertiajs/vue3" // Import Inertia router
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faEdit, faTrash, faSave } from "@fortawesome/free-solid-svg-icons"
+import { faEdit, faTrash, faSave, faTimes } from "@fortawesome/free-solid-svg-icons"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -13,7 +13,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
 
 // Add icons to the library
-library.add(faEdit, faTrash, faPlus, faSave)
+library.add(faEdit, faTrash, faPlus, faSave, faTimes)
 
 // Global key for the search query parameter
 const SEARCH_PARAM_KEY = "global"
@@ -62,6 +62,11 @@ const hasSubscriptions = computed(() => {
 // Toggle edit mode
 const toggleEdit = () => {
 	isEditing.value = true
+}
+
+// Exit edit mode
+const exitEdit = () => {
+	isEditing.value = false
 }
 
 // Handler for "Add User" – adds a new user input with search capability
@@ -119,10 +124,7 @@ const saveChanges = () => {
 	// Define routeToSubmit for the store endpoint
 	const routeToSubmit = {
 		name: "grp.models.fulfilment.outboxes.subscriber.store",
-		parameters: [
-			route().params['fulfilment'],
-			route().params['outbox'],
-		], // Add any parameters if needed
+		parameters: [route().params["fulfilment"], route().params["outbox"]],
 	}
 
 	router.post(route(routeToSubmit.name, routeToSubmit.parameters), payload, {
@@ -130,7 +132,7 @@ const saveChanges = () => {
 		onSuccess: () => {
 			notify({
 				title: trans("Succes"),
-				text: trans("Successfully attach") + ` ${scope}.`,
+				text: trans("Successfully attach"),
 				type: "success",
 			})
 			newUserInputs.value = []
@@ -138,17 +140,14 @@ const saveChanges = () => {
 			hasChanges.value = false
 		},
 		onError: (errors: any) => {
-			console.log(errors,'as');
-			
+			console.log(errors, "as")
 			notify({
 				title: trans("Something went wrong."),
-				text: trans("Failed to attach") ,
+				text: trans("Failed to attach"),
 				type: "error",
 			})
 		},
-		onFinish: () => {
-			
-		},
+		onFinish: () => {},
 	})
 }
 
@@ -196,13 +195,11 @@ const selectUserSuggestion = (index: number, suggestion: string) => {
 					:key="index"
 					class="flex items-center justify-between border-b border-gray-100 py-1">
 					<div class="flex items-center space-x-2">
-						<!-- Show edit icon when not in edit mode -->
-						<div v-if="!isEditing">
-							<FontAwesomeIcon
-								:icon="faEdit"
-								class="text-blue-500 cursor-pointer"
-								@click="toggleEdit" />
-						</div>
+						<!-- Show edit icon or exit icon in the same position -->
+						<FontAwesomeIcon
+							:icon="isEditing ? faTimes : faEdit"
+							class="text-blue-500 cursor-pointer"
+							@click="isEditing ? exitEdit() : toggleEdit()" />
 						<!-- Display contact_name and email in italic -->
 						<span class="text-gray-600">
 							{{ item.contact_name }} <i>({{ item.email }})</i>
