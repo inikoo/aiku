@@ -538,10 +538,13 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
         Route::post('publish', PublishOutbox::class)->name('publish')->withoutScopedBindings();
         Route::patch('workshop', UpdateWorkshopOutbox::class)->name('workshop.update')->withoutScopedBindings();
         Route::post('send/test', SendMailshotTest::class)->name('send.test')->withoutScopedBindings();
-        Route::post('subscriber', [StoreOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.store')->withoutScopedBindings();
-        Route::delete('subscriber/{outBoxHasSubscriber:id}', [DeleteOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.delete')->withoutScopedBindings();
     });
 
+});
+
+Route::name('fulfilment.')->prefix('fulfilment/{fulfilment}')->group(function () {
+    Route::post('subscriber', [StoreOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.store')->withoutScopedBindings();
+    Route::delete('subscriber/{outBoxHasSubscriber:id}', [DeleteOutboxHasSubscriber::class, 'inFulfilment'])->name('subscriber.delete')->withoutScopedBindings();
 });
 
 Route::post('fulfilment-customer-note/{fulfilmentCustomer}', StoreFulfilmentCustomerNote::class)->name('fulfilment_customer_note.store');
