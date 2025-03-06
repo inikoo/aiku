@@ -52,7 +52,7 @@ class IndexFamilies extends OrgAction
         $this->sales = false;
         $this->initialisationFromGroup(group(), $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle($this->parent);
+        return $this->handle($this->parent, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
 
@@ -61,7 +61,7 @@ class IndexFamilies extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle(parent: $organisation);
+        return $this->handle(parent: $organisation, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -70,7 +70,7 @@ class IndexFamilies extends OrgAction
         $this->parent = $department;
         $this->initialisationFromShop($shop, $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle(parent: $department);
+        return $this->handle(parent: $department, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
     public function inSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): LengthAwarePaginator
@@ -78,7 +78,7 @@ class IndexFamilies extends OrgAction
         $this->parent = $subDepartment;
         $this->initialisationFromShop($shop, $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle(parent: $subDepartment);
+        return $this->handle(parent: $subDepartment, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
     public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
@@ -86,7 +86,7 @@ class IndexFamilies extends OrgAction
         $this->parent = $collection;
         $this->initialisationFromShop($shop, $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle(parent: $collection);
+        return $this->handle(parent: $collection, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -94,7 +94,7 @@ class IndexFamilies extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(ProductCategoryTabsEnum::values());
 
-        return $this->handle(parent: $shop);
+        return $this->handle(parent: $shop, prefix: ProductCategoryTabsEnum::INDEX->value);
     }
 
     public function handle(Group|Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator

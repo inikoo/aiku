@@ -14,20 +14,16 @@ use App\Models\Dropshipping\Platform;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class AttachCustomerToPlatform extends OrgAction
+class DetachCustomerToPlatform extends OrgAction
 {
     /**
      * @var \App\Models\CRM\Customer
      */
     private Customer $customer;
 
-    public function handle(Customer $customer, Platform $platform, array $pivotData): Customer
+    public function handle(Customer $customer, Platform $platform): Customer
     {
-        $pivotData['group_id']        = $this->organisation->group_id;
-        $pivotData['organisation_id'] = $this->organisation->id;
-        $pivotData['shop_id']         = $customer->shop_id;
-        $customer->platforms()->attach($platform->id, $pivotData);
-
+        $customer->platforms()->detach($platform->id);
 
         return $customer;
     }
