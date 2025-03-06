@@ -1168,7 +1168,7 @@ test('UI index invoices deleted', function (Invoice $invoice) {
     $this->withoutExceptionHandling();
     $response                  = get(
         route(
-            'grp.org.shops.show.ordering.deleted_invoices.index',
+            'grp.org.shops.show.dashboard.invoices.deleted.index',
             [$this->organisation->slug, $invoice->shop->slug]
         )
     );

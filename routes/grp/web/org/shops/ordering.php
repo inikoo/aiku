@@ -6,11 +6,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
-use App\Actions\Accounting\Invoice\UI\IndexRefunds;
-use App\Actions\Accounting\Invoice\UI\ShowInvoice;
-use App\Actions\Accounting\Invoice\UI\ShowRefund;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
@@ -31,16 +26,6 @@ Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
 Route::get('/orders/', IndexOrders::class)->name('orders.index');
 
 
-Route::get('/invoices', [IndexInvoices::class, 'inShop'])->name('invoices.index');
-Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('invoices.show');
-Route::get('/invoices/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInShop'])->name('invoices.show.refunds.index');
-Route::get('/invoices/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInShop'])->name('invoices.show.refunds.show');
-
-Route::get('/refunds', [IndexRefunds::class,'inShop'])->name('refunds.index');
-
-Route::get('/invoices-unpaid', [IndexInvoices::class, 'unpaidInShop'])->name('unpaid_invoices.index');
-Route::get('/invoices-paid', [IndexInvoices::class, 'paidInShop'])->name('paid_invoices.index');
-Route::get('/invoices-deleted', [IndexInvoicesDeleted::class, 'inShop'])->name('deleted_invoices.index');
 
 
 Route::get('/orders/delivery_notes', [IndexDeliveryNotes::class, 'inShop'])->name('delivery-notes.index');

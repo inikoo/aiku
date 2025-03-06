@@ -10,15 +10,18 @@ namespace App\Actions\Catalogue\Asset;
 
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateSales;
-use App\Actions\HydrateModel;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Catalogue\Asset;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
-class HydrateAsset extends HydrateModel
+class HydrateAsset
 {
-    public string $commandSignature = 'hydrate:assets {organisations?*} {--slugs=} ';
+    use WithHydrateCommand;
+    public string $commandSignature = 'hydrate:assets {organisations?*} {--S|shop= shop slug} {--slugs=}';
 
+    public function __construct()
+    {
+        $this->model = Asset::class;
+    }
 
     public function handle(Asset $asset): void
     {
@@ -28,28 +31,6 @@ class HydrateAsset extends HydrateModel
     }
 
 
-    protected function getModel(string $slug): Asset
-    {
-        return Asset::where('slug', $slug)->first();
-    }
 
-    protected function loopAll(Command $command): void
-    {
-        $command->info("Hydrating assets");
-        $count = Asset::withTrashed()->count();
 
-        $bar = $command->getOutput()->createProgressBar($count);
-        $bar->setFormat('debug');
-        $bar->start();
-
-        Asset::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
-            foreach ($models as $model) {
-                $this->handle($model);
-                $bar->advance();
-            }
-        });
-
-        $bar->finish();
-        $command->info("");
-    }
 }

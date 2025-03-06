@@ -37,6 +37,10 @@ class ShopHydrateDepartments
     {
         $stats = [
             'number_departments' => $shop->departments()->count(),
+            'number_current_departments' => $shop->departments()->whereIn('state', [
+                ProductCategoryStateEnum::ACTIVE,
+                ProductCategoryStateEnum::DISCONTINUING,
+            ])->count(),
         ];
 
         $stats = array_merge(

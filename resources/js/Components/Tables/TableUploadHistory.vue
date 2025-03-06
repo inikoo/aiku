@@ -22,9 +22,9 @@ const props = defineProps<{
 
 // function emailBulkRunRoutes(emailBulkRun: {}) {
 //     switch (route().current()) {
-//         case 'grp.org.shops.show.comms.outboxes.show':
+//         case 'grp.org.shops.show.dashboard.comms.outboxes.show':
 //         return route(
-//                 'grp.org.shops.show.comms.outboxes.show.email-bulk-runs.show',
+//                 'grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show',
 //                 [route().params['organisation'], route().params['shop'], route().params['outbox'], emailBulkRun.id])
 //         default:
 //             return null

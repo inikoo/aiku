@@ -137,8 +137,8 @@ test('create shop website', function (Shop $shop) {
     );
     $shop->refresh();
 
-    expect($website)->toBeInstanceOf(Website::class);
-    expect($shop->website->id)->toBe($website->id);
+    expect($website)->toBeInstanceOf(Website::class)
+        ->and($shop->website->id)->toBe($website->id);
 
     return $shop;
 })->depends('create shop');
@@ -209,7 +209,7 @@ test('create product category webpage', function (ProductCategory $department) {
 
     expect($webpage)->toBeInstanceOf(Webpage::class)
     ->and($webpage->model_type)->toBe('ProductCategory')
-    ->and(intval($webpage->model_id))->toBe(intval($department->id));
+    ->and(intval($webpage->model_id))->toBe($department->id);
 
     return $department;
 })->depends('create department');
@@ -464,7 +464,7 @@ test('store product webpage', function (Product $product) {
 
     expect($webpage)->toBeInstanceOf(Webpage::class)
         ->and($webpage->model_type)->toBe('Product')
-        ->and(intval($webpage->model_id))->toBe(intval($product->id));
+        ->and(intval($webpage->model_id))->toBe($product->id);
 
     return $webpage;
 })->depends('update second product variant');

@@ -79,6 +79,7 @@ class IndexAgentSupplierProducts extends OrgAction
         return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->select([
+                'supplier_products.id',
                 'supplier_products.code',
                 'supplier_products.slug',
                 'supplier_products.name'

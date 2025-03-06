@@ -2,33 +2,34 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 00:29:36 Central European Summer Time, Abu Dhabi Airport
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Wed, 05 Mar 2025 20:35:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Catalogue\ProductCategory;
 
+use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateSales;
-use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
-use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateSubDepartments;
+use App\Actions\Catalogue\ProductCategory\Hydrators\SubDepartmentHydrateSubDepartments;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Catalogue\ProductCategory;
 
-class HydrateDepartments
+class HydrateSubDepartments
 {
     use WithHydrateCommand;
-    public string $commandSignature = 'hydrate:departments {organisations?*} {--S|shop= shop slug}  {--s|slugs=} ';
+
+    public string $commandSignature = 'hydrate:sub_departments {organisations?*} {--S|shop= shop slug}  {--s|slugs=} ';
 
     public function __construct()
     {
-        $this->model = ProductCategory::class;
-        $this->restriction = 'department';
+        $this->model       = ProductCategory::class;
+        $this->restriction = 'sub_department';
     }
 
     public function handle(ProductCategory $productCategory): void
     {
-        DepartmentHydrateSubDepartments::run($productCategory);
+        SubDepartmentHydrateSubDepartments::run($productCategory);
         DepartmentHydrateProducts::run($productCategory);
         ProductCategoryHydrateFamilies::run($productCategory);
         ProductCategoryHydrateSales::run($productCategory);

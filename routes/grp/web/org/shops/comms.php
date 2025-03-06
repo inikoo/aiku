@@ -22,7 +22,5 @@ Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inShop'])->name('outboxes.s
 Route::get('outboxes/{outbox}/workshop', ShowOutboxWorkshop::class)->name('outboxes.workshop');
 Route::get('outboxes/{outbox}/email-bulk-runs/{emailBulkRun}', [ShowEmailBulkRun::class, 'inOutbox'])->name('outboxes.show.email-bulk-runs.show');
 Route::get('outboxes/{outbox}/dispatched-emails/{dispatchedEmail:id}', [ShowDispatchedEmail::class, 'inOutboxInShop'])->name('outboxes.dispatched-email.show');
-
-
 Route::get('post-rooms', [IndexOrgPostRooms::class, 'inShop'])->name('post-rooms.index');
 Route::get('post-rooms/{orgPostRoom}', [ShowOrgPostRoom::class, 'inShop'])->name('post-rooms.show');

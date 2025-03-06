@@ -207,7 +207,7 @@ test('test send email reset password', function () {
 })->depends('outbox seeded when shop created');
 
 test('UI comms dashboard', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.dashboard', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.dashboard', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -225,7 +225,7 @@ test('UI comms dashboard', function () {
 });
 
 test('UI index mail outboxes', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -244,7 +244,7 @@ test('UI index mail outboxes', function () {
 
 test('UI show mail outboxes', function () {
     $outbox   = $this->shop->outboxes()->first();
-    $response = $this->get(route('grp.org.shops.show.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
         $page
@@ -262,7 +262,7 @@ test('UI show mail outboxes', function () {
 });
 
 test('UI Index Org Post Rooms', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -281,7 +281,7 @@ test('UI Index Org Post Rooms', function () {
 
 test('UI Show Org Post Rooms', function () {
     $orgPostRoom = $this->organisation->orgPostRooms()->first();
-    $response    = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
+    $response    = $this->get(route('grp.org.shops.show.dashboard.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
         $page

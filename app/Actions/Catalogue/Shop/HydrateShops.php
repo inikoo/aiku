@@ -16,7 +16,6 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSubDepartments;
-use App\Actions\HydrateModel;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollectionCategories;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollections;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCreditTransactions;
@@ -35,13 +34,20 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePurges;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateTopUps;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateVariants;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Catalogue\Shop;
-use Illuminate\Support\Collection;
 
-class HydrateShops extends HydrateModel
+class HydrateShops
 {
-    public string $commandSignature = 'hydrate:shops {organisations?*} {--s|slugs=} ';
+    use WithHydrateCommand;
 
+    public string $commandSignature = 'hydrate:shops {organisations?*} {--s|slug=}';
+
+    public function __construct()
+    {
+        $this->model = Shop::class;
+    }
 
     public function handle(Shop $shop): void
     {
@@ -61,7 +67,7 @@ class HydrateShops extends HydrateModel
         ShopHydrateCollectionCategories::run($shop);
         ShopHydrateCollections::run($shop);
         ShopHydrateAssets::run($shop);
-        ShopHydrateProducts::run($shop);
+        ShopHydrateVariants::run($shop);
         ShopHydrateServices::run($shop);
         ShopHydrateSubDepartments::run($shop);
         ShopHydrateOutboxes::run($shop);
@@ -75,14 +81,4 @@ class HydrateShops extends HydrateModel
 
     }
 
-
-    protected function getModel(string $slug): Shop
-    {
-        return Shop::where('slug', $slug)->first();
-    }
-
-    protected function getAllModels(): Collection
-    {
-        return Shop::withTrashed()->get();
-    }
 }
