@@ -153,7 +153,7 @@ const routeArrow = (nav?: MergeNavigation) => {
             fulfilment: nav.key
         })
     } else if (nav.type === 'shop') {
-        return route('grp.org.shops.show.catalogue.dashboard', {
+        return route('grp.org.shops.show.dashboard.show', {
             organisation: layout.currentParams.organisation,
             shop: nav.key
         })
@@ -205,7 +205,7 @@ const isLoadingNavigation = ref<string | boolean>(false)
                 <Transition name="slide-to-left">
                     <div v-if="layout.leftSidebar.show" class="flex items-end gap-x-0.5">
                         <Transition name="spin-to-down">
-                            <span :key="currentNavigation()?.key" class="text-base leading-[14px] uppercase">
+                            <span :key="currentNavigation()?.key" class="text-base leading-[8px] uppercase">
                                 {{ currentNavigation()?.key }}
                             </span>
                         </Transition>
@@ -225,7 +225,7 @@ const isLoadingNavigation = ref<string | boolean>(false)
                 </Transition>
 
                 <Transition name="slide-to-left">
-                    <div v-if="layout.leftSidebar.show && (numberOptions || 0) > 1" @click="() => set(layout, ['organisationsState', layout?.currentParams?.organisation, generateCurrentString(currentNavigation()?.type)], '')" class="text-red-300 hover:text-red-500 cursor-pointer hover:underline text-xxs w-fit px-0.5 py leading-[14px]">
+                    <div v-if="layout.leftSidebar.show && (numberOptions || 0) > 1" @click="() => set(layout, ['organisationsState', layout?.currentParams?.organisation, generateCurrentString(currentNavigation()?.type)], '')" class="text-red-300 hover:text-red-500 cursor-pointer hover:underline text-xxs w-fit px-0.5 py leading-[8px]">
                         {{ trans("Unselect") }}
                     </div>
                 </Transition>

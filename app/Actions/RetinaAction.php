@@ -85,6 +85,18 @@ class RetinaAction
         return $this;
     }
 
+    public function initialisationActions(Customer $customer, array $modelData): static
+    {
+        $this->customer = $customer;
+        $this->shop = $this->customer->shop;
+        $this->organisation = $this->customer->organisation;
+        $this->webUser = $this->customer->webUsers()->first();
+        $this->setRawAttributes($modelData);
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
     public function logoutInitialisation(ActionRequest $request): static
     {
 

@@ -30,6 +30,8 @@ export const initialiseRetinaApp = () => {
         echoLiveUsers.subscribe()  // Websockets: active users
     }
 
+    const storageLayout = JSON.parse(localStorage.getItem('layout') || '{}')  // Get layout from localStorage
+    layout.currentPlatform = storageLayout.currentPlatform  // { 'awa' : { currentShop: 'bali', currentWarehouse: 'ed' }, ... }
 
     if (usePage().props?.auth?.user) {
         layout.user = usePage().props.auth.user
@@ -42,6 +44,14 @@ export const initialiseRetinaApp = () => {
             layout.currentParams = route().v().params  // current params
             layout.currentRoute = route().current()  // current route
 
+            if (layout.currentRoute?.includes('retina.dropshipping.platforms')) {
+                layout.currentPlatform = layout.currentParams.platform  // 'tiktok' | 'shopify'
+
+                localStorage.setItem('layout', JSON.stringify({
+                    ...storageLayout,
+                    currentPlatform: layout.currentPlatform
+                }))
+            }
 
             const dataActiveUser = {
                 ...usePage().props.auth.user,

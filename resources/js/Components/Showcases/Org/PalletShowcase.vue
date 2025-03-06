@@ -44,8 +44,10 @@ const props = defineProps<{
             timeline: []
         }
     }
-    list_stored_items: {
-
+    list_stored_items:{
+        reference: string
+        name: string
+        quantity: number
     }[]
 }>()
 
@@ -146,7 +148,7 @@ const generateRouteEditBarcode = () => {
             <Timeline :options="data.data.timeline" :slidesPerView="8" :state="data.data.state" />
         </div>
 
-<!-- <pre>{{ list_stored_items.data }}</pre> -->
+<!-- <pre>{{ list_stored_items }}</pre> -->
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
             <div :class="[blueprint.note.value && 'border-t border-gray-200', 'pt-4']">
@@ -169,22 +171,21 @@ const generateRouteEditBarcode = () => {
             <div class="border-t border-gray-200 pt-4" v-if="blueprint.items.value.length > 0">
                 <dt class="font-medium">{{ blueprint.items.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <span v-if="blueprint.items.value.length" class="flex gap-1">
+                    <div v-if="blueprint.items.value.length" class="flex flex-wrap gap-1">
                         <Tag
-                            v-for="item of blueprint.items.value"
+                            v-for="item of list_stored_items"
                             v-tooltip="item.name"
-                            :key="item.id"
+                            :key="item.reference"
                             :label="item.reference"
-                            :theme="item.id"
                             stringToColor
                         >
                             <template #label>
                                 <!-- <pre>{{ item }}</pre> -->
-                                {{item.reference}}
+                                <span class="whitespace-nowrap">{{ item.reference }} ({{ item.quantity }})</span>
                             </template>
                         </Tag>
-                    </span>
-                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
+                    </div>
+                    <span v-else class="text-gray-400 italic">{{ trans("No items in this pallet.") }}</span>
                 </dd>
             </div>
 
