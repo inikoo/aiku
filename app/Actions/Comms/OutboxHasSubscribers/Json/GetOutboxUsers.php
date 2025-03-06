@@ -30,7 +30,8 @@ class GetOutboxUsers extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
 
             $query->where(function ($query) use ($value) {
-                $query->whereWith('users.name', $value);
+                $query->whereWith('users.username', $value)
+                    ->orWhereWith('users.contact_name', $value);
             });
         });
 
@@ -40,15 +41,16 @@ class GetOutboxUsers extends OrgAction
         $queryBuilder->where('group_id', $parent->group_id);
 
         $queryBuilder
-            ->defaultSort('name')
+            ->defaultSort('username')
             ->select([
                 'users.id',
                 'users.email',
-                'users.name',
+                'users.username',
+                'users.contact_name',
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','email', 'name'])
+        return $queryBuilder->allowedSorts(['id','email', 'username'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(null)
             ->withQueryString();

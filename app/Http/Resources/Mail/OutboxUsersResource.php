@@ -41,7 +41,8 @@ class OutboxUsersResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'name' => $this->name,
+            'username' => $this->username,
+            'contact_name' => $this->contact_name,
         ];
     }
 }
