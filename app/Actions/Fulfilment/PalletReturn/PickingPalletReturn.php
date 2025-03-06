@@ -96,10 +96,10 @@ class PickingPalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
+    public function action(PalletReturn $palletReturn): PalletReturn
     {
         $this->asAction = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
 
         return $this->handle($palletReturn, $this->validatedData);
     }

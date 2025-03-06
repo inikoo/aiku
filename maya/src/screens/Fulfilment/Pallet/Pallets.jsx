@@ -23,6 +23,7 @@ import {
   RadioIcon,
 } from '@/src/components/ui/radio';
 import {Textarea, TextareaInput} from '@/src/components/ui/textarea';
+import ModalMoveLocation from '@/src/components/MoveLocationModal';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
@@ -88,7 +89,6 @@ const GroupItem = ({item: initialItem, navigation}) => {
     defaultValues: {
       status: '',
       notes: '',
-      location: '',
     },
   });
 
@@ -151,6 +151,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
         });
       },
       onFailed: error => {
+        console.log(error)
         setShowModalMovePallet(false);
         Toast.show({
           type: ALERT_TYPE.DANGER,
@@ -280,7 +281,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
         </TouchableOpacity>
       </Animated.View>
 
-      <Modal
+   {/*    <Modal
         isVisible={showModalMovePallet}
         title="Move Pallet"
         onClose={() => setShowModalMovePallet(false)}>
@@ -315,7 +316,16 @@ const GroupItem = ({item: initialItem, navigation}) => {
             )}
           </Button>
         </View>
-      </Modal>
+      </Modal> */}
+
+
+      <ModalMoveLocation 
+       isVisible={showModalMovePallet}
+       title='Move Pallet'
+       onClose={() => setShowModalMovePallet(false)}
+       onSave={onSubmitSetLocation}
+       location={item.location_code}
+      />
 
       <Modal
         isVisible={showModalDamaged}

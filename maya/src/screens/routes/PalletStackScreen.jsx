@@ -1,10 +1,5 @@
 import React, {useContext, useEffect, useState, useRef} from 'react';
-import {
-    View,
-    ActivityIndicator,
-    TouchableOpacity,
-    Text,
-} from 'react-native';
+import {View, ActivityIndicator, TouchableOpacity, Text} from 'react-native';
 import BottomTabs from '@/src/components/BottomTabs';
 import request from '@/src/utils/Request';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
@@ -24,7 +19,7 @@ import Menu from '@/src/components/Menu';
 import {useForm, Controller} from 'react-hook-form';
 import {Button, ButtonText, ButtonSpinner} from '@/src/components/ui/button';
 import Empty from '@/src/components/Empty';
-
+import ModalMoveLocation from '@/src/components/MoveLocationModal';
 import PalletShowcase from '@/src/screens/Fulfilment/Pallet/ShowPallet';
 import ItemsInPallet from '@/src/screens/Fulfilment/Pallet/ItemsInPallet';
 
@@ -50,7 +45,7 @@ const PalletStackScreen = ({navigation, route}) => {
         defaultValues: {
             status: '',
             notes: '',
-            location: '',
+            /*    location: '', */
         },
     });
 
@@ -179,17 +174,33 @@ const PalletStackScreen = ({navigation, route}) => {
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center bg-gray-100">
-                <ActivityIndicator size="large" color='#4F46E5' />
+                <ActivityIndicator size="large" color="#4F46E5" />
             </View>
         );
     }
 
     return (
         <>
-            {data ? <BottomTabs tabArr={[
-                { route: 'show-pallet', label: 'Pallet', icon: faPallet, component: () => <PalletShowcase data={data} /> },
-                { route: 'items-in-pallet', label: 'SKU In Pallet', icon: faNarwhal, component: () => <ItemsInPallet data={data} /> }
-            ]} /> : <Empty />}
+            {data ? (
+                <BottomTabs
+                    tabArr={[
+                        {
+                            route: 'show-pallet',
+                            label: 'Pallet',
+                            icon: faPallet,
+                            component: () => <PalletShowcase data={data} />,
+                        },
+                        {
+                            route: 'items-in-pallet',
+                            label: 'SKU In Pallet',
+                            icon: faNarwhal,
+                            component: () => <ItemsInPallet data={data} />,
+                        },
+                    ]}
+                />
+            ) : (
+                <Empty />
+            )}
 
             <Modal
                 isVisible={showModalDamaged}
@@ -272,7 +283,15 @@ const PalletStackScreen = ({navigation, route}) => {
                 </View>
             </Modal>
 
-            <Modal
+            <ModalMoveLocation
+                isVisible={showModalMovePallet}
+                title="Move Pallet"
+                onClose={() => setShowModalMovePallet(false)}
+                onSave={onSubmitSetLocation}
+                location={data.location_code}
+            />
+
+            {/*     <Modal
                 isVisible={showModalMovePallet}
                 title="Move Pallet"
                 onClose={() => setShowModalMovePallet(false)}>
@@ -315,7 +334,9 @@ const PalletStackScreen = ({navigation, route}) => {
                         )}
                     </Button>
                 </View>
-            </Modal>
+            </Modal> */}
+
+            
         </>
     );
 };
