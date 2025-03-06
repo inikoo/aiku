@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\ShopifyUser;
 
+use App\Actions\CRM\Customer\AttachCustomerToPlatform;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -45,11 +46,7 @@ class StoreRetinaShopifyUser extends OrgAction
             $customer->shopifyUser()->create($modelData);
         }
 
-        $customer->platforms()->sync(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
-            'group_id'        => $customer->group_id,
-            'organisation_id' => $customer->organisation_id,
-            'shop_id'         => $customer->shop_id
-        ]);
+        AttachCustomerToPlatform::make()->action($customer, Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), []);
     }
 
     public function authorize(ActionRequest $request): bool
