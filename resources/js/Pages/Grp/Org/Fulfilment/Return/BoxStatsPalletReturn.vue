@@ -54,7 +54,7 @@ const isModalAddressCollection = ref(false)
 			<!-- Field: Reference -->
 			<Link
 				as="a"
-				v-if="boxStats.fulfilment_customer.customer.reference"
+				v-if="boxStats?.fulfilment_customer?.customer?.reference"
 				:href="
 					route('grp.org.fulfilments.show.crm.customers.show', [
 						route().params.organisation,
@@ -77,7 +77,7 @@ const isModalAddressCollection = ref(false)
 
 			<!-- Field: Contact name -->
 			<div
-				v-if="boxStats.fulfilment_customer.customer.contact_name"
+				v-if="boxStats?.fulfilment_customer?.customer?.contact_name"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Contact name')" class="flex-none">
 					<span class="sr-only">Contact name</span>
@@ -93,7 +93,7 @@ const isModalAddressCollection = ref(false)
 
 			<!-- Field: Company name -->
 			<div
-				v-if="boxStats.fulfilment_customer.customer.company_name"
+				v-if="boxStats?.fulfilment_customer?.customer?.company_name"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Company name')" class="flex-none">
 					<span class="sr-only">Company name</span>
@@ -109,7 +109,7 @@ const isModalAddressCollection = ref(false)
 
 			<!-- Field: Email -->
 			<div
-				v-if="boxStats.fulfilment_customer?.customer.email"
+				v-if="boxStats?.fulfilment_customer?.customer.email"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Email')" class="flex-none">
 					<span class="sr-only">Email</span>
@@ -129,7 +129,7 @@ const isModalAddressCollection = ref(false)
 
 			<!-- Field: Phone -->
 			<div
-				v-if="boxStats.fulfilment_customer?.customer.phone"
+				v-if="boxStats?.fulfilment_customer?.customer.phone"
 				class="flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Phone')" class="flex-none">
 					<span class="sr-only">Phone</span>
@@ -208,10 +208,10 @@ const isModalAddressCollection = ref(false)
 				</div>
 			</div>
 
-			<div class="border-t border-gray-300 pt-1.5">
+			<div v-if="boxStats?.delivery_state" class="border-t border-gray-300 pt-1.5">
 				<div
 					class="flex items-center flex-none gap-x-2 w-fit"
-					:class="boxStats.delivery_state.class"
+					:class="boxStats?.delivery_state.class"
 					v-tooltip="trans('Delivery status')">
 					<dt class="flex-none">
 						<span class="sr-only">{{ boxStats.delivery_state.tooltip }}</span>
@@ -254,7 +254,7 @@ const isModalAddressCollection = ref(false)
 		</BoxStatPallet>
 
 		<!-- Box: Order summary -->
-		<BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
+		<BoxStatPallet v-if="boxStats?.order_summary" class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
 			<section
 				aria-labelledby="summary-heading"
 				class="lg:max-w-xl rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
