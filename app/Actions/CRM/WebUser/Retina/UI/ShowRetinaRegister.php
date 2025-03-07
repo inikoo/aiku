@@ -13,6 +13,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 
 class ShowRetinaRegister
 {
@@ -21,19 +22,37 @@ class ShowRetinaRegister
 
     public function handle(ActionRequest $request): Response
     {
-        $fulfilment = $request->website->shop->fulfilment;
-        return Inertia::render(
-            'Auth/Register',
-            [
-            'countriesAddressData' => GetAddressData::run(),
-            'registerRoute' => [
-                'name' => 'retina.register.store',
-                'parameters' => [
-                    'fulfilment' => $fulfilment->id
+        $shop = $request->website->shop;
+
+        if($shop->type == ShopTypeEnum::FULFILMENT) {
+            return Inertia::render(
+                'Auth/Register',
+                [
+                'countriesAddressData' => GetAddressData::run(),
+                'registerRoute' => [
+                    'name' => 'retina.register.store',
+                    'parameters' => [
+                        'fulfilment' => $shop->fulfilment->id
+                    ]
                 ]
             ]
-        ]
-        );
+            );
+        } else {
+            return Inertia::render(
+                'Auth/DropshipRegister',
+                [
+                'countriesAddressData' => GetAddressData::run(),
+                'registerRoute' => [
+                    'name' => 'retina.ds.register.store',
+                    'parameters' => [
+                        'shop' => $shop->id
+                    ]
+                ]
+            ]
+            );
+        }
+        
+        
     }
 
 }

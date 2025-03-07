@@ -1,16 +1,18 @@
 <?php
-
 /*
  * author Arya Permana - Kirin
- * created on 24-01-2025-11h-25m
+ * created on 07-03-2025-08h-46m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
 
 namespace App\Actions\Retina\SysAdmin;
 
+use App\Actions\CRM\Customer\RegisterCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\RegisterFulfilmentCustomer;
 use App\Actions\RetinaAction;
+use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
@@ -19,14 +21,14 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class RegisterRetinaFulfilmentCustomer extends RetinaAction
+class RegisterRetinaDropshippingCustomer extends RetinaAction
 {
     /**
      * @throws \Throwable
      */
-    public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
+    public function handle(Shop $shop, array $modelData): Customer
     {
-        return RegisterFulfilmentCustomer::make()->action($fulfilment, $modelData);
+        return RegisterCustomer::make()->action($shop, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,16 +61,12 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
             ],
             'phone'                    => ['required', 'max:255'],
             'contact_address'          => ['required', new ValidAddress()],
-            'interest'                 => ['required', 'required'],
             'password'                 =>
                 [
                     'sometimes',
                     'required',
                     app()->isLocal() || app()->environment('testing') ? null : Password::min(8)
                 ],
-            'product'                           => ['required', 'string'],
-            'shipments_per_week'                 => ['required', 'string'],
-            'size_and_weight'                   => ['required', 'string'],
 
         ];
     }
@@ -76,9 +74,9 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
     /**
      * @throws \Throwable
      */
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
+    public function asController(Shop $shop, ActionRequest $request): Customer
     {
-        $this->registerFulfilmentInitialisation($fulfilment, $request);
-        return $this->handle($fulfilment, $this->validatedData);
+        $this->registerDropshippingInitialisation($shop, $request);
+        return $this->handle($shop, $this->validatedData);
     }
 }
