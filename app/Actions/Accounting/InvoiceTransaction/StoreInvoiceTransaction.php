@@ -72,8 +72,11 @@ class StoreInvoiceTransaction extends OrgAction
         } elseif ($historicAsset->model_type == 'Service') {
             if($historicAsset->model->is_pallet_handling == true)
             {
-                $palletId = Arr::pull($modelData, 'pallet_id');
-                data_set($modelData, 'data.pallet_id', $palletId);
+                if(Arr::exists($modelData, 'pallet_id'))
+                {
+                    $palletId = Arr::pull($modelData, 'pallet_id');
+                    data_set($modelData, 'data.pallet_id', $palletId);
+                }
             }
         }
 
