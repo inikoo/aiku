@@ -197,14 +197,25 @@ class AskLlama extends OrgAction
 
         $q = $request->input('q');
         if (env('AI_PROVIDER') == 'r1') {
-            $response = DeepSeekClient::build(env('R1_API_KEY'))
+
+            $client = DeepSeekClient::build(apiKey:env('R1_API_KEY'), baseUrl:'https://api.deepseek.com/v3', timeout:30000, clientType:'symfony');
+
+            $client
                 ->withModel(Models::CHAT->value)
                 ->query($q)
                 ->run();
+            $result = $client->getResult();
 
-            $response = [
-                'response' => Arr::get(json_decode($response, true), 'choices.0.message.content')
-            ];
+            if (!$result->isSuccess()) {
+                $response = [
+                    'error' => 'request timeout',
+                ];
+            } else {
+                $response = [
+                    'response' => Arr::get(json_decode($result->getContent(), true), 'choices.0.message.content')
+                ];
+            }
+
             return AskLlamaResource::make($response);
         }
         $res = $this->handle($q);
