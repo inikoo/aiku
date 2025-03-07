@@ -8,48 +8,33 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Accounting\CreditTransaction\StoreCreditTransaction;
 use App\Actions\OrgAction;
-use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Ordering\Order;
+use Illuminate\Support\Arr;
 
 class AttachPaymentToOrder extends OrgAction
 {
     public function handle(Order $order, Payment $payment, array $modelData): void
     {
-        $paymentAmount = $order->payment_amount + $modelData['amount'];
+
+        $amount = Arr::get($modelData, 'amount', $payment->amount);
+
         $order->payments()->attach($payment, [
-            'amount' => $paymentAmount,
+            'amount' => $amount,
         ]);
 
-        if ($paymentAmount > $order->total_amount || $paymentAmount == $order->total_amount) {
-            UpdateOrder::make()->action($order, [
-                'payment_amount' => $order->total_amount
-            ]);
-        } else {
-            UpdateOrder::make()->action($order, [
-                'payment_amount' => $paymentAmount
-            ]);
-        };
+        SetOrderPayments::run($order);
 
-        data_forget($modelData, 'reference');
-        if ($paymentAmount > $order->total_amount) {
-            $excessAmount = $paymentAmount - $order->total_amount;
-            data_set($modelData, 'amount', $excessAmount);
-            data_set($modelData, 'type', CreditTransactionTypeEnum::TRANSFER_IN);
-            data_set($modelData, 'payment_id', $payment->id);
-            StoreCreditTransaction::run($order->customer, $modelData);
-        }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'amount'    => ['required', 'numeric'],
-            'reference' => ['sometimes'],
+            'amount'    => ['sometimes', 'numeric'],
         ];
     }
+
 
     public function action(Order $order, Payment $payment, array $modelData): void
     {

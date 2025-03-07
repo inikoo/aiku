@@ -61,10 +61,6 @@ const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
   const { data, setData } = useDelivery();
   const { id } = route.params;
 
-  // Menggunakan useCallback agar fungsi tidak berubah di setiap render
-  const ChangeData = useCallback((newData) => {
-    setData(newData);
-  }, [setData]);
 
   return (
     <View style={globalStyles.container}>
@@ -116,7 +112,7 @@ const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
         args={[organisation.id, warehouse.id, id]}
         height={80}
         listItem={({ item, navigation }) => (
-          <GroupItem item={item} navigation={navigation} ChangeData={ChangeData} />
+          <GroupItem item={item} navigation={navigation}/>
         )}
       />
     </View>
@@ -124,7 +120,7 @@ const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
 };
 
 
-const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
+const GroupItem = ({item: initialItem, navigation}) => {
   const [item, setItem] = useState(initialItem);
   const {data, setData} = useDelivery();
   const [showModalMovePallet, setShowModalMovePallet] = useState(false);
@@ -183,6 +179,11 @@ const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
           state_icon: response.data.state_icon,
         }));
 
+        setData(prevItem => ({
+          ...prevItem,
+          number_pallets_state_not_received: response.data.pallet_delivery.number_pallets_state_not_received,
+        }));
+
         Animated.spring(translateX, {
           toValue: 0,
           useNativeDriver: true,
@@ -220,6 +221,11 @@ const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
           state_icon: response.data.status_icon,
         }));
 
+        setData(prevItem => ({
+          ...prevItem,
+          number_pallets_state_not_received: response.data.pallet_delivery.number_pallets_state_not_received,
+          number_pallets_state_booked_in: response.data.pallet_delivery.number_pallets_state_booked_in,
+        }));
         Animated.spring(translateX, {
           toValue: 0,
           useNativeDriver: true,
@@ -232,7 +238,6 @@ const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
         });
       },
       onFailed: error => {
-        console.log(error);
         Toast.show({
           type: ALERT_TYPE.DANGER,
           title: 'Error',
@@ -252,7 +257,10 @@ const GroupItem = ({item: initialItem, navigation, ChangeData}) => {
       data: formData,
       onSuccess: response => {
         
-        ChangeData(response.data.pallet_delivery.number_pallets_state_booked_in);
+        setData(prevItem => ({
+          ...prevItem,
+          number_pallets_state_booked_in: response.data.pallet_delivery.number_pallets_state_booked_in,
+        }));
 
         setItem(prevItem => ({
           ...prevItem,

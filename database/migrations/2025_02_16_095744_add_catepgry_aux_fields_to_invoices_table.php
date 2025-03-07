@@ -25,17 +25,17 @@ return new class () extends Migration {
 
         Schema::table('invoices', function (Blueprint $table) {
             $table->boolean('is_vip')->index()->default('false')->comment('Indicate if invoice is for a VIP customer');
-            $table->unsignedSmallInteger('as_organisation_id')->index()->nullable()->comment('Indicate if invoice is for a organisation in this group');
+            $table->unsignedSmallInteger('as_organisation_id')->index()->nullable()->comment('Indicate if invoice is for an organisation in this group');
             $table->foreign('as_organisation_id')->references('id')->on('organisations')->nullOnDelete();
-            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if invoice is for a employee');
+            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if invoice is for an employee');
             $table->foreign('as_employee_id')->references('id')->on('employees')->nullOnDelete();
         });
 
         Schema::table('orders', function (Blueprint $table) {
             $table->boolean('is_vip')->index()->default('false')->comment('Indicate if order is for a VIP customer');
-            $table->unsignedSmallInteger('as_organisation_id')->index()->nullable()->comment('Indicate if order is for a organisation in this group');
+            $table->unsignedSmallInteger('as_organisation_id')->index()->nullable()->comment('Indicate if order is for an organisation in this group');
             $table->foreign('as_organisation_id')->references('id')->on('organisations')->nullOnDelete();
-            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if order is for a employee');
+            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if order is for an employee');
             $table->foreign('as_employee_id')->references('id')->on('employees')->nullOnDelete();
         });
 
@@ -43,7 +43,7 @@ return new class () extends Migration {
             $table->boolean('is_vip')->index()->default('false')->comment('Indicate if delivery note  is for a VIP customer');
             $table->unsignedSmallInteger('as_organisation_id')->index()->nullable()->comment('Indicate if delivery note  is for a organisation in this group');
             $table->foreign('as_organisation_id')->references('id')->on('organisations')->nullOnDelete();
-            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if delivery note is for a employee');
+            $table->unsignedSmallInteger('as_employee_id')->index()->nullable()->comment('Indicate if delivery note is for an employee');
             $table->foreign('as_employee_id')->references('id')->on('employees')->nullOnDelete();
         });
     }
