@@ -220,10 +220,12 @@ class FetchAuroraOrders extends FetchAuroraAction
         ) {
             $payment = $this->parsePayment($organisation->id.':'.$auroraData->{'Payment Key'});
 
-            $modelHasPayments[$payment->id] = [
-                'amount' => $payment->amount,
-                'share'  => 1
-            ];
+            if($payment) {
+                $modelHasPayments[$payment->id] = [
+                    'amount' => $payment->amount,
+                    'share'  => 1
+                ];
+            }
         }
 
         $order->payments()->sync($modelHasPayments);
