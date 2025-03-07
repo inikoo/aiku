@@ -50,10 +50,6 @@ const DeliveryStackScreen = ({ navigation, route }) => {
     fetchData();
   }, []);
 
-  // Debugging: Lihat perubahan data setelah setData
-  useEffect(() => {
-    console.log("Updated data:", data);
-  }, [data]);
 
   // Perbarui title setelah data diperbarui
   useEffect(() => {
