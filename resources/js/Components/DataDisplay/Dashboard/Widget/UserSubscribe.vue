@@ -179,7 +179,7 @@ const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
 	<dl class="mb-2 grid grid-cols-1 md:grid-cols-2 gap-3">
 		<div class="rounded-lg bg-white shadow border border-gray-200">
 			<!-- Card Header -->
-			<div class="px-4 py-4 flex items-center justify-between">
+			<div class="px-4 py-5 flex items-center justify-between">
 				<dt class="text-lg font-semibold text-gray-500 capitalize">Subscriber</dt>
 				<FontAwesomeIcon
 					:icon="isEditing ? faSignOutAlt : faEdit"
