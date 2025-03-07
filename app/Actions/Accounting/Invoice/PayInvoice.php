@@ -8,7 +8,6 @@
 
 namespace App\Actions\Accounting\Invoice;
 
-use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydratePayments;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\OrgAction;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
@@ -16,27 +15,25 @@ use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\CRM\Customer;
-use Illuminate\Support\Arr;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class PayInvoice extends OrgAction
 {
-    public function handle(Invoice $invoice, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function handle(Invoice $invoice, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
+        $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $modelData);
 
-        AttachPaymentToInvoice::make()->action($invoice, $payment, [
-            'amount'    => Arr::get($modelData, 'amount'),
-            'reference' => Arr::get($modelData, 'reference')
-        ]);
+        AttachPaymentToInvoice::make()->action($invoice, $payment, []);
 
-        InvoiceHydratePayments::dispatch($invoice);
         return $payment;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount'       => ['required', 'decimal:0,2'],
@@ -46,17 +43,28 @@ class PayInvoice extends OrgAction
         ];
     }
 
-    public function action(Invoice $invoice, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function action(Invoice $invoice, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $this->initialisationFromShop($customer->shop, $modelData);
+        $this->initialisationFromShop($invoice->shop, $modelData);
 
-        return $this->handle($invoice, $customer, $paymentAccount, $this->validatedData);
+        return $this->handle($invoice, $paymentAccount, $this->validatedData);
     }
 
-    public function asController(Invoice $invoice, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Invoice $invoice, PaymentAccount $paymentAccount, ActionRequest $request): void
     {
-        $this->initialisationFromShop($customer->shop, $request);
+        $this->initialisationFromShop($invoice->shop, $request);
 
-        $this->handle($invoice, $customer, $paymentAccount, $this->validatedData);
+        $this->handle($invoice, $paymentAccount, $this->validatedData);
+    }
+
+    public function htmlResponse(): RedirectResponse
+    {
+        return back();
     }
 }

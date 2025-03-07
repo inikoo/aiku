@@ -16,7 +16,6 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
@@ -213,29 +212,31 @@ class ShowPallet extends OrgAction
             ]
         ];
 
-        $actions[] = [
-            'type'   => 'button',
-            'style'  => 'tertiary',
-            'label'  => 'PDF Label',
-            'target' => '_blank',
-            'icon'   => 'fal fa-file-pdf',
-            'key'    => 'action',
-            'route'  => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.export',
-                'parameters' => [
-                    ...array_values(request()->route()->originalParameters()),
-                    [
-                        'type' => 'pdf'
-                    ]
-                ],
-            ]
-        ];
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $actions[] = [
+                'type'   => 'button',
+                'style'  => 'tertiary',
+                'label'  => 'PDF Label',
+                'target' => '_blank',
+                'icon'   => 'fal fa-file-pdf',
+                'key'    => 'action',
+                'route'  => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.export',
+                    'parameters' => [
+                        ...array_values(request()->route()->originalParameters()),
+                        [
+                            'type' => 'pdf'
+                        ]
+                    ],
+                ]
+            ];
+        }
 
         $storedItemsList = array_map(function ($palletStoredItem) {
             return [
                 'name' => $palletStoredItem->storedItem->name,
                 'reference' => $palletStoredItem->storedItem->reference,
-                'quantity' => $palletStoredItem->quantity,
+                'quantity' => (int) $palletStoredItem->quantity,
                 'state' => $palletStoredItem->state
             ];
         }, $pallet->palletStoredItems->all());

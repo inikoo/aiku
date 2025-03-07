@@ -121,7 +121,7 @@ class ShopHydrateVariants
             ->count();
         }
 
-        $shop->catalogueStats()->update($stats);
+        $shop->stats()->update($stats);
 
     }
 

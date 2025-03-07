@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('invoice.')->prefix('invoice/{invoice:id}')->group(function () {
     Route::patch('update', UpdateInvoice::class)->name('update');
-    Route::post('customer/{customer:id}/payment/{paymentAccount:id}', PayInvoice::class)->name('payment.store')->withoutScopedBindings();
+    Route::post('payment-account/{paymentAccount:id}/payment', PayInvoice::class)->name('payment.store')->withoutScopedBindings();
 
     Route::post('send-invoice', SendInvoiceEmailToCustomer::class)->name('send_invoice');
 });

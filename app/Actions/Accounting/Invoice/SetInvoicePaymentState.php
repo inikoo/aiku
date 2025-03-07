@@ -14,6 +14,8 @@ use App\Enums\Accounting\Invoice\InvoicePayStatusEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class SetInvoicePaymentState extends OrgAction
 {
@@ -44,10 +46,14 @@ class SetInvoicePaymentState extends OrgAction
             }
         }
 
-        if ($payStatus == InvoicePayStatusEnum::UNPAID && $invoice->created_at->diffInYears(now()) > 1) {
-            $payStatus = InvoicePayStatusEnum::UNKNOWN;
+        $cutOffDate = Arr::get($invoice->shop->settings, 'unpaid_invoices_unknown_before', config('app.unpaid_invoices_unknown_before'));
+        if ($cutOffDate) {
+            $cutOffDate = Carbon::parse($cutOffDate);
         }
 
+        if ($payStatus == InvoicePayStatusEnum::UNPAID && $cutOffDate && $invoice->created_at->lt($cutOffDate)) {
+            $payStatus = InvoicePayStatusEnum::UNKNOWN;
+        }
 
         $invoice->update(
             [

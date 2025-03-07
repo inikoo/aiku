@@ -41,9 +41,9 @@ class AttachCustomerToPlatform extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if ($this->customer->platforms()->count() >= 1) {
-            abort(403);
-        }
+        /*        if ($this->customer->platforms()->count() >= 1) {
+                    abort(403);
+                }*/
     }
 
     public function action(Customer $customer, Platform $platform, array $modelData): Customer

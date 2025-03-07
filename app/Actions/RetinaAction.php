@@ -43,7 +43,18 @@ class RetinaAction
     protected array $validatedData;
 
 
-    public function registerInitialisation(Fulfilment $fulfilment, ActionRequest $request): static
+    public function registerDropshippingInitialisation(Shop $shop, ActionRequest $request): static
+    {
+        $this->shop = $shop;
+        $this->organisation = $this->shop->organisation;
+        $this->website = $request->get('website');
+        $this->fillFromRequest($request);
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
+    public function registerFulfilmentInitialisation(Fulfilment $fulfilment, ActionRequest $request): static
     {
         $this->fulfilment = $fulfilment;
         $this->shop = $this->fulfilment->shop;
@@ -78,6 +89,18 @@ class RetinaAction
         $this->customer = $fulfilmentCustomer->customer;
         $this->shop = $this->fulfilment->shop;
         $this->organisation = $this->fulfilment->organisation;
+        $this->webUser = $this->customer->webUsers()->first();
+        $this->setRawAttributes($modelData);
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
+    public function initialisationActions(Customer $customer, array $modelData): static
+    {
+        $this->customer = $customer;
+        $this->shop = $this->customer->shop;
+        $this->organisation = $this->customer->organisation;
         $this->webUser = $this->customer->webUsers()->first();
         $this->setRawAttributes($modelData);
         $this->validatedData = $this->validateAttributes();
