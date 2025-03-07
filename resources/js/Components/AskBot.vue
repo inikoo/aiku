@@ -33,8 +33,11 @@ const fetchApi = async (query: string) => {
 				throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
 			}
 
+            console.log("xxx1->",response)
 			const data = await response.json()
+            console.log("xxx2->",data)
 			aiResponse.value = await marked.parse(data.data?.response)
+            console.log("xxx3->",data)
 		} catch (error) {
 			errorSearch.value = error.message || trans("An error occurred while fetching search results.")
 		} finally {
