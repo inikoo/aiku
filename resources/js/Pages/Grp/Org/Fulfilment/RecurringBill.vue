@@ -66,6 +66,8 @@ const props = defineProps<{
     physical_good_lists?: []
     physical_good_list_route: routeType
 
+    pallet_list_route: routeType  // to attach Service to pallet
+
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -85,11 +87,12 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
-const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
+const formAddService = useForm({ service_id: '', quantity: 1, pallet_id: null, historic_asset_id: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 const dataServiceList = ref([])
+const dataPalletList = ref([])
 
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0]?.historic_asset_id
@@ -190,28 +193,56 @@ const isLoading = ref(false)
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
-                            <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
-                            <div class="">
+                            <!-- Select Services -->
+                            <div>
+                                <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
+                                <div class="">
+                                    <PureMultiselectInfiniteScroll
+                                        v-model="formAddService.service_id"
+                                        :fetchRoute="props.service_list_route"
+                                        :placeholder="trans('Select Services')"
+                                        valueProp="id"
+                                        @optionsList="(options) => dataServiceList = options"
+                                    >
+                                        <template #singlelabel="{ value }">
+                                            <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                        </template>
+                                        <template #option="{ option, isSelected, isPointed }">
+                                            <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                        </template>
+                                    </PureMultiselectInfiniteScroll>
+                                    <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
+                                        {{ formAddService.errors.service_id }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Pallet -->
+                            <div v-if="dataServiceList?.find(list => list.id === formAddService.service_id)?.is_pallet_handling" class="mt-3">
+                                <span class="text-xs px-1 my-2">{{ trans('Pallet to attach') }}: </span>
                                 <PureMultiselectInfiniteScroll
-                                    v-model="formAddService.service_id"
-                                    :fetchRoute="props.service_list_route"
-                                    :placeholder="trans('Select Services')"
+                                    v-model="formAddService.pallet_id"
+                                    :fetchRoute="props.pallet_list_route"
+                                    :placeholder="trans('Select pallet')"
+                                    required
                                     valueProp="id"
-                                    @optionsList="(options) => dataServiceList = options"
+                                    @optionsList="(options) => dataPalletList = options"
                                 >
                                     <template #singlelabel="{ value }">
-                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
+                                        <div class="w-full text-left pl-4">{{ value.reference }} <span class="text-sm text-gray-400">({{ value.type }})</span></div>
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                        <div class="">{{ option.reference }} <span class="text-sm text-gray-400 capitalize">({{ option.type }})</span></div>
                                     </template>
                                 </PureMultiselectInfiniteScroll>
 
-                                <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
-                                    {{ formAddService.errors.service_id }}
+                                <p v-if="get(formAddService, ['errors', 'pallet_id'])" class="mt-2 text-sm text-red-600">
+                                    {{ formAddService.errors.pallet_id }}
                                 </p>
                             </div>
+
+                            <!-- Quantity -->
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
@@ -223,6 +254,7 @@ const isLoading = ref(false)
                                     {{ formAddService.errors.quantity }}
                                 </p>
                             </div>
+
                             <div class="flex justify-end mt-3">
                                 <Button
                                     @click="() => onSubmitAddService(action, closed)"

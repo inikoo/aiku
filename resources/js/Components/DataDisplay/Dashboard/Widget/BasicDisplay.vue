@@ -38,7 +38,7 @@ const props = withDefaults(
 		},
 	}
 )
-console.log(props)
+// console.log(props)
 
 // Example data to use in grand parent (Dashboard)
 const widgets = {

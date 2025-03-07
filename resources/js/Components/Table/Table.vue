@@ -979,7 +979,7 @@ const isLoading = ref<string | boolean>(false)
                                                         {{  locale.currencyFormat(item.currency_code || 'usd', item[column.key]) }}
                                                     </template>
                                                     <template v-else-if="column.type === 'date'">
-                                                        {{  useFormatTime(item[column.key]) }}
+                                                        <span class="whitespace-nowrap">{{  useFormatTime(item[column.key]) }}</span>
                                                     </template>
                                                     <template v-else>
                                                         {{ item[column.key] }}

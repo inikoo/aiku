@@ -16,11 +16,13 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Http\Resources\Fulfilment\MayaPalletResource;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
@@ -44,6 +46,7 @@ class UndoNotReceivedPallet extends OrgAction
         $pallet = $this->update($pallet, $modelData, ['data']);
 
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
+        PalletDeliveryHydratePallets::run($pallet->palletDelivery);
 
         return $pallet;
     }
@@ -74,8 +77,11 @@ class UndoNotReceivedPallet extends OrgAction
         return $this->handle($pallet);
     }
 
-    public function jsonResponse(Pallet $pallet): PalletResource
+    public function jsonResponse(Pallet $pallet, ActionRequest $request): PalletResource|MayaPalletResource
     {
+        if ($request->hasHeader('Maya-Version')) {
+            return MayaPalletResource::make($pallet);
+        }
         return new PalletResource($pallet);
     }
 }

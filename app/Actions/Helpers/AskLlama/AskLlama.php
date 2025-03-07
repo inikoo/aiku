@@ -82,6 +82,20 @@ class AskLlama extends OrgAction
         ";
     }
 
+    public function simplePrompt($question): string
+    {
+        return "
+        **Role**
+        You are a Chatbot Helpdesk Agent. Provide concise and accurate responses to user queries.
+
+        **RESPONSE**
+        Provide a direct, concise, and accurate answer. Avoid being verbose and get straight to the point, but ensure the response feels human.
+
+        **QUESTION**
+        {$question}
+        ";
+    }
+
     protected function calculateCosineSimilarity(array $vectorA, array $vectorB): float
     {
         if (count($vectorA) !== count($vectorB)) {
@@ -158,10 +172,10 @@ class AskLlama extends OrgAction
         $prompt = $this->promptTemplate(json_encode($context), $q);
 
 
-        if (env('BOT_ENV') == 'r1') {
+        if (config('ollama-laravel.ai_provider') == 'r1') {
             $response = DeepSeekClient::build(env('R1_API_KEY'))
                 ->withModel(Models::CHAT->value)
-                ->query($prompt)
+                ->query($this->simplePrompt($prompt))
                 ->setTemperature(1.5)
                 ->run();
             if (isset($response['error'])) {
@@ -196,15 +210,26 @@ class AskLlama extends OrgAction
     {
 
         $q = $request->input('q');
-        if (env('AI_PROVIDER') == 'r1') {
-            $response = DeepSeekClient::build(env('R1_API_KEY'))
-                ->withModel(Models::CHAT->value)
-                ->query($q)
-                ->run();
+        if (config('ollama-laravel.ai_provider') == 'r1') {
 
-            $response = [
-                'response' => Arr::get(json_decode($response, true), 'choices.0.message.content')
-            ];
+            $client = DeepSeekClient::build(apiKey:config('ollama-laravel.api_key'), baseUrl:'https://api.deepseek.com/v3', timeout:50000, clientType:'symfony');
+
+            $client
+                ->withModel(Models::CHAT->value)
+                ->query($this->simplePrompt($q))
+                ->run();
+            $result = $client->getResult();
+
+            if (!$result->isSuccess()) {
+                $response = [
+                    'error' => 'request timeout',
+                ];
+            } else {
+                $response = [
+                    'response' => Arr::get(json_decode($result->getContent(), true), 'choices.0.message.content')
+                ];
+            }
+
             return AskLlamaResource::make($response);
         }
         $res = $this->handle($q);

@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletStoredItem\SetPalletStoredItemStateToReturned;
 use App\Actions\Fulfilment\StoredItemMovement\StoreStoredItemMovementFromPickingAFullPallet;
 use App\Actions\OrgAction;
@@ -16,6 +17,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
+use App\Http\Resources\Fulfilment\MayaPalletReturnItemUIResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemUIResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -63,7 +65,7 @@ class PickWholePalletInPalletReturn extends OrgAction
                 SetPalletStoredItemStateToReturned::run($palletStoredItem);
             }
 
-
+            PalletReturnHydratePallets::dispatch($palletReturnItem->palletReturn);
             PalletRecordSearch::dispatch($pallet);
 
             return $palletReturnItem;
@@ -128,8 +130,12 @@ class PickWholePalletInPalletReturn extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
-    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemUIResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItemUIResource|MayaPalletReturnItemUIResource
     {
+        if ($request->hasHeader('Maya-Version')) {
+            return MayaPalletReturnItemUIResource::make($palletReturnItem);
+        }
+
         return new PalletReturnItemUIResource($palletReturnItem);
     }
 }

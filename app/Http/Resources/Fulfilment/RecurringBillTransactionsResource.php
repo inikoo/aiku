@@ -131,6 +131,13 @@ class RecurringBillTransactionsResource extends JsonResource
             $service = Service::find($this->item_id);
             $editType = $service->edit_type ?? null;
         }
+        
+        if(!empty($this->data['pallet_id']))
+        {
+            $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
+        } else {
+            $pallet = null;
+        }
 
         return [
             'id'                 => $this->id,
@@ -145,6 +152,7 @@ class RecurringBillTransactionsResource extends JsonResource
             'asset_units'        => $this->asset_units,
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
+            'pallet'             => $pallet,
             'unit_label'         => $this->asset_unit,
             'quantity'           => match ($this->item_type) {
                 'Pallet', 'Space' => $this->temporal_quantity,

@@ -78,7 +78,7 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
      */
     public function asController(Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
     {
-        $this->registerInitialisation($fulfilment, $request);
+        $this->registerFulfilmentInitialisation($fulfilment, $request);
         return $this->handle($fulfilment, $this->validatedData);
     }
 }
