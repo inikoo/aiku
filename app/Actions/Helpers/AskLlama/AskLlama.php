@@ -196,9 +196,9 @@ class AskLlama extends OrgAction
     {
 
         $q = $request->input('q');
-        if (env('AI_PROVIDER') == 'r1') {
+        if (config('ollama-laravel.ai_provider') == 'r1') {
 
-            $client = DeepSeekClient::build(apiKey:env('R1_API_KEY'), baseUrl:'https://api.deepseek.com/v3', timeout:30000, clientType:'symfony');
+            $client = DeepSeekClient::build(apiKey:config('ollama-laravel.api_key'), baseUrl:'https://api.deepseek.com/v3', timeout:30000, clientType:'symfony');
 
             $client
                 ->withModel(Models::CHAT->value)
