@@ -10,6 +10,7 @@ namespace App\Actions\Retina\Dropshipping\Product\UI;
 
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
+use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\InertiaTable\InertiaTable;
@@ -28,16 +29,24 @@ use Lorisleiva\Actions\ActionRequest;
 class IndexRetinaDropshippingPortfolio extends RetinaAction
 {
     protected FulfilmentCustomer|Customer $parent;
-    protected ShopifyUser $shopifyUser;
+    protected ShopifyUser|Customer $scope;
 
-    public function handle(ShopifyUser $shopifyUser, $prefix = null): LengthAwarePaginator
+    public function handle(ShopifyUser|Customer $scope, $prefix = null): LengthAwarePaginator
     {
         $query = QueryBuilder::for(Portfolio::class);
 
-        $query->where('customer_id', $shopifyUser->customer_id);
-        $query->with(['item']);
+        if($scope instanceof ShopifyUser) {
+            $customer = $scope->customer;
+            $query->where('customer_id', $customer->id);
+            $query->where('type', PortfolioTypeEnum::SHOPIFY);
+        } elseif ($scope instanceof Customer) {
+            $customer = $scope;
+            $query->where('customer_id', $scope->id);
+        }
 
-        if ($fulfilmentCustomer = $shopifyUser->customer->fulfilmentCustomer) {
+        $query->with(['item']);
+        
+        if ($fulfilmentCustomer = $customer->fulfilmentCustomer) {
             $this->parent = $fulfilmentCustomer;
 
             $query->where('item_type', class_basename(StoredItem::class));
@@ -51,21 +60,21 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
     {
         return $request->user()->is_root;
     }
-
+    
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $shopifyUser = $request->user()->customer->shopifyUser;
-        $this->shopifyUser = $shopifyUser;
+        $customer = $request->user()->customer;
+        $this->scope = $customer;
 
-        if ($fulfilmentCustomer = $shopifyUser->customer->fulfilmentCustomer) {
+        if ($fulfilmentCustomer = $customer->fulfilmentCustomer) {
             $this->parent = $fulfilmentCustomer;
         } else {
-            $this->parent = $shopifyUser->customer;
+            $this->parent = $customer;
         }
 
         $this->initialisation($request);
 
-        return $this->handle($shopifyUser);
+        return $this->handle($customer);
     }
 
     public function inPlatform(Platform $platform, ActionRequest $request): LengthAwarePaginator
