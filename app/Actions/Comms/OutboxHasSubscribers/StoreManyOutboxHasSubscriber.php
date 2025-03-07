@@ -53,17 +53,37 @@ class StoreManyOutboxHasSubscriber extends OrgAction
             'users_id' => [
                 'required_if:external_emails,null',
                 'array',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    $existingSubscribers = \DB::table('outbox_has_subscribers')
+                        ->whereIn('user_id', $value)
+                        ->pluck('user_id')
+                        ->toArray();
+
+                    if (!empty($existingSubscribers)) {
+                        $fail('Some users are already subscribed.');
+                    }
+                },
             ],
 
             'external_emails' => [
                 'required_if:users_id,null',
                 'array',
+                function ($attribute, $value, $fail) {
+                    $existingEmails = \DB::table('outbox_has_subscribers')
+                        ->whereIn('external_email', $value)
+                        ->pluck('external_email')
+                        ->toArray();
+
+                    if (!empty($existingEmails)) {
+                        $fail('Some emails are already subscribed.');
+                    }
+                },
             ],
         ];
 
         return $rules;
     }
-
 
     public function inFulfilment(Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request)
     {
