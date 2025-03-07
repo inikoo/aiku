@@ -476,9 +476,7 @@ class ShowOrder extends OrgAction
                                 'submit_payment'         => [
                                     'name'       => 'grp.models.order.payment.store',
                                     'parameters' => [
-                                        'order'    => $order->id,
-                                        'customer' => $order->customer_id,
-                                    ]
+                                        'order'    => $order->id]
                                 ]
 
                             ],

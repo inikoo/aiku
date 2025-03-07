@@ -14,40 +14,26 @@ use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
-use Illuminate\Support\Arr;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 
 class PayOrder extends OrgAction
 {
-    public function handle(Order $order, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function handle(Order $order, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        /*        foreach ($order->transactions as $index => $transaction) {
-                    data_set($modelData, "items.$index", [
-                        'name'        => $transaction->historicAsset->name,
-                        'quantity'    => $transaction->quantity_ordered,
-                        'description' => '',
-                        'sku'         => '',
-                        'amount'      => $transaction->historicAsset->price
-                    ]);
-                }*/
-        data_set($modelData, 'currency_code', $order->currency->code);
-        data_set($modelData, 'total_amount', $order->total_amount - $order->payment_amount);
+        $payment = StorePayment::make()->action($order->customer, $paymentAccount, $modelData);
 
-        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
-        AttachPaymentToOrder::make()->action($order, $payment, [
-            'amount'    => Arr::get($modelData, 'amount'),
-            'reference' => Arr::get($modelData, 'reference')
-        ]);
+        AttachPaymentToOrder::make()->action($order, $payment, []);
 
         return $payment;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount'       => ['required', 'decimal:0,2'],
@@ -57,26 +43,29 @@ class PayOrder extends OrgAction
         ];
     }
 
-    public function action(Order $order, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function action(Order $order, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $this->initialisationFromShop($customer->shop, $modelData);
+        $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+        return $this->handle($order, $paymentAccount, $this->validatedData);
     }
 
-    public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Order $order, PaymentAccount $paymentAccount, ActionRequest $request): Payment
     {
-        $this->initialisationFromShop($customer->shop, $request);
+        $this->initialisationFromShop($order->shop, $request);
 
-        return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+        return $this->handle($order, $paymentAccount, $this->validatedData);
     }
 
-    public function htmlResponse(Payment $payment, ActionRequest $request): Response|null
-    {
-        if (Arr::exists($payment->data, 'links')) {
-            return Inertia::location(Arr::get($payment->data, 'links')[1]['route' ]);
-        }
 
-        return null;
+    public function htmlResponse(): RedirectResponse
+    {
+        return back();
     }
 }
