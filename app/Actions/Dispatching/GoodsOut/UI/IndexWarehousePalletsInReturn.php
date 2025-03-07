@@ -11,7 +11,7 @@ namespace App\Actions\Dispatching\GoodsOut\UI;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentWarehouseAuthorisation;
-use App\Http\Resources\Fulfilment\PalletStoredItemsInPalletReturnResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Models\Fulfilment\PalletReturn;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -42,9 +42,9 @@ class IndexWarehousePalletsInReturn extends OrgAction
         return $this->handle($palletReturn);
     }
 
-    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletStoredItemsInPalletReturnResource::collection($storedItems);
+        return PalletReturnItemsUIResource::collection($pallets);
     }
 
 }
