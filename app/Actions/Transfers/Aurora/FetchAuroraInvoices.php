@@ -11,6 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Accounting\Invoice\SetInvoicePaymentState;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
@@ -41,7 +42,6 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
 
         if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])->first()) {
-
             try {
                 $invoice = UpdateInvoice::make()->action(
                     invoice: $invoice,
@@ -110,13 +110,9 @@ class FetchAuroraInvoices extends FetchAuroraAction
     private function fetchPayments($organisationSource, Invoice $invoice): void
     {
         $organisation = $organisationSource->getOrganisation();
-
-        $paymentsToDelete = $invoice->payments()->withTrashed()->pluck('source_id')->all();
-
-        $sourceData = explode(':', $invoice->source_id);
+        $sourceData   = explode(':', $invoice->source_id);
 
         $modelHasPayments = [];
-
 
         foreach (
 
@@ -132,20 +128,20 @@ class FetchAuroraInvoices extends FetchAuroraAction
                 'amount' => $payment->amount,
                 'share'  => 1
             ];
+        }
 
-
-            $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
+        if ($invoice->shop->type == ShopTypeEnum::FULFILMENT) {
+            $aikuPayments = $invoice->payments()->whereNull('payments.source_id')->orWhere('payments.source_id', '')->count();
+            // do not sync aurora payments if a payment has been made in aiku
+            if ($aikuPayments == 0) {
+                $invoice->payments()->sync($modelHasPayments);
+            }
+        } else {
+            $invoice->payments()->sync($modelHasPayments);
         }
 
 
-        $invoice->payments()->sync($modelHasPayments);
         SetInvoicePaymentState::run($invoice);
-
-        try {
-            DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();
-        } catch (Exception) {
-            //
-        }
     }
 
     private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void

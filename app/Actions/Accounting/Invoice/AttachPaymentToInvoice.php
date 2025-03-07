@@ -13,42 +13,45 @@ use App\Actions\OrgAction;
 use App\Enums\Accounting\CreditTransaction\CreditTransactionTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
+use Illuminate\Support\Arr;
 
 class AttachPaymentToInvoice extends OrgAction
 {
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
-        $paymentAmount = (is_null($invoice->payment_amount) ? 0 : $invoice->payment_amount) + $modelData['amount'];
+        SetInvoicePaymentState::run($invoice);
+        $paymentAmount = Arr::get($modelData, 'amount', $payment->amount);
+        $toPay = $invoice->total_amount - $invoice->payment_amount;
+
+        $amountToCredit = 0;
+        if ($paymentAmount > $toPay) {
+            $amount = $toPay;
+            $amountToCredit = $paymentAmount - $toPay;
+        } else {
+            $amount = $paymentAmount;
+        }
+
         $invoice->payments()->attach($payment, [
-            'amount' => $paymentAmount,
+            'amount' => $amount,
         ]);
 
-        if ($paymentAmount > $invoice->total_amount || $paymentAmount == $invoice->total_amount) {
-            UpdateInvoice::make()->action($invoice, [
-                'payment_amount' => $invoice->total_amount
-            ]);
-        } else {
-            UpdateInvoice::make()->action($invoice, [
-                'payment_amount' => $paymentAmount
+        if ($amountToCredit != 0) {
+
+            StoreCreditTransaction::make()->action($invoice->customer, [
+                'amount' => $amountToCredit,
+                'type' => CreditTransactionTypeEnum::FROM_EXCESS,
+                'payment_id' => $payment->id,
+                'date' => now()
             ]);
         }
 
-        data_forget($modelData, 'reference');
-        if ($paymentAmount > $invoice->total_amount) {
-            $excessAmount = $paymentAmount - $invoice->total_amount;
-            data_set($modelData, 'amount', $excessAmount);
-            data_set($modelData, 'type', CreditTransactionTypeEnum::TRANSFER_IN);
-            data_set($modelData, 'payment_id', $payment->id);
-            StoreCreditTransaction::run($invoice->customer, $modelData);
-        }
         SetInvoicePaymentState::run($invoice);
     }
 
     public function rules(): array
     {
         return [
-            'amount'    => ['required', 'numeric'],
-            'reference' => ['sometimes'],
+            'amount'    => ['sometimes', 'numeric'],
         ];
     }
 

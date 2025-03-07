@@ -9,6 +9,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Ordering\Order\SetOrderPayments;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderFixedAddress;
@@ -204,9 +205,10 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchPayments($organisationSource, Order $order): void
     {
-        $organisation     = $organisationSource->getOrganisation();
-        $paymentsToDelete = $order->payments()->pluck('source_id')->all();
-        $sourceData       = explode(':', $order->source_id);
+        $organisation = $organisationSource->getOrganisation();
+        $sourceData   = explode(':', $order->source_id);
+
+
         $modelHasPayments = [];
         foreach (
 
@@ -222,16 +224,10 @@ class FetchAuroraOrders extends FetchAuroraAction
                 'amount' => $payment->amount,
                 'share'  => 1
             ];
-
-            $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
         }
 
         $order->payments()->sync($modelHasPayments);
-        try {
-            DB::table('payments')->whereIn('source_id', $paymentsToDelete)->delete();
-        } catch (Exception) {
-            //
-        }
+        SetOrderPayments::run($order);
     }
 
     private function fetchTransactions($organisationSource, Order $order): void

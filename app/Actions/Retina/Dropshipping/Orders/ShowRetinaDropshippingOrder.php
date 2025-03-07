@@ -422,7 +422,6 @@ class ShowRetinaDropshippingOrder extends RetinaAction
                                     // 'name'       => 'grp.models.order.payment.store',
                                     // 'parameters' => [
                                     //     'order'    => $order->id,
-                                    //     'customer' => $order->customer_id,
                                     // ]
                                 ]
 
