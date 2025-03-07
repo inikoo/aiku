@@ -20,6 +20,7 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
     {
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets
             ->whereIn('state', [
+                PalletStateEnum::RECEIVED,
                 PalletStateEnum::BOOKING_IN,
                 PalletStateEnum::BOOKED_IN,
                 PalletStateEnum::STORING,
