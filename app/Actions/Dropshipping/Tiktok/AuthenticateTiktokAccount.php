@@ -29,7 +29,7 @@ class AuthenticateTiktokAccount extends RetinaAction
     public function handle(Customer $customer, array $modelData)
     {
         try {
-            $response = Http::get("https://auth.tiktok-shops.com/api/v2/token/get", [
+            $response = Http::get(config('services.tiktok.auth_url')."/api/v2/token/get", [
                 'app_key' => config('services.tiktok.client_id'),
                 'app_secret' => config('services.tiktok.client_secret'),
                 'auth_code' => Arr::get($modelData, 'code'),
@@ -69,13 +69,13 @@ class AuthenticateTiktokAccount extends RetinaAction
         }
     }
 
-    public function redirectToTikTok()
+    public function redirectToTikTok(Customer $customer)
     {
         $clientId = config('services.tiktok.client_id');
-        $redirectUri = urlencode(config('services.tiktok.redirect_uri'));
+        $redirectUri = urlencode($customer->shop?->website?->getFullUrl() . config('services.tiktok.redirect_uri'));
         $state = uniqid();
 
-        return "https://auth.tiktok-shops.com/oauth/authorize?app_key={$clientId}&state={$state}&redirect_uri={$redirectUri}";
+        return config('services.tiktok.auth_url')."/oauth/authorize?app_key={$clientId}&state={$state}&redirect_uri={$redirectUri}";
     }
 
     public function checkIsAuthenticated(Customer $customer): bool
