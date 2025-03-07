@@ -224,6 +224,7 @@ const isLoading = ref(false)
                                     v-model="formAddService.pallet_id"
                                     :fetchRoute="props.pallet_list_route"
                                     :placeholder="trans('Select pallet')"
+                                    required
                                     valueProp="id"
                                     @optionsList="(options) => dataPalletList = options"
                                 >
@@ -232,7 +233,7 @@ const isLoading = ref(false)
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
+                                        <div class="">{{ option.reference }} <span class="text-sm text-gray-400 capitalize">({{ option.type }})</span></div>
                                     </template>
                                 </PureMultiselectInfiniteScroll>
 
