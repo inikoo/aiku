@@ -12,6 +12,7 @@ use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerDeliveryAddress;
 use App\Actions\Retina\CRM\UpdateRetinaCustomerSettings;
+use App\Actions\Retina\Dropshipping\Product\StoreRetinaProductManual;
 use App\Actions\Retina\Fulfilment\PalletDelivery\DeleteRetinaPalletDelivery;
 use App\Actions\Retina\Fulfilment\PalletReturn\DeleteRetinaPalletReturn;
 use App\Actions\Retina\Shopify\HandleRetinaApiDeleteProductFromShopify;
@@ -128,6 +129,7 @@ Route::name('fulfilment_customer.')->prefix('fulfilment-customer/{fulfilmentCust
 Route::post('customer-client', StoreRetinaCustomerClient::class)->name('customer-client.store');
 
 Route::name('dropshipping.')->prefix('dropshipping')->group(function () {
+    Route::post('customer/{customer:id}/products', StoreRetinaProductManual::class)->name('customer.product.store')->withoutScopedBindings();
     //     Route::post('orders/{shopifyHasFulfilmentId:id}/release-hold', StoreRetinaProductShopify::class)->name('orders.release_hold')->withoutScopedBindings();
     Route::post('shopify-user/{shopifyUser:id}/products', StoreRetinaProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::delete('shopify-user/{shopifyUser:id}/products/{product}', HandleRetinaApiDeleteProductFromShopify::class)->name('shopify_user.product.delete')->withoutScopedBindings();
