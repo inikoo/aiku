@@ -74,9 +74,9 @@ const handleKeyDown = (event: KeyboardEvent) => {
 			/>
 
 			<!-- Text: Press enter to submit -->
-			<div class="mt-1 text-sm text-gray-600">
-				{{ trans("Press") }} <span class="border border-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Enter</span> {{ trans("to submit") }},
-				<span class="border border-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Shift</span>+<span class="border border-gray-400 bg-gray-200 px-2 py-0.5 text-xs rounded">Enter</span>
+			<div class="mt-1 text-sm text-gray-100">
+				{{ trans("Press") }} <span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Enter</span> {{ trans("to submit") }},
+				<span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Shift</span>+<span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Enter</span>
 				{{ trans("to add new line") }}
 			</div>
 			<!-- <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -97,7 +97,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
 						class="h-40 skeleton w-full rounded animate-pulse"></div>
 				</div>
 
-				<div v-else-if="aiResponse" class="mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 px-4" v-html="aiResponse">
+				<div v-else-if="aiResponse" class="mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 px-6" v-html="aiResponse">
 				</div>
 
 				<div v-else-if="!isLoadingSearch && lastQuery" class="p-4">
@@ -135,9 +135,17 @@ const handleKeyDown = (event: KeyboardEvent) => {
 	@apply mb-2;
 }
 
+.markdown-container li p {
+	@apply mb-0;
+}
+
 /* Styling unordered lists (ul) */
 .markdown-container ul {
 	@apply ml-4 pl-2 list-disc mb-4;
+}
+
+.markdown-container li ul {
+	list-style-type: circle
 }
 
 /* Styling list items (li) within unordered lists */
@@ -157,7 +165,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 /* Styling inline code (code) */
 .markdown-container code {
-	@apply py-0.5 px-1.5 text-base font-mono bg-gray-200 text-gray-800 rounded;
+	@apply py-0.5 px-1.5 text-base font-mono bg-gray-800 text-gray-200 rounded;
 }
 
 /* Styling horizontal dividers (hr) */
