@@ -192,10 +192,10 @@ const boxLoaded = ref<{[key: string]: boolean}>({})
             </Link>
         </dl>
     </div>
-
+    
     <!-- Section: Top of the Month -->
     <div v-if="top_selling?.product?.value || top_selling?.department?.value || top_selling?.family?.value" class="p-6">
-        <div class="text-xl font-semibold py-1 border-b border-gray-200">Top of the month (Top_selling)</div>
+        <div class="text-xl font-semibold py-1 border-b border-gray-200">{{ trans("Top of the month (Top_selling)") }}</div>
         <dl class="isolate mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-2 h-72">
             <!-- Top_selling: Product -->
             <div v-if="top_selling.product.value" class="row-span-2 example-2 rounded-md">
@@ -211,7 +211,7 @@ const boxLoaded = ref<{[key: string]: boolean}>({})
 
                     <div class="flex flex-col justify-between gap-y-1">
                         <div>
-                            <div class="text-indigo-600 text-sm animate-pulse">Product of the month</div>
+                            <div class="text-indigo-600 text-sm animate-pulse">{{ trans("Product of the month") }}</div>
                             <h3 class="text-xl font-semibold">
                                 {{ top_selling.product.value?.name }}
                             </h3>
