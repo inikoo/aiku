@@ -82,6 +82,20 @@ class AskLlama extends OrgAction
         ";
     }
 
+    public function simplePrompt($question): string
+    {
+        return "
+        **Role**
+        You are a Chatbot Helpdesk Agent. Provide concise and accurate responses to user queries.
+
+        **RESPONSE**
+        Provide a direct, concise, and accurate answer. Avoid being verbose and get straight to the point, but ensure the response feels human.
+
+        **QUESTION**
+        {$question}
+        ";
+    }
+
     protected function calculateCosineSimilarity(array $vectorA, array $vectorB): float
     {
         if (count($vectorA) !== count($vectorB)) {
@@ -158,10 +172,10 @@ class AskLlama extends OrgAction
         $prompt = $this->promptTemplate(json_encode($context), $q);
 
 
-        if (env('BOT_ENV') == 'r1') {
+        if (config('ollama-laravel.ai_provider') == 'r1') {
             $response = DeepSeekClient::build(env('R1_API_KEY'))
                 ->withModel(Models::CHAT->value)
-                ->query($prompt)
+                ->query($this->simplePrompt($prompt))
                 ->setTemperature(1.5)
                 ->run();
             if (isset($response['error'])) {
@@ -198,11 +212,11 @@ class AskLlama extends OrgAction
         $q = $request->input('q');
         if (config('ollama-laravel.ai_provider') == 'r1') {
 
-            $client = DeepSeekClient::build(apiKey:config('ollama-laravel.api_key'), baseUrl:'https://api.deepseek.com/v3', timeout:30000, clientType:'symfony');
+            $client = DeepSeekClient::build(apiKey:config('ollama-laravel.api_key'), baseUrl:'https://api.deepseek.com/v3', timeout:50000, clientType:'symfony');
 
             $client
                 ->withModel(Models::CHAT->value)
-                ->query($q)
+                ->query($this->simplePrompt($q))
                 ->run();
             $result = $client->getResult();
 
