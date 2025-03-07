@@ -306,31 +306,57 @@ const setChartOptions = () => ({
 
 		<div v-if="visual?.type === 'number'" class="mt-2">
 			<span class="text-4xl font-bold leading-tight truncate">
-				<Link :href="NumberDashboard(visual.route)">
+				<template v-if="visual.route">
+					<Link :href="NumberDashboard(visual.route)">
+						<CountUp
+							class="primaryLink inline-block"
+							v-if="visual.type === 'number'"
+							:endVal="visual.value"
+							:duration="1.5"
+							:scrollSpyOnce="true"
+							:options="{
+						formattingFn: (value: number) => locale.number(value)
+					}" />
+					</Link>
+				</template>
+				<template v-else>
 					<CountUp
-						class="primaryLink inline-block"
-						v-if="visual.type === 'number'"
-						:endVal="visual.value"
-						:duration="1.5"
-						:scrollSpyOnce="true"
-						:options="{
-                    formattingFn: (value: number) => locale.number(value)
-                }" />
-				</Link>
+							class="primaryLink inline-block"
+							v-if="visual.type === 'number'"
+							:endVal="visual.value"
+							:duration="1.5"
+							:scrollSpyOnce="true"
+							:options="{
+						formattingFn: (value: number) => locale.number(value)
+					}" />
+				</template>
 			</span>
 		</div>
 		<div v-if="visual?.type === 'number_with_label'" class="mt-2">
 			<span class="text-4xl font-bold leading-tight truncate ">
-				<Link :href="NumberDashboard(visual.route)">
+				
+				<template v-if="visual.route">
+					<Link :href="NumberDashboard(visual.route)">
+						<CountUp
+							:class="'primaryLink inline-block ' + visual?.class"
+							:endVal="visual.value"
+							:duration="1.5"
+							:scrollSpyOnce="true"
+							:options="{
+							formattingFn: (value: number) => locale.number(value)
+						}" />
+					</Link>
+				</template>
+				<template v-else>
 					<CountUp
-						:class="'primaryLink inline-block ' + visual?.class"
+						:class="'inline-block ' + visual?.class"
 						:endVal="visual.value"
 						:duration="1.5"
 						:scrollSpyOnce="true"
 						:options="{
-                    formattingFn: (value: number) => locale.number(value)
-                }" />
-				</Link>
+						formattingFn: (value: number) => locale.number(value)
+					}" />
+				</template>
 			</span>
 				<p class="text-base text-gray-500">{{ visual.label }}</p>
 		</div>

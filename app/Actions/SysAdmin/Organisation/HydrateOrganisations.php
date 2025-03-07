@@ -55,6 +55,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubscription;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateTopUps;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateVariants;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
@@ -120,6 +121,7 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateRawMaterials::run($organisation);
             OrganisationHydrateProducts::run($organisation);
             OrganisationHydrateRentals::run($organisation);
+            OrganisationHydrateVariants::run($organisation);
 
             OrganisationHydrateOrgAgents::run($organisation);
             OrganisationHydrateOrgSuppliers::run($organisation);

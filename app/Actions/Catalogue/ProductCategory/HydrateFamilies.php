@@ -10,28 +10,24 @@ namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateSales;
-use App\Actions\HydrateModel;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Models\Catalogue\ProductCategory;
-use Illuminate\Support\Collection;
 
-class HydrateFamilies extends HydrateModel
+class HydrateFamilies
 {
-    public string $commandSignature = 'hydrate:families {organisations?*} {--s|slugs=} ';
+    use WithHydrateCommand;
+    public string $commandSignature = 'hydrate:families {organisations?*} {--S|shop= shop slug} {--s|slugs=} ';
+
+    public function __construct()
+    {
+        $this->model = ProductCategory::class;
+        $this->restriction = 'family';
+    }
 
     public function handle(ProductCategory $productCategory): void
     {
         FamilyHydrateProducts::run($productCategory);
-        //ProductCategoryHydrateSales::run($productCategory);
+        ProductCategoryHydrateSales::run($productCategory);
     }
 
-    protected function getModel(string $slug): ?ProductCategory
-    {
-        return ProductCategory::where('slug', $slug)->where('type', ProductCategoryTypeEnum::FAMILY)->first();
-    }
-
-    protected function getAllModels(): Collection
-    {
-        return ProductCategory::withTrashed()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
-    }
 }

@@ -15,6 +15,7 @@ use App\Actions\Billables\Rental\StoreRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -24,8 +25,12 @@ use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -46,6 +51,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
@@ -170,6 +176,19 @@ beforeEach(function () {
     }
 
     $this->palletReturn = $palletReturn;
+
+    $storedItemReturn = PalletReturn::where('type', PalletReturnTypeEnum::STORED_ITEM)->first();
+    if (!$storedItemReturn) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
+
+        $storedItemReturn = StorePalletReturn::make()->actionWithStoredItems(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->storedItemReturn = $storedItemReturn;
 
     $rental = Rental::first();
     if (!$rental) {
@@ -1440,7 +1459,6 @@ test('UI Index pallet returns', function () {
 });
 
 test('UI show pallet return', function () {
-
     $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -1457,42 +1475,6 @@ test('UI show pallet return', function () {
 
     });
 });
-
-test('UI show pallet return with stored items', function () {
-
-    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
-        $this->organisation->slug,
-        $this->fulfilment->slug,
-        $this->palletReturn->slug
-    ]));
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/PalletReturn')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->has('interest')
-            ->has('updateRoute')
-            ->has('deleteServiceRoute')
-            ->has('deletePhysicalGoodRoute')
-            ->has('routeStorePallet')
-            ->has('upload_spreadsheet')
-            ->has('attachmentRoutes')
-            ->has('data')
-            ->has('box_stats')
-            ->has('notes_data')
-            ->has('stored_items_count')
-            ->has(
-                'pageHead',
-                fn (AssertableInertia $page) => $page
-                        ->where('title', $this->palletReturn->reference)
-                        ->etc()
-            )
-            ->has('tabs');
-
-    });
-});
-
 
 test('UI json get pallet return whole pallet', function () {
     $this->withoutExceptionHandling();
@@ -1530,6 +1512,141 @@ test('UI show pallet return (services tab)', function () {
             ->component('Org/Fulfilment/PalletReturn')
             ->has('title')
             ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show pallet return (confirmed)', function () {
+    $palletReturn = $this->palletReturn;
+    $fulfilmentCustomer = $this->customer->fulfilmentCustomer;
+    $pallet = $fulfilmentCustomer->pallets()->where('status', PalletStatusEnum::STORING)->first();
+    AttachPalletToReturn::make()->action(
+        $palletReturn,
+        $pallet,
+    );
+
+    $palletReturn = SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+});
+
+test('UI show pallet return (picking)', function (PalletReturn $palletReturn) {
+    $palletReturn = PickingPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (confirmed)');
+
+test('UI show pallet return (picked)', function (PalletReturn $palletReturn) {
+    $palletReturn = PickedPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (picking)');
+
+test('UI show pallet return (dispatched)', function (PalletReturn $palletReturn) {
+    $palletReturn = DispatchPalletReturn::make()->action($palletReturn);
+    $palletReturn->refresh();
+
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+
+    return $palletReturn;
+})->depends('UI show pallet return (picked)');
+
+
+test('UI show pallet return with stored items', function () {
+    // dd($this->customer->fulfilmentCustomer->pallets);
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [
+        $this->organisation->slug,
+        $this->fulfilment->slug,
+        $this->storedItemReturn->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('interest')
+            ->has('updateRoute')
+            ->has('deleteServiceRoute')
+            ->has('deletePhysicalGoodRoute')
+            ->has('routeStorePallet')
+            ->has('upload_spreadsheet')
+            ->has('attachmentRoutes')
+            ->has('data')
+            ->has('box_stats')
+            ->has('notes_data')
+            ->has('stored_items_count')
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -1840,25 +1957,6 @@ test('UI show Recurring Bill', function () {
             ->has('box_stats')
             ->has('tabs');
 
-    });
-});
-
-test('UI edit recurring bill', function () {
-    $this->withoutExceptionHandling();
-    $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('EditModel')
-            ->has('title')
-            ->has('formData.blueprint.0.fields', 1)
-            ->has('pageHead')
-            ->has(
-                'formData.args.updateRoute',
-                fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.recurring-bill.update')
-                        ->where('parameters.recurringBill', $this->recurringBill->id)
-            )
-            ->has('breadcrumbs', 4);
     });
 });
 

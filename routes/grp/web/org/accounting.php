@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\Invoice\ExportInvoices;
 use App\Actions\Accounting\Invoice\PdfInvoice;
+use App\Actions\Accounting\Invoice\UI\EditInvoice;
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\IndexInvoicesDeleted;
 use App\Actions\Accounting\Invoice\UI\IndexRefunds;
@@ -31,10 +32,6 @@ use App\Actions\Accounting\PaymentAccount\UI\EditPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentAccountShop\UI\IndexPaymentAccountShops;
-use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProviders;
-use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvider;
-use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
-use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use Illuminate\Support\Facades\Route;
@@ -46,11 +43,7 @@ Route::get('/providers/{orgPaymentServiceProvider}/payments/create', [IndexPayme
 
 
 Route::get('/providers', SelectOrgPaymentServiceProviders::class)->name('org-payment-service-providers.index');
-Route::get('/providers/create', CreatePaymentServiceProvider::class)->name('org-payment-service-providers.create');
-Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('org-payment-service-providers.export');
 Route::get('/providers/{orgPaymentServiceProvider}', ShowOrgPaymentServiceProvider::class)->name('org-payment-service-providers.show');
-Route::get('/providers/{orgPaymentServiceProvider}/edit', EditPaymentServiceProvider::class)->name('org-payment-service-providers.edit');
-Route::get('/providers/{orgPaymentServiceProvider}/delete', RemovePaymentServiceProvider::class)->name('org-payment-service-providers.remove');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inOrgPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.index');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/edit', [EditPaymentAccount::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.edit');
@@ -84,6 +77,8 @@ Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 
 Route::get('/invoices', IndexInvoices::class)->name('invoices.index');
 Route::get('/invoices/{invoice}', ShowInvoice::class)->name('invoices.show');
+Route::get('/invoices/{invoice}/edit', [EditInvoice::class, 'inOrganisation'])->name('invoices.edit');
+
 Route::get('/invoices/{invoice}/refunds', [IndexRefunds::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.index');
 Route::get('/invoices/{invoice}/refunds/{refund}', [ShowRefund::class, 'inInvoiceInOrganisation'])->name('invoices.show.refunds.show');
 

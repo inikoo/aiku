@@ -58,6 +58,7 @@ class FetchAuroraShop extends FetchAurora
 
     protected function parseModel(): void
     {
+
         $type = match (strtolower($this->auroraModelData->{'Store Type'})) {
             'b2b' => ShopTypeEnum::B2B,
             'b2c' => ShopTypeEnum::B2C,
@@ -175,6 +176,7 @@ class FetchAuroraShop extends FetchAurora
             $this->parsedData['shop']['warehouses'] = [$warehouse->id];
         }
     }
+
 
 
     protected function fetchData($id): object|null

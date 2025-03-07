@@ -92,7 +92,7 @@ trait IsInvoiceUI
         }
 
         return [
-            'name'       => 'grp.org.shops.show.comms.outboxes.workshop',
+            'name'       => 'grp.org.shops.show.dashboard.comms.outboxes.workshop',
             'parameters' => [
                 'organisation' => $invoice->organisation->slug,
                 'shop'   => $invoice->customer->shop->slug,
@@ -153,7 +153,6 @@ trait IsInvoiceUI
                         'name'       => 'grp.models.invoice.payment.store',
                         'parameters' => [
                             'invoice'  => $invoice->id,
-                            'customer' => $invoice->customer_id,
                         ]
                     ]
 

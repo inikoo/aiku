@@ -66,7 +66,7 @@ export const initialiseApp = () => {
                         currentShop: route().params.shop ?? layout.agentsState?.[layout.currentParams.agent]?.currentShop,
                         currentWarehouse: route().params.warehouse ?? layout.agentsState?.[layout.currentParams.agent]?.currentWarehouse,
                         currentFulfilment: route().params.fulfilment ?? layout.agentsState?.[layout.currentParams.agent]?.currentFulfilment,
-                        currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.agentsState?.[layout.currentParams.agent]?.currentType
+                        currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.organisationsState?.[layout.currentParams.agent]?.currentType
                     }
                 }
 

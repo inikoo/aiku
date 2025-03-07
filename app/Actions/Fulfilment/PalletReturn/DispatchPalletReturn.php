@@ -11,16 +11,15 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Dropshipping\Shopify\Fulfilment\DispatchFulfilmentOrderShopify;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\ReturnPallet;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
-use App\Actions\Fulfilment\RecurringBillTransaction\UpdateRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -57,18 +56,7 @@ class DispatchPalletReturn extends OrgAction
             $palletReturn = DB::transaction(function () use ($palletReturn, $pallets, $modelData) {
                 /** @var Pallet $pallet */
                 foreach ($pallets as $pallet) {
-                    $pallet = UpdatePallet::make()->action($pallet, [
-                        'state'  => PalletStateEnum::DISPATCHED,
-                        'status' => PalletStatusEnum::RETURNED,
-                        'dispatched_at' => now()
-                    ]);
-                    if ($pallet->current_recurring_bill_id && $pallet->fulfilmentCustomer->current_recurring_bill_id == $pallet->fulfilmentCustomer->current_recurring_bill_id) {
-                        $recurringBillTransaction = $pallet->currentRecurringBillTransaction;
-                        UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
-                            'end_date' => now()
-                        ]);
-                    }
-
+                    $pallet = ReturnPallet::make()->action($pallet, $modelData);
 
                     $palletReturn->pallets()->syncWithoutDetaching([
                         $pallet->id => [
@@ -92,6 +80,7 @@ class DispatchPalletReturn extends OrgAction
             DispatchFulfilmentOrderShopify::run($palletReturn);
         }
 
+        PalletReturnHydratePallets::dispatch($palletReturn);
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
@@ -140,10 +129,10 @@ class DispatchPalletReturn extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
+    public function action(PalletReturn $palletReturn): PalletReturn
     {
         $this->asAction = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
 
         return $this->handle($palletReturn, $this->validatedData);
     }

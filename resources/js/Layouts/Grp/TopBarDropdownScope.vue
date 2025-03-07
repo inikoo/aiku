@@ -30,12 +30,32 @@ const layout = inject('layout', layoutStructure)
 const onClickOrg = async (slug?: string) => {
     if (!slug) return
 
+    // console.log('11 onClickOrg', layout.agents.data)
+    // console.log('22 onClickOrg', layout.agents.data.find(organisation => organisation.slug == slug)?.authorised_shops.length)
+    // return 
+
     // If current route is in Shop or Fulfilment, redirect to index
-    if (route().current()?.includes('grp.org.shops') || route().current()?.includes('grp.org.fulfilments')) {
-        router.visit(route('grp.org.shops.index', { organisation: slug }))
-        set(layout, ['organisationsState', slug, 'currentShop'], '')
-        set(layout, ['organisationsState', slug, 'currentFulfilment'], '')
-        return
+    if (route().current()?.includes('grp.org.shops') || route().current()?.includes('grp.org.fulfilments') || route().current()?.includes('grp.org.warehouses')) {
+        // If org have shop or fulfilment, redirect to Shops index
+        if (layout.organisations.data.find(organisation => organisation.slug == slug)?.authorised_shops.length || layout.organisations.data.find(organisation => organisation.slug == slug)?.authorised_fulfilments.length) {
+            // console.log('333')
+            router.visit(route('grp.org.dashboard.show', { organisation: slug }))
+            // set(layout, ['organisationsState', slug, 'currentShop'], '')
+            // set(layout, ['organisationsState', slug, 'currentFulfilment'], '')
+            return
+        } else if (layout.agents.data.find(agent => agent.slug == slug)?.authorised_shops.length || layout.agents.data.find(agent => agent.slug == slug)?.authorised_fulfilments.length) {
+            // console.log('444')
+            router.visit(route('grp.org.dashboard.show', { organisation: slug }))
+            // set(layout, ['organisationsState', slug, 'currentShop'], '')
+            // set(layout, ['organisationsState', slug, 'currentFulfilment'], '')
+            return
+        } else {
+            // console.log('5555')
+            router.visit(route('grp.org.dashboard.show', { organisation: slug }))
+            set(layout, ['organisationsState', slug, 'currentShop'], '')
+            set(layout, ['organisationsState', slug, 'currentFulfilment'], '')
+            return
+        }
     }
 
     try {      

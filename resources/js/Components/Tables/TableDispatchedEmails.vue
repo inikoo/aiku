@@ -62,9 +62,9 @@ function dispatchedEmailRoute(dispatchedEmail: DispatchedEmail) {
             return route(
                 'grp.org.fulfilments.show.operations.comms.outboxes.dispatched-email.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['outbox'], dispatchedEmail.id]);
-        case 'grp.org.shops.show.comms.outboxes.show':
+        case 'grp.org.shops.show.dashboard.comms.outboxes.show':
             return route(
-                'grp.org.shops.show.comms.outboxes.dispatched-email.show',
+                'grp.org.shops.show.dashboard.comms.outboxes.dispatched-email.show',
                 [route().params['organisation'], route().params['shop'], route().params['outbox'], dispatchedEmail.id]);
         default:
             return null

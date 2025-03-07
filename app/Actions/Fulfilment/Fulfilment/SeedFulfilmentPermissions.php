@@ -99,7 +99,7 @@ class SeedFulfilmentPermissions
                         foreach ($case->getPermissions() as $permissionName) {
                             if (class_basename($permissionName) == 'WarehousePermissionsEnum') {
                                 if ($permission = (new Permission())->where('name', WarehousePermissionsEnum::getPermissionName($permissionName->value, $warehouse))->first()) {
-                                    $role->attachPermissions($permission);
+                                    $role->givePermissionTo($permission);
                                 }
                             }
                         }

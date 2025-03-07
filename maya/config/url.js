@@ -65,4 +65,9 @@ export default {
 	//goods in
 	'get-org-stocks' :  { url: "maya/org/{}/warehouses/{}/inventory/stocks" },
 	'get-org-stock' :  { url: "maya/org/{}/warehouses/{}/inventory/stocks/{}" },
+
+
+	//agent-sku
+	'get-agent-skus' :  { url: "maya/org/{}/warehouses/{}/agent-inventory/skus" },
+	'get-agent-sku' :  { url: "maya/org/{}/warehouses/{}/agent-inventory/skus/{}" },
 }

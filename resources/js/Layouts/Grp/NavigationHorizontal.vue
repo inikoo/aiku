@@ -153,7 +153,7 @@ const routeArrow = (nav?: MergeNavigation) => {
             fulfilment: nav.key
         })
     } else if (nav.type === 'shop') {
-        return route('grp.org.shops.show.catalogue.dashboard', {
+        return route('grp.org.shops.show.dashboard.show', {
             organisation: layout.currentParams.organisation,
             shop: nav.key
         })

@@ -34,7 +34,7 @@ trait WithCommsSubNavigation
                 "label"    => __("Comms Dashboard"),
 
                 "route"    => [
-                    "name"       => "grp.org.shops.show.comms.dashboard",
+                    "name"       => "grp.org.shops.show.dashboard.comms.dashboard",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "leftIcon" => [
@@ -45,7 +45,7 @@ trait WithCommsSubNavigation
             [
                 "label"    => __("Post Rooms"),
                 "route"    => [
-                    "name"       => "grp.org.shops.show.comms.post-rooms.index",
+                    "name"       => "grp.org.shops.show.dashboard.comms.post-rooms.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "leftIcon" => [
@@ -56,7 +56,7 @@ trait WithCommsSubNavigation
             [
                 "label"    => __("Outboxes"),
                 "route"    => [
-                    "name"       => "grp.org.shops.show.comms.outboxes.index",
+                    "name"       => "grp.org.shops.show.dashboard.comms.outboxes.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "leftIcon" => [

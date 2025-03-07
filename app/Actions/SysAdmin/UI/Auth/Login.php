@@ -12,6 +12,7 @@ use App\Actions\SysAdmin\User\AuthoriseUserWithLegacyPassword;
 use App\Actions\SysAdmin\User\LogUserFailLogin;
 use App\Actions\SysAdmin\User\LogUserLogin;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
@@ -96,9 +97,14 @@ class Login
             app()->setLocale($language->code);
         }
 
-        //return back();
+        if ($user->authorisedOrganisations->count() === 1) {
+            /** @var Organisation $organisation */
+            $organisation = $user->authorisedOrganisations()->first();
 
-        return redirect()->intended('dashboard');
+            return redirect()->intended(route('grp.org.dashboard.show', $organisation->slug));
+        }
+
+        return redirect()->intended('/dashboard');
     }
 
     public function rules(): array
@@ -114,9 +120,7 @@ class Login
      */
     public function asController(ActionRequest $request): RedirectResponse
     {
-        $this->handle($request);
-
-        return redirect()->intended('/dashboard');
+        return $this->handle($request);
     }
 
 

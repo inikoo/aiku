@@ -49,8 +49,11 @@ class SetUserAuthorisedModels
             } elseif ($permission->scope_type === 'Warehouse') {
                 /** @var Warehouse $warehouse */
                 $warehouse                                            = Warehouse::find($permission->scope_id);
-                $authorisedWarehouses[$permission->scope_id]          = ['org_id' => $warehouse->organisation_id];
-                $authorisedOrganisations[$warehouse->organisation_id] = ['org_id' => $warehouse->organisation_id];
+                if ($warehouse) {
+                    $authorisedWarehouses[$permission->scope_id]          = ['org_id' => $warehouse->organisation_id];
+                    $authorisedOrganisations[$warehouse->organisation_id] = ['org_id' => $warehouse->organisation_id];
+                }
+
             } elseif ($permission->scope_type === 'Production') {
                 /** @var Production $production */
                 $production                                            = Production::find($permission->scope_id);

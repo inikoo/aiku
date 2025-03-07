@@ -154,17 +154,32 @@ class ShowFulfilment extends OrgAction
                         ),
                         $this->getWidget(
                             data: [
-                                'value'       => $fulfilment->stats->number_pallet_returns_state_confirmed + $fulfilment->stats->number_pallet_returns_state_picking + $fulfilment->stats->number_pallet_returns_state_picked,
-                                'description' => __('New Orders'),
+                                'value'       => $fulfilment->stats->number_pallet_deliveries_state_submitted,
+                                'description' => __('Submitted Deliveries'),
                                 'type'        => 'number',
                                 'route'       => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.confirmed.index',
+                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
                                     'parameters' => [
                                         'organisation' => $fulfilment->organisation->slug,
                                         'fulfilment'   => $fulfilment->slug,
+                                        'deliveries_elements[state]' => 'submitted'
                                     ]
                                 ]
                             ],
+                            visual: [
+                                'label' => __('Submitted Returns'),
+                                'type'  => 'number_with_label',
+                                'value' => $fulfilment->stats->number_pallet_returns_state_submitted,
+                                'route' => [
+                                    'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.new.index',
+                                    'parameters' => [
+                                        'organisation' => $fulfilment->organisation->slug,
+                                        'fulfilment'   => $fulfilment->slug,
+                                        'returns_elements[state]' => 'submitted'
+                                    ]
+                                ]
+                            ],
+                            
                         ),
 
 

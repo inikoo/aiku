@@ -183,6 +183,7 @@ class AppServiceProvider extends ServiceProvider
                 'Email'                         => 'App\Models\Comms\Email',
                 'EmailBulkRun'                  => 'App\Models\Comms\EmailBulkRun',
                 'EmailOngoingRun'               => 'App\Models\Comms\EmailOngoingRun',
+                'OutBoxHasSubscriber'           => 'App\Models\Comms\OutBoxHasSubscriber',
 
 
                 // Catalogue
@@ -234,7 +235,7 @@ class AppServiceProvider extends ServiceProvider
                 'Group'                         => 'App\Models\SysAdmin\Group',
                 'Guest'                         => 'App\Models\SysAdmin\Guest',
                 'Organisation'                  => 'App\Models\SysAdmin\Organisation',
-                'OrganisationAuthorisedModels'  => 'App\Models\SysAdmin\OrganisationAuthorisedModels',
+                'UserHasAuthorisedModels'       => 'App\Models\SysAdmin\UserHasAuthorisedModels',
                 'User'                          => 'App\Models\SysAdmin\User',
                 'Permission'                    => 'App\Models\SysAdmin\Permission',
                 'Role'                          => 'App\Models\SysAdmin\Role',

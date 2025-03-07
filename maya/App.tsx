@@ -11,6 +11,8 @@ import {AuthContext} from '@/src/components/Context/context';
 import {loginReducer} from '@/src/Reducer/loginReducer';
 import {AlertNotificationRoot} from 'react-native-alert-notification';
 import { navigationRef } from '@/src/utils/NavigationService';
+import {retrieveProfile} from '@/src/user';
+import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 import './global.css';
 
 const Stack = createNativeStackNavigator();
@@ -25,7 +27,6 @@ function App(): React.JSX.Element {
     warehouse: null,
   };
   const [loginState, dispatch] = useReducer(loginReducer, initialLoginState);
-  console.log("loginState",loginState)
 
   const authContext = useMemo(
     () => ({
@@ -42,10 +43,10 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: null,
           warehouse: null,
+          isLoading:false
         });
       },
       setOrganisation: async user => {
-        console.log(user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -58,10 +59,10 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: null,
           warehouse: null,
+          isLoading:false
         });
       },
       setFulfilmentWarehouse: async user => {
-        console.log('setFulfilmentWarehouse',user)
         try {
           await AsyncStorage.setItem('persist:user', JSON.stringify(user));
         } catch (e) {
@@ -74,6 +75,7 @@ function App(): React.JSX.Element {
           organisation: user.organisation,
           fulfilment: user.fulfilment,
           warehouse: user.warehouse,
+          isLoading:false
         });
       },
       signOut: async () => {
@@ -88,6 +90,7 @@ function App(): React.JSX.Element {
       organisation: loginState.organisation,  // ✅ Ambil dari loginState
       fulfilment: loginState.fulfilment,  // ✅ Ambil dari loginState
       warehouse: loginState.warehouse,  // ✅ Ambil dari loginState
+      isLoading: loginState.isLoading,  // ✅ Ambil dari loginState
     }),
     [loginState],
   );
@@ -95,25 +98,66 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     const loadUserToken = async () => {
-      try {
-        const storedUser = await getData('persist:user');
-        const userToken = storedUser ? storedUser.token : null;
-        console.log(storedUser)
-        dispatch({
-          type: 'RETRIEVE_TOKEN',
-          token: userToken,
-          userData: storedUser,
-          organisation: storedUser?.organisation, 
-          fulfilment: storedUser?.fulfilment,
-          warehouse: storedUser?.warehouse,
-        });
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-      }
+        try {
+            const storedUser = await getData('persist:user');
+            console.log('Stored User:', storedUser); // ✅ Check if data is null or undefined
+
+            if (!storedUser) {
+                dispatch({ type: 'LOGOUT' }); // Ensure app doesn't stay stuck
+                return;
+            }
+
+            let user = storedUser;
+
+            await retrieveProfile({
+                accessToken: storedUser.token,
+                onSuccess: profileRes => {
+                    console.log('Profile Response:', profileRes);
+
+                    let organisation = profileRes.data.organisations.find(
+                        item => item.code === storedUser.organisation.code
+                    );
+
+                    user = { ...storedUser, ...profileRes.data, organisation };
+                    
+                    dispatch({
+                        type: 'RETRIEVE_TOKEN',
+                        token: user.token,
+                        userData: user,
+                        organisation: user.organisation,
+                        fulfilment: user.fulfilment,
+                        warehouse: user.warehouse,
+                        isLoading: false, // ✅ Ensure this is false
+                    });
+                },
+                onFailed: err => {
+                    Toast.show({
+                        type: ALERT_TYPE.DANGER,
+                        title: 'Error',
+                        textBody: err?.data.message || 'Failed to update profile data',
+                    });
+                    dispatch({
+                      type: 'RETRIEVE_TOKEN',
+                      token: user.token,
+                      userData: user,
+                      organisation: user.organisation,
+                      fulfilment: user.fulfilment,
+                      warehouse: user.warehouse,
+                      isLoading: false, // ✅ Ensure this is false
+                  });
+                },
+            });
+
+        } catch (error) {
+            console.error('Error retrieving token:', error);
+            /* dispatch({ type: 'LOGOUT' });  */
+        }
     };
+
     loadUserToken();
-  }, []);
-  
+}, []);
+
+
 
   if (loginState.isLoading) {
     return (

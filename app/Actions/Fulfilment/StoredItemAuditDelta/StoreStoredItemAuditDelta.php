@@ -18,6 +18,7 @@ use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\Fulfilment\StoredItemAuditDelta;
 use DB;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,11 +26,22 @@ class StoreStoredItemAuditDelta extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAuditDelta
+    public function handle(StoredItemAudit $storedItemAudit, array $modelData)
     {
         data_set($modelData, 'group_id', $storedItemAudit->group_id);
         data_set($modelData, 'organisation_id', $storedItemAudit->organisation_id);
         data_set($modelData, 'audited_at', now());
+
+        $existingAuditDelta = $storedItemAudit->deltas()->where(
+            [
+                'pallet_id' => Arr::get($modelData, 'pallet_id'),
+                'stored_item_id' => Arr::get($modelData, 'stored_item_id'),
+            ]
+        )->first();
+
+        if ($existingAuditDelta) {
+            return $storedItemAudit;
+        }
 
         $isNewStoredItem = false;
         $storedItem      = StoredItem::where('id', $modelData['stored_item_id'])->first();

@@ -41,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
     Route::patch('update', UpdateOrder::class)->name('update');
-    Route::post('customer/{customer:id}/payment/{paymentAccount:id}', PayOrder::class)->name('payment.store')->withoutScopedBindings();
+    Route::post('payment-account/{paymentAccount:id}/payment', PayOrder::class)->name('payment.store')->withoutScopedBindings();
 
 
     Route::name('attachment.')->prefix('attachment')->group(function () {

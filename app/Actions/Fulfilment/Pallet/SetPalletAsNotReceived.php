@@ -9,10 +9,12 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Http\Resources\Fulfilment\MayaPalletResource;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,7 +37,10 @@ class SetPalletAsNotReceived extends OrgAction
 
 
         $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
+
+        PalletDeliveryHydratePallets::dispatch($pallet->palletDelivery);
         PalletRecordSearch::dispatch($pallet);
+
         return $pallet;
     }
 
@@ -70,8 +75,11 @@ class SetPalletAsNotReceived extends OrgAction
         return $this->handle($pallet);
     }
 
-    public function jsonResponse(Pallet $pallet): PalletResource
+    public function jsonResponse(Pallet $pallet,  ActionRequest $request): PalletResource|MayaPalletResource
     {
+        if ($request->hasHeader('Maya-Version')) {
+            return MayaPalletResource::make($pallet);
+        }
         return new PalletResource($pallet);
     }
 }

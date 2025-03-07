@@ -122,12 +122,17 @@ const blueprint = [
         }
     }, */
     {
-        key: ["alt"],
+        key: ["link_data"],
+        label: "Link",
+        type: "link",
+    },
+    {
+        key: ["properties","alt"],
         label: "Alt",
         type: "text",
     },
     {
-        key: ["object_fit"],
+        key: ["properties","object_fit"],
         label: "Object Image",
         type: "select",
         props_data: {
@@ -153,7 +158,7 @@ const blueprint = [
         }
     },
     {
-        key: ["object_position"],
+        key: ["properties","object_position"],
         label: "Object Position",
         type: "select",
         props_data: {

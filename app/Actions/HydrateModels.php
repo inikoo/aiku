@@ -41,7 +41,7 @@ class HydrateModels extends HydrateModel
             $this->hydrateGoods($command);
         }
 
-        if ($this->checkIfCanHydrate(['catalogue'], $command)) {
+        if ($this->checkIfCanHydrate(['catalogue','cat'], $command)) {
             $this->hydrateCatalogue($command);
         }
 
@@ -105,9 +105,12 @@ class HydrateModels extends HydrateModel
     protected function hydrateCatalogue(Command $command): void
     {
         $command->info('Catalogue section 📚');
+        $command->call('hydrate:shops');
+        $command->call('hydrate:departments');
+        $command->call('hydrate:sub_departments');
+        $command->call('hydrate:families');
         $command->call('hydrate:products');
-        $command->call('hydrate:product_categories');
-        $command->call('hydrate:collections');
+        $command->call('hydrate:assets');
     }
 
     protected function hydrateBillables(Command $command): void
@@ -179,7 +182,6 @@ class HydrateModels extends HydrateModel
         $command->call('hydrate:invoices');
 
 
-        // $command->call('hydrate:topups'); -> error on record search
         //todo $command->call('hydrate:customer_balances');
     }
 

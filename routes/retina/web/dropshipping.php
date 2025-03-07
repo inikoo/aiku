@@ -19,11 +19,11 @@ use App\Actions\Retina\Dropshipping\Client\UI\IndexRetinaCustomerClients;
 use App\Actions\Retina\Dropshipping\Client\UI\ShowRetinaCustomerClient;
 use App\Actions\Retina\Dropshipping\Orders\IndexRetinaDropshippingOrders;
 use App\Actions\Retina\Dropshipping\Orders\IndexRetinaPlatformDropshippingOrders;
+use App\Actions\Retina\Dropshipping\Orders\ShowRetinaDropshippingOrder;
 use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingPortfolio;
 use App\Actions\Retina\Dropshipping\Product\UI\IndexRetinaDropshippingProducts;
 use App\Actions\Retina\Dropshipping\ShowRetinaDropshipping;
 use App\Actions\Retina\Dropshipping\ShowRetinaProduct;
-use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('platform')->as('platform.')->group(function () {
@@ -52,7 +52,7 @@ Route::prefix('portfolios')->as('portfolios.')->group(function () {
 
 Route::prefix('orders')->as('orders.')->group(function () {
     Route::get('/', IndexRetinaDropshippingOrders::class)->name('index');
-    Route::get('{order}', ShowDummy::class)->name('show');
+    Route::get('/{order}', ShowRetinaDropshippingOrder::class)->name('show');
 });
 
 Route::prefix('platforms/{platform}')->as('platforms.')->group(function () {

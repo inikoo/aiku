@@ -15,12 +15,16 @@ use App\Actions\Comms\Email\SendResetPasswordEmail;
 use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
+use App\Actions\Comms\OrgPostRoom\StoreOrgPostRoom;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Helpers\Snapshot\StoreEmailSnapshot;
+use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
@@ -161,21 +165,28 @@ test('update mailshot', function ($mailshot) {
 test('test post room hydrator', function ($shop) {
     $postRoom = $this->group->postRooms()->first();
 
-    $outbox = StoreOutbox::make()->action(
+    $orgPostRoom = StoreOrgPostRoom::make()->action(
         $postRoom,
+        $shop->organisation,
+        []
+    );
+    $outbox = StoreOutbox::make()->action(
+        $orgPostRoom,
         $shop,
         [
-            'type' => OutboxCodeEnum::NEWSLETTER,
+            'code' => OutboxCodeEnum::INVITE,
+            'type' => OutboxTypeEnum::NEWSLETTER,
             'name' => 'Test',
+            'state' => OutboxStateEnum::ACTIVE
         ]
     );
 
     expect($outbox)->toBeInstanceOf(Outbox::class)
-        ->and($outbox->postRoom->stats->number_outboxes)->toBe(9)
-        ->and($outbox->postRoom->stats->number_outboxes_type_newsletter)->toBe(4);
+        ->and($outbox->postRoom->stats->number_outboxes)->toBe(1)
+        ->and($outbox->postRoom->stats->number_outboxes_type_newsletter)->toBe(1);
 
     return $outbox;
-})->depends('outbox seeded when shop created')->todo();
+})->depends('outbox seeded when shop created');
 
 
 test('test send email reset password', function () {
@@ -207,7 +218,7 @@ test('test send email reset password', function () {
 })->depends('outbox seeded when shop created');
 
 test('UI comms dashboard', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.dashboard', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.dashboard', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -225,7 +236,7 @@ test('UI comms dashboard', function () {
 });
 
 test('UI index mail outboxes', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -244,7 +255,7 @@ test('UI index mail outboxes', function () {
 
 test('UI show mail outboxes', function () {
     $outbox   = $this->shop->outboxes()->first();
-    $response = $this->get(route('grp.org.shops.show.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
         $page
@@ -262,7 +273,7 @@ test('UI show mail outboxes', function () {
 });
 
 test('UI Index Org Post Rooms', function () {
-    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.dashboard.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -281,7 +292,7 @@ test('UI Index Org Post Rooms', function () {
 
 test('UI Show Org Post Rooms', function () {
     $orgPostRoom = $this->organisation->orgPostRooms()->first();
-    $response    = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
+    $response    = $this->get(route('grp.org.shops.show.dashboard.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
         $page
@@ -559,10 +570,27 @@ test('UI edit mailshot', function (Mailshot $mailShot) {
 
 test('UI show mailshot in workshop', function (Mailshot $mailShot) {
     $this->withoutExceptionHandling();
-    $email = Email::first();
+    UpdateGroupSettings::make()->action($this->group, [
+        'client_id' => 'xxx',
+        'client_secret' => 'xxx',
+        'grant_type' => 'whatever'
+    ]);
+    $email  = StoreEmail::make()->action($mailShot, null, [
+        'subject'               => 'Reset Password',
+        'body'                  => 'Reset Password',
+        'layout'                => ['body' => 'Reset Password'],
+        'compiled_layout'       => 'xxx',
+        'state'                 => 'active',
+        'builder'               => EmailBuilderEnum::BEEFREE,
+        'snapshot_state'        => SnapshotStateEnum::LIVE,
+        'snapshot_recyclable'   => true,
+        'snapshot_first_commit' => true,
+    ], strict: false);
+
     $snapshot = StoreEmailSnapshot::make()->action($email, [
-        'builder' => EmailBuilderEnum::BLADE->value,
+        'builder' => EmailBuilderEnum::BEEFREE->value,
         'layout' => [
+            'xx' => 'xx'
         ],
     ], strict: false);
 
@@ -580,14 +608,13 @@ test('UI show mailshot in workshop', function (Mailshot $mailShot) {
         $page
             ->component('Org/Web/Workshop/Outbox/OutboxWorkshop')
             ->has('title')
-            ->has('pageHead', fn (AssertableInertia $page) => $page->where('title', $snapshot->parent->subject))
+            ->has('pageHead', fn (AssertableInertia $page) => $page->where('title', $snapshot->parent->subject)->etc())
             ->has('snapshot')
             ->has('builder')
             ->has('imagesUploadRoute')
             ->has('updateRoute')
             ->has('loadRoute')
             ->has('publishRoute')
-            ->has('formData', fn (AssertableInertia $page) => $page->where('fullLayout', true))
             ->has('breadcrumbs');
     });
-})->depends('update mailshot')->todo();
+})->depends('update mailshot');

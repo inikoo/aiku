@@ -753,7 +753,7 @@ const isModalUploadFileOpen = ref(false)
             :storedItemsRoute="storedItemsRoute"
             :rentalRoute="rentalRoute"
             :rentalList="props.rental_lists"
-            :detachRoute="attachmentRoutes.detachRoute"
+            :detachRoute="attachmentRoutes?.detachRoute"
             :can_edit_transactions="can_edit_transactions"
         >
             <template #button-empty-state-attachments="{ action }">
@@ -769,6 +769,7 @@ const isModalUploadFileOpen = ref(false)
     </div>
 
     <UploadExcel
+         v-if="upload_pallet"
         v-model="isModalUploadPallet"
         :title="upload_pallet.title"
         :progressDescription="upload_pallet.progressDescription"
@@ -778,6 +779,7 @@ const isModalUploadFileOpen = ref(false)
     />
 
     <UploadExcel
+        v-if="upload_stored_item"
         v-model="isModalUploadStoredItemOpen"
         :title="upload_stored_item.title"
         :progressDescription="upload_stored_item.progressDescription"

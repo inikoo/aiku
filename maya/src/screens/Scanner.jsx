@@ -1,6 +1,5 @@
 import {useEffect, useState, useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   Camera,
   useCameraDevice,
@@ -15,7 +14,6 @@ import {
 import globalStyles from '@/globalStyles';
 import ScannerNotFound from '@/src/components/ScannerNotFound';
 import ScannerSetActive from '@/src/components/ScannerSetActive';
-import request from '@/src/utils/Request';
 import {AuthContext} from '@/src/components/Context/context';
 import {ALERT_TYPE, Toast} from 'react-native-alert-notification';
 
@@ -31,39 +29,9 @@ export default function Scanner({navigation}) {
 
 
   const onGetData = codes => {
-    request({
-      urlKey: 'get-scanner',
-      args: [organisation.id, warehouse.id, codes],
-      onSuccess: goToDetail,
-      onFailed: error => {
-        console.log(error)
-        Toast.show({
-          type: ALERT_TYPE.DANGER,
-          title: 'Error',
-          textBody: error?.data?.message || 'Failed to fetch data',
-        });
-      },
-    });
   };
 
-  const goToDetail = (response) => {
-    console.log(response.data)
-    switch (response.data.model_type) {
-      case "PalletReturn":
-        navigation.navigate("show-fulfilment-return", { id: response.data.model.id });
-        break;
-      case "PalletDelivery":
-        navigation.navigate("show-fulfilment-delivery", { id: response.data.model.id });
-        break;
-      case "Pallet":
-        navigation.navigate("show-pallet", { id: response.data.model.id });
-        break;
-      case "Location":
-        navigation.navigate("show-location", { id: response.data.model.id });
-        break;
-      default:
-        console.warn("Unknown response type:", response.data.model_type);
-    }
+  const goToDetail = (response) => {       
   };
   
 
@@ -82,7 +50,7 @@ export default function Scanner({navigation}) {
   }
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <View style={{flex: 1}}>
       {active ? (
         <>
           <Camera
@@ -102,6 +70,6 @@ export default function Scanner({navigation}) {
       ) : (
         <ScannerSetActive onPress={() => setActive(true)} />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

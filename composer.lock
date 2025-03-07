@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85986ca9ecdfcb3c826075200c3767d2",
+    "content-hash": "239d9c70d26b71fbc7f06b01142c7658",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -2701,6 +2701,107 @@
                 "source": "https://github.com/DaveRandom/LibDNS/tree/v2.1.0"
             },
             "time": "2024-04-12T12:12:48+00:00"
+        },
+        {
+            "name": "deepseek-php/deepseek-php-client",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/deepseek-php/deepseek-php-client.git",
+                "reference": "42bb82bfa11786a66ba889f233db6bfe9976531d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/deepseek-php/deepseek-php-client/zipball/42bb82bfa11786a66ba889f233db6bfe9976531d",
+                "reference": "42bb82bfa11786a66ba889f233db6bfe9976531d",
+                "shasum": ""
+            },
+            "require": {
+                "nyholm/psr7": "^1.8",
+                "php": "^8.1.0",
+                "php-http/discovery": "^1.20.0",
+                "php-http/multipart-stream-builder": "^1.4.2",
+                "psr/http-client": "^1.0.3",
+                "psr/http-client-implementation": "^1.0.1",
+                "psr/http-factory-implementation": "*",
+                "psr/http-message": "^1.1.0|^2.0.0",
+                "symfony/http-client": "^7.2"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.9.2",
+                "guzzlehttp/psr7": "^2.7.0",
+                "laravel/pint": "^1.18.1",
+                "mockery/mockery": "^1.6.12",
+                "nunomaduro/collision": "^7.11.0|^8.5.0",
+                "pestphp/pest": "^2.36",
+                "pestphp/pest-plugin-arch": "^2.7|^3.0",
+                "pestphp/pest-plugin-type-coverage": "^2.8.7|^3.1.0",
+                "phpstan/phpstan": "^1.12.7",
+                "roave/security-advisories": "dev-latest",
+                "symfony/var-dumper": "^6.4.11|^7.1.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DeepSeek\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "deepseek-php",
+                    "email": "omaralwi2010@gmail.com",
+                    "role": "owner"
+                },
+                {
+                    "name": "Omar Alalwi",
+                    "email": "omaralwi2010@gmail.com",
+                    "role": "creator"
+                }
+            ],
+            "description": "deepseek PHP client is a robust and community-driven PHP client library for seamless integration with the Deepseek API, offering efficient access to advanced AI and data processing capabilities.",
+            "homepage": "https://github.com/deepseek-php/deepseek-php-client",
+            "keywords": [
+                "ai",
+                "ai-api",
+                "ai-client-library",
+                "ai-sdk",
+                "api",
+                "api-integration",
+                "api-wrapper",
+                "client",
+                "deepseek",
+                "deepseek-ai",
+                "deepseek-api",
+                "deepseek-symfony",
+                "developer-tools",
+                "generative-ai",
+                "llm",
+                "machine-learning",
+                "natural-language-processing",
+                "nlp",
+                "openai",
+                "openai-alternative",
+                "php",
+                "php-ai-integration",
+                "php-api-client",
+                "php-sdk",
+                "rest-client",
+                "sdk",
+                "symfony",
+                "symfony-client",
+                "symfony-deepseek",
+                "symfony-http-client",
+                "text-generation"
+            ],
+            "support": {
+                "issues": "https://github.com/deepseek-php/deepseek-php-client/issues",
+                "source": "https://github.com/deepseek-php/deepseek-php-client/tree/v2.0.2"
+            },
+            "time": "2025-02-22T03:32:39+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -10828,6 +10929,62 @@
                 "source": "https://github.com/php-http/httplug/tree/2.4.1"
             },
             "time": "2024-09-23T11:39:58+00:00"
+        },
+        {
+            "name": "php-http/multipart-stream-builder",
+            "version": "1.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/multipart-stream-builder.git",
+                "reference": "10086e6de6f53489cca5ecc45b6f468604d3460e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/multipart-stream-builder/zipball/10086e6de6f53489cca5ecc45b6f468604d3460e",
+                "reference": "10086e6de6f53489cca5ecc45b6f468604d3460e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0",
+                "php-http/discovery": "^1.15",
+                "psr/http-factory-implementation": "^1.0"
+            },
+            "require-dev": {
+                "nyholm/psr7": "^1.0",
+                "php-http/message": "^1.5",
+                "php-http/message-factory": "^1.0.2",
+                "phpunit/phpunit": "^7.5.15 || ^8.5 || ^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Http\\Message\\MultipartStream\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
+                }
+            ],
+            "description": "A builder class that help you create a multipart stream",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "multipart stream",
+                "stream"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/multipart-stream-builder/issues",
+                "source": "https://github.com/php-http/multipart-stream-builder/tree/1.4.2"
+            },
+            "time": "2024-09-04T13:22:54+00:00"
         },
         {
             "name": "php-http/promise",
@@ -22329,7 +22486,7 @@
     ],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -22344,6 +22501,6 @@
         "ext-soap": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }

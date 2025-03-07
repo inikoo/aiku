@@ -666,21 +666,21 @@ test('setup pallet return (whole pallet)', function (FulfilmentCustomer $fulfilm
     expect($pallet->state)->toBe(PalletStateEnum::REQUEST_RETURN_CONFIRMED);
     expect($palletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED);
 
-    $palletReturn = PickingPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $palletReturn = PickingPalletReturn::make()->action($palletReturn);
     $pallet->refresh();
     $palletReturn->refresh();
 
     expect($pallet->state)->toBe(PalletStateEnum::PICKING);
     expect($palletReturn->state)->toBe(PalletReturnStateEnum::PICKING);
 
-    $palletReturn = PickedPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $palletReturn = PickedPalletReturn::make()->action($palletReturn);
     $pallet->refresh();
     $palletReturn->refresh();
 
     expect($pallet->state)->toBe(PalletStateEnum::PICKED);
     expect($palletReturn->state)->toBe(PalletReturnStateEnum::PICKED);
 
-    $palletReturn = DispatchPalletReturn::make()->action($palletReturn->fulfilmentCustomer, $palletReturn);
+    $palletReturn = DispatchPalletReturn::make()->action($palletReturn);
     $pallet->refresh();
     $palletReturn->refresh();
 

@@ -37,9 +37,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\CRM\WebUser
  *
  * @property int $id
- * @property int $group_id
- * @property int $organisation_id
- * @property int $customer_id
+ * @property int|null $group_id
+ * @property int|null $organisation_id
+ * @property int|null $customer_id
  * @property string $slug
  * @property bool $status
  * @property string $name
@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $shopify_namespace
  * @property bool $shopify_freemium
  * @property int|null $plan_id
- * @property string $username
+ * @property string|null $username
  * @property string|null $email
  * @property string|null $email_verified_at
  * @property string|null $password
@@ -69,16 +69,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read \App\Models\Dropshipping\TFactory|null $use_factory
- * @property-read Group $group
+ * @property-read Group|null $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Collection<int, PalletReturn> $orders
- * @property-read Organisation $organisation
+ * @property-read Organisation|null $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
  * @property-read Collection<int, Product> $products

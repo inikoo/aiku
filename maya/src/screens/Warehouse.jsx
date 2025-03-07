@@ -40,6 +40,7 @@ const GroupItem = ({ item, navigation, selectedWarehouse }) => {
 const Warehouse = ({ navigation }) => {
   const { userData, organisation, fulfilment, warehouse } = useContext(AuthContext);
   const selectedWarehouse = userData.warehouse;
+  console.log(organisation)
 
   return (
     <View style={globalStyles.container}>

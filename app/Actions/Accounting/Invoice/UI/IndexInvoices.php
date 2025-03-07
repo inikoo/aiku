@@ -11,6 +11,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -28,6 +29,7 @@ use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceCategory;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -57,7 +59,7 @@ class IndexInvoices extends OrgAction
     private Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop $parent;
     private string $bucket = '';
 
-    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order|OrgPaymentServiceProvider $parent, $prefix = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -101,6 +103,14 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.group_id', $parent->id);
         } elseif ($parent instanceof InvoiceCategory) {
             $queryBuilder->where('invoices.invoice_category_id', $parent->id);
+        } elseif ($parent instanceof OrgPaymentServiceProvider) {
+            $queryBuilder->leftJoin('model_has_payments', function ($join) {
+                $join->on('invoices.id', '=', 'model_has_payments.model_id')
+                    ->where('model_has_payments.model_type', '=', 'Invoice');
+            })
+            ->leftJoin('payments', 'model_has_payments.payment_id', '=', 'payments.id')
+            ->leftJoin('org_payment_service_providers', 'payments.org_payment_service_provider_id', '=', 'org_payment_service_providers.id')
+            ->where('org_payment_service_providers.id', '=', $parent->id);
         } else {
             abort(422);
         }
@@ -151,7 +161,7 @@ class IndexInvoices extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|InvoiceCategory|Shop|Order|OrgPaymentServiceProvider $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -179,17 +189,15 @@ class IndexInvoices extends OrgAction
                 $stats = $parent->salesStats;
             }
 
-            $table
-                ->withGlobalSearch()
-                ->withEmptyState(
+            $table->withGlobalSearch();
+            if (!($parent instanceof OrgPaymentServiceProvider)) {
+                $table->withEmptyState(
                     [
                         'title' => $noResults,
                         'count' => $stats->number_invoices ?? 0,
                     ]
                 );
-
-
-
+            }
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
@@ -533,6 +541,7 @@ class IndexInvoices extends OrgAction
 
 
 
+
         return match ($routeName) {
             'grp.org.accounting.invoices.index' =>
             array_merge(
@@ -579,12 +588,12 @@ class IndexInvoices extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.shops.show.ordering.invoices.index' =>
+            'grp.org.shops.show.dashboard.invoices.index' =>
             array_merge(
-                ShowOrderingDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.index',
                         'parameters' => $routeParameters
                     ]
                 )

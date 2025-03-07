@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, toRaw } from 'vue';
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import Button from "@/Components/Elements/Buttons/Button.vue";
@@ -27,9 +27,14 @@ const emit = defineEmits(["update:modelValue"]);
 
 
 const onChangeProperty = (index, data) => {
-    const setData = props.modelValue
-    setData[index].properties = data;
-    emit("update:modelValue", setData);
+   /*  const setData = [...props.modelValue]
+
+    setData[index] = data; */
+  /*   emit("update:modelValue", [...props.modelValue]); */
+
+     const updatedData = [...props.modelValue]; // Clone the array to maintain reactivity
+    updatedData[index] = { ...updatedData[index], ...data }; // Merge existing data with new changes
+    emit("update:modelValue", updatedData); // Emit the updated array
 };
 
 
@@ -44,7 +49,7 @@ const onChangeProperty = (index, data) => {
                     <span>Image {{ index + 1 }}</span>
                 </DisclosureButton>
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
-                   <ImagesProperty v-model="field.properties"  @update:model-value="(data) => onChangeProperty(index, data)"/>
+                   <ImagesProperty :modelValue="modelValue[index]"  @update:model-value="(data) => onChangeProperty(index, data)"/>
                 </DisclosurePanel>
             </Disclosure>
         </div>

@@ -20,6 +20,7 @@ use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\Maintenance\SysAdmin\RepairUsersAdminsAuth;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -366,6 +367,7 @@ test('UI show dashboard org', function (User $user) {
     $this->withoutExceptionHandling();
     actingAs($user);
 
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -398,7 +400,7 @@ test('UI show dashboard org', function (User $user) {
 test('UI create shop', function (User $user) {
     $this->withoutExceptionHandling();
     actingAs($user);
-
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -422,7 +424,7 @@ test('UI create shop', function (User $user) {
 test('UI edit shop', function (User $user) {
     $this->withoutExceptionHandling();
     actingAs($user);
-
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $shop     = StoreShop::make()->action($organisation, Shop::factory()->definition());
@@ -455,7 +457,7 @@ test('UI show shop', function (User $user, Shop $shop) {
 
     $response = get(
         route(
-            'grp.org.shops.show.dashboard',
+            'grp.org.shops.show.dashboard.show',
             [
                 $shop->organisation->slug,
                 $shop->slug
@@ -476,7 +478,7 @@ test('UI show shop', function (User $user, Shop $shop) {
 test('UI index shop', function (User $user) {
     $this->withoutExceptionHandling();
     actingAs($user);
-
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -503,6 +505,7 @@ test('UI show dashboard org (tab invoice_categories)', function (User $user) {
     $this->withoutExceptionHandling();
 
     actingAs($user);
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -536,6 +539,7 @@ test('UI index overview org', function (User $user) {
     $this->withoutExceptionHandling();
 
     actingAs($user);
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -565,6 +569,7 @@ test('UI index overview org changelog', function (User $user) {
     $this->withoutExceptionHandling();
 
     actingAs($user);
+    /** @var Organisation $organisation */
     $organisation = $user->authorisedOrganisations()->first();
 
     $response = get(
@@ -780,14 +785,21 @@ test('can not login with wrong credentials', function (Guest $guest) {
 })->depends('create guest');
 
 test('can login', function (Guest $guest) {
+    /** @var User $user */
+    $user = $guest->getUser();
+
     $response = $this->post(route('grp.login.store'), [
-        'username' => $guest->getUser()->username,
+        'username' => $user->username,
         'password' => 'secret-password',
     ]);
-    $response->assertRedirect(route('grp.dashboard.show'));
-    $this->assertAuthenticatedAs($guest->getUser());
 
-    $user = $guest->getUser();
+    /** @var Organisation $organisation */
+    $organisation = $user->authorisedOrganisations()->first();
+    $response->assertRedirect(route('grp.org.dashboard.show', [
+        'organisation' => $organisation->slug,
+    ]));
+    $this->assertAuthenticatedAs($user);
+
     $user->refresh();
     expect($user->stats->number_logins)->toBe(1);
 })->depends('create guest');
@@ -962,7 +974,7 @@ test('UI index users (in Employee)', function (Employee $employee) {
             ->has('pageHead');
     });
 
-})->depends('employee job position in another organisation')->todo('authorization');
+})->depends('employee job position in another organisation')->todo();//authorisation issue
 
 test('users search', function () {
     $this->artisan('search:users')->assertExitCode(0);
@@ -1343,4 +1355,11 @@ test('UI show dashboard group (tab invoice_shops)', function () {
                 ->etc()
             );
     });
+});
+
+test('test repair admins command', function () {
+    $this->artisan('users:repair_admins_auth')->assertSuccessful();
+    RepairUsersAdminsAuth::run(User::first());
+
+
 });
