@@ -79,31 +79,11 @@ class SendNewCustomerToSubcriberEmail extends OrgAction
                         $customer->shop->slug,
                         $customer->slug
                     ]),
-                    'customer_created_date' => $customer->created_at->format('d-m-Y H:i:s')
+                    'customer_register_date' => $customer->created_at->format('F jS, Y')
                 ]
             );
         }
 
-    }
-
-    public string $commandSignature = 'xxx';
-
-    public function asCommand($command)
-    {
-        $c = Customer::first();
-        // $outbox = $c->shop->outboxes()->where('code', OutboxCodeEnum::NEW_CUSTOMER->value)->first();
-        // // 'external_email' => 'dev@aw-advantage.com',
-
-        // StoreOutboxHasSubscriber::make()->action(
-        //     Outbox::find(158),
-        //     [
-        //         'external_email' => 'artha@aw-advantage.com',
-        //     ]
-        // );
-
-
-
-        $this->handle($c);
     }
 
 
