@@ -134,10 +134,9 @@ const saveChanges = () => {
 			hasChanges.value = false
 		},
 		onError: (errors: any) => {
-			console.log(errors)
 			notify({
 				title: trans("Something went wrong."),
-				text: trans("Failed to attach"),
+				text: trans(errors.external_emails || errors.users_id),
 				type: "error",
 			})
 		},
