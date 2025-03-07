@@ -19,15 +19,9 @@ import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfi
 // Add icons to the library
 library.add(faEdit, faTrash, faPlus, faSave, faSignOutAlt, faExclamationTriangle)
 
-// Global key for the search query parameter
-const SEARCH_PARAM_KEY = "global"
-
-// Define component props with defaults
 const props = withDefaults(
 	defineProps<{
-		showRedBorder: boolean
-		widget: any[] // Array of objects with id, contact_name, email, etc.
-		visual?: any
+		widget: any[] 
 	}>(),
 	{ widget: () => [] }
 )
@@ -39,7 +33,6 @@ const widgetItems = ref(props.widget)
 const locale = inject("locale", aikuLocaleStructure)
 const layoutStore = inject("layout", layoutStructure)
 
-// PrimeVue confirmation instance
 const confirm = useConfirm()
 
 // Track edit mode and unsaved changes
@@ -64,7 +57,7 @@ const hasSubscriptions = computed(() => {
 	)
 })
 
-// Mode toggles
+
 const toggleEdit = () => {
 	isEditing.value = true
 }
@@ -72,7 +65,6 @@ const exitEdit = () => {
 	isEditing.value = false
 }
 
-// Handlers for adding new inputs
 const addUser = () => {
 	newUserInputs.value.push({ query: "", suggestions: [] })
 	hasChanges.value = true
@@ -82,7 +74,6 @@ const addExternalEmail = () => {
 	hasChanges.value = true
 }
 
-// Delete an existing subscriber using Inertia's router.delete
 const deleteWidgetItem = (item: any, index: number) => {
 	const subscriber_id = item.subscriber_id
 
@@ -107,7 +98,6 @@ const deleteWidgetItem = (item: any, index: number) => {
 	})
 }
 
-// Delete functions for new inputs
 const deleteUserInput = (index: number) => {
 	newUserInputs.value.splice(index, 1)
 	hasChanges.value = true
@@ -155,31 +145,6 @@ const saveChanges = () => {
 	})
 }
 
-// Handle user search input
-const handleUserInput = async (index: number) => {
-	hasChanges.value = true
-	const query = newUserInputs.value[index].query
-	if (!query) {
-		newUserInputs.value[index].suggestions = []
-		return
-	}
-	try {
-		const response = await axios.get("grp.json.fulfilment.outbox.users.index", {
-			params: { [SEARCH_PARAM_KEY]: query },
-		})
-		newUserInputs.value[index].suggestions = Array.isArray(response.data) ? response.data : []
-	} catch (error) {
-		console.error("Error fetching user suggestions", error)
-		newUserInputs.value[index].suggestions = []
-	}
-}
-
-// When a suggestion is clicked, update the input
-const selectUserSuggestion = (index: number, suggestion: string) => {
-	newUserInputs.value[index].query = suggestion
-	newUserInputs.value[index].suggestions = []
-	hasChanges.value = true
-}
 
 const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
 	confirm.require({
@@ -288,7 +253,7 @@ const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
 						</PureMultiselectInfiniteScroll>
 					</div>
 				</div>
-				<!-- New external email inputs -->
+
 				<div v-if="newExternalEmailInputs.length" class="mt-2">
 					<div
 						v-for="(input, index) in newExternalEmailInputs"
@@ -306,11 +271,11 @@ const confirmDeleteWidgetItem = (event: Event, item: any, index: number) => {
 							@click="deleteExternalEmailInput(index)" />
 					</div>
 				</div>
-				<!-- Placeholder if no subscriptions exist -->
+
 				<div v-if="!hasSubscriptions" class="mt-2">
 					<p class="text-gray-600 italic">not subscribe set</p>
 				</div>
-				<!-- Action Buttons -->
+
 				<div v-if="isEditing" class="mt-2 flex items-center space-x-4">
 					<Button
 						label="Add User"
