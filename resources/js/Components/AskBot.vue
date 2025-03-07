@@ -7,6 +7,7 @@ import { faLampDesk } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
 import { marked } from 'marked'
+import LoadingIcon from "./Utils/LoadingIcon.vue"
 
 library.add(faLampDesk)
 
@@ -33,11 +34,8 @@ const fetchApi = async (query: string) => {
 				throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
 			}
 
-            console.log("xxx1->",response)
 			const data = await response.json()
-            console.log("xxx2->",data)
 			aiResponse.value = await marked.parse(data.data?.response)
-            console.log("xxx3->",data)
 		} catch (error) {
 			errorSearch.value = error.message || trans("An error occurred while fetching search results.")
 		} finally {
@@ -59,11 +57,15 @@ const handleKeyDown = (event: KeyboardEvent) => {
 <template>
 	<Modal :isOpen="isOpen" @onClose="() => (isOpen = false)" width="w-3/4" height="h-[500px]"
 		:dialogStyle="{
-			background: 'linear-gradient(to right top, #d946ef, #f9a8d4, #ec4899)'
+			xbackground: 'linear-gradient(to right top, #fff1f2, #faf5ff)'
 		}"
 	>
-		<div class="animate-linear bg-gradient-to-r from-teal-300 via-pink-100 to-teal-300 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
+		<!-- <div class="animate-linear bg-gradient-to-r from-teal-300 via-pink-600 to-red-400 bg-[length:200%_auto] bg-clip-text font-bold text-transparent text-2xl mb-4 text-center">
 			<FontAwesomeIcon icon="fas fa-sparkles" class="text-pink-600" fixed-width aria-hidden="true" />
+			{{ trans('Ask AI anything..')}}
+		</div> -->
+		<div class="font-bold text-pink-600 text-2xl mb-4 text-center">
+			<FontAwesomeIcon icon="fas fa-sparkles" class="" fixed-width aria-hidden="true" />
 			{{ trans('Ask AI anything..')}}
 		</div>
 
@@ -72,12 +74,12 @@ const handleKeyDown = (event: KeyboardEvent) => {
 				v-model="searchValue"
 				@keydown="(e) => handleKeyDown(e)"
 				type="text"
-				class="h-48 w-full border-none xborder xborder-dashed xborder-gray-300 bg-white/50 rounded-lg px-4 placeholder:text-gray-400 focus:ring focus:ring-fuchsia-500 focus:outline-none sm:text-sm"
+				class="h-48 w-full border-none xborder xborder-dashed xborder-gray-300 bg-black/10 rounded-lg px-4 placeholder:text-gray-500 focus:ring focus:ring-pink-500 focus:outline-none sm:text-sm"
 				:placeholder="trans('Ask Anything...')"
 			/>
 
 			<!-- Text: Press enter to submit -->
-			<div class="mt-1 text-sm text-gray-100">
+			<div class="mt-2 text-sm text-gray-500">
 				{{ trans("Press") }} <span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Enter</span> {{ trans("to submit") }},
 				<span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Shift</span>+<span class="border border-gray-400 bg-gray-100 text-gray-700 overflow-hidden px-2 py-0.5 text-xs rounded">Enter</span>
 				{{ trans("to add new line") }}
@@ -89,25 +91,31 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 		
 
-		<div v-if="lastQuery" class="mt-4 border border-white/40 rounded-lg pb-2 shadow-md overflow-hidden">
-			<div class="text-white">
-				<div v-if="lastQuery" class="bg-fuchsia-600 xtext-gray-700 border-b border-white/40 p-4 font-light">{{ trans("Results") }}: <span class="font-semibold">{{ lastQuery }}</span></div>
-				
-				<div v-if="isLoadingSearch" class="p-4 pb-2">
-					<div
-						v-for="n in 1"
-						:key="n"
-						class="h-40 skeleton w-full rounded animate-pulse"></div>
-				</div>
+		<Transition name="slide-to-left">
+			<div v-if="lastQuery" class="bg-pink-500/5 mt-4 border border-white/40 rounded-lg pb-2 shadow-md overflow-hidden">
+				<div class="text-white ">
+					<div v-if="lastQuery" class="bg-pink-600 xtext-gray-700 border-b border-white/40 p-4 font-light">
+						{{ trans("Results") }}: <span class="font-semibold">{{ lastQuery }}</span>
+						<LoadingIcon v-if="isLoadingSearch" class="ml-1" />
+					</div>
+			
+					<div v-if="isLoadingSearch" class="p-4 pb-2">
+						<div
+							v-for="n in 1"
+							:key="n"
+							class="h-40 skeleton w-full rounded animate-pulse"></div>
+					</div>
 
-				<div v-else-if="aiResponse" class="mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 px-6" v-html="aiResponse">
-				</div>
+					<!-- Response result -->
+					<div v-else-if="aiResponse" class=" text-gray-700 mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 px-6" v-html="aiResponse">
+					</div>
 
-				<div v-else-if="!isLoadingSearch && lastQuery" class="p-4">
-					<p class="text-center">{{ trans("No results found.") }}</p>
+					<div v-else-if="!isLoadingSearch && lastQuery" class="p-4">
+						<p class="text-center">{{ trans("No results found.") }}</p>
+					</div>
 				</div>
 			</div>
-		</div>
+		</Transition>
 
 		<div v-if="!isLoadingSearch && errorSearch" class="mt-4">
 			<p class="text-center text-red-500">{{ errorSearch }}</p>
