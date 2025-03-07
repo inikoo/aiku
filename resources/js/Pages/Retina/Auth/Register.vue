@@ -29,12 +29,12 @@ const form = useForm({
   phone: '',
   company_name: '',
   website: '',
-  product: '',
-  shipments_per_week: '',
-  size_and_weight: '',
+/*   product: '', */
+  /* shipments_per_week: '', */
+/*   size_and_weight: '', */
   password: '',
   password_confirmation: '',
-  interest: [],
+ /*  interest: [], */
 /*   country_id: '',
   postal_code : '',
   post_town : '',
@@ -261,14 +261,14 @@ onMounted(async () => {
               <p v-if="form.errors.size_and_weight" class="text-sm text-red-600 mt-1">{{ form.errors.size_and_weight }}</p>
           </div>
         </div> -->
-        <div class="sm:col-span-6 flex flex-col">
+        <!-- <div class="sm:col-span-6 flex flex-col">
           <CustomerDataForm :form="form" />
-        </div>
+        </div> -->
 
-        <div class="sm:col-span-6 flex flex-col">
+        <!-- <div class="sm:col-span-6 flex flex-col">
           <label class="capitalize block text-sm font-medium text-gray-700">{{ trans("User Interests") }}</label>
           <div class="mt-2 flex flex-wrap gap-6">
-            <!-- Loop through the interests -->
+
             <div
               v-for="interest in interestsList"
               :key="interest.value"
@@ -276,7 +276,7 @@ onMounted(async () => {
               :class="{ 'bg-indigo-50 shadow-lg': form.interest.includes(interest.value) }"
               @click="toggleInterest(interest.value)"
             >
-              <!-- Checkbox -->
+
               <input
                 v-model="form.interest"
                 type="checkbox"
@@ -291,7 +291,7 @@ onMounted(async () => {
             </div>
             <p v-if="form.errors.interest" class="text-sm text-red-600 mt-1">{{ form.errors.interest }}</p>
           </div>
-        </div>
+        </div> -->
 
 
         <!-- Password -->
