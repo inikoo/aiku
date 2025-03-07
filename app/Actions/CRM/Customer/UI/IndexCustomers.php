@@ -211,7 +211,7 @@ class IndexCustomers extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('ref'), canBeHidden: false, sortable: true, searchable: true);
             if ($parent instanceof Group) {
                 $table->column(key: 'organisation_name', label: __('organisation'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
@@ -220,17 +220,17 @@ class IndexCustomers extends OrgAction
             }
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'created_at', label: __('since'), type: 'date', canBeHidden: false, sortable: true, searchable: true);
 
 
             if ($isDropshipping) {
-                $table->column(key: 'number_current_customer_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
-                    ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
+                $table->column(key: 'number_current_customer_clients', label: '', tooltip: __('Clients'), icon: 'fal fa-users', canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'number_current_portfolios', label: '', icon: 'fal fa-chess-board', tooltip: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
                     // ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'platform_name', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, type: 'date', sortable: true, searchable: true)
                 ->column(key: 'number_invoices_type_invoice', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'sales_all', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
 

@@ -33,7 +33,7 @@ enum InvoicePayStatusEnum: string
             'unpaid' => [
                 'tooltip' => __('Unpaid'),
                 'icon'    => 'fal fa-circle',
-                'class'   => 'text-gray-200',  // Color for normal icon (Aiku)
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
                 'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'circle',
