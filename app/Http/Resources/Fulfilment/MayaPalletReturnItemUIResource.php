@@ -37,7 +37,6 @@ class MayaPalletReturnItemUIResource extends JsonResource
 {
     public function toArray($request): array
     {
-        dd($this->pallet);
         return [
             'id'                               => $this->id,
             'pallet_id'                        => $this->pallet->id,
@@ -63,7 +62,7 @@ class MayaPalletReturnItemUIResource extends JsonResource
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
             'stored_items_quantity' => (int)$this->pallet->storedItems()->sum('quantity'),
-            'pallet_return'       => PalletReturnResource::make($this->pallet)
+            'pallet_return'       => PalletReturnResource::make($this->palletReturn)
         ];
     }
 }
