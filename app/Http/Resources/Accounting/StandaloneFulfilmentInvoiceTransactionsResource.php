@@ -9,7 +9,9 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Billables\Service;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -39,6 +41,13 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             $discountPercentage = (($originalPrice - $discountedPrice) / $originalPrice) * 100;
         }
 
+        if(!empty($this->data['pallet_id']))
+        {
+            $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
+        } else {
+            $pallet = null;
+        }
+
         return [
             'id'                        => $this->id,
             'in_process'                => $this->in_process,
@@ -60,7 +69,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             'currency_code'             => $this->currency_code,
             'edit_type'                 => $editType,
             'discount'                  => $discountPercentage,
-
+            'pallet'                    => $pallet,
             'updateRoute'               => [
                 'name' => 'grp.models.standalone-invoice-transaction.update',
                 'parameters' => [

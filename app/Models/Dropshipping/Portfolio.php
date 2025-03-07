@@ -8,6 +8,7 @@
 
 namespace App\Models\Dropshipping;
 
+use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
 use App\Models\ShopifyUserHasProduct;
@@ -64,6 +65,7 @@ class Portfolio extends Model implements Auditable
     use HasUniversalSearch;
 
     protected $casts = [
+        'type'                        => PortfolioTypeEnum::class,  
         'data'                        => 'array',
         'settings'                    => 'array',
         'status'                      => 'boolean',
