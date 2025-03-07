@@ -116,6 +116,8 @@ const props = defineProps<{
 
     // physical_good_lists?: []
     physical_good_list_route: routeType
+    
+    pallet_list_route: routeType
 }>()
 
 const currentTab = ref<string>(props.tabs.current)
@@ -219,7 +221,7 @@ const isLoadingButton = ref<false | 'addService' | 'addPGood'>(false)
 
 
 // Tabs: Services
-const formAddService = useForm({ service_id: '', quantity: 1 })
+const formAddService = useForm({ service_id: '', quantity: 1, pallet_id: null })
 // const onOpenModalAddService = async () => {
 //     isLoadingData.value = 'addService'
 //     try {
@@ -237,13 +239,14 @@ const formAddService = useForm({ service_id: '', quantity: 1 })
 //     isLoadingData.value = false
 // }
 const dataServiceList = ref([])
+const dataPalletList = ref([])
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
-    console.log('dataservicelist', dataServiceList.value)
-    console.log('formAddService.service_id', formAddService.service_id)
+    // console.log('dataservicelist', dataServiceList.value)
+    // console.log('formAddService.service_id', formAddService.service_id)
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0]?.historic_asset_id
     /*  console.log('hhh', handleTabUpdate) */
-    console.log('data.route?.name', data.route?.name )
-    console.log('selectedHistoricAssetId', selectedHistoricAssetId)
+    // console.log('data.route?.name', data.route?.name )
+    // console.log('selectedHistoricAssetId', selectedHistoricAssetId)
     // formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
 
@@ -384,6 +387,31 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                         <div class="">{{ option.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span></div>
                                     </template>
                                 </PureMultiselectInfiniteScroll>
+
+                                <!-- Pallet -->
+                                <div v-if="dataServiceList?.find(list => list.id === formAddService.service_id)?.is_pallet_handling" class="mt-3">
+                                    <span class="text-xs px-1 my-2">{{ trans('Pallet to attach') }}: </span>
+                                    <PureMultiselectInfiniteScroll
+                                        v-model="formAddService.pallet_id"
+                                        :fetchRoute="props.pallet_list_route"
+                                        :placeholder="trans('Select pallet')"
+                                        required
+                                        valueProp="id"
+                                        @optionsList="(options) => dataPalletList = options"
+                                    >
+                                        <template #singlelabel="{ value }">
+                                            <div class="w-full text-left pl-4">{{ value.reference }} <span class="text-sm text-gray-400">({{ value.type }})</span></div>
+                                        </template>
+
+                                        <template #option="{ option, isSelected, isPointed }">
+                                            <div class="">{{ option.reference }} <span class="text-sm text-gray-400 capitalize">({{ option.type }})</span></div>
+                                        </template>
+                                    </PureMultiselectInfiniteScroll>
+
+                                    <p v-if="get(formAddService, ['errors', 'pallet_id'])" class="mt-2 text-sm text-red-600">
+                                        {{ formAddService.errors.pallet_id }}
+                                    </p>
+                                </div>
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
