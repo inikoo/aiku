@@ -30,10 +30,6 @@ class DeleteFulfilmentTransaction extends OrgAction
 
     private Pallet $palletDeliveryTransaction;
     private FulfilmentTransaction $fulfilmentTransaction;
-    /**
-     * @var false|mixed
-     */
-    private mixed $debug;
 
     /**
      * @throws \Throwable
@@ -44,10 +40,6 @@ class DeleteFulfilmentTransaction extends OrgAction
 
         $fulfilmentTransaction->delete();
 
-
-        if ($this->debug) {
-            //dd($fulfilmentTransaction,$recurringBillTransaction);
-        }
 
         if ($recurringBillTransaction) {
             DeleteRecurringBillTransaction::make()->action($recurringBillTransaction);
@@ -87,9 +79,9 @@ class DeleteFulfilmentTransaction extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(FulfilmentTransaction $fulfilmentTransaction, $debug = false): void
+    public function action(FulfilmentTransaction $fulfilmentTransaction): void
     {
-        $this->debug = $debug;
+
         $this->asAction              = true;
         $this->fulfilmentTransaction = $fulfilmentTransaction;
         $this->initialisationFromFulfilment($fulfilmentTransaction->fulfilment, []);
