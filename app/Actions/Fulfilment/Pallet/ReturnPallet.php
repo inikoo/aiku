@@ -21,6 +21,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\RecurringBillTransaction;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -39,12 +40,15 @@ class ReturnPallet extends OrgAction
         ]);
 
 
-        $recurringBillTransaction = DB::table('recurring_bill_transactions')
+        $recurringBillTransactionData = DB::table('recurring_bill_transactions')
+            ->select('recurring_bill_transactions.id')
             ->where('item_type', 'Pallet')
             ->where('item_id', $pallet->id)
             ->where('recurring_bill_id', $pallet->current_recurring_bill_id)
             ->first();
-        if ($recurringBillTransaction) {
+        if ($recurringBillTransactionData) {
+
+            $recurringBillTransaction=RecurringBillTransaction::find($recurringBillTransactionData->id);
             UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
                 'end_date' => now()
             ]);
