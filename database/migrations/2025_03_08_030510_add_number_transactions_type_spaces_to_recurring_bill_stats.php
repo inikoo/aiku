@@ -2,7 +2,7 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Mar 2025 13:42:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 08 Mar 2025 11:05:19 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
@@ -13,16 +13,16 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->boolean('is_pallet_handling')->default(false)->index();
+        Schema::table('recurring_bill_stats', function (Blueprint $table) {
+            $table->unsignedSmallInteger('number_transactions_type_spaces')->default(0);
         });
     }
 
 
     public function down(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->dropColumn('is_pallet_handling');
+        Schema::table('recurring_bill_stats', function (Blueprint $table) {
+            $table->dropColumn('number_transactions_type_spaces');
         });
     }
 };

@@ -21,6 +21,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\Pallet;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class ReturnPallet extends OrgAction
@@ -37,12 +38,18 @@ class ReturnPallet extends OrgAction
             'dispatched_at' => now()
         ]);
 
-        if ($pallet->current_recurring_bill_id && $pallet->fulfilmentCustomer->current_recurring_bill_id == $pallet->fulfilmentCustomer->current_recurring_bill_id) {
-            $recurringBillTransaction = $pallet->currentRecurringBillTransaction;
+
+        $recurringBillTransaction = DB::table('recurring_bill_transactions')
+            ->where('item_type', 'Pallet')
+            ->where('item_id', $pallet->id)
+            ->where('recurring_bill_id', $pallet->current_recurring_bill_id)
+            ->first();
+        if ($recurringBillTransaction) {
             UpdateRecurringBillTransaction::make()->action($recurringBillTransaction, [
                 'end_date' => now()
             ]);
         }
+
 
         GroupHydratePallets::dispatch($pallet->group);
         OrganisationHydratePallets::dispatch($pallet->organisation);

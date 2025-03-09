@@ -131,9 +131,8 @@ class RecurringBillTransactionsResource extends JsonResource
             $service = Service::find($this->item_id);
             $editType = $service->edit_type ?? null;
         }
-        
-        if(!empty($this->data['pallet_id']))
-        {
+
+        if (!empty($this->data['pallet_id'])) {
             $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
         } else {
             $pallet = null;

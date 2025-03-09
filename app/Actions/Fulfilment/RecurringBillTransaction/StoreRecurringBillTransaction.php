@@ -57,15 +57,13 @@ class StoreRecurringBillTransaction extends OrgAction
             $unitCost = $item->price;
             data_set($modelData, 'item_id', $item->model_id);
 
-            if($item->model_type == 'Service') 
-            {
-                if($item->model->is_pallet_handling == true)
-                {
+            if ($item->model_type == 'Service') {
+                if ($item->model->is_pallet_handling == true) {
                     $palletId = Arr::pull($modelData, 'pallet_id');
                     data_set($modelData, 'data.pallet_id', $palletId);
                 }
             }
-            
+
         } elseif ($item instanceof Space) {
             $type            = 'Space';
             $assetId         = $item->rental->asset_id;

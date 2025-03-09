@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 /*
  * Author: Raul Perusquia <raul@inikoo.com>

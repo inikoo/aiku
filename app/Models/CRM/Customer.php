@@ -150,6 +150,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, StoredItem> $storedItems
  * @property-read Collection<int, SubscriptionEvent> $subscriptionEvents
  * @property-read TaxNumber|null $taxNumber
+ * @property-read TiktokUser|null $tiktokUser
  * @property-read Collection<int, TopUp> $topUps
  * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch

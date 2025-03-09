@@ -8,8 +8,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\SetPalletReturnAutoServices;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -56,8 +56,8 @@ class AttachPalletToReturnFromImport extends OrgAction
             'requested_for_return_at' => now()
         ]);
 
+        SetPalletReturnAutoServices::run($palletReturn);
 
-        AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
     }
 
     public function rules(): array

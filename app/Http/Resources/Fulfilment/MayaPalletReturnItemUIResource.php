@@ -10,7 +10,6 @@ namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Fulfilment\PalletReturnResource;
 
 /**
  * @property mixed $id

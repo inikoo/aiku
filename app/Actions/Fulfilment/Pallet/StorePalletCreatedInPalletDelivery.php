@@ -8,8 +8,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAutoServices;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StorePalletFromDelivery extends OrgAction
+class StorePalletCreatedInPalletDelivery extends OrgAction
 {
     private PalletDelivery $parent;
 
@@ -54,7 +54,7 @@ class StorePalletFromDelivery extends OrgAction
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
 
-        AutoAssignServicesToPalletDelivery::run($palletDelivery, $pallet);
+        SetPalletDeliveryAutoServices::run($palletDelivery);
         PalletDeliveryHydratePallets::run($palletDelivery);
 
         return $pallet;
