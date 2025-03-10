@@ -68,7 +68,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
             //                return null;
             //            }
 
-            if (in_array('transactions', $this->with) or $forceWithTransactions) {
+            if (in_array('transactions', $this->with) or in_array('full', $this->with) or  $forceWithTransactions) {
                 $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
             }
 
@@ -103,7 +103,8 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 //                    return null;
                 //                }
 
-                if (in_array('transactions', $this->with) or $forceWithTransactions) {
+
+                if (in_array('transactions', $this->with) or in_array('full', $this->with) or  $forceWithTransactions) {
                     $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                 }
 
