@@ -27,6 +27,7 @@ const fetchApi = async (query: string) => {
 		aiResponse.value = ""
 		isLoadingSearch.value = true
 		errorSearch.value = ""
+        aiOriResponse.value = ""
 		try {
 			// const response = await fetch(route('grp.ask-bot.index', {q: query}))
 
@@ -38,8 +39,9 @@ const fetchApi = async (query: string) => {
 				try {
 					const res = JSON.parse(event.data);
 					// console.log('-response parse content:', res.choices[0].delta.content)
-					aiOriResponse.value += res.choices[0].delta.content;
-					convertOriResponseToMarkdown()
+                    aiOriResponse.value += res.choices[0].delta.content;
+                    
+                    convertOriResponseToMarkdown()
 					// aiResponse.value += await marked.parse(res.choices[0].delta.content)
 					// await nextTick()
 				} catch (e) {

@@ -141,12 +141,18 @@ const ShowFulffilmentReturn = ({
         : [];
 
     useEffect(() => {
-        setTotalPallets(
-            data.number_pallet_picked +
-                data.number_pallets_state_other_incident +
-                data.number_pallets_state_lost +
-                data.number_pallets_state_damaged,
-        );
+        if (data.type == 'stored_item') {
+            setTotalPallets(
+                    data.number_picked_items
+            );
+        } else {
+            setTotalPallets(
+                data.number_pallet_picked +
+                    data.number_pallets_state_other_incident +
+                    data.number_pallets_state_lost +
+                    data.number_pallets_state_damaged,
+            );
+        }
     }, [data]);
 
     return (
@@ -164,7 +170,7 @@ const ShowFulffilmentReturn = ({
                     progress={{
                         value: totalPallets,
                         size: 'lg',
-                        total: data.number_pallets,
+                        total: data.type == 'stored_item' ? data.number_ordered_items : data.number_pallets,
                         orientation: 'horizontal',
                     }}
                     button2={{
