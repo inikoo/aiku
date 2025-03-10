@@ -25,7 +25,16 @@ class ImportShopProspects
 
     public function handle(Shop $scope, $file): Upload
     {
-        $upload = StoreUpload::run($file, Prospect::class);
+        $upload = StoreUpload::make()->fromFile(
+            $scope->group,
+            $file,
+            [
+                'model' => 'Prospect',
+                'parent_type' => $scope->getMorphClass(),
+                'parent_id' => $scope->id,
+            ]
+        );
+
 
         if ($this->isSync) {
             ImportUpload::run(
