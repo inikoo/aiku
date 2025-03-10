@@ -142,7 +142,7 @@ trait WithAIBot
                 ['role' => 'user', 'content' => $question],
             ],
             'stream' => true,
-            'max_tokens' => 150
+            'max_tokens' => 800
         ];
 
         $client = new Client([
@@ -179,18 +179,25 @@ trait WithAIBot
     {
         $response = Ollama::model(config('ollama-laravel.model'))
         ->prompt($question)
-        ->options(['temperature' => 0.1])
         ->stream(true)
         ->ask();
 
         return Response::stream(function () use ($response) {
-            $stream = $response->getBody();
-            while (!$stream->eof()) {
-                $chunk = $stream->read(1024);
-                echo 'data:' . $chunk['response'] . "\n\n";
+            Ollama::processStream($response->getBody(), function ($data) {
+                echo 'data: ' . json_encode(
+                    [
+                        'choices' => [
+                            [
+                                'delta' => [
+                                    'content' => $data['response']
+                                ]
+                            ]
+                        ]
+                    ]
+                ) . "\n\n";
                 ob_flush();
                 flush();
-            }
+            });
         }, 200, [
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',
