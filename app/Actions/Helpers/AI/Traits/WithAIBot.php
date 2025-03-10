@@ -184,7 +184,17 @@ trait WithAIBot
 
         return Response::stream(function () use ($response) {
             Ollama::processStream($response->getBody(), function ($data) {
-                echo 'data: ' . json_encode(['response' => $data['response']]) . "\n\n";
+                echo 'data: ' . json_encode(
+                    [
+                        'choices' => [
+                            [
+                                'delta' => [
+                                    'content' => $data['response']
+                                ]
+                            ]
+                        ]
+                    ]
+                ) . "\n\n";
                 ob_flush();
                 flush();
             });
