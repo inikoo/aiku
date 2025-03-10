@@ -63,6 +63,8 @@ class StoreStandaloneFulfilmentInvoiceTransaction extends OrgAction
     public function rules(): array
     {
         return [
+            'pallet_id'       => ['sometimes'],
+            'handle_date'     => ['sometimes', 'date'],
             'quantity' => ['required', 'numeric'],
         ];
     }
