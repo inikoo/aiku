@@ -106,7 +106,7 @@ class InvoiceTransactionsResource extends JsonResource
         } else {
             $pallet = null;
         }
-        
+
         if (!empty($this->data['date'])) {
             $handlingDate = $this->data['date'];
         } else {

@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 10 Mar 2025 12:40:48 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
+
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,19 +17,14 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('platform_has_clients', function (Blueprint $table) {
-            $table->id();
-
+            $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-
-            $table->unsignedBigInteger('customer_id');
+            $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-
             $table->morphs('userable');
-
-            $table->unsignedBigInteger('customer_client_id');
+            $table->unsignedInteger('customer_client_id')->index();
             $table->foreign('customer_client_id')->references('id')->on('customer_clients')->onDelete('cascade');
-            $table->unsignedBigInteger('platform_customer_client_id');
-
+            $table->unsignedBigInteger('platform_customer_client_id')->index();
             $table->timestampsTz();
         });
     }

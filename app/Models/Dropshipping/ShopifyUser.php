@@ -71,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges
+ * @property-read Collection<int, PlatformHasClient> $clients
  * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read \App\Models\Dropshipping\TFactory|null $use_factory
  * @property-read Group|null $group
