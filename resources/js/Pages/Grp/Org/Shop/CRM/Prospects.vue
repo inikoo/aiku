@@ -29,6 +29,9 @@ const props = defineProps<{
       history : {}
       lists : {}
       prospects : {}
+      contacted : {}
+      failed : {}
+      success : {}
       tagsList : {}
       tagRoute : {}
 }>()
@@ -42,6 +45,9 @@ const component = computed(() => {
       const components: {[key: string]: Component} = {
         dashboard: ProspectsDashboard,
         prospects: TableProspects,
+        contacted: TableProspects,
+        failed: TableProspects,
+        success: TableProspects,
         mailshots: TableMailshots,
         history: TableHistories,
        /*  lists: TableProspectLists */
