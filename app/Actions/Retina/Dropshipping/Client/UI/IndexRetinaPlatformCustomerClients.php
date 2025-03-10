@@ -57,7 +57,7 @@ class IndexRetinaPlatformCustomerClients extends RetinaAction
         }
 
         $queryBuilder = QueryBuilder::for(PlatformHasClient::class);
-        $queryBuilder->where('customer_clients.customer_id', $parent->id);
+        $queryBuilder->where('platform_has_clients.customer_id', $parent->id);
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -70,7 +70,7 @@ class IndexRetinaPlatformCustomerClients extends RetinaAction
         }
         */
 
-        $queryBuilder->leftJoin('customer_clients', 'customer_clients.id', '=', 'platform_has_clients.customer_id');
+        $queryBuilder->leftJoin('customer_clients', 'platform_has_clients.customer_client_id', 'customer_clients.id');
 
         return $queryBuilder
             ->defaultSort('customer_clients.reference')
@@ -80,8 +80,6 @@ class IndexRetinaPlatformCustomerClients extends RetinaAction
                 'customer_clients.id',
                 'customer_clients.name',
                 'customer_clients.ulid',
-                'customers.reference as customer_reference',
-                'customers.slug as customer_slug',
                 'customer_clients.created_at'
             ])
             ->allowedSorts(['customer_clients.reference', 'customer_clients.name', 'customer_clients.created_at'])
