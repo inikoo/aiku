@@ -12,7 +12,6 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\PlatformHasClient;
 use App\Models\Traits\HasEmail;
-use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -67,7 +66,6 @@ class TiktokUser extends Model
 {
     use HasPermissions;
     use HasEmail;
-    use HasImage;
     use InCustomer;
     use SoftDeletes;
 
