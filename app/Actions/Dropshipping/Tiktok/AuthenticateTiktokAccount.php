@@ -8,9 +8,12 @@
 
 namespace App\Actions\Dropshipping\Tiktok;
 
+use App\Actions\CRM\Customer\AttachCustomerToPlatform;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\TiktokUser;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -52,20 +55,28 @@ class AuthenticateTiktokAccount extends RetinaAction
                         'refresh_token_expire_in' => $userData['refresh_token_expire_in'],
                     ];
 
-                    $tiktokUser = TiktokUser::where('tiktok_id', $userData['tiktok_id'])->first();
+                    $tiktokUser = TiktokUser::where('tiktok_id', $userData['tiktok_id'])->withTrashed()->first();
 
                     if ($tiktokUser) {
+                        if ($tiktokUser->deleted_at) {
+                            $tiktokUser->restore();
+                            $platform = Platform::where('type', PlatformTypeEnum::TIKTOK->value)->first();
+                            AttachCustomerToPlatform::make()->action($customer, $platform, []);
+                        }
+
                         UpdateTiktokUser::make()->action($tiktokUser, $userData);
                     } else {
                         StoreTiktokUser::make()->action($customer, $userData);
                     }
+
+                    return $tiktokUser;
                 }
             }
 
             throw ValidationException::withMessages(['message' => __('tiktok.access_token')]);
 
         } catch (\Exception $e) {
-            //
+            //            dd($e);
         }
     }
 
