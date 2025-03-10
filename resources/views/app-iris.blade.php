@@ -21,6 +21,8 @@
             @endcache
         @endif
 
+        <!-- SSR: add Tailwind -->
+        <link rel="stylesheet" href="{{ Vite::useHotFile('iris.hot')->asset('resources/css/app.css') }}">
 
         @if (config('app.env', 'production') === 'staging')
             <meta name="robots" content="noindex">
