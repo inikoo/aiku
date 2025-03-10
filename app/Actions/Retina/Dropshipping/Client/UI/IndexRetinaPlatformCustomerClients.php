@@ -13,9 +13,9 @@ use App\Actions\RetinaAction;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\PlatformHasClient;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -25,7 +25,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexRetinaCustomerClients extends RetinaAction
+class IndexRetinaPlatformCustomerClients extends RetinaAction
 {
     private Customer|ShopifyUser $parent;
 
@@ -34,15 +34,7 @@ class IndexRetinaCustomerClients extends RetinaAction
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-        $this->parent = $this->customer;
-
-        return $this->handle($this->parent);
-    }
-
-    public function inPlatform(Platform $platform, ActionRequest $request): LengthAwarePaginator
+    public function asController(Platform $platform, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         $this->parent = $this->customer->shopifyUser;
@@ -64,8 +56,8 @@ class IndexRetinaCustomerClients extends RetinaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(CustomerClient::class);
-        $queryBuilder->where('customer_clients.customer_id', $parent->id);
+        $queryBuilder = QueryBuilder::for(PlatformHasClient::class);
+        $queryBuilder->where('platform_has_clients.customer_id', $parent->id);
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -78,6 +70,7 @@ class IndexRetinaCustomerClients extends RetinaAction
         }
         */
 
+        $queryBuilder->leftJoin('customer_clients', 'platform_has_clients.customer_client_id', 'customer_clients.id');
 
         return $queryBuilder
             ->defaultSort('customer_clients.reference')
@@ -87,12 +80,9 @@ class IndexRetinaCustomerClients extends RetinaAction
                 'customer_clients.id',
                 'customer_clients.name',
                 'customer_clients.ulid',
-                'customers.reference as customer_reference',
-                'customers.slug as customer_slug',
                 'customer_clients.created_at'
             ])
-            ->leftJoin('customers', 'customers.id', 'customer_id')
-            ->allowedSorts(['reference', 'name', 'created_at'])
+            ->allowedSorts(['customer_clients.reference', 'customer_clients.name', 'customer_clients.created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
