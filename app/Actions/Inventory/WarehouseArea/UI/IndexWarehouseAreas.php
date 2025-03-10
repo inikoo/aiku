@@ -273,7 +273,7 @@ class IndexWarehouseAreas extends OrgAction
                     ]
                 ],
                 'data'        => WarehouseAreaResource::collection($warehouseAreas),
-                'upload_locations' => [
+                'upload_warehouse_areas' => [
                     'title' => [
                         'label' => __('Upload locations'),
                         'information' => __('The list of column file:')
