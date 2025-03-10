@@ -53,6 +53,9 @@ return new class () extends Migration {
         }
 
         $table->unsignedInteger('number_orders_state_dispatched_today')->default(0);
+        $table->decimal('orders_net_org_amount_state_dispatched_today', 16)->nullable();
+        $table->decimal('orders_net_grp_amount_state_dispatched_today', 16)->nullable();
+        $table->decimal('orders_net_amount_state_dispatched_today', 16)->nullable();
 
         foreach (OrderStatusEnum::cases() as $case) {
             $table->decimal('orders_net_org_amount_status_'.$case->snake(), 16)->nullable();
@@ -75,6 +78,9 @@ return new class () extends Migration {
         }
 
         $table->dropColumn('number_orders_state_dispatched_today');
+        $table->dropColumn('orders_net_org_amount_state_dispatched_today');
+        $table->dropColumn('orders_net_grp_amount_state_dispatched_today');
+        $table->dropColumn('orders_net_amount_state_dispatched_today');
 
         foreach (OrderStatusEnum::cases() as $case) {
             $table->dropColumn('orders_net_org_amount_status_'.$case->snake());
