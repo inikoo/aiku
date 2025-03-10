@@ -42,8 +42,8 @@ return new class () extends Migration {
     public function orderingFields(Blueprint $table): Blueprint
     {
 
-        $table->unsignedInteger('number_orders_stat_submited_paid')->default(0);
-        $table->unsignedInteger('number_orders_stat_submited_unpaid')->default(0);
+        $table->unsignedInteger('number_orders_stat_submitted_paid')->default(0);
+        $table->unsignedInteger('number_orders_stat_submitted_unpaid')->default(0);
 
 
         foreach (OrderStateEnum::cases() as $case) {
@@ -65,8 +65,8 @@ return new class () extends Migration {
 
     public function rollBackOrderingFields(Blueprint $table): Blueprint
     {
-        $table->dropColumn('number_orders_stat_submited_paid');
-        $table->dropColumn('number_orders_stat_submited_unpaid');
+        $table->dropColumn('number_orders_stat_submitted_paid');
+        $table->dropColumn('number_orders_stat_submitted_unpaid');
 
         foreach (OrderStateEnum::cases() as $case) {
             $table->dropColumn('orders_net_org_amount_state_'.$case->snake());

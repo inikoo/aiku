@@ -40,14 +40,14 @@ class GroupHydrateOrders
     {
         $stats = [
             'number_orders' => DB::table('orders')->where('group_id', $group->id)->count(),
-            'number_orders_stat_submited_paid' => DB::table('orders')
+            'number_orders_stat_submitted_paid' => DB::table('orders')
                 ->leftJoin('invoices', 'orders.id', '=', 'invoices.order_id')
                 ->where('orders.group_id', $group->id)
                 ->whereNull('orders.deleted_at')
                 ->where('orders.state', OrderStateEnum::SUBMITTED->value)
                 ->where('invoices.pay_status', InvoicePayStatusEnum::PAID->value)
                 ->count(),
-            'number_orders_stat_submited_unpaid' => DB::table('orders')
+            'number_orders_stat_submitted_unpaid' => DB::table('orders')
                 ->leftJoin('invoices', 'orders.id', '=', 'invoices.order_id')
                 ->where('orders.group_id', $group->id)
                 ->whereNull('orders.deleted_at')
