@@ -12,7 +12,7 @@ namespace App\Http\Resources\Helpers;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AskLlamaResource extends JsonResource
+class AskBotResource extends JsonResource
 {
     public function toArray($request)
     {

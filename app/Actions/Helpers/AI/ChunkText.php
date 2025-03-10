@@ -8,9 +8,9 @@
  *
 */
 
-namespace App\Actions\Helpers\AskLlama;
+namespace App\Actions\Helpers\AI;
 
-use App\Actions\Helpers\AskLlama\Traits\WithHelper;
+use App\Actions\Helpers\AI\Traits\WithHelper;
 use App\Actions\OrgAction;
 use App\Models\Helpers\Chunk;
 use Ollama;
