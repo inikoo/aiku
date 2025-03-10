@@ -18,6 +18,11 @@ import ProspectsDashboard from '@/Pages/Grp/Org/Shop/CRM/ProspectsDashboard.vue'
 
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faFileInvoice } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
+library.add(faFileInvoice)
+
 const props = defineProps<{
   title: string
       pageHead: PageHeadingTypes
