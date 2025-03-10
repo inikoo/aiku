@@ -41,8 +41,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
             $discountPercentage = (($originalPrice - $discountedPrice) / $originalPrice) * 100;
         }
 
-        if(!empty($this->data['pallet_id']))
-        {
+        if (!empty($this->data['pallet_id'])) {
             $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
         } else {
             $pallet = null;

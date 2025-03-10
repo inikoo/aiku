@@ -52,7 +52,7 @@ class IndexRetinaDropshippingProducts extends RetinaAction
 
     public function htmlResponse(ShopifyUser|Customer $scope): Response
     {
-        if($scope instanceof ShopifyUser) {
+        if ($scope instanceof ShopifyUser) {
             $shop = $scope->customer->shop;
             $routes = [
                 'store_product' => [

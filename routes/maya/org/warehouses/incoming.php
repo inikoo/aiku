@@ -6,7 +6,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Inventory\GoodsIn\UI\IndexWarehousePalletDeliveries;
 use App\Actions\Inventory\GoodsIn\UI\IndexWarehousePalletsInDelivery;
 use App\Actions\Inventory\GoodsIn\UI\ShowWarehousePalletDelivery;

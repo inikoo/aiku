@@ -52,7 +52,7 @@ class GetFulfilmentServices extends OrgAction
             $queryBuilder->whereNotIn('services.asset_id', $scope->invoiceTransactions()->pluck('asset_id'));
         }
 
-        if($withHandling == false) {
+        if ($withHandling == false) {
             $queryBuilder->where('services.is_pallet_handling', false);
         }
 

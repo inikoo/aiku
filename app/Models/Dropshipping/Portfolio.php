@@ -31,7 +31,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $customer_id
  * @property int|null $item_id
  * @property string|null $reference This is the reference that the customer uses to identify the product
- * @property string $type
+ * @property PortfolioTypeEnum $type
  * @property bool $status
  * @property string|null $last_added_at
  * @property string|null $last_removed_at
@@ -65,7 +65,7 @@ class Portfolio extends Model implements Auditable
     use HasUniversalSearch;
 
     protected $casts = [
-        'type'                        => PortfolioTypeEnum::class,  
+        'type'                        => PortfolioTypeEnum::class,
         'data'                        => 'array',
         'settings'                    => 'array',
         'status'                      => 'boolean',

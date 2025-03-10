@@ -92,7 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property bool $is_vip Indicate if delivery note  is for a VIP customer
  * @property int|null $as_organisation_id Indicate if delivery note  is for a organisation in this group
- * @property int|null $as_employee_id Indicate if delivery note is for an employee
+ * @property int|null $as_employee_id Indicate if delivery note is for a employee
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
