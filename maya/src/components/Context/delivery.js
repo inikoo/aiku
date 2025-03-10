@@ -9,8 +9,8 @@ const deliveryReducer = (state, action) => {
         return {
             ...state,
             data: state.data
-                ? {...state.data, ...action.payload}
-                : action.payload,
+                    ? {...state.data, ...action.payload}
+                    : action.payload,
         };
     default:
         return state;
@@ -23,7 +23,16 @@ export const DeliveryProvider = ({ children }) => {
   return (
     <DeliveryContext.Provider value={{ 
       data: state.data, 
-      setData: (payload) => dispatch({ type: 'SET_DATA', payload }) 
+      setData: (updater) => {
+        if (typeof updater === 'function') {
+            dispatch({
+                type: 'SET_DATA',
+                payload: updater(state.data || {}),
+            });
+        } else {
+            dispatch({ type: 'SET_DATA', payload: updater });
+        }
+    },
     }}>
       {children}
     </DeliveryContext.Provider>
