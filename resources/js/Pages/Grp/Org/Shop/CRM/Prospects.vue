@@ -20,6 +20,11 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import { trans } from 'laravel-vue-i18n'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faFileInvoice } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
+library.add(faFileInvoice)
+
 const props = defineProps<{
   title: string
       pageHead: PageHeadingTypes
