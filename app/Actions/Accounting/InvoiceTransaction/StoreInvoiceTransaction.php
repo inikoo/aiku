@@ -75,6 +75,10 @@ class StoreInvoiceTransaction extends OrgAction
                     $palletId = Arr::pull($modelData, 'pallet_id');
                     data_set($modelData, 'data.pallet_id', $palletId);
                 }
+                if (Arr::exists($modelData, 'handle_date')) {
+                    $date = Arr::pull($modelData, 'handle_date');
+                    data_set($modelData, 'data.date', $date);
+                }
             }
         }
 
@@ -107,6 +111,7 @@ class StoreInvoiceTransaction extends OrgAction
             'grp_exchange'    => ['sometimes', 'numeric'],
             'in_process'      => ['sometimes', 'boolean'],
             'pallet_id'       => ['sometimes'],
+            'handle_date'     => ['sometimes', 'date'],
             'data'            => ['sometimes', 'array'],
         ];
 
