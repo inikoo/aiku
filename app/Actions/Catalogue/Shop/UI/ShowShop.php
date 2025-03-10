@@ -41,7 +41,12 @@ class ShowShop extends OrgAction
         $this->canEdit   = $request->user()->authTo("products.{$this->shop->id}.edit");
         $this->canDelete = $request->user()->authTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->authTo(["products.{$this->shop->id}.view", "accounting.{$this->shop->organisation_id}.view"]);
+        return $request->user()->authTo([
+            "web.$this->shop->id.view",
+            "group-webmaster.view",
+            "products.{$this->shop->id}.view",
+            "accounting.{$this->shop->organisation_id}.view"
+        ]);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
@@ -56,7 +61,7 @@ class ShowShop extends OrgAction
         return [
 
 
-            'dashboard_stats'     => [
+            'dashboard_stats' => [
                 'widgets' => [
                     'column_count' => 4,
                     'components'   => [
@@ -81,7 +86,7 @@ class ShowShop extends OrgAction
                                 'max'         => $shop->orderingStats->number_invoices,
                                 'color'       => 'bg-blue-500',
                                 'right_label' => [
-                                    'label' => __('Unpaid').' '. $shop->orderingStats->number_unpaid_invoices,
+                                    'label' => __('Unpaid').' '.$shop->orderingStats->number_unpaid_invoices,
                                     'route' => [
                                         'name'       => 'grp.org.shops.show.dashboard.invoices.unpaid.index',
                                         'parameters' => [
@@ -161,8 +166,8 @@ class ShowShop extends OrgAction
                                 'route'       => [
                                     'name'       => 'grp.org.shops.show.ordering.orders.index',
                                     'parameters' => [
-                                        'organisation' => $shop->organisation->slug,
-                                        'shop'   => $shop->slug,
+                                        'organisation'           => $shop->organisation->slug,
+                                        'shop'                   => $shop->slug,
                                         'orders_elements[state]' => 'submitted'
                                     ]
                                 ]
