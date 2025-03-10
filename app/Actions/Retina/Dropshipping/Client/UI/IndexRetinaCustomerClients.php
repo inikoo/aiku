@@ -28,10 +28,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexRetinaCustomerClients extends RetinaAction
 {
     private Customer|ShopifyUser $parent;
-    /**
-     * @var array|\ArrayAccess|mixed
-     */
-    private string $scope;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -42,7 +38,6 @@ class IndexRetinaCustomerClients extends RetinaAction
     {
         $this->initialisation($request);
         $this->parent = $this->customer;
-        $this->scope = 'all';
 
         return $this->handle($this->parent);
     }
@@ -51,7 +46,6 @@ class IndexRetinaCustomerClients extends RetinaAction
     {
         $this->initialisation($request);
         $this->parent = $this->customer->shopifyUser;
-        $this->scope = $platform->type->value;
 
         return $this->handle($this->customer);
     }
@@ -72,10 +66,6 @@ class IndexRetinaCustomerClients extends RetinaAction
 
         $queryBuilder = QueryBuilder::for(CustomerClient::class);
         $queryBuilder->where('customer_clients.customer_id', $parent->id);
-
-        if ($this->scope !== 'all') {
-            $queryBuilder->where('customer_clients.scope', $this->scope);
-        }
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
