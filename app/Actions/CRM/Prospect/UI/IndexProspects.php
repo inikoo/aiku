@@ -253,6 +253,21 @@ class IndexProspects extends OrgAction
             unset($navigation[ProspectsTabsEnum::SUCCESS->value]);
         }
 
+        if($this->parent instanceof Shop){
+            $spreadsheetRoute = [
+                'event'           => 'action-progress',
+                'channel'         => 'grp.personal.'.$this->group->id,
+                'required_fields' => ["id:prospect_key", "company", "contact_name", "email", "telephone"],
+                'route'           => [
+                    'upload'   => [
+                        'name'       => 'grp.models.shop.prospects.upload',
+                        'parameters' => [
+                            'shop' => $this->parent->id
+                        ]
+                    ],
+                ],
+            ];
+        }
         $subNavigation = $this->getSubNavigation($request);
         $dataProspect  = [
             'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
@@ -371,6 +386,7 @@ class IndexProspects extends OrgAction
                     'event'     => class_basename(Prospect::class),
                     'channel'   => 'uploads.org.'.request()->user()->id
                 ],
+                'upload_spreadsheet' => $spreadsheetRoute ?? null,
                 'uploadRoutes' => [
                     'upload'  => [
                         'name'       => 'org.models.shop.prospects.upload',
