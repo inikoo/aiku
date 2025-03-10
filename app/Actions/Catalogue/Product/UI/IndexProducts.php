@@ -685,8 +685,7 @@ class IndexProducts extends OrgAction
         $this->asAction = true;
         $this->bucket = $bucket;
         $this->parent = $parent;
-        if($parent instanceof ShopifyUser)
-        {
+        if ($parent instanceof ShopifyUser) {
             $shop = $parent->customer->shop;
         } else {
             $shop = $parent->shop;

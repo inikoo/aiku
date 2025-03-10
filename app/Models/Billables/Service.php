@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $historic_source_id
  * @property ServiceEditTypeEnum|null $edit_type
  * @property bool $is_public
+ * @property bool $is_pallet_handling
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\Currency $currency

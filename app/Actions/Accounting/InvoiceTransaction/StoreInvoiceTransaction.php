@@ -70,12 +70,14 @@ class StoreInvoiceTransaction extends OrgAction
             $modelData['family_id']     = $product->family_id;
             $modelData['department_id'] = $product->department_id;
         } elseif ($historicAsset->model_type == 'Service') {
-            if($historicAsset->model->is_pallet_handling == true)
-            {
-                if(Arr::exists($modelData, 'pallet_id'))
-                {
+            if ($historicAsset->model->is_pallet_handling == true) {
+                if (Arr::exists($modelData, 'pallet_id')) {
                     $palletId = Arr::pull($modelData, 'pallet_id');
                     data_set($modelData, 'data.pallet_id', $palletId);
+                }
+                if (Arr::exists($modelData, 'handle_date')) {
+                    $date = Arr::pull($modelData, 'handle_date');
+                    data_set($modelData, 'data.date', $date);
                 }
             }
         }
@@ -109,6 +111,7 @@ class StoreInvoiceTransaction extends OrgAction
             'grp_exchange'    => ['sometimes', 'numeric'],
             'in_process'      => ['sometimes', 'boolean'],
             'pallet_id'       => ['sometimes'],
+            'handle_date'     => ['sometimes', 'date'],
             'data'            => ['sometimes', 'array'],
         ];
 

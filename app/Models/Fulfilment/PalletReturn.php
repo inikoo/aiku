@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -257,6 +258,11 @@ class PalletReturn extends Model implements HasMedia
     public function shopifyFulfilment(): MorphOne
     {
         return $this->morphOne(ShopifyUserHasFulfilment::class, 'model');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(PalletReturnItem::class);
     }
 
 }

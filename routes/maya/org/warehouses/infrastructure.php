@@ -14,7 +14,6 @@ use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use Illuminate\Support\Facades\Route;
 
-
 Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
     Route::get('', IndexWarehouseAreas::class)->name('index');
     Route::scopeBindings()->prefix('{warehouseArea:id}')->group(function () {
