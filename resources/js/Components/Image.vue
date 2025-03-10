@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRefs, watch, ref, onBeforeMount, Ref } from 'vue'
-import { cloneDeep, get, isNull } from 'lodash'
+import { cloneDeep, get, isNull } from 'lodash-es'
 import { Image as ImageProxy } from "@/types/Image"
 
 const fallbackPath = '/fallback/fallback.svg'

@@ -205,7 +205,7 @@ const getImageSlots = (layoutType: string) => {
 				<Image
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					:imageCover="'w-full object-cover object-center group-hover:opacity-75'" 
+					:class="'w-full object-cover object-center group-hover:opacity-75'" 
 					:alt="modelValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
 					@click="openImageGallery(index - 1)" 
 				/>

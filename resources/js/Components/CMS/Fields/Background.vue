@@ -3,7 +3,7 @@ import { onMounted, watch, computed, inject } from 'vue'
 import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
-import { set } from 'lodash'
+import { set } from 'lodash-es'
 
 const props = defineProps<{
     uploadImageRoute?: routeType

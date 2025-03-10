@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { ref, watch, toRef, computed, nextTick, onMounted } from 'vue'
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 
 
 import Image from "@/Components/Image.vue"

@@ -62,7 +62,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import InvoiceManualTransactions from '@/Components/Accounting/InvoiceManualTransactions.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 import { Action } from '@/types/Action'
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
