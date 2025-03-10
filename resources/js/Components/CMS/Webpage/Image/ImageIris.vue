@@ -89,6 +89,7 @@ const getImageSlots = (layoutType: string) => {
 				:href="getHref(index - 1) || '#'" target="_blank" rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
 				<Image :src="fieldValue?.value?.images?.[index - 1]?.source"
+				:style="getStyles(fieldValue?.value?.images?.[index - 1]?.properties)"
 					:imageCover="'w-full object-cover object-center group-hover:opacity-75'"
 					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'Image aiku'" />
 			</a>

@@ -23,7 +23,7 @@ import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 import Overview from '@/Components/CMS/Fields/Overview.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 import ImagesArray from '@/Components/CMS/Fields/ImagesArray.vue'
-
+import cardsProperty from '@/Components/CMS/Fields/CardArray.vue'
 
 import { set } from 'lodash'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
@@ -48,7 +48,7 @@ export const getComponent = (componentName: string) => {
         "margin": Margin,
         "dimension": Dimension,
         "select" : PureMultiselect,
-
+        "cards-property": cardsProperty,
         "button": ButtonProperties,
         "link": Link,
         "overview_form": OverviewForm,

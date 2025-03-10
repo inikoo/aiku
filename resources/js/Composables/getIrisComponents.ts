@@ -24,6 +24,7 @@ const components: Record<string, Component> = {
     'cta_aurora_1': defineAsyncComponent(() => import('@/Components/CMS/Webpage/CTAAurora1/CtaAurora1Iris.vue')),
     'overview_2': defineAsyncComponent(() => import('@/Components/CMS/Webpage/Overview2/Overview2Iris.vue')),
     'text-column': defineAsyncComponent(() => import('@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue')),
+    'pricing': defineAsyncComponent(() => import('@/Components/CMS/Webpage/Pricing/PricingIris.vue')),
     'top-bar-1-fulfilment': defineAsyncComponent(() => import('@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentIris.vue')),
     'top-bar-2-fulfilment': defineAsyncComponent(() => import('@/Components/CMS/Website/TopBars/Template/Topbar2Fulfilment/Topbar2FulfilmentIris.vue')),
     'top-bar-3-fulfilment': defineAsyncComponent(() => import('@/Components/CMS/Website/TopBars/Template/Topbar3Fulfilment/Topbar3FulfilmentIris.vue')),
