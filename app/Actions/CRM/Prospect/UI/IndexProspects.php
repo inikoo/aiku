@@ -247,7 +247,7 @@ class IndexProspects extends OrgAction
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $navigation = ProspectsTabsEnum::navigation();
-        if(!$this->parent instanceof Shop){
+        if(!($this->parent instanceof Shop)){
             unset($navigation[ProspectsTabsEnum::CONTACTED->value]);
             unset($navigation[ProspectsTabsEnum::FAILED->value]);
             unset($navigation[ProspectsTabsEnum::SUCCESS->value]);
