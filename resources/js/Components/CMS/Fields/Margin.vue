@@ -2,7 +2,7 @@
 import { inject, onBeforeMount, onMounted } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import { trans } from 'laravel-vue-i18n'
-import { set, get } from 'lodash'
+import { set, get } from 'lodash-es'
 
 
 const model = defineModel<typeof localModel>()
