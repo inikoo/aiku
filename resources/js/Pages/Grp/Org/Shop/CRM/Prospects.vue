@@ -15,7 +15,9 @@ import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 import ProspectsDashboard from '@/Pages/Grp/Org/Shop/CRM/ProspectsDashboard.vue'
-
+import UploadExcel from '@/Components/Upload/UploadExcel.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import { trans } from 'laravel-vue-i18n'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 const props = defineProps<{
@@ -34,9 +36,12 @@ const props = defineProps<{
       success : {}
       tagsList : {}
       tagRoute : {}
+      upload_spreadsheet?: {}
 }>()
 
 console.log(props)
+
+const isModalUploadOpen = ref(false)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -60,7 +65,29 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+      <template #other>
+          <Button
+              v-if="upload_spreadsheet"
+              @click="() => isModalUploadOpen = true"
+              :label="trans('Attach file')"
+              icon="fal fa-upload"
+              type="secondary"
+          />
+      </template>
+    </PageHeading>
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Prospect"
+        :title="{
+            label: 'Upload your new prospects',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        v-if="upload_spreadsheet"
+        progressDescription="Adding Prospects to Shop"        
+        :upload_spreadsheet="upload_spreadsheet"
+        
+    />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
