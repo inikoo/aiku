@@ -8,7 +8,7 @@
  *
 */
 
-namespace App\Actions\Helpers\AskLlama;
+namespace App\Actions\Helpers\AI;
 
 use App\Actions\OrgAction;
 
