@@ -25,7 +25,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentServices extends OrgAction
 {
-    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill|Invoice $scope): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn|RecurringBill|Invoice $scope, bool $withHandling = true): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -52,6 +52,12 @@ class GetFulfilmentServices extends OrgAction
             $queryBuilder->whereNotIn('services.asset_id', $scope->invoiceTransactions()->pluck('asset_id'));
         }
 
+        if ($withHandling == false) {
+            $queryBuilder->where('services.is_pallet_handling', false);
+        }
+
+
+
         $queryBuilder
             ->defaultSort('services.id')
             ->select([
@@ -61,6 +67,7 @@ class GetFulfilmentServices extends OrgAction
                 'services.created_at',
                 'services.price',
                 'services.unit',
+                'services.is_pallet_handling',
                 'assets.name',
                 'assets.code',
                 'assets.current_historic_asset_id as historic_asset_id',
@@ -97,14 +104,14 @@ class GetFulfilmentServices extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, $scope);
+        return $this->handle($fulfilment, $scope, false);
     }
 
     public function inPalletReturn(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, $scope);
+        return $this->handle($fulfilment, $scope, false);
     }
 
     public function inRecurringBill(Fulfilment $fulfilment, RecurringBill $scope, ActionRequest $request): LengthAwarePaginator

@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState, memo, useCallback} from 'react';
+import React, {useContext, useRef, useState, memo, useCallback, useEffect} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -60,14 +60,20 @@ const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
   const { organisation, warehouse } = useContext(AuthContext);
   const { data, setData } = useDelivery();
   const { id } = route.params;
+  const [totalPallets, setTotalPallets] = useState(0);
 
+   useEffect(() => {
+      setTotalPallets(
+        data.number_pallets_state_not_received + data.number_pallets_state_booked_in + data.number_pallet_storing
+      );
+    }, [data]);
 
   return (
     <View style={globalStyles.container}>
       {data.state !== 'booked_in' ? (
         <SetStateButton
           progress={{
-            value: data.number_pallets_state_not_received + data.number_pallets_state_booked_in + data.number_pallet_storing,
+            value: totalPallets,
             size: 'lg',
             total: data.number_pallets,
             orientation: 'horizontal',
@@ -90,7 +96,7 @@ const PalletInDeliveries = ({ navigation, route, onChangeState }) => {
             </Alert>
           )}
           progress={{
-            value: data.number_pallets_state_not_received + data.number_pallets_state_booked_in,
+            value: totalPallets,
             size: 'lg',
             total: data.number_pallets,
             orientation: 'horizontal',
@@ -181,7 +187,7 @@ const GroupItem = ({item: initialItem, navigation}) => {
 
         setData(prevItem => ({
           ...prevItem,
-          number_pallets_state_not_received: response.data.pallet_delivery.number_pallets_state_not_received,
+          number_pallets_state_not_received: prevItem.number_pallets_state_not_received + 1,
         }));
 
         Animated.spring(translateX, {
@@ -218,14 +224,16 @@ const GroupItem = ({item: initialItem, navigation}) => {
         setItem(prevItem => ({
           ...prevItem,
           state: response.data.state,
-          state_icon: response.data.status_icon,
+          state_icon: response.data.state_icon,
         }));
 
-        setData(prevItem => ({
-          ...prevItem,
-          number_pallets_state_not_received: response.data.pallet_delivery.number_pallets_state_not_received,
-          number_pallets_state_booked_in: response.data.pallet_delivery.number_pallets_state_booked_in,
+        setData(prevState => ({
+            ...prevState,
+            number_pallets_state_not_received:
+                prevState.number_pallets_state_not_received - 1,
         }));
+      
+
         Animated.spring(translateX, {
           toValue: 0,
           useNativeDriver: true,
@@ -257,14 +265,18 @@ const GroupItem = ({item: initialItem, navigation}) => {
       data: formData,
       onSuccess: response => {
         
-        setData(prevItem => ({
-          ...prevItem,
-          number_pallets_state_booked_in: response.data.pallet_delivery.number_pallets_state_booked_in,
-        }));
+        if (!item.location_code) {
+            setData(prevItem => ({
+                ...prevItem,
+                number_pallets_state_booked_in:
+                    prevItem.number_pallets_state_booked_in + 1,
+            }));
+        }
 
         setItem(prevItem => ({
           ...prevItem,
           location_code: response.data.location.resource.code,
+          state_icon: response.data.state_icon,
         }));
 
         Animated.spring(translateX, {

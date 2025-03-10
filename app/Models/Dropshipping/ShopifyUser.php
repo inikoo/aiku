@@ -13,6 +13,7 @@ use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\PlatformHasClient;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
@@ -23,6 +24,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -69,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges
+ * @property-read Collection<int, PlatformHasClient> $clients
  * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read \App\Models\Dropshipping\TFactory|null $use_factory
  * @property-read Group|null $group
@@ -154,5 +157,10 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
     {
         return $this->morphToMany(PalletReturn::class, 'model', 'shopify_user_has_fulfilments', 'model_id', 'model_id')
             ->withTimestamps();
+    }
+
+    public function clients(): MorphMany
+    {
+        return $this->morphMany(PlatformHasClient::class, 'userable');
     }
 }

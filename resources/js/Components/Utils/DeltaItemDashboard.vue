@@ -36,7 +36,7 @@ const props = withDefaults(
 						'md:text-[16px]',
 						'font-mono',
 						(dataTable?.interval_percentages?.[type]?.percentage ?? 0) === 0
-							? 'pr-4'
+							? 'pr-0'
 							: 'pr-1',
 					]">
 					{{
@@ -69,7 +69,7 @@ const props = withDefaults(
 						'md:text-[16px]',
 						'font-mono',
 						(settings === 'all' || (totalAmount?.[type + '_percentages'] ?? 0) === 0)
-              ? 'pr-4'
+              ? 'pr-0'
               : 'pr-1',
 					]">
 					{{

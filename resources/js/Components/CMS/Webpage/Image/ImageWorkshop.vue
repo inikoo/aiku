@@ -20,6 +20,9 @@ library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
 	modelValue: any
+	webpageData?: any
+	blockData?: Object
+	// uploadRoutes: routeType
 }>()
 
 const emits = defineEmits<{

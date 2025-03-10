@@ -8,16 +8,16 @@
  *
 */
 
-namespace App\Actions\Helpers\AskLlama;
+namespace App\Actions\Helpers\AI;
 
-use App\Actions\Helpers\AskLlama\Traits\WithHelper;
+use App\Actions\Helpers\AI\Traits\WithAIBot;
 use App\Actions\OrgAction;
 use App\Models\Helpers\Chunk;
 use Ollama;
 
 class ChunkText extends OrgAction
 {
-    use WithHelper;
+    use WithAIBot;
 
     public function handle(string $text, array $metadata = [])
     {

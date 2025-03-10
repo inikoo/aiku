@@ -28,7 +28,6 @@ use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
-use App\Models\Comms\Email;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\WebUser;

@@ -141,7 +141,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					sortable
 					headerClass="align-right">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="">Refunds</span>
 						</div>
 					</template>
@@ -166,7 +166,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerClass="align-right"
 					headerStyle=" width: 140px">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="font-semibold">
 								<FontAwesomeIcon
 									fixed-width
@@ -191,7 +191,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					class="overflow-hidden transition-all"
 					headerClass="align-right">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="">Invoices</span>
 						</div>
 					</template>
@@ -215,7 +215,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerClass="align-right"
 					headerStyle=" width: 140px">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="">
 								<FontAwesomeIcon
 									fixed-width
@@ -241,7 +241,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					class="overflow-hidden transition-all"
 					headerClass="align-right">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="">Sales</span>
 						</div>
 					</template>
@@ -264,7 +264,7 @@ function useTabChangeDashboard(tab_slug: string) {
 					headerClass="align-right"
 					headerStyle=" width: 140px">
 					<template #header>
-						<div class="text-xs md:text-base flex justify-end items-end">
+						<div class="text-xs md:text-base flex justify-end items-end w-full">
 							<span class="text-gray-700">
 								<FontAwesomeIcon
 									fixed-width

@@ -19,6 +19,7 @@ use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Ordering\Transaction;
+use Illuminate\Support\Arr;
 
 class StoreInvoiceTransaction extends OrgAction
 {
@@ -68,6 +69,17 @@ class StoreInvoiceTransaction extends OrgAction
 
             $modelData['family_id']     = $product->family_id;
             $modelData['department_id'] = $product->department_id;
+        } elseif ($historicAsset->model_type == 'Service') {
+            if ($historicAsset->model->is_pallet_handling == true) {
+                if (Arr::exists($modelData, 'pallet_id')) {
+                    $palletId = Arr::pull($modelData, 'pallet_id');
+                    data_set($modelData, 'data.pallet_id', $palletId);
+                }
+                if (Arr::exists($modelData, 'handle_date')) {
+                    $date = Arr::pull($modelData, 'handle_date');
+                    data_set($modelData, 'data.date', $date);
+                }
+            }
         }
 
         /** @var InvoiceTransaction $invoiceTransaction */
@@ -98,6 +110,9 @@ class StoreInvoiceTransaction extends OrgAction
             'org_exchange'    => ['sometimes', 'numeric'],
             'grp_exchange'    => ['sometimes', 'numeric'],
             'in_process'      => ['sometimes', 'boolean'],
+            'pallet_id'       => ['sometimes'],
+            'handle_date'     => ['sometimes', 'date'],
+            'data'            => ['sometimes', 'array'],
         ];
 
         if (!$this->strict) {

@@ -56,6 +56,16 @@ class StoreRecurringBillTransaction extends OrgAction
 
             $unitCost = $item->price;
             data_set($modelData, 'item_id', $item->model_id);
+
+            if ($item->model_type == 'Service') {
+                if ($item->model->is_pallet_handling == true) {
+                    $palletId = Arr::pull($modelData, 'pallet_id');
+                    data_set($modelData, 'data.pallet_id', $palletId);
+                    $date = Arr::pull($modelData, 'handle_date');
+                    data_set($modelData, 'data.date', $date);
+                }
+            }
+
         } elseif ($item instanceof Space) {
             $type            = 'Space';
             $assetId         = $item->rental->asset_id;
@@ -131,6 +141,9 @@ class StoreRecurringBillTransaction extends OrgAction
             'pallet_delivery_id'        => ['sometimes', 'exists:pallet_deliveries,id'],
             'pallet_return_id'          => ['sometimes', 'exists:pallet_returns,id'],
             'fulfilment_transaction_id' => ['sometimes', 'exists:fulfilment_transactions,id'],
+            'pallet_id'                 => ['sometimes'],
+            'handle_date'               => ['sometimes', 'date'],
+            'data'                      => ['sometimes', 'array'],
         ];
     }
 

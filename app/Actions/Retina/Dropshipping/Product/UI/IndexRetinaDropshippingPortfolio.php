@@ -35,7 +35,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
     {
         $query = QueryBuilder::for(Portfolio::class);
 
-        if($scope instanceof ShopifyUser) {
+        if ($scope instanceof ShopifyUser) {
             $customer = $scope->customer;
             $query->where('customer_id', $customer->id);
             $query->where('type', PortfolioTypeEnum::SHOPIFY);
@@ -45,7 +45,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
         }
 
         $query->with(['item']);
-        
+
         if ($fulfilmentCustomer = $customer->fulfilmentCustomer) {
             $this->parent = $fulfilmentCustomer;
 
@@ -60,7 +60,7 @@ class IndexRetinaDropshippingPortfolio extends RetinaAction
     {
         return $request->user()->is_root;
     }
-    
+
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $customer = $request->user()->customer;

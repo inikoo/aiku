@@ -8,9 +8,11 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -99,6 +101,17 @@ class InvoiceTransactionsResource extends JsonResource
             };
         };
 
+        if (!empty($this->data['pallet_id'])) {
+            $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
+        } else {
+            $pallet = null;
+        }
+
+        if (!empty($this->data['date'])) {
+            $handlingDate = $this->data['date'];
+        } else {
+            $handlingDate = null;
+        }
 
         return [
             'code'                      => $this->code,
@@ -107,6 +120,8 @@ class InvoiceTransactionsResource extends JsonResource
             'net_amount'                => $this->net_amount,
             'currency_code'             => $this->currency_code,
             'in_process'                => $this->in_process,
+            'pallet'                    => $pallet,
+            'handling_date'             => $handlingDate,
             'route_desc'                => $getRoute($this->model_type, $this->id),
             'refund_route'              => [
                 'name'       => 'grp.models.invoice_transaction.refund_transaction.store',
