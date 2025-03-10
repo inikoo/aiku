@@ -52,6 +52,7 @@ enum FulfilmentCustomerStatusEnum: string
             'no_rental_agreement' => [
                 'tooltip' => __('No Rental Agreement'),
                 'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',
                 'color'   => 'lime',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
@@ -71,8 +72,8 @@ enum FulfilmentCustomerStatusEnum: string
             'inactive'            => [
                 'tooltip' => __('Inactive'),
                 'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-400',
-                'color'   => 'grey',
+                'class'   => 'text-gray-400',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'share',
                     'type' => 'font-awesome-5'
