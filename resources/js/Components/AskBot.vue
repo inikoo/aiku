@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modal from "@/Components/Utils/Modal.vue"
-import { debounce } from "lodash"
+import { throttle } from "lodash"
 import { ref } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faLampDesk } from "@fal"
@@ -8,9 +8,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
 import { marked } from 'marked'
 import LoadingIcon from "./Utils/LoadingIcon.vue"
+import LoadingText from "./Utils/LoadingText.vue"
 
 library.add(faLampDesk)
 
+const aiOriResponse = ref(``)
 const aiResponse = ref(``)
 const isLoadingSearch = ref(false)
 const searchValue = ref("")
@@ -26,23 +28,50 @@ const fetchApi = async (query: string) => {
 		isLoadingSearch.value = true
 		errorSearch.value = ""
 		try {
-			const response = await fetch(route('grp.ask-bot.index', {q: query}))
+			// const response = await fetch(route('grp.ask-bot.index', {q: query}))
 
-			if (!response.ok) {
-				const errorData = await response.json()
+			const eventSource = new EventSource(route('grp.ask-bot.index', {q: query}));
+			eventSource.onmessage = async (event) => {
+				isLoadingSearch.value = false
+				// console.log('event source', event)
+				// console.log('event source data', event.data)
+				try {
+					const res = JSON.parse(event.data);
+					// console.log('-response parse content:', res.choices[0].delta.content)
+					aiOriResponse.value += res.choices[0].delta.content;
+					convertOriResponseToMarkdown()
+					// aiResponse.value += await marked.parse(res.choices[0].delta.content)
+					// await nextTick()
+				} catch (e) {
+					isLoadingSearch.value = false
+				}
+			};
 
-				throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
-			}
+			eventSource.onerror = (e) => {
+				isLoadingSearch.value = false
+				// console.error('error event source', e)
+				eventSource.close();
+			};
 
-			const data = await response.json()
-			aiResponse.value = await marked.parse(data.data?.response)
+
+			// if (!response.ok) {
+			// 	const errorData = await response.json()
+
+			// 	throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+			// }
+
+			// const data = await response.json()
+			// aiResponse.value = await marked.parse(data.data?.response)
 		} catch (error) {
 			errorSearch.value = error.message || trans("An error occurred while fetching search results.")
 		} finally {
-			isLoadingSearch.value = false
+			// isLoadingSearch.value = false
 		}
 	}
 }
+const convertOriResponseToMarkdown = throttle(async () => {
+	aiResponse.value = await marked.parse(aiOriResponse.value)
+}, 300)
 
 const handleKeyDown = (event: KeyboardEvent) => {
 	if (event.key === 'Enter' && !event.shiftKey) {
@@ -92,23 +121,26 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		
 
 		<Transition name="slide-to-left">
-			<div v-if="lastQuery" class="bg-pink-500/5 mt-4 border border-white/40 rounded-lg pb-2 shadow-md overflow-hidden">
+			<div v-if="lastQuery" class="bg-pink-500/5 mt-4 border border-white/40 rounded-lg shadow-md overflow-hidden">
 				<div class="text-white ">
 					<div v-if="lastQuery" class="bg-pink-600 xtext-gray-700 border-b border-white/40 p-4 font-light">
 						{{ trans("Results") }}: <span class="font-semibold">{{ lastQuery }}</span>
 						<LoadingIcon v-if="isLoadingSearch" class="ml-1" />
 					</div>
 			
-					<div v-if="isLoadingSearch" class="p-4 pb-2">
-						<div
+					<div v-if="isLoadingSearch" class="bg-black/40 h-24 flex items-center justify-center">
+						<!-- <div
 							v-for="n in 1"
 							:key="n"
-							class="h-40 skeleton w-full rounded animate-pulse"></div>
+							class="h-40 skeleton w-full rounded animate-pulse"></div> -->
+						<LoadingText />
 					</div>
 
 					<!-- Response result -->
-					<div v-else-if="aiResponse" class=" text-gray-700 mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 px-6" v-html="aiResponse">
-					</div>
+					<div v-else-if="aiResponse"
+						class=" text-gray-700 mt-2 max-h-[500px] overflow-auto markdown-container pt-2 pb-4 mb-2 px-6"
+						v-html="aiResponse"
+					/>
 
 					<div v-else-if="!isLoadingSearch && lastQuery" class="p-4">
 						<p class="text-center">{{ trans("No results found.") }}</p>
