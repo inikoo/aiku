@@ -2,6 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
+import DatePicker from "@vuepic/vue-datepicker"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
@@ -27,18 +28,19 @@ import axios from 'axios'
 
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 // import type { Timeline } from '@/types/Timeline'
-import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { useDaysLeftFromToday, useFormatTime } from '@/Composables/useFormatTime'
 import { BoxStats } from '@/types/Pallet'
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faWaveSine } from '@far'
+import { faCalendarAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
 import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue"
 import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-library.add(faWaveSine)
+library.add(faWaveSine, faCalendarAlt)
 
 
 const props = defineProps<{
@@ -87,11 +89,11 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
-const formAddService = useForm({ service_id: '', quantity: 1, pallet_id: null, historic_asset_id: null })
+const formAddService = useForm({ service_id: null, quantity: 1, pallet_id: null, handle_date: null, historic_asset_id: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
-const dataServiceList = ref([])
+const dataServiceList = ref<{ is_pallet_handling: boolean, id: number }[]>([])
 const dataPalletList = ref([])
 
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
@@ -242,6 +244,33 @@ const isLoading = ref(false)
                                 </p>
                             </div>
 
+                            <!-- Date -->
+                            <Popover v-if="dataServiceList?.find(list => list.id === formAddService.service_id)?.is_pallet_handling" position="" style="z-index: 20" class="mt-3 ">
+                                <template #button>
+                                    <div class="text-left">
+                                        <span class="text-xs px-1 my-2">{{ trans('Date') }}: </span>
+                                        <div
+                                            xxv-tooltip="'useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)'"
+                                            class="text-left border border-gray-300 py-2 text-sm rounded px-3 cursor-pointer"
+                                            :class="formAddService.handle_date ? '' : 'text-gray-400 '"
+                                        >
+                                            <FontAwesomeIcon icon="fal fa-calendar-alt" class="text-base" fixed-width aria-hidden="true" />
+                                            {{ formAddService.handle_date ? useFormatTime(formAddService.handle_date, { formatTime: 'ddmy' }) : trans("Select date") }}
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template #content="{ close }">
+                                    <DatePicker
+                                        v-model="formAddService.handle_date"
+                                        @update:modelValue="() => close()"
+                                        inline
+                                        auto-apply
+                                        :enable-time-picker="false"
+                                    />
+                                </template>
+                            </Popover>
+
                             <!-- Quantity -->
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
@@ -260,7 +289,10 @@ const isLoading = ref(false)
                                     @click="() => onSubmitAddService(action, closed)"
                                     :style="'save'"
                                     :loading="isLoadingButton == 'addService'"
-                                    :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
+                                    :disabled="
+                                        !formAddService.service_id
+                                        || !(formAddService.quantity > 0)
+                                        || dataServiceList?.find(list => list.id === formAddService.service_id)?.is_pallet_handling ? (!formAddService.pallet_id || !formAddService.handle_date) : false"
                                     label="Save"
                                     full
                                 />
