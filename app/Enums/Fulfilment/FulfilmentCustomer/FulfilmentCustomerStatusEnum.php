@@ -27,7 +27,7 @@ enum FulfilmentCustomerStatusEnum: string
             'no_rental_agreement' => __('No Rental Agreement'),
             'active'              => __('Active'),
             'unaccomplished'      => __('Unaccomplished'),
-            'inactive'            => __('Loosing'),
+            'inactive'            => __('Losing'),
             'lost'                => __('Lost'),
         ];
     }
