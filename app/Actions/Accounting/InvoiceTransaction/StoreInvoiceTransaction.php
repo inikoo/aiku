@@ -86,7 +86,7 @@ class StoreInvoiceTransaction extends OrgAction
                         ]
                     ]);
                 }
-                if($handlingDate == null) {
+                if ($handlingDate == null) {
                     ValidationException::withMessages([
                         'message' => [
                             'handle_date' => 'Handling date is required when handling a pallet',

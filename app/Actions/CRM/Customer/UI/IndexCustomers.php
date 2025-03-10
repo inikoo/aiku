@@ -39,21 +39,21 @@ class IndexCustomers extends OrgAction
     private Group|Shop|Organisation $parent;
 
 
-    
+
     protected function getElementGroups($parent): array
     {
-            $elements = [
-                'state' => [
-                        'label'    => __('State'),
-                        'elements' => array_merge_recursive(
-                            CustomerStateEnum::labels(),
-                            CustomerStateEnum::count($parent)
-                        ),
-                        'engine'   => function ($query, $elements) {
-                            $query->whereIn('customers.state', $elements);
-                        }
-                    ]
-            ];
+        $elements = [
+            'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        CustomerStateEnum::labels(),
+                        CustomerStateEnum::count($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('customers.state', $elements);
+                    }
+                ]
+        ];
 
         return $elements;
     }

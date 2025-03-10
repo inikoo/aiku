@@ -13,7 +13,6 @@ use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\ProspectImport;
-use App\Models\CRM\Prospect;
 use App\Models\Helpers\Upload;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Facades\Storage;

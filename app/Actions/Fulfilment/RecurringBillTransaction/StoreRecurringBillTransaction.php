@@ -29,10 +29,10 @@ class StoreRecurringBillTransaction extends OrgAction
 
     public function handle(RecurringBill $recurringBill, Space|Pallet|StoredItem|FulfilmentTransaction|HistoricAsset $item, array $modelData): RecurringBillTransaction
     {
-        if(Arr::exists($modelData, 'pallet_id')) {
+        if (Arr::exists($modelData, 'pallet_id')) {
             $palletId = Arr::pull($modelData, 'pallet_id');
         }
-        if(Arr::exists($modelData, 'handle_date')) {
+        if (Arr::exists($modelData, 'handle_date')) {
             $handlingDate = Arr::pull($modelData, 'handle_date');
         }
 
@@ -74,7 +74,7 @@ class StoreRecurringBillTransaction extends OrgAction
                             ]
                         ]);
                     }
-                    if($handlingDate == null) {
+                    if ($handlingDate == null) {
                         ValidationException::withMessages([
                             'message' => [
                                 'handle_date' => 'Handling date is required when handling a pallet',
