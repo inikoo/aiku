@@ -148,18 +148,6 @@ class RecurringBillTransactionsResource extends JsonResource
             }
         }
 
-        if (!empty($this->data['pallet_id'])) {
-            $pallet = PalletResource::make(Pallet::find($this->data['pallet_id']));
-        } else {
-            $pallet = null;
-        }
-
-        if (!empty($this->data['date'])) {
-            $handlingDate = $this->data['date'];
-        } else {
-            $handlingDate = null;
-        }
-
         return [
             'id'                 => $this->id,
             'type'               => $this->item_type,
@@ -173,8 +161,6 @@ class RecurringBillTransactionsResource extends JsonResource
             'asset_units'        => $this->asset_units,
             'currency_code'      => $this->currency_code,
             'unit_abbreviation'  => $unitAbbreviation,
-            'pallet'             => $pallet,
-            'handling_date'      => $handlingDate,
             'unit_label'         => $this->asset_unit,
             'quantity'           => match ($this->item_type) {
                 'Pallet', 'Space' => $this->temporal_quantity,
