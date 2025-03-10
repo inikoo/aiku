@@ -43,7 +43,7 @@ class ProspectImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
             'company_name' => $validatedData['company'],
             'contact_name' => $validatedData['contact_name'],
             'email' => $validatedData['email'],
-            'telephone' => $validatedData['phone'],
+            'phone' => $validatedData['telephone'],
         ];
             
 
