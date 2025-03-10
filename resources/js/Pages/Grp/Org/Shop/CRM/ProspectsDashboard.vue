@@ -114,7 +114,7 @@ import { ref } from 'vue'
   
   // console.log('qwe', props.data.prospectStats)
   
-  const isLoadingVisit = ref(false)
+  const isLoadingVisit = ref<number | null>(null)
   </script>
   
   
@@ -143,7 +143,7 @@ import { ref } from 'vue'
                                     class="flex gap-x-0.5 items-center font-normal"
                                     v-tooltip="capitalize(dCase.icon.tooltip)"
                                     @start="() => isLoadingVisit = idxCase"
-                                    @finish="() => isLoadingVisit = false"
+                                    @finish="() => isLoadingVisit = null"
                                 >
                                     <LoadingIcon v-if="isLoadingVisit === idxCase" class="text-gray-500" />
                                       <FontAwesomeIcon v-else :icon='dCase.icon.icon' :class='dCase.icon.class' fixed-width :title="dCase.icon.tooltip" aria-hidden='true'/>
