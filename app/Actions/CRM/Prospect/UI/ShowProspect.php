@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 10-03-2025-11h-23m
@@ -8,24 +9,10 @@
 
 namespace App\Actions\CRM\Prospect\UI;
 
-use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
-use App\Actions\Catalogue\Shop\UI\IndexShops;
-use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithProspectsSubNavigation;
-use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Enums\UI\CRM\ProspectTabsEnum;
-use App\Http\Resources\Catalogue\CollectionResource;
-use App\Http\Resources\Catalogue\CollectionsResource;
-use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\ProductsResource;
-use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Prospect;
 use App\Models\SysAdmin\Organisation;
