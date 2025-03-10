@@ -11,7 +11,7 @@ import TableWarehouseAreas from "@/Components/Tables/Grp/Org/Inventory/TableWare
 import { capitalize } from "@/Composables/capitalize";
 import { library } from "@fortawesome/fontawesome-svg-core";
 // import Button from "@/Components/Elements/Buttons/Button.vue";
-// import { get } from 'lodash'
+// import { get } from 'lodash-es'
 // import UploadExcel from "@/Components/Upload/UploadExcel.vue";
 import {
     faIndustryAlt

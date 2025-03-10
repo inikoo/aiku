@@ -8,7 +8,7 @@ import ContextMenu from 'primevue/contextmenu';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { getStyles } from '@/Composables/styles';
 import { iframeToParent } from "@/Composables/Workshop"
-import { isObject } from 'lodash';
+import { isObject } from 'lodash-es';
 import { sendMessageToParent } from '@/Composables/Workshop';
 
 import { FieldValue } from '@/types/Website/Website/footer1'

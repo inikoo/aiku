@@ -90,7 +90,8 @@ const getImageSlots = (layoutType: string) => {
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
 				<Image :src="fieldValue?.value?.images?.[index - 1]?.source"
 				:style="getStyles(fieldValue?.value?.images?.[index - 1]?.properties)"
-					:imageCover="'w-full object-cover object-center group-hover:opacity-75'"
+					imageCover
+					:xximageCover="'w-full object-cover object-center group-hover:opacity-75'"
 					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'Image aiku'" />
 			</a>
 		</div>
