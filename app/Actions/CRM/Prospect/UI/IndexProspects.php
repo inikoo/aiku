@@ -43,9 +43,6 @@ class IndexProspects extends OrgAction
 
     private Group|Shop|Organisation|Fulfilment $parent;
 
-
-
-
     public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
         $this->tab    = ProspectsTabsEnum::PROSPECTS->value;
@@ -179,9 +176,9 @@ class IndexProspects extends OrgAction
                 ->column(key: 'phone', label: __('phone'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'website', label: __('website'), canBeHidden: false, sortable: true, searchable: true);
 
-            if (class_basename($parent) != 'Tag') {
-                $table->column(key: 'tags', label: __('tags'), canBeHidden: false, sortable: true, searchable: true);
-            }
+            // if (class_basename($parent) != 'Tag') {
+            //     $table->column(key: 'tags', label: __('tags'), canBeHidden: false, sortable: true, searchable: true);
+            // }
         };
     }
 

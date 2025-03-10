@@ -9,6 +9,7 @@
 namespace App\Models\Web;
 
 use App\Actions\Helpers\Images\GetPictureSources;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
@@ -301,6 +302,18 @@ class Website extends Model implements Auditable, HasMedia
     public function timeSeries(): HasMany
     {
         return $this->hasMany(WebsiteTimeSeries::class);
+    }
+
+    public function getFullUrl(): string
+    {
+        return match (app()->environment()) {
+            'production' => 'https://'.$this->domain . '/app',
+            'staging' => 'https://canary.'.$this->domain . '/app',
+            default => match ($this->shop->type) {
+                ShopTypeEnum::DROPSHIPPING => 'https://ds.test/app',
+                default => 'https://fulfilment.test/app'
+            }
+        };
     }
 
 }
