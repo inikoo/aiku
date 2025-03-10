@@ -132,9 +132,8 @@ trait WithAIBot
     public function askDeepseek($question)
     {
         $apiKey = config('askbot-laravel.deepseek_api_key');
-        $baseUrl = 'https://api.deepseek.com/v1/chat/completions';
-        $model = 'deepseek-chat';
-
+        $baseUrl = config('askbot-laravel.deepseek_api_url');
+        $model = config('askbot-laravel.model');
 
         $payload = [
             'model' => $model,
@@ -143,6 +142,7 @@ trait WithAIBot
                 ['role' => 'user', 'content' => $question],
             ],
             'stream' => true,
+            'max_tokens' => 150
         ];
 
         $client = new Client([
@@ -177,7 +177,7 @@ trait WithAIBot
 
     public function askLlama($question)
     {
-        $response = Ollama::model(config('askbot-laravel.model'))
+        $response = Ollama::model(config('ollama-laravel.model'))
         ->prompt($question)
         ->options(['temperature' => 0.1])
         ->stream(true)
