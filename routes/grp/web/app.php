@@ -75,7 +75,7 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("search")
         ->name("search.")
         ->group(__DIR__."/search.php");
-    Route::prefix("ask-bot") // try llama
+    Route::prefix("ask-bot")
         ->name("ask-bot.")
         ->group(__DIR__."/ask_bot.php");
     Route::prefix("media")

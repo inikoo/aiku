@@ -224,18 +224,14 @@ const GroupItem = ({item: initialItem, navigation}) => {
         setItem(prevItem => ({
           ...prevItem,
           state: response.data.state,
-          state_icon: response.data.status_icon,
+          state_icon: response.data.state_icon,
         }));
 
         setData(prevState => ({
-          ...prevState,
-          data: prevState.data
-              ? {
-                  ...prevState.data,
-                  number_pallets_state_not_received: prevState.data.number_pallets_state_not_received - 1,
-              }
-              : {},
-      }));
+            ...prevState,
+            number_pallets_state_not_received:
+                prevState.number_pallets_state_not_received - 1,
+        }));
       
 
         Animated.spring(translateX, {
@@ -273,14 +269,14 @@ const GroupItem = ({item: initialItem, navigation}) => {
             setData(prevItem => ({
                 ...prevItem,
                 number_pallets_state_booked_in:
-                    prevItem.data.pallet_delivery
-                        .number_pallets_state_booked_in + 1,
+                    prevItem.number_pallets_state_booked_in + 1,
             }));
         }
 
         setItem(prevItem => ({
           ...prevItem,
           location_code: response.data.location.resource.code,
+          state_icon: response.data.state_icon,
         }));
 
         Animated.spring(translateX, {
