@@ -48,7 +48,7 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
             $state = DeliveryNoteItemStateEnum::OUT_OF_STOCK;
         } elseif ($this->auroraModelData->{'Inventory Transaction Type'} == 'FailSale') {
             $state = DeliveryNoteItemStateEnum::CANCELLED;
-        } elseif ($this->auroraModelData->{'Inventory Transaction Type'} == 'Restock') {
+        } elseif ($this->auroraModelData->{'Inventory Transaction Type'} == 'Restock' or $this->auroraModelData->{'Inventory Transaction Type'} == 'Adjust') {
             return;
         } elseif ($this->auroraModelData->{'Inventory Transaction Type'} == 'Order In Process') {
             $state = match ($deliveryNote->state) {
