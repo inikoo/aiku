@@ -23,6 +23,7 @@ import TextBlueprint from '@/Components/CMS/Webpage/Text/Blueprint'
 import ScriptBlueprint from '@/Components/CMS/Webpage/Script/Blueprint'
 import WowsbarBannerBlueprint from '@/Components/CMS/Webpage/WowsbarBanner/Blueprint'
 import SeeAlsoBlueprint from '@/Components/CMS/Webpage/SeeAlso/Blueprint'
+import PricingBlueprint from '@/Components/CMS/Webpage/Pricing/Blueprint'
 import TextColumn from '@/Components/CMS/Webpage/TextColumn/Blueprint'
 import Topbar1Fulfilment from '@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Blueprint'
 import Topbar2Fulfilment from '@/Components/CMS/Website/TopBars/Template/Topbar2Fulfilment/Blueprint'
@@ -48,7 +49,7 @@ export const getBlueprint = (componentName: string) => {
         "iframe": IframeBlueprint.blueprint,
         'images': ImageBlueprint.blueprint,
         "overview_aurora": OverviewBlueprint.blueprint,
-
+        "pricing": PricingBlueprint.blueprint,
 /*       'product': ProductPage.blueprint,
         'products': .blueprint, */
         "script": ScriptBlueprint.blueprint,

@@ -4,7 +4,7 @@ import { ref, inject } from 'vue';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 import Image from "@/Components/Image.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faBars, faSignIn, faSignOut, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faSignIn, faSignOut, faTimesCircle } from '@fas';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faChevronCircleDown } from '@fal';
 // Add icons to library

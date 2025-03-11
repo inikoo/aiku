@@ -5,7 +5,7 @@ import Accordion from 'primevue/accordion'
 import ParentFieldSideEditor from '@/Components/Workshop/SideEditor/ParentFieldSideEditor.vue'
 
 import { getFormValue } from '@/Composables/SideEditorHelper'
-import { set as setLodash, get, cloneDeep } from 'lodash'
+import { set as setLodash, get, cloneDeep } from 'lodash-es'
 
 import { routeType } from '@/types/route'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

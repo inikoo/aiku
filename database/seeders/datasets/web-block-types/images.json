@@ -21,8 +21,8 @@
 					},
 					"dimension": {
 						"height": {
-							"value": "335",
-							"unit": "px"
+							"value": "100",
+							"unit": "%"
 						},
 						"width": {
 							"value": "100",
