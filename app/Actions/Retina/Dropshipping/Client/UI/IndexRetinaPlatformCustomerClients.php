@@ -10,11 +10,13 @@ namespace App\Actions\Retina\Dropshipping\Client\UI;
 
 use App\Actions\Retina\UI\Dashboard\ShowRetinaDashboard;
 use App\Actions\RetinaAction;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Dropshipping\TiktokUser;
 use App\Models\PlatformHasClient;
 use App\Services\QueryBuilder;
 use Closure;
@@ -27,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRetinaPlatformCustomerClients extends RetinaAction
 {
-    private Customer|ShopifyUser $parent;
+    private Customer|ShopifyUser|TiktokUser $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -37,12 +39,17 @@ class IndexRetinaPlatformCustomerClients extends RetinaAction
     public function asController(Platform $platform, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        $this->parent = $this->customer->shopifyUser;
+
+        if ($platform->type === PlatformTypeEnum::SHOPIFY) {
+            $this->parent = $this->customer->shopifyUser;
+        } else {
+            $this->parent = $this->customer->tiktokUser;
+        }
 
         return $this->handle($this->customer);
     }
 
-    public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Customer $customer, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -57,7 +64,9 @@ class IndexRetinaPlatformCustomerClients extends RetinaAction
         }
 
         $queryBuilder = QueryBuilder::for(PlatformHasClient::class);
-        $queryBuilder->where('platform_has_clients.customer_id', $parent->id);
+        $queryBuilder->where('platform_has_clients.customer_id', $customer->id);
+        $queryBuilder->where('platform_has_clients.userable_type', $this->parent->getMorphClass());
+        $queryBuilder->where('platform_has_clients.userable_id', $this->parent->id);
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
