@@ -18,7 +18,6 @@ class HydrateLocation
 {
     use WithHydrateCommand;
 
-
     public string $commandSignature = 'hydrate:locations {organisations?*} {--s|slugs=}';
 
     public function __construct()

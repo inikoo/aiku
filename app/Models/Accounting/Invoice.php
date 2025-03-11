@@ -102,7 +102,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
  * @property-read Currency $currency
- * @property-read Customer $customer
+ * @property-read Customer|null $customer
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read \App\Models\Accounting\TFactory|null $use_factory

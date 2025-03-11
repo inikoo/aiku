@@ -47,15 +47,15 @@ class HydrateModels extends HydrateModel
             $this->hydrateCatalogue($command);
         }
 
-        if ($this->checkIfCanHydrate(['billables'], $command)) {
+        if ($this->checkIfCanHydrate(['billables','bil'], $command)) {
             $this->hydrateBillables($command);
         }
 
-        if ($this->checkIfCanHydrate(['discount'], $command)) {
+        if ($this->checkIfCanHydrate(['discount','disc'], $command)) {
             $this->hydrateDiscount($command);
         }
 
-        if ($this->checkIfCanHydrate(['website'], $command)) {
+        if ($this->checkIfCanHydrate(['website','web'], $command)) {
             $this->hydrateWebsite($command);
         }
 
@@ -114,14 +114,12 @@ class HydrateModels extends HydrateModel
     protected function hydrateBillables(Command $command): void
     {
         $command->info('Billables section 💸');
-        $command->call('hydrate:rentals');
         $command->call('hydrate:charges');
-        $command->call('hydrate:services');
     }
 
     protected function hydrateDiscount(Command $command): void
     {
-        $command->info('Discount section💲');
+        $command->info('Discount section 💲');
         $command->call('hydrate:offers');
         $command->call('hydrate:offer_campaigns');
     }
@@ -131,7 +129,6 @@ class HydrateModels extends HydrateModel
         $command->info('Website section 🌐');
         $command->call('hydrate:websites');
         $command->call('hydrate:webpages');
-        $command->call('hydrate:banners');
     }
 
     protected function hydrateComms(Command $command): void

@@ -290,8 +290,8 @@ class ShowWebpage extends OrgAction
                 : Inertia::lazy(fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'searchType']))),
 
                 WebpageTabsEnum::CHANGELOG->value => $this->tab == WebpageTabsEnum::CHANGELOG->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($webpage))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($webpage)))
+                    fn () => HistoryResource::collection(IndexHistory::run($webpage))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($webpage)))
 
 
             ]
