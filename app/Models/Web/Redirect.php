@@ -10,6 +10,7 @@
 
 namespace App\Models\Web;
 
+use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InWebsite;
 use Illuminate\Database\Eloquent\Model;
@@ -44,6 +45,10 @@ class Redirect extends Model implements Auditable
     use InWebsite;
     use HasHistory;
 
+    protected $casts = [
+        'type' => RedirectTypeEnum::class
+    ];
+
     protected $guarded = [];
 
     public function webpage(): BelongsTo
@@ -62,7 +67,6 @@ class Redirect extends Model implements Auditable
         'type',
         'redirection',
     ];
-
 
 
 }
