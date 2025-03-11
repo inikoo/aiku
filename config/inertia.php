@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Mar 2025 14:38:15 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
+ */
 
 return [
 
@@ -17,13 +22,9 @@ return [
     */
 
     'ssr' => [
-
         'enabled' => true,
-
-        'url' => 'http://127.0.0.1:13714/render',
+        'url'    => env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
         'bundle' => base_path('bootstrap/ssr/ssr-iris.mjs'),
-
-
     ],
 
     /*
