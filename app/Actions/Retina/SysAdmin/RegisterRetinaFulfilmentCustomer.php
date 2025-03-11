@@ -18,6 +18,7 @@ use App\Rules\ValidAddress;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
+use Inertia\Inertia;
 
 class RegisterRetinaFulfilmentCustomer extends RetinaAction
 {
@@ -36,7 +37,7 @@ class RegisterRetinaFulfilmentCustomer extends RetinaAction
 
     public function htmlResponse(): \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
     {
-        return Redirect::route('retina.login.show');
+        return Inertia::location(route('retina.login.show'));
     }
 
     public function rules(): array
