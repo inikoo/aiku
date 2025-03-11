@@ -29,6 +29,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
+
         $editType = null;
         if ($this->model_type == 'Service') {
             $service = Service::find($this->model_id);
@@ -44,7 +45,7 @@ class StandaloneFulfilmentInvoiceTransactionsResource extends JsonResource
         }
         if ($this->model_type == 'Service') {
             if (!empty($this->data['pallet_id'])) {
-                $pallet = Pallet::find($this->data['pallet_id'])->first();
+                $pallet = Pallet::find($this->data['pallet_id']);
                 $palletRef = $pallet->reference;
                 $palletRoute = [
                     'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
