@@ -20,7 +20,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
+    <div id="app" class="md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div class="flex-1 flex items-center justify-center md:justify-start ">
@@ -76,15 +76,16 @@ const props = defineProps<{
                                     </ul>
                                 </div>
                             </div>
+                            
                             <!-- Mobile  -->
                             <div class="block md:hidden">
                                 <Disclosure v-slot="{ open }" class="m-2">
                                     <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
                                         <DisclosureButton
-                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
                                                 <span
-                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -94,8 +95,8 @@ const props = defineProps<{
                                             </div>
                                         </DisclosureButton>
 
-                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                        <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -133,15 +134,16 @@ const props = defineProps<{
                                     </ul>
                                 </div>
                             </div>
+
                             <!-- Mobile  -->
                             <div class="block md:hidden">
                                 <Disclosure v-slot="{ open }" class="m-2">
                                     <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
                                         <DisclosureButton
-                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
                                                 <span
-                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -151,8 +153,8 @@ const props = defineProps<{
                                             </div>
                                         </DisclosureButton>
 
-                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                        <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -195,10 +197,10 @@ const props = defineProps<{
                                 <Disclosure v-slot="{ open }" class="m-2">
                                     <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
                                         <DisclosureButton
-                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
                                                 <span
-                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -208,8 +210,8 @@ const props = defineProps<{
                                             </div>
                                         </DisclosureButton>
 
-                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                        <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -266,7 +268,7 @@ const props = defineProps<{
             </div>
 
             <div id="footer_copyright"
-                class="text-[13px] leading-5 md:text-[12px] text-center w-[60%] md:w-fit mx-auto md:mx-0">
+                class="text-[13px] leading-5 md:text-[12px] text-center md:w-fit mx-auto md:mx-0">
                 <div v-html="modelValue?.copyright"></div>
             </div>
         </div>

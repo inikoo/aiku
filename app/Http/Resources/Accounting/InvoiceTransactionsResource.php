@@ -104,7 +104,7 @@ class InvoiceTransactionsResource extends JsonResource
 
         if ($this->model_type == 'Service') {
             if (!empty($this->data['pallet_id'])) {
-                $pallet = Pallet::find($this->data['pallet_id'])->first();
+                $pallet = Pallet::find($this->data['pallet_id']);
                 $palletRef = $pallet->reference;
                 $palletRoute = [
                     'name' => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
