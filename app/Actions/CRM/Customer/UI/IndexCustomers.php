@@ -15,6 +15,7 @@ use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\UI\CRM\CustomersTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
@@ -51,6 +52,16 @@ class IndexCustomers extends OrgAction
                     ),
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('customers.state', $elements);
+                    }
+                ],
+            'status' => [
+                    'label'    => __('Status'),
+                    'elements' => array_merge_recursive(
+                        CustomerStatusEnum::labels(),
+                        CustomerStatusEnum::count($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('customers.status', $elements);
                     }
                 ]
         ];
