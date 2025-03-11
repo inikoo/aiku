@@ -34,20 +34,20 @@ const isLoggedIn = ref(layout.iris.user_auth ? true : false)
 provide('isPreviewLoggedIn', isLoggedIn)
 
 const onLogoutAuth = (link) => {
-    router.post(route('iris.logout'), {},
-        {
-            onSuccess: () => {
-                /*    if(link) window.open(link) */
-            },
-            onError: () => {
-                notify({
-                    title: trans("Something went wrong"),
-                    text: trans("Failed to logout"),
-                    type: "error"
-                })
-            },
-        })
-}
+    router.post(route('iris.logout'), {}, {
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: () => {
+            notify({
+                title: trans("Something went wrong"),
+                text: trans("Failed to logout"),
+                type: "error"
+            });
+        },
+    });
+};
+
 
 provide('onLogout', onLogoutAuth)
 

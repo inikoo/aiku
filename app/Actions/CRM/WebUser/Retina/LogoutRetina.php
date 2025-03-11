@@ -26,7 +26,7 @@ class LogoutRetina
         $request->session()->regenerateToken();
         Session::put('reloadLayout', '1');
 
-        return redirect('/app/login');
+        return redirect('/');
     }
 
 }
