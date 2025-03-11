@@ -205,32 +205,12 @@ const getImageSlots = (layoutType: string) => {
 				<Image
 					:style="getStyles(modelValue?.value?.images?.[index - 1]?.properties)"
 					:src="modelValue?.value?.images?.[index - 1]?.source"
-					:class="'w-full object-cover object-center group-hover:opacity-75'" 
+					:imageCover="'w-full object-cover object-center group-hover:opacity-75'" 
 					:alt="modelValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
 					@click="openImageGallery(index - 1)" 
 				/>
 			</a>
-
-			<!-- <div
-				class="bg-gray-800/50 hover:bg-gray-800/80 w-fit absolute flex items-center justify-center gap-x-2 py-2 px-3 opacity-0 top-2 right-2 group-hover:opacity-100 transition-all text-gray-300 hover:text-white rounded cursor-pointer"
-				@click="openImageGallery(index - 1)">
-				<FontAwesomeIcon
-					icon="fas fa-image"
-					class="text-lg opacity-40"
-					fixed-width
-					aria-hidden="true" />
-				<div class="text-sm font-semibold whitespace-nowrap">
-					{{ trans("Change image") }}
-				</div>
-			</div> -->
 		</div>
-
-		<!-- <Gallery
-		:open="openGallery"
-		@on-close="openGallery = false"
-		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
-		@onPick="submitImage"
-		@onUpload="onUpload" /> -->
 
 		<Modal
 			:isOpen="openGallery"
