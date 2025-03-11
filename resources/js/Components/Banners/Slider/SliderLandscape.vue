@@ -74,10 +74,12 @@ const compColorNav = computed(() => {
 const renderImage = (component) => {
     if (props.production) {
         let view = "desktop"
-        if (window.matchMedia("(max-width: 767px)").matches) {
-            view = "mobile";
-        } else if (window.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches) {
-            view = "tablet";
+        if (window) {
+            if (window?.matchMedia("(max-width: 767px)").matches) {
+                view = "mobile";
+            } else if (window?.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches) {
+                view = "tablet";
+            }
         }
         return get(component, ['image', view, 'source'],get(component, ['image','desktop', 'source'], null))
     } else return get(component, ['image', props.view, 'source'], get(component, ['image','desktop', 'source'], null))
@@ -86,10 +88,12 @@ const renderImage = (component) => {
 const renderBackground = (component) => {
     if (props.production) {
         let view = "desktop"
-        if (window.matchMedia("(max-width: 767px)").matches) {
-            view = "mobile";
-        } else if (window.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches) {
-            view = "tablet";
+        if (window) {
+            if (window?.matchMedia("(max-width: 767px)").matches) {
+                view = "mobile";
+            } else if (window?.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches) {
+                view = "tablet";
+            }
         }
         return get(component, ['layout', 'background', view ], get(component, ['layout', 'background', 'desktop'], 'gray'))
     } else return get(component, ['layout', 'background', props.view], get(component, ['layout', 'background', 'desktop'], 'gray'))
