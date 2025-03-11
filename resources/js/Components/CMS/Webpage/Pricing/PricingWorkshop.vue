@@ -22,6 +22,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
+	<pre>{{ modelValue }}</pre>
 	<div
 		class="container flex flex-wrap justify-between"
 		:style="getStyles(modelValue?.container?.properties)">
@@ -79,8 +80,10 @@ const emits = defineEmits<{
 						</ul>
 					</div>
 					<a
-						:href="tier.href"
+						:href="tier.link.type === 'internal' ? tier.link.workshop
+						: tier.link.href"
 						:aria-describedby="tier.id"
+						:target="tier.link.target"
 						:class="[
 							tier.mostPopular
 								? 'bg-indigo-600 text-white shadow-xs hover:bg-indigo-500'
@@ -88,7 +91,7 @@ const emits = defineEmits<{
 							'mt-8 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
 						]">
 						Buy plan
-					</a>
+					</a> 
 				</div>
 			</div>
 		</div>
