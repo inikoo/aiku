@@ -534,11 +534,19 @@ test('UI edit outbox in fulfilment', function () {
     }
     $postRoom = $this->group->postRooms()->first();
 
-    $outbox = StoreOutbox::make()->action(
+    $orgPostRoom = StoreOrgPostRoom::make()->action(
         $postRoom,
+        $fulfilment->organisation,
+        []
+    );
+
+    $outbox = StoreOutbox::make()->action(
+        $orgPostRoom,
         $fulfilment,
         [
-            'type' => OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER,
+            'code' => OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER,
+            'type' => OutboxTypeEnum::USER_NOTIFICATION,
+            'state' => OutboxStateEnum::ACTIVE,
             'name' => 'test sender',
         ]
     );
@@ -564,6 +572,7 @@ test('UI edit outbox in fulfilment', function () {
 });
 
 test('UI create mailshot', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.shops.show.marketing.mailshots.create', [
         $this->organisation,
         $this->shop
@@ -589,6 +598,7 @@ test('UI create mailshot', function () {
 });
 
 test('UI edit mailshot', function (Mailshot $mailShot) {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.shops.show.marketing.mailshots.edit', [
         $this->organisation,
         $this->shop,
