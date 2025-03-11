@@ -23,7 +23,7 @@ const model = defineModel()
 
 const blueprint = [
     {
-        key: ["link_data"],
+        key: ["link"],
         label: "Link",
         type: "link",
     },
