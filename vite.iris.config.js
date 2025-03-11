@@ -25,7 +25,11 @@ export default defineConfig(
       laravel({
                 hotFile       : "public/iris.hot",
                 buildDirectory: "iris",
-                input         : "resources/js/app-iris.js",
+                input         : [
+                  "resources/css/app.css",
+                  "resources/js/app-iris.js",
+                  "node_modules/@fortawesome/fontawesome-free/css/svg-with-js.min.css"
+                ],
                 ssr           : "resources/js/ssr-iris.js",
                 refresh       : true
               }),
