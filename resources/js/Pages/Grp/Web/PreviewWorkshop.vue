@@ -137,6 +137,7 @@ console.log(route().current())
                             v-if="showWebpage(activityItem)" 
                             :is="getIrisComponent(activityItem.type)"
                             :key="activityItemIdx"
+                            :theme="layout"
                             :fieldValue="activityItem.web_block?.layout?.data?.fieldValue" />
                     </div>
                 </template>
