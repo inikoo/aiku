@@ -340,10 +340,10 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     <Disclosure v-slot="{ open }" class="m-2">
                                         <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
                                             <DisclosureButton
-                                                class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                                class="p-3 pb-0  transition-all flex justify-between cursor-default  w-full">
                                                 <div class="flex justify-between w-full">
                                                     <span
-                                                        class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                        class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                         <div v-html="item.name"></div>
                                                     </span>
                                                     <div>
@@ -353,8 +353,8 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                 </div>
                                             </DisclosureButton>
 
-                                            <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
-                                                <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                            <DisclosurePanel class="p-3 pb-0  transition-all cursor-default w-full">
+                                                <ul class="mt-0 block space-y-4 pl-0 md:pl-[2.2rem]">
                                                     <li v-for="menu of item.data" :key="menu.name"
                                                         class="flex items-center text-sm">
                                                         <div v-html="menu.name"></div>

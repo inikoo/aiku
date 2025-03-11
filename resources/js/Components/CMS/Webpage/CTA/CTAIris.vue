@@ -57,7 +57,7 @@ const props = defineProps<{
 			</a>
 		</div>
 
-		<div class=" py-24 sm:py-32 lg:px-8 lg:py-40">
+		<div class=" py-16 sm:py-32 lg:px-8 lg:py-40">
 			<div class="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
 				<div v-html="fieldValue.text" />	
 				<a
