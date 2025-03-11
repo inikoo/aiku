@@ -21,17 +21,6 @@ export default {
         key: ["container", "properties"],
         replaceForm: [
           {
-            key: ["background"],
-            label:"Background",
-            type: "background",
-          },
-         /*  {
-            key: ["dimension"],
-            type: "dimension",
-            label : "Dimension",
-            props_data: {},
-          }, */
-          {
             key: ["padding"],
             label:"Padding",
             type: "padding",

@@ -53,11 +53,17 @@ onMounted(() => {
     window.addEventListener('message', (event) => {
         if (event.data.key === 'isPreviewLoggedIn') isPreviewLoggedIn.value = event.data.value
         if (event.data.key === 'isPreviewMode') isPreviewMode.value = event.data.value
-        if (event.data.key === 'activeBlock') activeBlock.value = event.data.value
+        if (event.data.key === 'activeBlock') {
+            activeBlock.value = event.data.value
+            const blockElement = document.querySelector(`[data-block-id="${event.data.value}"]`);
+            if (blockElement) {
+                blockElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
         if (event.data.key === 'reload') {
             router.reload({
                 only: ['footer', 'header', 'webpage'],
-                onSuccess: () => {}
+                onSuccess: () => { }
             });
         }
     });
@@ -75,10 +81,11 @@ onMounted(() => {
                     <TransitionGroup tag="div" name="list" class="relative">
                         <template v-for="(activityItem, activityItemIdx) in webpage.layout.web_blocks"
                             :key="activityItem.id">
-                            <section class="w-full min-h-[50px]" v-show="showWebpage(activityItem)" :class="{
-                                'hover-dashed': true,
-                                'ring-2 ring-[#62748E] ring-offset-2': activeBlock === activityItemIdx // Tambahkan kelas ring di sini
-                            }" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
+                            <section class="w-full min-h-[50px]" :data-block-id="activityItemIdx"
+                                v-show="showWebpage(activityItem)" :class="{
+                                    'hover-dashed': true,
+                                    'ring-2 ring-[#62748E] ring-offset-2': activeBlock === activityItemIdx
+                                }" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
                                 <component class="w-full" :is="getComponent(activityItem.type)" :webpageData="webpage"
                                     :blockData="activityItem" @autoSave="() => updateData(activityItem)"
                                     v-model="activityItem.web_block.layout.data.fieldValue" />
@@ -98,7 +105,6 @@ onMounted(() => {
 
 
 <style lang="scss">
-
 .hover-dashed {
     @apply hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
 }

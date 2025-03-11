@@ -81,7 +81,7 @@ const getImageSlots = (layoutType: string) => {
 
 <template>
 	<div v-if="fieldValue?.value?.images" class="flex flex-wrap overflow-hidden"
-		:style="getStyles(fieldValue?.container?.properties)">
+		:style="{...getStyles(fieldValue?.container?.properties), width : '100%', height : '100%'}">
 		<div v-for="index in getImageSlots(fieldValue?.value?.layout_type)" :key="index"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">

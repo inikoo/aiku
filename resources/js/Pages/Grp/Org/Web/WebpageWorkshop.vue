@@ -331,6 +331,7 @@ onMounted(() => {
 			onSaveWorkshop(data.value)
 		} else if (data.key === 'activeBlock') {
 			openedBlockSideEditor.value = data.value
+			
 		}
 	})
 })
