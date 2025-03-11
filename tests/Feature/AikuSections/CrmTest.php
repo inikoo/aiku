@@ -883,7 +883,7 @@ test('can show list of tags', function () {
             ->component('Org/Shop/CRM/Tags')
             ->has('title');
     });
-})->todo('figure this out later');
+});
 
 test('UI get section route crm dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.index', [

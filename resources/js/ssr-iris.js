@@ -58,6 +58,7 @@ createServer(
                         "./Pages/Iris/**/*.vue",
                         { eager: true })
                     let page = pages[`./Pages/Iris/${name}.vue`]
+                    
                     return page
                 },
                 setup({ App, props, plugin }) {
