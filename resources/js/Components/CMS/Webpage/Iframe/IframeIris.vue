@@ -38,14 +38,9 @@ const iframeStyles = computed(() => {
       return {
         ...baseStyles,
         width: "100%",
-        height: "30vh", // Bisa diatur sesuai kebutuhan
+        height: "26vh", // Bisa diatur sesuai kebutuhan
       };
-    } else {
-      // Desktop (>768px)
-      return {
-        ...baseStyles,
-      };
-    }
+    } 
   }
 
   return baseStyles;
