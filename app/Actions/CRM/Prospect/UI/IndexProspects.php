@@ -81,7 +81,7 @@ class IndexProspects extends OrgAction
 
     protected function getElementGroups($parent, $scope): array
     {
-        if($scope == 'contacted') {
+        if ($scope == 'contacted') {
             $elements = [
                 'contacted_state' => [
                     'label'    => __('Contacted State'),
@@ -181,7 +181,7 @@ class IndexProspects extends OrgAction
 
         if ($scope == 'contacted') {
             $queryBuilder->where('prospects.state', ProspectStateEnum::CONTACTED);
-        } elseif($scope == 'fail') {
+        } elseif ($scope == 'fail') {
             $queryBuilder->where('prospects.state', ProspectStateEnum::FAIL);
         } elseif ($scope == 'success') {
             $queryBuilder->where('prospects.state', ProspectStateEnum::SUCCESS);
@@ -247,13 +247,13 @@ class IndexProspects extends OrgAction
     public function htmlResponse(LengthAwarePaginator $prospects, ActionRequest $request): Response
     {
         $navigation = ProspectsTabsEnum::navigation();
-        if(!($this->parent instanceof Shop)){
+        if (!($this->parent instanceof Shop)) {
             unset($navigation[ProspectsTabsEnum::CONTACTED->value]);
             unset($navigation[ProspectsTabsEnum::FAILED->value]);
             unset($navigation[ProspectsTabsEnum::SUCCESS->value]);
         }
 
-        if($this->parent instanceof Shop){
+        if ($this->parent instanceof Shop) {
             $spreadsheetRoute = [
                 'event'           => 'action-progress',
                 'channel'         => 'grp.personal.'.$this->group->id,
@@ -401,7 +401,7 @@ class IndexProspects extends OrgAction
 
             ]
         )->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::PROSPECTS->value, scope: 'all'))
-            ->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::CONTACTED->value, scope: 'contacted' ))
+            ->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::CONTACTED->value, scope: 'contacted'))
             ->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::FAILED->value, scope: 'fail'))
             ->table($this->tableStructure(parent: $this->parent, prefix: ProspectsTabsEnum::SUCCESS->value, scope: 'success'))
             ->table(IndexHistory::make()->tableStructure(prefix: ProspectsTabsEnum::HISTORY->value));

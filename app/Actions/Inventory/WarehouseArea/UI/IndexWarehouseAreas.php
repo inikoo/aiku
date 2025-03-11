@@ -91,7 +91,7 @@ class IndexWarehouseAreas extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('warehouse_areas.code', $value)
-                    ->whereWith('warehouse_areas.name', $value);
+                    ->orWhereWith('warehouse_areas.name', $value);
             });
         });
 

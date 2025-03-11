@@ -21,10 +21,6 @@
             @endcache
         @endif
 
-        <!-- SSR: add Tailwind -->
-        <link rel="stylesheet" href="{{ Vite::useHotFile('iris.hot')->asset('resources/css/app.css') }}">
-        <link rel="stylesheet" href="{{ Vite::useHotFile('iris.hot')->asset('node_modules/@fortawesome/fontawesome-free/css/svg-with-js.min.css') }}">
-
         @if (config('app.env', 'production') === 'staging')
             <meta name="robots" content="noindex">
         @endif
