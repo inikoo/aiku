@@ -57,14 +57,9 @@ createServer(
                     const pages = import.meta.glob(
                         "./Pages/Iris/**/*.vue",
                         { eager: true })
-                    let importPage = pages[`./Pages/Iris/${name}.vue`]
-                    if (!importPage) {
-                        throw new Error(`Iris page not found: ${name}`);
-                    }
-                    return importPage().then(module => {
-                        console.log('Iris resolved module:', module);
-                        return module.default || module
-                    });
+                    let page = pages[`./Pages/Iris/${name}.vue`]
+                    
+                    return page
                 },
                 setup({ App, props, plugin }) {
                     return createSSRApp(
