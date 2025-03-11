@@ -1660,7 +1660,7 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
-    //
+
     $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
     $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
@@ -1668,7 +1668,6 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
     expect($palletReturn->pallets()->count())->toBe(1)
         ->and($palletReturn->stats->number_pallets)->toBe(1);
-    // dd($palletReturn->fulfilmentCustomer->pallets);
     $upload = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
@@ -3319,12 +3318,16 @@ test('complete standalone invoice', function (Invoice $invoice) {
     return $invoice;
 })->depends('delete standalone invoice transaction');
 
-test('store audit for pallet', function () {
-    $fulfilmentCustomer = FulfilmentCustomer::skip(1)->first();
+test('store audit for pallet 7th customer', function () {
+    $fulfilmentCustomer = FulfilmentCustomer::find(7);
     $pallet             = Pallet::where('state', PalletStateEnum::STORING)->where('fulfilment_customer_id', $fulfilmentCustomer->id)->first();
     $palletAudit        = StoreStoredItemAuditFromPallet::make()->action($pallet, []);
 
     expect($palletAudit)->toBeInstanceOf(StoredItemAudit::class)
         ->and($palletAudit->fulfilment_customer_id)->toBe($fulfilmentCustomer->id)
         ->and($palletAudit->state)->toBe(StoredItemAuditStateEnum::IN_PROCESS);
+});
+
+test('inventory  hydrator', function () {
+    $this->artisan('hydrate -s ful')->assertExitCode(0);
 });

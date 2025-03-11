@@ -819,3 +819,7 @@ test('update shop setting', function ($shop) {
         ->and($shop->email)->toBe('test@gmail.com')
         ->and($shop->phone)->toBe('08912312313');
 })->depends('create shop');
+
+test('catalogue hydrator', function () {
+    $this->artisan('hydrate -s cat')->assertExitCode(0);
+});
