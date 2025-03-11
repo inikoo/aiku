@@ -32,6 +32,8 @@ task('deploy:sync-octane-anchor', function () {
     run("rsync -avhH --delete {{release_path}}/ {{deploy_path}}/anchor/octane");
 });
 
+desc('Stops inertia SSR server');
+task('artisan:inertia:stop-ssr', artisan('inertia:stop-ssr'));
 
 set('keep_releases', 50);
 
