@@ -23,7 +23,7 @@ return [
 
     'ssr' => [
         'enabled' => true,
-        'url'    => env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
+        'url' => 'http://127.0.0.1:'.env('VITE_INERTIA_SSR_PORT', 13714).'/render',
         'bundle' => base_path('bootstrap/ssr/ssr-iris.mjs'),
     ],
 
