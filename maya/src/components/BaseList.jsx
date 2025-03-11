@@ -150,7 +150,7 @@ const BaseList = forwardRef((props, ref) => {
         ) : (
           <FlatList
             data={data}
-            keyExtractor={(item, index) => item.id}
+            keyExtractor={(item, index) => item[props.itemKey]}
             showsVerticalScrollIndicator={false}
             onEndReached={() => fetchMoreData(true)}
             onEndReachedThreshold={1}
@@ -211,6 +211,7 @@ BaseList.defaultProps = {
   height : 120,
   listContainerStyle : {flex: 1, marginBottom : 60 },
   showTotalResults,
+  itemKey : 'id'
 };
 
 
