@@ -526,6 +526,43 @@ test('UI show dispatched emails', function () {
     });
 });
 
+test('UI edit outbox in fulfilment', function () {
+
+    $fulfilment = Fulfilment::first();
+    if (!$fulfilment) {
+        $fulfilment = createFulfilment($this->organisation);
+    }
+    $postRoom = $this->group->postRooms()->first();
+
+    $outbox = StoreOutbox::make()->action(
+        $postRoom,
+        $fulfilment,
+        [
+            'type' => OutboxCodeEnum::SEND_INVOICE_TO_CUSTOMER,
+            'name' => 'test sender',
+        ]
+    );
+
+    $response = $this->get(route('grp.org.fulfilments.show.operations.comms.outboxes.edit', [
+        $this->organisation,
+        $fulfilment->slug,
+        $outbox->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has(
+                'formData',
+                fn (AssertableInertia $page) => $page
+                    ->where('args.updateRoute.name', 'grp.models.fulfilment.outboxes.update')
+                    ->etc()
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
 test('UI create mailshot', function () {
     $response = $this->get(route('grp.org.shops.show.marketing.mailshots.create', [
         $this->organisation,
