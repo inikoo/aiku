@@ -25,7 +25,6 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <pre>{{ modelValue }}</pre>
     <div :style="getStyles(modelValue.container.properties)">
         <div class="w-full">
             <div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:px-16">
