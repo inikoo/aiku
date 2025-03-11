@@ -14,6 +14,7 @@ use App\Actions\Overview\ShowGroupOverviewHub;
 use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Actions\Traits\WithCustomersSubNavigation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\UI\CRM\CustomersTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
@@ -37,6 +38,25 @@ class IndexCustomers extends OrgAction
 
     private Group|Shop|Organisation $parent;
 
+
+
+    protected function getElementGroups($parent): array
+    {
+        $elements = [
+            'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        CustomerStateEnum::labels(),
+                        CustomerStateEnum::count($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('customers.state', $elements);
+                    }
+                ]
+        ];
+
+        return $elements;
+    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -83,6 +103,17 @@ class IndexCustomers extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Customer::class);
+
+        if ($parent instanceof Organisation or $parent instanceof Shop) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
+        }
 
 
         $allowedSort = [
@@ -179,6 +210,16 @@ class IndexCustomers extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            if (!($parent instanceof Group)) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+            }
+
 
             $isDropshipping = false;
             if ($parent instanceof Shop and $parent->type == ShopTypeEnum::DROPSHIPPING) {

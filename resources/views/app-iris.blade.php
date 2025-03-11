@@ -21,7 +21,6 @@
             @endcache
         @endif
 
-
         @if (config('app.env', 'production') === 'staging')
             <meta name="robots" content="noindex">
         @endif

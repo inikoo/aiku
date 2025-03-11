@@ -7,7 +7,7 @@ import OverviewProperty from "@/Components/Workshop/Properties/OverviewProperty.
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus, faTrash } from "@fal";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import SideEditor from "@/Components/Workshop/SideEditor/SideEditor.vue";
 import ImagesProperty from "@/Components/Workshop/Properties/ImagesProperty.vue";
 

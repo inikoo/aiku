@@ -2,7 +2,7 @@
 import { onMounted, inject } from 'vue'
 import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
 import { trans } from 'laravel-vue-i18n'
-import { set } from 'lodash'
+import { set } from 'lodash-es'
 
 const model = defineModel<typeof localModel>()
 
