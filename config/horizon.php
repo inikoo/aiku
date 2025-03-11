@@ -202,7 +202,7 @@ return [
         ],
         'low-priority' => [
             'connection'          => 'redis',
-            'queue'               => ['low-priority'],
+            'queue'               => ['low-priority','comms'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses'        => 1,
@@ -243,7 +243,7 @@ return [
                 'maxProcesses' => env('HORIZON_URGENT_WORKERS', 16),
             ],
             'low-priority' => [
-                'maxProcesses' => env('HORIZON_LOW_PRIORITY_WORKERS', 5),
+                'maxProcesses' => env('HORIZON_LOW_PRIORITY_WORKERS', 24),
             ],
             'long-running' => [
                 'maxProcesses' => env('HORIZON_LONG_WORKERS', 16),
