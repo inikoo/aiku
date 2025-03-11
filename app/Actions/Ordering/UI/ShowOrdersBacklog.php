@@ -52,12 +52,12 @@ class ShowOrdersBacklog extends OrgAction
             $currency = '';
         }
 
-        $currency_code =  $parent->currency->code;
+        $currencyCode =  $parent->currency->code;
 
         $tabsBox = [
             [
                 'label' => __('In Basket'),
-                'currency_code' => $currency_code,
+                'currency_code' => $currencyCode,
                 'tabs' => [
                     [
                         'tab_slug' => 'in_basket',
@@ -73,7 +73,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Submitted'),
-                'currency_code' => $currency_code,
+                'currency_code' => $currencyCode,
                 'tabs' => [
                     [
                         'tab_slug' => 'submitted_paid',
@@ -99,7 +99,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Picking'),
-                'currency_code' => $currency_code,
+                'currency_code' => $currencyCode,
                 'tabs' => [
                     [
                         'tab_slug' => 'picking',
@@ -125,7 +125,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Invoicing'),
-                'currency_code' => $currency_code,
+                'currency_code' => $currencyCode,
                 'tabs' => [
                     [
                         'tab_slug' => 'packed',
@@ -152,7 +152,7 @@ class ShowOrdersBacklog extends OrgAction
             ],
             [
                 'label' => __('Today'),
-                'currency_code' => $currency_code,
+                'currency_code' => $currencyCode,
                 'tabs' => [
                     [
                         'tab_slug' => 'dispatched_today',
