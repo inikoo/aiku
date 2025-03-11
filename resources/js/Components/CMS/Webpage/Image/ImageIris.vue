@@ -98,7 +98,7 @@ const getImageSlots = (layoutType: string) => {
 				<Image
 					:style="getStyles(fieldValue?.value?.images?.[index - 1]?.properties)"
 					:src="fieldValue?.value?.images?.[index - 1]?.source"
-					:class="'w-full object-cover object-center group-hover:opacity-75'" 
+					:imageCover="'w-full object-cover object-center group-hover:opacity-75'" 
 					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
 				/>
 			</a>

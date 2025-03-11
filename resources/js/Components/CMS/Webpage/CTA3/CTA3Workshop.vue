@@ -38,10 +38,17 @@ const onUpload = (e) => {
 }
 </script>
 
-<template> 
+<template>
 	<div class="relative overflow-hidden rounded-lg lg:h-96" :style="getStyles(properties)">
 		<div class="absolute inset-0">
-			<img :src="modelValue.container.properties.background.image.source ? modelValue.container.properties.background.image.source.original : modelValue.image" alt="" class="h-full w-full object-cover object-center" />
+			<img
+				:src="
+					modelValue.container.properties.background.image.source
+						? modelValue.container.properties.background.image.source.original
+						: modelValue.image
+				"
+				alt=""
+				class="h-full w-full object-cover object-center" />
 		</div>
 
 		<div aria-hidden="true" class="relative h-96 w-full lg:hidden" />
@@ -56,12 +63,18 @@ const onUpload = (e) => {
 					@update:modelValue="() => emits('autoSave')" />
 			</div>
 
-			<div
+			<a
 				typeof="button"
+				:href="
+					modelValue.button.link.type === 'internal'
+						? modelValue.button.link.workshop
+						: modelValue.button.link.href
+				"
+				:target="modelValue.button.link.target"
 				:style="getStyles(modelValue.button.container.properties)"
 				class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
 				{{ modelValue.button.text }}
-			</div>
+			</a>
 		</div>
 	</div>
 </template>
