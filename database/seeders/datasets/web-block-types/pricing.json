@@ -48,7 +48,14 @@
 				{
 					"name": "Freelancer",
 					"id": "tier-freelancer",
-					"href": "#",
+					"link": {
+						"id": 9011,
+						"url": "http://aw-fulfilment.co.uk/rework",
+						"href": "http://aw-fulfilment.co.uk/rework",
+						"type": "external",
+						"target": "_blank",
+						"workshop": "http://app.aiku.test/org/aw/shops/awf/web/awf/webpages/rework-awf/workshop"
+					},
 					"priceMonthly": "$19",
 					"description": "The essentials to provide your best work for clients.",
 					"features": [
@@ -62,7 +69,14 @@
 				{
 					"name": "Startup",
 					"id": "tier-startup",
-					"href": "#",
+					"link": {
+						"id": 9011,
+						"url": "http://aw-fulfilment.co.uk/rework",
+						"href": "http://aw-fulfilment.co.uk/rework",
+						"type": "external",
+						"target": "_blank",
+						"workshop": "http://app.aiku.test/org/aw/shops/awf/web/awf/webpages/rework-awf/workshop"
+					},
 					"priceMonthly": "$49",
 					"description": "A plan that scales with your rapidly growing business.",
 					"features": [
@@ -77,7 +91,14 @@
 				{
 					"name": "Enterprise",
 					"id": "tier-enterprise",
-					"href": "#",
+					"link": {
+						"id": 9011,
+						"url": "http://aw-fulfilment.co.uk/rework",
+						"href": "http://aw-fulfilment.co.uk/rework",
+						"type": "external",
+						"target": "_blank",
+						"workshop": "http://app.aiku.test/org/aw/shops/awf/web/awf/webpages/rework-awf/workshop"
+					},
 					"priceMonthly": "$99",
 					"description": "Dedicated support and infrastructure for your company.",
 					"features": [
