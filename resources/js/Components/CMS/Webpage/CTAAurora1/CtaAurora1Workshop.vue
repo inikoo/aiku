@@ -18,27 +18,35 @@ const props = defineProps<{
 	blockData?: Object
 }>()
 
-
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
     (e: 'autoSave'): void
 }>()
-
 </script>
-  
-  <template>
+
+<template>
+    <pre>{{ modelValue }}</pre>
     <div :style="getStyles(modelValue.container.properties)">
         <div class="w-full">
             <div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:px-16">
-                <Editor  v-model="modelValue.title"
-                    @update:modelValue="() => emits('autoSave')" />
-                <Editor  v-model="modelValue.text" @update:modelValue="() => emits('autoSave')" />
+                <Editor  
+                    v-model="modelValue.title"
+                    @update:modelValue="() => emits('autoSave')" 
+                />
+                <Editor  
+                    v-model="modelValue.text" 
+                    @update:modelValue="() => emits('autoSave')" 
+                />
 
                 <div class="flex justify-center">
-                    <div typeof="button" :style="getStyles(modelValue.button.container.properties)"
-                        class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-                        {{modelValue.button.text}}
-                    </div>
+                    <a 
+                    :href="modelValue.button.link.type === 'internal' ? modelValue.button.link.workshop : modelValue.button.link.href" 
+                        :target="modelValue.button.link.target"
+                        :style="getStyles(modelValue.button.container.properties)"
+                        class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6"
+                    >
+                        {{ modelValue.button.text }}
+                    </a>
                 </div>
             </div>
         </div>

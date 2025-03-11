@@ -16,10 +16,11 @@ import { trans } from 'laravel-vue-i18n'
 import Modal from '@/Components/Utils/Modal.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons"
 import { faExclamationTriangle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-library.add(faExclamationTriangle)
+library.add(faExclamationTriangle, faWhatsapp)
 
 initialiseIrisApp()
 const layout = useIrisLayoutStore()

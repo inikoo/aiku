@@ -76,8 +76,9 @@ const emits = defineEmits<{
 						</ul>
 					</div>
 					<a
-						:href="tier.href"
+						:href="tier.link.href"
 						:aria-describedby="tier.id"
+						:target="tier.link.target"
 						:class="[
 							tier.mostPopular
 								? 'bg-indigo-600 text-white shadow-xs hover:bg-indigo-500'

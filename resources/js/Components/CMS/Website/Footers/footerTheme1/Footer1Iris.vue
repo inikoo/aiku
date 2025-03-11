@@ -33,10 +33,6 @@ const props = defineProps<{
             <div v-if="modelValue?.email"
                 class="relative group flex-1 flex justify-center md:justify-start items-center">
                 <div style="font-size: 17px">{{ modelValue?.email }}</div>
-                <div
-                    class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
-                </div>
             </div>
 
             <div v-if="modelValue?.whatsapp?.number"
@@ -45,11 +41,6 @@ const props = defineProps<{
                     <FontAwesomeIcon class="text-[#00EE52]" icon="fab fa-whatsapp" style="font-size: 22px" />
                     <span style="font-size: 17px">{{ modelValue?.whatsapp?.number }}</span>
                 </a>
-
-                <div
-                    class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-0 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
-                </div>
             </div>
 
             <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center">
@@ -58,11 +49,6 @@ const props = defineProps<{
                 </a>
 
                 <span class="" style="font-size: 15px">{{ modelValue?.phone?.caption }}</span>
-
-                <div
-                    class="p-1 absolute -left-0 -top-2 text-yellow-500 cursor-pointer group-hover:-top-4 opacity-0 group-hover:opacity-100 transition-all">
-                    <FontAwesomeIcon :icon='faArrowSquareLeft' class='' fixed-width aria-hidden='true' />
-                </div>
             </div>
         </div>
 

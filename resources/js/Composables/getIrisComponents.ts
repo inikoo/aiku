@@ -22,6 +22,7 @@ import ScriptIris from "@/Components/CMS/Webpage/Script/ScriptIris.vue"
 import TextContentIris from "@/Components/CMS/Webpage/Text/TextContentIris.vue"
 import CtaAurora1Iris from "@/Components/CMS/Webpage/CTAAurora1/CtaAurora1Iris.vue"
 import Overview2Iris from "@/Components/CMS/Webpage/Overview2/Overview2Iris.vue"
+import Pricing from "@/Components/CMS/Webpage/Pricing/PricingIris.vue"
 import TextColumnIris from "@/Components/CMS/Webpage/TextColumn/TextColumnIris.vue"
 import Topbar1FulfilmentIris from "@/Components/CMS/Website/TopBars/Template/Topbar1Fulfilment/Topbar1FulfilmentIris.vue"
 import Topbar2FulfilmentIris from "@/Components/CMS/Website/TopBars/Template/Topbar2Fulfilment/Topbar2FulfilmentIris.vue"
@@ -52,6 +53,7 @@ const components: Record<string, Component> = {
     'cta_aurora_1': CtaAurora1Iris,
     'overview_2': Overview2Iris,
     'text-column': TextColumnIris,
+    'pricing': Pricing,
     'top-bar-1-fulfilment': Topbar1FulfilmentIris,
     'top-bar-2-fulfilment': Topbar2FulfilmentIris,
     'top-bar-3-fulfilment': Topbar3FulfilmentIris,

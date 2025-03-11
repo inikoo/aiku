@@ -8,6 +8,7 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
@@ -22,6 +23,7 @@ use App\Enums\UI\Web\WebpageTabsEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\ExternalLinksResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Collection;
@@ -285,13 +287,11 @@ class ShowWebpage extends OrgAction
                     )),
                 WebpageTabsEnum::ANALYTICS->value => $this->tab == WebpageTabsEnum::ANALYTICS->value ?
                 fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'searchType']))
-                : Inertia::lazy(fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'searchType'])))
+                : Inertia::lazy(fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'searchType']))),
 
-                /*
                 WebpageTabsEnum::CHANGELOG->value => $this->tab == WebpageTabsEnum::CHANGELOG->value ?
-                    fn() => HistoryResource::collection(IndexHistories::run($webpage))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistories::run($webpage)))
-                */
+                    fn() => HistoryResource::collection(IndexHistory::run($webpage))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($webpage)))
 
 
             ]
@@ -303,6 +303,11 @@ class ShowWebpage extends OrgAction
             IndexSnapshots::make()->tableStructure(
                 parent: $webpage,
                 prefix: 'snapshots'
+            )
+        )
+        ->table(
+            IndexHistory::make()->tableStructure(
+                prefix: WebpageTabsEnum::CHANGELOG->value
             )
         );
     }
