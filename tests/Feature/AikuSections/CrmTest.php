@@ -874,6 +874,7 @@ test('can show list of prospects', function () {
 });
 
 test('can show list of tags', function () {
+    $this->withoutExceptionHandling();
     $shop         = $this->shop;
     $organisation = $this->organisation;
     $response     = get(route('grp.org.shops.show.crm.prospects.tags.index', [$organisation->slug, $shop->slug]));

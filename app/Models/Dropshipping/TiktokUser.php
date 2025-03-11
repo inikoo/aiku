@@ -10,10 +10,12 @@ namespace App\Models\Dropshipping;
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
+use App\Models\PlatformHasClient;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
@@ -41,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PlatformHasClient> $clients
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -99,4 +102,10 @@ class TiktokUser extends Model
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('username');
     }
+
+    public function clients(): MorphMany
+    {
+        return $this->morphMany(PlatformHasClient::class, 'userable');
+    }
+
 }

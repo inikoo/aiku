@@ -8,6 +8,7 @@ import { faUserCircle } from '@fal'
 import { router } from '@inertiajs/vue3'
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps<{
     data: {
@@ -33,20 +34,20 @@ const isLoggedIn = ref(layout.iris.user_auth ? true : false)
 provide('isPreviewLoggedIn', isLoggedIn)
 
 const onLogoutAuth = (link) => {
-    router.post(route('iris.logout'), {},
-        {
-            onSuccess: () => {
-                /*    if(link) window.open(link) */
-            },
-            onError: () => {
-                notify({
-                    title: trans("Something went wrong"),
-                    text: trans("Failed to logout"),
-                    type: "error"
-                })
-            },
-        })
-}
+    router.post(route('iris.logout'), {}, {
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: () => {
+            notify({
+                title: trans("Something went wrong"),
+                text: trans("Failed to logout"),
+                type: "error"
+            });
+        },
+    });
+};
+
 
 provide('onLogout', onLogoutAuth)
 
@@ -77,11 +78,11 @@ provide('onLogout', onLogoutAuth)
             <!-- Profile Icon with Dropdown Menu -->
             <div @click="toggle" class="flex items-center cursor-pointer">
                 <FontAwesomeIcon :icon="faUserCircle" class="text-2xl" />
-                <Menu ref="_menu" id="overlay_menu" :model="items" :popup="true">
+                <!-- <Menu ref="_menu" id="overlay_menu" :model="items" :popup="true">
                     <template #itemicon="{ item }">
                         <FontAwesomeIcon :icon="item.icon" />
                     </template>
-                </Menu>
+                </Menu> -->
             </div>
         </div>
 

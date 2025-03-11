@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 
 import SlideCorner from "@/Components/Banners/Slider/SlideCorner.vue"
 import Image from "@/Components/Image.vue"

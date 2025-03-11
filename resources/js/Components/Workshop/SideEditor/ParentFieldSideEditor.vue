@@ -6,10 +6,10 @@ import AccordionHeader from 'primevue/accordionheader'
 import AccordionContent from 'primevue/accordioncontent'
 import ChildFieldSideEditor from '@/Components/Workshop/SideEditor/ChildFieldSideEditor.vue'
 import { trans } from 'laravel-vue-i18n'
-import { kebabCase } from 'lodash'
+import { kebabCase } from 'lodash-es'
 
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 import { routeType } from '@/types/route'
 import Icon from '@/Components/Icon.vue'
 
