@@ -30,7 +30,6 @@ class CreateRedirect extends OrgAction
      */
     public function handle(Website|Webpage $parent, ActionRequest $request): Response
     {
-        $route = [];
         if ($parent instanceof Website) {
             $route = [
                 'name'       => 'grp.models.website.redirect.store',
@@ -38,14 +37,17 @@ class CreateRedirect extends OrgAction
                     'website' => $parent->id,
                 ]
             ];
-        } elseif ($parent instanceof Webpage) {
+        } else {
             $route = [
-                'name' => 'grp.models.webpage.redirect.store',
+                'name'       => 'grp.models.webpage.redirect.store',
                 'parameters' => [
                     'webpage' => $parent->id
                 ]
             ];
         }
+
+        $title = __('New Redirect');
+
         return Inertia::render(
             'CreateModel',
             [
@@ -53,23 +55,22 @@ class CreateRedirect extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('New Redirect'),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title' => __('New Redirect')
+                    'title' => $title,
                 ],
                 'formData'    => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __('New Redirect'),
+                                'title'  => $title,
                                 'fields' => [
                                     'type' => [
                                         'type'     => 'select',
                                         'label'    => __('type'),
                                         'required' => true,
                                         'options'  => Options::forEnum(RedirectTypeEnum::class),
-                                        'required' => true,
                                     ],
                                     'path' => [
                                         'type'     => 'input',
@@ -88,6 +89,7 @@ class CreateRedirect extends OrgAction
 
     /**
      * @throws Exception
+     * @noinspection PhpUnusedParameterInspection
      */
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Response
     {
@@ -96,6 +98,10 @@ class CreateRedirect extends OrgAction
         return $this->handle($webpage, $request);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    /**
+     * @throws \Exception
+     */
     public function inWebpageInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Response
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
