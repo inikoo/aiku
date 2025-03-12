@@ -28,12 +28,10 @@ class HydrateCharge extends HydrateModel
         $this->model = Charge::class;
     }
 
-    public function handle(Asset $asset): void
+    public function handle(Charge $charge): void
     {
-        if ($asset->type == AssetTypeEnum::CHARGE) {
-            AssetHydrateInvoices::run($asset);
-            AssetHydrateInvoicedCustomers::run($asset);
-        }
+        AssetHydrateInvoices::run($charge->asset);
+        AssetHydrateInvoicedCustomers::run($charge->asset);
 
     }
 }
