@@ -31,7 +31,7 @@ const props = defineProps<{
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
 			</button>
 
-			<a
+			<div
 				v-if="!fieldValue?.image?.source"
 				:href="fieldValue?.image?.url || '#'"
 				target="_blank"
@@ -41,7 +41,7 @@ const props = defineProps<{
 					src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
 					alt="Informative Image"
 					class="h-full w-full object-cover" />
-			</a>
+			</div>
 
 			<!-- Clickable link with Image component if custom image source is available -->
 			<a

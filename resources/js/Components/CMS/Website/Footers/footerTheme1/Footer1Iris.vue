@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faShieldAlt, faPlus, faTrash, faArrowSquareLeft, faTriangle } from "@fas"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook, faWhatsapp} from "@fortawesome/free-brands-svg-icons"
 import { faBars } from '@fal'
+import Image from '@/Components/Image.vue'
 
 library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faArrowSquareLeft, faFacebook,faWhatsapp)
 
@@ -20,14 +21,20 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div id="app" class="md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
+    <div id="app" class="md:mx-0 pb-12 lg:pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div class="flex-1 flex items-center justify-center md:justify-start ">
                 <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" width="260px" height="70px" :src="modelValue.logo.source"
                     :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
-                <img v-if="modelValue?.logo?.source?.original"  width="260px" height="70px" :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
-                    class="h-auto max-h-20 w-auto min-w-16">
+                <Image
+                    v-else="modelValue?.logo?.source?.original"
+                    width="260px"
+                    height="70px"
+                    :src="modelValue?.logo?.source"
+                    :alt="modelValue.logo.alt"
+                    class="h-auto max-h-20 w-auto min-w-16"
+                />
             </div>
 
             <div v-if="modelValue?.email"
