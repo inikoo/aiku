@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Web\Redirect;
+use App\Rules\NoDomainString;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,7 +38,7 @@ class UpdateRedirect extends OrgAction
     {
         return [
             'type'                     => ['sometimes', Rule::enum(RedirectTypeEnum::class)],
-            'path'                     => ['sometimes', 'string'],
+            'path'                     => ['sometimes', 'string', new NoDomainString()],
         ];
     }
 

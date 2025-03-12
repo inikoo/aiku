@@ -16,6 +16,7 @@ use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use App\Rules\NoDomainString;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect as FacadesRedirect;
 use Illuminate\Validation\Rule;
@@ -44,7 +45,7 @@ class StoreRedirect extends OrgAction
     {
         return [
             'type'                     => ['required', Rule::enum(RedirectTypeEnum::class)],
-            'path'                     => ['required', 'string'],
+            'path'                     => ['required', 'string', new NoDomainString()],
         ];
     }
 
