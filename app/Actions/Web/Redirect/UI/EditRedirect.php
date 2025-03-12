@@ -53,11 +53,6 @@ class EditRedirect extends OrgAction
                                         'options'  => Options::forEnum(RedirectTypeEnum::class),
                                         'value'    => $redirect->type
                                     ],
-                                    'url'  => [
-                                        'type'     => 'input',
-                                        'label'    => __('url'),
-                                        'value'    => $redirect->url
-                                    ],
                                     'path' => [
                                         'type'     => 'input',
                                         'label'    => __('path'),

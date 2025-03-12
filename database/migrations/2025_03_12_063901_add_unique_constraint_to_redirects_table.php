@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up()
     {
         Schema::table('redirects', function (Blueprint $table) {
-            $table->unique('url');
-            $table->unique('path');
+            $table->unique(['url','group_id']);
+            $table->unique(['path','website_id']);
 
         });
     }
@@ -27,8 +27,8 @@ return new class () extends Migration {
     public function down()
     {
         Schema::table('redirects', function (Blueprint $table) {
-            $table->dropUnique(['url']);
-            $table->dropUnique(['path']);
+            $table->dropUnique(['url', 'group_id']);
+            $table->dropUnique(['path', 'website_id']);
         });
     }
 };

@@ -15,14 +15,12 @@ class RedirectsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $redirect = $this;
-
         return [
-            'id'         => $redirect->id,
-            'url'       => $redirect->url,
-            'path'     => $redirect->path,
-            'type' => $redirect->type,
-            'webpage_title' => $redirect->webpage_title
+            'id'            => $this->id,
+            'url'           => $this->url,
+            'path'          => $this->path,
+            'type'          => $this->type,
+            'webpage_title' => $this->webpage_title
         ];
     }
 }

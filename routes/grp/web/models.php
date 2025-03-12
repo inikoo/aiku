@@ -587,9 +587,6 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 
 
     Route::post('/banner', StoreBanner::class)->name('banner.store');
-    Route::post('/redirect', StoreRedirect::class)->name('redirect.store');
-
-
 });
 
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {

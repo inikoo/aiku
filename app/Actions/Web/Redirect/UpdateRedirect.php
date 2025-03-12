@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Web\Redirect;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -22,6 +23,11 @@ class UpdateRedirect extends OrgAction
 
     public function handle(Redirect $redirect, array $modelData): Redirect
     {
+        if(Arr::exists($modelData, 'path')) {
+            $path = Arr::get($modelData, 'path');
+            $url = $redirect->website->domain.'/'.$path;
+            data_set($modelData, 'url', $url);
+        }
         $redirect = $this->update($redirect, $modelData);
 
         return $redirect;
@@ -31,7 +37,6 @@ class UpdateRedirect extends OrgAction
     {
         return [
             'type'                     => ['sometimes', Rule::enum(RedirectTypeEnum::class)],
-            'url'                      => ['sometimes', 'string'],
             'path'                     => ['sometimes', 'string'],
         ];
     }

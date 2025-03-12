@@ -16,21 +16,24 @@ use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect as FacadesRedirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreRedirect extends OrgAction
 {
-    public function handle(Website|Webpage $parent, array $modelData): Redirect
+    public function handle(Webpage $parent, array $modelData): Redirect
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
-        if ($parent instanceof Webpage) {
-            data_set($modelData, 'website_id', $parent->website_id);
-        }
+        data_set($modelData, 'website_id', $parent->website_id);
 
+        $path = Arr::get($modelData, 'path');
+        $url = $parent->website->domain . '/' . $path;
+
+        data_set($modelData, 'url', $url);
         /** @var Redirect $redirect */
         $redirect = $parent->redirects()->create($modelData);
 
@@ -41,9 +44,7 @@ class StoreRedirect extends OrgAction
     {
         return [
             'type'                     => ['required', Rule::enum(RedirectTypeEnum::class)],
-            'url'                      => ['required', 'string'],
             'path'                     => ['required', 'string'],
-            'webpage_id'               => ['sometimes', 'nullable']
         ];
     }
 
@@ -74,19 +75,12 @@ class StoreRedirect extends OrgAction
         );
     }
 
-    public function action(Website|Webpage $parent, array $modelData): Redirect
+    public function action(Webpage $webpage, array $modelData): Redirect
     {
         $this->asAction       = true;
-        $this->initialisationFromShop($parent->shop, $modelData);
+        $this->initialisationFromShop($webpage->shop, $modelData);
 
-        return $this->handle($parent, $this->validatedData);
-    }
-
-    public function asController(Website $website, ActionRequest $request)
-    {
-        $this->initialisationFromShop($website->shop, $request);
-
-        return $this->handle($website, $this->validatedData);
+        return $this->handle($webpage, $this->validatedData);
     }
 
     public function inWebpage(Webpage $webpage, ActionRequest $request)

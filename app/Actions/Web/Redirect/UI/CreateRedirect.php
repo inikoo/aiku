@@ -71,11 +71,6 @@ class CreateRedirect extends OrgAction
                                         'options'  => Options::forEnum(RedirectTypeEnum::class),
                                         'required' => true,
                                     ],
-                                    'url'  => [
-                                        'type'     => 'input',
-                                        'label'    => __('url'),
-                                        'required' => true
-                                    ],
                                     'path' => [
                                         'type'     => 'input',
                                         'label'    => __('path'),
