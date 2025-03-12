@@ -13,6 +13,11 @@ import { get } from 'lodash-es'
 import { routeType } from '@/types/route'
 import Icon from '@/Components/Icon.vue'
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faInfoCircle } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
+library.add(faInfoCircle)
+
 const props = defineProps<{
     blueprint: {
         name : String,
@@ -96,7 +101,18 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
 
         <template v-else>
            <!-- Section: Padding, Margin, Border -->
-            <div v-if="get(blueprint, 'label', '')" class="w-full my-2 text-start py-1 font-semibold select-none text-sm border-b border-gray-300">{{ trans(get(blueprint, 'label', '')) }}</div>
+            <div v-if="get(blueprint, 'label', '')" class="w-full my-2 text-start py-1 font-semibold select-none text-sm border-b border-gray-300">
+                {{ trans(get(blueprint, 'label', '')) }}
+                <VTooltip v-if="blueprint.information" class="inline w-fit" placements="right"> <!-- This placement don't work, later change to right -->
+                    <FontAwesomeIcon icon="fal fa-info-circle" class="text-gray-500 cursor-pointer" fixed-width aria-hidden="true" />
+                    <template #popper>
+                        <div class="min-w-20 w-fit max-w-64 text-xs">
+                            {{ blueprint.information }}
+                        </div>
+                    </template>
+                </VTooltip>
+            </div>
+
             <component 
                 :is="getComponent(blueprint.type)" 
                 :key="blueprint.key"
