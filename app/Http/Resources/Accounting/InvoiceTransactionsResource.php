@@ -101,6 +101,10 @@ class InvoiceTransactionsResource extends JsonResource
             };
         };
 
+        $palletRef = null;
+        $handlingDate = null;
+        $palletRoute = null;
+
         if ($this->model_type == 'Service') {
             if (!empty($this->data['pallet_id'])) {
                 $pallet = Pallet::find($this->data['pallet_id']);
@@ -114,15 +118,10 @@ class InvoiceTransactionsResource extends JsonResource
                         'pallet'                 => $pallet->slug
                     ]
                 ];
-            } else {
-                $palletRef = null;
-                $palletRoute = null;
             }
 
             if (!empty($this->data['date'])) {
                 $handlingDate = Carbon::parse($this->data['date'])->format('d M Y');
-            } else {
-                $handlingDate = null;
             }
         }
 
