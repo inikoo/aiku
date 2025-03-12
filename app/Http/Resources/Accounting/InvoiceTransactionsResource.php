@@ -8,7 +8,6 @@
 
 namespace App\Http\Resources\Accounting;
 
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;

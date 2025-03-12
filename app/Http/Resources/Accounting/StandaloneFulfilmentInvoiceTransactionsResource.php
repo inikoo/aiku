@@ -9,7 +9,6 @@
 
 namespace App\Http\Resources\Accounting;
 
-use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Billables\Service;
 use App\Models\Fulfilment\Pallet;
 use Carbon\Carbon;

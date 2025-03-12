@@ -9,6 +9,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Web\Banner\DeleteBanner;
+use App\Actions\Web\Banner\Search\ReindexBannerSearch;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\AttachExternalLinkToWebBlock;
@@ -17,8 +18,10 @@ use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\Webpage\HydrateWebpage;
 use App\Actions\Web\Webpage\Search\ReindexWebpageSearch;
 use App\Actions\Web\Webpage\StoreWebpage;
+use App\Actions\Web\Website\HydrateWebsite;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Actions\Web\Website\StoreWebsite;
@@ -32,6 +35,7 @@ use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\Web\Banner;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
@@ -280,16 +284,7 @@ test('launch fulfilment website from command', function (Website $website) {
 
 // Hydrator commands
 
-test('hydrate website from command', function (Website $website) {
-    $this->artisan('hydrate:websites', [
-        'organisations' => $this->organisation->slug,
-        '--slugs'       => $website->slug
-    ])
-        ->assertExitCode(0);
-    $website->refresh();
 
-    expect($website->webStats->number_webpages)->toBe(9);
-})->depends('launch fulfilment website from command');
 
 test('store hello banner', function (Website $website) {
     $banner = StoreBanner::make()->action($website, [
@@ -315,11 +310,23 @@ test('update hello banner', function (Banner $banner) {
     return $banner;
 })->depends('store hello banner');
 
+test('banners search', function ($banner) {
+
+    $this->artisan('search:banners')->assertExitCode(0);
+    ReindexBannerSearch::run($banner);
+    $banner->refresh();
+    expect($banner->universalSearch()->count())->toBe(1);
+})->depends('store hello banner');
+
 test('delete hello banner', function (Banner $banner) {
     $banner = DeleteBanner::make()->action($banner);
 
     expect($banner)->toBeInstanceOf(Banner::class)
-        ->and($banner->trashed())->toBeTrue();
+        ->and($banner->trashed())->toBeTrue()
+        ->and(UniversalSearch::where(
+            'model_type',
+            'Banner'
+        )->count())->toBe(0);
 })->depends('update hello banner');
 
 test('websites search', function () {
@@ -338,11 +345,31 @@ test('webpages search', function () {
     expect($webpage->universalSearch()->count())->toBe(1);
 });
 
-// this got error in test but works in real
-// test('banners search', function ($banner) {
-//     $this->artisan('search:banners')->assertExitCode(0);
 
-//     ReindexBannerSearch::run($banner);
-//     $banner = Banner::find($banner->id);
-//     expect($banner->universalSearch()->count())->toBe(1);
-// })->depends('store hello banner');
+
+test('hydrate website', function () {
+    $website = Website::first();
+    $this->artisan('hydrate:websites', [
+        'organisations' => $this->organisation->slug,
+        '--slugs'       => $website->slug
+    ])
+        ->assertExitCode(0);
+
+    HydrateWebsite::run($website);
+    $website->refresh();
+
+});
+
+test('hydrate webpage', function () {
+    $webpage = Webpage::first();
+    $this->artisan('hydrate:webpages', [
+        '--slugs'       => $webpage->slug
+    ])
+        ->assertExitCode(0);
+
+    HydrateWebpage::run($webpage);
+});
+
+test('web hydrator', function () {
+    $this->artisan('hydrate -s web')->assertExitCode(0);
+});

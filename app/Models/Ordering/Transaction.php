@@ -78,7 +78,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_id
  * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset
- * @property-read Customer $customer
+ * @property-read Customer|null $customer
  * @property-read DeliveryNoteItem|null $deliveryNoteItem
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read Collection<int, Feedback> $feedbacks

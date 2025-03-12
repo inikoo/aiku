@@ -12,15 +12,21 @@ namespace App\Actions\Billables\Charge;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
 use App\Actions\HydrateModel;
+use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Models\Billables\Charge;
 use App\Models\Catalogue\Asset;
-use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
 class HydrateCharge extends HydrateModel
 {
+    use WithHydrateCommand;
+
     public string $commandSignature = 'hydrate:charges {organisations?*} {--slugs=}';
 
+    public function __construct()
+    {
+        $this->model = Charge::class;
+    }
 
     public function handle(Asset $asset): void
     {
@@ -29,31 +35,5 @@ class HydrateCharge extends HydrateModel
             AssetHydrateInvoicedCustomers::run($asset);
         }
 
-    }
-
-
-    protected function getModel(string $slug): Asset
-    {
-        return Asset::where('slug', $slug)->first();
-    }
-
-    protected function loopAll(Command $command): void
-    {
-        $command->info("Hydrating assets");
-        $count = Asset::withTrashed()->count();
-
-        $bar = $command->getOutput()->createProgressBar($count);
-        $bar->setFormat('debug');
-        $bar->start();
-
-        Asset::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
-            foreach ($models as $model) {
-                $this->handle($model);
-                $bar->advance();
-            }
-        });
-
-        $bar->finish();
-        $command->info("");
     }
 }
