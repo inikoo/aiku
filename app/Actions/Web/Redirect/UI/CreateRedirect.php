@@ -10,6 +10,7 @@ namespace App\Actions\Web\Redirect\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
+use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -49,9 +50,10 @@ class CreateRedirect extends OrgAction
         return Inertia::render(
             'CreateModel',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('New Redirect'),
                 'pageHead'    => [
                     'title' => __('New Redirect')
@@ -119,6 +121,24 @@ class CreateRedirect extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webpage, $request);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            ShowWebpage::make()->getBreadcrumbs(
+                routeName: $routeName,
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __('Creating Redirect'),
+                    ]
+                ]
+            ]
+        );
     }
 
 }
