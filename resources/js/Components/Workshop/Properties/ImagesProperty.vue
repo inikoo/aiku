@@ -5,6 +5,7 @@ import { faLink, faUnlink } from "@fal";
 import { faExclamation, faCaretDown, faCaretLeft } from "@fas";
 import SideEditor from "../SideEditor/SideEditor.vue";
 import { watch,ref } from "vue";
+import { trans } from "laravel-vue-i18n"
 
 library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink, faCaretDown, faCaretLeft);
 
@@ -199,6 +200,25 @@ const blueprint = [
                 {
                     label : 'Right Top',
                     value :  'right top' 
+                },
+            ]
+        }
+    },
+    {
+        key: ["attributes", "fetchpriority"],
+        label: trans("Fetch Priority"),
+        information: trans("Priority of the image to loaded. Higher priority images are loaded first (good for LCP)."),
+        type: "select",
+        props_data: {
+            placeholder : trans('Priority'),
+            options : [
+                {
+                    label : trans('High'),
+                    value :  'high' 
+                },
+                {
+                    label : trans('Low'),
+                    value :  'low' 
                 },
             ]
         }

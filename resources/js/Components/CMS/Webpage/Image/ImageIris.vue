@@ -15,9 +15,13 @@ const props = defineProps<{
 				link_data: {
 					url: string
 				}
+				attributes?: {
+					fetchpriority?: string
+				}
 			}[]
 			layout_type: string
 		}
+		container: {}
 	}
 	webpageData?: any
 	web_block?: Object
@@ -85,21 +89,16 @@ const getImageSlots = (layoutType: string) => {
 		<div v-for="index in getImageSlots(fieldValue?.value?.layout_type)" :key="index"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
+			<pre>{{ fieldValue?.value?.images?.[index - 1].attributes }}</pre>
 			<component v-if="fieldValue?.value?.images?.[index - 1]?.source" :is="getHref(index - 1) ? 'a' : 'div'"
 				:href="getHref(index - 1) || '#'" target="_blank" rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
-				<!-- <Image 
-					:src="fieldValue?.value?.images?.[index - 1]?.source"
-					:style="getStyles(fieldValue?.value?.images?.[index - 1]?.properties)"
-					imageCover
-					:xximageCover="'w-full object-cover object-center group-hover:opacity-75'"
-					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'Image aiku'" 
-				/> -->
 				<Image
 					:style="getStyles(fieldValue?.value?.images?.[index - 1]?.properties)"
 					:src="fieldValue?.value?.images?.[index - 1]?.source"
-					:imageCover="'w-full object-cover object-center group-hover:opacity-75'" 
+					:imageCover="true" 
 					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
+					:imgAttributes="fieldValue?.value?.images?.[index - 1]?.attributes"
 				/>
 			</component>
 		</div>

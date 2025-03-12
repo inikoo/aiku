@@ -5,9 +5,9 @@
   -->
 
 <script setup lang="ts">
-import { getComponent } from '@/Composables/getWorkshopComponents';
+import { getComponent } from '@/Composables/getWorkshopComponents'
 import { ref, onMounted, toRaw } from 'vue'
-import WebPreview from "@/Layouts/WebPreview.vue";
+import WebPreview from "@/Layouts/WebPreview.vue"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { sendMessageToParent } from '@/Composables/Workshop'
 import { router } from '@inertiajs/vue3'

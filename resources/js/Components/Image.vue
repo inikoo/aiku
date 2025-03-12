@@ -10,6 +10,9 @@ const props = withDefaults(defineProps<{
     imageCover?: boolean
     alt?: string
     class?: string
+    imgAttributes?: {
+        fetchpriority?: string // 'high' | 'low'
+    }
 }>(), {
     src: () => { return ref({ original: fallbackPath }) },
 })
@@ -64,6 +67,6 @@ onBeforeMount(setImage)
     <picture :class="[props.class ?? 'w-full h-full flex justify-center items-center']">
         <source v-if="avif && avif != fallbackPath" type="image/avif" :srcset="avif">
         <source v-if="webp && webp != fallbackPath" type="image/webp" :srcset="webp">
-        <img :class="[imageCover ? 'w-full h-full object-cover' : '']" @load="() => emits('onLoadImage')" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;">
+        <img :class="[imageCover ? 'w-full object-cover aspect-auto' : '']" @load="() => emits('onLoadImage')" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;" v-bind="imgAttributes">
     </picture>
 </template>
