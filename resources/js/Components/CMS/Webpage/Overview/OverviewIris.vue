@@ -20,7 +20,7 @@ const props = defineProps<{
 <template>
 	<div
 		class="relative isolate transition-all hidden md:block"
-		:style="getStyles(fieldValue?.container?.properties)">
+		:style="{...getStyles(fieldValue?.container?.properties), width : '100%', height : 'auto'}">
 		<!-- Render text elements -->
 		<div v-for="(text, index) in fieldValue?.texts?.values" :key="index">
 			<div
