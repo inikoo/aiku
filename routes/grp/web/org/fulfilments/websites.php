@@ -13,6 +13,8 @@ use App\Actions\Web\Banner\UI\EditBanner;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Banner\UI\ShowBanner;
 use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
+use App\Actions\Web\Redirect\UI\CreateRedirect;
+use App\Actions\Web\Redirect\UI\EditRedirect;
 use App\Actions\Web\Webpage\UI\CreateArticle;
 use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
@@ -48,6 +50,12 @@ Route::name('websites.')->group(function () {
                     Route::get('header', [ShowHeader::class, 'inFulfilment'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inFulfilment'])->name('.menu');
                 });
+            Route::name('redirect')->prefix('redirect')
+                ->group(function () {
+                    Route::get('create', [CreateRedirect::class, 'inWebsiteInFulfilment'])->name('.create');
+                    Route::get('{redirect}/edit', [EditRedirect::class, 'inWebsiteInFulfilment'])->name('.edit');
+                });
+            
         });
 });
 
@@ -69,6 +77,12 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
             Route::get('edit', [EditWebpage::class, 'inFulfilment'])->name('edit');
             Route::get('workshop', [ShowWebpageWorkshop::class, 'inFulfilment'])->name('workshop');
             Route::get('webpages', [IndexWebpages::class, 'inWebpageInFulfilment'])->name('show.webpages.index');
+
+            Route::name('redirect')->prefix('redirect')
+            ->group(function () {
+                Route::get('create', [CreateRedirect::class, 'inWebpageInFulfilment'])->name('.create');
+                Route::get('{redirect}/edit', [EditRedirect::class, 'inWebpageInFulfilment'])->name('.edit');
+            });
         });
 });
 

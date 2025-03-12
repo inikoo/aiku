@@ -15,6 +15,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
+use App\Actions\Web\Redirect\UI\IndexRedirects;
 use App\Actions\Web\Webpage\GetWebpageGoogleCloud;
 use App\Actions\Web\Webpage\WithWebpageSubNavigation;
 use App\Actions\Web\Website\UI\ShowWebsite;
@@ -25,6 +26,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\ExternalLinksResource;
+use App\Http\Resources\Web\RedirectsResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
@@ -83,7 +85,7 @@ class ShowWebpage extends OrgAction
         }
 
         $actions = $this->workshopActions($request);
-
+        
         if ($webpage->sub_type == WebpageSubTypeEnum::BLOG) {
             $actions = array_merge(
                 $actions,
@@ -291,7 +293,11 @@ class ShowWebpage extends OrgAction
 
                 WebpageTabsEnum::CHANGELOG->value => $this->tab == WebpageTabsEnum::CHANGELOG->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($webpage))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($webpage)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($webpage))),
+
+                WebpageTabsEnum::REDIRECTS->value => $this->tab == WebpageTabsEnum::REDIRECTS->value ?
+                    fn () => RedirectsResource::collection(IndexRedirects::run($webpage))
+                    : Inertia::lazy(fn () => RedirectsResource::collection(IndexRedirects::run($webpage)))
 
 
             ]
@@ -303,6 +309,11 @@ class ShowWebpage extends OrgAction
             IndexSnapshots::make()->tableStructure(
                 parent: $webpage,
                 prefix: 'snapshots'
+            )
+        )->table(
+            IndexRedirects::make()->tableStructure(
+                parent: $webpage,
+                prefix: WebpageTabsEnum::REDIRECTS->value
             )
         )
         ->table(
