@@ -16,7 +16,6 @@ class RedirectsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Redirect $redirect */
         $redirect = $this;
 
         return [
@@ -24,6 +23,7 @@ class RedirectsResource extends JsonResource
             'url'       => $redirect->url,
             'path'     => $redirect->path,
             'type' => $redirect->type,
+            'webpage_title' => $redirect->webpage_title
         ];
     }
 }

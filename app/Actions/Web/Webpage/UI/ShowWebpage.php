@@ -85,7 +85,6 @@ class ShowWebpage extends OrgAction
         }
 
         $actions = $this->workshopActions($request);
-        
         if ($webpage->sub_type == WebpageSubTypeEnum::BLOG) {
             $actions = array_merge(
                 $actions,
@@ -233,6 +232,39 @@ class ShowWebpage extends OrgAction
         //            $subNavigationRoot='grp.org.shops.show.web.webpages.index.type.operations';
         //        }
         //
+
+        $actions = array_merge(
+            $actions,
+            [
+                $this->scope instanceof Fulfilment ? [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('New Redirect'),
+                    'route' => [
+                        'name'       => 'grp.org.fulfilments.show.web.webpages.redirect.create',
+                        'parameters' => [
+                            'organisation' => $webpage->organisation->slug,
+                            'fulfilment'   => $this->scope->slug,
+                            'website'      => $webpage->website->slug,
+                            'webpage'      => $webpage->slug
+                        ]
+                    ]
+                ] : [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'label' => __('New Redirect'),
+                    'route' => [
+                        'name'       => 'grp.org.shops.show.web.webpages.redirect.create',
+                        'parameters' => [
+                            'organisation' => $webpage->organisation->slug,
+                            'shop'   => $this->scope->slug,
+                            'website'      => $webpage->website->slug,
+                            'webpage'      => $webpage->slug
+                        ]
+                    ]
+                ]
+            ]
+        );
 
         return Inertia::render(
             'Org/Web/Webpage',

@@ -40,7 +40,7 @@ class IndexRedirects extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('redirects.url', $value)
-                    ->orWhereStartWith('redirects.path', $value);
+                    ->orWhereStartWith('webpages.title', $value);
             });
         });
         
@@ -54,6 +54,9 @@ class IndexRedirects extends OrgAction
         } elseif ($parent instanceof Webpage) {
             $queryBuilder->where('redirects.webpage_id', $parent->id);
         }
+
+        $queryBuilder->leftjoin('webpages', 'redirects.webpage_id', '=', 'webpages.id');
+
         $queryBuilder
             ->defaultSort('redirects.id')
             ->select([
@@ -61,10 +64,11 @@ class IndexRedirects extends OrgAction
                 'redirects.type',
                 'redirects.url',
                 'redirects.path',
+                'webpages.title as webpage_title',
             ]);
 
         return $queryBuilder
-            ->allowedSorts(['url', 'type', 'path'])
+            ->allowedSorts(['url', 'type', 'path', 'webpage_title'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -91,7 +95,11 @@ class IndexRedirects extends OrgAction
                         default => null
                     }
                 );
-
+            if($parent instanceof Website)
+            {
+                $table
+                ->column(key: 'webpage_title', label: __('Webpage'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table
                 ->column(key: 'type', label: __('Type'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true, searchable: true)
