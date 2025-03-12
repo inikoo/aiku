@@ -287,7 +287,7 @@ class IndexOrders extends OrgAction
         }
         $subNavigation = null;
         if ($this->parent instanceof CustomerClient) {
-            $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
+            $subNavigation = $this->getCustomerClientSubNavigation($this->parent);
         } elseif ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping) {
                 $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
@@ -506,9 +506,7 @@ class IndexOrders extends OrgAction
             ),
             'grp.overview.ordering.orders.index' =>
             array_merge(
-                ShowGroupOverviewHub::make()->getBreadcrumbs(
-                    $routeParameters
-                ),
+                ShowGroupOverviewHub::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,
