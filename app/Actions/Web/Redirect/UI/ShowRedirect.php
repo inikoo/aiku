@@ -70,7 +70,7 @@ class ShowRedirect extends OrgAction
     public function htmlResponse(Redirect $redirect, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/Service',
+            'Org/Web/Redirect',
             [
                 'title'       => __('Redirect'),
                 // 'breadcrumbs' => $this->getBreadcrumbs(
