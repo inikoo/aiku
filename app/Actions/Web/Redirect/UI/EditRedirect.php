@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-13h-11m
@@ -9,7 +10,6 @@
 namespace App\Actions\Web\Redirect\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -81,20 +81,6 @@ class EditRedirect extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, Shop $shop, Website $website, Redirect $redirect, ActionRequest $request): Response
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($redirect, $request);
-    }
-
-    public function inWebsiteInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Redirect $redirect, ActionRequest $request): Response
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($redirect, $request);
-    }
-
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, Redirect $redirect, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);

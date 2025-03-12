@@ -50,12 +50,6 @@ Route::name('websites.')->group(function () {
                     Route::get('header', [ShowHeader::class, 'inFulfilment'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inFulfilment'])->name('.menu');
                 });
-            Route::name('redirect')->prefix('redirect')
-                ->group(function () {
-                    Route::get('create', [CreateRedirect::class, 'inWebsiteInFulfilment'])->name('.create');
-                    Route::get('{redirect}/edit', [EditRedirect::class, 'inWebsiteInFulfilment'])->name('.edit');
-                });
-            
         });
 });
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-11h-13m
@@ -8,42 +9,25 @@
 
 namespace App\Actions\Web\Redirect;
 
-use App\Actions\Catalogue\Asset\StoreAsset;
-use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateServices;
-use App\Enums\Billables\Rental\RentalStateEnum;
-use App\Enums\Billables\Service\ServiceStateEnum;
-use App\Enums\Catalogue\Asset\AssetStateEnum;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Web\WebpageTabsEnum;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
-use App\Models\Billables\Service;
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
-use App\Rules\AlphaDashDot;
-use App\Rules\IUnique;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect as FacadesRedirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreRedirect extends OrgAction
-{    
+{
     public function handle(Website|Webpage $parent, array $modelData): Redirect
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
-        if($parent instanceof Webpage)
-        {
+        if ($parent instanceof Webpage) {
             data_set($modelData, 'website_id', $parent->website_id);
         }
 
@@ -65,26 +49,29 @@ class StoreRedirect extends OrgAction
 
     public function htmlResponse(Redirect $redirect)
     {
-        if($redirect->shop->type == ShopTypeEnum::FULFILMENT)
-        {
-            return FacadesRedirect::route('grp.org.fulfilments.show.web.webpages.show',
-            [
+        if ($redirect->shop->type == ShopTypeEnum::FULFILMENT) {
+            return FacadesRedirect::route(
+                'grp.org.fulfilments.show.web.webpages.show',
+                [
                 'organisation' => $redirect->organisation->slug,
                 'fulfilment' => $redirect->shop->fulfilment->slug,
                 'website' => $redirect->website->slug,
                 'webpage' => $redirect->webpage->slug,
                 'tab' => WebpageTabsEnum::REDIRECTS->value
-            ]);
+            ]
+            );
         }
 
-        return FacadesRedirect::route('grp.org.shops.show.web.webpages.show',
-        [
+        return FacadesRedirect::route(
+            'grp.org.shops.show.web.webpages.show',
+            [
             'organisation' => $redirect->organisation->slug,
             'shop' => $redirect->shop->slug,
             'website' => $redirect->website->slug,
             'webpage' => $redirect->webpage->slug,
             'tab' => WebpageTabsEnum::REDIRECTS->value
-        ]);
+        ]
+        );
     }
 
     public function action(Website|Webpage $parent, array $modelData): Redirect

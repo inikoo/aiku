@@ -60,11 +60,6 @@ Route::name('websites.')->group(function () {
                     Route::get('header', [ShowHeader::class, 'inShop'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inShop'])->name('.menu');
                 });
-            Route::name('redirect')->prefix('redirect')
-                ->group(function () {
-                    Route::get('create', CreateRedirect::class)->name('.create');
-                    Route::get('{redirect}/edit', EditRedirect::class)->name('.edit');
-                });
         });
 });
 

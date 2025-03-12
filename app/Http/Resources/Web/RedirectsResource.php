@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-11h-45m
@@ -8,8 +9,6 @@
 
 namespace App\Http\Resources\Web;
 
-use App\Http\Resources\Helpers\ImageResource;
-use App\Models\Web\Slide;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RedirectsResource extends JsonResource

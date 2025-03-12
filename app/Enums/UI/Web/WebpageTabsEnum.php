@@ -20,9 +20,9 @@ enum WebpageTabsEnum: string
     case EXTERNAL_LINKS        = 'external_links';
     case WEBPAGES             = 'webpages';
     case ANALYTICS            = 'analytics';
-    
-    
-    
+
+
+
     case SNAPSHOTS            = 'snapshots';
     case REDIRECTS            = 'redirects';
     case CHANGELOG            = 'changelog';

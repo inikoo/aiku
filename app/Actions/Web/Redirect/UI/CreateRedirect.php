@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-11h-57m
@@ -9,7 +10,6 @@
 namespace App\Actions\Web\Redirect\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -31,8 +31,7 @@ class CreateRedirect extends OrgAction
     public function handle(Website|Webpage $parent, ActionRequest $request): Response
     {
         $route = [];
-        if($parent instanceof Website)
-        {
+        if ($parent instanceof Website) {
             $route = [
                 'name'       => 'grp.models.website.redirect.store',
                 'parameters' => [
@@ -95,20 +94,6 @@ class CreateRedirect extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Response
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($website, $request);
-    }
-
-    public function inWebsiteInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Response
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($website, $request);
-    }
-
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);

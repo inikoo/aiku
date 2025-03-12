@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-11h-30m
@@ -8,17 +9,10 @@
 
 namespace App\Actions\Web\Redirect\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
-use App\Actions\Traits\WithCustomersSubNavigation;
-use App\Http\Resources\CRM\PollsResource;
 use App\Http\Resources\Web\RedirectsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\Poll;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -26,9 +20,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRedirects extends OrgAction
@@ -43,7 +34,7 @@ class IndexRedirects extends OrgAction
                     ->orWhereStartWith('webpages.title', $value);
             });
         });
-        
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
@@ -95,8 +86,7 @@ class IndexRedirects extends OrgAction
                         default => null
                     }
                 );
-            if($parent instanceof Website)
-            {
+            if ($parent instanceof Website) {
                 $table
                 ->column(key: 'webpage_title', label: __('Webpage'), canBeHidden: false, sortable: true, searchable: true);
             }
