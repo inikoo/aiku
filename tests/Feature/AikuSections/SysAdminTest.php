@@ -1020,8 +1020,8 @@ test('UI show organisation setting', function () {
             ->component('EditModel')
             ->has('title')
             ->has('breadcrumbs', 2)
-            ->has('formData.blueprint.0.fields', 2)
-            ->has('formData.blueprint.1.fields', 4)
+            ->has('formData.blueprint.0.fields', 5)
+            ->has('formData.blueprint.1.fields', 2)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',
