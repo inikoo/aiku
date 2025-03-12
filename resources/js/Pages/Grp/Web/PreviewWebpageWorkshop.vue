@@ -106,6 +106,11 @@ onMounted(() => {
 
 <style lang="scss">
 .hover-dashed {
-    @apply hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
+    @apply relative;
+
+    &::after {
+        content: "";
+        @apply absolute inset-0 hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
+    }
 }
 </style>

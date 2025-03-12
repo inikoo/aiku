@@ -191,12 +191,15 @@ const editable = ref(true)
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
 				<div
-					:style="getStyles(modelValue.logo.properties)"
-					@click="() => emits('setPanelActive', 'logo')">
+					@click="() => emits('setPanelActive', 'logo')"
+					class="w-fit"
+				>
 					<Image
 						:alt="modelValue?.logo?.alt"
 						:src="modelValue?.logo?.image?.source"
-						class="hover-dashed"></Image>
+						:style="getStyles(modelValue.logo.properties)"
+						class="hover-dashed">
+					</Image>
 				</div>
 
 				<!-- Search Bar -->
@@ -249,13 +252,13 @@ const editable = ref(true)
 				<MobileMenu :header="modelValue" :menu="modelValue" />
 
 				<!-- Logo for Mobile -->
+				<Image v-if="modelValue?.logo?.source?.original" :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
 				<img
-					v-if="!modelValue.logo"
+					v-else-if="!modelValue.logo"
 					src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
 					alt="Ancient Wisdom Logo"
 					class="h-10 mx-2" />
 
-				<Image v-else :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
 
 				<!-- Profile Icon with Dropdown Menu -->
 				<div @click="toggle" class="flex items-center cursor-pointer text-white">
