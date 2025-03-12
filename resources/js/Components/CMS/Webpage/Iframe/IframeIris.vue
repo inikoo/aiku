@@ -52,5 +52,7 @@ const iframeStyles = computed(() => {
     :title="fieldValue?.title || `iframe-${uuidv4()}`"
     :src="fieldValue?.link" 
     :style="iframeStyles"
+    loading="lazy" 
+    referrerpolicy="no-referrer-when-downgrade"
   />
 </template>
