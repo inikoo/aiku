@@ -15,8 +15,8 @@ use App\Enums\UI\Web\WebpageTabsEnum;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
-use App\Models\Web\Website;
 use App\Rules\NoDomainString;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect as FacadesRedirect;
 use Illuminate\Validation\Rule;
@@ -49,7 +49,7 @@ class StoreRedirect extends OrgAction
         ];
     }
 
-    public function htmlResponse(Redirect $redirect)
+    public function htmlResponse(Redirect $redirect):RedirectResponse
     {
         if ($redirect->shop->type == ShopTypeEnum::FULFILMENT) {
             return FacadesRedirect::route(
@@ -84,7 +84,7 @@ class StoreRedirect extends OrgAction
         return $this->handle($webpage, $this->validatedData);
     }
 
-    public function inWebpage(Webpage $webpage, ActionRequest $request)
+    public function inWebpage(Webpage $webpage, ActionRequest $request): Redirect
     {
         $this->initialisationFromShop($webpage->shop, $request);
 

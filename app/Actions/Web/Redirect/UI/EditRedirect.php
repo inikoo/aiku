@@ -30,22 +30,24 @@ class EditRedirect extends OrgAction
      */
     public function handle(Redirect $redirect, ActionRequest $request): Response
     {
+
+        $title= __('Edit Redirect');
         return Inertia::render(
             'CreateModel',
             [
                 // 'breadcrumbs' => $this->getBreadcrumbs(
                 //     $request->route()->originalParameters()
                 // ),
-                'title'       => __('Edit Redirect'),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title' => __('Edit Redirect')
+                    'title' => $title,
                 ],
                 'formData'    => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __('Edit Redirect'),
+                                'title'  => $title,
                                 'fields' => [
                                     'type' => [
                                         'type'     => 'select',
@@ -75,6 +77,7 @@ class EditRedirect extends OrgAction
 
     /**
      * @throws Exception
+     * @noinspection PhpUnusedParameterInspection
      */
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, Redirect $redirect, ActionRequest $request): Response
     {
@@ -83,6 +86,10 @@ class EditRedirect extends OrgAction
         return $this->handle($redirect, $request);
     }
 
+    /**
+     * @throws \Exception
+     * @noinspection PhpUnusedParameterInspection
+     */
     public function inWebpageInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, Redirect $redirect, ActionRequest $request): Response
     {
         $this->initialisationFromFulfilment($fulfilment, $request);

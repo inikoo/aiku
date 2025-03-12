@@ -17,11 +17,30 @@ class NoDomainString implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $blockedTLDs = [
-            'com', 'net', 'org', 'gov', 'edu', 'co', 'id', 'uk', 'us', 'info', 'biz', 
-            'xyz', 'online', 'site', 'tech', 'store', 'io', 'dev', 'app', 'ai', 'me'
+            'com',
+            'net',
+            'org',
+            'gov',
+            'edu',
+            'co',
+            'id',
+            'uk',
+            'us',
+            'info',
+            'biz',
+            'xyz',
+            'online',
+            'site',
+            'tech',
+            'store',
+            'io',
+            'dev',
+            'app',
+            'ai',
+            'me'
         ];
-        
-        if (preg_match('/\b(?:http:\/\/|https:\/\/|www\.)|\b[a-z0-9-]+\.(' . implode('|', $blockedTLDs) . ')\b/i', $value)) {
+
+        if (preg_match('/\b(?:http:\/\/|https:\/\/|www\.)|\b[a-z0-9-]+\.('.implode('|', $blockedTLDs).')\b/i', $value)) {
             $fail('The :attribute must not be a domain or contain a URL-like structure.');
         }
     }
