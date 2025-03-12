@@ -89,7 +89,6 @@ const getImageSlots = (layoutType: string) => {
 		<div v-for="index in getImageSlots(fieldValue?.value?.layout_type)" :key="index"
 			class="group relative p-2 hover:bg-white/40"
 			:class="getColumnWidthClass(fieldValue?.value?.layout_type, index - 1)">
-			<pre>{{ fieldValue?.value?.images?.[index - 1].attributes }}</pre>
 			<component v-if="fieldValue?.value?.images?.[index - 1]?.source" :is="getHref(index - 1) ? 'a' : 'div'"
 				:href="getHref(index - 1) || '#'" target="_blank" rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
