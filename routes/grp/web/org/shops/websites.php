@@ -19,6 +19,7 @@ use App\Actions\Web\Banner\UI\ShowBanner;
 use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
 use App\Actions\Web\Redirect\UI\CreateRedirect;
 use App\Actions\Web\Redirect\UI\EditRedirect;
+use App\Actions\Web\Redirect\UI\ShowRedirect;
 use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
@@ -60,6 +61,11 @@ Route::name('websites.')->group(function () {
                     Route::get('header', [ShowHeader::class, 'inShop'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inShop'])->name('.menu');
                 });
+            Route::name('redirect')->prefix('redirect')
+                ->group(function () {
+                    Route::get('{redirect}', [ShowRedirect::class, 'inWebsite'])->name('.show');
+                    Route::get('{redirect}/edit', [EditRedirect::class, 'inWebpage'])->name('.edit');
+                });
         });
 });
 
@@ -85,6 +91,7 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
             Route::name('redirect')->prefix('redirect')
             ->group(function () {
                 Route::get('create', [CreateRedirect::class, 'inWebpage'])->name('.create');
+                Route::get('{redirect}', [ShowRedirect::class, 'inWebpage'])->name('.show');
                 Route::get('{redirect}/edit', [EditRedirect::class, 'inWebpage'])->name('.edit');
             });
         });

@@ -90,6 +90,20 @@ class EditRedirect extends OrgAction
         return $this->handle($redirect, $request);
     }
 
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Redirect $redirect, ActionRequest $request): Response
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($redirect, $request);
+    }
+
+    public function inWebsiteInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Redirect $redirect, ActionRequest $request): Response
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($redirect, $request);
+    }
+
     // public function getBreadcrumbs(string $routeName, array $routeParameters): array
     // {
     //     return ShowInvoice::make()->getBreadcrumbs(
