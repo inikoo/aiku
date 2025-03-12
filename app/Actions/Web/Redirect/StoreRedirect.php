@@ -49,7 +49,7 @@ class StoreRedirect extends OrgAction
         ];
     }
 
-    public function htmlResponse(Redirect $redirect):RedirectResponse
+    public function htmlResponse(Redirect $redirect): RedirectResponse
     {
         if ($redirect->shop->type == ShopTypeEnum::FULFILMENT) {
             return FacadesRedirect::route(

@@ -31,7 +31,7 @@ class EditRedirect extends OrgAction
     public function handle(Redirect $redirect, ActionRequest $request): Response
     {
 
-        $title= __('Edit Redirect');
+        $title = __('Edit Redirect');
         return Inertia::render(
             'CreateModel',
             [

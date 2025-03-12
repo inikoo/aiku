@@ -1,11 +1,11 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-16h-10m
  * github: https://github.com/KirinZero0
  * copyright 2025
 */
-
 
 namespace App\Rules;
 

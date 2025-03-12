@@ -24,7 +24,7 @@ class UpdateRedirect extends OrgAction
 
     public function handle(Redirect $redirect, array $modelData): Redirect
     {
-        if(Arr::exists($modelData, 'path')) {
+        if (Arr::exists($modelData, 'path')) {
             $path = Arr::get($modelData, 'path');
             $url = $redirect->website->domain.'/'.$path;
             data_set($modelData, 'url', $url);

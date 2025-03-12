@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 12-03-2025-16h-27m
@@ -8,18 +9,8 @@
 
 namespace App\Actions\Web\Redirect\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\UI\Catalogue\ShowFulfilmentCatalogueDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
-use App\Enums\Billables\Service\ServiceStateEnum;
-use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Enums\UI\Catalogue\ServiceTabsEnum;
-use App\Enums\UI\Fulfilment\FulfilmentServiceTabsEnum;
-use App\Http\Resources\Catalogue\ProductsResource;
-use App\Models\Billables\Service;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -39,32 +30,36 @@ class ShowRedirect extends OrgAction
         return $redirect;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, Redirect $redirect, ActionRequest $request): Redirect
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($redirect, $request);
+        return $this->handle($redirect);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWebpageInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, Redirect $redirect, ActionRequest $request): Redirect
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($redirect, $request);
+        return $this->handle($redirect);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Redirect $redirect, ActionRequest $request): Redirect
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($redirect, $request);
+        return $this->handle($redirect);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWebsiteInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Redirect $redirect, ActionRequest $request): Redirect
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($redirect, $request);
+        return $this->handle($redirect);
     }
 
     public function htmlResponse(Redirect $redirect, ActionRequest $request): Response
@@ -72,12 +67,12 @@ class ShowRedirect extends OrgAction
         return Inertia::render(
             'Org/Web/Redirect',
             [
-                'title'       => __('Redirect'),
+                'title'    => __('Redirect'),
                 // 'breadcrumbs' => $this->getBreadcrumbs(
                 //     $request->route()->getName(),
                 //     $request->route()->originalParameters()
                 // ),
-                'pageHead'    => [
+                'pageHead' => [
                     'model'   => __('redirect'),
                     'title'   => $redirect->path,
                     'icon'    =>
