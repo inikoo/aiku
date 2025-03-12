@@ -174,7 +174,7 @@ return [
 
         'normal'       => [
             'connection'      => 'redis',
-            'queue'           => ['default', 'universal-search', 'sales'],
+            'queue'           => ['default', 'sales'],
             'balance'         => 'auto',
             'maxProcesses'    => 1,
             'maxTime'         => 0,
@@ -186,9 +186,23 @@ return [
             'balanceMaxShift' => 1,
             'balanceCooldown' => 3,
         ],
+        'universal-search'       => [
+            'connection'      => 'redis',
+            'queue'           => ['universal-search'],
+            'balance'         => 'auto',
+            'maxProcesses'    => 20,
+            'maxTime'         => 0,
+            'maxJobs'         => 0,
+            'memory'          => 128,
+            'tries'           => 1,
+            'timeout'         => 150,
+            'nice'            => 0,
+            'balanceMaxShift' => 1,
+            'balanceCooldown' => 3,
+        ],
         'urgent'       => [
             'connection'      => 'redis',
-            'queue'           => ['urgent', 'ui'],
+            'queue'           => ['urgent'],
             'balance'         => 'auto',
             'maxProcesses'    => 20,
             'maxTime'         => 0,
@@ -202,7 +216,7 @@ return [
         ],
         'low-priority' => [
             'connection'          => 'redis',
-            'queue'               => ['low-priority','comms'],
+            'queue'               => ['low-priority'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses'        => 1,
@@ -237,7 +251,10 @@ return [
     'environments' => [
         'production' => [
             'normal'       => [
-                'maxProcesses' => env('HORIZON_HYDRATORS_WORKERS', 32),
+                'maxProcesses' => env('HORIZON_NORMAL_WORKERS', 192),
+            ],
+            'universal-search'       => [
+                'maxProcesses' => env('HORIZON_UNIVERSAL_SEARCH_WORKERS', 32),
             ],
             'urgent'       => [
                 'maxProcesses' => env('HORIZON_URGENT_WORKERS', 16),
@@ -252,7 +269,10 @@ return [
         ],
         'staging'    => [
             'normal'       => [
-                'maxProcesses' => env('HORIZON_HYDRATORS_WORKERS', 2),
+                'maxProcesses' => env('HORIZON_NORMAL_WORKERS', 2),
+            ],
+            'universal-search'       => [
+                'maxProcesses' => env('HORIZON_UNIVERSAL_SEARCH_WORKERS', 8),
             ],
             'urgent'       => [
                 'maxProcesses' => env('HORIZON_URGENT_WORKERS', 2),
@@ -268,7 +288,10 @@ return [
         ],
         'local'      => [
             'normal' => [
-                'maxProcesses' => env('HORIZON_HYDRATORS_WORKERS', 5),
+                'maxProcesses' => env('HORIZON_NORMAL_WORKERS', 5),
+            ],
+            'universal-search'       => [
+                'maxProcesses' => env('HORIZON_UNIVERSAL_SEARCH_WORKERS', 5),
             ],
             'urgent' => [
                 'maxProcesses' => env('HORIZON_URGENT_WORKERS', 5),
