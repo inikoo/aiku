@@ -4,44 +4,6 @@ import { checkVisible } from "@/Composables/Workshop"
 import { inject } from "vue"
 import Image from "@/Components/Image.vue"
 
-import { faPresentation, faCube, faText, faPaperclip } from "@fal"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import {
-	faChevronRight,
-	faSignOutAlt,
-	faShoppingCart,
-	faSearch,
-	faChevronDown,
-	faTimes,
-	faPlusCircle,
-	faBars,
-	faUserCircle,
-	faImage,
-	faSignInAlt,
-	faFileAlt,
-} from "@fas"
-import { faHeart } from "@far"
-
-library.add(
-	faPresentation,
-	faCube,
-	faText,
-	faImage,
-	faPaperclip,
-	faChevronRight,
-	faSignOutAlt,
-	faShoppingCart,
-	faHeart,
-	faSearch,
-	faChevronDown,
-	faTimes,
-	faPlusCircle,
-	faBars,
-	faUserCircle,
-	faSignInAlt,
-	faFileAlt
-)
-
 const props = defineProps<{
 	fieldValue: {
 		headerText: string
@@ -82,8 +44,7 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 					<div :style="getStyles(fieldValue?.logo?.properties)">
 						<Image
 							:alt="fieldValue?.logo?.alt"
-							:src="fieldValue?.logo?.image?.source"
-							class="hover-dashed" />
+							:src="fieldValue?.logo?.image?.source"/>
 					</div>
 				</a>
 
@@ -93,7 +54,6 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 				</div>
 
 				<div
-					class="absolute"
 					:style="{
 						width: fieldValue.text?.container?.properties?.width
 							? `${fieldValue.text?.container?.properties?.width}`
