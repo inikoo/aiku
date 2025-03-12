@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { getComponent } from '@/Composables/getWorkshopComponents';
+import { getComponent } from '@/Composables/getWorkshopComponents'
 import { ref, onMounted, toRaw } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
