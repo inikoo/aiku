@@ -72,11 +72,11 @@ const toggle = (event) => {
                 <MobileMenu :header="modelValue" :menu="modelValue" />
 
                 <!-- Logo for Mobile -->
-                <img v-if="!modelValue.logo"
+                <Image v-if="modelValue?.logo?.source?.original" :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
+                <img v-else-if="modelValue.logo"
                     src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
                     alt="Ancient Wisdom Logo" class="h-10 mx-2">
 
-                <Image v-else :src="modelValue?.logo?.source" class="h-10 mx-2"></Image>
 
                 <!-- Profile Icon with Dropdown Menu -->
                 <div @click="toggle" class="flex items-center cursor-pointer text-white">
