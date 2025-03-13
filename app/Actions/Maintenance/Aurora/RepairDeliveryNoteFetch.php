@@ -42,7 +42,7 @@ class RepairDeliveryNoteFetch
         $this->checkCount($command);
         $this->findNotFetchedDeliveryNotes();
         $this->findDuplicateDeliveryNotes($command);
-        $this->findNonDeletedDeliveryNotes($command);
+        $this->findNonDeletedDeliveryNotes();
     }
 
     /**
@@ -52,7 +52,7 @@ class RepairDeliveryNoteFetch
     {
         $counter = 0;
 
-        $sevenDays = now()->subDays(100000)->startOfDay();
+        $sevenDays = now()->subDays(120)->startOfDay();
         DeliveryNote::where(
             'organisation_id',
             $this->organisationSource->organisation->id
