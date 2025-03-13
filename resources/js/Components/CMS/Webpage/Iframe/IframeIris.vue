@@ -13,19 +13,25 @@ const props = defineProps<{
   blockData?: Object;
 }>();
 
-const screenWidth = ref(window.innerWidth);
+const screenWidth = ref(0);
 
 // Fungsi untuk memperbarui ukuran layar saat berubah
 const updateScreenWidth = () => {
-  screenWidth.value = window.innerWidth;
+  if (window) {
+    screenWidth.value = window.innerWidth;
+  }
 };
 
 onMounted(() => {
-  window.addEventListener("resize", updateScreenWidth);
+  if (window) {
+    window.addEventListener("resize", updateScreenWidth);
+  }
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", updateScreenWidth);
+  if (window) {
+    window.removeEventListener("resize", updateScreenWidth);
+  }
 });
 
 // Menentukan ukuran berdasarkan kondisi Mobile/Desktop
@@ -45,14 +51,24 @@ const iframeStyles = computed(() => {
 
   return baseStyles;
 });
+
+const isMounted = ref(false)
+onMounted(() => {
+  isMounted.value = true
+})
 </script>
 
 <template>
   <iframe 
+    v-if="isMounted"
     :title="fieldValue?.title || `iframe-${uuidv4()}`"
     :src="fieldValue?.link" 
     :style="iframeStyles"
     loading="lazy" 
     referrerpolicy="no-referrer-when-downgrade"
   />
+
+  <!-- Loading (skeleton) -->
+  <div v-else :style="iframeStyles" class="skeleton">
+  </div>
 </template>
