@@ -18,6 +18,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\Portfolio;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePortfolio extends OrgAction
@@ -79,6 +80,7 @@ class UpdatePortfolio extends OrgAction
 
         if (!$this->strict) {
             $rules = $this->noStrictUpdateRules($rules);
+            $rules['shop_id'] = ['sometimes', 'required', Rule::exists('shops', 'id')];
         }
 
         return $rules;

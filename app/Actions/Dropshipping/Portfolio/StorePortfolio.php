@@ -43,7 +43,7 @@ class StorePortfolio extends OrgAction
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
-        data_set($modelData, 'shop_id', $customer->organisation_id);
+        data_set($modelData, 'shop_id', $customer->shop_id);
 
         if (Arr::get($modelData, 'product_id')) {
             data_set($modelData, 'item_id', Arr::pull($modelData, 'product_id'));
