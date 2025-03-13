@@ -13,9 +13,7 @@ use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoicedCustomers;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateInvoices;
 use App\Actions\HydrateModel;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Billables\Charge;
-use App\Models\Catalogue\Asset;
 
 class HydrateCharge extends HydrateModel
 {

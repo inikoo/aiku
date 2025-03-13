@@ -31,11 +31,11 @@ trait WithInvoicesExport
                     $pallet = Pallet::find($transaction->data['pallet_id']);
                     $transaction->pallet = $pallet->reference;
                 }
-    
+
                 if (!empty($transaction->data['date'])) {
                     $transaction->handling_date = Carbon::parse($transaction->data['date'])->format('d M Y');
                 }
-    
+
                 return $transaction;
             });
 

@@ -5,11 +5,13 @@
   -->
 
 <script setup lang="ts">
-import { faCube, faLink, faImage } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Image from "@/Components/Image.vue"
 import { getStyles } from "@/Composables/styles"
 import { FieldValue } from "@/types/webpageTypes"
+
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faCube, faLink, faImage } from "@fal"
 
 library.add(faCube, faLink, faImage)
 
