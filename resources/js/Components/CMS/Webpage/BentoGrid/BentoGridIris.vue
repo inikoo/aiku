@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref } from "vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
 import { getStyles } from "@/Composables/styles"
-import Modal from "@/Components/Utils/Modal.vue"
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faImage, faEdit } from "@far"
-import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import { FieldValue } from "@/types/webpageTypes";
 library.add(faCube, faLink)
 
@@ -27,14 +21,14 @@ const props = defineProps<{
 <template>
 	<div :style="getStyles(fieldValue?.container?.properties)">
 		<div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-			<Editor v-model="fieldValue.title" @update:fieldValue="() => emits('autoSave')" />
+			<div v-html="fieldValue.title" />
 			<div class="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
 				<div class="relative lg:row-span-2">
 					<div class="absolute inset-px rounded-lg bg-white lg:rounded-l-[2rem]" />
 					<div
 						class="flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-l-[calc(2rem+1px)]">
 						<div class="px-8 pb-3 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
-							<Editor v-model="fieldValue.column1.text" @update:fieldValue="() => emits('autoSave')" />
+							<div v-html="fieldValue.column1.text"/>
 						</div>
 
 						<div
@@ -64,7 +58,7 @@ const props = defineProps<{
 						class="flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)]">
 						<!-- Text Editor Section -->
 						<div class="px-8 pt-8 sm:px-10 sm:pt-10">
-							<Editor v-model="fieldValue.column2.text" @update:fieldValue="() => emits('autoSave')" />
+							<div v-html="fieldValue.column2.text" />
 						</div>
 						<!-- Conditional Image or Default Structure for Column 2 -->
 						<div
@@ -94,7 +88,7 @@ const props = defineProps<{
 					<div class="flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
 						<!-- Text Editor Section -->
 						<div class="px-8 pt-8 sm:px-10 sm:pt-10">
-							<Editor v-model="fieldValue.column3.text" @update:fieldValue="() => emits('autoSave')" />
+							<div v-html="fieldValue.column3.text" />
 						</div>
 						<!-- Conditional Image or Default Structure for Column 3 -->
 						<div class="flex flex-1 items-center justify-center px-8 max-lg:py-6 lg:pb-2">
@@ -121,7 +115,7 @@ const props = defineProps<{
 					<div
 						class="flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-r-[calc(2rem+1px)]">
 						<div class="px-8 pb-3 pt-8 sm:px-10 sm:pb-0 sm:pt-10">
-							<Editor v-model="fieldValue.column4.text" @update:fieldValue="() => emits('autoSave')" />
+							<div v-html="fieldValue.column4.text" />
 						</div>
 						<!-- Conditional Image or Default Structure for Column 4 -->
 						<div
