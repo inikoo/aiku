@@ -1,128 +1,87 @@
 <script setup lang="ts">
-import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter } from "@fad";
+import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faLink, faUnlink } from "@fal";
-import { faExclamation, faCaretDown, faCaretLeft } from "@fas";
-import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
-import { watch, ref } from "vue";
-import { trans } from "laravel-vue-i18n"
+import { faExclamation, faCaretDown, faCaretLeft } from "@fortawesome/free-solid-svg-icons";
+import SideEditor from "@/Components/Workshop/SideEditor/SideEditor.vue";
+import { provide } from "vue";
+import { trans } from "laravel-vue-i18n";
+import { routeType } from "@/types/route";
 
 library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink, faCaretDown, faCaretLeft);
 
-const emit = defineEmits(['update:modelValue']);
+defineProps<{ uploadRoutes: routeType }>();
 
-const model = defineModel()
+const emit = defineEmits(["update:modelValue"]);
+const model = defineModel();
 
 const blueprint = [
-    {
-        key: ["link_data"],
-        label: "Link",
-        type: "link",
+  { key: ["source"], label: "Image", type: "upload_image" },
+  { key: ["link_data"], label: "Link", type: "link" },
+  { key: ["properties", "alt"], label: "Alt", type: "text" },
+  {
+    key: ["properties", "object_fit"],
+    label: "Object Image",
+    type: "select",
+    props_data: {
+      placeholder: "Object",
+      options: [
+        { label: "contain", value: "contain" },
+        { label: "cover", value: "cover" },
+        { label: "none", value: "none" },
+        { label: "scale-down", value: "scale-down" },
+      ],
     },
-    {
-        key: ["properties", "alt"],
-        label: "Alt",
-        type: "text",
+  },
+  {
+    key: ["properties", "object_position"],
+    label: "Object Position",
+    type: "select",
+    props_data: {
+      placeholder: "Object",
+      options: [
+        { label: "Bottom", value: "bottom" },
+        { label: "Center", value: "center" },
+        { label: "Left", value: "left" },
+        { label: "Right", value: "right" },
+        { label: "Top", value: "top" },
+        { label: "Left Bottom", value: "left bottom" },
+        { label: "Left Top", value: "left top" },
+        { label: "Right Bottom", value: "right bottom" },
+        { label: "Right Top", value: "right top" },
+      ],
     },
-    {
-        key: ["properties", "object_fit"],
-        label: "Object Image",
-        type: "select",
-        props_data: {
-            placeholder: 'Object',
-            options: [
-                {
-                    label: 'contain',
-                    value: 'contain'
-                },
-                {
-                    label: 'cover',
-                    value: 'cover'
-                },
-                {
-                    label: 'none',
-                    value: 'none'
-                },
-                {
-                    label: 'scale-down',
-                    value: 'scale-down'
-                },
-            ]
-        }
+  },
+  {
+    key: ["attributes", "fetchpriority"],
+    label: trans("Fetch Priority"),
+    information: trans("Priority of the image to loaded. Higher priority images are loaded first (good for LCP)."),
+    type: "select",
+    props_data: {
+      placeholder: trans("Priority"),
+      options: [
+        { label: trans("High"), value: "high" },
+        { label: trans("Low"), value: "low" },
+      ],
     },
-    {
-        key: ["properties", "object_position"],
-        label: "Object Position",
-        type: "select",
-        props_data: {
-            placeholder: 'Object',
-            options: [
-                {
-                    label: 'Bottom',
-                    value: 'bottom'
-                },
-                {
-                    label: 'Center',
-                    value: 'center'
-                },
-                {
-                    label: 'Left',
-                    value: 'left'
-                },
-                {
-                    label: 'Right',
-                    value: 'right'
-                },
-                {
-                    label: 'Top',
-                    value: 'top'
-                },
-                {
-                    label: 'Left Bottom',
-                    value: 'left bottom'
-                },
-                {
-                    label: 'Left Top',
-                    value: 'left top'
-                },
-                {
-                    label: 'Right Bottom',
-                    value: 'right bottom'
-                },
-                {
-                    label: 'Right Top',
-                    value: 'right top'
-                },
-            ]
-        }
-    },
-    {
-        key: ["attributes", "fetchpriority"],
-        label: trans("Fetch Priority"),
-        information: trans("Priority of the image to loaded. Higher priority images are loaded first (good for LCP)."),
-        type: "select",
-        props_data: {
-            placeholder: trans('Priority'),
-            options: [
-                {
-                    label: trans('High'),
-                    value: 'high'
-                },
-                {
-                    label: trans('Low'),
-                    value: 'low'
-                },
-            ]
-        }
-    },
-]
+  },
+];
 
+const onSaveWorkshopFromId = (blockId: number, from?: string) => {
+  emit("update:modelValue", model.value);
+};
+
+provide("onSaveWorkshopFromId", onSaveWorkshopFromId);
 </script>
 
 <template>
-    <div>
-        <SideEditor :blueprint="blueprint" v-model="model" />
-    </div>
+  <div>
+    <SideEditor
+      :blueprint="blueprint"
+      v-model="model"
+      :uploadImageRoute="uploadRoutes"
+    />
+  </div>
 </template>
 
 <style scoped></style>

@@ -1,3 +1,4 @@
+import { trans } from "laravel-vue-i18n";
 export default {
     blueprint: [
       {
@@ -9,11 +10,17 @@ export default {
             label:"Layout",
             type: "layout_type",
           },
-        /*   {
+          {
+            key: ["layout","properties","dimension"],
+            label:"Dimension",
+            type: "dimension",
+            information: trans("Setup all dimension in all image"),
+          },
+          {
             label: "Images",
             key: ["images"],
             type: "images-property",
-          } */
+          }
         ],
       },
       {
