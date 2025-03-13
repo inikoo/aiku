@@ -69,6 +69,6 @@ onBeforeMount(setImage)
     <picture :class="[props.class ?? 'w-full h-full flex justify-center items-center']">
         <source v-if="avif && avif != fallbackPath" type="image/avif" :srcset="avif">
         <source v-if="webp && webp != fallbackPath" type="image/webp" :srcset="webp">
-        <img :class="[imageCover ? 'w-full object-cover aspect-auto' : '']" :style="style" @load="() => emits('onLoadImage')" :srcset="original" :src="get(src, 'original')" :alt="alt" style="height: inherit;" v-bind="imgAttributes">
+        <img :class="[imageCover ? 'w-full object-cover aspect-auto' : '']" :style="{height: 'inherit', ...style }" @load="() => emits('onLoadImage')" :srcset="original" :src="get(src, 'original')" :alt="alt"  v-bind="imgAttributes">
     </picture>
 </template>
