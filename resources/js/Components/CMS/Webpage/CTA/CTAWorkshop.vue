@@ -49,19 +49,11 @@ const emits = defineEmits<{
           @update:modelValue="() => emits('autoSave')"
           class="mb-4"
         />
-        <div>
-          <a
-            :href="
-              modelValue.button.link.type === 'internal'
-                ? modelValue.button.link.workshop
-                : modelValue.button.link.href
-            "
-            :target="modelValue.button.link.target"
-            :style="getStyles(modelValue.button.container.properties)"
-            class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6"
-          >
-            {{ modelValue.button.text }}
-          </a>
+        <div
+			typeof="button"
+			:style="getStyles(modelValue.button.container.properties)"
+			class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
+			{{ modelValue.button.text }}
         </div>
       </div>
     </div>
