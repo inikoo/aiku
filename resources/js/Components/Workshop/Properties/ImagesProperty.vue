@@ -3,7 +3,7 @@ import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faLink, faUnlink } from "@fal";
 import { faExclamation, faCaretDown, faCaretLeft } from "@fas";
-import SideEditor from "../SideEditor/SideEditor.vue";
+import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
 import { watch, ref } from "vue";
 import { trans } from "laravel-vue-i18n"
 
@@ -117,17 +117,11 @@ const blueprint = [
     },
 ]
 
-const value = ref({ ...model.value })
-
-watch((value), (newValue) => {
-    model.value = newValue
-}, { deep: true })
-
 </script>
 
 <template>
     <div>
-        <SideEditor :blueprint="blueprint" v-model="value" />
+        <SideEditor :blueprint="blueprint" v-model="model" />
     </div>
 </template>
 

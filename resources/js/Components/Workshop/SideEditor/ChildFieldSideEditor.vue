@@ -3,7 +3,6 @@ import ParentFieldSideEditor from '@/Components/Workshop/SideEditor/ParentFieldS
 import { get } from 'lodash-es'
 import Accordion from 'primevue/accordion'
 import { ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid';
 
 import { routeType } from '@/types/route'
 const props = defineProps<{
