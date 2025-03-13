@@ -2,8 +2,8 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Thu, 13 Mar 2025 23:32:08 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Dropshipping\CustomerClient;
@@ -16,15 +16,14 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomerClien
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\CustomerClient;
 
-class DeleteCustomerClient extends OrgAction
+class ForceDeleteCustomerClient extends OrgAction
 {
     use WithActionUpdate;
 
 
-    public function handle(CustomerClient $customerClient, array $deletedData): CustomerClient
+    public function handle(CustomerClient $customerClient): CustomerClient
     {
-        $customerClient = $this->update($customerClient, $deletedData, ['data']);
-        $customerClient->delete();
+        $customerClient->forceDelete();
 
         CustomerHydrateClients::dispatch($customerClient->customer);
         ShopHydrateCustomerClients::dispatch($customerClient->customer);
@@ -34,11 +33,11 @@ class DeleteCustomerClient extends OrgAction
         return $customerClient;
     }
 
-    public function action(CustomerClient $customerClient, array $modelData): CustomerClient
+    public function action(CustomerClient $customerClient): CustomerClient
     {
-        $this->initialisationFromShop($customerClient->shop, $modelData);
+        $this->initialisationFromShop($customerClient->shop, []);
 
-        return $this->handle($customerClient, $this->validatedData);
+        return $this->handle($customerClient);
     }
 
 }

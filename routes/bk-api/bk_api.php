@@ -14,6 +14,7 @@ use App\Actions\Transfers\Aurora\Api\ProcessAuroraCredit;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomer;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomerClient;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraCustomerNote;
+use App\Actions\Transfers\Aurora\Api\ProcessAuroraDeleteCustomerClient;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraDeleteDeliveryNote;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraDeleteFavourites;
 use App\Actions\Transfers\Aurora\Api\ProcessAuroraDeleteInvoice;
@@ -60,6 +61,7 @@ Route::name('bk_api.')->group(function () {
             Route::post('charge', ProcessAuroraCharge::class)->name('charge');
             Route::post('credit', ProcessAuroraCredit::class)->name('credit');
             Route::post('customer-client', ProcessAuroraCustomerClient::class)->name('customer_client');
+            Route::post('delete-customer-client', ProcessAuroraDeleteCustomerClient::class)->name('customer_client.delete');
             Route::post('customer-notes', ProcessAuroraCustomerNote::class)->name('customer_note');
             Route::post('customer', ProcessAuroraCustomer::class)->name('customer');
             Route::post('delivery-note', ProcessAuroraDeliveryNote::class)->name('delivery_note');
