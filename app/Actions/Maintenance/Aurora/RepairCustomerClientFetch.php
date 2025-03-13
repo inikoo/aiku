@@ -66,7 +66,11 @@ class RepairCustomerClientFetch
                         if (!DB::connection('aurora')->table('Customer Client Dimension')->where('Customer Client Key', $sourceData[1])->exists()) {
                             $counter++;
                             print "$counter Customer Client ($customerClient->id)  $customerClient->source_id  ".$customerClient->creatd_at."  will be deleted\n";
-                            ForceDeleteCustomerClient::make()->action($customerClient);
+                            try {
+                                ForceDeleteCustomerClient::make()->action($customerClient);
+                            }catch (Throwable $e) {
+                                print "Error deleting customer client $customerClient->id\n";
+                            }
                         }
                     }
                 }
