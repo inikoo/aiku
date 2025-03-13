@@ -7,6 +7,7 @@ import AccordionContent from 'primevue/accordioncontent'
 import ChildFieldSideEditor from '@/Components/Workshop/SideEditor/ChildFieldSideEditor.vue'
 import { trans } from 'laravel-vue-i18n'
 import { kebabCase } from 'lodash-es'
+import { v4 as uuidv4 } from 'uuid';
 
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
 import { get } from 'lodash-es'
@@ -33,13 +34,7 @@ const modelValue = defineModel()
 const onSaveWorkshopFromId: Function = inject('onSaveWorkshopFromId', (e?: number) => { console.log('onSaveWorkshopFromId not provided') })
 const side_editor_block_id = inject('side_editor_block_id', () => { console.log('side_editor_block_id not provided') })  // Get the block id that use this property
 
-// const emits = defineEmits<{
-//     (e: 'update:modelValue', value: string | number): void
-// }>()
-
 const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
-
-    // emits('update:modelValue', setFormValue(modelValue.value, fieldKeys, newVal))
     setFormValue(modelValue.value, fieldKeys, newVal)
     onSaveWorkshopFromId(side_editor_block_id, 'parentfieldsideeditor')
 
@@ -52,7 +47,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
         <AccordionHeader>
             <div>
                 <Icon v-if="blueprint?.icon" :data="blueprint.icon" />
-                {{ get(blueprint, 'name', 'test') }}
+                {{ get(blueprint, 'name') }}
             </div>
         </AccordionHeader>
         <AccordionContent class="px-0">
@@ -61,7 +56,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
                     <ChildFieldSideEditor 
                         :blueprint="blueprint.replaceForm"
                         :modelValue="getFormValue(modelValue, blueprint.key)"
-                        :key="blueprint.key"
+                        :key="blueprint.key + uuidv4()"
                         :uploadImageRoute="uploadImageRoute" 
                         @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
                     />
@@ -75,10 +70,9 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
                     >
                          {{ trans(get(blueprint, 'label', '')) }}
                     </div>
-                    
                     <component 
                         :is="getComponent(blueprint.type)" 
-                        :key="blueprint.key"
+                         :key="blueprint.key + uuidv4()"
                         :modelValue="getFormValue(modelValue, blueprint.key)"
                         :uploadRoutes="uploadImageRoute" 
                         v-bind="blueprint?.props_data" 
@@ -94,7 +88,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
             <ChildFieldSideEditor
                 :blueprint="blueprint.replaceForm"
                 :modelValue="getFormValue(modelValue, blueprint.key)"
-                :key="blueprint.key"
+                :key="blueprint.key + uuidv4()"
                 @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
             />
         </template>
@@ -112,10 +106,9 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
                     </template>
                 </VTooltip>
             </div>
-
             <component 
                 :is="getComponent(blueprint.type)" 
-                :key="blueprint.key"
+                :key="blueprint.key + uuidv4()"
                 :uploadRoutes="uploadImageRoute" 
                 v-bind="blueprint?.props_data" 
                 :modelValue="getFormValue(modelValue, blueprint.key)"

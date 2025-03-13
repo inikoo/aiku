@@ -56,7 +56,7 @@ const setChild = (blueprint = [], data = {}) => {
 }
 
 const getFormValues = (form: any, data: any = {}) => {
-    const keyPath = Array.isArray(form.key) ? form.key : [form.key]  // ["container", "properties", "title"]
+    const keyPath = Array.isArray(form.key) ? form.key : [form.key] 
     if (form.replaceForm) {
         const set = getFormValue(data, keyPath) || {}
         setLodash(data, keyPath, setChild(form.replaceForm, set))
