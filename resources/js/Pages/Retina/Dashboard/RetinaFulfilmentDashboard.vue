@@ -26,9 +26,9 @@ import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalL
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-import { faCheck } from '@fas'
+import { faCheck, faCheckCircle } from '@fas'
 import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
-library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck)
+library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck, faCheckCircle)
 
 const props = defineProps<{
     data: {
