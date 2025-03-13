@@ -18,6 +18,8 @@ use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\Redirect\StoreRedirect;
+use App\Actions\Web\Redirect\UpdateRedirect;
 use App\Actions\Web\Webpage\HydrateWebpage;
 use App\Actions\Web\Webpage\Search\ReindexWebpageSearch;
 use App\Actions\Web\Webpage\StoreWebpage;
@@ -28,6 +30,7 @@ use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
+use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -38,6 +41,7 @@ use App\Models\Helpers\SnapshotStats;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Web\Banner;
 use App\Models\Web\ExternalLink;
+use App\Models\Web\Redirect;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
@@ -373,3 +377,29 @@ test('hydrate webpage', function () {
 test('web hydrator', function () {
     $this->artisan('hydrate -s web')->assertExitCode(0);
 });
+
+test('store redirect', function (Webpage $webpage) {
+    $redirect = StoreRedirect::make()->action($webpage, [
+        'type' => RedirectTypeEnum::PERMANENT,
+        'path' => 'hello'
+    ]);
+
+    expect($redirect)->toBeInstanceOf(Redirect::class)
+        ->and($redirect->type)->toBe(RedirectTypeEnum::PERMANENT)
+        ->and($redirect->path)->toBe('hello')
+        ->and($redirect->url)->toBe($redirect->website->domain . '/' . $redirect->path);
+
+    return $redirect;
+})->depends('create webpage');
+
+test('upadte redirect', function (Redirect $redirect) {
+    $redirect = UpdateRedirect::make()->action($redirect, [
+        'path' => 'hello5'
+    ]);
+
+    expect($redirect)->toBeInstanceOf(Redirect::class)
+        ->and($redirect->path)->toBe('hello5')
+        ->and($redirect->url)->toBe($redirect->website->domain . '/' . $redirect->path);
+
+    return $redirect;
+})->depends('store redirect');
