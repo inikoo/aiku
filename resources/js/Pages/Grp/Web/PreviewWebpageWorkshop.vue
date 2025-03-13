@@ -83,7 +83,7 @@ onMounted(() => {
                             :key="activityItem.id">
                             <section class="w-full min-h-[50px]" :data-block-id="activityItemIdx"
                                 v-show="showWebpage(activityItem)" :class="{
-                                    'hover-dashed': true,
+                                   /*  'hover-dashed': true, */
                                     'ring-2 ring-[#62748E] ring-offset-2': activeBlock === activityItemIdx
                                 }" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
                                 <component class="w-full" :is="getComponent(activityItem.type)" :webpageData="webpage"
