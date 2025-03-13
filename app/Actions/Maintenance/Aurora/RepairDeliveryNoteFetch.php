@@ -39,9 +39,9 @@ class RepairDeliveryNoteFetch
     public function handle(Command $command, Organisation $organisation): void
     {
         $this->setSource($organisation);
-        //$this->checkCount($command);
-        //$this->findNotFetchedDeliveryNotes();
-        //$this->findDuplicateDeliveryNotes($command);
+        $this->checkCount($command);
+        $this->findNotFetchedDeliveryNotes();
+        $this->findDuplicateDeliveryNotes($command);
         $this->findNonDeletedDeliveryNotes($command);
     }
 
