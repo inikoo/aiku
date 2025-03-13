@@ -14,6 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Platform;
+use App\Models\Dropshipping\TiktokUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -23,7 +24,7 @@ class StoreTiktokUser extends RetinaAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(Customer $customer, array $modelData)
+    public function handle(Customer $customer, array $modelData): TiktokUser
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
@@ -47,10 +48,10 @@ class StoreTiktokUser extends RetinaAction
         ];
     }
 
-    public function action(Customer $customer, array $modelData): void
+    public function action(Customer $customer, array $modelData): TiktokUser
     {
         $this->initialisationActions($customer, $modelData);
 
-        $this->handle($customer, $this->validatedData);
+        return $this->handle($customer, $this->validatedData);
     }
 }

@@ -8,16 +8,17 @@
 
 namespace App\Models\Dropshipping;
 
+use App\Actions\Dropshipping\Tiktok\Traits\WithTiktokApiServices;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\PlatformHasClient;
+use App\Models\TiktokUserHasProduct;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
 
@@ -70,6 +71,7 @@ class TiktokUser extends Model
     use HasEmail;
     use InCustomer;
     use SoftDeletes;
+    use WithTiktokApiServices;
 
     protected $guarded = [];
 
@@ -103,48 +105,13 @@ class TiktokUser extends Model
             ->saveSlugsTo('username');
     }
 
-    public function generateSignature($path, $params, $appSecret, $body): string
-    {
-        ksort($params);
-
-        $baseString = $appSecret . $path;
-
-        foreach ($params as $key => $value) {
-            $baseString .= $key . $value;
-        }
-
-        $jsonBody = json_encode($body);
-
-        $baseString .= $jsonBody . $appSecret;
-
-        return hash_hmac('sha256', $baseString, $appSecret);
-    }
-
-    public function restApi($path = null, $body = []): PendingRequest
-    {
-        $params = [];
-        $timestamp = now()->timestamp;
-        $appKey = config('services.tiktok.client_id');
-        $appSecret = config('services.tiktok.client_secret');
-
-        $params = array_merge($params, [
-            'app_key' => $appKey,
-            'timestamp' => $timestamp,
-            'shop_cipher' => "GCP_PyXLKAAAAAAeMx5cq6rC6rxt1v6fM0La"
-        ]);
-
-        $signature = $this->generateSignature($path, $params, $appSecret, $body);
-
-        return Http::withHeaders([
-            'x-tts-access-token' => $this->access_token,
-            'content-type' => 'application/json'
-        ])->baseUrl(config('services.tiktok.base_url'))
-            ->withQueryParameters(array_merge($params, ['sign' => $signature]));
-    }
-
     public function clients(): MorphMany
     {
         return $this->morphMany(PlatformHasClient::class, 'userable');
     }
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(TiktokUserHasProduct::class, 'tiktok_user_id');
+    }
 }

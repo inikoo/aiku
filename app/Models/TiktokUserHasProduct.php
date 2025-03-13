@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
 
-class TiktokUserHasProduct extends Pivot
+class TiktokUserHasProduct extends Model
 {
     protected $guarded = [];
 }

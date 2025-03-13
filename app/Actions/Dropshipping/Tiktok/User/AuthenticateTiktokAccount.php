@@ -63,20 +63,22 @@ class AuthenticateTiktokAccount extends RetinaAction
                             $platform = Platform::where('type', PlatformTypeEnum::TIKTOK->value)->first();
                             AttachCustomerToPlatform::make()->action($customer, $platform, []);
                         }
-
-                        UpdateTiktokUser::make()->action($tiktokUser, $userData);
                     } else {
-                        StoreTiktokUser::make()->action($customer, $userData);
+                        $tiktokUser = StoreTiktokUser::make()->action($customer, $userData);
                     }
 
-                    return $tiktokUser;
+                    $tiktokShop = $tiktokUser->getAuthorizedShop();
+
+                    data_set($userData, 'data.authorized_shop', Arr::get($tiktokShop, 'data.shops.0'));
+
+                    return UpdateTiktokUser::make()->action($tiktokUser, $userData);
                 }
             }
 
             throw ValidationException::withMessages(['message' => __('tiktok.access_token')]);
 
         } catch (\Exception $e) {
-//                        dd($e);
+            dd($e);
         }
     }
 

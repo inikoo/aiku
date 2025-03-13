@@ -20,7 +20,7 @@ class UpdateTiktokUser extends RetinaAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(TiktokUser $tiktokUser, array $modelData)
+    public function handle(TiktokUser $tiktokUser, array $modelData): TiktokUser
     {
         return $this->update($tiktokUser, $modelData);
     }
@@ -36,10 +36,10 @@ class UpdateTiktokUser extends RetinaAction
         ];
     }
 
-    public function action(TiktokUser $tiktokUser, array $modelData): void
+    public function action(TiktokUser $tiktokUser, array $modelData): TiktokUser
     {
         $this->initialisationActions($tiktokUser->customer, $modelData);
 
-        $this->handle($tiktokUser, $this->validatedData);
+        return $this->handle($tiktokUser, $this->validatedData);
     }
 }

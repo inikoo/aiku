@@ -29,29 +29,57 @@ class StoreProductToTiktok extends RetinaAction
     public function handle(TiktokUser $tiktokUser, array $modelData)
     {
         DB::transaction(function () use ($tiktokUser, $modelData) {
+            $productImages = [];
             foreach (Arr::get($modelData, 'products') as $product) {
-
                 /** @var Portfolio $portfolio */
                 $portfolio = StorePortfolio::run($tiktokUser->customer, [
                     'product_id' => $product,
                     'type' => PortfolioTypeEnum::TIKTOK->value,
                 ]);
 
+                foreach ($portfolio->item?->images as $image) {
+                    $productImage = UploadProductImageToTiktok::run($tiktokUser, $image);
+
+                    $productImages[] = [
+                        'uri' => Arr::get($productImage, 'data.uri')
+                    ];
+                }
+
                 $productData = [
                     'title' => $portfolio->item->name,
                     'description' => $portfolio->item->name,
                     'price' => $portfolio->item->price,
-                    'category_id' => "2347024",
-                    'main_images' => [['uri' => 'tos-useast2a-i-tulkllf4y5-euttp/bdf7a5d9a83f4f01b517995c37df7d76']],
+                    'category_id' => "2348816",
+                    'main_images' => $productImages,
                     'package_weight' => [
                         'value' => $portfolio->item->gross_weight ?? "1.00",
-                        'unit' => 'POUND'
+                        'unit' => 'KILOGRAM'
                     ],
                     'package_dimensions' => [
-                        'width' => "1",
-                        'length' => "1",
-                        'height' => "1",
-                        'unit' => "INCH",
+                        'width' => "10",
+                        'length' => "5",
+                        'height' => "10",
+                        'unit' => "CENTIMETER",
+                    ],
+                    'product_attributes' => [
+                        [
+                            'id' => "101710",
+                            'values' => [
+                                [
+                                    'id' => "1000059",
+                                    'name' => "No"
+                                ]
+                            ]
+                        ],
+                        [
+                            'id' => "100110",
+                            'values' => [
+                                [
+                                    'id' => "1000059",
+                                    'name' => "No"
+                                ]
+                            ]
+                        ]
                     ],
                     'skus' => [
                         [
@@ -59,7 +87,7 @@ class StoreProductToTiktok extends RetinaAction
                             'inventory' => [
                                 [
                                     'quantity' => $portfolio->item->available_quantity,
-                                    'warehouse_id' => "7480392764145878817"
+                                    'warehouse_id' => "7480392764145895201"
                                 ]
                             ],
                             'price' => [
@@ -70,11 +98,13 @@ class StoreProductToTiktok extends RetinaAction
                     ]
                 ];
 
-                $path = '/product/202309/products';
-                $tiktok = $tiktokUser->restApi($path, $productData)
-                    ->post($path, $productData);
+                $product = $tiktokUser->uploadProductToTiktok($productData);
 
-                dd($tiktok->json());
+                $tiktokUser->products()->create([
+                    'productable_id' => $portfolio->item->id,
+                    'productable_type' => $portfolio->item->getMorphClass(),
+                    'tiktok_product_id' => Arr::get($product, 'data.product_id')
+                ]);
             }
         });
     }
