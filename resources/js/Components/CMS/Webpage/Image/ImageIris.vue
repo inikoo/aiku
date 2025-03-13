@@ -97,7 +97,10 @@ const getImageSlots = (layoutType: string) => {
 					:src="fieldValue?.value?.images?.[index - 1]?.source"
 					:imageCover="true" 
 					:alt="fieldValue?.value?.images?.[index - 1]?.properties?.alt || 'image alt'"
-					:imgAttributes="fieldValue?.value?.images?.[index - 1]?.attributes"
+					:imgAttributes="{
+						...fieldValue?.value?.images?.[index - 1]?.attributes,
+						loading: 'lazy'
+					}"
 				/>
 			</component>
 		</div>
