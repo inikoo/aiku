@@ -276,7 +276,7 @@ const isLoadingButtonRentalAgreement = ref(false)
             </div>
         </div>
       </div>
-        <div v-if="data.route_action && customer?.status != 'pending_approval'" class=" flex">
+        <div v-if="data.route_action" class=" flex">
           <div class="w-64 border-gray-300 ">
               <div class="p-1" v-for="(btn, index) in data.route_action" :key="index">
               <ButtonWithLink

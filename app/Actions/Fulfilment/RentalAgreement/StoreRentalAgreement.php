@@ -72,12 +72,7 @@ class StoreRentalAgreement extends OrgAction
             ]
         );
 
-        UpdateFulfilmentCustomer::make()->action(
-            $fulfilmentCustomer,
-            [
-                'status' => FulfilmentCustomerStatusEnum::ACTIVE
-            ]
-        );
+
 
         foreach ($clauses as $clauseData) {
             foreach ($clauseData as $data) {
