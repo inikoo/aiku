@@ -80,7 +80,7 @@ onMounted(() => {
         emits('update:modelValue', setFormValues(props.blueprint))
     }
 })
-
+console.log(props)
 
 </script>
 

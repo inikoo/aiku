@@ -56,7 +56,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
                     <ChildFieldSideEditor 
                         :blueprint="blueprint.replaceForm"
                         :modelValue="getFormValue(modelValue, blueprint.key)"
-                        :key="blueprint.key + uuidv4()"
+                        :key="blueprint.key "
                         :uploadImageRoute="uploadImageRoute" 
                         @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
                     />
@@ -72,7 +72,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
                     </div>
                     <component 
                         :is="getComponent(blueprint.type)" 
-                         :key="blueprint.key + uuidv4()"
+                         :key="blueprint.key "
                         :modelValue="getFormValue(modelValue, blueprint.key)"
                         :uploadRoutes="uploadImageRoute" 
                         v-bind="blueprint?.props_data" 
@@ -88,7 +88,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
             <ChildFieldSideEditor
                 :blueprint="blueprint.replaceForm"
                 :modelValue="getFormValue(modelValue, blueprint.key)"
-                :key="blueprint.key + uuidv4()"
+                :key="blueprint.key "
                 @update:modelValue="newValue => onPropertyUpdate(blueprint.key, newValue)"
             />
         </template>
@@ -108,7 +108,7 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
             </div>
             <component 
                 :is="getComponent(blueprint.type)" 
-                :key="blueprint.key + uuidv4()"
+                :key="blueprint.key "
                 :uploadRoutes="uploadImageRoute" 
                 v-bind="blueprint?.props_data" 
                 :modelValue="getFormValue(modelValue, blueprint.key)"
