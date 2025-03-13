@@ -25,11 +25,11 @@ const emits = defineEmits<{
     <div class="relative h-80 overflow-hidden md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
       <template v-if="modelValue?.image?.source">
         <Image
-          :src="modelValue.image.source"
+          :src="modelValue?.image?.source"
           :imageCover="true"
-          :alt="modelValue.image.alt"
-          :imgAttributes="modelValue.image.attributes"
-          :style="getStyles(modelValue.image.properties)"
+          :alt="modelValue?.image?.alt"
+          :imgAttributes="modelValue?.image?.attributes"
+          :style="getStyles(modelValue?.image?.properties)"
         />
       </template>
       <template v-else>
@@ -51,9 +51,9 @@ const emits = defineEmits<{
         />
         <div
 			typeof="button"
-			:style="getStyles(modelValue.button.container.properties)"
+			:style="getStyles(modelValue?.button?.container?.properties)"
 			class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-			{{ modelValue.button.text }}
+			{{ modelValue?.button?.text }}
         </div>
       </div>
     </div>

@@ -45,13 +45,13 @@ function onSave() {
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<div
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
-								<img v-if="!modelValue.column1.image.source"
+								<img v-if="!modelValue?.column1?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-									:alt="modelValue.column1.image.alt" class="h-full w-full object-cover" />
-								<Image v-else :src="modelValue.column1.image.source" :imageCover="true"
-									:alt="modelValue.column1.image.alt"
-									:imgAttributes="modelValue.column1.image.attributes"
-									:style="getStyles(modelValue.column1.image.properties)" />
+									:alt="modelValue?.column1?.image?.alt" class="h-full w-full object-cover" />
+								<Image v-else :src="modelValue?.column1?.image?.source" :imageCover="true"
+									:alt="modelValue?.column1?.image?.alt"
+									:imgAttributes="modelValue?.column1?.image?.attributes"
+									:style="getStyles(modelValue?.column1?.image?.properties)" />
 							</div>
 						</div>
 
@@ -75,14 +75,14 @@ function onSave() {
 							class="flex flex-1 items-center justify-center px-8 max-lg:pb-12 max-lg:pt-10 sm:px-10 lg:pb-2">
 							<!-- Default Image Structure (renders if column2.image is absent) -->
 							<div class="relative w-full max-lg:max-w-xs">
-								<img v-if="!modelValue.column2.image.source"
+								<img v-if="!modelValue?.column2?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-									:alt="modelValue.column2.image.alt"
+									:alt="modelValue?.column2?.image?.alt"
 									class="h-full w-full object-cover rounded-lg shadow-lg" />
-								<Image v-else :src="modelValue.column2.image.source" :imageCover="true"
-									:alt="modelValue.column2.image.alt"
-									:imgAttributes="modelValue.column2.image.attributes"
-									:style="getStyles(modelValue.column2.image.properties)" />
+								<Image v-else :src="modelValue?.column2?.image?.source" :imageCover="true"
+									:alt="modelValue?.column2?.image?.alt"
+									:imgAttributes="modelValue?.column2?.image?.attributes"
+									:style="getStyles(modelValue?.column2?.image?.properties)" />
 							</div>
 						</div>
 					</div>
@@ -104,14 +104,14 @@ function onSave() {
 						<div class="flex flex-1 items-center justify-center px-8 max-lg:py-6 lg:pb-2">
 							<!-- Default Image Structure (renders if column3.image is absent) -->
 							<div class="relative w-full max-lg:max-w-xs">
-								<img v-if="!modelValue.column3.image.source"
+								<img v-if="!modelValue?.column3?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-									:alt="modelValue.column3.image.alt"
+									:alt="modelValue?.column3?.image?.alt"
 									class="h-full w-full object-cover rounded-lg shadow-lg" />
-								<Image v-else :src="modelValue.column3.image.source" :imageCover="true"
-									:alt="modelValue.column3.image.alt"
-									:imgAttributes="modelValue.column3.image.attributes"
-									:style="getStyles(modelValue.column3.image.properties)" />
+								<Image v-else :src="modelValue?.column3?.image?.source" :imageCover="true"
+									:alt="modelValue?.column3?.image?.alt"
+									:imgAttributes="modelValue?.column3?.image?.attributes"
+									:style="getStyles(modelValue?.column3?.image?.properties)" />
 							</div>
 						</div>
 					</div>
@@ -133,13 +133,13 @@ function onSave() {
 							<!-- Default Image Structure (renders if column4.image is absent) -->
 							<div
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
-								<img v-if="!modelValue.column4.image.source"
+								<img v-if="!modelValue?.column4?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-									:alt="modelValue.column4.image.alt" class="h-full w-full object-cover" />
-								<Image v-else :src="modelValue.column4.image.source" :imageCover="true"
-									:alt="modelValue.column4.image.alt"
-									:imgAttributes="modelValue.column4.image.attributes"
-									:style="getStyles(modelValue.column4.image.properties)" />
+									:alt="modelValue?.column4?.image?.alt" class="h-full w-full object-cover" />
+								<Image v-else :src="modelValue?.column4?.image?.source" :imageCover="true"
+									:alt="modelValue?.column4?.image?.alt"
+									:imgAttributes="modelValue?.column4?.image?.attributes"
+									:style="getStyles(modelValue?.column4?.image?.properties)" />
 							</div>
 						</div>
 					</div>

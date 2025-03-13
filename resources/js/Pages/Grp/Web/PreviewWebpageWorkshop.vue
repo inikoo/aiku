@@ -75,7 +75,7 @@ onMounted(() => {
 
 <template>
     <div class="editor-class">
-        <div class="shadow-xl" :class="layout?.layout === 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto'">
+        <div class="shadow-xl px-1" :class="layout?.layout === 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto'">
             <div v-if="webpage">
                 <div v-if="webpage?.layout?.web_blocks?.length">
                     <TransitionGroup tag="div" name="list" class="relative">
@@ -84,8 +84,9 @@ onMounted(() => {
                             <section class="w-full min-h-[50px]" :data-block-id="activityItemIdx"
                                 v-show="showWebpage(activityItem)" :class="{
                                    /*  'hover-dashed': true, */
-                                    'ring-2 ring-[#62748E] ring-offset-2': activeBlock === activityItemIdx
+                                    'ring-4 ring-[#4F46E5]': activeBlock === activityItemIdx
                                 }" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
+                                
                                 <component class="w-full" :is="getComponent(activityItem.type)" :webpageData="webpage"
                                     :blockData="activityItem" @autoSave="() => updateData(activityItem)"
                                     v-model="activityItem.web_block.layout.data.fieldValue" />
