@@ -43,6 +43,7 @@ const handleUpload = async () => {
     emits("autoSave");
     addedFiles.value = [];
   } catch (error) {
+    console.log(error)
     notify({ title: "Failed", text: "Error while uploading data", type: "error" });
   }
 };
@@ -91,27 +92,31 @@ const deleteImage = () => {
     </button>
   </div>
 
-  <div @dragover="dragOver" @dragleave="dragLeave" @drop="drop" class="border border-indigo-400 border-dashed p-5 text-center cursor-pointer" @click="() => fileInput?.click()">
+  <div @dragover="dragOver" @dragleave="dragLeave" @drop="drop" class="relative border border-indigo-400 border-dashed p-5 text-center cursor-pointer" @click="() => fileInput?.click()">
     <input type="file" multiple ref="fileInput" class="hidden" @change="onFileChange" />
     
     <div v-if="!modelValue" class="text-sm">
-      <p>{{ trans("Drag Images Here.") }}</p>
-      <p class="text-xs">{{ trans("PNG, JPG, GIF up to 10MB") }}</p>
-      <Button label="Gallery" size="xs" @click="isOpenGalleryImages = true" />
+      <div class="py-3">
+        <p>{{ trans("Drag Images Here.") }}</p>
+        <p class="text-xs">{{ trans("PNG, JPG, GIF up to 10MB") }}</p>
+      </div>
+    
+      <Button label="Gallery" size="xs" @click="(event) => { event.stopPropagation(); isOpenGalleryImages = true }" />
     </div>
     
     <div v-else>
       <Image :src="modelValue" class="w-full h-auto" />
-      <div class="absolute top-0 right-0 m-2 flex gap-2">
-        <Button label="Gallery" size="xs" @click="isOpenGalleryImages = true" />
-        <Button label="Delete" size="xs" @click="deleteImage" />
+      <div class="absolute top-0 right-4 m-2 flex gap-2">
+        <Button id="gallery" :style="`tertiary`" :icon="'fal fa-photo-video'" label="Gallery" size="xs"    @click="(event) => { event.stopPropagation(); isOpenGalleryImages = true; }"  />
+        <Button id="gallery" :style="`red`" :icon="['far', 'fa-trash-alt']" size="xs" class="relative hover:text-gray-700" @click="(event) => { event.stopPropagation(); deleteImage(); }" />
       </div>
     </div>
   </div>
 
-  <Modal :isOpen="isOpenGalleryImages" @onClose="() => (isOpenGalleryImages = false)">
-    <GalleryManagement :maxSelected="1" @submitSelectedImages="onPickImage" />
-  </Modal>
+  <Modal :isOpen="isOpenGalleryImages" @onClose="() => (isOpenGalleryImages = false)" width="w-3/4">
+		<GalleryManagement :maxSelected="1" :tabs="['images_uploaded', 'stock_images']"
+			:closePopup="() => (isOpenGalleryImages = false)" @submitSelectedImages="onPickImage" />
+	</Modal>
 </template>
 
 <style scoped></style>
