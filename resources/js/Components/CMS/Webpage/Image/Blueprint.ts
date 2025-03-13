@@ -9,11 +9,11 @@ export default {
             label:"Layout",
             type: "layout_type",
           },
-          {
+        /*   {
             label: "Images",
             key: ["images"],
             type: "images-property",
-          }
+          } */
         ],
       },
       {
