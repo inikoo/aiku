@@ -69,6 +69,7 @@ class RepairCustomerClientFetch
                             try {
                                 ForceDeleteCustomerClient::make()->action($customerClient);
                             }catch (Throwable $e) {
+                                print_r($e);
                                 print "Error deleting customer client $customerClient->id\n";
                             }
                         }

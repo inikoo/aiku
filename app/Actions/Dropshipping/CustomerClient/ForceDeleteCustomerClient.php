@@ -23,6 +23,7 @@ class ForceDeleteCustomerClient extends OrgAction
 
     public function handle(CustomerClient $customerClient): CustomerClient
     {
+        $customerClient->stats->forceDelete();
         $customerClient->forceDelete();
 
         CustomerHydrateClients::dispatch($customerClient->customer);
