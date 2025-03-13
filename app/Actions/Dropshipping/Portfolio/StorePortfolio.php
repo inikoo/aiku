@@ -10,7 +10,6 @@ namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\ShopHydratePortfolios;
-use App\Actions\Dropshipping\Portfolio\Search\PortfolioRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePortfolios;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios;
@@ -67,9 +66,6 @@ class StorePortfolio extends OrgAction
         OrganisationHydratePortfolios::dispatch($customer->organisation)->delay($this->hydratorsDelay);
         ShopHydratePortfolios::dispatch($customer->shop)->delay($this->hydratorsDelay);
         CustomerHydratePortfolios::dispatch($customer)->delay($this->hydratorsDelay);
-
-        PortfolioRecordSearch::dispatch($portfolio);
-
 
         return $portfolio;
     }
