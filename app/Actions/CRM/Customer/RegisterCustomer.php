@@ -48,7 +48,7 @@ class RegisterCustomer extends OrgAction
 
         SendCustomerWelcomeEmail::run($customer);
 
-        // SendNewCustomerToSubcriberEmail::run($fulfilmentCustomer->customer);
+        SendNewCustomerToSubcriberEmail::run($customer);
 
         ShopHydrateCrmStats::run($shop);
 
