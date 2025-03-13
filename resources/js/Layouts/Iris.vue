@@ -80,10 +80,14 @@ onMounted(() => {
     };
 
     // Listen to messages from the iframe
-    window.addEventListener('message', handleMessage);
+    if (window) {
+        window.addEventListener('message', handleMessage);
+    }
 
     onBeforeUnmount(() => {
-        window.removeEventListener('message', handleMessage);
+        if (window) {
+            window.removeEventListener('message', handleMessage);
+        }
     });
 });
 
