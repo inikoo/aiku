@@ -93,7 +93,7 @@ const getImageSlots = (layoutType: string) => {
 			<component v-if="fieldValue?.value?.images?.[index - 1]?.source" :is="getHref(index - 1) ? 'a' : 'div'"
 				target="_blank" rel="noopener noreferrer" class="block w-full h-full">
 
-					<Image :style="{ ...getStyles(fieldValue?.value.layout.properties), ...getStyles(fieldValue?.value?.images?.[index - 1]?.properties) ,}"
+					<Image :style="{ ...getStyles(fieldValue?.value.layout?.properties), ...getStyles(fieldValue?.value?.images?.[index - 1]?.properties) ,}"
 					:src="fieldValue?.value?.images?.[index - 1]?.source" :imageCover="true"
 					class="w-full h-full aspect-square object-cover rounded-lg"
 					:imgAttributes="fieldValue?.value?.images?.[index - 1]?.attributes"
