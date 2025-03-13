@@ -23,14 +23,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
 import { faPencil, faWallet } from '@fal'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
-// import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
-// import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import CountUp from 'vue-countup-v3'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-import CustomerDataForm from '@/Components/CustomerDataForm.vue'
-import { RuleType } from 'v-calendar/dist/types/src/utils/date/rules.js'
-import { faCheck, faTimes } from '@fas'
+import { faCheck } from '@fas'
 import ButtonWithLink from '@/Components/Elements/Buttons/ButtonWithLink.vue'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight, faCheck)
 
@@ -43,7 +39,6 @@ const props = defineProps<{
             credit_transactions: number
         }
         currency_code: string
-        // customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
                 [key: string]: boolean
@@ -269,13 +264,6 @@ const isLoadingButtonRentalAgreement = ref(false)
 
                 <div v-else class="text-center py-16">
                     <div class="text-gray-500 text-xs mb-1">The rental agreement is not created yet.</div>
-                    <!-- <Link
-                        :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)"
-                        @start="() => isLoadingButtonRentalAgreement = true"
-                        @cancel="() => isLoadingButtonRentalAgreement = false">
-                    <Button type="secondary" label="Create Rental Agreement"
-                        :loading="isLoadingButtonRentalAgreement" />
-                    </Link> -->
                 </div>
             </div>
         </div>

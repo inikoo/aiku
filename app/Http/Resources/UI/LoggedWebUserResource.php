@@ -20,14 +20,16 @@ class LoggedWebUserResource extends JsonResource
     {
         /** @var WebUser $webUser */
         $webUser = $this;
+
         // dd($webUser);
         return [
-            'id'               => $webUser->id,
-            'contact_name'     => $webUser->contact_name,
-            'username'         => $webUser->username,
-            'email'            => $webUser->email,
-            'customer_id'      => $webUser->customer_id,
-            'avatar_thumbnail' => !blank($webUser->image_id) ? $webUser->imageSources(0, 48) : null,
+            'id'                => $webUser->id,
+            'contact_name'      => $webUser->contact_name,
+            'username'          => $webUser->username,
+            'email'             => $webUser->email,
+            'customer_id'       => $webUser->customer_id,
+            'avatar_thumbnail'  => !blank($webUser->image_id) ? $webUser->imageSources(0, 48) : null,
+            'fulfilment_active' => false
 
         ];
     }
