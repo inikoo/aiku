@@ -42,10 +42,10 @@ const openGallery = ref(false)
 					@update:modelValue="() => emits('autoSave')" />
 			</div>
 
-			<a typeof="button":target="modelValue.button.link.target" :style="getStyles(modelValue.button.container.properties)"
+			<div typeof="button":target="modelValue.button.link.target" :style="getStyles(modelValue.button.container.properties)"
 				class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6 cursor-pointer">
 				{{ modelValue.button.text }}
-			</a>
+			</div>
 		</div>
 	</div>
 </template>
