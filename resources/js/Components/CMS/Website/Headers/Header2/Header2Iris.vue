@@ -48,7 +48,9 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 						:alt="fieldValue?.logo?.alt"
 						:src="fieldValue?.logo?.image?.source"
 						:style="getStyles(fieldValue?.logo?.properties)"
-						class="hover-dashed"
+						:imgAttributes="{
+							loading:'lazy'
+						}"
 					/>
 				</component>
 

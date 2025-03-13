@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<{
     style?: Object
     imgAttributes?: {
         fetchpriority?: string // 'high' | 'low'
+        loading?: string  // 'lazy'
     }
 }>(), {
     src: () => { return ref({ original: fallbackPath }) },
