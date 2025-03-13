@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, toRaw } from 'vue';
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import Button from "@/Components/Elements/Buttons/Button.vue";
-import OverviewProperty from "@/Components/Workshop/Properties/OverviewProperty.vue";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus, faTrash } from "@fal";
-import { cloneDeep } from "lodash-es";
-import SideEditor from "@/Components/Workshop/SideEditor/SideEditor.vue";
 import ImagesProperty from "@/Components/Workshop/Properties/ImagesProperty.vue";
 
 library.add(faPlus, faTrash);
@@ -27,14 +22,9 @@ const emit = defineEmits(["update:modelValue"]);
 
 
 const onChangeProperty = (index, data) => {
-   /*  const setData = [...props.modelValue]
-
-    setData[index] = data; */
-  /*   emit("update:modelValue", [...props.modelValue]); */
-
-     const updatedData = [...props.modelValue]; // Clone the array to maintain reactivity
-    updatedData[index] = { ...updatedData[index], ...data }; // Merge existing data with new changes
-    emit("update:modelValue", updatedData); // Emit the updated array
+    const updatedData = [...props.modelValue];
+    updatedData[index] = { ...updatedData[index], ...data };
+    emit("update:modelValue", updatedData);
 };
 
 
