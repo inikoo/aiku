@@ -1602,7 +1602,10 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 
 test('Update pallet reference', function (PalletReturn $palletReturn) {
     /** @var Pallet $pallet */
-    $pallet = $palletReturn->fulfilmentCustomer->pallets()->first();
+    $pallet = $palletReturn->fulfilmentCustomer
+            ->pallets()
+            ->whereNotIn('pallets.id', $palletReturn->pallets()->pluck('pallets.id'))
+            ->first();
 
     $newReference = 'GHO-p0006';
 
@@ -1620,9 +1623,6 @@ test('Update pallet reference', function (PalletReturn $palletReturn) {
 
 test('import pallets in return (xlsx)  whole pallets ', function (PalletReturn $palletReturn) {
     Storage::fake('local');
-
-
-    dd('xx');
 
     $tmpPath = 'tmp/uploads/';
 
@@ -1649,7 +1649,7 @@ test('import pallets in return (xlsx)  whole pallets ', function (PalletReturn $
         ->and($upload->number_fails)->toBe(0);
 
     return $palletReturn;
-})->depends('store pallet to return')->todo(); // Kirin Redo this test
+})->depends('store pallet to return'); // Kirin Redo this test
 
 test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
     Storage::fake('local');
