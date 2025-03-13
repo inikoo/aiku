@@ -2,8 +2,8 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 13 Mar 2025 21:57:43 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2025, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Dispatching\DeliveryNote;
@@ -17,26 +17,26 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\DeliveryNote;
 use Illuminate\Support\Facades\DB;
 
-class DeleteDeliveryNote extends OrgAction
+class ForceDeleteDeliveryNote extends OrgAction
 {
     use WithActionUpdate;
 
     /**
      * @throws \Throwable
      */
-    public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
+    public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
-        $deliveryNote = DB::transaction(function () use ($deliveryNote, $modelData) {
-            $deliveryNote = $this->update($deliveryNote, $modelData);
+        $deliveryNote = DB::transaction(function () use ($deliveryNote) {
 
             foreach ($deliveryNote->deliveryNoteItems as $item) {
-                $item->pickings()->delete();
+                $item->pickings()->forceDelete();
             }
-            $deliveryNote->deliveryNoteItems()->delete();
-            $deliveryNote->delete();
+            $deliveryNote->deliveryNoteItems()->forceDelete();
+            $deliveryNote->forceDelete();
 
             return $deliveryNote;
         });
+
         CustomerHydrateDeliveryNotes::dispatch($deliveryNote->customer);
         ShopHydrateDeliveryNotes::dispatch($deliveryNote->shop);
         OrganisationHydrateDeliveryNotes::dispatch($deliveryNote->organisation);
@@ -48,10 +48,10 @@ class DeleteDeliveryNote extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
+    public function action(DeliveryNote $deliveryNote): DeliveryNote
     {
-        $this->initialisationFromShop($deliveryNote->shop, $modelData);
+        $this->initialisationFromShop($deliveryNote->shop, []);
 
-        return $this->handle($deliveryNote, $this->validatedData);
+        return $this->handle($deliveryNote);
     }
 }

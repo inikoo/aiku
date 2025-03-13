@@ -7,11 +7,11 @@
  */
 
 
-
 /** @noinspection DuplicatedCode */
 
 namespace App\Actions\Maintenance\Aurora;
 
+use App\Actions\Dispatching\DeliveryNote\ForceDeleteDeliveryNote;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Transfers\Aurora\FetchAuroraDeliveryNotes;
 use App\Models\Dispatching\DeliveryNote;
@@ -39,11 +39,45 @@ class RepairDeliveryNoteFetch
     public function handle(Command $command, Organisation $organisation): void
     {
         $this->setSource($organisation);
-        $this->checkCount($command);
-        $this->findNotFetchedDeliveryNotes();
-        $this->findDuplicateDeliveryNotes($command);
+        //$this->checkCount($command);
+        //$this->findNotFetchedDeliveryNotes();
+        //$this->findDuplicateDeliveryNotes($command);
+        $this->findNonDeletedDeliveryNotes($command);
     }
 
+    /**
+     * @throws \Throwable
+     */
+    public function findNonDeletedDeliveryNotes(): void
+    {
+        $counter = 0;
+
+        $sevenDays = now()->subDays(100000)->startOfDay();
+        DeliveryNote::where(
+            'organisation_id',
+            $this->organisationSource->organisation->id
+        )->whereNotNull('source_id')
+            ->where('created_at', '>=', $sevenDays)
+            ->orderBy('created_at', 'desc')
+            ->chunk(
+                1000,
+                function ($chunkedData) use ($counter) {
+                    foreach ($chunkedData as $deliveryNote) {
+
+
+                        $sourceData          = explode(':', $deliveryNote->source_id);
+                        if (!DB::connection('aurora')->table('Delivery Note Dimension')->where('Delivery Note Key', $sourceData[1])->exists()) {
+                            $counter++;
+                            print "$counter Delivery Note ($deliveryNote->id)  $deliveryNote->source_id  ".$deliveryNote->creatd_at."  will be deleted\n";
+                            ForceDeleteDeliveryNote::make()->action($deliveryNote);
+                        }
+
+
+
+                    }
+                }
+            );
+    }
 
     public function findNotFetchedDeliveryNotes(): void
     {
@@ -155,10 +189,10 @@ class RepairDeliveryNoteFetch
             /** @var DeliveryNote $deliveryNote */
             foreach ($deliveryNotes as $deliveryNote) {
                 $details[] = [
-                    'id' => $deliveryNote->id,
+                    'id'        => $deliveryNote->id,
                     'reference' => $deliveryNote->reference,
-                    'date' => $deliveryNote->date,
-                    'deleted' => $deliveryNote->deleted_at ? 'Yes' : 'No'
+                    'date'      => $deliveryNote->date,
+                    'deleted'   => $deliveryNote->deleted_at ? 'Yes' : 'No'
                 ];
             }
 
