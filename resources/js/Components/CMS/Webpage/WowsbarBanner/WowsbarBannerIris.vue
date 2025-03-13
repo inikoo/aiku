@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue";
-import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue";
+// import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue";
+// import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue";
 import { getStyles } from "@/Composables/styles";
 import { trans } from "laravel-vue-i18n"
+import { defineAsyncComponent } from "vue"
+
+const SliderSquare = defineAsyncComponent(() => import("@/Components/Banners/Slider/SliderSquare.vue"));
+const SliderLandscape = defineAsyncComponent(() => import("@/Components/Banners/Slider/SliderLandscape.vue"));
 
 
 const props = defineProps<{ 
