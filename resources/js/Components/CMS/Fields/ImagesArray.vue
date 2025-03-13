@@ -21,11 +21,11 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 
-const onChangeProperty = (index, data) => {
+/* const onChangeProperty = (index, data) => {
     const updatedData = [...props.modelValue];
     updatedData[index] = { ...updatedData[index], ...data };
     emit("update:modelValue", updatedData);
-};
+}; */
 
 
 </script>
