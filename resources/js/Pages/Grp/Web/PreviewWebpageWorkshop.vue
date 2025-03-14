@@ -13,12 +13,12 @@ import { sendMessageToParent } from "@/Composables/Workshop"
 import { router } from "@inertiajs/vue3"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faPlus, faSendBackward, faTrash, faBringForward, faTractor, faTrashAlt  } from "@fas"
-
+import { useConfirm } from "primevue/useconfirm";
 import "@/../css/Iris/editor.css"
 
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { trans } from "laravel-vue-i18n"
-
+const confirm = useConfirm();
 
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
@@ -50,6 +50,7 @@ const showWebpage = (activityItem) => {
 const updateData = (newVal) => {
 	sendMessageToParent("autosave", newVal)
 }
+
 
 onMounted(() => {
 	window.addEventListener("message", (event) => {
@@ -101,7 +102,7 @@ onMounted(() => {
 										</div>
 
 										<div class="py-1 px-2 cursor-pointer hover:bg-red-100 hover:text-red-600  transition"
-											v-tooltip="trans('Delete')">
+											v-tooltip="trans('Delete')" @click="() => sendMessageToParent('deleteBlock', activityItem)">
 											<FontAwesomeIcon :icon='faTrashAlt' fixed-width aria-hidden='true' />
 										</div>
 									</div>
