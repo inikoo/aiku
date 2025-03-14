@@ -40,6 +40,7 @@ class ShopHydrateOrderHandling
     public function handle(Shop $shop): void
     {
         $stats = [
+            // aka Basket for UI
             'number_orders_state_creating'         => $shop->orders()->where('state', OrderStateEnum::CREATING)->count(),
             'orders_state_creating_amount'         => $shop->orders()->where('state', OrderStateEnum::CREATING)->sum('net_amount'),
             'orders_state_creating_amount_org_currency' => $shop->orders()->where('state', OrderStateEnum::CREATING)->sum('org_net_amount'),

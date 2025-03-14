@@ -145,35 +145,27 @@ class ShowOrganisationDashboard extends OrgAction
                     data: [
                         'label' => __('In Basket'),
                         'currency_code' => $currencyCode,
-                        'type' => 'double_number',
+                        'type' => 'number_amount',
                         'tabs' => [
                             [
-                                'label' => $orderingHandling->number_orders_state_submitted_paid,
+                                'label' => $orderingHandling->number_orders_state_creating,
                                 'type' => 'number',
                                 'icon' => 'fal fa-tachometer-alt',
                                 'information' => [
-                                    'label' => $orderingHandling->{"orders_state_submitted_paid_amount_org_currency"},
+                                    'label' => $orderingHandling->{"orders_state_creating_amount_org_currency"},
                                     'type' => 'currency'
                                 ]
                             ],
-                            [
-                                'tab_slug' => 'submitted_unpaid',
-                                'label' => $orderingHandling->number_orders_state_submitted_not_paid,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
-                                'information' => [
-                                    'label' => $orderingHandling->{"orders_state_submitted_not_paid_amount_org_currency"},
-                                    'type' => 'currency'
-                                ]
-                            ]
+
                         ]
+
                     ]
                 ),
                 $this->getWidget(
                     data: [
                         'label' => __('Submitted'),
                         'currency_code' => $currencyCode,
-                        'type' => 'double_number',
+                        'type' => 'number_amount',
                         'tabs' => [
                             [
                                 'label' => $orderingHandling->number_orders_state_submitted_paid,
@@ -200,7 +192,7 @@ class ShowOrganisationDashboard extends OrgAction
                     data: [
                         'label' => __('Picking'),
                         'currency_code' => $currencyCode,
-                        'type' => 'double_number',
+                        'type' => 'number_amount',
                         'tabs' => [
                             [
                                 'label' => $orderingHandling->number_orders_state_handling,
@@ -227,7 +219,7 @@ class ShowOrganisationDashboard extends OrgAction
                     data: [
                         'label' => __('Invoicing'),
                         'currency_code' => $currencyCode,
-                        'type' => 'double_number',
+                        'type' => 'number_amount',
                         'tabs' => [
                             [
                                 'label' => $orderingHandling->number_orders_state_packed,
@@ -254,7 +246,7 @@ class ShowOrganisationDashboard extends OrgAction
                     data: [
                         'label' => __('Today'),
                         'currency_code' => $currencyCode,
-                        'type' => 'double_number',
+                        'type' => 'number_amount',
                         'tabs' => [
                             [
                                 'label' => $orderingHandling->number_orders_dispatched_today,

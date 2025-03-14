@@ -375,12 +375,12 @@ const setChartOptions = () => ({
 				</div>
 			</div>
 		</div>
-		<div v-if="widget?.type === 'double_number'" class="max-w-sm mx-auto font-mono text-[#7C7C7C]">
+		<div v-if="widget?.type === 'number_amount'" class="max-w-sm mx-auto font-mono text-[#7C7C7C]">
 			<!-- Card Title -->
 			<div class="text-center text-gray-500 font-medium mb-2">{{widget.label}}</div>
 			<div class="grid grid-cols-2 gap-4">
 				<div 
-				v-for="(column, index) in widget.tabs" 
+				v-for="(column, index) in widget.tabs"
 				:key="index" 
 				class="text-center"
 				>
