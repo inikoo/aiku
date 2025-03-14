@@ -64,7 +64,7 @@ provide('openedChildSideEditor', openedChildSideEditor)
 const isAddBlockLoading = ref<string | null>(null)
 	const addNewBlock = async ({block, type}) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
-    let position = props.webpage.layout.web_blocks.length
+    let position = null
 	if(type == 'before') {
 		position = addBlockParentIndex.value
 	}else if(type == 'after'){
