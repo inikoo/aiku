@@ -61,7 +61,7 @@ provide('openedChildSideEditor', openedChildSideEditor)
 
 // Method: Add block
 const isAddBlockLoading = ref<string | null>(null)
-const addNewBlock = async (block: Daum) => {
+	const addNewBlock = async (block: Daum) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
 	router.post(
 		route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
@@ -93,6 +93,7 @@ const addNewBlock = async (block: Daum) => {
 // Method: save workshop
 const isLoadingblock = ref<string | null>(null)
 const isSavingBlock = ref(false)
+const _WebpageSideEditor = ref(null)
 const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
 // Object to store individual debounce timers for each block
 const debounceTimers = ref({})
@@ -329,16 +330,19 @@ onMounted(() => {
 		if (event.origin !== window.location.origin) return;
 		const { data } = event;
 
-		if (event.data === "openModalBlockList") {
-			isModalBlockList.value = true
-		} else if (data.key === 'autosave') {
+		if (data.key === 'autosave') {
 			onSaveWorkshop(data.value)
 		} else if (data.key === 'activeBlock') {
 			openedBlockSideEditor.value = data.value
 		} else if (data.key === 'activeChildBlock') {
 			openedChildSideEditor.value = data.value
-
-		}
+		}/* else if (data.key === 'addBlock') {
+			if(_WebpageSideEditor)
+			_WebpageSideEditor.value = {
+				modelModalBlocklist : true, 
+				addType : data.value.type
+			}
+		} */
 	})
 })
 
@@ -374,7 +378,7 @@ watch(openedBlockSideEditor, (newValue) => {
 		<div class="hidden lg:flex lg:flex-col border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor v-model="isModalBlockList" :isLoadingblock :isLoadingDeleteBlock :isAddBlockLoading
 				:webpage="data" :webBlockTypes="webBlockTypes" @update="onSaveWorkshop" @delete="sendDeleteBlock"
-				@add="addNewBlock" @order="sendOrderBlock" @setVisible="setHideBlock" />
+				@add="addNewBlock" @order="sendOrderBlock" @setVisible="setHideBlock" ref="_WebpageSideEditor"/>
 		</div>
 
 		<!-- Section: Preview -->

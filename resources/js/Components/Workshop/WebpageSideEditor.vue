@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { inject, ref } from 'vue'
+import { inject, ref, defineExpose} from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash } from '@fal'
 import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -45,12 +45,11 @@ const emits = defineEmits<{
     (e: 'delete', value: Daum): void
     (e: 'update', value: Daum): void
     (e: 'order', value: Object): void
-    (e: 'openBlockList', value: Boolean): void
     (e: 'setVisible', value: Object): void
 }>()
 
 const confirm = useConfirm();
-
+const addType = ref('current')
 
 const sendNewBlock = async (block: Daum) => {
     emits('add', block)
@@ -89,6 +88,7 @@ const onPickBlock = async (block: Daum) => {
 }
 
 const openModalBlockList = () => {
+    addType.value = 'current'
     modelModalBlocklist.value = !modelModalBlocklist.value
     emits('openBlockList', !modelModalBlocklist.value)
 }
@@ -137,14 +137,14 @@ const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
     </div> -->
     <div class="max-h-[calc(100vh-220px)] h-fit min-w-[350px] max-w-[400px] transition-all overflow-y-auto flex flex-col pr-3">
         <div class="full pr-3">
-        <Button class="mt-3" full type="dashed" @click="openModalBlockList">
-            <div class="text-gray-500">
-                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                {{ trans('Add block') }}
-            </div>
-        </Button>
-    </div>
-    
+            <Button class="mt-3" full type="dashed" @click="openModalBlockList">
+                <div class="text-gray-500">
+                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                    {{ trans('Add block') }}
+                </div>
+            </Button>
+        </div>
+
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable
                 :list="webpage.layout.web_blocks"
@@ -212,11 +212,9 @@ const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
                                     />
                                 </div>
                                 
-                                <SideEditor
-                                    v-model="element.web_block.layout.data.fieldValue"
+                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
                                     :panelOpen="openedChildSideEditor"
-                                    :blueprint="getBlueprint(element.type)"
-                                    :block="element"
+                                    :blueprint="getBlueprint(element.type)" :block="element"
                                     @update:modelValue="(e) => (onSaveWorkshop(element))"
                                     :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
                                 />
@@ -251,4 +249,9 @@ const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
 
 
 <style scss scoped>
+.ghost {
+    opacity: 0.5;
+    background-color: #e2e8f0; /* Warna abu-abu muda */
+    border: 2px dashed #4F46E5;
+}
 </style>
