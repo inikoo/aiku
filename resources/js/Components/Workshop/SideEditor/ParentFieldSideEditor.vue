@@ -43,13 +43,14 @@ const onPropertyUpdate = (fieldKeys: string | string[], newVal: any) => {
 </script>
 
 <template>
-    <AccordionPanel v-if="blueprint.name" :key="blueprint.name" :value="kebabCase(blueprint.name)">
+    <AccordionPanel v-if="blueprint.name" :key="blueprint.name" :value="blueprint?.key?.join('-')">
         <AccordionHeader>
             <div>
                 <Icon v-if="blueprint?.icon" :data="blueprint.icon" />
                 {{ get(blueprint, 'name') }}
             </div>
         </AccordionHeader>
+        
         <AccordionContent class="px-0">
             <div class="">
                 <template v-if="blueprint.replaceForm">

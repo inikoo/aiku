@@ -32,7 +32,10 @@ class DeleteInvoice extends OrgAction
         ShopHydrateInvoices::dispatch($invoice->shop);
         OrganisationHydrateInvoices::dispatch($invoice->organisation);
         GroupHydrateInvoices::dispatch($invoice->group);
-        InvoiceCategoryHydrateInvoices::dispatch($invoice->invoiceCategory);
+        if($invoice->invoiceCategory)
+        {
+            InvoiceCategoryHydrateInvoices::dispatch($invoice->invoiceCategory);
+        }
 
         return $invoice;
     }

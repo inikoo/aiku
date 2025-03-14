@@ -93,6 +93,7 @@ onMounted(() => {
             <template #expandicon>
                 <FontAwesomeIcon :icon="faCaretLeft" class="text-black"></FontAwesomeIcon>
             </template>
+            
             <ParentFieldSideEditor 
                 :blueprint="field" 
                 :uploadImageRoute="uploadImageRoute" 

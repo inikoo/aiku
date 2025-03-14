@@ -53,21 +53,32 @@ const _iframe = ref<IframeHTMLAttributes | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
 const orderBlockCancelToken = ref<Function | null>(null)
 const deleteBlockCancelToken = ref<Function | null>(null)
+const addBlockParentIndex = ref(0)
 
 const openedBlockSideEditor = ref<number | null>(null)
 provide('openedBlockSideEditor', openedBlockSideEditor)
+const openedChildSideEditor = ref<number | null>(null)
+provide('openedChildSideEditor', openedChildSideEditor)
+
 // Method: Add block
 const isAddBlockLoading = ref<string | null>(null)
-const addNewBlock = async (block: Daum) => {
+	const addNewBlock = async ({block, type}) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
+    let postion = props.webpage.layout.web_blocks.length
+	if(type == 'before') {
+		postion = addBlockParentIndex.value
+	}else if(type == 'after'){
+		postion = addBlockParentIndex.value + 1
+	}
 	router.post(
 		route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
-		{ web_block_type_id: block.id },
+		{ web_block_type_id: block.id, postion :postion  },
 		{
 			onStart: () => (isAddBlockLoading.value = "addBlock" + block.id),
 			onFinish: () => {
 				addBlockCancelToken.value = null
 				isAddBlockLoading.value = null
+				addBlockParentIndex.value = 0
 			},
 			onCancelToken: (cancelToken) => {
 				addBlockCancelToken.value = cancelToken.cancel
@@ -77,6 +88,7 @@ const addNewBlock = async (block: Daum) => {
 				sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
+				console.log(error)
 				notify({
 					title: trans("Something went wrong"),
 					text: error.message,
@@ -90,6 +102,7 @@ const addNewBlock = async (block: Daum) => {
 // Method: save workshop
 const isLoadingblock = ref<string | null>(null)
 const isSavingBlock = ref(false)
+const _WebpageSideEditor = ref(null)
 const cancelTokens = ref<Record<string, Function>>({}) // A map to store cancel tokens by block id
 // Object to store individual debounce timers for each block
 const debounceTimers = ref({})
@@ -325,13 +338,19 @@ onMounted(() => {
 	window.addEventListener("message", (event) => {
 		if (event.origin !== window.location.origin) return;
 		const { data } = event;
-		if (event.data === "openModalBlockList") {
-			isModalBlockList.value = true
-		} else if (data.key === 'autosave') {
+
+		if (data.key === 'autosave') {
 			onSaveWorkshop(data.value)
 		} else if (data.key === 'activeBlock') {
 			openedBlockSideEditor.value = data.value
-
+		} else if (data.key === 'activeChildBlock') {
+			openedChildSideEditor.value = data.value
+		}else if (data.key === 'addBlock') {
+			if (_WebpageSideEditor.value) {
+				isModalBlockList.value = true;
+				addBlockParentIndex.value =  data.value.parentIndex
+				_WebpageSideEditor.value.addType = data.value.type;
+			}
 		}
 	})
 })
@@ -368,7 +387,7 @@ watch(openedBlockSideEditor, (newValue) => {
 		<div class="hidden lg:flex lg:flex-col border-2 bg-gray-200 pl-3 py-1">
 			<WebpageSideEditor v-model="isModalBlockList" :isLoadingblock :isLoadingDeleteBlock :isAddBlockLoading
 				:webpage="data" :webBlockTypes="webBlockTypes" @update="onSaveWorkshop" @delete="sendDeleteBlock"
-				@add="addNewBlock" @order="sendOrderBlock" @setVisible="setHideBlock" />
+				@add="addNewBlock" @order="sendOrderBlock" @setVisible="setHideBlock" ref="_WebpageSideEditor"/>
 		</div>
 
 		<!-- Section: Preview -->
