@@ -68,21 +68,20 @@ onMounted(async () => {
                 <div class="mt-1">
                     <LoginPassword :showProcessing="false" id="password" name="password" :form="form"
                         fieldName="password" @keydown.enter="submit" placeholder="********" />
-                    <div class="flex justify-end mt-2">
+                    <div class="flex justify-between mt-2">
+                        <div class="flex items-center justify-between cursor-pointer">
+                            <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
+                            <label for="remember-me" class="ml-2 block text-sm select-none cursor-pointer"> {{ trans('Remember me') }} </label>
+                        </div>
+
                         <Link :href="route('retina.reset-password.edit')"
                             class="text-sm   font-medium hover:underline transition duration-150 ease-in-out">
-                        Forgot password?
+                            {{ trans("Forgot password?") }}
                         </Link>
                     </div>
                 </div>
             </div>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
-              <label for="remember-me" class="ml-2 block text-sm select-none"> {{ trans('Remember me') }} </label>
-            </div>
-          </div>
 
 
             <!-- Submit Button -->
