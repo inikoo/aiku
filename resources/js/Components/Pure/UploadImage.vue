@@ -116,7 +116,9 @@ const deleteImage = () => {
     <div class="flex justify-between gap-2 mt-2">
         <Button id="gallery" :style="`tertiary`" :icon="'fal fa-photo-video'" label="Open gallery" size="xs"
             @click="(event) => { event.stopPropagation(); isOpenGalleryImages = true }" />
+
         <Button
+            v-if="modelValue"
             id="gallery"
             type="negative"
             icon="far fa-trash-alt"
