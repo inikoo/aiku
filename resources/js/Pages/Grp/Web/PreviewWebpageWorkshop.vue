@@ -80,14 +80,15 @@ onMounted(() => {
 							v-for="(activityItem, activityItemIdx) in webpage.layout.web_blocks"
 							:key="activityItem.id">
 							<section
-								class="w-full border border-transparent min-h-[50px]"
+								class="active-border w-full border border-transparent min-h-[50px]"
 								:data-block-id="activityItemIdx"
 								v-show="showWebpage(activityItem)"
 								:class="{
 									/*  'hover-dashed': true, */
-									'border-4 border-[#4F46E5]': activeBlock === activityItemIdx,
+									'border-4 border-[#4F46E5] active': activeBlock === activityItemIdx,
 								}"
 								@click="() => sendMessageToParent('activeBlock', activityItemIdx)">
+
 								<component
 									class="w-full"
 									:is="getComponent(activityItem.type)"
@@ -118,5 +119,27 @@ onMounted(() => {
 		content: "";
 		@apply absolute inset-0 hover:bg-gray-200/30 border border-transparent hover:border-white/80 border-dashed cursor-pointer;
 	}
+}
+
+.active-border {
+  position: relative;
+}
+
+/* Pseudo-element muncul hanya saat blok aktif */
+.active-border.active::before {
+  content: "Active";
+  position: absolute;
+  top: -0.9em;
+  left: 1rem;
+  padding: 0.1em 0.5em;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e0;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #4f46e5;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease;
 }
 </style>
