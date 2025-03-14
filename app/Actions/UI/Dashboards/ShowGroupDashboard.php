@@ -395,7 +395,7 @@ class ShowGroupDashboard extends OrgAction
                         ]
                     ],
                     'route_refund'  => [
-                        'name'       => 'grp.org.shops.show.ordering.refunds.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.refunds.index',
                         'parameters' => [
                             'organisation'  => $child->organisation->slug,
                             'shop'          => $child->slug,
