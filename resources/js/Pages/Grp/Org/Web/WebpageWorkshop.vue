@@ -325,6 +325,7 @@ const setHideBlock = (block: Daum) => {
 
 
 onMounted(() => {
+	// Listen emit from Iframe
 	window.addEventListener("message", (event) => {
 		if (event.origin !== window.location.origin) return;
 		const { data } = event;
