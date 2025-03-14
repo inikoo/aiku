@@ -164,8 +164,8 @@ class ShowGroupDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'value'       => $crmStats->number_customer,
-                        'description' => __('Total Customer'),
+                        'value'       => $crmStats->number_customers_trade_state_many,
+                        'description' => __('Customers With Orders'),
                         'type'        => 'number',
                          /* 'route'       => [
                              'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
