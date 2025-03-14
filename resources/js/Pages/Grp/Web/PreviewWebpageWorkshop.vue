@@ -11,10 +11,14 @@ import WebPreview from "@/Layouts/WebPreview.vue"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { sendMessageToParent } from "@/Composables/Workshop"
 import { router } from "@inertiajs/vue3"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faPlus, faSendBackward, faTrash, faBringForward, faTractor, faTrashAlt  } from "@fas"
+
 import "@/../css/Iris/editor.css"
 
 import { Root as RootWebpage } from "@/types/webpageTypes"
 import { trans } from "laravel-vue-i18n"
+
 
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
@@ -70,39 +74,48 @@ onMounted(() => {
 
 <template>
 	<div class="editor-class">
-		<div
-			class="shadow-xl px-1"
-			:class="layout?.layout === 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto'">
+		<div class="shadow-xl px-1" :class="layout?.layout === 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto'">
 			<div v-if="webpage">
 				<div v-if="webpage?.layout?.web_blocks?.length">
 					<TransitionGroup tag="div" name="list" class="relative">
-						<template
-							v-for="(activityItem, activityItemIdx) in webpage.layout.web_blocks"
+						<template v-for="(activityItem, activityItemIdx) in webpage.layout.web_blocks"
 							:key="activityItem.id">
-							<section
-								class="active-border w-full border border-transparent min-h-[50px]"
-								:data-block-id="activityItemIdx"
-								v-show="showWebpage(activityItem)"
-								:class="{
-									/*  'hover-dashed': true, */
-									'border-4 border-[#4F46E5] active': activeBlock === activityItemIdx,
-								}"
-								@click="() => sendMessageToParent('activeBlock', activityItemIdx)">
+							<section class="w-full border border-transparent min-h-[50px] relative"
+								:data-block-id="activityItemIdx" v-show="showWebpage(activityItem)" :class="{
+									'border-4 border-[#4F46E5] active-block': activeBlock === activityItemIdx,
+								}" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
+								<div v-if="activeBlock === activityItemIdx" class="trapezoid-button" @click.stop="">
+									<div class="flex">
+										Editing
+										<!-- <div class="py-1 px-2 cursor-pointer hover:bg-gray-200 rounded transition hover:text-indigo-500"
+											v-tooltip="trans('Add Block Before')" 
+											@click="() => sendMessageToParent('addBlock', { type : 'before', parentIndex : activityItemIdx })"
+										>
+											<FontAwesomeIcon :icon='faSendBackward' fixed-width aria-hidden='true' />
+										</div>
 
-								<component
-									class="w-full"
-									:is="getComponent(activityItem.type)"
-									:webpageData="webpage"
-									:blockData="activityItem"
-									@autoSave="() => updateData(activityItem)"
+										<div class="py-1 px-2 cursor-pointer hover:bg-gray-200 rounded hover:text-indigo-500  transition md:block hidden"
+											v-tooltip="trans('Add Block after')"  
+											@click="() => sendMessageToParent('addBlock', { type : 'after', parentIndex : activityItemIdx })"
+										>
+											<FontAwesomeIcon :icon='faBringForward' fixed-width aria-hidden='true' />
+										</div>
+
+										<div class="py-1 px-2 cursor-pointer hover:bg-red-100 hover:text-red-600 rounded transition"
+											v-tooltip="trans('Delete')">
+											<FontAwesomeIcon :icon='faTrashAlt' fixed-width aria-hidden='true' />
+										</div> -->
+									</div>
+								</div>
+
+								<component class="w-full" :is="getComponent(activityItem.type)" :webpageData="webpage"
+									:blockData="activityItem" @autoSave="() => updateData(activityItem)"
 									v-model="activityItem.web_block.layout.data.fieldValue" />
 							</section>
 						</template>
 					</TransitionGroup>
 				</div>
-				<EmptyState
-					v-else
-					:data="{
+				<EmptyState v-else :data="{
 						title: trans('Pick First Block For Your Website'),
 						description: trans('Pick block from list'),
 					}" />
@@ -121,25 +134,25 @@ onMounted(() => {
 	}
 }
 
-.active-border {
-  position: relative;
+.trapezoid-button {
+  position: absolute;
+  top: -28px; /* Sesuaikan agar masuk ke dalam border */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 20px;
+  background-color: #4F46E5;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+  transition: background 0.3s;
+  box-shadow: 0px 4px 0px #4F46E5; /* Efek agar menyatu dengan border */
+  border: none;
 }
 
-/* Pseudo-element muncul hanya saat blok aktif */
-.active-border.active::before {
-  content: "Active";
-  position: absolute;
-  top: -0.9em;
-  left: 1rem;
-  padding: 0.1em 0.5em;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e0;
-  border-radius: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #4f46e5;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: opacity 0.3s ease;
+.trapezoid-button:hover {
+  background-color: #3F3ABF;
 }
+
 </style>
