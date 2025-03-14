@@ -47,14 +47,16 @@ return new class extends Migration
             'shop_ordering_intervals',
             'group_ordering_intervals',
         ];
-
+    
         foreach ($tables as $tableName) {
             Schema::table($tableName, function (Blueprint $table) use ($tableName) {
-                $columnsToDrop = collect(\DB::select("SHOW COLUMNS FROM {$tableName}"))
-                    ->pluck('Field')
-                    ->filter(fn($column) => str_contains($column, 'baskets_created') || str_contains($column, 'baskets_updated'))
-                    ->toArray();
-
+                // Get all columns containing "baskets_created" or "baskets_updated"
+                $columnsToDrop = collect(\DB::select("
+                    SELECT column_name FROM information_schema.columns 
+                    WHERE table_name = '{$tableName}' 
+                    AND (column_name LIKE '%baskets_created%' OR column_name LIKE '%baskets_updated%')
+                "))->pluck('column_name')->toArray();
+    
                 if (!empty($columnsToDrop)) {
                     $table->dropColumn($columnsToDrop);
                 }
