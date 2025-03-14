@@ -352,6 +352,8 @@ onMounted(() => {
 				addBlockParentIndex.value =  data.value.parentIndex
 				_WebpageSideEditor.value.addType = data.value.type;
 			}
+		}else if (data.key === 'deleteBlock') {
+			sendDeleteBlock(data.value)
 		}
 	})
 })
