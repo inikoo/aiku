@@ -97,7 +97,7 @@ class ShowOrganisationDashboard extends OrgAction
                 ]
             ],
             'widgets'          => [
-                'column_count' => 5,
+                'column_count' => 3,
                 'components'   => []
             ]
         ];
