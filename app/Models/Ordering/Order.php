@@ -9,6 +9,7 @@
 namespace App\Models\Ordering;
 
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
+use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -168,7 +169,8 @@ class Order extends Model implements HasMedia, Auditable
         'date'         => 'datetime',
         'state'        => OrderStateEnum::class,
         'status'       => OrderStatusEnum::class,
-        'handing_type' => OrderHandingTypeEnum::class
+        'handing_type' => OrderHandingTypeEnum::class,
+        'pay_status'   => OrderPayStatusEnum::class,
     ];
 
     protected $attributes = [
