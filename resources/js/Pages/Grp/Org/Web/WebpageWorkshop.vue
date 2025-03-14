@@ -64,15 +64,15 @@ provide('openedChildSideEditor', openedChildSideEditor)
 const isAddBlockLoading = ref<string | null>(null)
 	const addNewBlock = async ({block, type}) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
-    let postion = props.webpage.layout.web_blocks.length
+    let position = props.webpage.layout.web_blocks.length
 	if(type == 'before') {
-		postion = addBlockParentIndex.value
+		position = addBlockParentIndex.value
 	}else if(type == 'after'){
-		postion = addBlockParentIndex.value + 1
+		position = addBlockParentIndex.value + 1
 	}
 	router.post(
 		route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
-		{ web_block_type_id: block.id, postion :postion  },
+		{ web_block_type_id: block.id, position :position  },
 		{
 			onStart: () => (isAddBlockLoading.value = "addBlock" + block.id),
 			onFinish: () => {
