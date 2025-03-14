@@ -315,7 +315,7 @@ class ShowGroupDashboard extends OrgAction
         $data = [];
         $visualData = [];
 
-        $this->setDashboardTableData(
+        $dashboard = $this->setDashboardTableData(
             $group,
             $organisations,
             $dashboard,
@@ -353,13 +353,13 @@ class ShowGroupDashboard extends OrgAction
         }
 
         // visual pie sales
-        $this->setVisualInvoiceSales($group, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoiceSales($group, $visualData, $dashboard);
 
         // visual pie invoices
-        $this->setVisualInvoices($group, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoices($visualData, $dashboard);
 
         // visual pie refunds
-        $this->setVisualAvgInvoices($group, $visualData, $dashboard);
+        $dashboard = $this->setVisualAvgInvoices($group, $visualData, $dashboard);
 
         return $data;
     }
@@ -369,7 +369,7 @@ class ShowGroupDashboard extends OrgAction
         $visualData = [];
         $data = [];
 
-        $this->setDashboardTableData(
+        $dashboard = $this->setDashboardTableData(
             $group,
             $shops,
             $dashboard,
@@ -438,13 +438,13 @@ class ShowGroupDashboard extends OrgAction
         }
 
         // visual pie sales
-        $this->setVisualInvoiceSales($group, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoiceSales($group, $visualData, $dashboard);
 
         // visual pie invoices
-        $this->setVisualInvoices($group, $visualData, $dashboard);
+        $dashboard = $dashboard = $this->setVisualInvoices($visualData, $dashboard);
 
         // visual pie refunds
-        $this->setVisualAvgInvoices($group, $visualData, $dashboard);
+        $dashboard = $this->setVisualAvgInvoices($group, $visualData, $dashboard);
 
         return $data;
     }

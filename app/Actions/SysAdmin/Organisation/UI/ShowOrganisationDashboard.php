@@ -9,9 +9,12 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Dashboards\WithDashboardIntervalOption;
+use App\Actions\Traits\Dashboards\WithDashboardSettings;
 use App\Actions\Traits\WithDashboard;
 use App\Enums\Accounting\InvoiceCategory\InvoiceCategoryStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\Organisation\OrganisationDashboardSalesTableTabsEnum;
 use App\Enums\UI\Organisation\OrgDashboardIntervalTabsEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -24,6 +27,8 @@ class ShowOrganisationDashboard extends OrgAction
 {
     use AsAction;
     use WithDashboard;
+    use WithDashboardSettings;
+    use WithDashboardIntervalOption;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -32,32 +37,66 @@ class ShowOrganisationDashboard extends OrgAction
 
     public function handle(Organisation $organisation, ActionRequest $request): Response
     {
-        $userSettings = $request->user()->settings;
+        $userSettings = $request->user()->settings; // <-- to delete
+
+        $settings = Arr::get($request->user()->settings, 'ui.state.organisation_dashboard', []); // <-- to delete
+
+
+        $dashboard = [
+            'super_blocks' => [
+                [
+                    'id'        => 'main_sales',
+                    'intervals' => $this->dashboardIntervalOption(),
+                    'settings'  => [
+
+                        $this->dashboardModelStateSettings($settings, 'left'),
+                        $this->dashboardDataDisplayTypeSettings($settings),
+                    ],
+                    'blocks'    => [
+                        [
+                            'id'   => 'sales_table',
+                            'type' => 'table',
+                            'current_tab' => Arr::get($settings, 'sales_table_tab', Arr::first(OrganisationDashboardSalesTableTabsEnum::values())),
+                            'tabs' => OrganisationDashboardSalesTableTabsEnum::navigation(),
+                            'tables' => OrganisationDashboardSalesTableTabsEnum::tables(),
+
+                        ]
+                    ]
+
+                ]
+
+            ]
+        ];
+
+        //  dd($dashboard);
+
 
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
                 'breadcrumbs'     => $this->getBreadcrumbs($request->route()->originalParameters(), __('Dashboard')),
                 'dashboard_stats' => $this->getDashboardInterval($organisation, $userSettings),
+                'dashboard'       => $dashboard
+
             ]
         );
     }
 
     public function getDashboardInterval(Organisation $organisation, array $userSettings): array
     {
-        $selectedInterval = Arr::get($userSettings, 'selected_interval', 'all');
-        $selectedAmount   = Arr::get($userSettings, 'selected_amount', true);
+        $selectedInterval  = Arr::get($userSettings, 'selected_interval', 'all');
+        $selectedAmount    = Arr::get($userSettings, 'selected_amount', true);
         $selectedShopState = Arr::get($userSettings, 'selected_shop_state', 'open');
-        $shops            = $organisation->shops->where('state', $selectedShopState);
-        $dashboard = [
+        $shops             = $organisation->shops->where('state', $selectedShopState);
+        $dashboard         = [
             'interval_options' => $this->getIntervalOptions(),
             'settings'         => [
-                'db_settings'          => $userSettings,
-                'key_currency'         => 'org',
-                'key_shop'             => 'open',
-                'selected_amount'      => $selectedAmount,
-                'selected_shop_state'  => $selectedShopState,
-                'options_shop'         => [
+                'db_settings'         => $userSettings,
+                'key_currency'        => 'org',
+                'key_shop'            => 'open',
+                'selected_amount'     => $selectedAmount,
+                'selected_shop_state' => $selectedShopState,
+                'options_shop'        => [
                     [
                         'value' => 'open',
                         'label' => __('Open')
@@ -67,7 +106,7 @@ class ShowOrganisationDashboard extends OrgAction
                         'label' => __('Closed')
                     ]
                 ],
-                'options_currency'     => [
+                'options_currency'    => [
                     [
                         'value' => 'org',
                         'label' => $organisation->currency->symbol,
@@ -78,22 +117,22 @@ class ShowOrganisationDashboard extends OrgAction
                     ]
                 ]
             ],
-            'currency_code' => $organisation->currency->code,
-            'current' => $this->tabDashboardInterval,
-            'table' => [
+            'currency_code'    => $organisation->currency->code,
+            'current'          => $this->tabDashboardInterval,
+            'table'            => [
                 [
                     'tab_label' => __('Invoice per store'),
                     'tab_slug'  => 'invoices',
                     'tab_icon'  => 'fal fa-file-invoice-dollar',
-                    'type'     => 'table',
-                    'data' => null
+                    'type'      => 'table',
+                    'data'      => null
                 ],
                 [
                     'tab_label' => __('Invoices categories'),
                     'tab_slug'  => 'invoice_categories',
                     'tab_icon'  => 'fal fa-sitemap',
-                    'type'     => 'table',
-                    'data' => null
+                    'type'      => 'table',
+                    'data'      => null
                 ]
             ],
             'widgets'          => [
@@ -106,13 +145,13 @@ class ShowOrganisationDashboard extends OrgAction
 
         if ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICES->value) {
             $dashboard['table'][0]['data'] = $this->getInvoices($organisation, $shops, $selectedInterval, $dashboard, $selectedCurrency);
-            $shopCurrencies   = [];
+            $shopCurrencies                = [];
             foreach ($shops as $shop) {
                 $shopCurrencies[] = $shop->currency->symbol;
             }
             $shopCurrenciesSymbol = implode('/', array_unique($shopCurrencies));
         } elseif ($this->tabDashboardInterval == OrgDashboardIntervalTabsEnum::INVOICE_CATEGORIES->value) {
-            $selectedInvoiceCategoryState = Arr::get($userSettings, 'selected_invoice_category_state', 'open');
+            $selectedInvoiceCategoryState                             = Arr::get($userSettings, 'selected_invoice_category_state', 'open');
             $dashboard['settings']['selected_invoice_category_state'] = $selectedInvoiceCategoryState;
             if ($selectedInvoiceCategoryState == 'open') {
                 $invoiceCategories = $organisation->invoiceCategories->whereIn('state', [InvoiceCategoryStateEnum::ACTIVE, InvoiceCategoryStateEnum::COOLDOWN]);
@@ -121,7 +160,7 @@ class ShowOrganisationDashboard extends OrgAction
             }
             $dashboard['table'][1]['data'] = $this->getInvoiceCategories($organisation, $invoiceCategories, $selectedInterval, $dashboard, $selectedCurrency);
 
-            $invoiceCategoryCurrencies   = [];
+            $invoiceCategoryCurrencies = [];
             foreach ($invoiceCategories as $invoiceCategory) {
                 $invoiceCategoryCurrencies[] = $invoiceCategory->currency->symbol;
             }
@@ -136,24 +175,24 @@ class ShowOrganisationDashboard extends OrgAction
             }
         }
 
-        $orderingHandling = $organisation->orderHandlingStats;
-        $currencyCode = $organisation->currency->code;
+        $orderingHandling                   = $organisation->orderHandlingStats;
+        $currencyCode                       = $organisation->currency->code;
         $dashboard['widgets']['components'] = array_merge(
             $dashboard['widgets']['components'],
             [
                 $this->getWidget(
                     data: [
-                        'label' => __('In Basket'),
+                        'label'         => __('In Basket'),
                         'currency_code' => $currencyCode,
-                        'type' => 'number_amount',
-                        'tabs' => [
+                        'type'          => 'number_amount',
+                        'tabs'          => [
                             [
-                                'label' => $orderingHandling->number_orders_state_creating,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
+                                'label'       => $orderingHandling->number_orders_state_creating,
+                                'type'        => 'number',
+                                'icon'        => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_creating_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ],
 
@@ -163,26 +202,26 @@ class ShowOrganisationDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'label' => __('Submitted'),
+                        'label'         => __('Submitted'),
                         'currency_code' => $currencyCode,
-                        'type' => 'number_amount',
-                        'tabs' => [
+                        'type'          => 'number_amount',
+                        'tabs'          => [
                             [
-                                'label' => $orderingHandling->number_orders_state_submitted_paid,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
+                                'label'       => $orderingHandling->number_orders_state_submitted_paid,
+                                'type'        => 'number',
+                                'icon'        => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_submitted_paid_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ],
                             [
-                                'label' => $orderingHandling->number_orders_state_submitted_not_paid,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
+                                'label'       => $orderingHandling->number_orders_state_submitted_not_paid,
+                                'type'        => 'number',
+                                'icon'        => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_submitted_not_paid_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ]
                         ]
@@ -190,26 +229,26 @@ class ShowOrganisationDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'label' => __('Picking'),
+                        'label'         => __('Picking'),
                         'currency_code' => $currencyCode,
-                        'type' => 'number_amount',
-                        'tabs' => [
+                        'type'          => 'number_amount',
+                        'tabs'          => [
                             [
-                                'label' => $orderingHandling->number_orders_state_handling,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
+                                'label'       => $orderingHandling->number_orders_state_handling,
+                                'type'        => 'number',
+                                'icon'        => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_handling_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ],
                             [
-                                'label' => $orderingHandling->number_orders_state_handling_blocked,
-                                'type' => 'number',
-                                'icon' => 'fal fa-tachometer-alt',
+                                'label'       => $orderingHandling->number_orders_state_handling_blocked,
+                                'type'        => 'number',
+                                'icon'        => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_handling_blocked_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ]
                         ]
@@ -217,26 +256,26 @@ class ShowOrganisationDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'label' => __('Invoicing'),
+                        'label'         => __('Invoicing'),
                         'currency_code' => $currencyCode,
-                        'type' => 'number_amount',
-                        'tabs' => [
+                        'type'          => 'number_amount',
+                        'tabs'          => [
                             [
-                                'label' => $orderingHandling->number_orders_state_packed,
-                                'icon' => 'fal fa-box',
-                                'iconClass' => 'text-teal-500',
+                                'label'       => $orderingHandling->number_orders_state_packed,
+                                'icon'        => 'fal fa-box',
+                                'iconClass'   => 'text-teal-500',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_packed_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ],
                             [
-                                'label' => $orderingHandling->number_orders_state_finalised,
-                                'icon' => 'fal fa-box-check',
-                                'iconClass' => 'text-orange-500',
+                                'label'       => $orderingHandling->number_orders_state_finalised,
+                                'icon'        => 'fal fa-box-check',
+                                'iconClass'   => 'text-orange-500',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_state_finalised_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ]
                         ]
@@ -244,16 +283,16 @@ class ShowOrganisationDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'label' => __('Today'),
+                        'label'         => __('Today'),
                         'currency_code' => $currencyCode,
-                        'type' => 'number_amount',
-                        'tabs' => [
+                        'type'          => 'number_amount',
+                        'tabs'          => [
                             [
-                                'label' => $orderingHandling->number_orders_dispatched_today,
-                                'type' => 'number',
+                                'label'       => $orderingHandling->number_orders_dispatched_today,
+                                'type'        => 'number',
                                 'information' => [
                                     'label' => $orderingHandling->{"orders_dispatched_today_amount_org_currency"},
-                                    'type' => 'currency'
+                                    'type'  => 'currency'
                                 ]
                             ]
                         ]
@@ -271,7 +310,7 @@ class ShowOrganisationDashboard extends OrgAction
 
         $data = [];
 
-        $this->setDashboardTableData(
+        $dashboard = $this->setDashboardTableData(
             $organisation,
             $shops,
             $dashboard,
@@ -291,22 +330,22 @@ class ShowOrganisationDashboard extends OrgAction
                     'route_invoice' => [
                         'name'       => 'grp.org.shops.show.dashboard.invoices.index',
                         'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'shop' => $child->slug,
+                            'organisation'  => $organisation->slug,
+                            'shop'          => $child->slug,
                             'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                         ]
                     ],
-                    'route_refund' => [
+                    'route_refund'  => [
                         'name'       => 'grp.org.accounting.refunds.index',
                         'parameters' => [
-                            'organisation' => $organisation->slug,
+                            'organisation'  => $organisation->slug,
                             'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                         ]
                     ],
                 ];
 
                 if ($child->type == ShopTypeEnum::FULFILMENT) {
-                    $routes['route'] = [
+                    $routes['route']         = [
                         'name'       => 'grp.org.fulfilments.show.operations.dashboard',
                         'parameters' => [
                             'organisation' => $organisation->slug,
@@ -316,12 +355,13 @@ class ShowOrganisationDashboard extends OrgAction
                     $routes['route_invoice'] = [
                         'name'       => 'grp.org.fulfilments.show.operations.invoices.all.index',
                         'parameters' => [
-                            'organisation' => $organisation->slug,
-                            'fulfilment'   => $child->slug,
+                            'organisation'  => $organisation->slug,
+                            'fulfilment'    => $child->slug,
                             'between[date]' => $this->getDateIntervalFilter($selectedInterval)
                         ]
                     ];
                 }
+
                 return $routes;
             }
         );
@@ -331,13 +371,13 @@ class ShowOrganisationDashboard extends OrgAction
         }
 
         // visual pie sales
-        $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
 
         // visual pie invoices
-        $this->setVisualInvoices($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoices($visualData, $dashboard);
 
         // visual pie refunds
-        $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
 
 
         return $data;
@@ -346,11 +386,10 @@ class ShowOrganisationDashboard extends OrgAction
     public function getInvoiceCategories(Organisation $organisation, $invoiceCategories, $selectedInterval, &$dashboard, $selectedCurrency): array
     {
         $visualData = [];
-        $data = [];
+        $data       = [];
 
 
-
-        $this->setDashboardTableData(
+        $dashboard = $this->setDashboardTableData(
             $organisation,
             $invoiceCategories,
             $dashboard,
@@ -359,28 +398,28 @@ class ShowOrganisationDashboard extends OrgAction
             $selectedCurrency,
             $selectedInterval,
             fn ($child) => [
-                'route' => [
+                'route'         => [
                     'name'       => 'grp.org.accounting.invoice-categories.show',
                     'parameters' => [
-                        'organisation' => $organisation->slug,
+                        'organisation'    => $organisation->slug,
                         'invoiceCategory' => $child->slug
                     ]
                 ],
                 'route_invoice' => [
                     'name'       => 'grp.org.accounting.invoice-categories.show.invoices.index',
                     'parameters' => [
-                        'organisation' => $organisation->slug,
+                        'organisation'    => $organisation->slug,
                         'invoiceCategory' => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval)
+                        'between[date]'   => $this->getDateIntervalFilter($selectedInterval)
                     ]
                 ],
-                'route_refund' => [
+                'route_refund'  => [
                     'name'       => 'grp.org.accounting.invoice-categories.show.invoices.index',
                     'parameters' => [
-                        'organisation' => $organisation->slug,
+                        'organisation'    => $organisation->slug,
                         'invoiceCategory' => $child->slug,
-                        'between[date]' => $this->getDateIntervalFilter($selectedInterval),
-                        'tab' => 'refunds'
+                        'between[date]'   => $this->getDateIntervalFilter($selectedInterval),
+                        'tab'             => 'refunds'
                     ]
                 ],
             ],
@@ -391,13 +430,13 @@ class ShowOrganisationDashboard extends OrgAction
         }
 
         // visual pie sales
-        $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoiceSales($organisation, $visualData, $dashboard);
 
         // visual pie invoices
-        $this->setVisualInvoices($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualInvoices($visualData, $dashboard);
 
         // visual pie refunds
-        $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
+        $dashboard = $this->setVisualAvgInvoices($organisation, $visualData, $dashboard);
 
 
         return $data;
