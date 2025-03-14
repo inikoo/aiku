@@ -4,6 +4,8 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue";
 import Image from "@/Components/Image.vue";
 import { getStyles } from "@/Composables/styles";
+import { sendMessageToParent } from "@/Composables/Workshop";
+import Blueprint from "@/Components/CMS/Webpage/CTA/Blueprint"
 
 library.add(faCube, faLink, faImage);
 
@@ -51,6 +53,7 @@ const emits = defineEmits<{
         />
         <div
 			typeof="button"
+			@click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[1]?.key?.join('-'))" 
 			:style="getStyles(modelValue?.button?.container?.properties)"
 			class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
 			{{ modelValue?.button?.text }}

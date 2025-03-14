@@ -5,9 +5,10 @@ import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
 import { getStyles } from "@/Composables/styles"
 
-
+import Blueprint from "@/Components/CMS/Webpage/BentoGrid/Blueprint"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faEdit } from "@far"
+import { sendMessageToParent } from "@/Composables/Workshop"
 library.add(faCube, faLink)
 
 const props = defineProps<{
@@ -41,7 +42,7 @@ function onSave() {
 							<Editor v-model="modelValue.column1.text" @update:modelValue="() => emits('autoSave')" />
 						</div>
 
-						<div
+						<div @click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[0]?.key?.join('-'))"
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<div
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
@@ -74,7 +75,7 @@ function onSave() {
 						<div
 							class="flex flex-1 items-center justify-center px-8 max-lg:pb-12 max-lg:pt-10 sm:px-10 lg:pb-2">
 							<!-- Default Image Structure (renders if column2.image is absent) -->
-							<div class="relative w-full max-lg:max-w-xs">
+							<div @click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[1]?.key?.join('-'))" class="relative w-full max-lg:max-w-xs">
 								<img v-if="!modelValue?.column2?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
 									:alt="modelValue?.column2?.image?.alt"
@@ -103,7 +104,7 @@ function onSave() {
 						<!-- Conditional Image or Default Structure for Column 3 -->
 						<div class="flex flex-1 items-center justify-center px-8 max-lg:py-6 lg:pb-2">
 							<!-- Default Image Structure (renders if column3.image is absent) -->
-							<div class="relative w-full max-lg:max-w-xs">
+							<div @click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[2]?.key?.join('-'))" class="relative w-full max-lg:max-w-xs">
 								<img v-if="!modelValue?.column3?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
 									:alt="modelValue?.column3?.image?.alt"
@@ -131,7 +132,7 @@ function onSave() {
 						<div
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<!-- Default Image Structure (renders if column4.image is absent) -->
-							<div
+							<div @click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[3]?.key?.join('-'))"
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
 								<img v-if="!modelValue?.column4?.image?.source"
 									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"

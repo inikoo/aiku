@@ -3,6 +3,8 @@ import { ref } from "vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
 import { getStyles } from "@/Composables/styles"
+import { sendMessageToParent } from "@/Composables/Workshop";
+import Blueprint from "@/Components/CMS/Webpage/CTA3/Blueprint"
 
 const props = defineProps<{
 	modelValue: any
@@ -42,7 +44,9 @@ const openGallery = ref(false)
 					@update:modelValue="() => emits('autoSave')" />
 			</div>
 
-			<div typeof="button":target="modelValue.button.link.target" :style="getStyles(modelValue.button.container.properties)"
+			<div typeof="button" 
+			@click="() => sendMessageToParent('activeChildBlock', Blueprint?.blueprint?.[1]?.key?.join('-'))"
+			 :style="getStyles(modelValue.button.container.properties)"
 				class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6 cursor-pointer">
 				{{ modelValue.button.text }}
 			</div>
