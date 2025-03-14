@@ -19,7 +19,8 @@ import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
 import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
 import ConfirmPopup from 'primevue/confirmpopup';
 import { useConfirm } from "primevue/useconfirm";
-  import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import SiteSettings from '@/Components/Workshop/SiteSettings.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -128,7 +129,7 @@ const confirmDelete = (event: Event, data: Daum) => {
 };
 
 const tabs = [
-    /* { label: 'Settings', icon: faCogs, tooltip : 'Page Setting' },  */
+   /*  { label: 'Settings', icon: faCogs, tooltip : 'Page Setting' },  */
     { label: 'Block', icon: faLayerGroup, tooltip : 'Blocks'}
 ]
 
@@ -144,18 +145,24 @@ const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
 <template>
     <TabGroup :selectedIndex="selectedTab" @change="changeTab">
         <TabList class="flex border-b border-gray-300">
-            <Tab v-for="(tab, index) in tabs" 
-            :key="index"
-            class="flex items-center gap-2 px-4 py-2 font-medium text-gray-600 rounded-t-lg hover:bg-gray-100 focus:outline-none"
-            :class="{ 'bg-white text-indigo-600 border-b-2 border-indigo-600': selectedTab === index }">
-            <FontAwesomeIcon :icon="tab.icon" fixed-width v-tooltip="tab.tooltip"/>
-        </Tab>
-    </TabList>
+            <Tab v-for="(tab, index) in tabs" :key="index"
+                class="flex items-center gap-2 px-4 py-2 font-medium text-gray-600 rounded-t-lg hover:bg-gray-100 focus:outline-none"
+                :class="{ 'bg-white text-indigo-600 border-b-2 border-indigo-600': selectedTab === index }">
+                <FontAwesomeIcon :icon="tab.icon" fixed-width v-tooltip="tab.tooltip" />
+            </Tab>
+        </TabList>
         <TabPanels>
-           <!--  <TabPanel class="w-[400px] p-1" >Content 1</TabPanel> -->
+           <!--  <TabPanel class="w-[400px] p-1">
+                <div class="max-h-[calc(100vh-220px)] transition-all overflow-y-auto flex flex-col">
+                    <SiteSettings 
+                    :webpage="webpage"
+                    :webBlockTypes="webBlockTypes" 
+                />
+                </div>
+               
+            </TabPanel> -->
             <TabPanel class="w-[400px] p-1">
-                <div
-                    class="max-h-[calc(100vh-220px)] transition-all overflow-y-auto flex flex-col">
+                <div class="max-h-[calc(100vh-220px)] transition-all overflow-y-auto flex flex-col">
                     <div class="full">
                         <Button class="mt-3" full type="dashed" @click="openModalBlockList">
                             <div class="text-gray-500">
