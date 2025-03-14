@@ -269,7 +269,7 @@ onMounted(() => {
 			<div class="text-center font-semibold text-2xl mb-4">
 				{{ trans("Banners Gallery") }}
 			</div>
-
+ 
 			<!-- Scrollable grid area -->
 			<div class="flex-1 overflow-y-auto">
 				<div v-if="!isLoadingFetching">
