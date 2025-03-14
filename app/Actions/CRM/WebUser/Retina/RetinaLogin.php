@@ -37,7 +37,8 @@ class RetinaLogin
     {
         $this->ensureIsNotRateLimited($request);
 
-        $websiteId = $request->get('website')->id;
+        $websiteId  = $request->get('website')->id;
+        $rememberMe = $request->boolean('remember');
 
         $authorised = false;
         $processed  = false;
@@ -58,7 +59,7 @@ class RetinaLogin
                 $processed  = true;
                 $authorised = AuthoriseWebUserWithLegacyPassword::run($webUser, $request->validated());
                 if ($authorised) {
-                    Auth::guard('retina')->login($webUser, $request->boolean('remember'));
+                    Auth::guard('retina')->login($webUser, $rememberMe);
                 }
             }
         }
@@ -72,7 +73,7 @@ class RetinaLogin
                 ]
             );
 
-            $authorised = Auth::guard('retina')->attempt($credentials, $request->boolean('remember'));
+            $authorised = Auth::guard('retina')->attempt($credentials, $rememberMe);
 
 
             if (!$authorised) {
@@ -80,7 +81,7 @@ class RetinaLogin
                 data_set($credentials, 'email', $credentials['username']);
                 data_forget($credentials, 'username');
 
-                $authorised = Auth::guard('retina')->attempt($credentials, $request->boolean('remember'));
+                $authorised = Auth::guard('retina')->attempt($credentials, $rememberMe);
             }
         }
 
