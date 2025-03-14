@@ -7,34 +7,27 @@ import { isObject } from 'lodash-es';
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faShieldAlt, faPlus, faTrash, faArrowSquareLeft, faTriangle } from "@fas"
-import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook, faWhatsapp} from "@fortawesome/free-brands-svg-icons"
+import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
 import { faBars } from '@fal'
 import Image from '@/Components/Image.vue'
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faArrowSquareLeft, faFacebook,faWhatsapp)
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faArrowSquareLeft, faFacebook, faWhatsapp)
 
 const props = defineProps<{
     fieldValue?: FieldValue,
-    modelValue:FieldValue
+    modelValue: FieldValue
 }>();
 
 </script>
 
 <template>
-    <div id="app" class="md:mx-0 pb-12 lg:pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
+    <div id="app" class="md:mx-0 pb-12 lg:pb-24 pt-4 md:pt-8 md:px-16 text-white"
+        :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div class="overflow-hidden flex-1 flex items-center justify-center md:justify-start ">
-                <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" width="260px" height="70px" :src="modelValue.logo.source"
-                    :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
-                <Image
-                    v-else="modelValue?.logo?.source?.original"
-                    width="260px"
-                    height="70px"
-                    :src="modelValue?.logo?.source"
-                    :alt="modelValue.logo.alt"
-                    class="h-auto max-h-20 w-auto min-w-16"
-                />
+                <Image :src="modelValue?.logo?.source" :imageCover="true" :alt="modelValue?.logo?.alt"
+                    :imgAttributes="modelValue?.logo?.attributes" :style="getStyles(modelValue?.logo?.properties)" />
             </div>
 
             <div v-if="modelValue?.email"
@@ -44,7 +37,8 @@ const props = defineProps<{
 
             <div v-if="modelValue?.whatsapp?.number"
                 class="relative group flex-1 flex gap-x-1.5 justify-center md:justify-start items-center">
-                <a :href="`https://wa.me/${modelValue?.whatsapp?.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(modelValue?.whatsapp?.message || '')}`" class="flex gap-x-2 items-center">
+                <a :href="`https://wa.me/${modelValue?.whatsapp?.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(modelValue?.whatsapp?.message || '')}`"
+                    class="flex gap-x-2 items-center">
                     <FontAwesomeIcon class="text-[#00EE52]" icon="fab fa-whatsapp" style="font-size: 22px" />
                     <span style="font-size: 17px">{{ modelValue?.whatsapp?.number }}</span>
                 </a>
@@ -83,7 +77,7 @@ const props = defineProps<{
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <!-- Mobile  -->
                             <div class="block md:hidden">
                                 <Disclosure v-slot="{ open }" class="m-2">
@@ -91,8 +85,7 @@ const props = defineProps<{
                                         <DisclosureButton
                                             class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
-                                                <span
-                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                <span class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -103,7 +96,8 @@ const props = defineProps<{
                                         </DisclosureButton>
 
                                         <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]"
+                                                style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -149,8 +143,7 @@ const props = defineProps<{
                                         <DisclosureButton
                                             class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
-                                                <span
-                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                <span class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -161,7 +154,8 @@ const props = defineProps<{
                                         </DisclosureButton>
 
                                         <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]"
+                                                style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -206,8 +200,7 @@ const props = defineProps<{
                                         <DisclosureButton
                                             class="p-3 pb-0 md:p-0 transition-all flex justify-between cursor-default  w-full">
                                             <div class="flex justify-between w-full">
-                                                <span
-                                                    class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                <span class="mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
                                                     <div v-html="item.name"></div>
                                                 </span>
                                                 <div>
@@ -218,7 +211,8 @@ const props = defineProps<{
                                         </DisclosureButton>
 
                                         <DisclosurePanel class="p-3 md:p-0 transition-all cursor-default w-full">
-                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]" style="margin-top: 0px">
+                                            <ul class="mt-0 block space-y-4 pl-4 md:pl-[2.2rem]"
+                                                style="margin-top: 0px">
                                                 <li v-for="menu of item.data" :key="menu.name"
                                                     class="flex items-center text-sm">
                                                     <div v-html="menu.name"></div>
@@ -288,5 +282,4 @@ const props = defineProps<{
     margin-top: 0.5rem;
     list-style-position: outside;
 }
-
 </style>
