@@ -104,14 +104,15 @@ const setShowBlock = (e : Event, value : Object) => {
 const confirmDelete = (event: Event, data: Daum) => {
     confirm.require({
         target: event.currentTarget, 
-        message: 'Are you sure you want to delete?',
+        message: trans("Remove this block? This action can't be undone."),
         rejectProps: {
-            label: 'No',
+            label: trans('Cancel'),
             severity: 'secondary',
             outlined: true,
         },
         acceptProps: {
-            label: 'Yes',
+            label: trans('Yes, delete'),
+            severity: 'danger',
         },
         accept: () => {
             sendDeleteBlock(data);
