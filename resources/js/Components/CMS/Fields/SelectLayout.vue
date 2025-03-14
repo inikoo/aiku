@@ -48,14 +48,21 @@ const onSubmitLayout = (layoutType: string) => {
 
 <template>
   <div class="w-full flex justify-center">
-    <button @click="isModalOpen = true" class="flex w-full items-center justify-center p-4 border rounded-md">
+    <button @click="isModalOpen = true" class="relative flex w-full items-center justify-center p-4 border rounded-md">
       <div v-if="selectedLayout" class="w-full">
         <div v-if="selectedLayout.grid" :class="'grid gap-2 ' + selectedLayout.grid" class="h-14">
-          <div v-for="i in selectedLayout.images" :key="i" class="bg-gray-200 h-15 w-full border border-dashed rounded"></div>
+          <div v-for="(i, indexI) in selectedLayout.images" :key="i" class="text-2xl flex items-center justify-center font-bold text-gray-400 bg-gray-200 h-15 w-full border border-dashed rounded">
+            {{ indexI+1 }}
+          </div>
         </div>
         <div v-else class="flex gap-2 h-12">
           <div v-for="(flexClass, index) in selectedLayout.flex" :key="index" :class="flexClass"
-            class="p-2 bg-gray-200 h-15 text-center border border-dashed rounded-lg"></div>
+            class="p-2 text-2xl flex items-center justify-center font-bold text-gray-400 bg-gray-200 h-15 text-center border border-dashed rounded-lg">
+              {{ index+1 }}
+          </div>
+        </div>
+        <div class="absolute inset-0 bg-black/50 text-white opacity-0 hover:opacity-100 flex items-center justify-center">
+          {{ trans('Change layout') }}
         </div>
       </div>
       <div v-else>Change Layout</div>
@@ -71,11 +78,15 @@ const onSubmitLayout = (layoutType: string) => {
           :class="{'border-blue-500 ring-2 rounded': model === layout.layout_type, 'hover:border-blue-300 hover:bg-gray-100': model !== layout.layout_type}">
           <div class="border rounded-lg p-4">
             <div v-if="layout.grid" :class="'grid gap-2 ' + layout.grid">
-              <div v-for="i in layout.images" :key="i" class="p-2 bg-gray-200 h-20 border border-dashed rounded-lg"></div>
+              <div v-for="(i, indexI) in layout.images" :key="i" class="p-2 text-2xl flex items-center justify-center font-bold text-gray-400  bg-gray-200 h-20 border border-dashed rounded-lg">
+                {{ indexI+1 }}
+              </div>
             </div>
             <div v-else class="flex gap-2">
               <div v-for="(flexClass, index) in layout.flex" :key="index" :class="flexClass"
-                class="p-2 bg-gray-200 h-20 border border-dashed rounded-lg"></div>
+                class="p-2 text-2xl flex items-center justify-center font-bold text-gray-400 bg-gray-200 h-20 border border-dashed rounded-lg">
+                {{ index+1 }}
+              </div>
             </div>
           </div>
           <div class="absolute inset-0 flex items-center justify-center bg-opacity-50 bg-black text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
