@@ -53,6 +53,7 @@ const _iframe = ref<IframeHTMLAttributes | null>(null)
 const addBlockCancelToken = ref<Function | null>(null)
 const orderBlockCancelToken = ref<Function | null>(null)
 const deleteBlockCancelToken = ref<Function | null>(null)
+const addBlockParentIndex = ref(0)
 
 const openedBlockSideEditor = ref<number | null>(null)
 provide('openedBlockSideEditor', openedBlockSideEditor)
@@ -61,16 +62,23 @@ provide('openedChildSideEditor', openedChildSideEditor)
 
 // Method: Add block
 const isAddBlockLoading = ref<string | null>(null)
-	const addNewBlock = async (block: Daum) => {
+	const addNewBlock = async ({block, type}) => {
 	if (addBlockCancelToken.value) addBlockCancelToken.value()
+    let postion = props.webpage.layout.web_blocks.length
+	if(type == 'before') {
+		postion = addBlockParentIndex.value
+	}else if(type == 'after'){
+		postion = addBlockParentIndex.value + 1
+	}
 	router.post(
 		route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
-		{ web_block_type_id: block.id },
+		{ web_block_type_id: block.id, postion :postion  },
 		{
 			onStart: () => (isAddBlockLoading.value = "addBlock" + block.id),
 			onFinish: () => {
 				addBlockCancelToken.value = null
 				isAddBlockLoading.value = null
+				addBlockParentIndex.value = 0
 			},
 			onCancelToken: (cancelToken) => {
 				addBlockCancelToken.value = cancelToken.cancel
@@ -80,6 +88,7 @@ const isAddBlockLoading = ref<string | null>(null)
 				sendToIframe({ key: 'reload', value: {} })
 			},
 			onError: (error) => {
+				console.log(error)
 				notify({
 					title: trans("Something went wrong"),
 					text: error.message,
@@ -336,13 +345,13 @@ onMounted(() => {
 			openedBlockSideEditor.value = data.value
 		} else if (data.key === 'activeChildBlock') {
 			openedChildSideEditor.value = data.value
-		}/* else if (data.key === 'addBlock') {
-			if(_WebpageSideEditor)
-			_WebpageSideEditor.value = {
-				modelModalBlocklist : true, 
-				addType : data.value.type
+		}else if (data.key === 'addBlock') {
+			if (_WebpageSideEditor.value) {
+				isModalBlockList.value = true;
+				addBlockParentIndex.value =  data.value.parentIndex
+				_WebpageSideEditor.value.addType = data.value.type;
 			}
-		} */
+		}
 	})
 })
 

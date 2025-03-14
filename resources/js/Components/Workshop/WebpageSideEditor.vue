@@ -52,7 +52,7 @@ const confirm = useConfirm();
 const addType = ref('current')
 
 const sendNewBlock = async (block: Daum) => {
-    emits('add', block)
+    emits('add', { block, type : addType.value })
 }
 
 const sendBlockUpdate = async (block: Daum) => {
@@ -122,7 +122,7 @@ const confirmDelete = (event: Event, data: Daum) => {
 };
 
 defineExpose({
-    modelModalBlocklist
+    addType
 })
 
 
@@ -235,7 +235,7 @@ const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
         
     </div>
  
-
+     
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />
     </Modal>

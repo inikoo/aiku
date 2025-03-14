@@ -86,25 +86,24 @@ onMounted(() => {
 								}" @click="() => sendMessageToParent('activeBlock', activityItemIdx)">
 								<div v-if="activeBlock === activityItemIdx" class="trapezoid-button" @click.stop="">
 									<div class="flex">
-										Editing
-										<!-- <div class="py-1 px-2 cursor-pointer hover:bg-gray-200 rounded transition hover:text-indigo-500"
+										<div class="py-1 px-2 cursor-pointer hover:bg-gray-200  transition hover:text-indigo-500"
 											v-tooltip="trans('Add Block Before')" 
 											@click="() => sendMessageToParent('addBlock', { type : 'before', parentIndex : activityItemIdx })"
 										>
 											<FontAwesomeIcon :icon='faSendBackward' fixed-width aria-hidden='true' />
 										</div>
 
-										<div class="py-1 px-2 cursor-pointer hover:bg-gray-200 rounded hover:text-indigo-500  transition md:block hidden"
+										<div class="py-1 px-2 cursor-pointer hover:bg-gray-200  hover:text-indigo-500  transition md:block hidden"
 											v-tooltip="trans('Add Block after')"  
 											@click="() => sendMessageToParent('addBlock', { type : 'after', parentIndex : activityItemIdx })"
 										>
 											<FontAwesomeIcon :icon='faBringForward' fixed-width aria-hidden='true' />
 										</div>
 
-										<div class="py-1 px-2 cursor-pointer hover:bg-red-100 hover:text-red-600 rounded transition"
+										<div class="py-1 px-2 cursor-pointer hover:bg-red-100 hover:text-red-600  transition"
 											v-tooltip="trans('Delete')">
 											<FontAwesomeIcon :icon='faTrashAlt' fixed-width aria-hidden='true' />
-										</div> -->
+										</div>
 									</div>
 								</div>
 
@@ -136,7 +135,7 @@ onMounted(() => {
 
 .trapezoid-button {
   position: absolute;
-  top: -28px; /* Sesuaikan agar masuk ke dalam border */
+  top: -37px; /* Sesuaikan agar masuk ke dalam border */
   left: 50%;
   transform: translateX(-50%);
   padding: 5px 20px;
