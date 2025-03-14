@@ -74,7 +74,7 @@ const listColumnInTable = computed(() => {
 	const resultSet = new Set();  // Create a Set to store unique elements
 
     // Iterate through each sub-array in the input array
-    selectedTab.value.data.map((e) => Object.keys(e.interval_percentages || {})).forEach(subArray => {
+    selectedTab.value.data?.map((e) => Object.keys(e.interval_percentages || {})).forEach(subArray => {
         // Add each element of the sub-array to the Set
         subArray.forEach(item => resultSet.add(item));
     });
@@ -308,9 +308,12 @@ const listColumnInTable = computed(() => {
 				<ColumnGroup type="footer">
 					<Row>
 						<Column footer="Total"> Total </Column>
+
+						<!-- Footer: Refunds -->
 						<Column
-							
-							footerStyle="text-align:right">
+							v-if="listColumnInTable.includes('refunds')"
+							footerStyle="text-align:right"
+						>
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
 									<span  class="text-[14px] md:text-[16px] font-mono">
@@ -323,7 +326,10 @@ const listColumnInTable = computed(() => {
 								</div>
 							</template>
 						</Column>
-						<Column footerStyle="text-align:right">
+						<Column
+							v-if="listColumnInTable.includes('refunds')"
+							footerStyle="text-align:right"
+						>
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
 									<DeltaItemDashboard
@@ -335,8 +341,12 @@ const listColumnInTable = computed(() => {
 								</div>
 							</template>
 						</Column>
+
+						<!-- Footer: Invoices -->
 						<Column
-							footerStyle="text-align:right"  >
+							v-if="listColumnInTable.includes('invoices')"
+							footerStyle="text-align:right"
+						>
 							<template #footer>
 								<div class="whitespace-nowrap text-[#474545]">
 									<span  class="text-[14px] md:text-[16px] font-mono">
@@ -349,7 +359,10 @@ const listColumnInTable = computed(() => {
 								</div>
 							</template>
 						</Column>
-						<Column footerStyle="text-align:right">
+						<Column
+							v-if="listColumnInTable.includes('invoices')"
+							footerStyle="text-align:right"
+						>
 							<template #footer>
 								<div class="whitespace-nowrap  text-[#474545]">
 									<DeltaItemDashboard
@@ -361,7 +374,10 @@ const listColumnInTable = computed(() => {
 								</div>
 							</template>
 						</Column>
+
+						<!-- Footer: Sales -->
 						<Column
+							v-if="listColumnInTable.includes('sales')"
 							v-tooltip="
 								useLocaleStore().currencyFormat(
 									props.currency_code,
@@ -379,8 +395,11 @@ const listColumnInTable = computed(() => {
 									  )
 									: ''
 							"
-							footerStyle="text-align:right" class="font-mono" />
-						<Column footerStyle="text-align:right text-[#474545]">
+							footerStyle="text-align:right" class="font-mono"
+						/>
+						<Column footerStyle="text-align:right text-[#474545]"
+							v-if="listColumnInTable.includes('sales')"
+						>
 							<template
 								#footer
 								v-if="
