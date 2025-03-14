@@ -56,6 +56,9 @@ const deleteBlockCancelToken = ref<Function | null>(null)
 
 const openedBlockSideEditor = ref<number | null>(null)
 provide('openedBlockSideEditor', openedBlockSideEditor)
+const openedChildSideEditor = ref<number | null>(null)
+provide('openedChildSideEditor', openedChildSideEditor)
+
 // Method: Add block
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
@@ -325,12 +328,15 @@ onMounted(() => {
 	window.addEventListener("message", (event) => {
 		if (event.origin !== window.location.origin) return;
 		const { data } = event;
+
 		if (event.data === "openModalBlockList") {
 			isModalBlockList.value = true
 		} else if (data.key === 'autosave') {
 			onSaveWorkshop(data.value)
 		} else if (data.key === 'activeBlock') {
 			openedBlockSideEditor.value = data.value
+		} else if (data.key === 'activeChildBlock') {
+			openedChildSideEditor.value = data.value
 
 		}
 	})

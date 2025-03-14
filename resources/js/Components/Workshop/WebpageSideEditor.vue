@@ -127,6 +127,7 @@ defineExpose({
 
 
 const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
+const openedChildSideEditor = inject('openedChildSideEditor', ref(null))
 </script>
 
 <template>
@@ -210,8 +211,10 @@ const openedBlockSideEditor = inject('openedBlockSideEditor', ref(null))
                                         @update:modelValue="onSaveWorkshop(element)"
                                     />
                                 </div>
+                                
                                 <SideEditor
                                     v-model="element.web_block.layout.data.fieldValue"
+                                    :panelOpen="openedChildSideEditor"
                                     :blueprint="getBlueprint(element.type)"
                                     :block="element"
                                     @update:modelValue="(e) => (onSaveWorkshop(element))"
