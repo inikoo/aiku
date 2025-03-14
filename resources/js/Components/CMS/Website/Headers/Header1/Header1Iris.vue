@@ -84,14 +84,23 @@ const isLoggedIn = inject("isPreviewLoggedIn", false);
 					:is="fieldValue?.logo?.url ? 'a' : 'div'"
 					:href="fieldValue?.logo?.url || '#'"
 				>
-        <Image
+        <!-- <Image
 						:alt="fieldValue?.logo?.alt"
 						:src="fieldValue?.logo?.image?.source"
 						:style="getStyles(fieldValue?.logo?.properties)"
 						:imgAttributes="{
 							loading:'lazy'
 						}"
-					/>
+					/> -->
+
+          <Image 
+                        :style="getStyles(fieldValue.logo.properties)"
+                        :alt="fieldValue?.logo?.alt" 
+                         :imageCover="true"
+                        :src="fieldValue?.logo?.image?.source" 
+                        :imgAttributes="fieldValue?.logo.image?.attributes"
+                       >
+                    </Image>
         </component>
 
         <!-- Search Bar -->

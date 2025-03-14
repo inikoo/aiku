@@ -190,17 +190,18 @@ const editable = ref(true)
 		<div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
 			<div class="w-full grid grid-cols-3 items-center gap-6">
 				<!-- Logo -->
-				<div
-					@click="() => emits('setPanelActive', 'logo')"
-					class="w-fit"
-				>
-					<Image
-						:alt="modelValue?.logo?.alt"
-						:src="modelValue?.logo?.image?.source"
-						:style="getStyles(modelValue.logo.properties)"
-						class="hover-dashed">
-					</Image>
-				</div>
+				
+				<Image 
+                        :style="getStyles(modelValue.logo.properties)"
+                        :alt="modelValue?.logo?.alt" 
+                         :imageCover="true"
+                        :src="modelValue?.logo?.image?.source" 
+                        :imgAttributes="modelValue?.logo.image?.attributes"
+                        class="hover-dashed"
+						@click="() => emits('setPanelActive', 'logo')"
+						>
+                    </Image>
+		
 
 				<!-- Search Bar -->
 				<div class="relative justify-self-center w-full max-w-md"></div>
