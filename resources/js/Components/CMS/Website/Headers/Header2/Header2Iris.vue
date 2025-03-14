@@ -51,6 +51,7 @@ const isLoggedIn = inject("isPreviewLoggedIn", false)
 						:imgAttributes="{
 							loading:'lazy'
 						}"
+						class="x"
 					/>
 				</component>
 
