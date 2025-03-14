@@ -63,7 +63,7 @@ class FulfilmentCustomerHydrateStatus
     protected function getStatusWhenActiveRentalAgreement(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomerStatusEnum
     {
 
-        $status=FulfilmentCustomerStatusEnum::ACTIVE;
+        $status = FulfilmentCustomerStatusEnum::ACTIVE;
 
         $createdAt = $fulfilmentCustomer->rentalAgreement->created_at;
         if ($createdAt->lessThan($createdAt->addMonths(3))

@@ -164,8 +164,8 @@ class ShowGroupDashboard extends OrgAction
                 ),
                 $this->getWidget(
                     data: [
-                        'value'       => $crmStats->number_customer,
-                        'description' => __('Total Customer'),
+                        'value'       => $crmStats->number_customers_trade_state_many,
+                        'description' => __('Customers With Orders'),
                         'type'        => 'number',
                          /* 'route'       => [
                              'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.index',
@@ -395,7 +395,7 @@ class ShowGroupDashboard extends OrgAction
                         ]
                     ],
                     'route_refund'  => [
-                        'name'       => 'grp.org.shops.show.ordering.refunds.index',
+                        'name'       => 'grp.org.shops.show.dashboard.invoices.refunds.index',
                         'parameters' => [
                             'organisation'  => $child->organisation->slug,
                             'shop'          => $child->slug,
