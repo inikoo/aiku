@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue"
+import axios from "axios"
 import { ctrans } from "@/Composables/useTrans"
 import RadioButton from "primevue/radiobutton"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -57,12 +58,58 @@ const revealOptions = computed(() =>
 	}))
 )
 
+const websiteParam = typeof route === "function" ? route().params?.["website"] : null
+
 const options = computed(() => [
 	{ label: "Internal", value: "internal" },
 	{ label: "External", value: "external" },
 	...(canLinkToRevealBlock.value ? [{ label: "Reveal Block", value: "reveal" }] : []),
+	...(websiteParam ? [{ label: "Dialog", value: "dialog" }] : []),
 	{ label: "No Link", value: "none" },
 ])
+
+interface WebsiteDialogOption {
+	id: string
+	name: string
+	href: string
+	is_active: boolean
+	opens: string
+}
+
+const websiteDialogs = ref<WebsiteDialogOption[] | null>(null)
+const isLoadingWebsiteDialogs = ref(false)
+
+const fetchWebsiteDialogs = async () => {
+	if (!websiteParam || websiteDialogs.value || isLoadingWebsiteDialogs.value) {
+		return
+	}
+
+	isLoadingWebsiteDialogs.value = true
+	try {
+		const response = await axios.get(route("grp.json.website_dialogs.link_select", { website: websiteParam }))
+		websiteDialogs.value = response.data.data
+	} catch {
+		websiteDialogs.value = []
+	} finally {
+		isLoadingWebsiteDialogs.value = false
+	}
+}
+
+const websiteDialogOptions = computed(() =>
+	(websiteDialogs.value ?? []).map(websiteDialog => ({
+		label: websiteDialog.is_active ? websiteDialog.name : `${websiteDialog.name} (${ctrans("inactive")})`,
+		value: websiteDialog.href,
+	}))
+)
+
+const selectWebsiteDialog = (href: string | null) => {
+	const websiteDialog = (websiteDialogs.value ?? []).find(option => option.href === href)
+
+	set(localModel.value, "href", websiteDialog?.href ?? null)
+	set(localModel.value, "id", websiteDialog?.id ?? null)
+	set(localModel.value, "target", "_self")
+	emit("update:modelValue", localModel.value)
+}
 
 const isCleared = ref(props.modelValue === null)
 
@@ -71,6 +118,12 @@ watch(() => props.modelValue, (value) => {
 		isCleared.value = false
 	}
 })
+
+watch(() => localModel.value?.type, (type) => {
+	if (type === "dialog") {
+		fetchWebsiteDialogs()
+	}
+}, { immediate: true })
 
 const selectedType = computed(() => isCleared.value ? 'none' : localModel.value?.type)
 
@@ -146,7 +199,7 @@ const cleanCanonicalPath = (url) => {
 <template>
 	<div>
 		<!-- Target Selection -->
-		<div v-if="!isCleared">
+		<div v-if="!isCleared && localModel?.type !== 'dialog'">
 			<div class="text-gray-500 text-xs tracking-wide mb-2">{{ ctrans("Target") }}</div>
 			<div class="mb-3 border border-gray-300 rounded-md w-full px-4 py-2">
 				<div class="flex flex-wrap justify-between w-full">
@@ -192,6 +245,15 @@ const cleanCanonicalPath = (url) => {
 					}" />
 				<div v-else class="text-xs text-gray-500">
 					{{ ctrans('Mark a block as "Reveal on click" first, then it can be selected here.') }}
+				</div>
+			</template>
+
+			<template v-if="localModel?.type == 'dialog'">
+				<div v-if="isLoadingWebsiteDialogs" class="skeleton h-9 rounded" />
+				<PureMultiselect v-else-if="websiteDialogOptions.length" :modelValue="localModel.href" :options="websiteDialogOptions"
+					:placeholder="ctrans('Select a dialog')" @update:modelValue="(e: string) => selectWebsiteDialog(e)" />
+				<div v-else class="text-xs text-gray-500">
+					{{ ctrans('Publish a dialog in Website > Dialogs first, then it can be selected here.') }}
 				</div>
 			</template>
 
