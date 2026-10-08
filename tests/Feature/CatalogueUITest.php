@@ -221,7 +221,8 @@ test('UI show department', function () {
                     ->where('title', $this->product->department->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
@@ -697,7 +698,9 @@ test('UI show sub department in department', function () {
                     ->where('title', $this->subDepartment->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.families_order')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
