@@ -651,7 +651,7 @@ class GetShopNavigation
                 ],
 
                 "topMenu" => [
-                    "subSections" => [
+                    "subSections" => array_values(array_filter([
                         [
                             "label"   => __("Dashboard"),
                             "icon"    => ["fal", "fa-tachometer-alt"],
@@ -670,7 +670,7 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                        [
+                        $user->authTo("crm.$shop->id.prospects.view") ? [
                             "label"   => __("Prospects"),
                             "icon"    => ["fal", "fa-user-plus"],
                             "root"    => "grp.org.shops.show.crm.prospects.",
@@ -678,7 +678,7 @@ class GetShopNavigation
                                 "name"       => "grp.org.shops.show.crm.prospects.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
-                        ],
+                        ] : null,
                         [
                             "label"   => __("Appointments"),
                             "icon"    => ["fal", "fa-calendar"],
@@ -688,7 +688,7 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                    ],
+                    ])),
                 ],
             ];
         }
