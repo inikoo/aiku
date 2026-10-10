@@ -19,7 +19,9 @@ trait WithDeliveryNoteWorkAuthorisation
             return true;
         }
 
-        $deliveryNote = $request->route('deliveryNote');
+        $deliveryNote = $request->route('deliveryNote')
+            ?? $request->route('deliveryNoteItem')?->deliveryNote
+            ?? $request->route('picking')?->deliveryNote;
         if ($deliveryNote === null && $request->route('deliveryNoteLeaflet') instanceof DeliveryNoteLeaflet) {
             $deliveryNote = $request->route('deliveryNoteLeaflet')->deliveryNote;
         }
