@@ -5215,7 +5215,7 @@ describe('stock delivery service invoices', function () {
                 ->where('data.data.0.allocations.1.amount', 200));
     });
 
-    test('deleting a service invoice puts the rows it filled back to pending and leaves hand typed rows alone', function () {
+    test('service invoices of every type fill the row of their kind and deleting them puts those rows back to pending', function () {
         $stockDelivery = $this->serviceInvoiceStockDeliveries->first();
         $organisation  = $this->serviceInvoiceOrganisation;
 
@@ -5231,11 +5231,15 @@ describe('stock delivery service invoices', function () {
             'allocations'  => [['stock_delivery_id' => $stockDelivery->id]],
         ];
         $freight  = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::FREIGHT, 120));
-        $handling = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::OTHER, 30));
+        $haulage  = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::LOCAL_TRANSPORT, 20));
+        $handling = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::PORT_CHARGES, 30));
+        $levy     = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::ANTI_DUMPING, 15));
 
         $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
         $extra    = $stockDelivery->costs()->where('stock_delivery_service_invoice_id', $handling->id)->sole();
-        expect((float) $shipping->amount)->toBe(120.0)
+        expect((float) $shipping->amount)->toBe(140.0)
+            ->and((float) $handDuty->refresh()->amount)->toBe(15.0)
+            ->and($handDuty->from_service_invoices)->toBeTrue()
             ->and($shipping->from_service_invoices)->toBeTrue()
             ->and($extra->type)->toBe(StockDeliveryCostTypeEnum::EXTRA)
             ->and((float) $extra->amount)->toBe(30.0);
@@ -5247,14 +5251,16 @@ describe('stock delivery service invoices', function () {
             ->and(array_column(StoreStockDeliveryServiceInvoice::largestRemainderSplit([1, 2, 3], [1 => 1, 2 => 1, 3 => 0], 0.05), 'amount'))->toBe([0.03, 0.02, 0.0]);
 
         DeleteStockDeliveryServiceInvoice::make()->action($freight);
+        DeleteStockDeliveryServiceInvoice::make()->action($haulage);
         DeleteStockDeliveryServiceInvoice::make()->action($handling);
+        DeleteStockDeliveryServiceInvoice::make()->action($levy);
 
         $shipping->refresh();
         expect($shipping->amount)->toBeNull()
             ->and($shipping->received_at)->toBeNull()
             ->and($shipping->from_service_invoices)->toBeFalse()
             ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->exists())->toBeFalse()
-            ->and((float) $handDuty->refresh()->amount)->toBe(40.0)
+            ->and($handDuty->refresh()->amount)->toBeNull()
             ->and(StockDeliveryServiceInvoice::withTrashed()->find($freight->id)->trashed())->toBeTrue();
     });
 });
@@ -10399,6 +10405,29 @@ test('a placed agent container is costed from its agent invoice and completes it
         ->and((float) $costs->where('type', StockDeliveryCostTypeEnum::EXTRA)->sum('amount'))->toBe(40.0)
         ->and((float) $costs->firstWhere('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->amount)->toBe(490.0)
         ->and($stockDelivery->is_costed)->toBeFalse();
+
+    $orgExchange  = (float) ($stockDelivery->org_exchange ?: 1);
+    $localFreight = StoreStockDeliveryServiceInvoice::make()->action($stockDelivery->organisation, [
+        'type'         => StockDeliveryServiceInvoiceTypeEnum::FREIGHT->value,
+        'issuer'       => 'Local Haulier',
+        'date'         => '2026-10-04',
+        'currency_id'  => $stockDelivery->organisation->currency_id,
+        'total_amount' => 30,
+        'allocations'  => [['stock_delivery_id' => $stockDelivery->id]],
+    ]);
+    $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+
+    expect($shipping->amountInDeliveryCurrency())->toEqualWithDelta(50 + 30 / $orgExchange, 0.02 / $orgExchange)
+        ->and($shipping->label)->toBe('Sea freight, Local Haulier')
+        ->and((float) $stockDelivery->items()->sum('cost_shipping'))->toEqualWithDelta(50 + 30 / $orgExchange, 0.02 / $orgExchange);
+
+    DeleteStockDeliveryServiceInvoice::make()->action($localFreight);
+    $shipping->refresh();
+
+    expect((float) $shipping->amount)->toBe(50.0)
+        ->and($shipping->currency_id)->toBeNull()
+        ->and($shipping->from_service_invoices)->toBeFalse()
+        ->and($shipping->received_at)->not->toBeNull();
 
     StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'amount' => 65, 'received_at' => now()]);
 
