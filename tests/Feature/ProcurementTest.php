@@ -4868,7 +4868,11 @@ describe('shopping list', function () {
 
     test('cherry pick puts agent lines on the org supplier in process purchase order and reuses it', function () {
         $item1 = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 30]);
-        $item2 = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 20]);
+        $again = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 20]);
+
+        expect($again->id)->toBe($item1->id)
+            ->and((float) $again->quantity_units)->toBe(20.0)
+            ->and(ShoppingListItem::where('org_supplier_product_id', $this->orgSupplierProduct->id)->where('state', ShoppingListItemStateEnum::OPEN)->count())->toBe(1);
 
         $result = CherryPickShoppingListItems::make()->action($this->agent, [
             ['id' => $item1->id],
@@ -4881,17 +4885,36 @@ describe('shopping list', function () {
             ->and($purchaseOrder->parent_type)->toBe('OrgSupplier')
             ->and($purchaseOrder->supplier_id)->toBe($this->supplierProduct->supplier_id);
 
+        $linesBefore = $purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count();
+        $item2       = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 15]);
+
         $result2 = CherryPickShoppingListItems::make()->action($this->agent, [
             ['id' => $item2->id],
         ]);
 
-        expect($result2['purchase_orders'])->toHaveCount(1)
+        expect($item2->id)->not->toBe($item1->id)
+            ->and($result2['purchase_orders'])->toHaveCount(1)
             ->and($result2['purchase_orders'][0]->id)->toBe($purchaseOrder->id);
 
         $transaction1 = \App\Models\Procurement\PurchaseOrderTransaction::find($item1->fresh()->purchase_order_transaction_id);
         $transaction2 = \App\Models\Procurement\PurchaseOrderTransaction::find($item2->fresh()->purchase_order_transaction_id);
         expect($transaction1->purchase_order_id)->toBe($purchaseOrder->id)
-            ->and($transaction2->purchase_order_id)->toBe($purchaseOrder->id);
+            ->and($transaction2->id)->toBe($transaction1->id)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count())->toBe($linesBefore);
+
+        $transaction1->replicate()->fill(['quantity_ordered' => 7])->save();
+
+        $dryRun = collect(App\Actions\Procurement\PurchaseOrder\MergeDuplicateDraftPurchaseOrderLines::make()->handle(dryRun: true))->firstWhere('purchase_order', $purchaseOrder->reference);
+        expect($dryRun['kept'])->toBe(7.0)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count())->toBe($linesBefore + 1);
+
+        App\Actions\Procurement\PurchaseOrder\MergeDuplicateDraftPurchaseOrderLines::make()->handle();
+
+        $joined = $purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->get();
+        expect($joined)->toHaveCount(1)
+            ->and($joined->first()->id)->toBe($transaction1->id)
+            ->and((float) $joined->first()->quantity_ordered)->toBe(7.0)
+            ->and($item2->fresh()->purchase_order_transaction_id)->toBe($transaction1->id);
     });
 
     test('shopping list board exposes the open agent purchase orders for a supplier', function () {
@@ -9164,6 +9187,13 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
         expect((float) $line->fresh()->quantity_ordered)->toBe(300.0)
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(1)
             ->and($purchaseOrder->fresh()->data)->not->toHaveKey('ready_to_send');
+
+        $line->fresh()->replicate()->fill(['quantity_ordered' => 500])->save();
+        expect($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(2);
+
+        $setLine->handle($this->orgAgent, $orgSupplierProduct, 400);
+
+        expect($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->pluck('quantity_ordered')->map(fn ($quantity) => (float) $quantity)->all())->toBe([400.0]);
 
         expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()

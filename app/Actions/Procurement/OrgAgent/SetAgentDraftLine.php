@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
@@ -33,8 +34,9 @@ class SetAgentDraftLine extends OrgAction
     /**
      * How much of a product the organisation wants from an agent's supplier, kept on that supplier's
      * draft purchase order: the draft is opened on the first product, the line follows the quantity
-     * and goes when it reaches zero. A draft that changes is no longer "ready to send", the
-     * organisation has to say so again.
+     * and goes when it reaches zero. The product is kept on one line: if the draft holds it more than
+     * once the extra lines are folded into the first. A draft that changes is no longer "ready to
+     * send", the organisation has to say so again.
      *
      * @throws ValidationException
      */
@@ -47,7 +49,10 @@ class SetAgentDraftLine extends OrgAction
         return DB::transaction(function () use ($orgAgent, $orgSupplierProduct, $quantityUnits) {
             $orgSupplier   = OrgSupplier::whereKey($orgSupplierProduct->org_supplier_id)->lockForUpdate()->firstOrFail();
             $purchaseOrder = $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->oldest('id')->first();
-            $line          = $purchaseOrder?->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->first();
+            $lines         = $purchaseOrder?->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->oldest('id')->get() ?? collect();
+            $line          = $lines->first();
+
+            $lines->skip(1)->each(fn (PurchaseOrderTransaction $duplicate) => DeletePurchaseOrderTransaction::make()->action($duplicate));
 
             if ($quantityUnits <= 0 && !$line) {
                 return null;
