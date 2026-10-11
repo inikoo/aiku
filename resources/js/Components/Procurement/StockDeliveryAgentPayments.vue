@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { router } from "@inertiajs/vue3"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -11,13 +11,13 @@ import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTrashAlt } from "@fal"
+import { faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-library.add(faPlus, faTrashAlt)
+library.add(faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd)
 
 interface Payment {
 	id: number
@@ -31,6 +31,7 @@ interface Payment {
 const props = defineProps<{
 	currency: string
 	hasCharges: boolean
+	isEstimate: boolean
 	agent: {
 		can_edit: boolean
 		charges_approved: boolean
@@ -51,9 +52,13 @@ const money = (amount: number) => locale.currencyFormat(props.currency, amount)
 const onError = (errors: Record<string, string>) =>
 	notify({ title: ctrans("Something went wrong"), text: Object.values(errors)[0], type: "error" })
 
+const isOpen = ref(false)
+const needsApproval = computed(() => props.hasCharges && !props.isEstimate && !props.agent.charges_approved)
+
 const approveLoading = ref(false)
 const confirmApproveCharges = () =>
 	confirm.require({
+		group: "stock-delivery",
 		message: ctrans("Approve the agent's charges? The costing can then go ahead."),
 		header: ctrans("Approve charges"),
 		acceptLabel: ctrans("Approve charges"),
@@ -98,6 +103,7 @@ const storePayment = () => {
 
 const confirmDeletePayment = (row: Payment) =>
 	confirm.require({
+		group: "stock-delivery",
 		message: ctrans("Remove the payment of :amount from :date?", { amount: String(money(row.amount)), date: useFormatTime(row.date) }),
 		header: ctrans("Remove payment"),
 		acceptLabel: ctrans("Remove"),
@@ -113,11 +119,38 @@ const confirmDeletePayment = (row: Payment) =>
 </script>
 
 <template>
-	<div class="mt-3 space-y-3 border-t border-gray-200 pt-3 text-sm">
-		<div v-if="hasCharges" class="flex flex-wrap items-center justify-between gap-2">
+	<div class="mt-3 flex justify-end">
+		<Button type="tertiary" size="xs" :label="ctrans('Agent payments')" @click="isOpen = true">
+			<template #icon>
+				<FontAwesomeIcon :icon="needsApproval ? 'fal fa-exclamation-triangle' : 'fal fa-hand-holding-usd'" :class="needsApproval ? 'text-amber-500' : ''" fixed-width aria-hidden="true" />
+			</template>
+		</Button>
+
+		<Dialog
+			v-model:visible="isOpen"
+			modal
+			dismissableMask
+			:closable="false"
+			:style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+			:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
+		>
+			<template #header>
+				<div class="flex w-full items-center justify-between gap-3">
+					<span class="text-sm font-semibold text-gray-900">{{ ctrans("Agent charges and payments") }}</span>
+					<button type="button" class="text-gray-400 hover:text-gray-700" :aria-label="ctrans('Close')" @click="isOpen = false">
+						<FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+					</button>
+				</div>
+			</template>
+	<div class="space-y-3 text-sm">
+		<div v-if="hasCharges && !isEstimate" class="flex flex-wrap items-center justify-between gap-2">
 			<template v-if="!agent.charges_approved">
 				<span class="rounded bg-amber-50 px-2 py-1 text-amber-700">{{ ctrans("The agent's charges wait for your approval, the costing waits for it") }}</span>
-				<Button v-if="agent.can_edit" type="primary" size="xs" :label="ctrans('Approve charges')" :loading="approveLoading" @click="confirmApproveCharges" />
+				<Button v-if="agent.can_edit" type="tertiary" size="xs" :label="ctrans('Approve charges')" :loading="approveLoading" @click="confirmApproveCharges">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</template>
 			<span v-else class="rounded bg-green-50 px-2 py-1 text-green-700">{{ ctrans("Charges approved") }}</span>
 		</div>
@@ -174,9 +207,19 @@ const confirmDeletePayment = (row: Payment) =>
 				</label>
 			</div>
 			<template #footer>
-				<Button type="tertiary" :label="ctrans('Cancel')" @click="isPaymentDialogOpen = false" />
-				<Button type="save" :label="ctrans('Record payment')" :disabled="!payment.date || !payment.amount" :loading="paymentLoading" @click="storePayment" />
+				<Button type="tertiary" :label="ctrans('Cancel')" @click="isPaymentDialogOpen = false">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" :label="ctrans('Record payment')" :disabled="!payment.date || !payment.amount" :loading="paymentLoading" @click="storePayment">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</template>
+		</Dialog>
+	</div>
 		</Dialog>
 	</div>
 </template>
