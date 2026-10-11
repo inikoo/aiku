@@ -52,6 +52,7 @@ use App\Actions\CRM\Prospect\Mailshots\RunProspectMailshotScheduled;
 use App\Actions\CRM\Prospect\Mailshots\RunProspectMailshotSecondWave;
 use App\Actions\CRM\WebUserPasswordReset\PurgeWebUserPasswordReset;
 use App\Actions\DevOps\MonitorAICredit;
+use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\DevOps\MonitorNightowlIngest;
 use App\Actions\DevOps\WarmNightOwlTelemetry;
 use App\Actions\Comms\Email\RemindChannelOrdersOnHold;
@@ -326,6 +327,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'MonitorNightowlIngest',
                 ),
                 name: 'MonitorNightowlIngest',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(MonitorDatabaseReplicas::makeJob())->everyFiveMinutes()->withoutOverlapping()->onOneServer()->sentryMonitor(
+                    monitorSlug: 'MonitorDatabaseReplicas',
+                ),
+                name: 'MonitorDatabaseReplicas',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );
