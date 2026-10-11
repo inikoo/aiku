@@ -8,7 +8,11 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
+use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
+use App\Actions\Inventory\OrgStock\GetOrgStocksStockDeliveries;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\InertiaTable\InertiaTable;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
@@ -16,8 +20,10 @@ use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -70,9 +76,11 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->select([
                 'osp.id',
                 'osp.slug',
+                'osp.supplier_product_id',
                 'sp.code',
                 'sp.name',
                 'sp.cost',
+                'sp.units_per_pack',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
                 'sp.measured_lead_time_days',
@@ -105,13 +113,9 @@ class IndexAgentCoverBucketItems extends OrgAction
                     $sortBy('code', 'sp.code collate "C"'),
                     $sortBy('name', 'sp.name'),
                     $sortBy('supplier_code', 'sup.code collate "C"'),
-                    $sortBy('lead_time_days', 'coalesce(sp.measured_lead_time_days, sp.estimated_lead_time_days)'),
-                    $sortBy('our_stock', 'os.quantity_available'),
-                    $sortBy('our_days_of_cover', 's.days_of_cover'),
-                    $sortBy('units_per_carton', 'sp.units_per_carton'),
-                    $sortBy('suggested', 's.recommended_order_quantity'),
                 ])
                 ->allowedFilters([$globalSearch, $supplierFilter])
+                ->orderBy('osp.id')
                 ->withPaginator(null, tableName: request()->route()?->getName())
                 ->withQueryString()
         );
@@ -135,8 +139,17 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->selectRaw('pot.org_supplier_product_id, sum(pot.quantity_ordered) as quantity')
             ->pluck('quantity', 'org_supplier_product_id');
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages) {
-            $images = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
+        $orgStockIds      = $rows->pluck('org_stock_id')->filter()->unique()->values();
+        $orgStocks        = OrgStock::with('stats', 'stock.stockFamily')->whereIn('id', $orgStockIds)->get()->keyBy('id');
+        $supplierProducts = SupplierProduct::whereIn('id', $rows->pluck('supplier_product_id')->unique())->get()->keyBy('id');
+        $quarterlyUsage   = $orgStockIds->isEmpty() ? collect() : GetOrgStocksQuarterlyUsage::run($orgStockIds);
+        $stockDeliveries  = $orgStockIds->isEmpty() ? collect() : GetOrgStocksStockDeliveries::run($orgStockIds);
+
+        IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $this->orgAgent->organisation_id);
+
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries) {
+            $images   = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
+            $orgStock = $orgStocks->get($row->org_stock_id);
 
             return [
                 'id'                   => $row->id,
@@ -157,6 +170,14 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'cost'                 => $row->cost !== null ? (float) $row->cost : null,
                 'currency'             => $row->currency,
                 'ordered_quantity'     => (float) ($draftQuantities[$row->id] ?? 0),
+                'quantity_ordered'     => (float) ($draftQuantities[$row->id] ?? 0),
+                'units_per_pack'       => $row->units_per_pack ? (float) $row->units_per_pack : 1,
+                'has_org_stock'        => $row->org_stock_id !== null,
+                'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
+                'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],
+                'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
+                'stock_deliveries'     => $stockDeliveries->get($row->org_stock_id),
+                'other_open_purchase_orders' => $row->other_open_purchase_orders ?? [],
             ];
         });
 
@@ -169,8 +190,8 @@ class IndexAgentCoverBucketItems extends OrgAction
             $table
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('No products found')])
-                ->column(key: 'image', label: '', canBeHidden: false)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
+                ->column(key: 'image', label: __('Image'), canBeHidden: false)
                 ->column(key: 'name', label: __('Product'), canBeHidden: false, sortable: true);
 
             if ($this->bucket === null) {
@@ -179,14 +200,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
             $table
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)
-                ->column(key: 'lead_time_days', label: __('Lead time'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'our_stock', label: __('Our stock'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'our_days_of_cover', label: __('Runs out'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'units_per_carton', label: __('Per carton'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'cartons', label: __('Cartons'), canBeHidden: false, align: 'center')
-                ->column(key: 'suggested', label: __('Suggested'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'units', label: __('Units'), canBeHidden: false, align: 'right')
-                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, align: 'right');
+                ->column(key: 'subtotals', label: __('Subtotals'), canBeHidden: false)
+                ->column(key: 'cartons', label: __('Cartons'), canBeHidden: false, align: 'right');
         };
     }
 
@@ -234,16 +249,22 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     /**
      * What each filter offers, with how many products sit behind every choice. The stock group and
-     * rank counts follow the supplier chosen, so they say what picking one would show.
+     * rank counts follow the supplier, the search and the drafts tick, so they say what picking one
+     * would show.
      *
      * @return array{cover: array<int, array{value: string, label: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, supplier: array<int, array{value: int, label: string}>}
      */
-    private function filterOptions(): array
+    private function filterOptions(ActionRequest $request): array
     {
         $buckets = GetAgentStockCoverBuckets::make();
 
+        $search = trim((string) $request->input('filter.global', ''));
+        $like   = '%'.addcslashes($search, '%_\\').'%';
+
         $counts = $buckets->scopedQuery($this->orgAgent)
             ->when($this->supplierId, fn ($query) => $query->where('sp.supplier_id', $this->supplierId))
+            ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
+            ->when($search !== '', fn ($query) => $query->whereRaw('(sp.code collate "C" ilike ? or sp.name ilike ?)', [$like, $like]))
             ->groupByRaw($buckets->bucketSql($this->orgAgent).', os.health_rank')
             ->selectRaw($buckets->bucketSql($this->orgAgent).' as bucket, os.health_rank, count(*) as products')
             ->get();
@@ -317,7 +338,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucket'      => $this->bucket,
                 'bucketLabel' => $this->bucketLabel(),
                 'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
-                'filterOptions' => $this->filterOptions(),
+                'filterOptions' => fn () => $this->filterOptions($request),
                 'active'      => [
                     'cover'    => $this->bucket,
                     'rank'     => $this->rank,
