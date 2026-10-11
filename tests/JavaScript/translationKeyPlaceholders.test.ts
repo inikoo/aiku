@@ -70,3 +70,20 @@ test("the Retina basket recommendations translate through ctrans, not a trans al
 	assert.doesNotMatch(source, /ctrans as trans/)
 	assert.doesNotMatch(source, /(?<![\w.])trans\(/)
 })
+
+test("every Slovak translation keeps the placeholders of its key", () => {
+	const placeholders = (text: string) => [...new Set(text.match(/(?<![\w/]):[A-Za-z_][A-Za-z0-9_]*/g) ?? [])].sort()
+	const strings: Record<string, string> = JSON.parse(readFileSync(join(langDirectory, "sk.json"), "utf8"))
+	const offenders = Object.entries(strings)
+		.filter(([key, value]) => placeholders(key).join() !== placeholders(value).join())
+		.map(([key]) => key)
+
+	assert.deepEqual(offenders, [])
+})
+
+test("Slovak covers every string the app uses", () => {
+	const english = JSON.parse(readFileSync(join(langDirectory, "en.json"), "utf8"))
+	const slovak = JSON.parse(readFileSync(join(langDirectory, "sk.json"), "utf8"))
+
+	assert.deepEqual(Object.keys(english).filter((key) => !(key in slovak) || slovak[key] === ""), [])
+})
