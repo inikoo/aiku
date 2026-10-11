@@ -9205,6 +9205,7 @@ test('UI agent shopping dashboard renders', function () {
             ->has('coverBuckets', 9)
             ->where('coverBuckets.0.bucket', 'out')
             ->where('coverBuckets.8.bucket', 'never')
+            ->has('coverBuckets.0.on_order_value')
             ->where('coverTotal', fn ($total) => $total === collect($page->toArray()['props']['coverBuckets'])->sum('count'))
             ->has('leadTime.days')
             ->has('orderCapacity.warehouse')
@@ -9249,7 +9250,7 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
     $orgStockBefore = $orgStock->only(['state', 'quantity_available', 'is_excluded_from_auto_ordering']);
 
     try {
-        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0, 'is_excluded_from_auto_ordering' => false]);
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0.5, 'is_excluded_from_auto_ordering' => false]);
         $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
         DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['currency_id' => $this->organisation->currency_id]);
 
@@ -9322,6 +9323,18 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
 
         expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
             ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
+
+        $statsBefore = $orgStock->stats->only(['days_of_cover', 'predicted_daily_usage']);
+        $buckets     = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+
+        $orgStock->update(['quantity_available' => 100]);
+        $orgStock->stats->update(['days_of_cover' => 20, 'predicted_daily_usage' => 5]);
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['measured_lead_time_days' => 2]);
+
+        expect($buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'w4'))->toContain($orgSupplierProduct->id)
+            ->and($buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'ok'))->not->toContain($orgSupplierProduct->id);
+
+        $orgStock->stats->update($statsBefore);
     } finally {
         $orgStock->update($orgStockBefore);
     }
