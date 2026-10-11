@@ -11,11 +11,13 @@ namespace App\Models\GoodsIn;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 
 /**
@@ -38,13 +40,32 @@ use Spatie\MediaLibrary\HasMedia;
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockDelivery> $stockDeliveries
  */
-class StockDeliveryServiceInvoice extends Model implements HasMedia
+class StockDeliveryServiceInvoice extends Model implements HasMedia, Auditable
 {
     use InOrganisation;
     use HasAttachments;
+    use HasHistory;
     use SoftDeletes;
 
     protected $guarded = [];
+
+    protected array $auditInclude = [
+        'type',
+        'issuer',
+        'reference',
+        'date',
+        'currency_id',
+        'exchange',
+        'total_amount',
+        'org_total_amount',
+        'paid_at',
+        'notes',
+    ];
+
+    public function generateTags(): array
+    {
+        return ['procurement'];
+    }
 
     protected function casts(): array
     {

@@ -21,6 +21,7 @@ enum McpChangeTypeEnum: string
     case PRODUCTION_RECIPE = 'production_recipe';
     case PLACED_ORDER = 'placed_order';
     case MASTER_PRICES = 'master_prices';
+    case STOCK_DELIVERY_COSTS = 'stock_delivery_costs';
 
     public static function labels(): array
     {
@@ -32,6 +33,7 @@ enum McpChangeTypeEnum: string
             'production_recipe'     => __('Artefact recipe'),
             'placed_order'          => __('Order placed'),
             'master_prices'         => __('Master prices'),
+            'stock_delivery_costs'  => __('Stock delivery costs'),
         ];
     }
 
@@ -47,6 +49,7 @@ enum McpChangeTypeEnum: string
             McpChangeTypeEnum::PRODUCTION_RECORD, McpChangeTypeEnum::PRODUCTION_RECIPE => 'can_use_mcp_production',
             McpChangeTypeEnum::PLACED_ORDER => 'can_use_mcp_place_orders',
             McpChangeTypeEnum::MASTER_PRICES => 'can_use_mcp_prices',
+            McpChangeTypeEnum::STOCK_DELIVERY_COSTS => 'can_use_mcp_costing',
         };
     }
 }

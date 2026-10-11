@@ -55,6 +55,7 @@ use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\RepairStockDeliveryCostings;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
+use App\Actions\GoodsIn\StockDelivery\ReportStockDeliveryReceivedWithoutCosts;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
@@ -5286,6 +5287,80 @@ describe('stock delivery service invoices', function () {
             ->and($handDuty->refresh()->amount)->toBeNull()
             ->and(StockDeliveryServiceInvoice::withTrashed()->find($freight->id)->trashed())->toBeTrue();
     });
+    test('the invoice of a checklist row is uploaded onto the row, or onto the delivery for the agent invoice, without touching amounts', function () {
+        $stockDelivery = $this->serviceInvoiceStockDeliveries->first();
+        $attach        = fn (array $data) => $this->post(route('grp.models.stock-delivery.cost.invoice.attach', $stockDelivery->id), $data);
+        $pdf           = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+
+        $attach(['type' => StockDeliveryCostTypeEnum::DUTY->value, 'attachments' => [$pdf('duty-bill.pdf')]])->assertSessionHasNoErrors();
+        $attach(['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'attachments' => [$pdf('agent-invoice.pdf')]])->assertSessionHasNoErrors();
+        $attach(['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'attachments' => [$pdf('extra.pdf')]])->assertSessionHasErrors('cost');
+
+        $stockDelivery->created_at = '2026-10-01';
+        expect($stockDelivery->costsMissingForPutAway())->toBe([]);
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+        expect($stockDelivery->costsMissingForPutAway())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty'])
+            ->and(StockDelivery::whereKey($stockDelivery->id)->withCostsMissingForPutAway()->exists())->toBeTrue();
+
+        $receive = fn (array $data) => $this->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), $data);
+        $receive([])->assertSessionHasErrors('reason');
+        expect($stockDelivery->refresh()->state)->not->toBe(StockDeliveryStateEnum::RECEIVED);
+        $receive(['reason' => 'Lorry at the door'])->assertSessionDoesntHaveErrors(['reason']);
+        ReportStockDeliveryReceivedWithoutCosts::run($stockDelivery, User::first(), $stockDelivery->costsMissingForPutAway(), 'Lorry at the door');
+        expect($stockDelivery->audits()->where('event', 'received_without_costs')->exists())->toBeTrue();
+        $stockDelivery->update(['created_at' => '2026-10-01']);
+
+        $storeCost = fn (array $data) => $this->post(route('grp.models.stock-delivery.cost.store', $stockDelivery->id), ['type' => StockDeliveryCostTypeEnum::EXTRA->value] + $data);
+        $storeCost(['label' => 'Anything'])->assertSessionHasErrors('category');
+        $storeCost(['category' => StockDeliveryServiceInvoiceTypeEnum::FREIGHT->value])->assertSessionHasErrors('category');
+        $storeCost(['category' => StockDeliveryServiceInvoiceTypeEnum::FINE->value])->assertSessionHasNoErrors();
+        expect($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->sole()->category)->toBe(StockDeliveryServiceInvoiceTypeEnum::FINE);
+
+        $duty = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::DUTY)->sole();
+
+        expect($duty->amount)->toBeNull()
+            ->and($duty->received_at)->toBeNull()
+            ->and($duty->attachments()->count())->toBe(1)
+            ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->exists())->toBeFalse()
+            ->and($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->count())->toBe(1)
+            ->and($stockDelivery->refresh()->is_costed)->toBeFalse();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => true])->assertSessionHasNoErrors();
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['invoice_expected_in_days' => 3])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_waiting_for_invoice)->toBeTrue()
+            ->and($duty->invoice_expected_at->toDateString())->toBe(now()->addDays(3)->toDateString())
+            ->and($duty->waitingLabel())->toBe('Invoice expected in 3 days')
+            ->and($duty->is_estimate)->toBeFalse();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['amount' => 55])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_estimate)->toBeTrue()
+            ->and($duty->is_waiting_for_invoice)->toBeTrue()
+            ->and($duty->received_at)->not->toBeNull();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => false, 'amount' => 58])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_estimate)->toBeFalse()
+            ->and((float) $duty->amount)->toBe(58.0);
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => true, 'invoice_expected_in_days' => 3])->assertSessionHasNoErrors();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['label' => 'Broker says zero rated'])->assertSessionHasNoErrors();
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_na' => true])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_waiting_for_invoice)->toBeFalse()
+            ->and($duty->invoice_expected_at)->toBeNull()
+            ->and($duty->is_na)->toBeTrue()
+            ->and($stockDelivery->refresh()->is_costed)->toBeFalse();
+
+        $this->get(route('grp.org.procurement.stock_deliveries.show', [$stockDelivery->organisation->slug, $stockDelivery->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('costing.checklist.0.type', 'agent_invoice')
+                ->where('costing.checklist.0.attachments.0.name', fn (string $name) => str_contains($name, 'agent-invoice'))
+                ->where('costing.checklist.2.attachments.0.name', fn (string $name) => str_contains($name, 'duty-bill'))
+                ->where('costing.checklist.2.uploadRoute.parameters.cost', $duty->id)
+                ->where('costing.checklist.3.label', 'Fines')
+                ->where('costing.checklist.2.category_label', 'Duty')
+                ->where('costing.checklist.2.note', 'Broker says zero rated')
+                ->where('costing.checklist.2.history', fn ($history) => collect($history)->contains(fn (array $entry) => collect($entry['changes'])->contains(fn (array $change) => $change['field'] === 'Note' && $change['new'] === 'Broker says zero rated')))
+                ->etc());
+    });
 });
 
 describe('supplier deposits', function () {
@@ -9270,7 +9345,15 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
             ->and($line['in_order'])->toBeTrue()
             ->and($line['cartons'])->toBe(1)
             ->and($line['quantity_units'])->toBe(100)
+            ->and($line)->toHaveKeys(['cbm', 'cbm_estimated'])
+            ->and($line['cbm_estimated'])->toBeTrue()
+            ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out'))->toHaveKeys(['cbm', 'order_cbm', 'cbm_estimated_lines', 'order_cbm_estimated_lines'])
             ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out')['order_lines'])->toBeGreaterThanOrEqual(1);
+
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['cbm' => 0.25]);
+        $measured = collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+        expect($measured['cbm'])->toBe(0.25)
+            ->and($measured['cbm_estimated'])->toBeFalse();
 
         $shippedBefore = (int) $orgStock->stats->on_the_way_po_count;
         $orgStock->stats->update(['on_the_way_po_count' => 1]);
@@ -11973,7 +12056,7 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
 
     expect($card['metrics'][0]['value'])->toBe(($before['metrics'][0]['value'] ?? 0) + 1)
         ->and($card['metrics'][1]['value'])->toBe(($before['metrics'][1]['value'] ?? 0) + 1)
-        ->and($card['value'])->toBe($card['metrics'][0]['value'] + $card['metrics'][1]['value'])
+        ->and($card['value'])->toBe(array_sum(array_column($card['metrics'], 'value')))
         ->and($card['metrics'][0]['route']['parameters']['_query']['between[booked_in_at]'])->toEndWith('-'.now()->subDays(4)->format('Ymd'));
 
     $this->get(route('grp.org.procurement.dashboard', [$this->organisation->slug]))

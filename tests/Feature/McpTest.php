@@ -2163,3 +2163,99 @@ describe('sql tiers', function () {
             ->assertHasErrors()->assertSee('for engineers');
     });
 });
+
+describe('stock delivery costs tool', function () {
+    beforeEach(function () {
+        $supplier            = App\Actions\SupplyChain\Supplier\StoreSupplier::make()->action($this->group, App\Models\SupplyChain\Supplier::factory()->definition());
+        $orgSupplier         = App\Models\Procurement\OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+            ?? App\Actions\Procurement\OrgSupplier\StoreOrgSupplier::make()->action($this->organisation, $supplier);
+        $this->stockDelivery = App\Actions\GoodsIn\StockDelivery\StoreStockDelivery::make()->action($orgSupplier, [
+            'reference' => 'MCP-SDC-'.uniqid(),
+            'date'      => date('Y-m-d'),
+        ], strict: false);
+        $this->costOrganisation = $this->stockDelivery->organisation;
+        $this->user->update(['can_use_mcp_costing' => true]);
+        $this->costsTool = fn (array $arguments) => AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\StockDeliveryCostsTool::class, [
+            'organisation'   => $this->costOrganisation->slug,
+            'stock_delivery' => $this->stockDelivery->reference,
+            ...$arguments,
+        ]);
+    });
+
+    test('a user not enrolled is refused and nothing changes', function () {
+        $this->user->update(['can_use_mcp_costing' => false]);
+        $baseline = $this->stockDelivery->costs()->count();
+
+        ($this->costsTool)([
+            'costs'        => [['kind' => 'shipping', 'amount' => 120]],
+            'request_text' => 'ship cost 120',
+        ])->assertHasErrors(['not enabled for this user']);
+
+        expect($this->stockDelivery->costs()->count())->toBe($baseline);
+    });
+
+    test('saves shipping, duty not applicable and a fine, logs one change and reverts it', function () {
+        $baseline     = $this->stockDelivery->costs()->count();
+        $changeCount  = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::STOCK_DELIVERY_COSTS)->count();
+
+        ($this->costsTool)([])->assertOk()->assertSee($this->stockDelivery->reference)->assertSee('extra_kinds');
+
+        $costingClerk = guestWithoutPositions($this->group)->getUser();
+        $costingClerk->update(['can_use_mcp' => true, 'can_use_mcp_costing' => true]);
+        setPermissionsTeamId($this->group->id);
+        $costingClerk->givePermissionTo(['procurement.'.$this->costOrganisation->id.'.edit', 'procurement.'.$this->costOrganisation->id.'.view']);
+        $originalData = $this->stockDelivery->data;
+        $this->stockDelivery->updateQuietly(['data' => array_merge($originalData ?? [], ['costing_reopened' => ['at' => now()->toDateTimeString()]])]);
+
+        AikuServer::actingAs($costingClerk)->tool(App\Mcp\Tools\StockDeliveryCostsTool::class, [
+            'organisation'   => $this->costOrganisation->slug,
+            'stock_delivery' => $this->stockDelivery->reference,
+            'costs'          => [['kind' => 'shipping', 'amount' => 120]],
+            'request_text'   => 'ship cost 120',
+        ])->assertHasErrors(['accounting manager']);
+
+        $this->stockDelivery->updateQuietly(['data' => $originalData]);
+        expect($this->stockDelivery->costs()->count())->toBe($baseline);
+
+        ($this->costsTool)([
+            'costs'        => [
+                ['kind' => 'shipping', 'amount' => 120],
+                ['kind' => 'duty', 'not_applicable' => true],
+                ['kind' => 'fine', 'amount' => 30, 'note' => 'Late pickup'],
+            ],
+            'request_text' => 'yes, save these',
+        ])->assertOk()->assertSee('change_log_id');
+
+        $costs = $this->stockDelivery->costs()->get()->keyBy(fn ($cost) => $cost->category?->value ?? $cost->type->value);
+        expect($this->stockDelivery->costs()->count())->toBe($baseline + 3)
+            ->and((float) $costs['shipping']->amount)->toBe(120.0)
+            ->and($costs['shipping']->received_at)->not->toBeNull()
+            ->and($costs['duty']->is_na)->toBeTrue()
+            ->and($costs['fine']->label)->toBe('Late pickup')
+            ->and((float) $costs['fine']->amount)->toBe(30.0);
+
+        $changes = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::STOCK_DELIVERY_COSTS)->orderBy('id')->get();
+        $change  = $changes->last();
+        expect($changes->count())->toBe($changeCount + 1)
+            ->and($change->request_text)->toBe('yes, save these')
+            ->and($change->data['after_text'])->toContain('Shipping 120.00')->toContain('Duty n/a')->toContain('Fines 30.00')
+            ->and($change->canBeRevertedBy($this->user))->toBeTrue();
+
+        App\Actions\SysAdmin\McpChange\RevertMcpChange::run($change, $this->user);
+
+        expect($this->stockDelivery->costs()->count())->toBe($baseline)
+            ->and($change->fresh()->reverted_at)->not->toBeNull();
+    });
+
+    test('a costed delivery is refused and nothing changes', function () {
+        $this->stockDelivery->update(['is_costed' => true]);
+        $baseline = $this->stockDelivery->costs()->count();
+
+        ($this->costsTool)([
+            'costs'        => [['kind' => 'shipping', 'amount' => 120]],
+            'request_text' => 'ship cost 120',
+        ])->assertHasErrors(['already costed']);
+
+        expect($this->stockDelivery->costs()->count())->toBe($baseline);
+    });
+});

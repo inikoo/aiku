@@ -318,6 +318,7 @@ use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\StartStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\ReopenStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\FinishStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\AttachStockDeliveryCostInvoice;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost;
 use App\Actions\GoodsIn\StockDeliveryServiceInvoice\DeleteStockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDeliveryServiceInvoice\MarkStockDeliveryServiceInvoicePaid;
@@ -1648,6 +1649,7 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::patch('distribute-extra-cost', DistributeStockDeliveryExtraCost::class)->name('distribute-extra-cost');
     Route::patch('customs', UpdateStockDeliveryCustoms::class)->name('customs.update');
     Route::post('cost', StoreStockDeliveryCost::class)->name('cost.store');
+    Route::post('cost/invoice', AttachStockDeliveryCostInvoice::class)->name('cost.invoice.attach');
     Route::post('deposit/apply', ApplyStockDeliveryDeposit::class)->name('deposit.apply');
     Route::delete('', DeleteStockDelivery::class)->name('delete');
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inStockDelivery'])->name('attachment.attach');

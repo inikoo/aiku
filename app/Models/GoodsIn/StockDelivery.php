@@ -11,6 +11,7 @@ namespace App\Models\GoodsIn;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\AgentPayment;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\Helpers\Address;
@@ -131,6 +132,15 @@ class StockDelivery extends Model implements HasMedia, Auditable
     use HasAttachments;
     use HasHistory;
     use HasSearch;
+
+    public const string COSTS_BEFORE_PUT_AWAY_FROM = '2026-10-12';
+
+    public const array STATES_PAST_PUT_AWAY = [
+        StockDeliveryStateEnum::BOOKED_IN,
+        StockDeliveryStateEnum::PLACED,
+        StockDeliveryStateEnum::CANCELLED,
+        StockDeliveryStateEnum::NOT_RECEIVED,
+    ];
 
 
     protected $casts = [
@@ -301,6 +311,57 @@ class StockDelivery extends Model implements HasMedia, Auditable
     public function claims(): HasMany
     {
         return $this->hasMany(StockDeliveryClaim::class);
+    }
+
+    /**
+     * Goods are only put away, and so sold, once procurement has said what they cost: the agent or supplier
+     * invoice, the shipping and the duty each need an amount, an estimate or a not applicable. Deliveries
+     * created before the rule started and partner deliveries, which cost themselves, are let through.
+     *
+     * @return array<int, string> labels of the costs still missing
+     */
+    public function costsMissingForPutAway(): array
+    {
+        if ($this->parent_type === 'OrgPartner' || in_array($this->state, self::STATES_PAST_PUT_AWAY, true) || $this->created_at?->lt(self::COSTS_BEFORE_PUT_AWAY_FROM)) {
+            return [];
+        }
+
+        $costs   = $this->costs()->get();
+        $isReady = fn (StockDeliveryCostTypeEnum $type) => (bool) $costs->first(fn (StockDeliveryCost $cost) => $cost->type === $type && ($cost->received_at || $cost->is_na));
+        $missing = [];
+
+        if (!$isReady(StockDeliveryCostTypeEnum::AGENT_INVOICE) && !$this->agentInvoice()->exists() && !$this->supplierInvoice()->exists()) {
+            $missing[] = __('Agent or supplier invoice');
+        }
+
+        foreach ([StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $type) {
+            if (!$isReady($type)) {
+                $missing[] = StockDeliveryCostTypeEnum::labels()[$type->value];
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * The same rule as costsMissingForPutAway(), for lists and counts.
+     */
+    public function scopeWithCostsMissingForPutAway(Builder $query): Builder
+    {
+        $isReady = fn (StockDeliveryCostTypeEnum $type) => fn ($query) => $query->where('type', $type)
+            ->where(fn ($query) => $query->whereNotNull('received_at')->orWhere('is_na', true));
+
+        return $query
+            ->whereNotIn('stock_deliveries.state', self::STATES_PAST_PUT_AWAY)
+            ->where('stock_deliveries.parent_type', '!=', 'OrgPartner')
+            ->where('stock_deliveries.created_at', '>=', self::COSTS_BEFORE_PUT_AWAY_FROM)
+            ->where(fn ($query) => $query
+                ->whereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::SHIPPING))
+                ->orWhereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::DUTY))
+                ->orWhere(fn ($query) => $query
+                    ->whereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::AGENT_INVOICE))
+                    ->whereDoesntHave('agentInvoice')
+                    ->whereDoesntHave('supplierInvoice')));
     }
 
     public function serviceInvoices(): BelongsToMany

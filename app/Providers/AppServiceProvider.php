@@ -250,6 +250,7 @@ class AppServiceProvider extends ServiceProvider
                 'StockDelivery'                    => 'App\Models\GoodsIn\StockDelivery',
                 'StockDeliveryItem'                => 'App\Models\GoodsIn\StockDeliveryItem',
                 'StockDeliveryServiceInvoice'      => 'App\Models\GoodsIn\StockDeliveryServiceInvoice',
+                'StockDeliveryCost'                => 'App\Models\GoodsIn\StockDeliveryCost',
                 'StockDeliveryClaim'               => 'App\Models\GoodsIn\StockDeliveryClaim',
                 'StockDeliveryCustomsLine'         => 'App\Models\GoodsIn\StockDeliveryCustomsLine',
                 'ReturnDeliveryNote'               => 'App\Models\GoodsIn\ReturnDeliveryNote',

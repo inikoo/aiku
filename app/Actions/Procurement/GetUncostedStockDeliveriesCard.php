@@ -40,7 +40,14 @@ class GetUncostedStockDeliveriesCard
             ->where('placed_at', '>=', $agentSince)
             ->count();
 
-        if (!$stale->total && !$agentNotCosted) {
+        $putAwayBlocked = StockDelivery::where('organisation_id', $organisation->id)->withCostsMissingForPutAway()->count();
+
+        $estimated = StockDelivery::where('organisation_id', $organisation->id)
+            ->where('is_costed', true)
+            ->whereHas('costs', fn ($query) => $query->where('is_estimate', true))
+            ->count();
+
+        if (!$stale->total && !$agentNotCosted && !$putAwayBlocked && !$estimated) {
             return null;
         }
 
@@ -60,10 +67,12 @@ class GetUncostedStockDeliveriesCard
             'label'       => __('Not costed'),
             'description' => __('Stock deliveries waiting for costing'),
             'icon'        => 'fal fa-exclamation-triangle',
-            'value'       => $stale->total + $agentNotCosted,
+            'value'       => $stale->total + $agentNotCosted + $putAwayBlocked + $estimated,
             'tone'        => 'amber',
             'route'       => match (true) {
-                $stale->total && $agentNotCosted => null,
+                $stale->total + $agentNotCosted + $putAwayBlocked + $estimated > max($stale->total, $agentNotCosted, $putAwayBlocked, $estimated) => null,
+                (bool) $putAwayBlocked           => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
+                (bool) $estimated                => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 (bool) $stale->total             => $staleRoute,
                 default                          => $agentRoute,
             },
@@ -77,6 +86,16 @@ class GetUncostedStockDeliveriesCard
                     'label' => __('From agents, placed in the last :days days', ['days' => self::AGENT_LOOKBACK_DAYS]),
                     'value' => $agentNotCosted,
                     'route' => $agentRoute,
+                ],
+                [
+                    'label' => __('On the way or received with costs missing, put-away blocked'),
+                    'value' => $putAwayBlocked,
+                    'route' => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
+                ],
+                [
+                    'label' => __('Costed with an estimate, real invoice still to come'),
+                    'value' => $estimated,
+                    'route' => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 ],
             ],
         ];

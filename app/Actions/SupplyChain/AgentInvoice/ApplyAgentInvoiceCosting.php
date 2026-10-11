@@ -99,6 +99,7 @@ class ApplyAgentInvoiceCosting
                 'label'       => __('Invoice :number', ['number' => $agentInvoice->reference]),
                 'amount'      => (float) $agentInvoice->total_amount,
                 'received_at' => $receivedAt,
+                'is_waiting_for_invoice' => false,
             ];
             $invoiceCost = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
 

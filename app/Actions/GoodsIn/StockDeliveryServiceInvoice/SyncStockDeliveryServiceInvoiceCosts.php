@@ -103,7 +103,7 @@ class SyncStockDeliveryServiceInvoiceCosts
         }
 
         foreach ($bills as $billId => $bill) {
-            $costData = $this->costData($stockDelivery, collect([$bill]));
+            $costData = $this->costData($stockDelivery, collect([$bill])) + ['category' => $bill->type];
 
             if ($row = $rows->get($billId)) {
                 /** @var StockDeliveryCost $row */
@@ -131,6 +131,7 @@ class SyncStockDeliveryServiceInvoiceCosts
             'received_at' => $bills->max('date'),
             'currency_id' => $stockDelivery->organisation->currency_id,
             'exchange'    => $orgExchange > 0 ? 1 / $orgExchange : null,
+            'is_waiting_for_invoice' => false,
         ];
     }
 }
