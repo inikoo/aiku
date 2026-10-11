@@ -128,7 +128,7 @@ class PrepareAgentPurchaseOrders extends OrgAction
     /**
      * What the Prepare order panel shows before anything is created, from the same lines handle() uses.
      *
-     * @return array<int, array{bucket: string, label: string, count: int, cost: float, order_lines: int, order_cost: float, cheapest: float, order_cheapest: float, left_out: object}>
+     * @return array<int, array{bucket: string, label: string, count: int, cost: float, order_lines: int, order_cost: float, cheapest: float, order_cheapest: float, cbm: float, order_cbm: float, cbm_estimated_lines: int, order_cbm_estimated_lines: int, left_out: object}>
      */
     public function summary(OrgAgent $orgAgent): array
     {
@@ -145,6 +145,10 @@ class PrepareAgentPurchaseOrders extends OrgAction
                 'order_cost'     => round($inOrder->sum('cost'), 2),
                 'cheapest'       => (float) ($all->where('cost', '>', 0)->min('cost') ?? 0),
                 'order_cheapest' => (float) ($inOrder->where('cost', '>', 0)->min('cost') ?? 0),
+                'cbm'            => round($all->sum('cbm'), 2),
+                'order_cbm'      => round($inOrder->sum('cbm'), 2),
+                'cbm_estimated_lines'       => $all->where('cbm_estimated', true)->count(),
+                'order_cbm_estimated_lines' => $inOrder->where('cbm_estimated', true)->count(),
                 'left_out'       => (object) [],
             ];
         })->values()->all();

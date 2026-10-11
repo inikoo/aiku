@@ -54,13 +54,14 @@ library.add(
 )
 
 type Tone = "red-deep" | "red" | "orange" | "amber" | "yellow" | "green" | "slate" | "violet" | "gray"
-type PrepareBucket = { bucket: string, count: number, cost: number, order_lines: number, order_cost: number }
+type PrepareBucket = { bucket: string, count: number, cost: number, order_lines: number, order_cost: number, cbm: number, order_cbm: number, cbm_estimated_lines: number, order_cbm_estimated_lines: number }
 type LeadTime = { days: number, source: "measured" | "estimate" | "default", samples: number }
 type RankBreakdown = { rank: string, count: number, on_list: number }
 type CoverBucket = { bucket: string, label: string, tone: Tone, count: number, on_list: number, on_the_way: number, on_order_value: number, lost: number, untouched: number, suppliers: number, stock_value: number, ranks: RankBreakdown[] }
 type OrderCapacity = {
     agent_capacity: { lands_for_us_per_30d: number | null, source: "measured" | "sales" | "none", samples: number, usual_month_orders: number | null, restock_out_of_stock: number, container_value: number | null }
     pipeline: { waiting: number, being_made: number, on_the_way: number, total: number }
+    container: { label: string, cbm: number }
     list: { value: number, lines: number, units: number }
     warehouse: { total_locations: number, empty_locations: number, free_ratio: number | null, inbound_open_po_lines: number, agent_share_used: number, agent_share_limit: number }
     currency: string
@@ -273,7 +274,14 @@ const isSelected = (bucket: CoverBucket) => isPreparable(bucket) && selectedBuck
 
 const toOrder = (bucket: CoverBucket) => {
     const row = prepareByBucket.value[bucket.bucket]
-    return row ? { lines: worstOnly.value ? row.order_lines : row.count, cost: worstOnly.value ? row.order_cost : row.cost } : null
+    return row
+        ? {
+            lines: worstOnly.value ? row.order_lines : row.count,
+            cost: worstOnly.value ? row.order_cost : row.cost,
+            cbm: worstOnly.value ? row.order_cbm : row.cbm,
+            cbmEstimatedLines: worstOnly.value ? row.order_cbm_estimated_lines : row.cbm_estimated_lines,
+        }
+        : null
 }
 
 const leftOut = (bucket: CoverBucket) => Math.max(0, bucket.count - bucket.on_the_way - (toOrder(bucket)?.lines ?? 0))
@@ -281,7 +289,15 @@ const leftOut = (bucket: CoverBucket) => Math.max(0, bucket.count - bucket.on_th
 const estimate = computed(() =>
     orderingBuckets.value
         .filter(isSelected)
-        .reduce((total, bucket) => ({ lines: total.lines + (toOrder(bucket)?.lines ?? 0), cost: total.cost + (toOrder(bucket)?.cost ?? 0) }), { lines: 0, cost: 0 })
+        .reduce(
+            (total, bucket) => ({
+                lines: total.lines + (toOrder(bucket)?.lines ?? 0),
+                cost: total.cost + (toOrder(bucket)?.cost ?? 0),
+                cbm: total.cbm + (toOrder(bucket)?.cbm ?? 0),
+                cbmEstimatedLines: total.cbmEstimatedLines + (toOrder(bucket)?.cbmEstimatedLines ?? 0),
+            }),
+            { lines: 0, cost: 0, cbm: 0, cbmEstimatedLines: 0 }
+        )
 )
 const isCappedByBudget = computed(() => !!budget.value && budget.value < estimate.value.cost)
 const roundLeft = computed(() => (roundBudget.value === null ? null : Math.max(0, roundBudget.value - props.stats.estimated_total)))
@@ -508,7 +524,19 @@ const openAutoFill = (bucket: CoverBucket) => {
                                     <b class="ml-1 font-semibold text-gray-900">≈ {{ money(isCappedByBudget ? budget! : estimate.cost) }}</b>
                                     <span class="ml-1 text-gray-500">
                                         · {{ ctrans(":lines lines", { lines: locale.number(estimate.lines) }) }}
-                                        <template v-if="containers(estimate.cost) !== null"> · {{ containerCount(isCappedByBudget ? budget! : estimate.cost) }}</template>
+                                        <template v-if="estimate.cbm && !isCappedByBudget">
+                                            ·
+                                            <span
+                                                v-tooltip="estimate.cbmEstimatedLines ? ctrans(':count of these products have no carton volume recorded. For those the usual carton of the same supplier is used, so the volume is approximate.', { count: locale.number(estimate.cbmEstimatedLines) }) : ctrans('From the carton volume recorded on each product')"
+                                                class="cursor-help underline decoration-dotted underline-offset-2"
+                                            >{{ estimate.cbmEstimatedLines ? "≈ " : "" }}{{ locale.number(Math.round(estimate.cbm * 10) / 10) }} m³</span>
+                                        </template>
+                                        <template v-if="estimate.cbm && !isCappedByBudget">
+                                            ·
+                                            <span v-tooltip="ctrans('By volume, against a :container of :cbm m³. A loaded container never reaches its full volume.', { container: orderCapacity.container.label, cbm: orderCapacity.container.cbm })" class="cursor-help underline decoration-dotted underline-offset-2">
+                                                {{ ctrans(":share of a :container", { share: `${Math.round((estimate.cbm / orderCapacity.container.cbm) * 100)}%`, container: orderCapacity.container.label }) }}
+                                            </span>
+                                        </template>
                                     </span>
                                 </div>
                                 <div v-if="roundLeft !== null" class="text-xs" :class="isOverRound ? 'font-medium text-red-600' : 'text-gray-400'">
