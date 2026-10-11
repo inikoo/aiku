@@ -48,7 +48,7 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
@@ -59,6 +59,8 @@ library.add(
 	faPersonDolly,
 	faBoxUsd,
 	faCheckCircle,
+	faChevronRight,
+	faChevronDown,
 	faSquare,
 	faCheckSquare,
 	faTimes,
@@ -179,6 +181,7 @@ const props = defineProps<{
 		reopened: { at: string, by: string | null, reason: string } | null
 		currency: string | null
 		checklist: any[]
+		org_currency_id: number
 		put_away_blocked: string[]
 		costs_are_users_job: boolean
 		agent_invoice_missing: boolean
@@ -279,6 +282,7 @@ const orgPerOrder = computed(() => {
 	return Number(org_exchange) || null
 })
 
+const openCostBlocks = ref<Record<string, boolean>>({})
 const costBlocks = computed(() => {
 	const { currency, org_currency, items, org_items } = props.box_stats.third_block
 
@@ -305,16 +309,18 @@ const costBlocks = computed(() => {
 		? {
 			key: "invoice",
 			columns: agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? null : [agentInvoice.org_currency, agentInvoice.currency],
-			title: `${agentInvoice.kind === "agent" ? ctrans("Agent invoice") : ctrans("Supplier invoice")} ${agentInvoice.reference ?? ""}`.trim(),
+			title: agentInvoice.kind === "agent" ? ctrans("Agent invoice") : ctrans("Supplier invoice"),
+			reference: agentInvoice.reference ?? "",
 			badge: agentInvoice.source === "estimated" ? ctrans("Estimated") : null,
 			badgeTooltip: ctrans("No invoice was entered for this delivery; these figures are estimated from what the delivery recorded"),
 			rows: [
 				agentInvoiceRow(ctrans("Goods"), agentInvoice.goods),
-				agentInvoiceRow(agentInvoice.kind === "agent" ? ctrans("Agent charges") : ctrans("Supplier charges"), agentInvoice.charges),
-				agentInvoiceRow(ctrans("Total"), agentInvoice.total, true),
+				{
+					...agentInvoiceRow(agentInvoice.kind === "agent" ? ctrans("Agent charges") : ctrans("Supplier charges"), agentInvoice.charges),
+					note: agentInvoice.goods > 0 ? `${(agentInvoice.charges / agentInvoice.goods * 100).toFixed(1)}%` : "",
+				},
 				...(agentInvoice.paid === null || agentInvoice.balance_due === null ? [] : [
 					agentInvoiceRow(ctrans("Deposits and payments"), -agentInvoice.paid),
-					agentInvoiceRow(ctrans("Balance due"), agentInvoice.balance_due, true),
 				]),
 			],
 		}
@@ -322,13 +328,16 @@ const costBlocks = computed(() => {
 			key: "invoice",
 			columns: sameCurrency ? null : [orgCurrency ?? "", currency ?? ""],
 			title: ctrans("Agent or supplier invoice"),
+			reference: "",
 			badge: ctrans("Not entered"),
 			badgeTooltip: ctrans("The invoice of this delivery has not been entered yet; the goods are valued at what the delivery recorded"),
-			rows: [goodsRow(ctrans("Goods")), goodsRow(ctrans("Total"), true)],
+			rows: [goodsRow(ctrans("Goods"))],
 		}
 
 	const deliveryAmount = (key: string) => Number(props.box_stats.third_block[key as "extra"]) || 0
-	const agentInvoiceInDelivery = agentInvoice?.currency === currency ? agentInvoice.charges : 0
+	const agentInvoiceInDelivery = agentInvoice?.currency === currency && agentInvoice.source !== "estimated"
+		? Math.min(agentInvoice.charges, deliveryAmount("shipping") + deliveryAmount("extra"))
+		: 0
 	const localCosts = [
 		{ label: ctrans("Customs duties"), amount: deliveryAmount("duties") },
 		{ label: ctrans("Import tax"), amount: deliveryAmount("tax") },
@@ -338,6 +347,19 @@ const costBlocks = computed(() => {
 	const invoiceGoods = agentInvoice ? (agentInvoiceRate === null ? 0 : agentInvoice.goods * agentInvoiceRate) : orgGoods
 	const invoiceTotal = agentInvoice ? (agentInvoiceRate === null ? 0 : agentInvoice.total * agentInvoiceRate) : orgGoods
 
+	const percentOfGoods = (amount: number) => (amount / invoiceGoods * 100).toFixed(1)
+	const costLine = (label: string, amount: number) => ({
+		label,
+		value: money(orgCurrency, amount),
+		sub: null as string | null,
+		isTotal: false,
+		note: invoiceGoods > 0 ? `${percentOfGoods(amount)}%` : "",
+	})
+	const serviceInvoiceRows = props.service_invoices?.list ?? []
+	const unpaidLocal = serviceInvoiceRows
+		.filter(row => !row.paid_at)
+		.reduce((sum, row) => sum + (row.allocations.find(allocation => allocation.stock_delivery_id === props.service_invoices?.stock_delivery_id)?.amount ?? 0) * Number(row.exchange), 0)
+	const invoiceBalance = agentInvoice && agentInvoice.balance_due !== null && agentInvoiceRate !== null ? agentInvoice.balance_due * agentInvoiceRate : null
 	const pendingLocalCosts = props.costing.checklist.filter(row => row.type !== "agent_invoice" && !row.received_at && !row.is_na)
 	const waiting = (rows: typeof pendingLocalCosts) => rows.filter(row => row.is_waiting_for_invoice).map(row => `${row.label}: ${row.waiting_label}`)
 	const missingLocalCosts = pendingLocalCosts.filter(row => !row.is_waiting_for_invoice).map(row => row.label)
@@ -352,39 +374,63 @@ const costBlocks = computed(() => {
 		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
 
 	return [
-		{ ...firstBlock, status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")) },
+		{
+			...firstBlock,
+			summary: money(orgCurrency, invoiceTotal),
+			summarySub: agentInvoice
+				? (agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? "" : money(agentInvoice.currency, agentInvoice.total))
+				: (sameCurrency ? "" : money(currency, goods)),
+			detail: "",
+			balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
+			balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
+			status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
+		},
 		{
 			key: "landed",
+			summary: money(orgCurrency, localTotal),
+			summarySub: "",
+			balance: serviceInvoiceRows.length ? money(orgCurrency, unpaidLocal) : "",
+			detail: [
+				...(serviceInvoiceRows.length ? [ctrans(":count service invoices, :unpaid unpaid", { count: String(serviceInvoiceRows.length), unpaid: String(serviceInvoiceRows.filter(row => !row.paid_at).length) })] : []),
+				...(estimates.length ? [ctrans(":count estimated", { count: String(estimates.length) })] : []),
+			].join(" · "),
 			status: status([localCostsStatus, ...estimates.filter((text, index) => props.costing.checklist.filter(row => row.is_estimate && !row.is_na)[index].type !== "agent_invoice")].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
-			title: `${ctrans("Landed costs")} ${orgCurrency ?? ""}`.trim(),
-			rows: [
-				...(localCosts.length
-					? localCosts.map(row => ({ label: row.label, value: money(orgCurrency, row.amount * rate) }))
-					: [{ label: ctrans("No local costs entered yet"), value: "" }]),
-				{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal), isTotal: true },
-			],
+			title: ctrans("Landed costs"),
+			rows: localCosts.map(row => ({
+				label: row.label,
+				value: money(orgCurrency, row.amount * rate),
+				sub: null as string | null,
+				isTotal: false,
+				note: invoiceGoods > 0 ? `${(row.amount * rate / invoiceGoods * 100).toFixed(1)}%` : "",
+			})),
 		},
 		{
 			key: "total",
-			status: status(
-				props.costing.put_away_blocked.length
-					? ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") })
-					: props.costing.is_costed
-					? (estimates.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null)
-					: (isRising ? ctrans("This total will increase: an invoice is still to come") : ctrans("Costing not finished")),
-				ctrans("Costed")
-			),
-			title: `${ctrans("Landed total")} ${orgCurrency ?? ""}`.trim(),
+			summary: money(orgCurrency, invoiceTotal + localTotal),
+			summarySub: "",
+			balance: invoiceBalance === null && !serviceInvoiceRows.length ? "" : money(orgCurrency, (invoiceBalance ?? 0) + unpaidLocal),
+			detail: invoiceGoods > 0
+				? ctrans("for every :one of goods, :extra of extra costs", { one: String(money(orgCurrency, 1)), extra: String(money(orgCurrency, (invoiceTotal + localTotal - invoiceGoods) / invoiceGoods)) })
+				: "",
+			percent: invoiceGoods > 0 ? `+${percentOfGoods(invoiceTotal + localTotal - invoiceGoods)}%` : "",
+			status: props.costing.put_away_blocked.length
+				? status(ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") }), "")
+				: props.costing.is_costed
+				? status(estimates.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
+				: (isRising ? status(ctrans("This total will increase: an invoice is still to come"), "") : null),
+			title: ctrans("Landed total"),
 			rows: [
-				{ label: agentInvoice?.kind === "supplier" ? ctrans("Supplier invoice") : ctrans("Agent or supplier invoice"), value: money(orgCurrency, invoiceTotal) },
-				{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal) },
-				{
-					label: ctrans("Landed total"),
-					value: money(orgCurrency, invoiceTotal + localTotal),
-					sub: invoiceGoods > 0 ? ctrans("local costs add :percentage% to the goods", { percentage: (localTotal / invoiceGoods * 100).toFixed(1) }) : null,
-					isTotal: true,
-					isHeadline: true,
-				},
+				{ label: ctrans("Goods"), value: money(orgCurrency, invoiceGoods), sub: null as string | null, isTotal: false, note: "" },
+				...(agentInvoiceInDelivery > 0 || !agentInvoice || agentInvoiceRate === null ? [] : agentInvoice.charges_list).map(charge => ({ ...costLine(charge.description, charge.amount * (agentInvoiceRate ?? 1)), tag: agentInvoice?.kind === "supplier" ? ctrans("Supplier") : ctrans("Agent") })),
+				...props.costing.checklist
+					.filter(row => row.type !== "agent_invoice" && !row.is_na)
+					.map(row => {
+						const orgAmount = row.org_amount ?? (row.amount != null && row.currency_id === props.costing.org_currency_id ? Number(row.amount) : null)
+
+						return orgAmount != null
+							? costLine(row.is_estimate ? `${row.label} (${ctrans("estimate")})` : row.label, Number(orgAmount))
+							: { label: row.label, value: "—", sub: null as string | null, isTotal: false, note: row.waiting_label ?? ctrans("missing") }
+					}),
 			],
 		},
 	]
@@ -794,7 +840,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 	<AgentContainerInvoicePanel v-if="agentInvoice" :data="agentInvoice" :currencyCode="box_stats.third_block.currency ?? ''" class="mb-4" />
 
-	<div class="grid grid-cols-2 xl:grid-cols-5 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
+	<div class="grid grid-cols-2 xl:grid-cols-4 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
 		<!-- First Block -->
 		<BoxStatPallet class="p-4">
 			<div class="flex flex-col gap-4">
@@ -892,7 +938,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 				<span>{{ box_stats.second_block.state }}</span>
 			</div>
 
-			<hr class="my-1 border-t border-gray-300" />
+			<hr class="-mx-4 my-1 border-t border-gray-200" />
 
 			<!-- Todo: not sure in which states production/delivery time should appear, so far only known when the purchase order is cancelled, hidden for now -->
 			<template v-if="false">
@@ -911,7 +957,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 					</div>
 				</div>
 
-				<hr class="my-1 border-t border-gray-300" />
+				<hr class="-mx-4 my-1 border-t border-gray-200" />
 			</template>
 
 			<div class="flex justify-center gap-4">
@@ -999,88 +1045,101 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</BoxStatPallet>
 
 		<!-- Third Block: costs -->
-		<BoxStatPallet v-for="(block, blockIndex) in costBlocks" :key="block.key" class="p-4" :class="block.key === 'total' ? 'col-span-2 xl:col-span-1' : ''">
-			<div
-				v-if="block.status"
-				class="-mx-4 -mt-4 mb-3 flex items-center gap-1.5 border-t-4 px-4 py-1.5 text-xs"
-				:class="block.status.isMissing ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-green-500 bg-green-50 text-green-800'"
-			>
-				<FontAwesomeIcon :icon="block.status.isMissing ? 'fal fa-exclamation-triangle' : 'fal fa-check-circle'" fixed-width aria-hidden="true" />
-				{{ block.status.text }}
-			</div>
-			<div class="flex items-center justify-center gap-2 text-center">
-				{{ block.title }}
-				<span v-if="block.badge" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700" v-tooltip="block.badgeTooltip">{{ block.badge }}</span>
-			</div>
-
-			<hr class="my-1 border-t border-gray-300" />
-
-			<table v-if="block.columns" class="mt-2 w-full text-sm">
-				<thead>
-					<tr class="text-xs text-gray-500">
-						<th></th>
-						<th v-for="column in block.columns" :key="column" class="pb-1 pl-3 text-right font-medium">{{ column }}</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr
-						v-for="row in block.rows"
-						:key="row.label"
-						:class="row.isTotal ? 'border-t border-gray-200 font-semibold text-gray-700' : ''"
-					>
-						<td class="py-1">{{ row.label }}</td>
-						<td class="py-1 pl-3 text-right tabular-nums">{{ row.value }}</td>
-						<td class="py-1 pl-3 text-right text-xs font-normal tabular-nums text-gray-500">{{ row.sub }}</td>
-					</tr>
-				</tbody>
-			</table>
-			<div v-else class="mt-2 space-y-1 text-sm">
-				<div
-					v-for="row in block.rows"
-					:key="row.label"
-					class="flex items-center justify-between gap-4"
-					:class="[row.isTotal ? 'font-semibold text-gray-700' : '', row.isHeadline ? 'mt-2 border-t border-gray-300 pt-2 text-base text-gray-900' : '']"
-				>
-					<span>{{ row.label }}</span>
-					<span class="text-right tabular-nums">
-						{{ row.value }}
-						<span v-if="row.sub" class="block text-xs font-normal text-gray-400">{{ row.sub }}</span>
-					</span>
-				</div>
-			</div>
-			<div v-if="blockIndex === 0 && box_stats.invoice_entry" class="mt-3 flex justify-end">
-				<StockDeliveryInvoiceEntry
-					:route="box_stats.invoice_entry.route"
-					:isAgent="box_stats.invoice_entry.is_agent"
-					:invoice="box_stats.invoice"
-					:currencyCode="box_stats.invoice?.currency ?? box_stats.third_block.currency ?? ''"
-				/>
-			</div>
-			<StockDeliveryAgentPayments
-				v-if="blockIndex === 0 && box_stats.invoice?.agent"
-				:agent="box_stats.invoice.agent"
-				:currency="box_stats.invoice.currency"
-				:hasCharges="box_stats.invoice.charges_list.length > 0"
-				:isEstimate="box_stats.invoice.source === 'estimated'"
-			/>
-			<StockDeliveryServiceInvoices v-if="service_invoices && block.key === 'landed'" :data="service_invoices" />
-			<div v-if="isCostingVisible" class="mt-3 flex justify-end gap-2">
-				<Button
-					v-if="blockIndex === 0"
-					type="tertiary"
-					size="xs"
-					:label="ctrans('Invoice costing')"
-					icon="fal fa-box-usd"
-					@click="() => (costingSection = 'invoice')"
-				/>
-				<Button
-					v-else-if="block.key === 'landed'"
-					type="tertiary"
-					size="xs"
-					:label="ctrans('Edit landed costs')"
-					icon="fal fa-box-usd"
-					@click="() => (costingSection = 'landed')"
-				/>
+		<BoxStatPallet class="col-span-2">
+			<div>
+				<table class="w-full text-sm">
+					<thead>
+						<tr class="bg-gray-50 text-xs text-gray-600">
+							<th class="px-3 py-2 text-left font-medium">{{ ctrans("Costing") }}</th>
+							<th class="px-3 py-2 text-left font-medium">{{ ctrans("Status") }}</th>
+							<th class="px-3 py-2 text-right font-medium">{{ ctrans("Amount") }}</th>
+							<th class="px-3 py-2 text-right font-medium">{{ ctrans("Balance due") }}</th>
+						</tr>
+					</thead>
+					<tbody v-for="(block, blockIndex) in costBlocks" :key="block.key" class="border-t border-gray-200">
+						<tr
+							class="cursor-pointer hover:bg-gray-50"
+							:class="block.key === 'total' ? 'bg-gray-50' : ''"
+							:aria-expanded="!!openCostBlocks[block.key]"
+							@click="openCostBlocks[block.key] = !openCostBlocks[block.key]"
+						>
+							<td class="px-3 py-2 align-top">
+								<div class="flex items-center gap-2 font-medium text-gray-800">
+									<FontAwesomeIcon :icon="openCostBlocks[block.key] ? 'fal fa-chevron-down' : 'fal fa-chevron-right'" class="text-xs text-gray-400" fixed-width aria-hidden="true" />
+									{{ block.title }}
+								</div>
+								<div v-if="'reference' in block && block.reference" class="pl-6 text-xs text-gray-600">{{ block.reference }}</div>
+								<div v-if="block.detail" class="pl-6 text-xs text-gray-500">{{ block.detail }}</div>
+							</td>
+							<td class="px-3 py-2 align-top">
+								<span v-if="'percent' in block && block.percent" class="float-right text-xs font-medium tabular-nums text-gray-700">{{ block.percent }}</span>
+								<span v-if="block.badge && !block.status?.isMissing" class="mr-1.5 inline-flex rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700" v-tooltip="block.badgeTooltip">{{ block.badge }}</span>
+								<span
+									v-if="block.status"
+									class="inline-flex items-start gap-1.5 rounded px-2 py-0.5 text-xs"
+									:class="block.status.isMissing ? 'bg-amber-50 text-amber-800' : 'bg-green-50 text-green-800'"
+								>
+									<FontAwesomeIcon :icon="block.status.isMissing ? 'fal fa-exclamation-triangle' : 'fal fa-check-circle'" class="mt-0.5" fixed-width aria-hidden="true" />
+									{{ block.status.text }}
+								</span>
+							</td>
+							<td class="whitespace-nowrap px-3 py-2 text-right align-top tabular-nums">
+								<span class="font-semibold text-gray-900">{{ block.summary }}</span>
+								<span v-if="block.summarySub" class="block text-xs text-gray-500">{{ block.summarySub }}</span>
+							</td>
+							<td class="whitespace-nowrap px-3 py-2 text-right align-top tabular-nums text-gray-700">
+								{{ block.balance }}
+								<span v-if="'balanceSub' in block && block.balanceSub" class="block text-xs text-gray-500">{{ block.balanceSub }}</span>
+							</td>
+						</tr>
+						<template v-if="openCostBlocks[block.key]">
+							<tr v-for="(row, rowIndex) in block.rows" :key="rowIndex" class="border-t border-gray-100 text-gray-600">
+								<td class="py-1.5 pl-11 pr-3 align-top" :class="row.isTotal ? 'font-medium text-gray-800' : ''">
+									{{ row.label }}
+									<span v-if="'tag' in row && row.tag" class="ml-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.tag }}</span>
+								</td>
+								<td class="px-3 py-1.5 text-right align-top text-xs tabular-nums text-gray-500">{{ 'note' in row ? row.note : '' }}</td>
+								<td class="whitespace-nowrap px-3 py-1 text-right tabular-nums" :class="row.isTotal ? 'font-medium text-gray-800' : ''">
+									{{ row.value }}
+									<span v-if="row.sub" class="block text-xs font-normal text-gray-500">{{ row.sub }}</span>
+								</td>
+								<td></td>
+							</tr>
+							<tr v-if="block.key !== 'total'" class="border-t border-gray-100">
+								<td colspan="4" class="px-3 pb-3 pl-11">
+									<StockDeliveryServiceInvoices v-if="service_invoices && block.key === 'landed'" :data="service_invoices" />
+									<div class="flex flex-wrap items-center justify-end gap-x-2">
+										<StockDeliveryAgentPayments
+											v-if="blockIndex === 0 && box_stats.invoice?.agent"
+											:agent="box_stats.invoice.agent"
+											:currency="box_stats.invoice.currency"
+											:hasCharges="box_stats.invoice.charges_list.length > 0"
+											:isEstimate="box_stats.invoice.source === 'estimated'"
+										/>
+										<div v-if="isCostingVisible" class="mt-3">
+											<Button
+												v-if="blockIndex === 0"
+												type="tertiary"
+												size="xs"
+												:label="ctrans('Invoice')"
+												icon="fal fa-box-usd"
+												@click="() => (costingSection = 'invoice')"
+											/>
+											<Button
+												v-else
+												type="tertiary"
+												size="xs"
+												:label="ctrans('Edit landed costs')"
+												icon="fal fa-box-usd"
+												@click="() => (costingSection = 'landed')"
+											/>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</template>
+					</tbody>
+				</table>
 			</div>
 		</BoxStatPallet>
 	</div>
@@ -1133,9 +1192,17 @@ const confirmDeleteStockDelivery = (action: any) => {
 				</button>
 			</div>
 		</template>
+		<StockDeliveryInvoiceEntry
+			v-if="costingSection === 'invoice' && box_stats.invoice_entry"
+			:route="box_stats.invoice_entry.route"
+			:isAgent="box_stats.invoice_entry.is_agent"
+			:invoice="box_stats.invoice"
+			:currencyCode="box_stats.invoice?.currency ?? box_stats.third_block.currency ?? ''"
+		/>
 		<StockDeliveryCostingChecklist
 			v-if="costingSection"
 			:section="costingSection"
+			:hideRows="costingSection === 'invoice' && !!box_stats.invoice_entry"
 			:costing="costing"
 			:canEdit="costing.can_edit"
 			:canEditPayments="costing.can_edit_payments"

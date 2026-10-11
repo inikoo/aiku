@@ -93,6 +93,7 @@ const props = defineProps<{
     canEdit: boolean
     canEditPayments: boolean
     section: "invoice" | "landed"
+    hideRows?: boolean
 }>()
 
 const isInvoiceSection = computed(() => props.section === "invoice")
@@ -361,7 +362,7 @@ const removeExtra = (row: CostRow) => {
 
         <template v-if="!costing.is_partner">
             <div class="rounded-md border border-gray-200 overflow-hidden" :class="isBusy ? 'pointer-events-none' : ''" :aria-busy="isBusy">
-                <table class="w-full text-sm">
+                <table v-if="!hideRows" class="w-full text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-xs text-gray-600 font-medium">
                             <th class="px-3 py-2 text-left font-medium">{{ ctrans("N/A") }}</th>

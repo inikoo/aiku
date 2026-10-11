@@ -1041,6 +1041,9 @@ class ShowStockDelivery extends OrgAction
             'from_service_invoices' => (bool) $row?->from_service_invoices,
             'is_waiting_for_invoice' => (bool) $row?->is_waiting_for_invoice,
             'is_estimate'            => (bool) $row?->is_estimate,
+            'org_amount'             => $row && !$row->is_na && $row->amount !== null
+                ? round($row->amountInDeliveryCurrency() * (float) ($row->stockDelivery->org_exchange ?: 1), 2)
+                : null,
             'invoice_overdue'        => (bool) ($row?->is_waiting_for_invoice && $row->invoice_expected_at?->isBefore(today())),
             'waiting_label'          => $row?->waitingLabel(),
             'attachments'           => collect($row?->attachments)->concat($files)->unique('id')
