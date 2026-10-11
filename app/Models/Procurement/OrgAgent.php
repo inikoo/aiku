@@ -8,6 +8,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\SerialReference;
@@ -29,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
+ * @property OrgAgentOrderContainerEnum $order_container
  * @property int $organisation_id
  * @property string $slug
  * @property int $agent_id
@@ -55,6 +57,17 @@ class OrgAgent extends Model
     use HasSlug;
 
     protected $guarded = [];
+
+    protected $attributes = [
+        'order_container' => '40ft',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'order_container' => OrgAgentOrderContainerEnum::class,
+        ];
+    }
 
     public function getSlugOptions(): SlugOptions
     {

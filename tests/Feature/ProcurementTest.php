@@ -9219,6 +9219,10 @@ test('agent order capacity is deterministic and reported in the organisation cur
 
     expect($capacity['agent_capacity'])->toHaveKeys(['lands_for_us_per_30d', 'source', 'samples', 'usual_month_orders', 'restock_out_of_stock', 'container_value'])
         ->and($capacity['pipeline'])->toHaveKeys(['waiting', 'being_made', 'on_the_way', 'total'])
+        ->and($capacity['container'])->toBe(['label' => '40 ft container', 'cbm' => 67.7])
+        ->and(App\Actions\Procurement\OrgAgent\UpdateOrgAgent::make()->action($this->orgAgent, ['order_container' => '20ft'])->order_container)->toBe(App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum::TWENTY_FOOT)
+        ->and(App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent->fresh())['container']['cbm'])->toBe(33.2)
+        ->and(App\Actions\Procurement\OrgAgent\UpdateOrgAgent::make()->action($this->orgAgent->fresh(), ['order_container' => '40ft'])->order_container)->toBe(App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum::FORTY_FOOT)
         ->and($capacity['currency'])->toBe($this->organisation->currency->code)
         ->and($capacity['warehouse'])->toHaveKeys([
             'total_locations',
@@ -9981,6 +9985,7 @@ test('agent order budget does not block adds to the shopping list', function () 
 
     $this->supplierProduct->update(['cost' => 10, 'currency_id' => $this->organisation->currency_id]);
     ShoppingListItem::where('organisation_id', $this->organisation->id)->where('agent_id', $this->orgAgent->agent_id)->forceDelete();
+    ShoppingListItem::where('org_supplier_product_id', $this->orgSupplierProduct->id)->forceDelete();
 
     Cache::put("agent-order-capacity:{$this->orgAgent->id}", [
         ['lands_for_us_per_30d' => 5, 'source' => 'sales', 'samples' => 0],

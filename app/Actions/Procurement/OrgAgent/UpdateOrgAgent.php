@@ -13,7 +13,9 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\WithProcurementSerialReferences;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\Procurement\OrgAgent;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrgAgent extends OrgAction
@@ -39,6 +41,7 @@ class UpdateOrgAgent extends OrgAction
         return array_merge([
             'source_id'   => 'sometimes|nullable|string|max:64',
             'status'      => ['sometimes', 'required', 'boolean'],
+            'order_container' => ['sometimes', 'required', Rule::enum(OrgAgentOrderContainerEnum::class)],
         ], $this->procurementSerialReferenceRules());
     }
 

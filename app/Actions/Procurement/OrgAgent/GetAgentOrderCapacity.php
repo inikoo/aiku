@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\OrgAgent;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
@@ -42,6 +43,7 @@ class GetAgentOrderCapacity
      * @return array{
      *     agent_capacity: array{lands_for_us_per_30d: float|null, source: 'measured'|'sales'|'none', samples: int, usual_month_orders: float|null, restock_out_of_stock: float, container_value: float|null},
      *     pipeline: array{waiting: float, being_made: float, on_the_way: float, total: float},
+     *     container: array{label: string, cbm: float},
      *     list: array{value: float, lines: int, units: float},
      *     warehouse: array{total_locations: int, empty_locations: int, free_ratio: float|null, inbound_open_po_lines: int, agent_share_used: int, agent_share_limit: int},
      *     currency: string,
@@ -60,6 +62,10 @@ class GetAgentOrderCapacity
         return [
             'agent_capacity' => $capacity,
             'pipeline'       => $this->pipeline($orgAgent),
+            'container'      => [
+                'label' => OrgAgentOrderContainerEnum::labels()[$orgAgent->order_container->value],
+                'cbm'   => $orgAgent->order_container->cbm(),
+            ],
             'list'           => $list,
             'warehouse'      => $warehouse,
             'currency'       => $orgAgent->organisation->currency->code,

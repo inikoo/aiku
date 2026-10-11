@@ -73,7 +73,10 @@ class SuggestAgentShoppingList extends OrgAction
         $rates                = [];
         $lines                = [];
 
-        foreach ($this->candidates($orgAgent, $bucket, $rank, $supplierId) as $candidate) {
+        $candidates    = $this->candidates($orgAgent, $bucket, $rank, $supplierId);
+        $cartonVolumes = $this->usualCartonVolumes($candidates->pluck('supplier_id')->unique()->all());
+
+        foreach ($candidates as $candidate) {
             $cartonUnits = max(1, (int) ($candidate->units_per_carton ?: 1));
             $minCartons  = max(1, (int) ($candidate->minimum_carton_order ?: 1));
             $needed      = (float) ($candidate->recommended_order_quantity ?: 0);
@@ -99,6 +102,8 @@ class SuggestAgentShoppingList extends OrgAction
                 'units_per_carton'        => $cartonUnits,
                 'quantity_units'          => $units,
                 'cost'                    => round($units * (float) $candidate->cost * $rate, 2),
+                'cbm'                     => round($cartons * (float) ($candidate->cbm ?: $cartonVolumes[$candidate->supplier_id] ?? $cartonVolumes[0] ?? 0), 4),
+                'cbm_estimated'           => !$candidate->cbm,
                 'days_of_cover'           => $candidate->days_of_cover !== null ? (int) $candidate->days_of_cover : null,
                 'health_rank'             => $candidate->health_rank,
                 'lead_time_days'          => (int) ($candidate->measured_lead_time_days ?? $candidate->estimated_lead_time_days ?? $agentLeadDays),
@@ -107,6 +112,30 @@ class SuggestAgentShoppingList extends OrgAction
         }
 
         return $lines;
+    }
+
+    /**
+     * A carton's volume where the supplier product does not record one: what a carton of that
+     * supplier's other products takes on average, or of all these suppliers' products (key 0) when the
+     * supplier records none. An approximation, flagged as such on every line that uses it.
+     *
+     * @param  array<int, int>  $supplierIds
+     * @return array<int, float> supplier id => cubic metres per carton
+     */
+    private function usualCartonVolumes(array $supplierIds): array
+    {
+        if (!$supplierIds) {
+            return [];
+        }
+
+        $recorded = DB::table('supplier_products')
+            ->whereIn('supplier_id', $supplierIds)
+            ->where('cbm', '>', 0)
+            ->whereNull('deleted_at');
+
+        $volumes = (clone $recorded)->groupBy('supplier_id')->selectRaw('supplier_id, avg(cbm) as cbm')->pluck('cbm', 'supplier_id')->map(fn ($cbm) => (float) $cbm)->all();
+
+        return $volumes + [0 => (float) $recorded->avg('cbm')];
     }
 
     private function reason(object $candidate, int $cartons, int $minCartons): string
@@ -155,6 +184,8 @@ class SuggestAgentShoppingList extends OrgAction
                 'sp.currency_id',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
+                'sp.cbm',
+                'sp.supplier_id',
                 'sp.measured_lead_time_days',
                 'sp.estimated_lead_time_days',
                 'sup.code as supplier_code',
