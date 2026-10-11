@@ -1061,6 +1061,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 				:agent="box_stats.invoice.agent"
 				:currency="box_stats.invoice.currency"
 				:hasCharges="box_stats.invoice.charges_list.length > 0"
+				:isEstimate="box_stats.invoice.source === 'estimated'"
 			/>
 			<StockDeliveryServiceInvoices v-if="service_invoices && block.key === 'landed'" :data="service_invoices" />
 			<div v-if="isCostingVisible" class="mt-3 flex justify-end gap-2">
