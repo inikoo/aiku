@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\OrgAgent;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\OrgAgent;
 use Illuminate\Database\Query\Builder;
@@ -110,6 +111,22 @@ class GetAgentStockCoverBuckets
     }
 
     /**
+     * On a purchase order that has not landed yet, a draft included: already dealt with, so it must
+     * not come back as needing action or be ordered a second time.
+     */
+    public static function onOpenPurchaseOrderExpression(): string
+    {
+        return "exists (select 1 from purchase_order_transactions pot
+            join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+            where pot.org_stock_id = os.id and pot.deleted_at is null
+                and po.state in ('".implode("', '", [
+            PurchaseOrderStateEnum::IN_PROCESS->value,
+            PurchaseOrderStateEnum::SUBMITTED->value,
+            PurchaseOrderStateEnum::CONFIRMED->value,
+        ])."'))";
+    }
+
+    /**
      * @return array{total: int, lead_time: array{days: int, source: string, samples: int}, buckets: array<int, array<string, mixed>>}
      */
     public function handle(OrgAgent $orgAgent): array
@@ -123,12 +140,12 @@ class GetAgentStockCoverBuckets
                 os.health_rank,
                 count(*) as total,
                 count(*) filter (where ".$this->onShoppingListExpression().") as on_list,
-                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0) as on_the_way,
-                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".$this->onShoppingListExpression().") as handled,
+                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().") as on_the_way,
+                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().' or '.$this->onShoppingListExpression().") as handled,
                 count(distinct sp.supplier_id) as suppliers,
                 coalesce(sum(s.stock_value), 0) as stock_value,
                 coalesce(sum(s.projected_lost_revenue), 0) as lost,
-                coalesce(sum(s.projected_lost_revenue) filter (where not (coalesce(s.on_the_way_po_count, 0) > 0 or ".$this->onShoppingListExpression().")), 0) as lost_untouched")
+                coalesce(sum(s.projected_lost_revenue) filter (where not (coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().' or '.$this->onShoppingListExpression().")), 0) as lost_untouched")
             ->groupByRaw("$expression, os.health_rank")
             ->get()
             ->groupBy('bucket');

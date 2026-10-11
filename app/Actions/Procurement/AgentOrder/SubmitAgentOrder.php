@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\AgentOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
@@ -49,6 +50,15 @@ class SubmitAgentOrder extends OrgAction
 
             if ($withProducts->isEmpty()) {
                 throw ValidationException::withMessages(['agent_order' => __('Add products before submitting :reference', ['reference' => $agentOrderReference])]);
+            }
+
+            foreach ($withProducts as $purchaseOrder) {
+                if ($waiting = SendAgentDraftsToAgent::organisationsNotReady($purchaseOrder)) {
+                    throw ValidationException::withMessages(['agent_order' => __(':organisations are also ordering from :supplier and have not said they are ready. Send it from Drafts to send.', [
+                        'organisations' => implode(', ', $waiting),
+                        'supplier'      => $purchaseOrder->parent_code,
+                    ])]);
+                }
             }
 
             $empty->each(fn (PurchaseOrder $purchaseOrder) => DeletePurchaseOrder::make()->action($purchaseOrder));

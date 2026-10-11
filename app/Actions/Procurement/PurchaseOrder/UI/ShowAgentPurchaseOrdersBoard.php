@@ -39,7 +39,6 @@ class ShowAgentPurchaseOrdersBoard extends OrgAction
      * @var array<string, string> state => column the waiting time is measured from
      */
     private const array WAITING_SINCE = [
-        'in_process' => 'purchase_orders.date',
         'submitted'  => 'submitted_at',
         'confirmed'  => 'confirmed_at',
         'settled'    => 'settled_at',
@@ -58,7 +57,6 @@ class ShowAgentPurchaseOrdersBoard extends OrgAction
             ->whereNull('purchase_orders.deleted_at')
             ->where(function (Builder $query) {
                 $query->whereIn('purchase_orders.state', [
-                    PurchaseOrderStateEnum::IN_PROCESS->value,
                     PurchaseOrderStateEnum::SUBMITTED->value,
                     PurchaseOrderStateEnum::CONFIRMED->value,
                 ])->orWhere(function (Builder $query) {

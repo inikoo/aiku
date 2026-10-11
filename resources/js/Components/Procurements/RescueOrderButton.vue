@@ -32,19 +32,20 @@ interface RescueBucket {
 
 const props = withDefaults(
 	defineProps<{
-		orgPartnerId: number
+		orgPartnerId?: number
 		partnerName: string
 		currencyCode: string
 		draftReference?: string | null
 		buckets: RescueBucket[]
 		size?: string
 		isHub?: boolean
+		isAgent?: boolean
 		onList?: { lines: number; cost: number } | null
 		analyseUrl?: string | null
 		inline?: boolean
 		orderUrl?: string | null
 	}>(),
-	{ size: "s", isHub: false, onList: null, inline: false }
+	{ size: "s", isHub: false, isAgent: false, onList: null, inline: false }
 )
 
 const locale = useLocaleStore()
@@ -59,9 +60,14 @@ if (props.isHub) {
 	steps[1] = "Checking what :partner sells"
 	steps[3] = "Adding the lines to the ongoing PO"
 }
+if (props.isAgent) {
+	steps[1] = "Checking what the suppliers of :partner sell"
+	steps[2] = "Working out how many cartons of each to order"
+	steps[3] = "Adding the lines to a draft purchase order for each supplier"
+}
 
 const buttonLabel = computed(() => {
-	if (props.isHub) {
+	if (props.isHub || props.isAgent) {
 		return ctrans("Prepare order")
 	}
 	return props.draftReference
@@ -224,7 +230,7 @@ const prepare = () => {
 			},
 			onError: (errors) => {
 				notify({
-					title: props.isHub
+					title: props.isHub || props.isAgent
 						? ctrans("No order prepared")
 						: ctrans("No rescue order prepared"),
 					text:
@@ -275,7 +281,12 @@ onBeforeUnmount(stopTimer)
 					</div>
 					<p class="mt-1 text-gray-500">
 						{{
-							isHub
+							isAgent
+								? ctrans(
+										"Worst first, in whole cartons, onto a draft purchase order for each supplier of :partner. Nothing is sent: the drafts stay open to add to, and :partner starts on an order only once it is submitted.",
+										{ partner: partnerName }
+									)
+								: isHub
 								? ctrans(
 										"Worst first, enough of each to get out of the critical zone. :partner makes them, so their stock is no limit.",
 										{ partner: partnerName }
@@ -446,7 +457,7 @@ onBeforeUnmount(stopTimer)
 				<label class="block">
 					<span class="text-gray-600">{{ ctrans("Budget (optional)") }}</span>
 					<div
-						class="mt-1 flex items-center rounded-md ring-1 ring-gray-300 focus-within:ring-indigo-500">
+						class="mt-1 flex items-center rounded-md ring-1 ring-gray-300 focus-within:ring-[--app-accent]">
 						<span class="pl-3 text-gray-500">{{ currencySymbol }}</span>
 						<input
 							v-model.number="budget"
@@ -474,7 +485,7 @@ onBeforeUnmount(stopTimer)
 					<Link
 						v-if="analyseUrl"
 						:href="analyseUrl"
-						class="mr-auto inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline"
+						class="mr-auto inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:underline"
 						@click="isAsking = false">
 						<FontAwesomeIcon icon="fal fa-chart-bar" fixed-width aria-hidden="true" />
 						{{ ctrans("More details") }}
@@ -489,12 +500,14 @@ onBeforeUnmount(stopTimer)
 					<Button
 						:label="ctrans('Prepare')"
 						:tooltip="
-							isHub
+							isAgent
+								? ctrans('Automatically picks the products that need ordering and adds them to a draft purchase order for each supplier')
+								: isHub
 								? ctrans('Automatically picks the products that need ordering and adds them to the Basket')
 								: ctrans('Automatically picks the products that need rescuing and adds them to the purchase order')
 						"
 						:disabled="!estimate.lines || isBudgetUsedUp"
-						:icon="isHub ? 'fal fa-clipboard-list' : 'fal fa-life-ring'"
+						:icon="isHub || isAgent ? 'fal fa-clipboard-list' : 'fal fa-life-ring'"
 						size="s"
 						nativeType="submit" />
 				</div>
@@ -510,12 +523,16 @@ onBeforeUnmount(stopTimer)
 				class="flex flex-col items-center gap-3 px-4 py-6 text-center text-sm text-gray-700"
 				role="status"
 				aria-live="polite">
-				<LoadingIcon class="text-3xl text-indigo-500" />
+				<LoadingIcon class="text-3xl text-[--app-accent]" />
 				<div class="font-semibold text-gray-900">{{ ctrans("Crunching the numbers") }}</div>
 				<div class="text-gray-500">{{ stepText }}…</div>
 				<div class="text-xs text-gray-400">
 					{{
-						isHub
+						isAgent
+							? ctrans(
+									"This can take a while, the draft purchase orders open when they are ready"
+								)
+							: isHub
 							? ctrans(
 									"This can take a few seconds, the ongoing PO opens when it is ready"
 								)

@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
 use App\Actions\Traits\WithActionUpdate;
@@ -44,6 +45,10 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
             ->where('state', PurchaseOrderTransactionStateEnum::IN_PROCESS)
             ->doesntExist()) {
             $validator->errors()->add('transactions', __('Purchase order must have at least one item to be submitted'));
+        }
+
+        if (!$this->asAction && $waiting = SendAgentDraftsToAgent::organisationsNotReady($this->purchaseOrder)) {
+            $validator->errors()->add('purchase_order', __(':organisations are also ordering from this supplier and have not said they are ready. Send it from Drafts to send.', ['organisations' => implode(', ', $waiting)]));
         }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {
