@@ -5,10 +5,14 @@
   -->
 
 <script setup lang="ts">
-import { Deferred, Head, Link, router } from "@inertiajs/vue3"
+import { Head, Link, router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
+import Checkbox from "primevue/checkbox"
+import InputNumber from "primevue/inputnumber"
+import ToggleSwitch from "primevue/toggleswitch"
 import { ref, computed } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
-import RescueOrderButton from "@/Components/Procurements/RescueOrderButton.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
@@ -47,11 +51,13 @@ library.add(
 )
 
 type Tone = "red-deep" | "red" | "orange" | "amber" | "yellow" | "green" | "slate" | "violet" | "gray"
+type PrepareBucket = { bucket: string, count: number, cost: number, order_lines: number, order_cost: number }
 type LeadTime = { days: number, source: "measured" | "estimate" | "default", samples: number }
 type RankBreakdown = { rank: string, count: number, on_list: number }
 type CoverBucket = { bucket: string, label: string, tone: Tone, count: number, on_list: number, on_the_way: number, untouched: number, suppliers: number, stock_value: number, ranks: RankBreakdown[] }
 type OrderCapacity = {
-    agent_capacity: { lands_for_us_per_30d: number | null, source: "measured" | "sales" | "none", samples: number }
+    agent_capacity: { lands_for_us_per_30d: number | null, source: "measured" | "sales" | "none", samples: number, usual_month_orders: number | null, restock_out_of_stock: number, container_value: number | null }
+    pipeline: { waiting: number, being_made: number, on_the_way: number, total: number }
     list: { value: number, lines: number, units: number }
     warehouse: { total_locations: number, empty_locations: number, free_ratio: number | null, inbound_open_po_lines: number, agent_share_used: number, agent_share_limit: number }
     currency: string
@@ -68,7 +74,7 @@ const props = defineProps<{
     leadTime: LeadTime
     orderCapacity: OrderCapacity
     canPrepareOrder: boolean
-    prepareOrder?: { buckets: InstanceType<typeof RescueOrderButton>["$props"]["buckets"], url: string }
+    prepareOrder?: { buckets: PrepareBucket[], url: string }
 }>()
 
 const locale = useLocaleStore()
@@ -157,9 +163,29 @@ const donutSegments = computed(() => {
 
 const segmentWidth = (bucket: CoverBucket, part: number) => (bucket.count ? `${Math.max((part / bucket.count) * 100, part ? 1.5 : 0)}%` : "0%")
 const shouldNotBeOrdered = (bucket: CoverBucket) => ["ok", "dead", "gone"].includes(bucket.bucket) && bucket.on_list > 0
-const needsAction = (bucket: CoverBucket) => !isPassiveBucket(bucket) && bucket.untouched > 0
 const canAutoFill = (bucket: CoverBucket) => !isPassiveBucket(bucket) && bucket.ranks.some((rank) => rank.count > rank.on_list)
 const visibleRanks = (bucket: CoverBucket) => bucket.ranks.filter((rank) => rank.count > 0)
+
+const money = (amount: number) =>
+    new Intl.NumberFormat(locale.locale_iso || undefined, { style: "currency", currency: props.orgAgent.currency, currencyDisplay: "narrowSymbol", maximumFractionDigits: 0 }).format(amount)
+
+const roundBudget = computed(() => props.orderCapacity.agent_capacity.lands_for_us_per_30d)
+
+const containers = (amount: number) => {
+    const containerValue = props.orderCapacity.agent_capacity.container_value
+    return containerValue ? (amount / containerValue).toFixed(1) : null
+}
+
+const containerCount = (amount: number) => {
+    const count = containers(amount)
+    return count === null ? "" : count === "1.0" ? ctrans("1 container") : ctrans(":count containers", { count })
+}
+
+const pipelineStages = computed(() => [
+    { label: ctrans("waiting for the agent to confirm"), value: props.orderCapacity.pipeline.waiting, dot: "bg-amber-400" },
+    { label: ctrans("confirmed, being made"), value: props.orderCapacity.pipeline.being_made, dot: "bg-sky-400" },
+    { label: ctrans("on the way"), value: props.orderCapacity.pipeline.on_the_way, dot: "bg-green-500" },
+])
 
 const capacityShare = computed(() => {
     const cap = props.orderCapacity.agent_capacity.lands_for_us_per_30d
@@ -179,12 +205,57 @@ const warehouseLegend = computed(() => [
 const bucketItemsRoute = (bucket: string, rank?: string) =>
     `${route("grp.org.procurement.org_agents.show.shopping.items.index", [route().params.organisation, props.orgAgent.slug])}?cover=${bucket}${rank ? `&rank=${rank}` : ""}`
 
-const dashboardReload = { only: ["coverBuckets", "coverTotal", "orderCapacity", "stats"], preserveScroll: true }
+const dashboardReload = { only: ["coverBuckets", "coverTotal", "orderCapacity", "stats", "prepareOrder"], preserveScroll: true }
 
 const removeMisplaced = (bucket: string) => {
     router.delete(
         route("grp.org.procurement.org_agents.show.shopping.misplaced.destroy", [route().params.organisation, props.orgAgent.slug]),
         { data: { bucket }, ...dashboardReload }
+    )
+}
+
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
+
+const selectedBuckets = ref<string[]>(["out", "w1", "w2"])
+const worstOnly = ref(true)
+const budget = ref<number | null>(null)
+const isPreparing = ref(false)
+
+const prepareByBucket = computed(() => Object.fromEntries((props.prepareOrder?.buckets ?? []).map((row) => [row.bucket, row])))
+const isPreparable = (bucket: CoverBucket) => ["out", "w1", "w2", "w3"].includes(bucket.bucket)
+const isSelected = (bucket: CoverBucket) => isPreparable(bucket) && selectedBuckets.value.includes(bucket.bucket)
+
+const toOrder = (bucket: CoverBucket) => {
+    const row = prepareByBucket.value[bucket.bucket]
+    return row ? { lines: worstOnly.value ? row.order_lines : row.count, cost: worstOnly.value ? row.order_cost : row.cost } : null
+}
+
+const estimate = computed(() =>
+    orderingBuckets.value
+        .filter(isSelected)
+        .reduce((total, bucket) => ({ lines: total.lines + (toOrder(bucket)?.lines ?? 0), cost: total.cost + (toOrder(bucket)?.cost ?? 0) }), { lines: 0, cost: 0 })
+)
+const isCappedByBudget = computed(() => !!budget.value && budget.value < estimate.value.cost)
+const roundLeft = computed(() => (roundBudget.value === null ? null : Math.max(0, roundBudget.value - props.stats.estimated_total)))
+const isOverRound = computed(() => roundLeft.value !== null && (isCappedByBudget.value ? budget.value! : estimate.value.cost) > roundLeft.value)
+
+const prepare = () => {
+    if (!props.prepareOrder) {
+        return
+    }
+    router.post(
+        props.prepareOrder.url,
+        { buckets: selectedBuckets.value, worst_only: worstOnly.value, ...(budget.value ? { budget: budget.value } : {}) },
+        {
+            onStart: () => (isPreparing.value = true),
+            onFinish: () => (isPreparing.value = false),
+            onError: (errors) =>
+                notify({
+                    title: ctrans("No order prepared"),
+                    text: errors.rescue ?? errors.budget ?? errors.buckets ?? ctrans("Something went wrong, please try again"),
+                    type: "error",
+                }),
+        }
     )
 }
 
@@ -202,19 +273,240 @@ const openAutoFill = (bucket: CoverBucket) => {
     <PageHeading :data="pageHead" />
 
     <div class="mx-4 mt-4 flex flex-col gap-6 pb-8">
-        <Deferred v-if="canPrepareOrder" data="prepareOrder">
-            <template #fallback>
-                <div class="h-48 animate-pulse rounded-lg border border-gray-200 bg-gray-100" role="status" :aria-label="ctrans('Working out what to order')" />
-            </template>
-            <RescueOrderButton
-                v-if="prepareOrder"
-                inline
-                isAgent
-                :partnerName="orgAgent.name"
-                :currencyCode="orgAgent.currency"
-                :buckets="prepareOrder.buckets"
-                :orderUrl="prepareOrder.url" />
-        </Deferred>
+        <section class="rounded-r border-l-4 border-[--app-accent] bg-gray-50">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+                <div>
+                    <button type="button" class="flex items-center gap-2 text-sm font-semibold text-gray-800" :aria-expanded="stockCoverOpen" @click="toggleStockCover">
+                        <FontAwesomeIcon :icon="faLayerGroup" class="text-gray-400" fixed-width aria-hidden="true" />
+                        {{ ctrans("Stock cover") }}
+                        <FontAwesomeIcon :icon="faChevronDown" class="text-[10px] text-gray-400 transition-transform" :class="{ '-rotate-90': !stockCoverOpen }" fixed-width aria-hidden="true" />
+                    </button>
+                    <p class="mt-0.5 text-xs text-gray-500">
+                        {{ ctrans(":total products in their catalogue, grouped by how long our stock lasts against a :days day lead time", { total: locale.number(coverTotal), days: leadTime.days }) }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 px-4 py-3">
+                <div v-if="donutSegments.length" v-show="stockCoverOpen" class="flex flex-col items-center gap-x-6 gap-y-3 sm:flex-row">
+                    <div class="relative h-24 w-24 shrink-0">
+                        <svg viewBox="0 0 180 180" class="h-full w-full" role="img" :aria-label="ctrans('Stock cover distribution')">
+                            <path
+                                v-for="segment in donutSegments"
+                                :key="segment.bucket.bucket"
+                                v-tooltip="`${segment.bucket.label}: ${locale.number(segment.bucket.count)} (${coverPercentLabel(segment.bucket)})`"
+                                :d="segment.path"
+                                :fill="tonePalette[segment.bucket.tone].hex"
+                                stroke="white"
+                                stroke-width="2"
+                                class="cursor-pointer transition-opacity hover:opacity-75"
+                                @click="router.visit(bucketItemsRoute(segment.bucket.bucket))"
+                            />
+                        </svg>
+                        <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-base font-semibold leading-none tabular-nums text-gray-900">{{ locale.number(coverTotal) }}</span>
+                            <span class="mt-0.5 text-[10px] text-gray-500">{{ ctrans("products") }}</span>
+                        </div>
+                    </div>
+                    <div class="grid w-full min-w-0 grow grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-2 xl:grid-cols-4">
+                        <Link
+                            v-for="bucket in coverBuckets"
+                            :key="bucket.bucket"
+                            :href="bucketItemsRoute(bucket.bucket)"
+                            class="group flex items-center gap-2 rounded-md px-2 py-0.5 text-xs hover:bg-gray-50"
+                        >
+                            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :class="tonePalette[bucket.tone].accent" />
+                            <span class="min-w-0 grow truncate font-medium text-gray-700 group-hover:underline">{{ bucket.label }}</span>
+                            <span class="shrink-0 font-semibold tabular-nums text-gray-900">{{ locale.number(bucket.count) }}</span>
+                            <span class="w-9 shrink-0 text-right tabular-nums text-gray-400">{{ coverPercentLabel(bucket) }}</span>
+                        </Link>
+                    </div>
+                </div>
+
+                <div v-show="stockCoverOpen" class="border-t border-dashed border-gray-300" />
+
+                <div>
+                    <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {{ ctrans("What to order") }}
+                        <span class="rounded-full bg-gray-100 px-2 py-0.5 normal-case tracking-normal tabular-nums text-gray-600">{{ locale.number(orderingCount) }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+                        <div
+                            v-for="bucket in orderingBuckets"
+                            :key="bucket.bucket"
+                            class="flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
+                            :class="isSelected(bucket) ? 'border-[--app-accent-muted]' : 'border-gray-200 hover:border-gray-300'"
+                        >
+                            <div class="h-1 w-full" :class="tonePalette[bucket.tone].accent" />
+                            <div class="flex grow flex-col gap-2.5 p-3">
+                                <div class="flex items-start gap-2">
+                                    <Checkbox
+                                        v-if="canPrepareOrder && isPreparable(bucket)"
+                                        v-model="selectedBuckets"
+                                        :value="bucket.bucket"
+                                        :inputId="`prepare-${bucket.bucket}`"
+                                        :disabled="!toOrder(bucket)?.lines"
+                                        class="mt-0.5"
+                                    />
+                                    <component :is="canPrepareOrder && isPreparable(bucket) ? 'label' : 'div'" :for="`prepare-${bucket.bucket}`" class="min-w-0 grow text-xs font-medium leading-4 text-gray-700">
+                                        {{ bucket.label }}
+                                    </component>
+                                </div>
+
+                                <template v-if="isPreparable(bucket)">
+                                    <div v-if="!prepareOrder" class="h-9 animate-pulse rounded bg-gray-100" role="status" :aria-label="ctrans('Working out what to order')" />
+                                    <div v-else class="flex items-baseline justify-between gap-2">
+                                        <span class="flex items-baseline gap-1.5">
+                                            <span class="text-3xl font-semibold leading-none tabular-nums" :class="toOrder(bucket)?.lines ? tonePalette[bucket.tone].text : 'text-gray-300'">{{ locale.number(toOrder(bucket)?.lines ?? 0) }}</span>
+                                            <span class="text-xs text-gray-500">{{ ctrans("to order") }}</span>
+                                        </span>
+                                        <span class="text-sm font-semibold tabular-nums text-gray-900">{{ money(toOrder(bucket)?.cost ?? 0) }}</span>
+                                    </div>
+                                </template>
+                                <div v-else class="flex items-baseline gap-1.5">
+                                    <span class="text-3xl font-semibold leading-none tabular-nums" :class="bucket.count ? tonePalette[bucket.tone].text : 'text-gray-300'">{{ locale.number(bucket.untouched) }}</span>
+                                    <span class="text-xs text-gray-500">{{ ctrans("not on an order yet") }}</span>
+                                </div>
+
+                                <div>
+                                    <div v-if="bucket.on_the_way || bucket.on_list" class="mb-1 flex h-1.5 w-full gap-px overflow-hidden rounded-full bg-gray-100">
+                                        <div v-if="bucket.on_the_way" class="h-full" :class="tonePalette[bucket.tone].accent" :style="{ width: segmentWidth(bucket, bucket.on_the_way) }" />
+                                        <div v-if="bucket.on_list" class="h-full opacity-40" :class="tonePalette[bucket.tone].accent" :style="{ width: segmentWidth(bucket, bucket.on_list) }" />
+                                    </div>
+                                    <Link :href="bucketItemsRoute(bucket.bucket)" class="text-[11px] tabular-nums text-gray-500 hover:underline">
+                                        {{ ctrans(":count in total", { count: locale.number(bucket.count) }) }}
+                                        <template v-if="bucket.on_the_way"> · {{ ctrans(":count already on order", { count: locale.number(bucket.on_the_way) }) }}</template>
+                                        <template v-if="bucket.suppliers"> · {{ ctrans(":n suppliers", { n: bucket.suppliers }) }}</template>
+                                    </Link>
+                                </div>
+
+                                <div class="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+                                    <Link
+                                        v-for="rank in visibleRanks(bucket)"
+                                        :key="rank.rank"
+                                        :href="bucketItemsRoute(bucket.bucket, rank.rank)"
+                                        v-tooltip="ctrans(':count ranked :rank', { count: rank.count, rank: rank.rank })"
+                                        class="rounded-md border border-gray-200 px-1.5 py-0.5 text-[11px] tabular-nums text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                        :class="rankClasses[rank.rank]"
+                                    >
+                                        <b class="font-bold text-gray-800">{{ rank.rank }}</b> {{ rank.count }}
+                                    </Link>
+                                    <button
+                                        v-if="canPrepareOrder && canAutoFill(bucket)"
+                                        type="button"
+                                        v-tooltip="ctrans('Pick the products to add from this group one by one')"
+                                        class="ml-auto inline-flex items-center gap-1 rounded-md border border-[--app-accent-muted] px-2 py-0.5 text-[11px] font-medium text-[--app-accent] hover:bg-[--app-accent-soft]"
+                                        @click="openAutoFill(bucket)"
+                                    >
+                                        <FontAwesomeIcon :icon="faMagic" fixed-width aria-hidden="true" />
+                                        {{ ctrans("Choose lines") }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form v-if="canPrepareOrder" class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-lg border border-gray-200 bg-white px-4 py-3" @submit.prevent="prepare">
+                        <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                            <ToggleSwitch v-model="worstOnly" />
+                            <span v-tooltip="ctrans('Leaves out products with enough stock to last until this order arrives and a month after. Products already out of stock and your best sellers (rank A and B) always go in.')" class="cursor-help underline decoration-dotted underline-offset-2">
+                                {{ ctrans("Only what would run out") }}
+                            </span>
+                        </label>
+
+                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                            {{ ctrans("Spend up to") }}
+                            <InputNumber
+                                v-model="budget"
+                                mode="currency"
+                                :currency="orgAgent.currency"
+                                :min="1"
+                                :maxFractionDigits="0"
+                                :placeholder="ctrans('No limit')"
+                                :class="fieldFocusClass"
+                                :pt="{ pcInputText: { root: { class: '!w-32 !py-1 text-sm' } } }"
+                            />
+                        </label>
+
+                        <div class="ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
+                            <div class="text-right text-sm tabular-nums">
+                                <div>
+                                    <span class="text-gray-500">{{ ctrans(isCappedByBudget ? "up to" : "This order") }}</span>
+                                    <b class="ml-1 font-semibold text-gray-900">≈ {{ money(isCappedByBudget ? budget! : estimate.cost) }}</b>
+                                    <span class="ml-1 text-gray-500">
+                                        · {{ ctrans(":lines lines", { lines: locale.number(estimate.lines) }) }}
+                                        <template v-if="containers(estimate.cost) !== null"> · {{ containerCount(isCappedByBudget ? budget! : estimate.cost) }}</template>
+                                    </span>
+                                </div>
+                                <div v-if="roundLeft !== null" class="text-xs" :class="isOverRound ? 'font-medium text-red-600' : 'text-gray-400'">
+                                    {{ isOverRound
+                                        ? ctrans("Over what is left of this round's budget (:left)", { left: money(roundLeft) })
+                                        : ctrans(":left left of this round's budget", { left: money(roundLeft) }) }}
+                                </div>
+                            </div>
+                            <Button
+                                :label="ctrans('Prepare order')"
+                                v-tooltip="ctrans('Adds these products, in whole cartons, to a draft purchase order for each supplier. Nothing is sent to the agent.')"
+                                icon="fal fa-clipboard-list"
+                                size="s"
+                                nativeType="submit"
+                                :loading="isPreparing"
+                                :disabled="!prepareOrder || !estimate.lines"
+                            />
+                        </div>
+                    </form>
+                </div>
+
+                <div>
+                    <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("Not for ordering") }}</div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div
+                            v-for="bucket in passiveBuckets"
+                            :key="bucket.bucket"
+                            class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2.5 transition hover:border-gray-300 hover:shadow-sm"
+                        >
+                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" :class="[tonePalette[bucket.tone].soft, tonePalette[bucket.tone].text]">
+                                <FontAwesomeIcon :icon="passiveBucketIcons[bucket.bucket]" fixed-width aria-hidden="true" />
+                            </span>
+                            <div class="min-w-0 grow">
+                                <div class="flex flex-wrap items-baseline gap-x-2">
+                                    <Link :href="bucketItemsRoute(bucket.bucket)" class="text-xl font-semibold leading-none tabular-nums hover:underline" :class="tonePalette[bucket.tone].text">
+                                        {{ locale.number(bucket.count) }}
+                                    </Link>
+                                    <Link :href="bucketItemsRoute(bucket.bucket)" class="text-xs font-medium text-gray-700 hover:underline">{{ bucket.label }}</Link>
+                                    <span v-if="bucket.bucket === 'dead'" class="text-xs tabular-nums text-gray-400">
+                                        {{ locale.currencyFormat(orgAgent.currency, bucket.stock_value) }}
+                                    </span>
+                                </div>
+                                <div v-if="visibleRanks(bucket).length || shouldNotBeOrdered(bucket)" class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tabular-nums text-gray-500">
+                                    <Link
+                                        v-for="rank in visibleRanks(bucket)"
+                                        :key="rank.rank"
+                                        :href="bucketItemsRoute(bucket.bucket, rank.rank)"
+                                        class="hover:underline"
+                                        :class="rankClasses[rank.rank]"
+                                    >
+                                        <b class="font-bold text-gray-700">{{ rank.rank }}</b> {{ rank.count }}
+                                    </Link>
+                                    <span
+                                        v-if="shouldNotBeOrdered(bucket)"
+                                        v-tooltip="ctrans('On the shopping list but not short of stock')"
+                                        class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700"
+                                    >
+                                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                                        {{ bucket.on_list }} {{ ctrans("on list") }}
+                                        <button v-if="bucket.bucket !== 'gone'" type="button" class="ml-0.5 inline-flex items-center gap-1 rounded border border-red-300 px-1 text-[10px] hover:bg-red-100" @click="removeMisplaced(bucket.bucket)">
+                                            <FontAwesomeIcon :icon="faTrashAlt" fixed-width aria-hidden="true" />
+                                            {{ ctrans("remove") }}
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div class="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -223,18 +515,19 @@ const openAutoFill = (bucket: CoverBucket) => {
                         <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--app-accent-soft] text-[--app-accent]">
                             <FontAwesomeIcon :icon="faWallet" fixed-width aria-hidden="true" />
                         </span>
-                        <span class="text-sm font-medium text-gray-600">{{ ctrans("Order budget used") }}</span>
+                        <span class="text-sm font-medium text-gray-600">{{ ctrans("This round's budget") }}</span>
                     </div>
                     <span v-if="orderCapacity.blocked.at_capacity" class="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-                        {{ ctrans("at capacity") }}
+                        {{ ctrans("at budget") }}
                     </span>
                 </div>
                 <div class="mt-3 flex flex-wrap items-baseline gap-x-1.5">
-                    <span class="text-2xl font-semibold tabular-nums text-gray-900">{{ locale.currencyFormat(orgAgent.currency, stats.estimated_total) }}</span>
-                    <span v-if="orderCapacity.agent_capacity.lands_for_us_per_30d" class="text-sm tabular-nums text-gray-400">
-                        / {{ locale.currencyFormat(orgAgent.currency, orderCapacity.agent_capacity.lands_for_us_per_30d) }}
-                    </span>
+                    <span class="text-2xl font-semibold tabular-nums text-gray-900">{{ money(stats.estimated_total) }}</span>
+                    <span v-if="roundBudget" class="text-sm tabular-nums text-gray-400">/ {{ money(roundBudget) }}</span>
                 </div>
+                <p v-if="containers(stats.estimated_total) !== null" class="mt-0.5 text-xs tabular-nums text-gray-500">
+                    {{ ctrans("on your drafts, about :drafts of a container. The budget is about :budget.", { drafts: containers(stats.estimated_total), budget: containerCount(roundBudget ?? 0) }) }}
+                </p>
                 <template v-if="capacityShare !== null">
                     <div class="mt-3 flex items-center gap-2">
                         <div class="h-2 grow overflow-hidden rounded-full bg-gray-100">
@@ -244,19 +537,35 @@ const openAutoFill = (bucket: CoverBucket) => {
                     </div>
                     <p class="mt-2 text-xs leading-5 text-gray-500">
                         <template v-if="orderCapacity.agent_capacity.source === 'measured'">
-                            {{ ctrans("one order cycle of what they historically land for us, measured from :n deliveries", { n: orderCapacity.agent_capacity.samples }) }}
+                            {{ ctrans("What you send this agent in a usual month (:month, from :n orders in the last year) plus :restock to restock what is out of stock.", { month: money(orderCapacity.agent_capacity.usual_month_orders ?? 0), n: locale.number(orderCapacity.agent_capacity.samples), restock: money(orderCapacity.agent_capacity.restock_out_of_stock) }) }}
                         </template>
                         <template v-else>
-                            {{ ctrans("budget = one order cycle (:days days) of what we actually sell of their products", { days: leadTime.days + 7 }) }}
+                            {{ ctrans("No orders to this agent in the last year, so it is a month of what you sell of their products (:month) plus :restock to restock what is out of stock.", { month: money(orderCapacity.agent_capacity.usual_month_orders ?? 0), restock: money(orderCapacity.agent_capacity.restock_out_of_stock) }) }}
                         </template>
                     </p>
                 </template>
                 <p v-else class="mt-3 text-xs leading-5 text-gray-500">
-                    {{ ctrans("No budget: no delivery history and no forecast data yet — the list is uncapped.") }}
+                    {{ ctrans("No budget: no order history and no sales of their products yet, the round is uncapped.") }}
                 </p>
-                <p class="mt-1 text-xs text-gray-400">
-                    {{ ctrans("all sub-supplier currencies converted to :currency", { currency: orgAgent.currency }) }}
-                </p>
+
+                <div class="mt-3 border-t border-dashed border-gray-200 pt-3 text-xs text-gray-500">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="font-medium text-gray-700">{{ ctrans("Already ordered, not landed yet") }}</span>
+                        <span class="tabular-nums">
+                            <b class="font-semibold text-gray-900">{{ money(orderCapacity.pipeline.total) }}</b>
+                            <template v-if="containers(orderCapacity.pipeline.total) !== null"> · {{ containerCount(orderCapacity.pipeline.total) }}</template>
+                        </span>
+                    </div>
+                    <dl class="mt-1.5 space-y-0.5 tabular-nums">
+                        <div v-for="stage in pipelineStages" :key="stage.label" class="flex items-baseline justify-between gap-2">
+                            <dt class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full" :class="stage.dot" />{{ stage.label }}</dt>
+                            <dd class="text-gray-700">{{ money(stage.value) }}</dd>
+                        </div>
+                    </dl>
+                    <p v-if="orderCapacity.agent_capacity.container_value" class="mt-2 text-gray-400">
+                        {{ ctrans("A container from this agent is worth about :value to you. All supplier currencies are converted to :currency.", { value: money(orderCapacity.agent_capacity.container_value), currency: orgAgent.currency }) }}
+                    </p>
+                </div>
             </div>
 
             <div class="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -313,190 +622,6 @@ const openAutoFill = (bucket: CoverBucket) => {
                     </template>
                 </p>
                 <p class="mt-1 text-xs text-gray-400">{{ ctrans(":total products in their catalogue", { total: locale.number(coverTotal) }) }}</p>
-            </div>
-        </section>
-
-        <section class="rounded-r border-l-4 border-[--app-accent] bg-gray-50">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
-                <div>
-                    <button type="button" class="flex items-center gap-2 text-sm font-semibold text-gray-800" :aria-expanded="stockCoverOpen" @click="toggleStockCover">
-                        <FontAwesomeIcon :icon="faLayerGroup" class="text-gray-400" fixed-width aria-hidden="true" />
-                        {{ ctrans("Stock cover") }}
-                        <FontAwesomeIcon :icon="faChevronDown" class="text-[10px] text-gray-400 transition-transform" :class="{ '-rotate-90': !stockCoverOpen }" fixed-width aria-hidden="true" />
-                    </button>
-                    <p class="mt-0.5 text-xs text-gray-500">
-                        {{ ctrans(":total products in their catalogue, grouped by how long our stock lasts against a :days day lead time", { total: locale.number(coverTotal), days: leadTime.days }) }}
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-3 px-4 py-3">
-                <div v-if="donutSegments.length" v-show="stockCoverOpen" class="flex flex-col items-center gap-x-6 gap-y-3 sm:flex-row">
-                    <div class="relative h-24 w-24 shrink-0">
-                        <svg viewBox="0 0 180 180" class="h-full w-full" role="img" :aria-label="ctrans('Stock cover distribution')">
-                            <path
-                                v-for="segment in donutSegments"
-                                :key="segment.bucket.bucket"
-                                v-tooltip="`${segment.bucket.label}: ${locale.number(segment.bucket.count)} (${coverPercentLabel(segment.bucket)})`"
-                                :d="segment.path"
-                                :fill="tonePalette[segment.bucket.tone].hex"
-                                stroke="white"
-                                stroke-width="2"
-                                class="cursor-pointer transition-opacity hover:opacity-75"
-                                @click="router.visit(bucketItemsRoute(segment.bucket.bucket))"
-                            />
-                        </svg>
-                        <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="text-base font-semibold leading-none tabular-nums text-gray-900">{{ locale.number(coverTotal) }}</span>
-                            <span class="mt-0.5 text-[10px] text-gray-500">{{ ctrans("products") }}</span>
-                        </div>
-                    </div>
-                    <div class="grid w-full min-w-0 grow grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-2 xl:grid-cols-4">
-                        <Link
-                            v-for="bucket in coverBuckets"
-                            :key="bucket.bucket"
-                            :href="bucketItemsRoute(bucket.bucket)"
-                            class="group flex items-center gap-2 rounded-md px-2 py-0.5 text-xs hover:bg-gray-50"
-                        >
-                            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :class="tonePalette[bucket.tone].accent" />
-                            <span class="min-w-0 grow truncate font-medium text-gray-700 group-hover:underline">{{ bucket.label }}</span>
-                            <span class="shrink-0 font-semibold tabular-nums text-gray-900">{{ locale.number(bucket.count) }}</span>
-                            <span class="w-9 shrink-0 text-right tabular-nums text-gray-400">{{ coverPercentLabel(bucket) }}</span>
-                        </Link>
-                    </div>
-                </div>
-
-                <div v-show="stockCoverOpen" class="border-t border-dashed border-gray-300" />
-
-                <div class="">
-                    <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        {{ ctrans("Needs ordering") }}
-                        <span class="rounded-full bg-gray-100 px-2 py-0.5 normal-case tracking-normal tabular-nums text-gray-600">{{ locale.number(orderingCount) }}</span>
-                    </div>
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-                        <div
-                            v-for="bucket in orderingBuckets"
-                            :key="bucket.bucket"
-                            class="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition hover:border-gray-300 hover:shadow-sm"
-                        >
-                            <div class="h-1 w-full" :class="tonePalette[bucket.tone].accent" />
-                            <div class="flex grow flex-col gap-2.5 p-3">
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="min-w-0">
-                                        <Link
-                                            :href="bucketItemsRoute(bucket.bucket)"
-                                            class="text-3xl font-semibold leading-none tabular-nums hover:underline"
-                                            :class="bucket.count ? tonePalette[bucket.tone].text : 'text-gray-300'"
-                                        >
-                                            {{ locale.number(bucket.count) }}
-                                        </Link>
-                                        <Link :href="bucketItemsRoute(bucket.bucket)" class="mt-1.5 block text-xs font-medium leading-4 text-gray-700 hover:underline">
-                                            {{ bucket.label }}
-                                        </Link>
-                                        <div v-if="bucket.suppliers" class="mt-0.5 text-[10px] tabular-nums text-gray-400">
-                                            {{ ctrans("across :n suppliers", { n: bucket.suppliers }) }}
-                                        </div>
-                                    </div>
-                                    <span v-if="needsAction(bucket)" class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums" :class="tonePalette[bucket.tone].chip">
-                                        {{ ctrans(":count need action", { count: locale.number(bucket.untouched) }) }}
-                                    </span>
-                                    <span v-else-if="bucket.count" class="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                                        {{ ctrans("all handled") }}
-                                    </span>
-                                </div>
-
-                                <template v-if="bucket.on_the_way || bucket.on_list">
-                                    <div class="flex h-1.5 w-full gap-px overflow-hidden rounded-full bg-gray-100">
-                                        <div v-if="bucket.on_the_way" class="h-full" :class="tonePalette[bucket.tone].accent" :style="{ width: segmentWidth(bucket, bucket.on_the_way) }" />
-                                        <div v-if="bucket.on_list" class="h-full opacity-40" :class="tonePalette[bucket.tone].accent" :style="{ width: segmentWidth(bucket, bucket.on_list) }" />
-                                    </div>
-                                    <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] tabular-nums text-gray-500">
-                                        <span v-if="bucket.on_the_way" class="flex items-center gap-1">
-                                            <span class="h-1.5 w-1.5 rounded-full" :class="tonePalette[bucket.tone].accent" />
-                                            {{ bucket.on_the_way }} {{ ctrans("on order") }}
-                                        </span>
-                                        <span v-if="bucket.on_list" class="flex items-center gap-1">
-                                            <span class="h-1.5 w-1.5 rounded-full opacity-40" :class="tonePalette[bucket.tone].accent" />
-                                            {{ bucket.on_list }} {{ ctrans("on list") }}
-                                        </span>
-                                    </div>
-                                </template>
-
-                                <div class="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
-                                    <Link
-                                        v-for="rank in visibleRanks(bucket)"
-                                        :key="rank.rank"
-                                        :href="bucketItemsRoute(bucket.bucket, rank.rank)"
-                                        v-tooltip="ctrans(':count ranked :rank, :on_list already on the list', { count: rank.count, rank: rank.rank, on_list: rank.on_list })"
-                                        class="rounded-md border border-gray-200 px-1.5 py-0.5 text-[11px] tabular-nums text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-                                        :class="rankClasses[rank.rank]"
-                                    >
-                                        <b class="font-bold text-gray-800">{{ rank.rank }}</b> {{ rank.count }}<span v-if="rank.on_list" class="text-gray-400">/{{ rank.on_list }}</span>
-                                    </Link>
-                                    <button
-                                        v-if="canAutoFill(bucket)"
-                                        type="button"
-                                        v-tooltip="ctrans('Add to the draft orders from this bucket')"
-                                        class="ml-auto inline-flex items-center gap-1 rounded-md bg-[--app-accent] px-2 py-0.5 text-[11px] font-medium text-[--app-accent-text] hover:bg-[--app-accent-strong]"
-                                        @click="openAutoFill(bucket)"
-                                    >
-                                        <FontAwesomeIcon :icon="faMagic" fixed-width aria-hidden="true" />
-                                        {{ ctrans("Fill") }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("Not for ordering") }}</div>
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <div
-                            v-for="bucket in passiveBuckets"
-                            :key="bucket.bucket"
-                            class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2.5 transition hover:border-gray-300 hover:shadow-sm"
-                        >
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" :class="[tonePalette[bucket.tone].soft, tonePalette[bucket.tone].text]">
-                                <FontAwesomeIcon :icon="passiveBucketIcons[bucket.bucket]" fixed-width aria-hidden="true" />
-                            </span>
-                            <div class="min-w-0 grow">
-                                <div class="flex flex-wrap items-baseline gap-x-2">
-                                    <Link :href="bucketItemsRoute(bucket.bucket)" class="text-xl font-semibold leading-none tabular-nums hover:underline" :class="tonePalette[bucket.tone].text">
-                                        {{ locale.number(bucket.count) }}
-                                    </Link>
-                                    <Link :href="bucketItemsRoute(bucket.bucket)" class="text-xs font-medium text-gray-700 hover:underline">{{ bucket.label }}</Link>
-                                    <span v-if="bucket.bucket === 'dead'" class="text-xs tabular-nums text-gray-400">
-                                        {{ locale.currencyFormat(orgAgent.currency, bucket.stock_value) }}
-                                    </span>
-                                </div>
-                                <div v-if="visibleRanks(bucket).length || shouldNotBeOrdered(bucket)" class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tabular-nums text-gray-500">
-                                    <Link
-                                        v-for="rank in visibleRanks(bucket)"
-                                        :key="rank.rank"
-                                        :href="bucketItemsRoute(bucket.bucket, rank.rank)"
-                                        class="hover:underline"
-                                        :class="rankClasses[rank.rank]"
-                                    >
-                                        <b class="font-bold text-gray-700">{{ rank.rank }}</b> {{ rank.count }}
-                                    </Link>
-                                    <span
-                                        v-if="shouldNotBeOrdered(bucket)"
-                                        v-tooltip="ctrans('On the shopping list but not short of stock')"
-                                        class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700"
-                                    >
-                                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
-                                        {{ bucket.on_list }} {{ ctrans("on list") }}
-                                        <button v-if="bucket.bucket !== 'gone'" type="button" class="ml-0.5 inline-flex items-center gap-1 rounded border border-red-300 px-1 text-[10px] hover:bg-red-100" @click="removeMisplaced(bucket.bucket)">
-                                            <FontAwesomeIcon :icon="faTrashAlt" fixed-width aria-hidden="true" />
-                                            {{ ctrans("remove") }}
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </div>

@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Enums\Catalogue\HealthRankEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -99,7 +100,38 @@ class GetAgentStockCoverBuckets
             ->where('osp.org_agent_id', $orgAgent->id)
             ->where('osp.state', OrgSupplierProductStateEnum::ACTIVE->value)
             ->where('osp.is_available', true)
-            ->whereNull('sp.deleted_at');
+            ->whereNull('sp.deleted_at')
+            ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))');
+    }
+
+    /**
+     * A supplier product we do not stock whose SKOs are all discontinued is not something we never
+     * got round to stocking, it is a dead code: its price and availability have not been looked at
+     * in years. It stays out of the catalogue.
+     */
+    private static function everySkoDiscontinuedExpression(): string
+    {
+        return "(exists (select 1 from stock_has_supplier_products shs where shs.supplier_product_id = sp.id)
+            and not exists (select 1 from stock_has_supplier_products shs
+                join stocks st on st.id = shs.stock_id
+                where shs.supplier_product_id = sp.id and st.state <> '".StockStateEnum::DISCONTINUED->value."'))";
+    }
+
+    /**
+     * An old code for an SKO the organisation already buys from this agent under another supplier
+     * product: the stock is watched there, counting it here as never stocked would be double.
+     */
+    private static function boughtUnderAnotherCodeExpression(): string
+    {
+        return "exists (select 1 from stock_has_supplier_products shs
+            join org_stocks other_os on other_os.stock_id = shs.stock_id
+                and other_os.organisation_id = osp.organisation_id
+                and other_os.state = '".OrgStockStateEnum::ACTIVE->value."'
+            join org_stock_has_org_supplier_products other_link on other_link.org_stock_id = other_os.id and other_link.status
+            join org_supplier_products other_osp on other_osp.id = other_link.org_supplier_product_id
+                and other_osp.org_agent_id = osp.org_agent_id
+                and other_osp.id <> osp.id
+            where shs.supplier_product_id = sp.id)";
     }
 
     private function onShoppingListExpression(): string
