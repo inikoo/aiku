@@ -6,17 +6,20 @@
 
 <script setup lang="ts">
 import { Head, Link, router } from "@inertiajs/vue3"
-import { ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Image from "@common/Components/Image.vue"
 import { Checkbox, IconField, InputIcon, InputText, Select } from "primevue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
+import PurchaseOrderItemStockInfo from "@/Components/Procurement/PurchaseOrderItemStockInfo.vue"
+import PurchaseOrderSuggestButton from "@/Components/Procurement/PurchaseOrderSuggestButton.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import Table from "@/Components/Table/Table.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useLocaleStore } from "@/Stores/locale"
+import { notify } from "@kyvg/vue3-notification"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { faThLarge, faList, faSearch } from "@fal"
@@ -39,6 +42,9 @@ type BucketItem = {
     cost: number | null
     currency: string | null
     ordered_quantity: number
+    units_per_pack: number
+    has_org_stock: boolean
+    stock_in_locations: string | null
 }
 
 const props = defineProps<{
@@ -132,7 +138,6 @@ watch(searchTerm, () => {
     searchTimer = setTimeout(() => visit({}), 350)
 })
 
-const coverClass = (days: number) => ({ "font-medium text-red-600": days <= 30, "text-amber-600": days > 30 && days <= 60 })
 
 const locale = useLocaleStore()
 
@@ -147,18 +152,10 @@ function cartonsFor(item: BucketItem): number {
     return cartons.value[item.id] ?? orderedCartons(item)
 }
 
-function suggestedCartons(item: BucketItem): number {
-    if (!item.recommended_quantity) {
-        return Math.max(1, item.minimum_carton_order ?? 1)
-    }
-
-    return Math.max(item.minimum_carton_order ?? 1, Math.ceil(item.recommended_quantity / unitsPerCarton(item)))
-}
-
-const suggestionLabel = (item: BucketItem) => (item.recommended_quantity ? ctrans("suggested") : ctrans("smallest order"))
 
 function setCartons(item: BucketItem, quantity: number) {
-    cartons.value[item.id] = Math.max(0, quantity)
+    const minimum = item.minimum_carton_order ?? 1
+    cartons.value[item.id] = quantity > 0 ? Math.max(minimum, quantity) : 0
     if (commitTimers[item.id]) {
         clearTimeout(commitTimers[item.id])
     }
@@ -167,18 +164,45 @@ function setCartons(item: BucketItem, quantity: number) {
 
 function commit(item: BucketItem) {
     const quantity = cartonsFor(item)
-    if (quantity === orderedCartons(item)) {
+    const quantityUnits = quantity * unitsPerCarton(item)
+    if (quantityUnits === (item.ordered_quantity ?? 0)) {
         return
     }
 
-    const reloadOptions = {
-        preserveScroll: true,
-        preserveState: true,
-        only: ["items", "miniCart"],
-        onSuccess: () => { delete cartons.value[item.id] },
-    }
+    router.post(
+        route(props.addRoute.name, [...props.addRoute.parameters, item.id]),
+        { quantity_units: quantityUnits },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            only: ["items", "miniCart", "filterOptions"],
+            onSuccess: () => {
+                if (cartons.value[item.id] === quantity) {
+                    delete cartons.value[item.id]
+                }
+            },
+            onError: (errors) => {
+                delete cartons.value[item.id]
+                notify({
+                    title: ctrans("Not saved"),
+                    text: Object.values(errors)[0] ?? ctrans("The quantity could not be saved, it is back to what is on the draft"),
+                    type: "error",
+                })
+            },
+        }
+    )
+}
 
-    router.post(route(props.addRoute.name, [...props.addRoute.parameters, item.id]), { quantity_units: quantity * unitsPerCarton(item) }, reloadOptions)
+const isPartCarton = (item: BucketItem) => (item.ordered_quantity ?? 0) % unitsPerCarton(item) !== 0
+
+const packOf = (item: BucketItem) => Number(item.units_per_pack) || 1
+
+const typedSkos = computed<Record<number, number>>(() =>
+    Object.fromEntries(props.items.data.map((item) => [item.id, (cartonsFor(item) * unitsPerCarton(item)) / packOf(item)]))
+)
+
+const applySuggestion = (item: BucketItem, skos: number) => {
+    setCartons(item, Math.max(item.minimum_carton_order ?? 1, Math.ceil((skos * packOf(item)) / unitsPerCarton(item))))
 }
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
@@ -235,7 +259,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                 <SegmentedToggle v-model="view" :options="viewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
             </div>
 
-            <div v-if="view === 'cards'" class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+            <div v-if="view === 'cards'" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 <div v-for="item in items.data" :key="item.id" class="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
                     <div class="aspect-square w-full bg-gray-50">
                         <Image v-if="item.image" :src="item.image" imageCover />
@@ -254,38 +278,31 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                 :class="bucketChip[bucketLabels[item.bucket].tone] ?? 'bg-gray-100 text-gray-600'"
                             >{{ bucketLabels[item.bucket].label.split(":")[0] }}</span>
                         </p>
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-sm font-semibold tabular-nums text-gray-900">
-                                {{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}
-                            </span>
-                            <span v-if="item.units_per_carton" class="whitespace-nowrap rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-xs text-gray-500">
-                                <b class="font-medium tabular-nums text-gray-700">{{ locale.number(item.units_per_carton) }}</b> {{ ctrans("per carton") }}
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-[auto_1fr] gap-x-3 text-xs leading-5">
-                            <span class="text-gray-400">{{ ctrans("Our stock") }}</span>
-                            <span v-if="item.our_stock !== null" class="text-right font-medium tabular-nums">{{ locale.number(Math.floor(item.our_stock)) }}</span>
-                            <span v-else class="text-right font-medium text-violet-600">{{ ctrans("never stocked") }}</span>
-                            <template v-if="item.our_days_of_cover !== null">
-                                <span class="text-gray-400">{{ ctrans("Estimated: Would run out in") }}</span>
-                                <span class="text-right tabular-nums" :class="coverClass(item.our_days_of_cover)">
-                                    {{ item.our_days_of_cover === 0 ? ctrans("now") : `~${item.our_days_of_cover} ${ctrans("days")}` }}
-                                </span>
-                            </template>
-                            <template v-if="item.lead_time_days">
-                                <span class="text-gray-400">{{ ctrans("Lead time") }}</span>
-                                <span class="text-right tabular-nums" :class="item.lead_time_measured ? 'font-medium' : 'text-gray-400'">
-                                    {{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}
-                                </span>
-                            </template>
-                            <template v-if="item.minimum_carton_order && item.minimum_carton_order > 1">
-                                <span class="text-gray-400">{{ ctrans("Smallest order") }}</span>
-                                <span class="text-right font-medium tabular-nums">{{ ctrans(":n cartons", { n: item.minimum_carton_order }) }}</span>
-                            </template>
+                        <div class="space-y-0.5">
+                            <div class="text-xs text-gray-500">
+                                {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
+                                <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
+                                <template v-if="item.minimum_carton_order && item.minimum_carton_order > 1"> · {{ ctrans("smallest order :n cartons", { n: item.minimum_carton_order }) }}</template>
+                            </div>
+                            <div v-if="item.lead_time_days" class="text-xs text-gray-500">
+                                {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
+                            </div>
+                            <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
+                            <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" />
                         </div>
 
-                        <div class="mt-auto pt-2">
-                            <div class="flex flex-wrap items-center gap-2">
+                        <div class="mt-auto flex items-end justify-between gap-3 pt-2">
+                            <div class="text-xs">
+                                <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
+                                <div v-else class="space-y-0.5 tabular-nums">
+                                    <div class="text-gray-500">
+                                        {{ ctrans(":cartons cartons · :units units", { cartons: locale.number(cartonsFor(item)), units: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}
+                                    </div>
+                                    <div v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</div>
+                                <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
                                 <NumberWithButtonSave
                                     :modelValue="cartonsFor(item)"
                                     :bindToTarget="{ min: 0 }"
@@ -295,20 +312,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                     noSaveButton
                                     @update:modelValue="(value: number) => setCartons(item, value)"
                                 />
-                                <button
-                                    type="button"
-                                    class="cursor-pointer whitespace-nowrap rounded-md border border-dashed px-2 py-1 text-xs font-medium tabular-nums"
-                                    :class="item.recommended_quantity ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'border-gray-200 text-gray-500 hover:bg-gray-50'"
-                                    :title="ctrans('Order in whole cartons, click to fill')"
-                                    @click="setCartons(item, suggestedCartons(item))"
-                                >
-                                    {{ locale.number(suggestedCartons(item)) }}
-                                    <span class="ml-0.5 font-normal text-gray-400">{{ suggestionLabel(item) }}</span>
-                                </button>
-                            </div>
-                            <div v-if="cartonsFor(item)" class="mt-1 flex items-baseline justify-between text-xs tabular-nums text-gray-500">
-                                <span>{{ ctransChoice(":number unit|:number units", cartonsFor(item) * unitsPerCarton(item), { number: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}</span>
-                                <b v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</b>
+                                <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" @suggest="(skos: number) => applySuggestion(item, skos)" />
                             </div>
                         </div>
                     </div>
@@ -318,10 +322,28 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                 </p>
             </div>
 
-            <Table v-else :resource="items" class="mt-0">
+            <Table v-else :resource="items" class="mt-0" rowAlignTop>
+                <template #cell(code)="{ item }">
+                    <span class="font-medium text-gray-800">{{ item.code }}</span>
+                </template>
                 <template #cell(image)="{ item }">
-                    <div class="h-10 w-10 overflow-hidden rounded bg-gray-50">
+                    <div class="h-20 w-20 overflow-hidden rounded bg-gray-50">
                         <Image v-if="item.image" :src="item.image" imageCover />
+                    </div>
+                </template>
+                <template #cell(name)="{ item }">
+                    <div class="space-y-0.5">
+                        <div class="text-gray-900">{{ item.name }}</div>
+                        <div class="text-xs text-gray-500">
+                            {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
+                            <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
+                            <template v-if="item.minimum_carton_order && item.minimum_carton_order > 1"> · {{ ctrans("smallest order :n cartons", { n: item.minimum_carton_order }) }}</template>
+                        </div>
+                        <div v-if="item.lead_time_days" class="text-xs text-gray-500">
+                            {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
+                        </div>
+                        <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
+                        <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" />
                     </div>
                 </template>
                 <template #cell(bucket)="{ item }">
@@ -332,26 +354,18 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                         :class="bucketChip[bucketLabels[item.bucket].tone] ?? 'bg-gray-100 text-gray-600'"
                     >{{ bucketLabels[item.bucket].label.split(":")[0] }}</span>
                 </template>
-                <template #cell(lead_time_days)="{ item }">
-                    <span v-if="item.lead_time_days" v-tooltip="item.lead_time_measured ? ctrans('Measured from deliveries') : ctrans('An estimate, not measured yet')" class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }}</span>
-                    <template v-else>—</template>
-                </template>
-                <template #cell(our_stock)="{ item }">
-                    <span v-if="item.our_stock !== null" class="tabular-nums">{{ locale.number(Math.floor(item.our_stock)) }}</span>
-                    <span v-else v-tooltip="ctrans('never stocked')" class="text-violet-600">—</span>
-                </template>
-                <template #cell(our_days_of_cover)="{ item }">
-                    <span v-if="item.our_days_of_cover !== null" class="tabular-nums" :class="coverClass(item.our_days_of_cover)">
-                        {{ item.our_days_of_cover === 0 ? ctrans("now") : `~${item.our_days_of_cover}${ctrans("d")}` }}
-                    </span>
-                    <template v-else>—</template>
-                </template>
-                <template #cell(units_per_carton)="{ item }">
-                    <span class="tabular-nums">{{ item.units_per_carton ? locale.number(item.units_per_carton) : "—" }}</span>
-                    <span v-if="item.minimum_carton_order && item.minimum_carton_order > 1" v-tooltip="ctrans('Smallest order: :n cartons', { n: item.minimum_carton_order })" class="ml-1 cursor-help text-[10px] text-amber-600">≥{{ item.minimum_carton_order }}</span>
+                <template #cell(subtotals)="{ item }">
+                    <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
+                    <div v-else class="space-y-0.5 tabular-nums">
+                        <div class="text-gray-500">
+                            {{ ctrans(":cartons cartons · :units units", { cartons: locale.number(cartonsFor(item)), units: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}
+                        </div>
+                        <div v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</div>
+                                <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
+                    </div>
                 </template>
                 <template #cell(cartons)="{ item }">
-                    <div class="flex justify-center">
+                    <div class="flex flex-col items-end">
                         <NumberWithButtonSave
                             :modelValue="cartonsFor(item)"
                             :bindToTarget="{ min: 0 }"
@@ -361,22 +375,8 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                             noSaveButton
                             @update:modelValue="(value: number) => setCartons(item, value)"
                         />
+                        <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" @suggest="(skos: number) => applySuggestion(item, skos)" />
                     </div>
-                </template>
-                <template #cell(suggested)="{ item }">
-                    <button
-                        type="button"
-                        v-tooltip="item.recommended_quantity ? ctrans('Suggested cartons, click to fill') : ctrans('Smallest order, click to fill')"
-                        class="cursor-pointer rounded-md border border-dashed px-2 py-0.5 text-xs font-medium tabular-nums"
-                        :class="item.recommended_quantity ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'border-gray-200 text-gray-400 hover:bg-gray-50'"
-                        @click="setCartons(item, suggestedCartons(item))"
-                    >{{ locale.number(suggestedCartons(item)) }}</button>
-                </template>
-                <template #cell(units)="{ item }">
-                    <span class="tabular-nums text-gray-600">{{ cartonsFor(item) ? locale.number(cartonsFor(item) * unitsPerCarton(item)) : "" }}</span>
-                </template>
-                <template #cell(amount)="{ item }">
-                    <span class="font-medium tabular-nums text-gray-800">{{ item.cost !== null && cartonsFor(item) ? locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) : "" }}</span>
                 </template>
             </Table>
 

@@ -34,8 +34,9 @@ class SetAgentDraftLine extends OrgAction
     /**
      * How much of a product the organisation wants from an agent's supplier, kept on that supplier's
      * draft purchase order: the draft is opened on the first product, the line follows the quantity
-     * and goes when it reaches zero. The product is kept on one line: if the draft holds it more than
-     * once the extra lines are folded into the first. A draft that changes is no longer "ready to
+     * and goes when it reaches zero. The product is kept on one line across every draft the supplier
+     * has open: extra lines, on the same draft or another, are folded into the oldest, so what the
+     * buyer typed is what is on order. A draft that changes is no longer "ready to
      * send", the organisation has to say so again.
      *
      * @throws ValidationException
@@ -48,9 +49,13 @@ class SetAgentDraftLine extends OrgAction
 
         return DB::transaction(function () use ($orgAgent, $orgSupplierProduct, $quantityUnits) {
             $orgSupplier   = OrgSupplier::whereKey($orgSupplierProduct->org_supplier_id)->lockForUpdate()->firstOrFail();
-            $purchaseOrder = $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->oldest('id')->first();
-            $lines         = $purchaseOrder?->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->oldest('id')->get() ?? collect();
+            $drafts = $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->oldest('id')->get();
+            $lines  = PurchaseOrderTransaction::whereIn('purchase_order_id', $drafts->pluck('id'))
+                ->where('org_supplier_product_id', $orgSupplierProduct->id)
+                ->oldest('id')
+                ->get();
             $line          = $lines->first();
+            $purchaseOrder = $line ? $drafts->firstWhere('id', $line->purchase_order_id) : $drafts->first();
 
             $lines->skip(1)->each(fn (PurchaseOrderTransaction $duplicate) => DeletePurchaseOrderTransaction::make()->action($duplicate));
 

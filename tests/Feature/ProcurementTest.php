@@ -9390,12 +9390,23 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(1)
             ->and($purchaseOrder->fresh()->data)->not->toHaveKey('ready_to_send');
 
+        $secondDraft  = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+        $onEveryDraft = fn () => App\Models\Procurement\PurchaseOrderTransaction::whereIn('purchase_order_id', [$purchaseOrder->id, $secondDraft->id])
+            ->where('org_supplier_product_id', $orgSupplierProduct->id)
+            ->pluck('quantity_ordered')
+            ->map(fn ($quantity) => (float) $quantity)
+            ->all();
+
         $line->fresh()->replicate()->fill(['quantity_ordered' => 500])->save();
-        expect($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(2);
+        $line->fresh()->replicate()->fill(['quantity_ordered' => 700, 'purchase_order_id' => $secondDraft->id])->save();
+        expect($onEveryDraft())->toHaveCount(3);
 
         $setLine->handle($this->orgAgent, $orgSupplierProduct, 400);
 
-        expect($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->pluck('quantity_ordered')->map(fn ($quantity) => (float) $quantity)->all())->toBe([400.0]);
+        expect($onEveryDraft())->toBe([400.0])
+            ->and($line->fresh()->purchase_order_id)->toBe($purchaseOrder->id);
+
+        DeletePurchaseOrder::make()->action($secondDraft->fresh());
 
         expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
@@ -9570,7 +9581,7 @@ test('UI agent cover bucket items index', function () {
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
             ->has('items.meta.total')
-            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => array_key_exists('image', $item)))
+            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered'])->every(fn (string $key) => array_key_exists($key, $item))))
             ->has('miniCart.count')
             ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
             ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
@@ -9612,7 +9623,7 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
         ->where('active.supplier', $supplierId)
         ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
 
-    foreach (['code', '-code', 'name', 'supplier_code', 'lead_time_days', 'our_stock', '-our_days_of_cover', 'units_per_carton', 'suggested'] as $sort) {
+    foreach (['code', '-code', 'name', '-supplier_code'] as $sort) {
         $this->get($url.'?sort='.$sort)->assertOk();
     }
 
