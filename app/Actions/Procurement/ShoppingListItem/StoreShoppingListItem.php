@@ -12,9 +12,11 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgSupplier\GetSupplierOrderCapacity;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemPriorityEnum;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\ShoppingListItem;
+use Illuminate\Support\Arr;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -25,6 +27,10 @@ class StoreShoppingListItem extends OrgAction
 {
     use WithProcurementEditAuthorisation;
 
+    /**
+     * A product is on the list once: asking for one that already has an open line changes that line
+     * to the new quantity, it never adds a second.
+     */
     public function handle(OrgSupplierProduct $orgSupplierProduct, array $modelData): ShoppingListItem
     {
         $supplierProduct = $orgSupplierProduct->supplierProduct;
@@ -36,6 +42,17 @@ class StoreShoppingListItem extends OrgAction
             GetAgentOrderCapacity::guardAdd($orgAgent, $orgSupplierProduct);
         } elseif ($orgSupplier) {
             GetSupplierOrderCapacity::guardAdd($orgSupplier, $orgSupplierProduct);
+        }
+
+        $openItem = ShoppingListItem::where('org_supplier_product_id', $orgSupplierProduct->id)
+            ->where('state', ShoppingListItemStateEnum::OPEN)
+            ->oldest('id')
+            ->first();
+
+        if ($openItem) {
+            $openItem->update(Arr::only($modelData, ['quantity_units', 'priority', 'needed_by', 'notes']));
+
+            return $openItem->refresh();
         }
 
         data_set($modelData, 'group_id', $orgSupplierProduct->group_id);

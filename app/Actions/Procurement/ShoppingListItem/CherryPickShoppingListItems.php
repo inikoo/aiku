@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\ShoppingListItem;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -101,12 +102,16 @@ class CherryPickShoppingListItems extends OrgAction
 
             $historicSupplierProduct = $item->supplierProduct->historicSupplierProduct;
 
-            $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
-                $purchaseOrder,
-                $historicSupplierProduct,
-                $orgStock,
-                ['quantity_ordered' => $quantityPicked]
-            );
+            $existingLine = $purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $item->supplier_product_id)->oldest('id')->first();
+
+            $purchaseOrderTransaction = $existingLine
+                ? UpdatePurchaseOrderTransactionQuantity::make()->action($existingLine, ['quantity_ordered' => (float) $existingLine->quantity_ordered + $quantityPicked])
+                : StorePurchaseOrderTransaction::make()->action(
+                    $purchaseOrder,
+                    $historicSupplierProduct,
+                    $orgStock,
+                    ['quantity_ordered' => $quantityPicked]
+                );
 
             if ($remainder > 0) {
                 ShoppingListItem::create([
