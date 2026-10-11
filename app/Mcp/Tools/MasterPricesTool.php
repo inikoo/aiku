@@ -30,7 +30,7 @@ use Laravel\Mcp\Server\Tool;
  * permission the same change needs in the UI. Prices are saved through the normal master price
  * update, so they reach every shop following the master exactly as a save in the price editor does.
  */
-#[Description('Shows or saves master prices: the price of a master product (one outer) in each main currency, which every shop following the master sells at. Without prices it shows the products of a master family, or the given codes, with their current prices, units per outer, cost and whether the price was changed by hand in the last 30 days. With prices it saves them: give only main currencies (the tool lists them); the other currencies follow by the master shop exchange rate, except those set by hand, which are left alone and reported. A change above +100% or below -60%, or a first price in a currency the product has none in, is refused unless allow_large_changes is true, to catch a price given per unit instead of per outer. Only save after showing the user the old and new price of every product and they confirmed in their own words, passing their request text. Every save is logged in AI changes and can be reverted there. Only for users enrolled to change prices through their assistant.')]
+#[Description('Shows or saves master prices: the price of a master product (one outer) in each main currency, which every shop following the master sells at. Without prices it shows the products of a master family, or the given codes, with their current prices, units per outer, cost and whether the price was changed by hand in the last 30 days. With prices it saves them: give only main currencies (the tool lists them); the other currencies follow by the master shop exchange rate, except those set by hand, which are left alone and reported. A change above +100% or below -60% is refused unless allow_large_changes is true, to catch a price given per unit instead of per outer. A product with no price yet in a currency is refused: its first price is set in the price editor. Only save after showing the user the old and new price of every product and they confirmed in their own words, passing their request text. Every save is logged in AI changes and can be reverted there. Only for users enrolled to change prices through their assistant.')]
 class MasterPricesTool extends Tool
 {
     use WithMcpPermissions;
@@ -98,6 +98,7 @@ class MasterPricesTool extends Tool
         $payloads = [];
         $changes  = [];
         $large    = [];
+        $unpriced = [];
         $handSet  = [];
         foreach ($entries as $key => $entry) {
             /** @var MasterAsset $masterAsset */
@@ -110,8 +111,10 @@ class MasterPricesTool extends Tool
                 $payload[$currencyCode] = ['value' => (float) $value];
                 $changes[$masterAsset->code][$currencyCode] = ['from' => $old ?: null, 'to' => (float) $value, 'change_pct' => $old > 0 ? round(100 * ($value / $old - 1), 1) : null];
 
-                if ($old <= 0 || $value / $old > self::LARGE_RISE || $value / $old < self::LARGE_CUT) {
-                    $large[] = "$masterAsset->code $currencyCode ".($old > 0 ? $old : 'no price')." to $value";
+                if ($old <= 0) {
+                    $unpriced[] = "$masterAsset->code $currencyCode";
+                } elseif ($value / $old > self::LARGE_RISE || $value / $old < self::LARGE_CUT) {
+                    $large[] = "$masterAsset->code $currencyCode $old to $value";
                 }
             }
 
@@ -131,8 +134,12 @@ class MasterPricesTool extends Tool
             $payloads[$masterAsset->id] = $payload;
         }
 
+        if ($unpriced) {
+            return Response::error('Nothing was changed. These products have no price yet in that currency, and a first price is set in the price editor, not here: '.implode('; ', $unpriced).'.');
+        }
+
         if ($large && !$request->boolean('allow_large_changes')) {
-            return Response::error('Nothing was changed. These are large changes or first prices, often a price given per unit instead of per outer: '.implode('; ', $large).'. Show them to the user and, once confirmed, call again with allow_large_changes=true.');
+            return Response::error('Nothing was changed. These are large changes, often a price given per unit instead of per outer: '.implode('; ', $large).'. Show them to the user and, once confirmed, call again with allow_large_changes=true.');
         }
 
         try {
@@ -233,7 +240,7 @@ class MasterPricesTool extends Tool
             'codes'               => $schema->array()->items($schema->string())->description('Master product codes to show, up to 200, instead of a family'),
             'prices'              => $schema->array()->items($schema->object())->description('Prices to save, up to 200 products: [{"code": "ABC-01", "prices": {"GBP": 6.5, "EUR": 7.8}}]. Price of one outer, main currencies only. Omit to only show'),
             'request_text'        => $schema->string()->description('The user\'s request, verbatim; required when saving'),
-            'allow_large_changes' => $schema->boolean()->description('True only after the user confirmed the large changes or first prices that a first call refused'),
+            'allow_large_changes' => $schema->boolean()->description('True only after the user confirmed changes above +100% or below -60% that a first call refused'),
         ];
     }
 }

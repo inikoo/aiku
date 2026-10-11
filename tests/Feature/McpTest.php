@@ -1988,6 +1988,10 @@ describe('master prices tool', function () {
 
         $tool(['prices' => [['code' => $this->masterAsset->code, 'prices' => ['EUR' => 1.2]]], 'allow_large_changes' => true])->assertOk();
         expect(data_get($this->masterAsset->fresh()->master_prices, 'EUR.value'))->toEqual(1.2);
+
+        $this->masterAsset->updateQuietly(['master_prices' => ['EUR' => ['value' => '1.2', 'independent' => false]]]);
+        $tool(['prices' => [['code' => $this->masterAsset->code, 'prices' => ['GBP' => 9]]], 'allow_large_changes' => true])->assertHasErrors(['no price yet']);
+        expect(data_get($this->masterAsset->fresh()->master_prices, 'GBP.value'))->toBeNull();
     });
 });
 
