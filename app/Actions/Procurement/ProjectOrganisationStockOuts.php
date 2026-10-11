@@ -40,7 +40,7 @@ class ProjectOrganisationStockOuts
 
     private const float BAND_Z = 1.2816;
 
-    private const int REORDER_DAYS = 30;
+    public const int REORDER_DAYS = 30;
 
     private const int SALES_RATE_MONTHS = 6;
 

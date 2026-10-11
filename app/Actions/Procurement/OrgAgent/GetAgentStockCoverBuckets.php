@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
+use App\Actions\Procurement\ProjectOrganisationStockOuts;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
@@ -31,7 +32,7 @@ class GetAgentStockCoverBuckets
         'w4'     => ['label' => 'Watch: out within 4 lead times', 'tone' => 'yellow'],
         'ok'     => ['label' => 'Covered', 'tone' => 'green'],
         'dead'   => ['label' => 'Dead stock', 'tone' => 'gray'],
-        'gone'   => ['label' => 'We stocked it, we stopped', 'tone' => 'slate'],
+        'gone'   => ['label' => 'Discontinued: we stocked it, we stopped', 'tone' => 'slate'],
         'never'  => ['label' => 'We never stocked', 'tone' => 'violet'],
     ];
 
@@ -50,6 +51,11 @@ class GetAgentStockCoverBuckets
      * Per-row lead time: the supplier product's own measured or estimated days, agent roll-up as
      * the last resort. Sea freight makes the agent windows wide, so a product with real history
      * must never be judged against the agent average.
+     *
+     * Two edges are held to what the stock-out projection sees, so a product it expects to lose
+     * sales on is never called covered: less than one SKO left is out of stock, there is nothing to
+     * sell, and with a lead time of a few days the watch window still reaches as far as the
+     * projection looks ahead.
      */
     private function bucketExpression(int $leadDays): string
     {
@@ -59,11 +65,11 @@ class GetAgentStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.state <> '".OrgStockStateEnum::ACTIVE->value."' then 'gone'
-            when os.quantity_available <= 0 then 'out'
+            when os.quantity_available < 1 then 'out'
             when s.days_of_cover <= $lead then 'w1'
             when s.days_of_cover <= $understock then 'w2'
             when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
+            when s.days_of_cover <= greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS.")) then 'w4'
             when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
             else 'ok' end";
     }
@@ -159,6 +165,21 @@ class GetAgentStockCoverBuckets
     }
 
     /**
+     * What is on those orders for the product, in the organisation's currency.
+     */
+    private static function onOpenPurchaseOrderValueExpression(): string
+    {
+        return "(select sum(pot.net_amount * coalesce(po.org_exchange, 1)) from purchase_order_transactions pot
+            join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+            where pot.org_stock_id = os.id and pot.deleted_at is null
+                and po.state in ('".implode("', '", [
+            PurchaseOrderStateEnum::IN_PROCESS->value,
+            PurchaseOrderStateEnum::SUBMITTED->value,
+            PurchaseOrderStateEnum::CONFIRMED->value,
+        ])."'))";
+    }
+
+    /**
      * @return array{total: int, lead_time: array{days: int, source: string, samples: int}, buckets: array<int, array<string, mixed>>}
      */
     public function handle(OrgAgent $orgAgent): array
@@ -174,6 +195,7 @@ class GetAgentStockCoverBuckets
                 count(*) filter (where ".$this->onShoppingListExpression().") as on_list,
                 count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().") as on_the_way,
                 count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().' or '.$this->onShoppingListExpression().") as handled,
+                coalesce(sum(".self::onOpenPurchaseOrderValueExpression()."), 0) as on_order_value,
                 count(distinct sp.supplier_id) as suppliers,
                 coalesce(sum(s.stock_value), 0) as stock_value,
                 coalesce(sum(s.projected_lost_revenue), 0) as lost,
@@ -193,6 +215,7 @@ class GetAgentStockCoverBuckets
                 'count'       => (int) $bucketRows->sum('total'),
                 'on_list'     => (int) $bucketRows->sum('on_list'),
                 'on_the_way'  => (int) $bucketRows->sum('on_the_way'),
+                'on_order_value' => round((float) $bucketRows->sum('on_order_value'), 2),
                 'untouched'   => (int) max(0, $bucketRows->sum('total') - $bucketRows->sum('handled')),
                 'suppliers'   => (int) $bucketRows->max('suppliers'),
                 'stock_value' => (float) $bucketRows->sum('stock_value'),
