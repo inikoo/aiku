@@ -2141,6 +2141,7 @@ describe('traffic source costs', function () {
         $testRequest->setRouteResolver(fn () => $route);
         $actionRequest = \Lorisleiva\Actions\ActionRequest::createFrom($testRequest);
         request()->setUserResolver(fn () => $adminUser);
+        $actionRequest->setUserResolver(fn () => $adminUser);
 
         $action          = ShowGoogleAdsCampaign::make();
         $model           = $action->asController($this->organisation, $this->shop, $campaign, $actionRequest);
