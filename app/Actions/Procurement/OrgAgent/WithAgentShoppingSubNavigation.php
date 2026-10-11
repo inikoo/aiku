@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\ShoppingListItem;
@@ -40,6 +41,18 @@ trait WithAgentShoppingSubNavigation
                     "tooltip" => __("Suppliers"),
                 ],
                 "number"   => $parent->stats->number_org_suppliers,
+            ],
+            [
+                "label"    => __("Drafts to send"),
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.drafts.index",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-paper-plane"],
+                    "tooltip" => __("Drafts to send"),
+                ],
+                "number"   => ShowAgentDraftsToSend::drafts($parent)->distinct()->count('po.supplier_id'),
             ],
             [
                 "label"    => __("Shopping List"),

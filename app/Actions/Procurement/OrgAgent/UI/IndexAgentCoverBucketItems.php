@@ -18,6 +18,7 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -75,12 +76,21 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sup.code as supplier_code',
                 'sup.slug as supplier_slug',
                 'cur.code as currency',
+                'os.id as org_stock_id',
                 'os.quantity_available',
                 's.days_of_cover',
                 's.recommended_order_quantity',
             ])
             ->get()
             ->keyBy('id');
+
+        $webImages = DB::table('product_has_org_stocks')
+            ->join('products', 'products.id', 'product_has_org_stocks.product_id')
+            ->whereIn('product_has_org_stocks.org_stock_id', $details->pluck('org_stock_id')->filter())
+            ->whereNull('products.deleted_at')
+            ->whereNotNull('products.web_images->main')
+            ->orderBy('products.id')
+            ->pluck('products.web_images', 'product_has_org_stocks.org_stock_id');
 
         $openItems = DB::table('shopping_list_items')
             ->whereIn('org_supplier_product_id', $orgSupplierProductIds)
@@ -90,15 +100,17 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->get()
             ->keyBy('org_supplier_product_id');
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $orgSupplierProduct) use ($details, $openItems) {
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $orgSupplierProduct) use ($details, $openItems, $webImages) {
             $detail   = $details->get($orgSupplierProduct->id);
             $openItem = $openItems->get($orgSupplierProduct->id);
+            $images   = json_decode($webImages->get($detail?->org_stock_id) ?? 'null', true);
 
             return [
                 'id'                     => $orgSupplierProduct->id,
                 'slug'                   => $orgSupplierProduct->slug,
                 'code'                   => $detail?->code,
                 'name'                   => $detail?->name,
+                'image'                  => Arr::get($images, 'main.gallery') ?? Arr::get($images, 'main.thumbnail'),
                 'supplier_code'          => $detail?->supplier_code,
                 'supplier_slug'          => $detail?->supplier_slug,
                 'lead_time_days'         => $detail?->measured_lead_time_days ?? $detail?->estimated_lead_time_days,
@@ -118,6 +130,37 @@ class IndexAgentCoverBucketItems extends OrgAction
         });
 
         return $paginator;
+    }
+
+    /**
+     * @param  array{list: array{value: float, lines: int, units: float}, currency: string}  $orderCapacity
+     * @return array{partner_name: string, count: int, total: float, currency: string, items: array<int, object>, listRoute: array{name: string, parameters: array<int, string>}}
+     */
+    private function miniCart(array $orderCapacity): array
+    {
+        return [
+            'partner_name' => $this->orgAgent->agent->name,
+            'count'        => $orderCapacity['list']['lines'],
+            'total'        => $orderCapacity['list']['value'],
+            'currency'     => $orderCapacity['currency'],
+            'items'        => DB::table('shopping_list_items as sli')
+                ->join('org_supplier_products as osp', 'osp.id', 'sli.org_supplier_product_id')
+                ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
+                ->join('suppliers as sup', 'sup.id', 'sp.supplier_id')
+                ->where('sli.organisation_id', $this->orgAgent->organisation_id)
+                ->where('sli.agent_id', $this->orgAgent->agent_id)
+                ->where('sli.state', ShoppingListItemStateEnum::OPEN->value)
+                ->whereNull('sli.deleted_at')
+                ->orderByDesc('sli.id')
+                ->limit(40)
+                ->selectRaw('sli.id, sp.code as org_stock_code, sp.name as org_stock_name, sup.code as family_name, ceil(sli.quantity_units / greatest(coalesce(sp.units_per_carton, 1), 1))::int as quantity')
+                ->get()
+                ->all(),
+            'listRoute'    => [
+                'name'       => 'grp.org.procurement.shopping_list.index',
+                'parameters' => [$this->orgAgent->organisation->slug],
+            ],
+        ];
     }
 
     private function bucketLabel(): string
@@ -141,6 +184,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $items, ActionRequest $request): Response
     {
+        $orderCapacity = GetAgentOrderCapacity::run($this->orgAgent);
+
         return Inertia::render(
             'Procurement/AgentCoverBucketItems',
             [
@@ -158,7 +203,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'orgAgent'    => [
                     'id'       => $this->orgAgent->id,
                     'slug'     => $this->orgAgent->slug,
-                    'currency' => GetAgentOrderCapacity::run($this->orgAgent)['currency'],
+                    'currency' => $orderCapacity['currency'],
                 ],
                 'addRoute'    => [
                     'name'       => 'grp.org.procurement.shopping_list.store',
@@ -168,6 +213,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucketLabel' => $this->bucketLabel(),
                 'rank'        => $this->rank,
                 'items'       => $items,
+                'miniCart'    => $this->miniCart($orderCapacity),
             ]
         );
     }

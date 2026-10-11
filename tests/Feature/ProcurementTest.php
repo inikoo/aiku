@@ -9069,9 +9069,200 @@ test('UI agent shopping dashboard renders', function () {
             ->where('coverTotal', fn ($total) => $total === collect($page->toArray()['props']['coverBuckets'])->sum('count'))
             ->has('leadTime.days')
             ->has('orderCapacity.warehouse')
+            ->where('canPrepareOrder', true)
+            ->missing('prepareOrder')
+            ->loadDeferredProps(fn (AssertableInertia $deferred) => $deferred
+                ->has('prepareOrder.buckets', 4)
+                ->has('prepareOrder.url'))
             ->missing('openAgentPurchaseOrders')
             ->missing('suppliers');
     });
+});
+
+test('agent prepare order estimate comes from the same lines it would order', function () {
+    $prepare = App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::make();
+    $lines   = $prepare->linesByBucket($this->orgAgent);
+    $summary = collect($prepare->summary($this->orgAgent))->keyBy('bucket');
+
+    expect(array_keys($lines))->toBe(App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::ORDER_BUCKETS);
+
+    foreach ($lines as $bucket => $bucketLines) {
+        expect($summary[$bucket]['count'])->toBe(count($bucketLines))
+            ->and($summary[$bucket]['order_lines'])->toBe(collect($bucketLines)->where('in_order', true)->count())
+            ->and($summary[$bucket]['order_lines'])->toBeLessThanOrEqual($summary[$bucket]['count']);
+
+        foreach ($bucketLines as $line) {
+            expect($line['quantity_units'])->toBe($line['cartons'] * $line['units_per_carton']);
+        }
+    }
+
+    expect(collect($lines['out'])->every(fn (array $line) => $line['in_order']))->toBeTrue();
+});
+
+test('agent prepare order puts the lines on draft purchase orders per supplier and does not order them twice', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+
+    $orgStock = OrgStock::where('organisation_id', $this->organisation->id)
+        ->whereNotExists(fn ($query) => $query->selectRaw('1')
+            ->from('purchase_order_transactions')
+            ->whereColumn('purchase_order_transactions.org_stock_id', 'org_stocks.id'))
+        ->firstOrFail();
+    $orgStockBefore = $orgStock->only(['state', 'quantity_available', 'is_excluded_from_auto_ordering']);
+
+    try {
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0, 'is_excluded_from_auto_ordering' => false]);
+        $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['currency_id' => $this->organisation->currency_id]);
+
+        $stockHasSupplierProduct = StockHasSupplierProduct::firstOrCreate(
+            ['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id],
+            ['available' => true]
+        );
+        OrgStockHasOrgSupplierProduct::updateOrCreate(
+            ['org_stock_id' => $orgStock->id, 'org_supplier_product_id' => $orgSupplierProduct->id],
+            ['stock_has_supplier_product_id' => $stockHasSupplierProduct->id, 'status' => true, 'local_priority' => 1000]
+        );
+
+        $prepare = App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::make();
+        $line    = collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+
+        expect($line)->not->toBeNull()
+            ->and($line['in_order'])->toBeTrue()
+            ->and($line['cartons'])->toBe(1)
+            ->and($line['quantity_units'])->toBe(100)
+            ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out')['order_lines'])->toBeGreaterThanOrEqual(1);
+
+        expect(fn () => $prepare->handle($this->orgAgent, 1.0, ['out']))->toThrow(ValidationException::class);
+
+        $result = $prepare->handle($this->orgAgent, null, ['out']);
+
+        $item = ShoppingListItem::where('org_supplier_product_id', $orgSupplierProduct->id)->latest('id')->firstOrFail();
+        $purchaseOrder = App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->purchase_order_transaction_id)->purchaseOrder;
+
+        expect($result['added'])->toBeGreaterThanOrEqual(1)
+            ->and($result['purchase_orders'])->toBeGreaterThanOrEqual(1)
+            ->and($item->state)->toBe(ShoppingListItemStateEnum::ORDERED)
+            ->and($purchaseOrder->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS)
+            ->and($purchaseOrder->parent_type)->toBe('OrgSupplier')
+            ->and($purchaseOrder->parent_id)->toBe($orgSupplier->id)
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+    } finally {
+        $orgStock->update($orgStockBefore);
+    }
+});
+
+test('agent drafts are sent once every organisation is ready, or early with a reason and without the others', function () {
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    $theirOrgAgent    = OrgAgent::where('organisation_id', $otherOrganisation->id)->where('agent_id', $this->orgAgent->agent_id)->first()
+        ?? StoreOrgAgent::make()->action($otherOrganisation, $this->orgAgent->agent, []);
+
+    $supplier         = StoreSupplier::make()->action($this->orgAgent->agent, Supplier::factory()->definition());
+    $ourOrgSupplier   = OrgSupplier::where('supplier_id', $supplier->id)->where('org_agent_id', $this->orgAgent->id)->firstOrFail();
+    $theirOrgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $otherOrganisation->id)->firstOrFail();
+
+    $draftWithLine = function (OrgSupplier $orgSupplier) {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+        DB::table('purchase_order_transactions')->insert([
+            'group_id'          => $purchaseOrder->group_id,
+            'organisation_id'   => $purchaseOrder->organisation_id,
+            'purchase_order_id' => $purchaseOrder->id,
+            'org_stock_id'      => $this->orgStocks[0]->id,
+            'state'             => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+            'delivery_state'    => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+            'quantity_ordered'  => 100,
+            'net_amount'        => 250,
+            'data'              => '{}',
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ]);
+
+        return $purchaseOrder;
+    };
+
+    $ours   = $draftWithLine($ourOrgSupplier);
+    $theirs = $draftWithLine($theirOrgSupplier);
+
+    $send = App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::make();
+
+    $drafts = App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::drafts($this->orgAgent)->where('po.supplier_id', $supplier->id)->pluck('po.id');
+    expect($drafts->sort()->values()->all())->toBe(collect([$ours->id, $theirs->id])->sort()->values()->all());
+
+    expect(fn () => $send->handle($this->orgAgent, [$supplier->id]))->toThrow(ValidationException::class)
+        ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($ours))->toBe([$otherOrganisation->code]);
+
+    $this->patch(route('grp.models.purchase-order.submit', $ours->id))->assertSessionHasErrors('purchase_order');
+    expect($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $tell = App\Actions\Procurement\OrgAgent\TellOrganisationsAboutSupplierDraft::make();
+    expect($tell->handle($this->orgAgent, $supplier, request()->user() ?? auth()->user()))->toBeInt()
+        ->and($ours->fresh()->data['others_asked']['at'])->not->toBeNull()
+        ->and(fn () => $tell->handle($this->orgAgent, $supplier, auth()->user()))->toThrow(ValidationException::class);
+
+    $result = $send->handle($this->orgAgent, [$supplier->id], 'Supplier closes for the holidays', 'tester');
+
+    expect($result)->toBe(['sent' => 1, 'held_back' => 1])
+        ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($ours->fresh()->data['sent_without_waiting']['reason'])->toBe('Supplier closes for the holidays')
+        ->and($ours->fresh()->data['sent_without_waiting']['waiting'])->toBe([$theirs->reference])
+        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $oursAgain = $draftWithLine($ourOrgSupplier);
+    App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend::make()->handle($theirs->fresh(), true, 'their buyer');
+
+    expect($theirs->fresh()->data['ready_to_send']['by'])->toBe('their buyer');
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($oursAgain))->toBe([]);
+
+    $result = $send->handle($this->orgAgent, [$supplier->id]);
+
+    expect($result)->toBe(['sent' => 2, 'held_back' => 0])
+        ->and($oursAgain->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($theirs->fresh()->data)->not->toHaveKey('ready_to_send')
+        ->and($theirs->fresh()->data)->not->toHaveKey('sent_without_waiting');
+
+    expect(fn () => $send->handle($theirOrgAgent, [$supplier->id]))->toThrow(ValidationException::class);
+});
+
+test('agent purchase orders board starts at submitted so the agent never sees a draft', function () {
+    $board = App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard::make()->handle($this->orgAgent->agent);
+
+    expect(array_column($board['columns'], 'key'))->toBe(['submitted', 'confirmed', 'settled']);
+});
+
+test('UI agent drafts to send', function () {
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]));
+    $response->assertOk();
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/AgentDraftsToSend')
+            ->has('cards')
+            ->has('agentName')
+            ->where('sendRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.send')
+            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1));
+    });
+});
+
+test('UI agent drafts to send remembers the view the user picked', function () {
+    $url = route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]);
+
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards')->where('lines', []));
+
+    $this->get($url.'?view=items')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('tabs.current', 'items')
+        ->has('tabs.navigation', 3)
+        ->has('lines'));
+
+    expect(auth()->user()->fresh()->settings['views']['agent_drafts_to_send'])->toBe('items');
+
+    $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
+    $this->get($url.'?view=nonsense')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
+
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards'));
 });
 
 test('UI agent order pipeline renders', function () {
@@ -9102,6 +9293,10 @@ test('UI agent cover bucket items index', function () {
             ->where('bucket', 'out')
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
+            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => array_key_exists('image', $item)))
+            ->has('miniCart.items')
+            ->has('miniCart.count')
+            ->where('miniCart.listRoute.name', 'grp.org.procurement.shopping_list.index')
             ->has('addRoute.name');
     });
 });
