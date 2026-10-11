@@ -97,7 +97,21 @@ class GetAgentStockCoverBuckets
 
     public function scopedQuery(OrgAgent $orgAgent): Builder
     {
-        return DB::table('org_supplier_products as osp')
+        return $this->scope(DB::table('org_supplier_products as osp'), $orgAgent);
+    }
+
+    /**
+     * The catalogue scope on any query whose table is aliased osp, so a listing built with the
+     * standard query builder judges the same products as the tiles do.
+     *
+     * @template TQuery of Builder|\Illuminate\Database\Eloquent\Builder
+     *
+     * @param  TQuery  $query
+     * @return TQuery
+     */
+    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent $orgAgent): Builder|\Illuminate\Database\Eloquent\Builder
+    {
+        return $query
             ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
             ->leftJoinLateral(self::bestOrgStock(), 'os')
             ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
@@ -108,6 +122,11 @@ class GetAgentStockCoverBuckets
             ->where('osp.is_available', true)
             ->whereNull('sp.deleted_at')
             ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))');
+    }
+
+    public function bucketSql(OrgAgent $orgAgent): string
+    {
+        return $this->bucketExpression(GetAgentLeadTimes::run($orgAgent)['agent']['days']);
     }
 
     /**
@@ -254,4 +273,5 @@ class GetAgentStockCoverBuckets
             ->pluck('osp.id')
             ->all();
     }
+
 }

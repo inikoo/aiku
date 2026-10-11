@@ -91,7 +91,7 @@ class CherryPickShoppingListItems extends OrgAction
             }
 
             $purchaseOrder = $purchaseOrders[$orgSupplier->id]
-                ?? $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->first()
+                ?? $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->oldest('id')->first()
                 ?? StorePurchaseOrder::make()->action($orgSupplier, []);
 
             $purchaseOrders[$orgSupplier->id] = $purchaseOrder;
