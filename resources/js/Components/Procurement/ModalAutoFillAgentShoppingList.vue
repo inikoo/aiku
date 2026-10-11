@@ -124,7 +124,7 @@ async function commit() {
         )
         notify({
             title: ctrans("Success"),
-            text: `${selectedLines.value.length} ${ctrans("items added to the shopping list")}`,
+            text: `${selectedLines.value.length} ${ctrans("items added to the draft orders")}`,
             type: "success",
         })
         closeModal()
@@ -145,7 +145,7 @@ async function commit() {
     <Modal :isOpen="model" @onClose="closeModal" :closeButton="true" width="w-full max-w-2xl md:max-w-4xl">
         <div class="flex h-[600px] flex-col px-4">
             <div class="mb-3 flex justify-center py-2 font-medium text-gray-600">
-                <h2>{{ ctrans("Fill shopping list") }}</h2>
+                <h2>{{ ctrans("Fill draft orders") }}</h2>
             </div>
             <div v-if="scopeLabel" class="mb-2 text-center text-sm text-gray-500">
                 {{ ctrans("Limited to") }}: <span class="font-medium text-gray-700">{{ scopeLabel }}</span>
@@ -177,7 +177,7 @@ async function commit() {
 
             <template v-else-if="proposal">
                 <div v-if="!proposal.length" class="mt-8 text-center text-gray-500">
-                    {{ ctrans("Nothing to propose: everything here is already on the list, or no quantity fits the budget") }}
+                    {{ ctrans("Nothing to propose: everything here is already on an order, or no quantity fits the budget") }}
                 </div>
 
                 <template v-else>
@@ -232,7 +232,7 @@ async function commit() {
                             </span>
                             <Button
                                 type="save"
-                                :label="`${ctrans('Add')} ${selectedLines.length} ${ctrans('items to shopping list')}`"
+                                :label="`${ctrans('Add')} ${selectedLines.length} ${ctrans('items to the draft orders')}`"
                                 :loading="isCommitting"
                                 :disabled="!selectedLines.length"
                                 @click="commit"

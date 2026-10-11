@@ -9,7 +9,6 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\ShoppingListItem\StoreShoppingListItem;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -32,7 +31,7 @@ class StoreAgentShoppingListItems extends OrgAction
             ->get()
             ->keyBy('id');
 
-        $result = DB::transaction(function () use ($modelData, $orgSupplierProducts) {
+        $result = DB::transaction(function () use ($orgAgent, $modelData, $orgSupplierProducts) {
             $added = 0;
 
             foreach ($modelData['lines'] as $line) {
@@ -42,10 +41,7 @@ class StoreAgentShoppingListItems extends OrgAction
                     continue;
                 }
 
-                StoreShoppingListItem::make()->action($orgSupplierProduct, [
-                    'quantity_units' => $line['quantity_units'],
-                    'notes'          => $line['notes'] ?? null,
-                ]);
+                SetAgentDraftLine::make()->handle($orgAgent, $orgSupplierProduct, (float) $line['quantity_units']);
 
                 $added++;
             }

@@ -22,6 +22,7 @@ use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
+use App\Actions\Procurement\OrgAgent\SetAgentDraftLine;
 use App\Actions\Procurement\OrgAgent\TellOrganisationsAboutSupplierDraft;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
 use App\Actions\Procurement\OrgAgent\RemoveMisplacedAgentShoppingListItems;
@@ -163,6 +164,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
             Route::get('drafts', ShowAgentDraftsToSend::class)->name('drafts.index');
             Route::post('drafts/send', SendAgentDraftsToAgent::class)->name('drafts.send');
             Route::post('drafts/tell', TellOrganisationsAboutSupplierDraft::class)->name('drafts.tell');
+            Route::post('drafts/line/{orgSupplierProduct:id}', SetAgentDraftLine::class)->name('drafts.line')->withoutScopedBindings();
             Route::delete('misplaced', RemoveMisplacedAgentShoppingListItems::class)->name('misplaced.destroy');
         });
     });

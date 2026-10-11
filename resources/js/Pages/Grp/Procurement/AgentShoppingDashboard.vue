@@ -173,7 +173,7 @@ const warehouseSegment = (part: number) => `${(part / Math.max(props.orderCapaci
 const warehouseLegend = computed(() => [
     { label: ctrans("in use"), value: usedLocations.value, dot: "bg-gray-400" },
     { label: ctrans("inbound PO/SD lines"), value: props.orderCapacity.warehouse.inbound_open_po_lines, dot: "bg-indigo-400" },
-    { label: ctrans("this shopping list"), value: props.orderCapacity.list.lines, dot: "bg-violet-400" },
+    { label: ctrans("on your draft orders"), value: props.orderCapacity.list.lines, dot: "bg-violet-400" },
 ])
 
 const bucketItemsRoute = (bucket: string, rank?: string) =>
@@ -436,7 +436,7 @@ const openAutoFill = (bucket: CoverBucket) => {
                                     <button
                                         v-if="canAutoFill(bucket)"
                                         type="button"
-                                        v-tooltip="ctrans('Fill the shopping list from this bucket')"
+                                        v-tooltip="ctrans('Add to the draft orders from this bucket')"
                                         class="ml-auto inline-flex items-center gap-1 rounded-md bg-[--app-accent] px-2 py-0.5 text-[11px] font-medium text-[--app-accent-text] hover:bg-[--app-accent-strong]"
                                         @click="openAutoFill(bucket)"
                                     >

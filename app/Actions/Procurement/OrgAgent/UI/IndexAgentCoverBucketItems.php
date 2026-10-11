@@ -13,11 +13,12 @@ use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
-use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -92,17 +93,14 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->orderBy('products.id')
             ->pluck('products.web_images', 'product_has_org_stocks.org_stock_id');
 
-        $openItems = DB::table('shopping_list_items')
-            ->whereIn('org_supplier_product_id', $orgSupplierProductIds)
-            ->where('state', ShoppingListItemStateEnum::OPEN->value)
-            ->whereNull('deleted_at')
-            ->select(['id', 'org_supplier_product_id', 'quantity_units'])
-            ->get()
-            ->keyBy('org_supplier_product_id');
+        $draftQuantities = $this->draftLines()
+            ->whereIn('pot.org_supplier_product_id', $orgSupplierProductIds)
+            ->groupBy('pot.org_supplier_product_id')
+            ->selectRaw('pot.org_supplier_product_id, sum(pot.quantity_ordered) as quantity')
+            ->pluck('quantity', 'org_supplier_product_id');
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $orgSupplierProduct) use ($details, $openItems, $webImages) {
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $orgSupplierProduct) use ($details, $draftQuantities, $webImages) {
             $detail   = $details->get($orgSupplierProduct->id);
-            $openItem = $openItems->get($orgSupplierProduct->id);
             $images   = json_decode($webImages->get($detail?->org_stock_id) ?? 'null', true);
 
             return [
@@ -124,41 +122,48 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'minimum_carton_order'   => $detail?->minimum_carton_order ? (int) $detail->minimum_carton_order : null,
                 'cost'                   => $detail?->cost !== null ? (float) $detail->cost : null,
                 'currency'               => $detail?->currency,
-                'shopping_list_item_id'  => $openItem?->id,
-                'ordered_quantity'       => $openItem ? (float) $openItem->quantity_units : 0,
+                'ordered_quantity'       => (float) ($draftQuantities[$orgSupplierProduct->id] ?? 0),
             ];
         });
 
         return $paginator;
     }
 
+    private function draftLines(): Builder
+    {
+        return DB::table('purchase_order_transactions as pot')
+            ->join('purchase_orders as po', 'po.id', 'pot.purchase_order_id')
+            ->where('po.organisation_id', $this->orgAgent->organisation_id)
+            ->where('po.agent_id', $this->orgAgent->agent_id)
+            ->where('po.parent_type', 'OrgSupplier')
+            ->where('po.state', PurchaseOrderStateEnum::IN_PROCESS->value)
+            ->whereNull('po.deleted_at')
+            ->whereNull('pot.deleted_at');
+    }
+
     /**
      * @param  array{list: array{value: float, lines: int, units: float}, currency: string}  $orderCapacity
-     * @return array{partner_name: string, count: int, total: float, currency: string, items: array<int, object>, listRoute: array{name: string, parameters: array<int, string>}}
+     * @return array{partner_name: string, title: string, list_label: string, count: int, total: float, currency: string, items: array<int, object>, listRoute: array{name: string, parameters: array<int, string>}}
      */
     private function miniCart(array $orderCapacity): array
     {
         return [
             'partner_name' => $this->orgAgent->agent->name,
+            'title'        => __('Draft orders'),
+            'list_label'   => __('Go to Drafts to send'),
             'count'        => $orderCapacity['list']['lines'],
             'total'        => $orderCapacity['list']['value'],
             'currency'     => $orderCapacity['currency'],
-            'items'        => DB::table('shopping_list_items as sli')
-                ->join('org_supplier_products as osp', 'osp.id', 'sli.org_supplier_product_id')
-                ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
-                ->join('suppliers as sup', 'sup.id', 'sp.supplier_id')
-                ->where('sli.organisation_id', $this->orgAgent->organisation_id)
-                ->where('sli.agent_id', $this->orgAgent->agent_id)
-                ->where('sli.state', ShoppingListItemStateEnum::OPEN->value)
-                ->whereNull('sli.deleted_at')
-                ->orderByDesc('sli.id')
+            'items'        => $this->draftLines()
+                ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+                ->orderByDesc('pot.id')
                 ->limit(40)
-                ->selectRaw('sli.id, sp.code as org_stock_code, sp.name as org_stock_name, sup.code as family_name, ceil(sli.quantity_units / greatest(coalesce(sp.units_per_carton, 1), 1))::int as quantity')
+                ->selectRaw('pot.id, sp.code as org_stock_code, sp.name as org_stock_name, po.parent_code as family_name, ceil(pot.quantity_ordered / greatest(coalesce(sp.units_per_carton, 1), 1))::int as quantity')
                 ->get()
                 ->all(),
             'listRoute'    => [
-                'name'       => 'grp.org.procurement.shopping_list.index',
-                'parameters' => [$this->orgAgent->organisation->slug],
+                'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.index',
+                'parameters' => [$this->orgAgent->organisation->slug, $this->orgAgent->slug],
             ],
         ];
     }
@@ -206,8 +211,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                     'currency' => $orderCapacity['currency'],
                 ],
                 'addRoute'    => [
-                    'name'       => 'grp.org.procurement.shopping_list.store',
-                    'parameters' => [$this->orgAgent->organisation->slug],
+                    'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.line',
+                    'parameters' => [$this->orgAgent->organisation->slug, $this->orgAgent->slug],
                 ],
                 'bucket'      => $this->bucket,
                 'bucketLabel' => $this->bucketLabel(),
