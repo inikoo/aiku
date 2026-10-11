@@ -9029,12 +9029,121 @@ test('agent cover buckets count each supplier product exactly once', function ()
         ->and($cover['total'])->toBe($distinct);
 });
 
+test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO is already bought under another code', function () {
+    $buckets = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+    $inNever = fn (OrgSupplierProduct $orgSupplierProduct) => in_array($orgSupplierProduct->id, $buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'never'), true);
+
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $oldCode] = createAgentOrgSupplierWithProduct($this);
+    $oldCode->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $oldCode->id)->delete();
+    DB::table('stock_has_supplier_products')->where('supplier_product_id', $oldCode->supplier_product_id)->delete();
+    $oldCodeStockLink = StockHasSupplierProduct::create(['stock_id' => $stock->id, 'supplier_product_id' => $oldCode->supplier_product_id, 'available' => true]);
+
+    expect($inNever($oldCode))->toBeTrue();
+
+    $stock->update(['state' => StockStateEnum::DISCONTINUED]);
+    expect($inNever($oldCode))->toBeFalse();
+
+    $stock->update(['state' => StockStateEnum::ACTIVE]);
+    expect($inNever($oldCode))->toBeTrue();
+
+    [, $newCode] = createAgentOrgSupplierWithProduct($this);
+    $newCode->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $newCode->id)->delete();
+    $newCodeStockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $newCode->supplier_product_id], ['available' => true]);
+    OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $orgStock->id,
+        'org_supplier_product_id'       => $newCode->id,
+        'stock_has_supplier_product_id' => $newCodeStockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+
+    expect($inNever($oldCode))->toBeFalse()
+        ->and($inNever($newCode))->toBeFalse()
+        ->and($oldCodeStockLink->exists)->toBeTrue();
+
+    $discontinue = App\Actions\Procurement\OrgSupplierProducts\DiscontinueDeadOrgSupplierProducts::make();
+    $isDead      = fn (OrgSupplierProduct $orgSupplierProduct) => $discontinue->dead($this->organisation->slug)->where('osp.id', $orgSupplierProduct->id)->exists();
+
+    expect($isDead($oldCode))->toBeFalse();
+
+    $stock->update(['state' => StockStateEnum::DISCONTINUED]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and($isDead($newCode))->toBeFalse()
+        ->and(collect($discontinue->preview($this->organisation->slug))->sum('products'))->toBeGreaterThanOrEqual(1);
+
+    $recentOrder = StorePurchaseOrder::make()->action($oldCode->orgSupplier, [], strict: false);
+    $lineId      = DB::table('purchase_order_transactions')->insertGetId([
+        'group_id'            => $recentOrder->group_id,
+        'organisation_id'     => $recentOrder->organisation_id,
+        'purchase_order_id'   => $recentOrder->id,
+        'supplier_product_id' => $oldCode->supplier_product_id,
+        'org_stock_id'        => $orgStock->id,
+        'state'               => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 1,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+
+    expect($isDead($oldCode))->toBeFalse();
+
+    DB::table('purchase_order_transactions')->where('id', $lineId)->update(['deleted_at' => now()]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
+
+    $discontinue->handle($this->organisation->slug);
+
+    expect($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
+        ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($oldCode->supplierProduct->fresh()->state)->not->toBe(SupplierProductStateEnum::DISCONTINUED);
+});
+
+test('agent round budget is a usual month of orders plus restocking, in the organisation currency', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
+
+    DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update([
+        'state'          => PurchaseOrderStateEnum::SUBMITTED->value,
+        'delivery_state' => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS->value,
+        'submitted_at'   => now(),
+        'cost_total'     => 1200000000,
+        'org_exchange'   => 0.001,
+    ]);
+    Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
+
+    try {
+        $capacity = App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent);
+        $budget   = $capacity['agent_capacity'];
+
+        expect($budget['source'])->toBe('measured')
+            ->and($budget['usual_month_orders'])->toBeGreaterThanOrEqual(1200000 / 12)
+            ->and($budget['usual_month_orders'])->toBeLessThan(1200000000 / 12)
+            ->and($budget['lands_for_us_per_30d'])->toBe(round($budget['usual_month_orders'] + $budget['restock_out_of_stock'], 2))
+            ->and($capacity['pipeline']['waiting'])->toBeGreaterThanOrEqual(1200000.0)
+            ->and($capacity['pipeline']['waiting'])->toBeLessThan(1200000000.0)
+            ->and($capacity['pipeline']['total'])->toBe(round($capacity['pipeline']['waiting'] + $capacity['pipeline']['being_made'] + $capacity['pipeline']['on_the_way'], 2));
+    } finally {
+        DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update(['cost_total' => 0, 'deleted_at' => now()]);
+        Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
+    }
+});
+
 test('agent order capacity is deterministic and reported in the organisation currency', function () {
     Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
 
     $capacity = App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent);
 
-    expect($capacity['agent_capacity'])->toHaveKeys(['lands_for_us_per_30d', 'source', 'samples'])
+    expect($capacity['agent_capacity'])->toHaveKeys(['lands_for_us_per_30d', 'source', 'samples', 'usual_month_orders', 'restock_out_of_stock', 'container_value'])
+        ->and($capacity['pipeline'])->toHaveKeys(['waiting', 'being_made', 'on_the_way', 'total'])
         ->and($capacity['currency'])->toBe($this->organisation->currency->code)
         ->and($capacity['warehouse'])->toHaveKeys([
             'total_locations',
@@ -9161,6 +9270,11 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
             ->and($line['cartons'])->toBe(1)
             ->and($line['quantity_units'])->toBe(100)
             ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out')['order_lines'])->toBeGreaterThanOrEqual(1);
+
+        $shippedBefore = (int) $orgStock->stats->on_the_way_po_count;
+        $orgStock->stats->update(['on_the_way_po_count' => 1]);
+        expect(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+        $orgStock->stats->update(['on_the_way_po_count' => $shippedBefore]);
 
         expect(fn () => $prepare->handle($this->orgAgent, 1.0, ['out']))->toThrow(ValidationException::class);
 

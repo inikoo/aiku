@@ -138,6 +138,7 @@ class SuggestAgentShoppingList extends OrgAction
             ->whereIn('osp.id', $ids)
             ->whereRaw('coalesce(os.is_excluded_from_auto_ordering, false) = false')
             ->whereRaw('not '.GetAgentStockCoverBuckets::onOpenPurchaseOrderExpression())
+            ->whereRaw('coalesce(s.on_the_way_po_count, 0) = 0')
             ->whereNotExists(function ($query) {
                 $query->selectRaw('1')
                     ->from('shopping_list_items as sli')
