@@ -271,42 +271,14 @@ const orgPerOrder = computed(() => {
 	return Number(org_exchange) || null
 })
 
-const costRows = computed(() => {
-	const { items, extra, shipping, duties, tax } = props.box_stats.third_block
-
-	return [
-		{ key: "items", label: ctrans("Items"), amount: Number(items) || 0, alwaysShown: true },
-		{ key: "extra", label: ctrans("Extra costs"), amount: Number(extra) || 0, alwaysShown: false },
-		{ key: "shipping", label: ctrans("Shipping"), amount: Number(shipping) || 0, alwaysShown: false },
-		{ key: "duties", label: ctrans("Duties"), amount: Number(duties) || 0, alwaysShown: false },
-		{ key: "tax", label: ctrans("Tax"), amount: Number(tax) || 0, alwaysShown: false },
-	].filter(row => row.alwaysShown || row.amount !== 0)
-})
-
 const costBlocks = computed(() => {
-	const { currency, org_currency, items, total, org_items } = props.box_stats.third_block
+	const { currency, org_currency, items, org_items } = props.box_stats.third_block
 
 	const money = (code: string | null, amount: number) => locale.currencyFormat(code ?? "", amount)
-
-	const supplierBlock = {
-		key: "supplier",
-		title: `${ctrans("Supplier invoice currency")} ${currency ?? ""}`.trim(),
-		rows: [
-			...costRows.value.map(row => ({ label: row.label, value: money(currency, row.amount) })),
-			{ label: ctrans("Total"), value: money(currency, Number(total)), isTotal: true },
-		],
-	}
 
 	const sameCurrency = !org_currency || org_currency === currency
 	const orgCurrency = org_currency || currency
 	const rate = sameCurrency ? 1 : (orgPerOrder.value ?? 1)
-
-	const orgAmount = (row: { key: string; amount: number }) =>
-		row.key === "items" && !sameCurrency ? Number(org_items) : row.amount * rate
-
-	const orgTotal = costRows.value.reduce((sum, row) => sum + orgAmount(row), 0)
-
-	const rateLabel = `${ctrans("Organisation currency")} ${orgCurrency ?? ""}`.trim()
 
 	const agentInvoice = props.box_stats.invoice
 	const agentInvoiceRate = agentInvoice?.org_exchange ?? null
@@ -317,11 +289,16 @@ const costBlocks = computed(() => {
 		isTotal,
 	})
 
+	const goods = Number(items) || 0
+	const orgGoods = sameCurrency ? goods : Number(org_items)
+	const goodsRow = (label: string, isTotal = false) => ({ label, value: money(orgCurrency, orgGoods), sub: sameCurrency ? null : money(currency, goods), isTotal })
+
 	const firstBlock = agentInvoice
 		? {
 			key: "invoice",
 			title: `${agentInvoice.kind === "agent" ? ctrans("Agent invoice") : ctrans("Supplier invoice")} ${agentInvoice.reference ?? ""}`.trim(),
 			badge: agentInvoice.source === "estimated" ? ctrans("Estimated") : null,
+			badgeTooltip: ctrans("No invoice was entered for this delivery; these figures are estimated from what the delivery recorded"),
 			rows: [
 				agentInvoiceRow(ctrans("Goods"), agentInvoice.goods),
 				agentInvoiceRow(agentInvoice.kind === "agent" ? ctrans("Agent charges") : ctrans("Supplier charges"), agentInvoice.charges),
@@ -332,43 +309,35 @@ const costBlocks = computed(() => {
 				]),
 			],
 		}
-		: supplierBlock
+		: {
+			key: "invoice",
+			title: ctrans("Agent or supplier invoice"),
+			badge: ctrans("Not entered"),
+			badgeTooltip: ctrans("The invoice of this delivery has not been entered yet; the goods are valued at what the delivery recorded"),
+			rows: [goodsRow(ctrans("Goods")), goodsRow(ctrans("Total"), true)],
+		}
 
-	if (agentInvoice) {
-		const deliveryAmount = (key: string) => Number(props.box_stats.third_block[key as "extra"]) || 0
-		const agentInvoiceInDelivery = agentInvoice.currency === currency ? agentInvoice.charges : 0
-		const localCosts = [
-			{ label: ctrans("Customs duties"), amount: deliveryAmount("duties") },
-			{ label: ctrans("Import tax"), amount: deliveryAmount("tax") },
-			{ label: ctrans("Local shipping and other"), amount: deliveryAmount("shipping") + deliveryAmount("extra") - agentInvoiceInDelivery },
-		].filter(row => Math.abs(row.amount) > 0.005)
-		const localTotal = localCosts.reduce((sum, row) => sum + row.amount, 0) * rate
-		const agentTotal = agentInvoiceRate === null ? 0 : agentInvoice.total * agentInvoiceRate
-
-		return [
-			firstBlock,
-			{
-				key: "landed",
-				title: `${ctrans("Landed costs")} ${orgCurrency ?? ""}`.trim(),
-				rows: [
-					...(localCosts.length
-						? localCosts.map(row => ({ label: row.label, value: money(orgCurrency, row.amount * rate) }))
-						: [{ label: ctrans("No local costs entered yet"), value: "" }]),
-					{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal), isTotal: true },
-					{ label: ctrans("Landed total"), value: money(orgCurrency, agentTotal + localTotal), sub: ctrans("agent invoice + local costs"), isTotal: true },
-				],
-			},
-		]
-	}
+	const deliveryAmount = (key: string) => Number(props.box_stats.third_block[key as "extra"]) || 0
+	const agentInvoiceInDelivery = agentInvoice?.currency === currency ? agentInvoice.charges : 0
+	const localCosts = [
+		{ label: ctrans("Customs duties"), amount: deliveryAmount("duties") },
+		{ label: ctrans("Import tax"), amount: deliveryAmount("tax") },
+		{ label: ctrans("Local shipping and other"), amount: deliveryAmount("shipping") + deliveryAmount("extra") - agentInvoiceInDelivery },
+	].filter(row => Math.abs(row.amount) > 0.005)
+	const localTotal = localCosts.reduce((sum, row) => sum + row.amount, 0) * rate
+	const invoiceTotal = agentInvoice ? (agentInvoiceRate === null ? 0 : agentInvoice.total * agentInvoiceRate) : orgGoods
 
 	return [
 		firstBlock,
 		{
-			key: "org",
-			title: rateLabel,
+			key: "landed",
+			title: `${ctrans("Landed costs")} ${orgCurrency ?? ""}`.trim(),
 			rows: [
-				...costRows.value.map(row => ({ label: row.label, value: money(orgCurrency, orgAmount(row)) })),
-				{ label: ctrans("Total"), value: money(orgCurrency, orgTotal), isTotal: true },
+				...(localCosts.length
+					? localCosts.map(row => ({ label: row.label, value: money(orgCurrency, row.amount * rate) }))
+					: [{ label: ctrans("No local costs entered yet"), value: "" }]),
+				{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal), isTotal: true },
+				{ label: ctrans("Landed total"), value: money(orgCurrency, invoiceTotal + localTotal), sub: ctrans("invoice + local costs"), isTotal: true },
 			],
 		},
 	]
@@ -972,7 +941,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 		<BoxStatPallet v-for="(block, blockIndex) in costBlocks" :key="block.key" class="p-4">
 			<div class="flex items-center justify-center gap-2 text-center">
 				{{ block.title }}
-				<span v-if="block.badge" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700" v-tooltip="ctrans('No invoice was entered for this delivery; these figures are estimated from what the delivery recorded')">{{ block.badge }}</span>
+				<span v-if="block.badge" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700" v-tooltip="block.badgeTooltip">{{ block.badge }}</span>
 			</div>
 
 			<hr class="my-1 border-t border-gray-300" />
