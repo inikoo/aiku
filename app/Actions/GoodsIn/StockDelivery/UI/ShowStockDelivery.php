@@ -29,6 +29,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\AgentInvoice\UI\GetAgentContainerInvoiceData;
 use App\Actions\Traits\Authorisations\WithGoodsInBookInAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
@@ -53,7 +54,9 @@ use App\Models\SupplyChain\AgentInvoice;
 use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDeliveryServiceInvoice\UI\IndexStockDeliveryServiceInvoices;
+use App\Models\Helpers\Audit;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Media;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgPartner;
@@ -62,6 +65,8 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -323,6 +328,20 @@ class ShowStockDelivery extends OrgAction
                 'type'   => 'StockDeliveryItem',
                 'labels' => $stockDelivery->items()->with('orgStock:id,code')->get()
                     ->mapWithKeys(fn ($item) => [$item->id => $item->orgStock?->code ?? '#'.$item->id])
+                    ->all(),
+                'shops'  => null,
+            ],
+            [
+                'type'   => 'StockDeliveryCost',
+                'labels' => $stockDelivery->costs()->withTrashed()->get()
+                    ->mapWithKeys(fn (StockDeliveryCost $cost) => [$cost->id => $cost->label ?: ($cost->category ? StockDeliveryServiceInvoiceTypeEnum::labels()[$cost->category->value] : StockDeliveryCostTypeEnum::labels()[$cost->type->value])])
+                    ->all(),
+                'shops'  => null,
+            ],
+            [
+                'type'   => 'StockDeliveryServiceInvoice',
+                'labels' => $stockDelivery->serviceInvoices()->withTrashed()->get()
+                    ->mapWithKeys(fn (StockDeliveryServiceInvoice $serviceInvoice) => [$serviceInvoice->id => trim($serviceInvoice->issuer.' '.$serviceInvoice->reference)])
                     ->all(),
                 'shops'  => null,
             ],
@@ -818,15 +837,21 @@ class ShowStockDelivery extends OrgAction
 
     private function getCosting(StockDelivery $stockDelivery): array
     {
-        $costs = $stockDelivery->costs()->orderBy('id')->get();
+        $costs       = $stockDelivery->costs()->with(['attachments', 'audits.user'])->orderBy('id')->get();
+        $invoices    = $this->getCostInvoices($stockDelivery);
+        $uploadRoute = fn (?StockDeliveryCost $row) => ($this->canEditPayments || $this->canUpdateCosting) && !$row?->from_service_invoices ? [
+            'name'       => 'grp.models.stock-delivery.cost.invoice.attach',
+            'parameters' => array_filter(['stockDelivery' => $stockDelivery->id, 'cost' => $row?->id]),
+            'method'     => 'post',
+        ] : null;
 
         $checklist = [];
         foreach ([StockDeliveryCostTypeEnum::AGENT_INVOICE, StockDeliveryCostTypeEnum::SHIPPING, StockDeliveryCostTypeEnum::DUTY] as $type) {
             $row         = $costs->firstWhere('type', $type);
-            $checklist[] = $this->costRow($type, $row);
+            $checklist[] = $this->costRow($type, $row, $invoices, $uploadRoute($row));
         }
         foreach ($costs->where('type', StockDeliveryCostTypeEnum::EXTRA) as $row) {
-            $checklist[] = $this->costRow(StockDeliveryCostTypeEnum::EXTRA, $row);
+            $checklist[] = $this->costRow(StockDeliveryCostTypeEnum::EXTRA, $row, $invoices, $uploadRoute($row));
         }
 
         $agentInvoice = $costs->firstWhere('type', StockDeliveryCostTypeEnum::AGENT_INVOICE);
@@ -854,6 +879,9 @@ class ShowStockDelivery extends OrgAction
             ],
             'currencies'                 => Currency::orderBy('code')->get(['id', 'code'])->toArray(),
             'checklist'                  => $checklist,
+            'extra_types'                => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
+            'costs_are_users_job'        => $this->canEdit,
+            'put_away_blocked'           => $stockDelivery->costsMissingForPutAway(),
             'shipping_basis'             => DistributeStockDeliveryExtraCost::shippingBasis($stockDelivery),
             'agent_invoice_missing'      => !$agentInvoice?->received_at,
             'storeCostRoute'             => [
@@ -971,12 +999,60 @@ class ShowStockDelivery extends OrgAction
         ];
     }
 
-    private function costRow(StockDeliveryCostTypeEnum $type, ?StockDeliveryCost $row): array
+    /**
+     * The invoice files behind the checklist rows that keep none of their own: the agent or supplier invoice
+     * filed on the delivery, and the files of the service invoices that fill the shipping, duty and extra rows.
+     *
+     * @return array{agent_invoice: Collection<int, Media>, by_cost_type: Collection<string, Collection<int, Media>>, by_service_invoice: Collection<int, Collection<int, Media>>}
+     */
+    private function getCostInvoices(StockDelivery $stockDelivery): array
     {
+        $serviceInvoices = $stockDelivery->serviceInvoices()->with('attachments')->get();
+
         return [
+            'agent_invoice'      => $stockDelivery->attachments()
+                ->wherePivotIn('scope', [PurchaseOrderAttachmentScopeEnum::INVOICE->value, PurchaseOrderAttachmentScopeEnum::PROFORMA->value])
+                ->get(),
+            'by_cost_type'       => $serviceInvoices
+                ->groupBy(fn (StockDeliveryServiceInvoice $serviceInvoice) => $serviceInvoice->type->costType()?->value)
+                ->map(fn (Collection $bills) => $bills->flatMap->attachments),
+            'by_service_invoice' => $serviceInvoices->keyBy('id')->map->attachments,
+        ];
+    }
+
+    /**
+     * @param  array{agent_invoice: Collection<int, Media>, by_cost_type: Collection<string, Collection<int, Media>>, by_service_invoice: Collection<int, Collection<int, Media>>}  $invoices
+     * @param  array{name: string, parameters: array<string, int>, method: string}|null  $uploadRoute
+     */
+    private function costRow(StockDeliveryCostTypeEnum $type, ?StockDeliveryCost $row, array $invoices, ?array $uploadRoute): array
+    {
+        $files = match (true) {
+            $type === StockDeliveryCostTypeEnum::AGENT_INVOICE  => $invoices['agent_invoice'],
+            (bool) $row?->stock_delivery_service_invoice_id     => $invoices['by_service_invoice']->get($row->stock_delivery_service_invoice_id, collect()),
+            (bool) $row?->from_service_invoices                 => $invoices['by_cost_type']->get($type->value, collect()),
+            default                                             => collect(),
+        };
+
+        $category  = $row?->category ?? ($type === StockDeliveryCostTypeEnum::EXTRA ? StockDeliveryServiceInvoiceTypeEnum::OTHER : null);
+        $isInvoice = $type === StockDeliveryCostTypeEnum::AGENT_INVOICE;
+        $kindLabel = $category ? StockDeliveryServiceInvoiceTypeEnum::labels()[$category->value] : StockDeliveryCostTypeEnum::labels()[$type->value];
+
+        return [
+            'from_service_invoices' => (bool) $row?->from_service_invoices,
+            'is_waiting_for_invoice' => (bool) $row?->is_waiting_for_invoice,
+            'is_estimate'            => (bool) $row?->is_estimate,
+            'invoice_overdue'        => (bool) ($row?->is_waiting_for_invoice && $row->invoice_expected_at?->isBefore(today())),
+            'waiting_label'          => $row?->waitingLabel(),
+            'attachments'           => collect($row?->attachments)->concat($files)->unique('id')
+                ->map(fn (Media $media) => ['name' => $media->name ?: $media->file_name, 'ulid' => $media->ulid])->values()->all(),
+            'uploadRoute'           => $uploadRoute,
             'id'          => $row?->id,
             'type'        => $type->value,
-            'label'       => $row?->label ?: StockDeliveryCostTypeEnum::labels()[$type->value],
+            'category'       => $isInvoice ? null : ($category?->value ?? $type->value),
+            'category_label' => $isInvoice ? null : $kindLabel,
+            'note'           => $isInvoice ? null : $row?->label,
+            'history'        => $row ? $this->costHistory($row) : [],
+            'label'       => $isInvoice ? ($row?->label ?: $kindLabel) : $kindLabel.($category && $row?->label ? ': '.$row->label : ''),
             'amount'      => $row?->amount,
             'received_at' => $row?->received_at,
             'is_na'       => (bool) $row?->is_na,
@@ -993,6 +1069,51 @@ class ShowStockDelivery extends OrgAction
                 'method'     => 'delete',
             ] : null,
         ];
+    }
+
+    /**
+     * Who changed what on a cost row, newest first.
+     *
+     * @return array<int, array{at: string, user: string, event: string, changes: array<int, array{field: string, old: string, new: string}>}>
+     */
+    private function costHistory(StockDeliveryCost $cost): array
+    {
+        $fields = [
+            'category'               => __('Kind'),
+            'label'                  => __('Note'),
+            'amount'                 => __('Amount'),
+            'currency_id'            => __('Currency'),
+            'exchange'               => __('Rate'),
+            'is_na'                  => __('N/A'),
+            'received_at'            => __('Received'),
+            'is_waiting_for_invoice' => __('Waiting for invoice'),
+            'invoice_expected_at'    => __('Invoice expected'),
+            'is_estimate'            => __('Estimate'),
+        ];
+
+        $show = fn (string $field, mixed $value): string => match (true) {
+            $value === null || $value === ''                                 => '-',
+            in_array($field, ['is_na', 'is_waiting_for_invoice', 'is_estimate'])            => $value ? __('Yes') : __('No'),
+            $field === 'currency_id'                                         => Currency::find($value)?->code ?? (string) $value,
+            $field === 'category'                                            => StockDeliveryServiceInvoiceTypeEnum::labels()[$value] ?? (string) $value,
+            in_array($field, ['received_at', 'invoice_expected_at'])         => Carbon::parse($value)->toDateString(),
+            default                                                          => (string) $value,
+        };
+
+        return $cost->audits->sortByDesc('id')->map(fn (Audit $audit) => [
+            'at'      => $audit->created_at->toIso8601String(),
+            'user'    => $audit->user?->contact_name ?? __('System'),
+            'event'   => $audit->event,
+            'changes' => collect($fields)
+                ->filter(fn (string $label, string $field) => array_key_exists($field, $audit->new_values ?? []) || array_key_exists($field, $audit->old_values ?? []))
+                ->map(fn (string $label, string $field) => [
+                    'field' => $label,
+                    'old'   => $show($field, Arr::get($audit->old_values, $field)),
+                    'new'   => $show($field, Arr::get($audit->new_values, $field)),
+                ])
+                ->filter(fn (array $change) => $change['old'] !== $change['new'])
+                ->values()->all(),
+        ])->filter(fn (array $entry) => $entry['changes'] !== [])->values()->all();
     }
 
     private function getTabsNavigation(StockDelivery $stockDelivery): array

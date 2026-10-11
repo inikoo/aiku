@@ -53,6 +53,18 @@ enum StockDeliveryServiceInvoiceTypeEnum: string
     }
 
     /**
+     * @return array<int, array{label: string, value: string}> the types an extra expense can be
+     */
+    public static function extraOptions(): array
+    {
+        return collect(self::cases())
+            ->filter(fn (self $type) => $type->costType() === StockDeliveryCostTypeEnum::EXTRA)
+            ->map(fn (self $type) => ['label' => self::labels()[$type->value], 'value' => $type->value])
+            ->values()
+            ->all();
+    }
+
+    /**
      * The checklist row a bill of this type fills: freight is shared by weight, duties by customs line, the rest by
      * value. Import VAT is recovered and fills none.
      */

@@ -18,6 +18,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
@@ -36,7 +37,7 @@ class SaveModelAttachment extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost $model, array $modelData): Media
     {
         $filePath = Arr::pull($modelData, 'path');
 
@@ -127,7 +128,7 @@ class SaveModelAttachment extends OrgAction
         return $rules;
     }
 
-    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
+    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
     {
         $this->asAction       = true;
         $this->strict         = $strict;

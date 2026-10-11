@@ -11,6 +11,7 @@ import { faPlus, faPencil, faTrashAlt, faPaperclip } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
+import ServiceInvoiceTypeChip from "@/Components/Procurement/ServiceInvoiceTypeChip.vue"
 import { routeType } from "@/types/route"
 
 library.add(faPlus, faPencil, faTrashAlt, faPaperclip)
@@ -81,7 +82,7 @@ const confirmDelete = (row: ServiceInvoiceRow) =>
 		<ul v-else class="space-y-1.5">
 			<li v-for="row in data.list" :key="row.id" class="flex items-start justify-between gap-3">
 				<span class="min-w-0 text-gray-700">
-					<span class="mr-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.type_label }}</span>
+					<ServiceInvoiceTypeChip class="mr-1.5" :type="row.type" :label="row.type_label" />
 					{{ row.issuer }}
 					<span v-if="row.reference" class="text-gray-400"> · {{ row.reference }}</span>
 					<span class="block text-xs text-gray-500">

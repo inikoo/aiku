@@ -37,6 +37,7 @@ use JsonSerializable;
  * @property bool $can_use_mcp_production
  * @property bool $can_use_mcp_place_orders
  * @property bool $can_use_mcp_prices
+ * @property bool $can_use_mcp_costing
  * @property mixed $has_mcp_queries
  * @property mixed $last_active
  */
@@ -78,6 +79,7 @@ class UsersResource extends JsonResource
             'can_use_mcp_production'    => (bool) $this->can_use_mcp_production,
             'can_use_mcp_place_orders'  => (bool) $this->can_use_mcp_place_orders,
             'can_use_mcp_prices'        => (bool) $this->can_use_mcp_prices,
+            'can_use_mcp_costing'       => (bool) $this->can_use_mcp_costing,
             'has_mcp_queries'           => (bool) $this->has_mcp_queries,
             'last_active'               => $this->last_active,
         ];

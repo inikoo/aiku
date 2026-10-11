@@ -13,6 +13,7 @@ import { ctrans } from "@/Composables/useTrans"
 import ConfirmDialog from "primevue/confirmdialog"
 import Dialog from "primevue/dialog"
 import DatePicker from "primevue/datepicker"
+import InputText from "primevue/inputtext"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
 
@@ -47,8 +48,8 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport } from "@fal"
-import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull } from "@fas"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare } from "@fal"
+import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
 	faBalanceScale,
@@ -57,6 +58,11 @@ library.add(
 	faWarehouse,
 	faPersonDolly,
 	faBoxUsd,
+	faCheckCircle,
+	faSquare,
+	faCheckSquare,
+	faTimes,
+	faCheck,
 	faTruck,
 	faTerminal,
 	faCameraRetro,
@@ -173,6 +179,8 @@ const props = defineProps<{
 		reopened: { at: string, by: string | null, reason: string } | null
 		currency: string | null
 		checklist: any[]
+		put_away_blocked: string[]
+		costs_are_users_job: boolean
 		agent_invoice_missing: boolean
 		storeCostRoute: routeType
 		distributeExtraCostRoute: routeType | null
@@ -197,8 +205,8 @@ const locale = useLocaleStore()
 
 const currentTab = ref(props.tabs.current)
 const isModalUploadOpen = ref(false)
-const isCostingOpen = ref(false)
-const isCostingVisible = computed(() => !["in_process", "confirmed", "ready_to_ship", "cancelled", "not_received"].includes(props.stock_delivery.state))
+const costingSection = ref<"invoice" | "landed" | null>(null)
+const isCostingVisible = computed(() => !["in_process", "cancelled", "not_received"].includes(props.stock_delivery.state))
 
 const component = computed(() => {
 	const components: Component = {
@@ -296,6 +304,7 @@ const costBlocks = computed(() => {
 	const firstBlock = agentInvoice
 		? {
 			key: "invoice",
+			columns: agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? null : [agentInvoice.org_currency, agentInvoice.currency],
 			title: `${agentInvoice.kind === "agent" ? ctrans("Agent invoice") : ctrans("Supplier invoice")} ${agentInvoice.reference ?? ""}`.trim(),
 			badge: agentInvoice.source === "estimated" ? ctrans("Estimated") : null,
 			badgeTooltip: ctrans("No invoice was entered for this delivery; these figures are estimated from what the delivery recorded"),
@@ -311,6 +320,7 @@ const costBlocks = computed(() => {
 		}
 		: {
 			key: "invoice",
+			columns: sameCurrency ? null : [orgCurrency ?? "", currency ?? ""],
 			title: ctrans("Agent or supplier invoice"),
 			badge: ctrans("Not entered"),
 			badgeTooltip: ctrans("The invoice of this delivery has not been entered yet; the goods are valued at what the delivery recorded"),
@@ -325,19 +335,56 @@ const costBlocks = computed(() => {
 		{ label: ctrans("Local shipping and other"), amount: deliveryAmount("shipping") + deliveryAmount("extra") - agentInvoiceInDelivery },
 	].filter(row => Math.abs(row.amount) > 0.005)
 	const localTotal = localCosts.reduce((sum, row) => sum + row.amount, 0) * rate
+	const invoiceGoods = agentInvoice ? (agentInvoiceRate === null ? 0 : agentInvoice.goods * agentInvoiceRate) : orgGoods
 	const invoiceTotal = agentInvoice ? (agentInvoiceRate === null ? 0 : agentInvoice.total * agentInvoiceRate) : orgGoods
 
+	const pendingLocalCosts = props.costing.checklist.filter(row => row.type !== "agent_invoice" && !row.received_at && !row.is_na)
+	const waiting = (rows: typeof pendingLocalCosts) => rows.filter(row => row.is_waiting_for_invoice).map(row => `${row.label}: ${row.waiting_label}`)
+	const missingLocalCosts = pendingLocalCosts.filter(row => !row.is_waiting_for_invoice).map(row => row.label)
+	const localCostsStatus = [
+		...waiting(pendingLocalCosts),
+		...(missingLocalCosts.length ? [ctrans("Missing: :costs", { costs: missingLocalCosts.join(", ") })] : []),
+	].join(" · ")
+	const waitingInvoice = waiting(props.costing.checklist.filter(row => row.type === "agent_invoice" && !row.received_at))[0]
+	const estimates = props.costing.checklist.filter(row => row.is_estimate && !row.is_na).map(row => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`)
+	const isRising = pendingLocalCosts.some(row => row.is_waiting_for_invoice)
+	const status = (missing: string | null, done: string) =>
+		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
+
 	return [
-		firstBlock,
+		{ ...firstBlock, status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")) },
 		{
 			key: "landed",
+			status: status([localCostsStatus, ...estimates.filter((text, index) => props.costing.checklist.filter(row => row.is_estimate && !row.is_na)[index].type !== "agent_invoice")].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
 			title: `${ctrans("Landed costs")} ${orgCurrency ?? ""}`.trim(),
 			rows: [
 				...(localCosts.length
 					? localCosts.map(row => ({ label: row.label, value: money(orgCurrency, row.amount * rate) }))
 					: [{ label: ctrans("No local costs entered yet"), value: "" }]),
 				{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal), isTotal: true },
-				{ label: ctrans("Landed total"), value: money(orgCurrency, invoiceTotal + localTotal), sub: ctrans("invoice + local costs"), isTotal: true },
+			],
+		},
+		{
+			key: "total",
+			status: status(
+				props.costing.put_away_blocked.length
+					? ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") })
+					: props.costing.is_costed
+					? (estimates.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null)
+					: (isRising ? ctrans("This total will increase: an invoice is still to come") : ctrans("Costing not finished")),
+				ctrans("Costed")
+			),
+			title: `${ctrans("Landed total")} ${orgCurrency ?? ""}`.trim(),
+			rows: [
+				{ label: agentInvoice?.kind === "supplier" ? ctrans("Supplier invoice") : ctrans("Agent or supplier invoice"), value: money(orgCurrency, invoiceTotal) },
+				{ label: ctrans("Local costs"), value: money(orgCurrency, localTotal) },
+				{
+					label: ctrans("Landed total"),
+					value: money(orgCurrency, invoiceTotal + localTotal),
+					sub: invoiceGoods > 0 ? ctrans("local costs add :percentage% to the goods", { percentage: (localTotal / invoiceGoods * 100).toFixed(1) }) : null,
+					isTotal: true,
+					isHeadline: true,
+				},
 			],
 		},
 	]
@@ -401,26 +448,40 @@ const confirmUndispatchStockDelivery = (action: any) => {
 	})
 }
 
+const receiveWithoutCostsAction = ref<any>(null)
+const receiveReason = ref("")
+const receiveAcknowledged = ref(false)
+const canReceiveWithoutCosts = computed(() => receiveReason.value.trim().length >= 5 && (!props.costing.costs_are_users_job || receiveAcknowledged.value))
+
+const receiveStockDelivery = (action: any, data: { reason?: string } = {}) =>
+	router.patch(route(action.route.name, action.route.parameters), data, {
+		onStart: () => { receiveLoading.value = true },
+		onFinish: () => { receiveLoading.value = false },
+		onSuccess: () => { receiveWithoutCostsAction.value = null; receiveReason.value = "" },
+		onError: (errors: Record<string, string>) => {
+			notify({
+				title: ctrans("Something went wrong"),
+				text: Object.values(errors)[0] ?? ctrans("Failed to receive stock delivery"),
+				type: "error",
+			})
+		},
+	})
+
 const confirmReceiveStockDelivery = (action: any) => {
+	if (props.costing.put_away_blocked.length) {
+		receiveReason.value = ""
+		receiveAcknowledged.value = false
+		receiveWithoutCostsAction.value = action
+		return
+	}
+
 	confirm.require({
 		group: "stock-delivery",
 		message: ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
 		header: ctrans("Receive Stock Delivery"),
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Mark as Received"), severity: "primary" },
-		accept: () => {
-			router.patch(route(action.route.name, action.route.parameters), {}, {
-				onStart: () => { receiveLoading.value = true },
-				onFinish: () => { receiveLoading.value = false },
-				onError: () => {
-					notify({
-						title: ctrans("Something went wrong"),
-						text: ctrans("Failed to receive stock delivery"),
-						type: "error",
-					})
-				},
-			})
-		},
+		accept: () => receiveStockDelivery(action),
 	})
 }
 
@@ -733,7 +794,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 	<AgentContainerInvoicePanel v-if="agentInvoice" :data="agentInvoice" :currencyCode="box_stats.third_block.currency ?? ''" class="mb-4" />
 
-	<div class="grid grid-cols-2 lg:grid-cols-4 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
+	<div class="grid grid-cols-2 xl:grid-cols-5 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
 		<!-- First Block -->
 		<BoxStatPallet class="p-4">
 			<div class="flex flex-col gap-4">
@@ -938,7 +999,15 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</BoxStatPallet>
 
 		<!-- Third Block: costs -->
-		<BoxStatPallet v-for="(block, blockIndex) in costBlocks" :key="block.key" class="p-4">
+		<BoxStatPallet v-for="(block, blockIndex) in costBlocks" :key="block.key" class="p-4" :class="block.key === 'total' ? 'col-span-2 xl:col-span-1' : ''">
+			<div
+				v-if="block.status"
+				class="-mx-4 -mt-4 mb-3 flex items-center gap-1.5 border-t-4 px-4 py-1.5 text-xs"
+				:class="block.status.isMissing ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-green-500 bg-green-50 text-green-800'"
+			>
+				<FontAwesomeIcon :icon="block.status.isMissing ? 'fal fa-exclamation-triangle' : 'fal fa-check-circle'" fixed-width aria-hidden="true" />
+				{{ block.status.text }}
+			</div>
 			<div class="flex items-center justify-center gap-2 text-center">
 				{{ block.title }}
 				<span v-if="block.badge" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700" v-tooltip="block.badgeTooltip">{{ block.badge }}</span>
@@ -946,15 +1015,34 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 			<hr class="my-1 border-t border-gray-300" />
 
-			<div class="mt-2 space-y-1 text-sm">
+			<table v-if="block.columns" class="mt-2 w-full text-sm">
+				<thead>
+					<tr class="text-xs text-gray-500">
+						<th></th>
+						<th v-for="column in block.columns" :key="column" class="pb-1 pl-3 text-right font-medium">{{ column }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="row in block.rows"
+						:key="row.label"
+						:class="row.isTotal ? 'border-t border-gray-200 font-semibold text-gray-700' : ''"
+					>
+						<td class="py-1">{{ row.label }}</td>
+						<td class="py-1 pl-3 text-right tabular-nums">{{ row.value }}</td>
+						<td class="py-1 pl-3 text-right text-xs font-normal tabular-nums text-gray-500">{{ row.sub }}</td>
+					</tr>
+				</tbody>
+			</table>
+			<div v-else class="mt-2 space-y-1 text-sm">
 				<div
 					v-for="row in block.rows"
 					:key="row.label"
 					class="flex items-center justify-between gap-4"
-					:class="row.isTotal ? 'font-semibold text-gray-700' : ''"
+					:class="[row.isTotal ? 'font-semibold text-gray-700' : '', row.isHeadline ? 'mt-2 border-t border-gray-300 pt-2 text-base text-gray-900' : '']"
 				>
 					<span>{{ row.label }}</span>
-					<span class="text-right">
+					<span class="text-right tabular-nums">
 						{{ row.value }}
 						<span v-if="row.sub" class="block text-xs font-normal text-gray-400">{{ row.sub }}</span>
 					</span>
@@ -974,26 +1062,23 @@ const confirmDeleteStockDelivery = (action: any) => {
 				:currency="box_stats.invoice.currency"
 				:hasCharges="box_stats.invoice.charges_list.length > 0"
 			/>
-			<StockDeliveryServiceInvoices v-if="service_invoices && blockIndex === costBlocks.length - 1" :data="service_invoices" />
-			<div v-if="isCostingVisible && blockIndex === costBlocks.length - 1" class="mt-3 flex justify-end">
+			<StockDeliveryServiceInvoices v-if="service_invoices && block.key === 'landed'" :data="service_invoices" />
+			<div v-if="isCostingVisible" class="mt-3 flex justify-end gap-2">
 				<Button
+					v-if="blockIndex === 0"
 					type="tertiary"
 					size="xs"
-					:label="ctrans('Costing')"
-					:icon="costing.agent_invoice_missing || !costing.is_costed ? 'fal fa-exclamation-triangle' : 'fal fa-box-usd'"
-					@click="() => (isCostingOpen = true)"
+					:label="ctrans('Invoice costing')"
+					icon="fal fa-box-usd"
+					@click="() => (costingSection = 'invoice')"
 				/>
-			</div>
-		</BoxStatPallet>
-
-		<BoxStatPallet v-for="n in (2 - costBlocks.length)" :key="`cost-empty-${n}`" class="p-4">
-			<div v-if="isCostingVisible && !costBlocks.length && n === 1" class="mt-3 flex justify-end">
 				<Button
+					v-else-if="block.key === 'landed'"
 					type="tertiary"
 					size="xs"
-					:label="ctrans('Costing')"
-					:icon="costing.agent_invoice_missing || !costing.is_costed ? 'fal fa-exclamation-triangle' : 'fal fa-box-usd'"
-					@click="() => (isCostingOpen = true)"
+					:label="ctrans('Edit landed costs')"
+					icon="fal fa-box-usd"
+					@click="() => (costingSection = 'landed')"
 				/>
 			</div>
 		</BoxStatPallet>
@@ -1027,14 +1112,35 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</template>
 	</Dialog>
 
-	<Dialog v-model:visible="isCostingOpen" modal dismissableMask :header="ctrans('Costing')" :style="{ width: '64rem' }" :breakpoints="{ '1024px': '95vw' }">
+	<Dialog
+		:visible="!!costingSection"
+		modal
+		dismissableMask
+		:closable="false"
+		:style="{ width: '64rem' }"
+		:breakpoints="{ '1024px': '95vw' }"
+		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-0' } }"
+		@update:visible="(visible: boolean) => { if (!visible) costingSection = null }"
+	>
+		<template #header>
+			<div class="flex w-full items-center justify-between gap-3">
+				<span class="text-sm font-semibold text-gray-900">
+					{{ costingSection === "invoice" ? ctrans("Agent or supplier invoice") : ctrans("Landed costs") }}
+				</span>
+				<button type="button" class="text-gray-400 hover:text-gray-700" :aria-label="ctrans('Close')" @click="costingSection = null">
+					<FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+				</button>
+			</div>
+		</template>
 		<StockDeliveryCostingChecklist
+			v-if="costingSection"
+			:section="costingSection"
 			:costing="costing"
 			:canEdit="costing.can_edit"
 			:canEditPayments="costing.can_edit_payments"
 		/>
 		<StockDeliveryInvoiceCosting
-			v-if="!costing.is_partner"
+			v-if="costingSection === 'invoice' && !costing.is_partner"
 			:invoices="invoice_costing"
 			:canEdit="costing.can_edit"
 		/>
@@ -1063,9 +1169,92 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:options="attachmentScopes"
 	/>
 
-	<ConfirmDialog group="stock-delivery">
-		<template #icon>
-			<FontAwesomeIcon :icon="faExclamationTriangle" class="text-xl text-orange-500" fixed-width />
+	<Dialog
+		:visible="!!receiveWithoutCostsAction"
+		modal
+		:closable="false"
+		:style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
+		@update:visible="(visible: boolean) => { if (!visible) receiveWithoutCostsAction = null }"
+	>
+		<template #header>
+			<div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+				<FontAwesomeIcon :icon="faExclamationTriangle" :class="costing.costs_are_users_job ? 'text-red-500' : 'text-amber-500'" fixed-width aria-hidden="true" />
+				{{ costing.costs_are_users_job ? ctrans("Receiving without its costs") : ctrans("Costs not entered yet") }}
+			</div>
+		</template>
+		<div class="space-y-3 text-sm text-gray-700">
+			<p>{{ ctrans("The costs of this delivery have not been entered yet: :costs.", { costs: costing.put_away_blocked.join(", ") }) }}</p>
+			<template v-if="costing.costs_are_users_job">
+				<p>{{ ctrans("Entering the costs before the goods arrive is part of the procurement job. Without them the goods stay in goods-in, can not be put away or sold, and the stock value and margins are wrong until they are in.") }}</p>
+				<p class="font-medium text-red-700">{{ ctrans("Enter the costs, an estimate or not applicable first whenever you can. Receive like this only when it truly can not wait.") }}</p>
+			</template>
+			<p v-else>{{ ctrans("You can receive and count it, but its goods can not be put away until procurement enters the costs, so nothing is sold at the wrong cost.") }}</p>
+			<label class="block">
+				<span class="text-gray-600">{{ ctrans("Why is it being received without its costs?") }}</span>
+				<InputText v-model="receiveReason" class="mt-1 w-full" autofocus maxlength="255" :placeholder="ctrans('e.g. lorry at the door, invoice not sent yet')" />
+			</label>
+			<button
+				v-if="costing.costs_are_users_job"
+				type="button"
+				role="checkbox"
+				:aria-checked="receiveAcknowledged"
+				class="flex items-start gap-2 text-left"
+				@click="receiveAcknowledged = !receiveAcknowledged"
+			>
+				<FontAwesomeIcon :icon="receiveAcknowledged ? 'fas fa-check-square' : 'fal fa-square'" class="mt-0.5 text-lg leading-none" :class="receiveAcknowledged ? 'text-gray-700' : 'text-gray-400'" fixed-width aria-hidden="true" />
+				<span>{{ ctrans("I know these costs should have been entered before receiving, and I will get them in.") }}</span>
+			</button>
+		</div>
+		<template #footer>
+			<div class="flex w-full flex-wrap items-center justify-between gap-3">
+				<p class="max-w-xs text-xs text-gray-500">
+					{{ costing.costs_are_users_job
+						? ctrans("This is recorded under your name in the history of this delivery and reported to the supply chain managers.")
+						: ctrans("Your reason is noted in the history of this delivery and the supply chain team is let know, so they can get the costs in.") }}
+				</p>
+				<div class="flex gap-2">
+					<Button type="tertiary" :label="ctrans('Cancel')" @click="receiveWithoutCostsAction = null">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<Button type="tertiary" :label="costing.costs_are_users_job ? ctrans('Receive anyway') : ctrans('Receive')" :disabled="!canReceiveWithoutCosts" :loading="receiveLoading" @click="receiveStockDelivery(receiveWithoutCostsAction, { reason: receiveReason.trim() })">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</div>
+			</div>
+		</template>
+	</Dialog>
+
+	<ConfirmDialog group="stock-delivery" :style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">
+		<template #container="{ message, acceptCallback, rejectCallback }">
+			<div class="rounded-lg bg-white p-5">
+				<div class="flex items-center gap-2 font-semibold text-gray-900">
+					<FontAwesomeIcon :icon="faExclamationTriangle" class="text-orange-500" fixed-width aria-hidden="true" />
+					{{ message.header }}
+				</div>
+				<p class="mt-3 text-sm text-gray-600">{{ message.message }}</p>
+				<div class="mt-5 flex justify-end gap-2">
+					<Button type="tertiary" :label="message.rejectProps?.label ?? message.rejectLabel ?? ctrans('Cancel')" @click="rejectCallback">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<Button type="tertiary" :label="message.acceptProps?.label ?? message.acceptLabel ?? ctrans('Confirm')" @click="acceptCallback">
+						<template #icon>
+							<FontAwesomeIcon
+								:icon="message.acceptProps?.severity === 'danger' ? 'fal fa-exclamation-triangle' : 'fal fa-check'"
+								:class="message.acceptProps?.severity === 'danger' ? 'text-amber-500' : 'text-green-600'"
+								fixed-width
+								aria-hidden="true"
+							/>
+						</template>
+					</Button>
+				</div>
+			</div>
 		</template>
 	</ConfirmDialog>
 </template>

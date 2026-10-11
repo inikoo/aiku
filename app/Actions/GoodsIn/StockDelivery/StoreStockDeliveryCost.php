@@ -12,6 +12,7 @@ use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithStockDeliveryCostingEditAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\Helpers\Currency;
@@ -31,13 +32,65 @@ class StoreStockDeliveryCost extends OrgAction
     {
         return array_merge(self::serviceInvoiceRules($this->asAction), [
             'type'        => ['required', Rule::enum(StockDeliveryCostTypeEnum::class)],
+            'category'    => ['sometimes', 'nullable', Rule::in(array_column(StockDeliveryServiceInvoiceTypeEnum::extraOptions(), 'value'))],
             'label'       => ['sometimes', 'nullable', 'string', 'max:255'],
             'amount'      => ['sometimes', 'nullable', 'numeric', 'gte:0'],
             'received_at' => ['sometimes', 'nullable', 'date'],
             'is_na'       => ['sometimes', 'boolean'],
             'currency_id' => ['sometimes', 'nullable', 'exists:currencies,id'],
             'exchange'    => ['sometimes', 'nullable', 'numeric', 'gt:0'],
-        ]);
+        ], self::waitingRules());
+    }
+
+    public static function waitingRules(): array
+    {
+        return [
+            'is_waiting_for_invoice'   => ['sometimes', 'boolean'],
+            'invoice_expected_in_days' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:365'],
+        ];
+    }
+
+    /**
+     * A row waits for its invoice until the user says it arrived or marks it not applicable. An amount typed
+     * while it waits is an estimate: it counts in the costing, so the delivery can be costed, and stays flagged
+     * until the real invoice replaces it. The days the user expects the invoice in are kept as a date.
+     */
+    public static function withWaiting(array $modelData, ?StockDeliveryCost $cost = null): array
+    {
+        $hasDays = array_key_exists('invoice_expected_in_days', $modelData);
+        $days    = $modelData['invoice_expected_in_days'] ?? null;
+        unset($modelData['invoice_expected_in_days']);
+
+        if (!empty($modelData['is_na']) || ($modelData['is_waiting_for_invoice'] ?? null) === false) {
+            $retractsEstimate = empty($modelData['is_na']) && $cost?->is_estimate && !array_key_exists('amount', $modelData) && !array_key_exists('received_at', $modelData);
+
+            return array_merge($modelData, ['is_waiting_for_invoice' => false, 'invoice_expected_at' => null, 'is_estimate' => false], $retractsEstimate ? ['received_at' => null] : []);
+        }
+
+        if ($cost?->is_na && !array_key_exists('is_na', $modelData)) {
+            return array_merge($modelData, ['is_waiting_for_invoice' => false]);
+        }
+
+        if (!($modelData['is_waiting_for_invoice'] ?? $cost?->is_waiting_for_invoice)) {
+            return $modelData;
+        }
+
+        if ($hasDays) {
+            $modelData['invoice_expected_at'] = $days === null ? null : now()->addDays((int) $days)->toDateString();
+        }
+
+        $amount                     = array_key_exists('amount', $modelData) ? $modelData['amount'] : $cost?->amount;
+        $modelData['is_estimate']   = $amount !== null;
+
+        if ($amount !== null && !array_key_exists('received_at', $modelData) && !$cost?->received_at) {
+            $modelData['received_at'] = now();
+        }
+
+        if ($amount === null && array_key_exists('amount', $modelData)) {
+            $modelData['received_at'] = null;
+        }
+
+        return $modelData;
     }
 
     /**
@@ -59,6 +112,10 @@ class StoreStockDeliveryCost extends OrgAction
 
         $type = StockDeliveryCostTypeEnum::tryFrom($this->get('type'));
 
+        if (!$this->asAction && $type === StockDeliveryCostTypeEnum::EXTRA && !$this->get('category')) {
+            $validator->errors()->add('category', __('Choose what kind of expense this is'));
+        }
+
         if ($type && $type !== StockDeliveryCostTypeEnum::EXTRA && $this->stockDelivery->costs()->where('type', $type)->exists()) {
             $validator->errors()->add('type', __('This cost is already recorded in this stock delivery'));
         }
@@ -67,7 +124,7 @@ class StoreStockDeliveryCost extends OrgAction
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDeliveryCost
     {
         $cost = $stockDelivery->costs()->create(
-            array_merge(self::withExchange($stockDelivery, $modelData), [
+            array_merge(self::withExchange($stockDelivery, self::withWaiting($modelData)), [
                 'group_id'        => $stockDelivery->group_id,
                 'organisation_id' => $stockDelivery->organisation_id,
             ])

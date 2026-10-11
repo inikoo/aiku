@@ -9,6 +9,8 @@
 namespace App\Actions\SysAdmin\McpChange;
 
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
@@ -48,6 +50,7 @@ class GetMcpChangeSnapshot
             McpChangeTypeEnum::PRODUCTION_RECIPE => $this->productionRecipes($target),
             McpChangeTypeEnum::PLACED_ORDER => $this->placedOrder($target),
             McpChangeTypeEnum::MASTER_PRICES => $this->masterPrices($target),
+            McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->stockDeliveryCosts($target),
         };
     }
 
@@ -86,6 +89,31 @@ class GetMcpChangeSnapshot
                     ->map(fn (array $price, string $currencyCode) => $currencyCode.' '.$price['value'])
                     ->implode(', '))
                 ->implode('; ');
+        }
+
+        if ($type === McpChangeTypeEnum::STOCK_DELIVERY_COSTS) {
+            $deliveryCurrency = DB::table('stock_deliveries')
+                ->join('currencies', 'currencies.id', '=', 'stock_deliveries.currency_id')
+                ->where('stock_deliveries.id', $target['stock_delivery_id'])
+                ->value('currencies.code');
+            $currencyCodes    = DB::table('currencies')->pluck('code', 'id');
+
+            return collect($snapshot['costs'])
+                ->map(function (array $cost) use ($deliveryCurrency, $currencyCodes) {
+                    $name = $cost['type'] === 'extra' && $cost['category']
+                        ? (StockDeliveryServiceInvoiceTypeEnum::labels()[$cost['category']] ?? $cost['category'])
+                        : (StockDeliveryCostTypeEnum::labels()[$cost['type']] ?? $cost['type']);
+
+                    $value = match (true) {
+                        $cost['is_na']             => 'n/a',
+                        $cost['amount'] !== null   => number_format((float) $cost['amount'], 2, '.', '').' '.($currencyCodes[$cost['currency_id']] ?? $deliveryCurrency).($cost['is_estimate'] ? ' (estimate)' : ''),
+                        $cost['is_waiting_for_invoice'] => 'waiting for the invoice',
+                        default                    => 'not set',
+                    };
+
+                    return $name.' '.$value;
+                })
+                ->implode('; ') ?: 'no costs';
         }
 
         if ($type === McpChangeTypeEnum::PRODUCTION_RECORD) {
@@ -129,6 +157,35 @@ class GetMcpChangeSnapshot
                     ->map(fn ($price) => ['value' => (string) (float) ($price['value'] ?? 0), 'independent' => (bool) ($price['independent'] ?? false)])
                     ->sortKeys()
                     ->all())
+                ->all(),
+        ];
+    }
+
+    /**
+     * Every live cost row of the delivery, so a revert puts back exactly the rows and fields that were there.
+     */
+    private function stockDeliveryCosts(array $target): array
+    {
+        return [
+            'costs' => DB::table('stock_delivery_costs')
+                ->where('stock_delivery_id', $target['stock_delivery_id'])
+                ->whereNull('deleted_at')
+                ->orderBy('id')
+                ->get(['id', 'type', 'category', 'label', 'amount', 'currency_id', 'exchange', 'is_na', 'received_at', 'is_waiting_for_invoice', 'invoice_expected_at', 'is_estimate'])
+                ->mapWithKeys(fn (object $cost) => [$cost->id => [
+                    'id'                     => $cost->id,
+                    'type'                   => $cost->type,
+                    'category'               => $cost->category,
+                    'label'                  => $cost->label,
+                    'amount'                 => $cost->amount !== null ? (string) (float) $cost->amount : null,
+                    'currency_id'            => $cost->currency_id,
+                    'exchange'               => $cost->exchange !== null ? (string) (float) $cost->exchange : null,
+                    'is_na'                  => (bool) $cost->is_na,
+                    'received_at'            => $cost->received_at,
+                    'is_waiting_for_invoice' => (bool) $cost->is_waiting_for_invoice,
+                    'invoice_expected_at'    => $cost->invoice_expected_at,
+                    'is_estimate'            => (bool) $cost->is_estimate,
+                ]])
                 ->all(),
         ];
     }

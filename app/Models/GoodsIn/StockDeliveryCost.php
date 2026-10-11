@@ -9,10 +9,16 @@
 namespace App\Models\GoodsIn;
 
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\Helpers\Currency;
+use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 
 /**
  * @property int $id
@@ -27,13 +33,39 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $currency_id
  * @property numeric|null $exchange
  * @property bool $from_service_invoices
+ * @property StockDeliveryServiceInvoiceTypeEnum|null $category
+ * @property bool $is_waiting_for_invoice
+ * @property bool $is_estimate
+ * @property \Illuminate\Support\Carbon|null $invoice_expected_at
  * @property int|null $stock_delivery_service_invoice_id
  * @property-read Currency|null $currency
  * @property-read StockDelivery $stockDelivery
  */
-class StockDeliveryCost extends Model
+class StockDeliveryCost extends Model implements HasMedia, Auditable
 {
     use InOrganisation;
+    use HasAttachments;
+    use HasHistory;
+    use SoftDeletes;
+
+    protected array $auditInclude = [
+        'type',
+        'category',
+        'label',
+        'amount',
+        'currency_id',
+        'exchange',
+        'is_na',
+        'received_at',
+        'is_waiting_for_invoice',
+        'invoice_expected_at',
+        'is_estimate',
+    ];
+
+    public function generateTags(): array
+    {
+        return ['procurement'];
+    }
 
     protected $guarded = [];
 
@@ -42,7 +74,16 @@ class StockDeliveryCost extends Model
         'received_at' => 'datetime',
         'is_na'       => 'boolean',
         'from_service_invoices' => 'boolean',
+        'is_waiting_for_invoice' => 'boolean',
+        'is_estimate'            => 'boolean',
+        'category'               => StockDeliveryServiceInvoiceTypeEnum::class,
+        'invoice_expected_at'    => 'date',
     ];
+
+    public function serviceInvoice(): BelongsTo
+    {
+        return $this->belongsTo(StockDeliveryServiceInvoice::class, 'stock_delivery_service_invoice_id');
+    }
 
     public function stockDelivery(): BelongsTo
     {
@@ -52,6 +93,25 @@ class StockDeliveryCost extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function waitingLabel(): ?string
+    {
+        if (!$this->is_waiting_for_invoice) {
+            return null;
+        }
+
+        if (!$this->invoice_expected_at) {
+            return __('Waiting for the invoice');
+        }
+
+        $days = (int) today()->diffInDays($this->invoice_expected_at, false);
+
+        return match (true) {
+            $days < 0   => trans_choice('Invoice :count day late|Invoice :count days late', -$days, ['count' => -$days]),
+            $days === 0 => __('Invoice expected today'),
+            default     => trans_choice('Invoice expected in :count day|Invoice expected in :count days', $days, ['count' => $days]),
+        };
     }
 
     public function amountInDeliveryCurrency(): float

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ServiceInvoiceTypeChip from "@/Components/Procurement/ServiceInvoiceTypeChip.vue"
 import { computed, ref, watch } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { debounce } from "lodash-es"
@@ -137,7 +138,7 @@ const pageTotal = computed(() => props.data.data.reduce((sum, row) => sum + row.
 					<tbody class="divide-y divide-gray-100">
 						<tr v-for="row in data.data" :key="row.id" class="hover:bg-gray-50">
 							<td class="whitespace-nowrap px-4 py-2.5 text-gray-500">{{ useFormatTime(row.date) }}</td>
-							<td class="px-4 py-2.5"><span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.type_label }}</span></td>
+							<td class="px-4 py-2.5"><ServiceInvoiceTypeChip :type="row.type" :label="row.type_label" /></td>
 							<td class="px-4 py-2.5 text-gray-900">{{ row.issuer }}</td>
 							<td class="px-4 py-2.5 text-gray-700">
 								{{ row.reference ?? "—" }}

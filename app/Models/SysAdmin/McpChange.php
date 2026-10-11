@@ -9,9 +9,11 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
+use App\Models\GoodsIn\StockDelivery;
 use App\Models\Production\Production;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Arr;
 
 /**
  * Every change an AI assistant makes through the MCP, with the state before and after, so it
@@ -85,6 +87,17 @@ class McpChange extends Model
 
         if ($this->type === McpChangeTypeEnum::MASTER_PRICES) {
             return $user->authTo('masters.edit');
+        }
+
+        if ($this->type === McpChangeTypeEnum::STOCK_DELIVERY_COSTS) {
+            $organisationId = data_get($this->data, 'organisation_id');
+            $stockDelivery  = StockDelivery::find(data_get($this->data, 'target.stock_delivery_id'));
+
+            if ($organisationId && Arr::has($stockDelivery?->data ?? [], 'costing_reopened')) {
+                return $user->authTo("org-supervisor.$organisationId.accounting");
+            }
+
+            return $organisationId && $user->authTo(["procurement.$organisationId.edit", "accounting.$organisationId.edit"]);
         }
 
         $productionId = data_get($this->data, 'target.production_id');
