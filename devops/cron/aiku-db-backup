@@ -1,0 +1,62 @@
+# Nightly dump of the aiku production database (INI-071). Two hosts: helio makes
+# the dump; boro checks every day that one arrived, so a dead helio or a dead cron
+# is noticed too, and puts an encrypted copy of .env and the OAuth keys on the
+# storage box for helio to send to R2 with the dump.
+#
+# On BOTH hosts (root):
+#     install -m 755 devops/postgres/aiku-db-backup.sh /usr/local/bin/aiku-db-backup
+#     /usr/local/bin/aiku-db-backup --self-test     # logic, no side effects
+#     /usr/local/bin/aiku-db-backup --test          # posts ONE real Discord message
+#
+# On HELIO, keep only the first schedule line; on BORO the other two:
+#     install -m 644 devops/cron/aiku-db-backup /etc/cron.d/aiku-db-backup
+#
+# The dump is read from the delayed replica (port 5435, devops/postgres/helio-delayed.conf),
+# so it puts no load on boro or litio and holds the data as it was 12 hours earlier.
+# It is written to /var/lib/postgresql/backups first (the newest one stays there for a
+# fast restore), then copied to /sel/aiku/db on the storage box: 7 daily and 4 weekly
+# (Sunday) dumps, each with the roles in a .globals.sql and its checksum in a
+# .sha256 beside it. The copy on the storage box is read back and compared with the
+# original before it counts. The same files and the same rotation go to Cloudflare
+# R2, so one copy sits outside Hetzner.
+#
+# R2 (helio only): a bucket of its own, private, and an API token limited to that
+# bucket with Object Read & Write, never the app's token. Then, as root:
+#     apt install rclone
+#     rclone config create r2 s3 provider=Cloudflare access_key_id=... secret_access_key=... \
+#         endpoint=https://<account id>.eu.r2.cloudflarestorage.com
+# and keep the AIKU_BACKUP_R2 line below. Without it the R2 copy is skipped.
+# The bucket is in the EU jurisdiction, hence ".eu." in the endpoint; the plain
+# endpoint does not see it. It carries a 7 day lock (no delete, no overwrite, for
+# any token), so the oldest daily is sometimes removed a night late.
+#
+# .env and the OAuth keys (boro only) are encrypted with a public key, so no server
+# can open the copies. The private key is kept off the servers, by Raul:
+#     gpg --quick-generate-key aiku-backup default default never
+#     gpg --export aiku-backup > aiku-backup.pub                       # goes to /etc/aiku-backup.pub on boro
+#     gpg --export-secret-keys --armor aiku-backup                     # into the password manager
+# To open a copy:  gpg --decrypt aiku-secrets-YYYY-MM-DD.tar.gpg | tar -xf -
+# Without APP_KEY from that .env the columns the app encrypts cannot be read from a dump.
+#
+# This replaces only the database part of /home/inikoo/backup_aiku.sh, which
+# /etc/crontab on boro runs at 03:30 and which overwrites one aiku.dump every night.
+# Once this has run a few nights, take the pg_dump and cp lines out of that script
+# and leave the rest: it also copies media, storage/app and the OAuth keys.
+#
+# Restore, onto an empty database (first: sha256sum -c aiku-YYYY-MM-DD.dump.sha256):
+#     psql -f aiku-YYYY-MM-DD.globals.sql postgres
+#     createdb -O aiku aiku && pg_restore -j 8 -d aiku aiku-YYYY-MM-DD.dump
+#
+# The clocks differ: helio is on Europe/Berlin and starts at 01:30 there (07:30 on
+# boro, Asia/Kuala_Lumpur); boro checks at 12:00 its own time, 4.5 hours later.
+#
+# Override per host as lines above the schedule. Helio has no production .env and
+# its staging .env has no DISCORD_WEBHOOK_URL, so on helio put that one line in
+# /etc/aiku-alerts.env (root, mode 600) and keep the override below; on boro delete
+# it. The same file fixes helio's disk alert: add DISK_ALERT_ENV_FILE=/etc/aiku-alerts.env
+# to /etc/cron.d/disk-alert there, which today reads a path that does not exist.
+AIKU_BACKUP_ENV_FILE=/etc/aiku-alerts.env
+AIKU_BACKUP_R2=r2:aiku-db-backups
+30 1 * * * root /usr/local/bin/aiku-db-backup
+0 12 * * * root /usr/local/bin/aiku-db-backup --check
+0 3 * * * root /usr/local/bin/aiku-db-backup --secrets
