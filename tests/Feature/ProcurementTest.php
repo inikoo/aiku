@@ -9067,6 +9067,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Drafts to send', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9142,16 +9143,41 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
 
         $result = $prepare->handle($this->orgAgent, null, ['out']);
 
-        $item = ShoppingListItem::where('org_supplier_product_id', $orgSupplierProduct->id)->latest('id')->firstOrFail();
-        $purchaseOrder = App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->purchase_order_transaction_id)->purchaseOrder;
+        $line          = App\Models\Procurement\PurchaseOrderTransaction::where('org_supplier_product_id', $orgSupplierProduct->id)->latest('id')->firstOrFail();
+        $purchaseOrder = $line->purchaseOrder;
 
         expect($result['added'])->toBeGreaterThanOrEqual(1)
             ->and($result['purchase_orders'])->toBeGreaterThanOrEqual(1)
-            ->and($item->state)->toBe(ShoppingListItemStateEnum::ORDERED)
+            ->and((float) $line->quantity_ordered)->toBe(100.0)
+            ->and(ShoppingListItem::where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
             ->and($purchaseOrder->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS)
             ->and($purchaseOrder->parent_type)->toBe('OrgSupplier')
             ->and($purchaseOrder->parent_id)->toBe($orgSupplier->id)
             ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+
+        $setLine = App\Actions\Procurement\OrgAgent\SetAgentDraftLine::make();
+        App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend::make()->handle($purchaseOrder, true, 'tester');
+
+        $this->post(route('grp.org.procurement.org_agents.show.shopping.drafts.line', [$this->organisation->slug, $this->orgAgent->slug, $orgSupplierProduct->id]), ['quantity_units' => 300])
+            ->assertSessionHasNoErrors();
+
+        expect((float) $line->fresh()->quantity_ordered)->toBe(300.0)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(1)
+            ->and($purchaseOrder->fresh()->data)->not->toHaveKey('ready_to_send');
+
+        expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
+
+        $item = StoreShoppingListItem::make()->action($orgSupplierProduct, ['quantity_units' => 200]);
+
+        expect(App\Actions\Procurement\OrgAgent\MoveAgentShoppingListsToDrafts::make()->handle($this->orgAgent->agent, dryRun: true)['picked'])->toBeGreaterThanOrEqual(1)
+            ->and($item->fresh()->state)->toBe(ShoppingListItemStateEnum::OPEN);
+
+        App\Actions\Procurement\OrgAgent\MoveAgentShoppingListsToDrafts::make()->handle($this->orgAgent->agent);
+
+        expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
+            ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
     } finally {
         $orgStock->update($orgStockBefore);
     }
@@ -9302,7 +9328,8 @@ test('UI agent cover bucket items index', function () {
             ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => array_key_exists('image', $item)))
             ->has('miniCart.items')
             ->has('miniCart.count')
-            ->where('miniCart.listRoute.name', 'grp.org.procurement.shopping_list.index')
+            ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
+            ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
             ->has('addRoute.name');
     });
 });

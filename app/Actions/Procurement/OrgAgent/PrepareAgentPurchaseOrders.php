@@ -9,8 +9,6 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\ShoppingListItem\CherryPickShoppingListItems;
-use App\Actions\Procurement\ShoppingListItem\StoreShoppingListItem;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -21,6 +19,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PrepareAgentPurchaseOrders extends OrgAction
 {
@@ -65,7 +64,8 @@ class PrepareAgentPurchaseOrders extends OrgAction
 
             $spent            = 0.0;
             $skippedForBudget = 0;
-            $picks            = [];
+            $skipped          = 0;
+            $purchaseOrderIds = [];
 
             foreach ($lines as $line) {
                 if (!$orgSupplierProduct = $orgSupplierProducts->get($line['org_supplier_product_id'])) {
@@ -83,22 +83,24 @@ class PrepareAgentPurchaseOrders extends OrgAction
                     }
                 }
 
-                $picks[] = ['id' => StoreShoppingListItem::make()->action($orgSupplierProduct, ['quantity_units' => $line['quantity_units']])->id];
-                $spent += $line['cost'];
+                try {
+                    $purchaseOrderIds[] = SetAgentDraftLine::make()->handle($orgAgent, $orgSupplierProduct, (float) $line['quantity_units'])->purchase_order_id;
+                    $spent += $line['cost'];
+                } catch (ValidationException|HttpException) {
+                    $skipped++;
+                }
             }
 
-            if (!$picks) {
+            if (!$purchaseOrderIds) {
                 $fail($skippedForBudget
                     ? __('Nothing fits in a budget of :amount', ['amount' => $orgAgent->organisation->currency->code.' '.number_format($budget, 2)])
                     : __('Nothing to order from :agent right now', ['agent' => $orgAgent->agent->name]));
             }
 
-            $result = CherryPickShoppingListItems::make()->action($orgAgent->agent, $picks);
-
             return [
-                'added'           => $result['picked'],
-                'purchase_orders' => count($result['purchase_orders']),
-                'skipped'         => count($result['skipped']),
+                'added'           => count($purchaseOrderIds),
+                'purchase_orders' => count(array_unique($purchaseOrderIds)),
+                'skipped'         => $skipped,
             ];
         });
     }
@@ -180,7 +182,7 @@ class PrepareAgentPurchaseOrders extends OrgAction
         ])->with('notification', [
             'status'  => $result['skipped'] ? 'warning' : 'success',
             'title'   => __('Draft purchase orders'),
-            'message' => __(':lines lines on :orders draft purchase orders, :skipped could not be placed and stay on the shopping list', [
+            'message' => __(':lines lines on :orders draft purchase orders, :skipped could not be placed', [
                 'lines'   => $result['added'],
                 'orders'  => $result['purchase_orders'],
                 'skipped' => $result['skipped'],

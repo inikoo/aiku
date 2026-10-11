@@ -34,7 +34,6 @@ type BucketItem = {
     minimum_carton_order: number | null
     cost: number | null
     currency: string | null
-    shopping_list_item_id: number | null
     ordered_quantity: number
 }
 
@@ -122,22 +121,7 @@ function commit(item: BucketItem) {
         onSuccess: () => { delete cartons.value[item.id] },
     }
 
-    const organisation = route().params["organisation"]
-    const quantityUnits = quantity * unitsPerCarton(item)
-
-    if (item.shopping_list_item_id) {
-        if (quantity <= 0) {
-            router.delete(route("grp.org.procurement.shopping_list.destroy", [organisation, item.shopping_list_item_id]), reloadOptions)
-        } else {
-            router.patch(
-                route("grp.org.procurement.shopping_list.update", [organisation, item.shopping_list_item_id]),
-                { quantity_units: quantityUnits },
-                reloadOptions
-            )
-        }
-    } else if (quantity > 0) {
-        router.post(route(props.addRoute.name, [...props.addRoute.parameters, item.slug]), { quantity_units: quantityUnits }, reloadOptions)
-    }
+    router.post(route(props.addRoute.name, [...props.addRoute.parameters, item.id]), { quantity_units: quantity * unitsPerCarton(item) }, reloadOptions)
 }
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)

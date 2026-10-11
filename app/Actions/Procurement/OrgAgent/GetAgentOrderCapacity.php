@@ -149,6 +149,20 @@ class GetAgentOrderCapacity
                 coalesce(sum(sli.quantity_units * coalesce(sp.cost, 0)), 0) as total')
             ->get();
 
+        $drafts = DB::table('purchase_order_transactions as pot')
+            ->join('purchase_orders as po', 'po.id', 'pot.purchase_order_id')
+            ->where('po.organisation_id', $orgAgent->organisation_id)
+            ->where('po.agent_id', $orgAgent->agent_id)
+            ->where('po.parent_type', 'OrgSupplier')
+            ->where('po.state', PurchaseOrderStateEnum::IN_PROCESS->value)
+            ->whereNull('po.deleted_at')
+            ->whereNull('pot.deleted_at')
+            ->groupBy('po.currency_id')
+            ->selectRaw('po.currency_id, count(*) as lines, coalesce(sum(pot.quantity_ordered), 0) as units, coalesce(sum(pot.net_amount), 0) as total')
+            ->get();
+
+        $rows = $rows->concat($drafts);
+
         return [
             'value' => round($this->toOrganisationCurrency($orgAgent, $rows), 2),
             'lines' => (int) $rows->sum('lines'),
