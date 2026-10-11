@@ -467,7 +467,7 @@ class GenerateMasterAssetPriceTips
                     ->take(5)
                     ->map(fn ($row) => [
                         'product'        => $row->code,
-                        'tip'            => $row->kind ? (MasterAssetPriceTipKindEnum::labels()[$row->kind] ?? $row->kind) : sprintf('%+d%%', $row->change),
+                        'tip'            => $row->kind ? (MasterAssetPriceTipKindEnum::labels()[$row->kind] ?? $row->kind) : ($row->change ? sprintf('%+d%%', $row->change) : null),
                         'why_wrong'      => $row->dismissed_reason,
                         'date'           => Carbon::parse($row->dismissed_at)->toDateString(),
                     ])
