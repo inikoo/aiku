@@ -9,7 +9,7 @@ import { faCopy, faEyeDropper, faEyeSlash, faFilePdf, faImage, faPlus, faTags, f
 import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
 
@@ -1475,7 +1475,7 @@ const describeFailure = async (error: any): Promise<string> => {
                     :role="isGridValid ? 'status' : 'alert'"
                     aria-live="polite">
                     <span v-if="isGridValid">
-                        {{ columns * rows }} {{ ctrans("labels") }} ·
+                        {{ ctransChoice(":count label|:count labels", columns * rows) }} ·
                         {{ labelWidth.toFixed(1) }} × {{ labelHeight.toFixed(1) }} mm
                     </span>
                     <span v-else class="text-red-600">

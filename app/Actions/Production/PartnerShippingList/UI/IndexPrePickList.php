@@ -209,7 +209,7 @@ class IndexPrePickList extends OrgAction
         return function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->withLabelRecord([__('Line'), __('Lines')])
+                ->withLabelRecord([__('line'), __('lines')])
                 ->withEmptyState([
                     'title' => __('Nothing can be pre-picked'),
                     'description' => __('A line shows up here when there is stock to send to the partner gathering location'),

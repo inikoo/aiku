@@ -240,7 +240,7 @@ class GetChatShopFacts
 
         return Product::where('shop_id', $shop->id)->whereIn('code', $codes)->get()
             ->map(fn (Product $product) => $product->code.' '.$product->name.': '.$this->money($shop, (float) $product->price)
-                .((float) $product->units > 1 ? ' '.__('for').' '.(float) $product->units.' '.($product->unit ?: __('units')) : '').' '.__('before VAT'))
+                .((float) $product->units > 1 ? ' '.($product->unit ? __('for').' '.(float) $product->units.' '.$product->unit : trans_choice('for :count unit|for :count units', (float) $product->units)) : '').' '.__('before VAT'))
             ->all();
     }
 

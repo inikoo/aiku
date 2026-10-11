@@ -14,7 +14,7 @@ import PartnerMiniShoppingList from "@/Components/Procurement/PartnerMiniShoppin
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { faThLarge, faList } from "@fal"
 
@@ -223,7 +223,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                 </button>
                             </div>
                             <div v-if="cartonsFor(item)" class="mt-1 flex items-baseline justify-between text-xs tabular-nums text-gray-500">
-                                <span>{{ locale.number(cartonsFor(item) * unitsPerCarton(item)) }} {{ ctrans("units") }}</span>
+                                <span>{{ ctransChoice(":number unit|:number units", cartonsFor(item) * unitsPerCarton(item), { number: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}</span>
                                 <b v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</b>
                             </div>
                         </div>
@@ -304,7 +304,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                     </button>
                                 </div>
                                 <div v-if="cartonsFor(item)" class="mt-1 text-right text-[10px] tabular-nums text-gray-400">
-                                    {{ locale.number(cartonsFor(item) * unitsPerCarton(item)) }} {{ ctrans("units") }}
+                                    {{ ctransChoice(":number unit|:number units", cartonsFor(item) * unitsPerCarton(item), { number: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}
                                 </div>
                             </td>
                             <td class="whitespace-nowrap px-4 py-2 text-right align-top tabular-nums">

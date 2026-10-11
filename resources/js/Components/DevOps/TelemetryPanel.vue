@@ -117,7 +117,7 @@ const cards = computed(() => {
             legend: [[ctrans("Handled"), sum(telemetry.exceptions, "handled"), "bg-emerald-500"], [ctrans("Unhandled"), sum(telemetry.exceptions, "unhandled"), "bg-rose-600"]],
         },
         {
-            title: ctrans("Jobs"), total: sum(telemetry.jobs, "calls"), chart: bars(telemetry.jobs, [["processed", ctrans("Processed"), "#94a3b8"], ["released", ctrans("Released"), "#f59e0b"], ["failed", ctrans("Failed"), "#e11d48"]]),
+            title: ctrans("Queue jobs"), total: sum(telemetry.jobs, "calls"), chart: bars(telemetry.jobs, [["processed", ctrans("Processed"), "#94a3b8"], ["released", ctrans("Released"), "#f59e0b"], ["failed", ctrans("Failed"), "#e11d48"]]),
             legend: [[ctrans("Processed"), sum(telemetry.jobs, "processed"), "bg-slate-400"], [ctrans("Released"), sum(telemetry.jobs, "released"), "bg-amber-500"], [ctrans("Failed"), sum(telemetry.jobs, "failed"), "bg-rose-600"]],
         },
     ]
@@ -145,7 +145,7 @@ const tables = computed<Record<TableKey, string>>(() => ({
     slowCommands: ctrans("Slowest commands (last day)"),
     routes: ctrans("Routes"),
     queries: ctrans("Queries"),
-    jobClasses: ctrans("Jobs"),
+    jobClasses: ctrans("Queue jobs"),
     commands: ctrans("Commands"),
     scheduledTasks: ctrans("Scheduled tasks"),
     outgoing: ctrans("Outgoing HTTP"),

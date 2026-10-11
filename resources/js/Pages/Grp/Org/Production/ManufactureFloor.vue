@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { ctrans } from '@/Composables/useTrans'
+import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import ManufactureWorkingCard from '@/Components/ManufactureWorkingCard.vue'
@@ -238,7 +238,7 @@ function formatWorked(seconds: number) {
 }
 
 function stepStatus(step: FloorStep) {
-    const units = `${step.quantity_made}/${step.quantity_required} ${ctrans('units')}`
+    const units = ctransChoice(':progress unit|:progress units', step.quantity_required, { progress: `${step.quantity_made}/${step.quantity_required}` })
     if (step.state == 'done') {
         return [ctrans('Done'), units, formatWorked(step.seconds), step.worked_by.join(', ')].filter(Boolean).join(' · ')
     }

@@ -11,7 +11,7 @@ import DatePicker from "primevue/datepicker"
 import Select from "primevue/select"
 import Checkbox from "primevue/checkbox"
 import InputText from "primevue/inputtext"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
@@ -246,7 +246,7 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                 <div class="flex items-center gap-6 text-sm text-gray-600 tabular-nums">
                     <span>{{ artisan.number_sessions }} {{ ctrans('tasks') }}</span>
                     <span>{{ artisan.hours_worked }} h</span>
-                    <span>{{ artisan.quantity_made }} {{ ctrans('units') }}</span>
+                    <span>{{ ctransChoice(':count unit|:count units', artisan.quantity_made) }}</span>
                     <span v-if="artisan.quantity_rejected" class="text-red-500">{{ artisan.quantity_rejected }} {{ ctrans('rejected') }}</span>
                     <span v-if="artisan.non_productive.hours" class="text-gray-500">{{ activitySummary(artisan.non_productive) }}</span>
                     <span v-if="artisan.under_target_open" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">

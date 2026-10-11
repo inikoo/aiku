@@ -505,7 +505,7 @@ const closeRejectModal = () => {
 
 			<div class="mt-6 flex justify-end gap-2">
 				<Button @click="isRecordModalOpen = false" :label="ctrans('Cancel')" type="tertiary" />
-				<Button type="save" nativeType="submit" :label="ctrans('Record')" :loading="recordForm.processing" />
+				<Button type="save" nativeType="submit" :label="ctrans('Record leave')" :loading="recordForm.processing" />
 			</div>
 		</form>
 	</Modal>

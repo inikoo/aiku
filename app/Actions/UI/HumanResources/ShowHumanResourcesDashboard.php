@@ -169,7 +169,7 @@ class ShowHumanResourcesDashboard extends OrgAction
                     [
                         'key'   => 'present',
                         'route' => $showRoute('present'),
-                        'name'  => $isToday ? __('Present today') : __('Present'),
+                        'name'  => $isToday ? __('Present today') : __('Staff present'),
                         'stat'  => $presentCount,
                         'color' => 'green',
                         'icon'  => ['fal', 'fa-user-check'],

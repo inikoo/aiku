@@ -42,8 +42,7 @@ const amnestyUntil = computed<string>(
         aria-label="Gold Reward Offer Label"
     >
         <div class="gr-title">
-            <span>{{ ctrans('Gold') }}</span>
-            <span>{{ ctrans('Reward') }}</span>
+            <span v-for="word in ctrans('Gold Reward').split(' ')" :key="word">{{ word }}</span>
 
             <img
                 v-if="isActive"

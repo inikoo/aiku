@@ -4,7 +4,7 @@
  * Github: https://github.com/aqordeon
  * Copyright: 2026
 */
-import { trans } from 'laravel-vue-i18n'
+import { trans, transChoice } from 'laravel-vue-i18n'
 import { ReplacementsInterface } from 'laravel-vue-i18n/interfaces/replacements'
 
 // Method: Custom Translation function that falls back to the original text if translation is not found
@@ -29,4 +29,15 @@ export const ctrans = (text: string, replacements: ReplacementsInterface = {}) =
 
         return text
     }
+}
+
+export const ctransChoice = (text: string, count: number | string, replacements: ReplacementsInterface = {}) => {
+    const number = Number(count)
+    const translation = trans(text)
+
+    if (translation && translation !== text) {
+        return transChoice(text, number, { ...replacements })
+    }
+
+    return ctrans(text.split('|')[number === 1 ? 0 : 1] ?? text, { ...replacements, count: number })
 }

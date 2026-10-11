@@ -79,7 +79,7 @@ function addSupplier(supplier: AssignableSupplier, closeModal: () => void) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(agent_code)="{ item: supplier }">
-            {{ supplier.agent_code ?? ctrans("Free") }}
+            {{ supplier.agent_code ?? ctrans("No agent") }}
         </template>
         <template #cell(location)="{ item: supplier }">
             <AddressLocation :data="supplier.location" />

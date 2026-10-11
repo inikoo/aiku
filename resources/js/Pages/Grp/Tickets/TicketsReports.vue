@@ -8,7 +8,7 @@
 import { ticketRoute, ticketsRoute, ticketsRouteObject } from "@/Composables/useTicketsRoute"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { capitalize } from "@/Composables/capitalize"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
@@ -378,7 +378,7 @@ const donutOptions = {
             padding: 10,
             boxPadding: 6,
             callbacks: {
-                label: (item: { raw: number }) => `${item.raw} ${item.raw === 1 ? ctrans("ticket") : ctrans("tickets")}`,
+                label: (item: { raw: number }) => ctransChoice(":count ticket|:count tickets", item.raw),
             },
         },
     },

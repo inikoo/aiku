@@ -131,7 +131,7 @@ class IndexEmployeeContracts extends OrgAction
                             ->get(['id', 'start_date', 'end_date', 'annual_leave_days'])
                             ->map(fn (EmployeeContract $c) => [
                                 'id'                => $c->id,
-                                'label'             => $c->start_date->format('d M Y').' – '.($c->end_date?->format('d M Y') ?? __('Present')),
+                                'label'             => $c->start_date->format('d M Y').' – '.($c->end_date?->format('d M Y') ?? __('Present day')),
                                 'annual_leave_days' => $c->annual_leave_days,
                             ]),
                     ],

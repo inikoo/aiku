@@ -200,7 +200,7 @@ const canGiveQaVerdict = computed(() => isReadyForQa.value && props.can_qa && !p
 const canSkipQa = computed(() => canGiveQaVerdict.value && !props.ticket.qa_requested_at)
 
 const qaVerdictCopy = computed(() => ({
-    passed: { header: ctrans("QA passed"), prompt: ctrans("What did you check?"), placeholder: ctrans("e.g. tried it on the SK shop with three orders, all fine"), label: ctrans("Pass"), icon: "fal fa-shield-check", type: "primary" },
+    passed: { header: ctrans("QA passed"), prompt: ctrans("What did you check?"), placeholder: ctrans("e.g. tried it on the SK shop with three orders, all fine"), label: ctrans("Pass QA"), icon: "fal fa-shield-check", type: "primary" },
     failed: { header: ctrans("QA failed"), prompt: ctrans("What is still wrong?"), placeholder: ctrans("e.g. the total is still wrong when the order has a voucher"), label: ctrans("Fail"), icon: "fal fa-shield", type: "negative" },
     skipped: { header: ctrans("QA skipped"), prompt: ctrans("Why does this not need a QA check?"), placeholder: ctrans("e.g. copy change only, nothing to test"), label: ctrans("Skip"), icon: "fal fa-forward", type: "secondary" },
 }[qaVerdict.value]))

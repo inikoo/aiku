@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head, Link } from "@inertiajs/vue3"
 import { capitalize } from "@/Composables/capitalize"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { faFileAlt, faComments, faAbacus, faBooks, faUsers, faStore, faUserHardHat, faIndustry, faShippingFast, faBullhorn, faShoppingCart, faWarehouse, faUserCircle, faClipboardList } from "@fal"
@@ -94,7 +94,7 @@ const sparklinePoints = computed(() => {
             </div>
             <div class="mt-2 flex items-baseline gap-3">
                 <span class="text-sm">{{ publicSiteVisits.visitors }} {{ ctrans("visitors") }}</span>
-                <span class="text-xs text-gray-500">{{ publicSiteVisits.views }} {{ ctrans("views") }}</span>
+                <span class="text-xs text-gray-500">{{ ctransChoice(":count view|:count views", publicSiteVisits.views) }}</span>
             </div>
             <svg v-if="sparklinePoints" viewBox="0 0 100 28" class="mt-2 h-7 w-full" preserveAspectRatio="none">
                 <polyline :points="sparklinePoints" fill="none" stroke="currentColor" stroke-width="1.5" class="text-indigo-500" />
