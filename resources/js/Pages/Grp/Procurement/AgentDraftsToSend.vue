@@ -97,7 +97,7 @@ const changeView = (view: string) => {
 const MINIMUM_REASON_LENGTH = 10
 
 const locale = useLocaleStore()
-const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_textarea:focus]:!border-[--app-accent]"
+const fieldFocusClass = "[&.p-focus]:!border-gray-500 [&_textarea:focus]:!border-gray-500"
 
 const money = (card: Card, amount: number) => (card.currency ? locale.currencyFormat(card.currency, amount) : locale.number(amount))
 const volume = (cbm: number | null) => (cbm === null ? "—" : `${locale.number(cbm)} m³`)
@@ -172,6 +172,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
             <Button
                 v-if="canSend && agreedCards.length"
                 :label="ctrans('Send all agreed (:count)', { count: agreedCards.length })"
+                type="tertiary"
                 icon="fal fa-paper-plane"
                 :loading="isSending"
                 @click="send(agreedCards.map((card) => card.supplier_id))"
@@ -226,7 +227,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <tr v-for="part in card.parts" :key="part.purchase_order_id" :class="{ 'bg-[--app-accent-soft]': part.is_ours }">
+                        <tr v-for="part in card.parts" :key="part.purchase_order_id" :class="{ 'bg-gray-100': part.is_ours }">
                             <td class="py-2 pl-4 pr-2">
                                 <span v-tooltip="part.organisation_name" class="font-medium text-gray-800">{{ part.organisation_code }}</span>
                                 <Link v-if="part.url" :href="part.url" class="ml-1.5 text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ part.reference }}</Link>
@@ -293,7 +294,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                         </td>
                     </tr>
                     <template v-for="part in card.parts" :key="part.purchase_order_id">
-                        <tr class="border-t border-gray-100" :class="{ 'bg-[--app-accent-soft]': part.is_ours }">
+                        <tr class="border-t border-gray-100" :class="{ 'bg-gray-100': part.is_ours }">
                             <td class="py-2 pl-8 pr-2" :colspan="currentView === 'items' ? 4 : 1">
                                 <span v-tooltip="part.organisation_name" class="font-medium text-gray-800">{{ part.organisation_code }}</span>
                                 <Link v-if="part.url" :href="part.url" class="ml-1.5 text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ part.reference }}</Link>

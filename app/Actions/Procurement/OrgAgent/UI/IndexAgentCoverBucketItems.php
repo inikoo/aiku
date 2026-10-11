@@ -9,21 +9,28 @@
 namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\OrgAction;
+use App\InertiaTable\InertiaTable;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 
 class IndexAgentCoverBucketItems extends OrgAction
 {
@@ -31,42 +38,38 @@ class IndexAgentCoverBucketItems extends OrgAction
     use WithAgentShoppingSubNavigation;
 
     private OrgAgent $orgAgent;
-    private string $bucket;
+    private ?string $bucket;
     private ?string $rank;
     private ?int $supplierId;
 
-    public function handle(OrgAgent $orgAgent, string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
+    private bool $onDraftsOnly = false;
+
+    public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
-        $ids = GetAgentStockCoverBuckets::make()->orgSupplierProductIdsInBucket($orgAgent, $bucket, $rank, $supplierId);
+        $buckets   = GetAgentStockCoverBuckets::make();
+        $bucketSql = $buckets->bucketSql($orgAgent);
 
-        $paginator = OrgSupplierProduct::query()
-            ->whereIn('id', $ids)
-            ->select(['id', 'slug', 'supplier_product_id'])
-            ->when(
-                $ids,
-                fn ($query) => $query->orderByRaw(
-                    'array_position(array['.implode(',', array_map(intval(...), $ids)).']::bigint[], id)'
-                )
-            )
-            ->paginate(25)
-            ->withQueryString();
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $like = '%'.addcslashes((string) $value, '%_\\').'%';
+            $query->whereRaw('(sp.code collate "C" ilike ? or sp.name ilike ?)', [$like, $like]);
+        });
+        $supplierFilter = AllowedFilter::callback('supplier', fn ($query, $value) => $query->where('sp.supplier_id', (int) $value));
 
-        return $this->hydrate($paginator);
-    }
+        $sortBy = fn (string $name, string $expression) => AllowedSort::callback(
+            $name,
+            fn ($query, bool $descending) => $query->orderByRaw($expression.($descending ? ' desc' : ' asc').' nulls last')
+        );
 
-    private function hydrate(LengthAwarePaginator $paginator): LengthAwarePaginator
-    {
-        $orgSupplierProductIds = collect($paginator->items())->pluck('id');
-
-        $details = DB::table('org_supplier_products as osp')
-            ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
+        $queryBuilder = QueryBuilder::for($buckets->scope(OrgSupplierProduct::query()->from('org_supplier_products as osp'), $orgAgent))
             ->join('suppliers as sup', 'sup.id', 'sp.supplier_id')
             ->leftJoin('currencies as cur', 'cur.id', 'sp.currency_id')
-            ->leftJoinLateral(GetAgentStockCoverBuckets::bestOrgStock(), 'os')
-            ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
-            ->whereIn('osp.id', $orgSupplierProductIds)
+            ->when($bucket, fn ($query) => $query->whereRaw("$bucketSql = ?", [$bucket]))
+            ->when($rank, fn ($query) => $query->where('os.health_rank', $rank))
+            ->when($supplierId, fn ($query) => $query->where('sp.supplier_id', $supplierId))
+            ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
             ->select([
                 'osp.id',
+                'osp.slug',
                 'sp.code',
                 'sp.name',
                 'sp.cost',
@@ -82,51 +85,109 @@ class IndexAgentCoverBucketItems extends OrgAction
                 's.days_of_cover',
                 's.recommended_order_quantity',
             ])
-            ->get()
-            ->keyBy('id');
+            ->selectRaw("$bucketSql as bucket");
+
+        if (!request()->filled('sort')) {
+            $queryBuilder
+                ->orderByRaw("(os.id is not null and os.state = '".OrgStockStateEnum::ACTIVE->value."') desc")
+                ->orderByRaw("case os.health_rank when 'A' then 1 when 'B' then 2 when 'C' then 3 when 'D' then 4 when 'Z' then 5 end nulls last")
+                ->when(
+                    $bucket === 'dead',
+                    fn ($query) => $query->orderByRaw('s.stock_value desc nulls last'),
+                    fn ($query) => $query->orderByRaw('s.days_of_cover nulls last')
+                )
+                ->orderByRaw('sp.code collate "C"');
+        }
+
+        return $this->hydrate(
+            $queryBuilder
+                ->allowedSorts([
+                    $sortBy('code', 'sp.code collate "C"'),
+                    $sortBy('name', 'sp.name'),
+                    $sortBy('supplier_code', 'sup.code collate "C"'),
+                    $sortBy('lead_time_days', 'coalesce(sp.measured_lead_time_days, sp.estimated_lead_time_days)'),
+                    $sortBy('our_stock', 'os.quantity_available'),
+                    $sortBy('our_days_of_cover', 's.days_of_cover'),
+                    $sortBy('units_per_carton', 'sp.units_per_carton'),
+                    $sortBy('suggested', 's.recommended_order_quantity'),
+                ])
+                ->allowedFilters([$globalSearch, $supplierFilter])
+                ->withPaginator(null, tableName: request()->route()?->getName())
+                ->withQueryString()
+        );
+    }
+
+    private function hydrate(LengthAwarePaginator $paginator): LengthAwarePaginator
+    {
+        $rows = collect($paginator->items());
 
         $webImages = DB::table('product_has_org_stocks')
             ->join('products', 'products.id', 'product_has_org_stocks.product_id')
-            ->whereIn('product_has_org_stocks.org_stock_id', $details->pluck('org_stock_id')->filter())
+            ->whereIn('product_has_org_stocks.org_stock_id', $rows->pluck('org_stock_id')->filter())
             ->whereNull('products.deleted_at')
             ->whereNotNull('products.web_images->main')
             ->orderBy('products.id')
             ->pluck('products.web_images', 'product_has_org_stocks.org_stock_id');
 
         $draftQuantities = $this->draftLines()
-            ->whereIn('pot.org_supplier_product_id', $orgSupplierProductIds)
+            ->whereIn('pot.org_supplier_product_id', $rows->pluck('id'))
             ->groupBy('pot.org_supplier_product_id')
             ->selectRaw('pot.org_supplier_product_id, sum(pot.quantity_ordered) as quantity')
             ->pluck('quantity', 'org_supplier_product_id');
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $orgSupplierProduct) use ($details, $draftQuantities, $webImages) {
-            $detail   = $details->get($orgSupplierProduct->id);
-            $images   = json_decode($webImages->get($detail?->org_stock_id) ?? 'null', true);
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages) {
+            $images = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
 
             return [
-                'id'                     => $orgSupplierProduct->id,
-                'slug'                   => $orgSupplierProduct->slug,
-                'code'                   => $detail?->code,
-                'name'                   => $detail?->name,
-                'image'                  => Arr::get($images, 'main.gallery') ?? Arr::get($images, 'main.thumbnail'),
-                'supplier_code'          => $detail?->supplier_code,
-                'supplier_slug'          => $detail?->supplier_slug,
-                'lead_time_days'         => $detail?->measured_lead_time_days ?? $detail?->estimated_lead_time_days,
-                'lead_time_measured'     => $detail?->measured_lead_time_days !== null,
-                'our_stock'              => $detail?->quantity_available !== null ? (float) $detail->quantity_available : null,
-                'our_days_of_cover'      => $detail?->days_of_cover !== null ? (int) $detail->days_of_cover : null,
-                'recommended_quantity'   => $detail?->recommended_order_quantity !== null
-                    ? (int) ceil((float) $detail->recommended_order_quantity)
-                    : null,
-                'units_per_carton'       => $detail?->units_per_carton ? (int) $detail->units_per_carton : null,
-                'minimum_carton_order'   => $detail?->minimum_carton_order ? (int) $detail->minimum_carton_order : null,
-                'cost'                   => $detail?->cost !== null ? (float) $detail->cost : null,
-                'currency'               => $detail?->currency,
-                'ordered_quantity'       => (float) ($draftQuantities[$orgSupplierProduct->id] ?? 0),
+                'id'                   => $row->id,
+                'slug'                 => $row->slug,
+                'code'                 => $row->code,
+                'name'                 => $row->name,
+                'image'                => Arr::get($images, 'main.gallery') ?? Arr::get($images, 'main.thumbnail'),
+                'bucket'               => $row->bucket,
+                'supplier_code'        => $row->supplier_code,
+                'supplier_slug'        => $row->supplier_slug,
+                'lead_time_days'       => $row->measured_lead_time_days ?? $row->estimated_lead_time_days,
+                'lead_time_measured'   => $row->measured_lead_time_days !== null,
+                'our_stock'            => $row->quantity_available !== null ? (float) $row->quantity_available : null,
+                'our_days_of_cover'    => $row->days_of_cover !== null ? (int) $row->days_of_cover : null,
+                'recommended_quantity' => $row->recommended_order_quantity !== null ? (int) ceil((float) $row->recommended_order_quantity) : null,
+                'units_per_carton'     => $row->units_per_carton ? (int) $row->units_per_carton : null,
+                'minimum_carton_order' => $row->minimum_carton_order ? (int) $row->minimum_carton_order : null,
+                'cost'                 => $row->cost !== null ? (float) $row->cost : null,
+                'currency'             => $row->currency,
+                'ordered_quantity'     => (float) ($draftQuantities[$row->id] ?? 0),
             ];
         });
 
         return $paginator;
+    }
+
+    public function tableStructure(): Closure
+    {
+        return function (InertiaTable $table) {
+            $table
+                ->withLabelRecord([__('Product'), __('Products')])
+                ->withEmptyState(['title' => __('No products found')])
+                ->column(key: 'image', label: '', canBeHidden: false)
+                ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
+                ->column(key: 'name', label: __('Product'), canBeHidden: false, sortable: true);
+
+            if ($this->bucket === null) {
+                $table->column(key: 'bucket', label: __('Stock group'), canBeHidden: false);
+            }
+
+            $table
+                ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)
+                ->column(key: 'lead_time_days', label: __('Lead time'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'our_stock', label: __('Our stock'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'our_days_of_cover', label: __('Runs out'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'units_per_carton', label: __('Per carton'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'cartons', label: __('Cartons'), canBeHidden: false, align: 'center')
+                ->column(key: 'suggested', label: __('Suggested'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'units', label: __('Units'), canBeHidden: false, align: 'right')
+                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, align: 'right');
+        };
     }
 
     private function draftLines(): Builder
@@ -143,25 +204,15 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     /**
      * @param  array{list: array{value: float, lines: int, units: float}, currency: string}  $orderCapacity
-     * @return array{partner_name: string, title: string, list_label: string, count: int, total: float, currency: string, items: array<int, object>, listRoute: array{name: string, parameters: array<int, string>}}
+     * @return array{count: int, total: float, currency: string, listRoute: array{name: string, parameters: array<int, string>}}
      */
     private function miniCart(array $orderCapacity): array
     {
         return [
-            'partner_name' => $this->orgAgent->agent->name,
-            'title'        => __('Draft orders'),
-            'list_label'   => __('Go to Drafts to send'),
-            'count'        => $orderCapacity['list']['lines'],
-            'total'        => $orderCapacity['list']['value'],
-            'currency'     => $orderCapacity['currency'],
-            'items'        => $this->draftLines()
-                ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
-                ->orderByDesc('pot.id')
-                ->limit(40)
-                ->selectRaw('pot.id, sp.code as org_stock_code, sp.name as org_stock_name, po.parent_code as family_name, ceil(pot.quantity_ordered / greatest(coalesce(sp.units_per_carton, 1), 1))::int as quantity')
-                ->get()
-                ->all(),
-            'listRoute'    => [
+            'count'     => $orderCapacity['list']['lines'],
+            'total'     => $orderCapacity['list']['value'],
+            'currency'  => $orderCapacity['currency'],
+            'listRoute' => [
                 'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.index',
                 'parameters' => [$this->orgAgent->organisation->slug, $this->orgAgent->slug],
             ],
@@ -170,17 +221,66 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private function bucketLabel(): string
     {
-        return GetAgentStockCoverBuckets::make()->bucketLabel($this->bucket);
+        return $this->bucket === null ? __('Browse') : GetAgentStockCoverBuckets::make()->bucketLabel($this->bucket);
+    }
+
+    private function onDraftSql(): string
+    {
+        return "exists (select 1 from purchase_order_transactions pot
+            join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+            where pot.org_supplier_product_id = osp.id and pot.deleted_at is null
+                and po.state = '".PurchaseOrderStateEnum::IN_PROCESS->value."')";
+    }
+
+    /**
+     * What each filter offers, with how many products sit behind every choice. The stock group and
+     * rank counts follow the supplier chosen, so they say what picking one would show.
+     *
+     * @return array{cover: array<int, array{value: string, label: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, supplier: array<int, array{value: int, label: string}>}
+     */
+    private function filterOptions(): array
+    {
+        $buckets = GetAgentStockCoverBuckets::make();
+
+        $counts = $buckets->scopedQuery($this->orgAgent)
+            ->when($this->supplierId, fn ($query) => $query->where('sp.supplier_id', $this->supplierId))
+            ->groupByRaw($buckets->bucketSql($this->orgAgent).', os.health_rank')
+            ->selectRaw($buckets->bucketSql($this->orgAgent).' as bucket, os.health_rank, count(*) as products')
+            ->get();
+
+        $inGroup = $this->bucket === null ? $counts : $counts->where('bucket', $this->bucket);
+
+        return [
+            'cover'    => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta, string $bucket) => [
+                'value' => $bucket,
+                'label' => explode(':', __($meta['label']))[0],
+                'count' => (int) $counts->where('bucket', $bucket)->sum('products'),
+            ])->values()->all(),
+            'rank'     => collect(['A', 'B', 'C', 'D', 'Z'])->map(fn (string $rank) => [
+                'value' => $rank,
+                'label' => $rank,
+                'count' => (int) $inGroup->where('health_rank', $rank)->sum('products'),
+            ])->all(),
+            'supplier' => $buckets->scopedQuery($this->orgAgent)
+                ->join('suppliers as sup', 'sup.id', 'sp.supplier_id')
+                ->groupBy('sup.id', 'sup.code', 'sup.name')
+                ->orderByRaw('sup.code collate "C"')
+                ->selectRaw('sup.id, sup.code, sup.name, count(*) as products')
+                ->get()
+                ->map(fn ($supplier) => ['value' => (int) $supplier->id, 'label' => $supplier->code.' · '.$supplier->name.' ('.$supplier->products.')'])
+                ->all(),
+        ];
     }
 
     public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->orgAgent   = $orgAgent;
         $cover            = $request->input('cover', 'out');
-        $this->bucket     = array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : 'out';
+        $this->bucket     = $request->routeIs('*.shopping.browse.index') ? null : (array_key_exists($cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : 'out');
         $rank             = $request->input('rank');
         $this->rank       = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
-        $this->supplierId = $request->input('supplier') ? (int) $request->input('supplier') : null;
+        $this->supplierId   = ((int) ($request->input('filter.supplier') ?: $request->input('supplier'))) ?: null;
+        $this->onDraftsOnly = $request->boolean('drafts');
 
         $this->initialisation($organisation, $request);
 
@@ -216,11 +316,20 @@ class IndexAgentCoverBucketItems extends OrgAction
                 ],
                 'bucket'      => $this->bucket,
                 'bucketLabel' => $this->bucketLabel(),
+                'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
+                'filterOptions' => $this->filterOptions(),
+                'active'      => [
+                    'cover'    => $this->bucket,
+                    'rank'     => $this->rank,
+                    'supplier' => $this->supplierId,
+                    'drafts'   => $this->onDraftsOnly,
+                    'search'   => (string) $request->input('filter.global', ''),
+                ],
                 'rank'        => $this->rank,
-                'items'       => $items,
+                'items'       => JsonResource::collection($items),
                 'miniCart'    => $this->miniCart($orderCapacity),
             ]
-        );
+        )->table($this->tableStructure());
     }
 
     public function getBreadcrumbs(OrgAgent $orgAgent, array $routeParameters): array
@@ -232,7 +341,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.procurement.org_agents.show.shopping.items.index',
+                            'name'       => $this->bucket === null ? 'grp.org.procurement.org_agents.show.shopping.browse.index' : 'grp.org.procurement.org_agents.show.shopping.items.index',
                             'parameters' => $routeParameters,
                         ],
                         'label' => $this->bucketLabel(),

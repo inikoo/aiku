@@ -158,6 +158,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::prefix('shopping')->as('.shopping.')->group(function () {
             Route::get('', ShowAgentShoppingDashboard::class)->name('dashboard');
             Route::get('items', IndexAgentCoverBucketItems::class)->name('items.index');
+            Route::get('browse', IndexAgentCoverBucketItems::class)->name('browse.index');
             Route::post('suggest', SuggestAgentShoppingList::class)->name('suggest');
             Route::post('bulk', StoreAgentShoppingListItems::class)->name('bulk_store');
             Route::post('prepare', PrepareAgentPurchaseOrders::class)->name('prepare');

@@ -33,6 +33,8 @@ import {
     faBan,
     faCheckSquare,
     faSquare,
+    faStore,
+    faArrowRight,
 } from "@fal"
 import ModalAutoFillAgentShoppingList from "@/Components/Procurement/ModalAutoFillAgentShoppingList.vue"
 
@@ -50,7 +52,9 @@ library.add(
     faSeedling,
     faBan,
     faCheckSquare,
-    faSquare
+    faSquare,
+    faStore,
+    faArrowRight
 )
 
 type Tone = "red-deep" | "red" | "orange" | "amber" | "yellow" | "green" | "slate" | "violet" | "gray"
@@ -199,7 +203,7 @@ const pies = computed(() => {
             ctrans("Their whole catalogue"),
             ctrans("products"),
             [
-                { key: "reordered", label: ctrans("Our range"), fullLabel: ctrans("Everything in the first chart: what we stock from this agent and keep reordering"), count: reorderedCount, lost: reordered.reduce((sum, bucket) => sum + bucket.lost, 0), fill: "var(--app-accent)", dot: "bg-[--app-accent]", href: null },
+                { key: "reordered", label: ctrans("Our range"), fullLabel: ctrans("Everything in the first chart: what we stock from this agent and keep reordering"), count: reorderedCount, lost: reordered.reduce((sum, bucket) => sum + bucket.lost, 0), fill: "#334155", dot: "bg-slate-700", href: null },
                 ...notReordered.map(sliceOf),
             ],
             "grid-rows-4",
@@ -245,9 +249,11 @@ const usedLocations = computed(() => props.orderCapacity.warehouse.total_locatio
 const warehouseSegment = (part: number) => `${(part / Math.max(props.orderCapacity.warehouse.total_locations, 1)) * 100}%`
 const warehouseLegend = computed(() => [
     { label: ctrans("in use"), value: usedLocations.value, dot: "bg-gray-400" },
-    { label: ctrans("inbound PO/SD lines"), value: props.orderCapacity.warehouse.inbound_open_po_lines, dot: "bg-indigo-400" },
+    { label: ctrans("inbound PO/SD lines"), value: props.orderCapacity.warehouse.inbound_open_po_lines, dot: "bg-teal-400" },
     { label: ctrans("on your draft orders"), value: props.orderCapacity.list.lines, dot: "bg-violet-400" },
 ])
+
+const browseRoute = computed(() => route("grp.org.procurement.org_agents.show.shopping.browse.index", [route().params.organisation, props.orgAgent.slug]))
 
 const bucketItemsRoute = (bucket: string, rank?: string) =>
     `${route("grp.org.procurement.org_agents.show.shopping.items.index", [route().params.organisation, props.orgAgent.slug])}?cover=${bucket}${rank ? `&rank=${rank}` : ""}`
@@ -261,7 +267,7 @@ const removeMisplaced = (bucket: string) => {
     )
 }
 
-const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
+const fieldFocusClass = "[&.p-focus]:!border-gray-500 [&_input:focus]:!border-gray-500"
 
 const selectedBuckets = ref<string[]>(["out", "w1", "w2"])
 const worstOnly = ref(true)
@@ -337,7 +343,7 @@ const openAutoFill = (bucket: CoverBucket) => {
     <PageHeading :data="pageHead" />
 
     <div class="mx-4 mt-4 flex flex-col gap-6 pb-8">
-        <section class="rounded-r border-l-4 border-[--app-accent] bg-gray-50">
+        <section class="rounded-r border-l-4 border-gray-300 bg-gray-50">
             <div class="flex flex-col gap-3 px-4 py-3">
                 <div class="flex flex-col gap-x-8 gap-y-3 lg:flex-row lg:items-center">
                     <div class="shrink-0 lg:w-52">
@@ -349,6 +355,10 @@ const openAutoFill = (bucket: CoverBucket) => {
                         <p class="mt-1 text-xs leading-5 text-gray-500">
                             {{ ctrans(":total products in their catalogue, grouped by how long our stock lasts against a :days day lead time", { total: locale.number(coverTotal), days: leadTime.days }) }}
                         </p>
+                        <Link :href="browseRoute" class="group mt-1 inline-flex items-start gap-1.5 text-xs font-medium text-gray-700">
+                            <FontAwesomeIcon :icon="faStore" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
+                            <span class="underline decoration-dotted underline-offset-2 group-hover:decoration-solid">{{ ctrans("Browse or search the whole catalogue") }}</span>
+                        </Link>
                     </div>
 
                     <div v-if="coverTotal" v-show="stockCoverOpen" class="flex min-w-0 grow flex-wrap items-center gap-x-8 gap-y-4 2xl:flex-nowrap">
@@ -412,20 +422,20 @@ const openAutoFill = (bucket: CoverBucket) => {
                             v-for="bucket in orderingBuckets"
                             :key="bucket.bucket"
                             class="flex flex-col overflow-hidden rounded-lg border bg-white transition hover:shadow-sm"
-                            :class="isSelected(bucket) ? 'border-[--app-accent-muted]' : 'border-gray-200 hover:border-gray-300'"
+                            :class="isSelected(bucket) ? 'border-gray-400' : 'border-gray-200 hover:border-gray-300'"
                         >
                             <div class="h-1 w-full" :class="tonePalette[bucket.tone].accent" />
                             <div class="flex grow flex-col gap-2.5 p-3">
                                 <label
                                     v-if="canPrepareOrder && isPreparable(bucket)"
-                                    class="flex items-start gap-2 rounded has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[--app-accent]"
+                                    class="flex items-start gap-2 rounded has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gray-400"
                                     :class="toOrder(bucket)?.lines ? 'cursor-pointer' : 'cursor-default opacity-60'"
                                 >
                                     <input v-model="selectedBuckets" type="checkbox" :value="bucket.bucket" :disabled="!toOrder(bucket)?.lines" class="sr-only" />
                                     <FontAwesomeIcon
                                         :icon="isSelected(bucket) && toOrder(bucket)?.lines ? faCheckSquare : faSquare"
                                         class="mt-px text-base"
-                                        :class="isSelected(bucket) && toOrder(bucket)?.lines ? 'text-[--app-accent]' : 'text-gray-400'"
+                                        :class="isSelected(bucket) && toOrder(bucket)?.lines ? 'text-gray-800' : 'text-gray-400'"
                                         fixed-width
                                         aria-hidden="true"
                                     />
@@ -484,7 +494,7 @@ const openAutoFill = (bucket: CoverBucket) => {
                                         v-if="canPrepareOrder && canAutoFill(bucket)"
                                         type="button"
                                         v-tooltip="ctrans('Pick the products to add from this group one by one')"
-                                        class="ml-auto inline-flex items-center gap-1 rounded-md border border-[--app-accent-muted] px-2 py-0.5 text-[11px] font-medium text-[--app-accent] hover:bg-[--app-accent-soft]"
+                                        class="ml-auto inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
                                         @click="openAutoFill(bucket)"
                                     >
                                         <FontAwesomeIcon :icon="faMagic" fixed-width aria-hidden="true" />
@@ -547,8 +557,10 @@ const openAutoFill = (bucket: CoverBucket) => {
                             </div>
                             <Button
                                 :label="ctrans('Prepare order')"
+                                type="tertiary"
                                 v-tooltip="ctrans('Adds these products, in whole cartons, to a draft purchase order for each supplier. Nothing is sent to the agent.')"
                                 icon="fal fa-clipboard-list"
+                                :iconRight="faArrowRight"
                                 size="s"
                                 nativeType="submit"
                                 :loading="isPreparing"
@@ -613,7 +625,7 @@ const openAutoFill = (bucket: CoverBucket) => {
             <div class="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2.5">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--app-accent-soft] text-[--app-accent]">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
                             <FontAwesomeIcon :icon="faWallet" fixed-width aria-hidden="true" />
                         </span>
                         <span class="text-sm font-medium text-gray-600">{{ ctrans("This round's budget") }}</span>
@@ -672,7 +684,7 @@ const openAutoFill = (bucket: CoverBucket) => {
             <div class="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2.5">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--app-accent-soft] text-[--app-accent]">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
                             <FontAwesomeIcon :icon="faWarehouse" fixed-width aria-hidden="true" />
                         </span>
                         <span class="text-sm font-medium text-gray-600">{{ ctrans("Warehouse space") }}</span>
@@ -687,7 +699,7 @@ const openAutoFill = (bucket: CoverBucket) => {
                 </div>
                 <div class="mt-3 flex h-2 w-full gap-px overflow-hidden rounded-full bg-gray-100">
                     <div class="h-full bg-gray-400" :style="{ width: warehouseSegment(usedLocations) }" />
-                    <div class="h-full bg-indigo-400" :style="{ width: warehouseSegment(orderCapacity.warehouse.inbound_open_po_lines) }" />
+                    <div class="h-full bg-teal-400" :style="{ width: warehouseSegment(orderCapacity.warehouse.inbound_open_po_lines) }" />
                     <div class="h-full bg-violet-400" :style="{ width: warehouseSegment(orderCapacity.list.lines) }" />
                 </div>
                 <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs tabular-nums text-gray-500">
@@ -704,7 +716,7 @@ const openAutoFill = (bucket: CoverBucket) => {
             <div class="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex min-w-0 items-center gap-2.5">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--app-accent-soft] text-[--app-accent]">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
                             <FontAwesomeIcon :icon="faStopwatch" fixed-width aria-hidden="true" />
                         </span>
                         <span class="truncate text-sm font-medium text-gray-600">{{ ctrans("Lead time") }} · {{ orgAgent.name }}</span>

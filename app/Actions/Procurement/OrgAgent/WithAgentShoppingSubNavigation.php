@@ -29,6 +29,17 @@ trait WithAgentShoppingSubNavigation
                 "isAnchor" => true,
             ],
             [
+                "label"    => __("Browse"),
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.browse.index",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-store"],
+                    "tooltip" => __("Browse"),
+                ],
+            ],
+            [
                 "label"    => __("Drafts to send"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.drafts.index",
@@ -51,6 +62,7 @@ trait WithAgentShoppingSubNavigation
                     "tooltip" => __("Suppliers"),
                 ],
                 "number"   => $parent->stats->number_org_suppliers,
+                "align"    => "right",
             ],
         ];
     }

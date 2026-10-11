@@ -9278,7 +9278,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Drafts to send', 'Suppliers'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Browse', 'Drafts to send', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9569,13 +9569,58 @@ test('UI agent cover bucket items index', function () {
             ->where('bucket', 'out')
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
+            ->has('items.meta.total')
             ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => array_key_exists('image', $item)))
-            ->has('miniCart.items')
             ->has('miniCart.count')
             ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
             ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
             ->has('addRoute.name');
     });
+});
+
+test('UI agent browse lists the whole catalogue as a standard table and searches, filters and sorts it', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $code       = $orgSupplierProduct->supplierProduct->code;
+    $supplierId = $orgSupplierProduct->supplierProduct->supplier_id;
+    $url        = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]);
+
+    $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/AgentCoverBucketItems')
+        ->where('bucket', null)
+        ->where('bucketLabel', 'Browse')
+        ->has('filterOptions.cover', 9)
+        ->has('filterOptions.rank', 5)
+        ->where('filterOptions.supplier', fn ($suppliers) => collect($suppliers)->contains('value', $supplierId))
+        ->where('filterOptions.cover', fn ($groups) => collect($groups)->sum('count') === $page->toArray()['props']['items']['meta']['total'])
+        ->where('active.cover', null)
+        ->where('active.drafts', false)
+        ->has('bucketLabels.out.label')
+        ->has('items.data')
+        ->where('items.meta.total', fn ($total) => $total >= 1));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => strtolower(substr($code, 2, 8))]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code) && collect($items)->every(fn (array $item) => array_key_exists('bucket', $item))));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
+    $this->get($url.'?drafts=1&'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.drafts', true)
+        ->where('active.supplier', $supplierId)
+        ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
+
+    foreach (['code', '-code', 'name', 'supplier_code', 'lead_time_days', 'our_stock', '-our_days_of_cover', 'units_per_carton', 'suggested'] as $sort) {
+        $this->get($url.'?sort='.$sort)->assertOk();
+    }
+
+    $ascending  = collect($this->get($url.'?sort=code&perPage=100')->viewData('page')['props']['items']['data'])->pluck('code');
+    $descending = collect($this->get($url.'?sort=-code&perPage=100')->viewData('page')['props']['items']['data'])->pluck('code');
+
+    expect($ascending->first())->not->toBe($descending->first())
+        ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
