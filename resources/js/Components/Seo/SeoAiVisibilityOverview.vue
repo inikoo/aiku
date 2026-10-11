@@ -169,7 +169,7 @@ const mentionChange = (row: MentionsPlatform["rows"][number]) => {
                 <thead>
                     <tr class="border-b border-gray-100 text-left text-xs text-gray-500">
                         <th scope="col" class="px-5 py-2 font-medium">{{ ctrans("Brand") }}</th>
-                        <th scope="col" class="w-1/3 px-3 py-2 font-medium" v-tooltip="ctrans('Answers that write one of the brand names or link to the website')">{{ ctrans("Named") }}</th>
+                        <th scope="col" class="w-1/3 px-3 py-2 font-medium" v-tooltip="ctrans('Answers that write one of the brand names or link to the website')">{{ ctrans("Brand named") }}</th>
                         <th scope="col" class="px-3 py-2 text-right font-medium" v-tooltip="ctrans('Answers that cite a page of the website as a source')">{{ ctrans("Cited") }}</th>
                         <th scope="col" class="px-5 py-2 text-right font-medium" v-tooltip="ctrans('Average place in the list an answer gives (its numbered suppliers or headings), when the brand is in it. 1 is the first entry.')">{{ ctrans("Place in the list") }}</th>
                     </tr>

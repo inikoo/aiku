@@ -124,7 +124,7 @@ const serpFeatureLabels: Record<string, string> = {
     featured_snippet: ctrans("Featured snippet"),
     local_pack: ctrans("Local pack"),
     map: ctrans("Map"),
-    shopping: ctrans("Shopping"),
+    shopping: ctrans("Shopping results"),
     popular_products: ctrans("Popular products"),
     paid: ctrans("Ads"),
     people_also_ask: ctrans("People also ask"),

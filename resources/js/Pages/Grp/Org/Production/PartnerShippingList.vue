@@ -14,7 +14,7 @@ import Table from "@/Components/Table/Table.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -492,7 +492,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
     <PageHeading :data="pageHead" />
 
     <div v-if="Object.keys(selected).length" class="sticky top-0 z-10 mx-4 mt-4 flex items-center justify-between rounded-lg bg-indigo-600 px-4 py-2 text-white">
-        <span>{{ Object.keys(selected).length }} {{ ctrans("lines selected") }}</span>
+        <span>{{ ctransChoice(":count line selected|:count lines selected", Object.keys(selected).length) }}</span>
         <div class="flex gap-2">
             <button type="button" class="rounded bg-white px-3 py-1 text-indigo-600" @click="createJobOrders">
                 {{ ctrans("Create job orders") }}
@@ -601,7 +601,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                                 v-if="item.batch_size"
                                 class="rounded bg-indigo-50 px-1.5 py-px text-indigo-700"
                                 :title="ctrans('Batch of :batch units, packed in :packed', { batch: item.batch_size ?? 0, packed: item.packed_in ?? 1 })">
-                                {{ ctrans("makes") }} {{ jobUnits(item) }} {{ ctrans("units") }}
+                                {{ ctransChoice("makes :count unit|makes :count units", jobUnits(item)) }}
                             </span>
                         </label>
                     </div>
@@ -820,7 +820,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                                     @mousedown.stop
                                     @change="updatePreparingQuantity(item, $event)" />
                             </template>
-                            <span v-else-if="item.job_order_quantity" class="text-indigo-600" :title="ctrans('Making :count units', { count: item.job_order_quantity })">→ {{ useLocaleStore().number(Number(item.job_order_quantity) / (Number(item.packed_in) || 1)) }} {{ ctrans("SKO") }} ({{ useLocaleStore().number(Number(item.job_order_quantity)) }} {{ ctrans("units") }})</span>
+                            <span v-else-if="item.job_order_quantity" class="text-indigo-600" :title="ctrans('Making :count units', { count: item.job_order_quantity })">→ {{ useLocaleStore().number(Number(item.job_order_quantity) / (Number(item.packed_in) || 1)) }} {{ ctrans("SKO") }} ({{ ctransChoice(":number unit|:number units", Number(item.job_order_quantity), { number: useLocaleStore().number(Number(item.job_order_quantity)) }) }})</span>
                             <span v-else-if="item.quantity_to_produce && Number(item.quantity_to_produce) !== Number(item.quantity)" class="text-indigo-600" :title="ctrans('Making :count SKO', { count: item.quantity_to_produce })">→ {{ useLocaleStore().number(Number(item.quantity_to_produce)) }} {{ ctrans("SKO") }}</span>
                         </span>
                     </div>

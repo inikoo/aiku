@@ -12,7 +12,7 @@ import Table from "@/Components/Table/Table.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans as trans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
 type PrePickItem = {
@@ -49,10 +49,10 @@ const quantityFor = (item: PrePickItem) => quantities[item.id] ?? Number(item.ca
 const isPartial = (item: PrePickItem) => quantityFor(item) < Number(item.quantity)
 
 const automationStatuses = {
-	releasing: { label: trans("Going to the warehouse"), class: "text-emerald-600" },
-	held_buffer: { label: trans("Held, one more needed on the shelf"), class: "text-amber-600" },
-	awaiting_full_stock: { label: trans("Awaiting full stock, production manager to decide"), class: "text-amber-600" },
-	to_produce: { label: trans("In To produce"), class: "text-gray-500" },
+	releasing: { label: ctrans("Going to the warehouse"), class: "text-emerald-600" },
+	held_buffer: { label: ctrans("Held, one more needed on the shelf"), class: "text-amber-600" },
+	awaiting_full_stock: { label: ctrans("Awaiting full stock, production manager to decide"), class: "text-amber-600" },
+	to_produce: { label: ctrans("In To produce"), class: "text-gray-500" },
 }
 
 function setQuantity(item: PrePickItem, value: string) {
@@ -137,7 +137,7 @@ function prePickAll() {
 
 function closeShort(item: PrePickItem) {
 	const quantity = quantityFor(item)
-	const message = trans(
+	const message = ctrans(
 		"Send :quantity and cancel the other :shortfall? The partner's list drops to :quantity and the rest will not be made.",
 		{
 			quantity: useLocaleStore().number(quantity),
@@ -174,9 +174,9 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 			<button
 				type="button"
 				class="rounded bg-[--app-accent] px-3 py-1.5 text-sm font-medium text-[--app-accent-text] hover:bg-[--app-accent-strong]"
-				:title="trans('Reserve every line listed here, up to what is in stock')"
+				:title="ctrans('Reserve every line listed here, up to what is in stock')"
 				@click="prePickAll">
-				{{ trans("Pre-pick all") }}
+				{{ ctrans("Pre-pick all") }}
 			</button>
 		</template>
 	</PageHeading>
@@ -184,7 +184,7 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 	<div
 		v-if="Object.keys(selected).length"
 		class="sticky top-0 z-10 mx-4 mt-4 flex items-center justify-between rounded-lg bg-[--app-accent] px-4 py-2 text-[--app-accent-text]">
-		<span>{{ Object.keys(selected).length }} {{ trans("lines selected") }}</span>
+		<span>{{ ctransChoice(":count line selected|:count lines selected", Object.keys(selected).length) }}</span>
 		<button
 			type="button"
 			class="rounded bg-white px-3 py-1 text-[--app-accent]"
@@ -193,13 +193,13 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 					Object.entries(selected).map(([id, quantity]) => ({ id: Number(id), quantity }))
 				)
 			">
-			{{ trans("Pre-pick selected") }}
+			{{ ctrans("Pre-pick selected") }}
 		</button>
 	</div>
 
 	<div class="mx-4 mt-3 text-xs text-gray-500">
 		{{
-			trans(
+			ctrans(
 				"Lines go to the warehouse on their own, whole, when the shelf holds more than they ask. What is missing goes to To produce."
 			)
 		}}
@@ -245,7 +245,7 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 				type="button"
 				class="text-xs text-gray-400 hover:text-gray-600"
 				@click="clearFilters">
-				× {{ trans("Clear") }}
+				× {{ ctrans("Clear") }}
 			</button>
 		</div>
 	</div>
@@ -257,7 +257,7 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 					type="checkbox"
 					class="align-middle"
 					:checked="allSelected"
-					:title="trans('Select every line on this page')"
+					:title="ctrans('Select every line on this page')"
 					@change="toggleAll" />
 			</th>
 		</template>
@@ -275,19 +275,19 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 				:disabled="Number(item.can_pick) <= 0"
 				:title="
 					Number(item.can_pick) > 0
-						? trans('Reserve it for this partner and send it to their bay')
-						: trans('All the stock on the shelf is already promised to earlier pre-picks')
+						? ctrans('Reserve it for this partner and send it to their bay')
+						: ctrans('All the stock on the shelf is already promised to earlier pre-picks')
 				"
 				@click="prePick([{ id: item.id, quantity: quantityFor(item) }])">
-				{{ trans("Pre-pick") }}
+				{{ ctrans("Pre-pick") }}
 			</button>
 			<button
 				v-if="isPartial(item) && quantityFor(item) > 0"
 				type="button"
 				class="ml-1 rounded border border-amber-500 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-50"
-				:title="trans('Pre-pick this quantity and cancel the shortfall, nothing stays outstanding')"
+				:title="ctrans('Pre-pick this quantity and cancel the shortfall, nothing stays outstanding')"
 				@click="closeShort(item)">
-				{{ trans("Close short") }}
+				{{ ctrans("Close short") }}
 			</button>
 		</template>
 		<template #cell(stock_code)="{ item }: { item: PrePickItem }">
@@ -296,11 +296,11 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 				<span
 					v-if="item.is_cosmetic"
 					class="rounded-full bg-pink-100 px-1.5 text-xs font-normal text-pink-700"
-					>{{ trans("Cosmetic") }}</span
+					>{{ ctrans("Cosmetic") }}</span
 				>
 				<span
 					v-if="item.is_gb"
-					v-tooltip="trans('GB-origin, travels on the separate GB pallet')"
+					v-tooltip="ctrans('GB-origin, travels on the separate GB pallet')"
 					class="rounded-full bg-slate-200 px-1.5 text-xs font-normal text-slate-700"
 					>GB</span
 				>
@@ -328,7 +328,7 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 						: 'text-amber-600'
 				"
 				:title="
-					trans('Up to :quantity can be sent; what is not sent stays on the list', {
+					ctrans('Up to :quantity can be sent; what is not sent stays on the list', {
 						quantity: useLocaleStore().number(Number(item.can_pick)),
 					})
 				"
@@ -337,8 +337,8 @@ function prePick(lines: { id: number; quantity: number; cancel_shortfall?: boole
 			<div
 				v-if="isPartial(item)"
 				class="mt-0.5 text-[11px] text-amber-600"
-				:title="trans('The warehouse will pick this line in two goes')">
-				{{ trans("partial pick") }}
+				:title="ctrans('The warehouse will pick this line in two goes')">
+				{{ ctrans("partial pick") }}
 			</div>
 		</template>
 		<template #cell(shortfall)="{ item }: { item: PrePickItem }">

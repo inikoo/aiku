@@ -204,7 +204,7 @@ const promptMarket = (prompt: Prompt) => {
                     <tr class="border-b border-gray-100 text-left text-xs text-gray-500">
                         <th scope="col" class="px-5 py-2 font-medium">{{ ctrans("Prompt") }}</th>
                         <th scope="col" class="px-3 py-2 font-medium">{{ ctrans("Last answer") }}</th>
-                        <th scope="col" class="px-3 py-2 text-center font-medium">{{ ctrans("Named") }}</th>
+                        <th scope="col" class="px-3 py-2 text-center font-medium">{{ ctrans("Brand named") }}</th>
                         <th scope="col" class="px-3 py-2 text-center font-medium">{{ ctrans("Cited") }}</th>
                         <th scope="col" class="px-3 py-2 font-medium">{{ ctrans("Competitors named") }}</th>
                         <th scope="col" class="px-3 py-2 text-right font-medium" v-tooltip="ctrans('Answers naming us out of the answers of the last :days days', { days: data.days })">{{ ctrans("Named, :days days", { days: data.days }) }}</th>

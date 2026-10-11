@@ -26,7 +26,7 @@ import { routeType } from "@/types/route";
 import { Popover, ToggleSwitch, InputText, InputNumber } from 'primevue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
 
@@ -825,7 +825,7 @@ watch(
                     <div class="flex items-center gap-1 shrink-0">
                         <InputNumber v-model="hour" :min="1" :disabled="!checked || !isEditingSecond"
                             inputClass="!h-8 !py-1 !text-sm text-center w-20" />
-                        <span class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ ctrans('hours') }}</span>
+                        <span class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ ctransChoice('hour|hours', hour) }}</span>
                     </div>
 
                     <Button v-if="isEditingSecond" type="save" @click="handleSaveSecond" :loading="loading" />

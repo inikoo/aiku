@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ctrans } from '@/Composables/useTrans'
+import { ctrans, ctransChoice } from '@/Composables/useTrans'
 import { debounce } from 'lodash-es'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
@@ -240,7 +240,7 @@ const onShowAllTemplates = () => {
 							{{ template.name }}
 						</span>
 						<span class="block text-[10px] leading-tight truncate text-slate-400">
-							{{ getBlockCount(template) }} {{ ctrans('blocks') }}
+							{{ ctransChoice(':count block|:count blocks', getBlockCount(template)) }}
 							<template v-if="template.username">
 								·
 								<FontAwesomeIcon :icon="faUser" class="text-[9px]" fixed-width />

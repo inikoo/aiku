@@ -9,7 +9,7 @@ import { Head, router } from "@inertiajs/vue3"
 import { ref, computed, watch } from "vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import Modal from "@/Components/Utils/Modal.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -443,7 +443,7 @@ function receiveIntoStock() {
             <div v-if="splittingItem">
                 <div class="text-lg font-semibold">{{ ctrans('Split / Assign multiple artisans') }}</div>
                 <div class="text-sm text-gray-500 mt-1">{{ splittingItem.artefact_code }} — {{ ctrans('Total target for this line') }}</div>
-                <div class="text-2xl font-semibold tabular-nums">{{ splittingItem.quantity }} {{ ctrans('units') }}</div>
+                <div class="text-2xl font-semibold tabular-nums">{{ ctransChoice(':count unit|:count units', splittingItem.quantity) }}</div>
 
                 <div class="mt-4 grid grid-cols-[1fr_7rem_2rem] gap-2 items-center text-sm">
                     <div class="text-xs text-gray-500">{{ ctrans('Artisan') }}</div>
@@ -497,7 +497,7 @@ function receiveIntoStock() {
             <div class="font-semibold mb-3">{{ ctrans('Receive into stock') }}</div>
             <ul class="text-sm text-gray-600 mb-3">
                 <li v-for="item in items" :key="item.id">
-                    {{ item.artefact_code }} — {{ ctrans('will receive') }} {{ item.produced_quantity }} {{ ctrans('units') }}
+                    {{ item.artefact_code }} — {{ ctransChoice('will receive :count unit|will receive :count units', item.produced_quantity) }}
                 </li>
             </ul>
             <div class="relative max-w-xs">

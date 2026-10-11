@@ -110,7 +110,7 @@ class IndexOrgStockFamilies extends OrgAction
                     'label'    => __('Separate GB pallet'),
                     'elements' => [
                         'on'  => [__('On'), $counts->get('on', 0)],
-                        'off' => [__('Off'), $counts->get('off', 0)],
+                        'off' => [__('Switched off'), $counts->get('off', 0)],
                     ],
                     'engine'   => function ($query, $elements) {
                         $query->whereIn('org_stock_families.gb_separate_pallet', array_map(fn ($element) => $element === 'on', $elements));

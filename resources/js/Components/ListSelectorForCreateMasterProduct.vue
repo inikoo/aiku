@@ -229,7 +229,7 @@ const orgPackedInSummary = (item: any): { label: string; diverges: boolean } | n
     }
     const distinct = [...new Set(orgs.map(org => Number(org.packed_in)))]
     if (distinct.length === 1) {
-        return { label: ctrans('(SKO packed in :packs)', { packs: distinct[0] + 's' }), diverges: false }
+        return { label: ctrans('(SKO is a pack of :packs)', { packs: distinct[0] }), diverges: false }
     }
     return {
         label: '(' + groupOrgsByValue(orgs, org => Number(org.packed_in) + 's') + ')',
@@ -461,7 +461,7 @@ defineExpose({
                                         :class="orgPackedInSummary(item)!.diverges ? 'text-amber-600' : 'text-teal-600/70'">
                                         {{ orgPackedInSummary(item)!.label }}
                                     </button>
-                                    <span v-else class="text-teal-600/70">{{ ctrans('(SKO packed in :packs)', { packs: (Number(item.packed_in) || 1) + 's' }) }}</span>
+                                    <span v-else class="text-teal-600/70">{{ ctrans('(SKO is a pack of :packs)', { packs: Number(item.packed_in) || 1 }) }}</span>
                                 </div>
 
                                 </template>
