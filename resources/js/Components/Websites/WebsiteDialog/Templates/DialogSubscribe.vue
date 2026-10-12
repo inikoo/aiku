@@ -102,7 +102,7 @@ const onSubmit = async () => {
             </div>
 
             <form v-else class="mt-3 w-full" v-bind="editable('subscribe')" @submit.prevent="onSubmit">
-                <input v-model="honeypot" type="text" class="sr-only" aria-hidden="true" tabindex="-1" autocomplete="off" />
+                <input v-model="honeypot" type="text" name="website_dialog_confirm" class="hidden" aria-hidden="true" tabindex="-1" autocomplete="off" />
 
                 <div class="flex w-full flex-col gap-2">
                     <label class="relative w-full">
