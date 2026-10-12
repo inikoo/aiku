@@ -49,8 +49,12 @@ class ApproveCustomer extends OrgAction
             ]);
             FulfilmentHydrateCustomers::dispatch($customer->fulfilmentCustomer->fulfilment);
         } else {
+            $stateRule = GetCustomerStateByLastInvoice::make();
+
             UpdateCustomer::make()->action($customer, [
-                'state' => CustomerStateEnum::ACTIVE,
+                'state' => $stateRule->appliesToShop($customer->shop)
+                    ? $stateRule->stateFor($customer->shop, $customer->last_invoiced_at)
+                    : CustomerStateEnum::ACTIVE,
             ]);
         }
 

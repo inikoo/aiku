@@ -59,6 +59,11 @@ class UpdateCustomerLastInvoicedDate
                 CalculateOrderDiscounts::dispatch($order);
             }
         }
+
+        $state = GetCustomerStateByLastInvoice::run($customer);
+        if ($state && $state !== $customer->state) {
+            UpdateCustomer::make()->action($customer, ['state' => $state]);
+        }
     }
 
     protected function crossesGoldRewardWindow(Customer $customer, ?Carbon $previousDate, ?Carbon $newDate): bool

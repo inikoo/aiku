@@ -8,6 +8,7 @@
 
 namespace App\Actions\Discounts\OfferCampaign\UI;
 
+use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
@@ -56,6 +57,10 @@ trait OfferCampaignVoucherOffersTrait
                     'default_dates' => [
                         'start' => now()->toDateString(),
                         'end'   => now()->addDays(7)->toDateString(),
+                    ],
+                    'customer_state_days' => [
+                        'losing_after' => GetCustomerStateByLastInvoice::make()->losingAfterDays($offerCampaign->shop),
+                        'lost_after'   => GetCustomerStateByLastInvoice::make()->lostAfterDays($offerCampaign->shop),
                     ],
                 ],
                 'customer_list_vouchers' => fn () => [

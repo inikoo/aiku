@@ -44,7 +44,11 @@ class RegisterCustomer extends OrgAction
             data_set($modelData, 'state', CustomerStateEnum::REGISTERED);
         } else {
             data_set($modelData, 'status', CustomerStatusEnum::APPROVED->value);
-            data_set($modelData, 'state', CustomerStateEnum::ACTIVE->value);
+            data_set(
+                $modelData,
+                'state',
+                GetCustomerStateByLastInvoice::make()->appliesToShop($shop) ? CustomerStateEnum::REGISTERED->value : CustomerStateEnum::ACTIVE->value
+            );
         }
 
         if (Arr::get($modelData, 'is_opt_in', false)) {

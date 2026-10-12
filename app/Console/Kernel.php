@@ -1211,6 +1211,15 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('crm:customers:recalculate-states')->dailyAt('01:40')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'RecalculateCustomerStates',
+                ),
+                name: 'RecalculateCustomerStates',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('hydrate:shop-customers-dashboard')->dailyAt('02:20')->timezone('UTC')->onOneServer()->sentryMonitor(
                     monitorSlug: 'HydrateShopCustomersDashboard',
                 ),
