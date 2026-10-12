@@ -12168,6 +12168,7 @@ test('stock deliveries from an agent use the agent organisation currency and its
 test('procurement and accounting dashboards warn about stock deliveries waiting for costing', function () {
     $token  = uniqid();
     $before = \App\Actions\Procurement\GetUncostedStockDeliveriesCard::run($this->organisation);
+    $toCostBefore = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
 
     $staleDelivery       = createStockDeliveryWithItems($this, "UNCOSTED-OLD-$token", [10]);
     $recentDelivery      = createStockDeliveryWithItems($this, "UNCOSTED-NEW-$token", [10]);
@@ -12188,8 +12189,20 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
         ->and($card['value'])->toBe(array_sum(array_column($card['metrics'], 'value')))
         ->and($card['metrics'][0]['route']['parameters']['_query']['between[booked_in_at]'])->toEndWith('-'.now()->subDays(4)->format('Ymd'));
 
+    $toCost = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
+    expect($toCost)->toBe($toCostBefore + 4);
+
     $this->get(route('grp.org.procurement.dashboard', [$this->organisation->slug]))
-        ->assertInertia(fn (AssertableInertia $page) => $page->where('dashboardCards.0.label', 'Not costed')->etc());
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('dashboardCards.0.label', 'Deliveries to cost')
+            ->where('dashboardCards.0.value', $toCost)
+            ->where('dashboardCards.0.route.parameters._query', ['elements[costing]' => 'to_cost'])
+            ->where('dashboardCards.1.label', 'Not costed')
+            ->etc());
+
+    expect(collect($this->get(route('grp.org.procurement.stock_deliveries.index', [$this->organisation->slug, 'elements[costing]' => 'to_cost']))->viewData('page')['props']['data']['data'])->pluck('reference'))
+        ->toContain("UNCOSTED-OLD-$token", "UNCOSTED-AGENT-$token")
+        ->not->toContain("COSTED-AGENT-$token");
 
     $this->get(route('grp.org.accounting.dashboard', [$this->organisation->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('uncostedStockDeliveries.value', $card['value'])->etc());
