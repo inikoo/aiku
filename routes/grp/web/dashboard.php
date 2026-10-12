@@ -7,6 +7,7 @@
  */
 
 
+use App\Actions\Procurement\UI\IndexGroupStockCoverItems;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\Dashboards\GetGroupDashboardTabData;
 use App\Actions\UI\Dashboards\GetOperationsDashboardData;
@@ -15,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ShowGroupDashboard::class)->name('show');
 Route::get('/tab-data', GetGroupDashboardTabData::class)->name('tab-data');
 Route::get('/operations', GetOperationsDashboardData::class)->name('operations');
+Route::get('/stock/levels', IndexGroupStockCoverItems::class)->name('stock_levels.index');
