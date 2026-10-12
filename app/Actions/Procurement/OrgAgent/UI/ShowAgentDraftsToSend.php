@@ -8,10 +8,13 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Query\Builder;
@@ -62,19 +65,25 @@ class ShowAgentDraftsToSend extends OrgAction
             ->join('organisations as o', 'o.id', 'po.organisation_id')
             ->join('suppliers as sup', 'sup.id', 'po.supplier_id')
             ->leftJoin('currencies as cur', 'cur.id', 'po.currency_id')
-            ->groupBy('po.id', 'o.id', 'sup.id', 'cur.code')
+            ->groupBy('po.id', 'o.id', 'sup.id', 'cur.id')
             ->orderBy('sup.code')
             ->orderBy('o.code')
             ->selectRaw("po.id, po.slug, po.reference, po.organisation_id, po.data->'ready_to_send' as ready_to_send, po.data->'others_asked' as others_asked,
                 o.code as organisation_code, o.name as organisation_name, o.slug as organisation_slug,
-                sup.id as supplier_id, sup.code as supplier_code, sup.name as supplier_name, cur.code as currency,
+                sup.id as supplier_id, sup.code as supplier_code, sup.name as supplier_name, cur.code as currency, cur.id as currency_id,
                 count(pot.id) as lines,
+                json_agg(distinct pot.supplier_product_id) as supplier_product_ids,
                 coalesce(sum(pot.net_amount), 0) as amount,
                 sum(pot.quantity_ordered / nullif(sp.units_per_carton, 0) * sp.cbm) as cbm,
                 count(*) filter (where sp.cbm is null or coalesce(sp.units_per_carton, 0) = 0) as lines_without_cbm")
             ->get();
 
-        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent) {
+        $organisationCurrency = $orgAgent->organisation->currency;
+        $exchanges            = $rows->pluck('currency_id')->filter()->unique()->mapWithKeys(fn (int $currencyId) => [
+            $currencyId => $currencyId === $organisationCurrency->id ? null : GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
+        ]);
+
+        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent, $exchanges) {
             $parts = $drafts->map(function ($draft) use ($orgAgent) {
                 $ready = json_decode($draft->ready_to_send ?? 'null', true);
 
@@ -102,7 +111,8 @@ class ShowAgentDraftsToSend extends OrgAction
                 'supplier_code'     => $drafts->first()->supplier_code,
                 'supplier_name'     => $drafts->first()->supplier_name,
                 'currency'          => $drafts->first()->currency,
-                'lines'             => $parts->sum('lines'),
+                'org_exchange'      => $exchanges->get($drafts->first()->currency_id),
+                'lines'             => $drafts->flatMap(fn ($draft) => json_decode($draft->supplier_product_ids, true))->unique()->count(),
                 'amount'            => round($parts->sum('amount'), 2),
                 'cbm'               => round($parts->sum('cbm'), 2),
                 'lines_without_cbm' => $parts->sum('lines_without_cbm'),
@@ -191,6 +201,12 @@ class ShowAgentDraftsToSend extends OrgAction
                     'subNavigation' => $this->getAgentShoppingNavigation($this->orgAgent),
                 ],
                 'agentName'   => $this->orgAgent->agent->name,
+                'orgCurrency' => $this->organisation->currency->code,
+                'container'   => [
+                    'label' => OrgAgentOrderContainerEnum::labels()[$this->orgAgent->order_container->value],
+                    'cbm'   => $this->orgAgent->order_container->cbm(),
+                    'short' => str_replace(['ft_hc', 'ft'], [' ft HC', ' ft'], $this->orgAgent->order_container->value),
+                ],
                 'canSend'     => $request->user()->authTo("procurement.{$this->organisation->id}.edit"),
                 'tellRoute'   => [
                     'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.tell',

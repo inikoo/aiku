@@ -9529,8 +9529,11 @@ test('UI agent drafts to send', function () {
             ->component('Procurement/AgentDraftsToSend')
             ->has('cards')
             ->has('agentName')
+            ->where('orgCurrency', $this->organisation->currency->code)
+            ->where('pageHead.subNavigation.2.number', collect($page->toArray()['props']['cards'])->where('has_ours', true)->count())
             ->where('sendRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.send')
-            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1));
+            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1
+                && array_key_exists('org_exchange', $card) && ($card['currency'] !== $this->organisation->currency->code || $card['org_exchange'] === null)));
     });
 });
 
