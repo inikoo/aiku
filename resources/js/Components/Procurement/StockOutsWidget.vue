@@ -146,6 +146,7 @@ const toneColor = {
 	amber: "#fbbf24",
 	yellow: "#fde047",
 	green: "#16a34a",
+	"green-light": "#86efac",
 	blue: "#3b82f6",
 	gray: "#9ca3af",
 }

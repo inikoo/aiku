@@ -24,13 +24,13 @@ defineEmits<{ (event: "setReady", ready: boolean): void }>()
     <div class="flex items-center justify-end gap-2">
         <span
             v-if="part.ready"
-            v-tooltip="[ctrans('OK to send'), part.ready_by, part.ready_at ? useFormatTime(part.ready_at, { formatTime: 'd MMM HH:mm' }) : null].filter(Boolean).join(' · ')"
+            v-tooltip="[ctrans('OK to submit'), part.ready_by, part.ready_at ? useFormatTime(part.ready_at, { formatTime: 'd MMM HH:mm' }) : null].filter(Boolean).join(' · ')"
             class="text-green-600"
         >
             <FontAwesomeIcon :icon="faCheckCircle" fixed-width aria-hidden="true" />
-            <span class="sr-only">{{ ctrans("OK to send") }}</span>
+            <span class="sr-only">{{ ctrans("OK to submit") }}</span>
         </span>
-        <span v-else-if="!part.is_ours" v-tooltip="ctrans('Has not said it is OK to send yet')" class="text-amber-500">
+        <span v-else-if="!part.is_ours" v-tooltip="ctrans('Has not said it is OK to submit yet')" class="text-amber-500">
             <FontAwesomeIcon :icon="faHourglassHalf" fixed-width aria-hidden="true" />
             <span class="sr-only">{{ ctrans("waiting") }}</span>
         </span>
@@ -38,8 +38,8 @@ defineEmits<{ (event: "setReady", ready: boolean): void }>()
             v-if="part.is_ours && canSend"
             :modelValue="part.ready"
             binary
-            :aria-label="ctrans('Our part is OK to send')"
-            v-tooltip="ctrans('Tick when your part is OK to send')"
+            :aria-label="ctrans('Our part is OK to submit')"
+            v-tooltip="ctrans('Tick when your part is OK to submit')"
             @update:modelValue="(value: boolean) => $emit('setReady', value)"
         />
     </div>

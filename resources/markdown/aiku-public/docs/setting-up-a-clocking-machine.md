@@ -1,7 +1,7 @@
 ---
 title: Setting up a clocking machine
 summary: Create a clocking machine in a few clicks, put its kiosk link on a tablet or its QR codes on the wall, and know where every clock-in ends up.
-date: 2026-08-31
+date: 2026-10-12
 tags: hr, clocking
 category: hr
 help_routes: grp.org.hr.clocking_machines, grp.org.hr.workplaces.show.clocking_machines
@@ -74,6 +74,7 @@ The machine's **edit** page holds the ongoing controls: rename it, flip its **st
 <li><b>Print QR codes:</b> open a QR Code machine → <b>Generate QR code</b>, give it a label; manage labels and the active switch in its QR code list.</li>
 <li><b>Location check:</b> the machine's <b>edit</b> page → QR Settings → <b>Allow Coordinates Matching</b>, map pin and radius.</li>
 <li><b>See clockings:</b> the machine's <b>Clockings</b> tab, the workplace's clockings list, or the employee's timesheet.</li>
+<li><b>Fix a wrong or missing clocking:</b> see <a href="/docs/correcting-a-clocking">Correcting a clocking</a>.</li>
 </ul>
 <strong>Permissions you need</strong>
 <ul>

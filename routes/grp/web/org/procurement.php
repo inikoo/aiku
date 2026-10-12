@@ -25,6 +25,7 @@ use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\OrgAgent\SetAgentDraftLine;
 use App\Actions\Procurement\OrgAgent\TellOrganisationsAboutSupplierDraft;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentContainerInPreparation;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage;
 use App\Actions\Procurement\OrgAgent\RemoveMisplacedAgentShoppingListItems;
 use App\Actions\Procurement\OrgAgent\StoreAgentShoppingListItems;
@@ -168,6 +169,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
             Route::post('drafts/tell', TellOrganisationsAboutSupplierDraft::class)->name('drafts.tell');
             Route::post('drafts/line/{orgSupplierProduct:id}', SetAgentDraftLine::class)->name('drafts.line')->withoutScopedBindings();
             Route::delete('misplaced', RemoveMisplacedAgentShoppingListItems::class)->name('misplaced.destroy');
+            Route::get('preparing/{stockDelivery}', ShowAgentContainerInPreparation::class)->name('container')->withoutScopedBindings();
             Route::get('{stage}', ShowAgentOrderStage::class)->whereIn('stage', ShowAgentOrderStage::STAGES)->name('stage');
         });
     });

@@ -238,7 +238,9 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'cost_duties',
         'buyer_id',
         'sample_approved_at',
+        'deposit_amount',
         'deposit_paid_at',
+        'deposit_paid_by_id',
         'produced_at',
         'qc_passed_at',
         'handed_over_at',
@@ -348,5 +350,10 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function depositPaidBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deposit_paid_by_id');
     }
 }
