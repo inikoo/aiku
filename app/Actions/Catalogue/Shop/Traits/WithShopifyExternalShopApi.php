@@ -194,6 +194,7 @@ trait WithShopifyExternalShopApi
                                     totalTaxSet { shopMoney { amount currencyCode } }
                                     totalShippingPriceSet { shopMoney { amount currencyCode } }
                                     totalDiscountsSet { shopMoney { amount currencyCode } }
+                                    shippingLines(first: 5) { nodes { isRemoved discountedPriceSet { shopMoney { amount } } taxLines { priceSet { shopMoney { amount } } } } }
                                     customer {
                                         id
                                         email
@@ -517,6 +518,7 @@ trait WithShopifyExternalShopApi
                             totalTaxSet { shopMoney { amount currencyCode } }
                             totalShippingPriceSet { shopMoney { amount currencyCode } }
                             totalDiscountsSet { shopMoney { amount currencyCode } }
+                            shippingLines(first: 5) { nodes { isRemoved discountedPriceSet { shopMoney { amount } } taxLines { priceSet { shopMoney { amount } } } } }
                             customer {
                                 id
                                 email

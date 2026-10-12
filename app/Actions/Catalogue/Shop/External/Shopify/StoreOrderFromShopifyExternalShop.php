@@ -6,8 +6,7 @@ use App\Actions\Catalogue\Shop\Traits\WithShopifyExternalShopApi;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
-use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
-use App\Actions\Ordering\Order\UpdateOrderDeliveryAddress;
+use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsManual;
 use App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
@@ -86,7 +85,7 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
                 return $this->result('skipped', errors: $result['errors']);
             }
 
-            $order = DB::transaction(fn () => $this->storeOrder($shop, $shopifyOrder, $orderGid, $externalId, $shippingAddress, $result['transactions']));
+            $order = DB::transaction(fn () => $this->storeOrder($shop, $shopifyOrder, $orderGid, $externalId, $result['transactions']));
 
             return $this->result('created', $order);
         } finally {
@@ -97,10 +96,9 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
     /**
      * @throws \Throwable
      */
-    private function storeOrder(Shop $shop, array $shopifyOrder, string $orderGid, string $externalId, array $shippingAddress, array $transactions): Order
+    private function storeOrder(Shop $shop, array $shopifyOrder, string $orderGid, string $externalId, array $transactions): Order
     {
-        $customer       = StoreCustomerFromShopify::make()->handleFromOrder($shop, $shopifyOrder);
-        $billingAddress = $this->getShopifyOrderAddress($shopifyOrder, 'billingAddress') ?? $shippingAddress;
+        $customer = StoreCustomerFromShopify::make()->handleFromOrder($shop, $shopifyOrder);
 
         $orderData = [
             'is_shipping_by_external' => false,
@@ -123,6 +121,7 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
                     'totalTaxSet',
                     'totalShippingPriceSet',
                     'totalDiscountsSet',
+                    'shippingLines',
                 ]),
                 'shopify_fulfillment_order_ids' => $this->getFulfillmentOrderIds($shopifyOrder),
                 'platform_milestones' => [
@@ -137,9 +136,6 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
         }
 
         $order = StoreOrder::make()->action($customer, $orderData);
-
-        $order = UpdateOrderBillingAddress::make()->action($order, ['address' => $billingAddress]);
-        $order = UpdateOrderDeliveryAddress::make()->action($order, ['address' => $shippingAddress]);
 
         $recipient     = Arr::get($shopifyOrder, 'shippingAddress', []);
         $recipientData = array_filter([
@@ -163,6 +159,10 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
         CalculateOrderTotalAmounts::run($order, calculateDiscounts: false);
 
         $order = SubmitOrder::make()->action($order->refresh());
+
+        if (($shippingAmount = $this->getShippingAmount($shopifyOrder)) > 0) {
+            $order = UpdateOrderShippingEngineAsManual::run($order, ['shipping_amount' => $shippingAmount]);
+        }
 
         if ($warehouse = $shop->organisation->warehouses()->first()) {
             SendOrderToWarehouse::make()->action($order, [
@@ -311,6 +311,25 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
             'net_amount'   => round($netAmount, 2),
             'gross_amount' => round($grossAmount, 2),
         ];
+    }
+
+    /**
+     * What the customer paid the store for shipping, without tax as every other amount in Aiku.
+     */
+    public function getShippingAmount(array $shopifyOrder): float
+    {
+        $taxesIncluded = (bool) Arr::get($shopifyOrder, 'taxesIncluded', false);
+
+        $shippingAmount = collect(Arr::get($shopifyOrder, 'shippingLines.nodes', []))
+            ->reject(fn (array $shippingLine) => Arr::get($shippingLine, 'isRemoved', false))
+            ->sum(function (array $shippingLine) use ($taxesIncluded) {
+                $price = (float) Arr::get($shippingLine, 'discountedPriceSet.shopMoney.amount', 0);
+                $tax   = collect(Arr::get($shippingLine, 'taxLines', []))->sum(fn (array $taxLine) => (float) Arr::get($taxLine, 'priceSet.shopMoney.amount', 0));
+
+                return $taxesIncluded ? $price - $tax : $price;
+            });
+
+        return round(max($shippingAmount, 0), 2);
     }
 
     public function findProduct(Shop $shop, array $lineItem): ?Product
