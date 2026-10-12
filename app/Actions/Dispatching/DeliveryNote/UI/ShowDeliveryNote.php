@@ -1601,7 +1601,7 @@ class ShowDeliveryNote extends OrgAction
 
     public function getDeliveryNoteNotes(DeliveryNote $deliveryNote): array
     {
-        $canWork = request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeWorkedOnBy(request()->user());
+        $canWork = request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeNotedBy(request()->user());
 
         return [
             "note_list" => [

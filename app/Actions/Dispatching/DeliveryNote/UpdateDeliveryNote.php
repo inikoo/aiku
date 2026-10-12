@@ -34,7 +34,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDeliveryNote extends OrgAction
 {
-    use WithDeliveryNoteWorkAuthorisation;
+    use WithDeliveryNoteWorkAuthorisation {
+        authorize as authorizeWarehouseWork;
+    }
     use WithActionUpdate;
     use WithFixedAddressActions;
     use WithNoStrictRules;
@@ -114,6 +116,20 @@ class UpdateDeliveryNote extends OrgAction
         }
 
         return $deliveryNote;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->authorizeWarehouseWork($request)) {
+            return true;
+        }
+
+        $deliveryNote = $request->route('deliveryNote');
+
+        return $deliveryNote instanceof DeliveryNote
+            && $request->all() !== []
+            && $request->except(DeliveryNote::STAFF_NOTE_FIELDS) === []
+            && $deliveryNote->canBeNotedBy($request->user());
     }
 
     public function rules(): array
