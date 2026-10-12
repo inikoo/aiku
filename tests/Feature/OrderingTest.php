@@ -82,6 +82,7 @@ use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
 use App\Actions\Ordering\Order\UpdateOrderDeliveryAddress;
 use App\Actions\Ordering\Order\UpdateOrderGiftMessage;
 use App\Actions\Ordering\Order\PdfOrderGiftMessage;
+use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
 use App\Actions\Ordering\Order\UpdateOrderIsShippingTBC;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Billables\Service\StoreService;
@@ -3026,6 +3027,62 @@ test('paid then refunded order reads refunded not unpaid', function () {
     expect($order->pay_status)->toBe(OrderPayStatusEnum::UNPAID)
         ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::REFUNDED)
         ->and((float)$order->payment_amount)->toBe(0.0);
+});
+
+test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+    $total = (float)$order->total_amount;
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'ZT'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    $order->forceFill(['total_amount' => 0])->saveQuietly();
+    UpdateOrderPaymentsStatus::run($order);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe($total);
+
+    $partialRefund = round($total / 2, 2);
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => -$partialRefund,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe(round($total - $partialRefund, 2));
 });
 
 test('service only order sent to warehouse skips delivery note', function () {
