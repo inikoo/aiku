@@ -1,8 +1,8 @@
 ---
 title: Configurar una máquina de fichar
 summary: Crea una máquina de fichar en unos pocos clics, pon su enlace de kiosco en una tablet o sus códigos QR en la pared, y sepa dónde acaba cada fichaje.
-date: 2026-08-31
-source_date: 2026-08-31
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, clocking
 category: hr
 series: Clocking in and out
@@ -74,6 +74,7 @@ La página de **edit** de la máquina reúne los controles habituales: renombrar
 <li><b>Imprimir códigos QR:</b> abre una máquina QR Code → <b>Generate QR code</b>, dale una etiqueta; gestiona etiquetas y el interruptor active en su lista de códigos QR.</li>
 <li><b>Comprobación de ubicación:</b> la página <b>edit</b> de la máquina → QR Settings → <b>Allow Coordinates Matching</b>, el pin del mapa y el radio.</li>
 <li><b>Ver fichajes:</b> la pestaña <b>Clockings</b> de la máquina, la lista de fichajes del centro de trabajo, o el parte de horas del empleado.</li>
+<li><b>Arreglar un fichaje erróneo o que falta:</b> consulta <a href="/docs/correcting-a-clocking-es">Corregir un fichaje</a>.</li>
 </ul>
 <strong>Permisos que necesitas</strong>
 <ul>

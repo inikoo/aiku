@@ -1,8 +1,8 @@
 ---
 title: Dar de alta a un nuevo empleado
 summary: Añade un nuevo empleado a aiku — sus datos personales, condiciones laborales y puestos de trabajo — y, si lo necesita, dale su propio acceso desde el mismo formulario.
-date: 2026-08-31
-source_date: 2026-08-31
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr
 category: hr
 ---
@@ -62,6 +62,7 @@ Cualquier cosa que te hayas saltado — dirección, fechas de contrato, puestos 
 <ul>
 <li><b>Añadir a alguien:</b> tu organización → <b>HR → Employees</b> → <b>Create Employee</b>.</li>
 <li><b>Corregir o terminar más tarde:</b> abre el empleado → <b>Edit</b>. Contracts, timesheets y positions tienen sus propias pestañas en la página del empleado.</li>
+<li><b>Sus ausencias:</b> la pestaña <b>Leave</b> de la página del empleado — solicitudes, días disfrutados y quién cubrió. Consulta <a href="/docs/handling-leave-requests-es">Gestionar las solicitudes de ausencia</a>.</li>
 <li><b>PIN de fichaje:</b> en la página del empleado — véelo o regenéralo ahí.</li>
 <li><b>Varias altas a la vez:</b> la lista de Employees también ofrece una plantilla de hoja de cálculo que puedes descargar, rellenar y subir.</li>
 </ul>

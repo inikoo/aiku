@@ -1,7 +1,7 @@
 ---
 title: Reading the HR dashboard
 summary: The first screen under HR — who is in today, who is late, who is off and why, plus the week's leave, this month's leave types and birthdays. Every number is a link to the people behind it.
-date: 2026-09-02
+date: 2026-10-12
 tags: hr, attendance, leave, clocking
 category: hr
 help_routes: grp.org.hr.dashboard
@@ -66,21 +66,21 @@ The arrows and the date picker next to the heading move the whole view — cards
 
 The bottom row does not depend on the chosen date; it always describes now.
 
-- **Leave overview** — a bar per weekday, Monday to Friday of the current week, showing how many employees have approved leave that day. Today's bar is green.
+- **Leave overview** — a bar per weekday, Monday to Friday of the current week, showing how many employees have approved leave that day. Today's bar is green. The heading names the period, *This week* with its dates; click the heading or a bar to open the leave calendar on that week.
 - **Employee leaves** — the next twenty approved leaves that have not ended yet, soonest first, with the type and the dates. This is your "who is off soon" list.
-- **Leave types** — a donut of this month's approved leave, one slice per type, counting employees rather than days. The centre shows the total number of employees who have some leave this month.
+- **Leave types** — a donut of this month's approved leave, one slice per type, counting employees rather than days. The centre shows the total number of employees who have some leave this month. The heading says *This month* and opens the leave calendar for the month; click a type in the list to open Leave Requests on the approved requests of that type.
 - **Birthdays this month** — working employees with a birthday this month, in date order, today's marked with a cake.
 
-Leave that is still *pending* approval appears nowhere on this page. Approve it under **Leave requests** first.
+Leave that is still *pending* approval appears nowhere on this page. Approve it under **Leave Requests** first; see <a href="/docs/handling-leave-requests">Handling leave requests</a>.
 
 ## Quick actions
 
 The panel on the right is the four things HR does most:
 
-- **Create employee** — the form described in <a href="/docs/setting-up-a-new-employee">Setting up a new employee</a>.
-- **Record leave** — enter leave on someone's behalf; it is approved as you save it, so it counts on the dashboard immediately.
-- **Leave requests** — the queue of what staff have asked for.
-- **Leave calendar** — the month view of who is off.
+- **New employee** — the form described in <a href="/docs/setting-up-a-new-employee">Setting up a new employee</a>.
+- **Record leave** — opens Leave Requests with the **Record leave** box ready, to enter leave on someone's behalf; it is approved as you save it, so it counts on the dashboard immediately.
+- **Leave requests** — the queue of what staff have asked for. See <a href="/docs/handling-leave-requests">Handling leave requests</a>.
+- **Leave calendar** — the month or week view of who is off.
 
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
@@ -90,7 +90,7 @@ The panel on the right is the four things HR does most:
 <li><b>A photo instead of initials:</b> open the employee → <b>Edit</b> → <b>Photo</b> (HR edit rights). People with an aiku login can also set their own avatar under <b>Profile</b>.</li>
 <li><b>Another day:</b> the arrows or the date picker above the table; <b>Today</b> to return.</li>
 <li><b>The start time lateness is measured against:</b> <b>HR → Shift Schedules</b>. The fifteen-minute grace period is fixed; ask aiku support if your organisation needs a different one.</li>
-<li><b>Get pending leave onto the dashboard:</b> <b>HR → Leave requests</b> → approve.</li>
+<li><b>Get pending leave onto the dashboard:</b> <b>HR → Leave Requests</b> → <b>Approve</b>.</li>
 </ul>
 </aside>
 

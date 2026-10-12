@@ -1,8 +1,8 @@
 ---
 title: Cómo leer el panel de HR
 summary: La primera pantalla de HR — quién está hoy, quién llegó tarde, quién está de baja y por qué, más las ausencias de la semana, los tipos de ausencia del mes y los cumpleaños. Cada número es un enlace a las personas que hay detrás.
-date: 2026-09-02
-source_date: 2026-09-02
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, attendance, leave, clocking
 category: hr
 ---
@@ -66,21 +66,21 @@ Las flechas y el selector de fecha junto al título mueven toda la vista — tar
 
 La fila inferior no depende de la fecha elegida; siempre describe el ahora.
 
-- **Leave overview** — una barra por día laborable, de lunes a viernes de la semana actual, con cuántos empleados tienen ausencia aprobada ese día. La barra de hoy es verde.
+- **Leave overview** — una barra por día laborable, de lunes a viernes de la semana actual, con cuántos empleados tienen ausencia aprobada ese día. La barra de hoy es verde. El encabezado indica el periodo, *This week* con sus fechas; pulsa el encabezado o una barra para abrir el calendario de ausencias en esa semana.
 - **Employee leaves** — las próximas veinte ausencias aprobadas que aún no han terminado, las más cercanas primero, con el tipo y las fechas. Esta es tu lista de "quién se va pronto".
-- **Leave types** — un donut de las ausencias aprobadas de este mes, una porción por tipo, contando empleados y no días. El centro muestra el total de empleados con alguna ausencia este mes.
+- **Leave types** — un donut de las ausencias aprobadas de este mes, una porción por tipo, contando empleados y no días. El centro muestra el total de empleados con alguna ausencia este mes. El encabezado dice *This month* y abre el calendario de ausencias del mes; pulsa un tipo de la lista para abrir Leave Requests con las solicitudes aprobadas de ese tipo.
 - **Birthdays this month** — empleados en activo que cumplen años este mes, por fecha, con una tarta en el de hoy.
 
-Las ausencias aún *pendientes* de aprobación no aparecen en ninguna parte de esta página. Apruébalas antes en **Leave requests**.
+Las ausencias aún *pendientes* de aprobación no aparecen en ninguna parte de esta página. Apruébalas antes en **Leave Requests**; consulta <a href="/docs/handling-leave-requests-es">Gestionar las solicitudes de ausencia</a>.
 
 ## Acciones rápidas
 
 El panel de la derecha son las cuatro cosas que HR hace más a menudo:
 
-- **Create employee** — el formulario descrito en <a href="/docs/setting-up-a-new-employee-es">Configurar un nuevo empleado</a>.
-- **Record leave** — registrar una ausencia en nombre de alguien; queda aprobada al guardarla, así que cuenta en el panel de inmediato.
-- **Leave requests** — la cola de lo que el personal ha pedido.
-- **Leave calendar** — la vista mensual de quién está de baja.
+- **New employee** — el formulario descrito en <a href="/docs/setting-up-a-new-employee-es">Dar de alta a un nuevo empleado</a>.
+- **Record leave** — abre Leave Requests con el cuadro **Record leave** ya listo, para registrar una ausencia en nombre de alguien; queda aprobada al guardarla, así que cuenta en el panel de inmediato.
+- **Leave requests** — la cola de lo que el personal ha pedido. Consulta <a href="/docs/handling-leave-requests-es">Gestionar las solicitudes de ausencia</a>.
+- **Leave calendar** — la vista mensual o semanal de quién está de baja.
 
 <aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
 <ul>
@@ -90,7 +90,7 @@ El panel de la derecha son las cuatro cosas que HR hace más a menudo:
 <li><b>Una foto en lugar de iniciales:</b> abre el empleado → <b>Edit</b> → <b>Photo</b> (con permisos de edición de HR). Quien tenga login de aiku también puede poner su propio avatar en <b>Profile</b>.</li>
 <li><b>Otro día:</b> las flechas o el selector de fecha sobre la tabla; <b>Today</b> para volver.</li>
 <li><b>La hora de inicio contra la que se mide el retraso:</b> <b>HR → Shift Schedules</b>. Los quince minutos de cortesía son fijos; pregunta al soporte de aiku si tu organización necesita otro margen.</li>
-<li><b>Llevar una ausencia pendiente al panel:</b> <b>HR → Leave requests</b> → aprobar.</li>
+<li><b>Llevar una ausencia pendiente al panel:</b> <b>HR → Leave Requests</b> → <b>Approve</b>.</li>
 </ul>
 </aside>
 

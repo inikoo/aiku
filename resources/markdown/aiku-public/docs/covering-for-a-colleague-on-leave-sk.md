@@ -1,8 +1,8 @@
 ---
 title: Zastupovanie kolegu na dovolenke
 summary: Keď je niekto neprítomný, HR vyberie kolegu, ktorý ho zastúpi. Počas dní neprítomnosti zastupujúci dostane oprávnenia chýbajúceho, pridá sa k jeho otvoreným úlohám a tiketom a na jednom mieste vidí všetko, čo po sebe nechal otvorené. Oprávnenia sa po skončení neprítomnosti vrátia samy.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, tasks
 category: hr
 ---
@@ -53,7 +53,7 @@ Kým neprítomnosť trvá, zastupujúci sa pridá ako spolupracovník k otvoren�
 
 Panel <b>Covering for</b> v pravom bočnom paneli ukazuje tých istých ľudí, s počtom položiek, ktoré treba vybaviť, a či je zastupovanie <b>now</b> (teraz) alebo <b>upcoming</b> (nadchádzajúce). Ikona kľúča znamená, že máte jeho oprávnenia.
 
-V <b>HR → Employees</b> stĺpec <b>Covered by</b> ukazuje, kto zastupuje každého, kto je dnes neprítomný.
+V <b>Leave Requests</b> a v záložke <b>Leave</b> na stránke zamestnanca každá neprítomnosť ukazuje, kto ju zastupuje, v <b>Covered by</b>. Pozrite <a href="/docs/handling-leave-requests-sk">Vybavovanie žiadostí o neprítomnosť</a>.
 
 ## Stránka Absence cover
 

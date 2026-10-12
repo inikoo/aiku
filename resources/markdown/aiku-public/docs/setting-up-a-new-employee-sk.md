@@ -1,8 +1,8 @@
 ---
 title: Nastavenie nového zamestnanca
 summary: Pridajte nového zamestnanca do aiku — jeho osobné údaje, pracovné podmienky a pracovné pozície — a ak to potrebuje, dajte mu v tom istom formulári aj vlastné prihlásenie.
-date: 2026-08-31
-source_date: 2026-08-31
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr
 category: hr
 ---
@@ -62,6 +62,7 @@ Stlačenie save vás presunie na stránku nového zamestnanca a na pozadí sa u�
 <ul>
 <li><b>Pridať niekoho:</b> vaša organizácia → <b>HR → Employees</b> → <b>Create Employee</b>.</li>
 <li><b>Doplniť alebo opraviť neskôr:</b> otvorte zamestnanca → <b>Edit</b>. Zmluvy, výkazy pracovného času a pozície majú na stránke zamestnanca vlastné záložky.</li>
+<li><b>Jeho neprítomnosti:</b> záložka <b>Leave</b> na stránke zamestnanca — žiadosti, vyčerpané dni a kto zastupoval. Pozrite <a href="/docs/handling-leave-requests-sk">Vybavovanie žiadostí o neprítomnosť</a>.</li>
 <li><b>Dochádzkový PIN:</b> na stránke zamestnanca — zobrazte ho alebo tam vygenerujte nový.</li>
 <li><b>Viac nových zamestnancov naraz:</b> zoznam Employees ponúka aj šablónu tabuľky na stiahnutie, vyplnenie a nahratie.</li>
 </ul>
