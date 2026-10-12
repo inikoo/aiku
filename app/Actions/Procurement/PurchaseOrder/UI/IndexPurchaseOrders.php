@@ -83,12 +83,14 @@ class IndexPurchaseOrders extends OrgAction
         return [
             'state'          => [
                 'label'    => __('State'),
-                'elements' => collect(PurchaseOrderStateEnum::labels())->map(
-                    fn ($label, $state) => [
-                        $label,
-                        $supplierStats?->{'number_purchase_orders_state_'.$state},
-                    ],
-                )->all(),
+                'elements' => collect(PurchaseOrderStateEnum::labels())
+                    ->except($this->getParentOrganisationAgent($parent) ? [PurchaseOrderStateEnum::IN_PROCESS->value] : [])
+                    ->map(
+                        fn ($label, $state) => [
+                            $label,
+                            $supplierStats?->{'number_purchase_orders_state_'.$state},
+                        ],
+                    )->all(),
                 'engine'   => function ($query, $elements) {
                     $query->whereIn('purchase_orders.state', $elements);
                 },
@@ -272,7 +274,9 @@ class IndexPurchaseOrders extends OrgAction
                 ->column(key: 'state', label: __('State'), canBeHidden: false)
                 ->column(key: 'reference', label: __('Reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if (!($parent instanceof OrgSupplierProduct)) {
+            $organisationAgent = $this->getParentOrganisationAgent($parent);
+
+            if (!($parent instanceof OrgSupplierProduct) && !$organisationAgent) {
                 $table->column(key: 'agent_order_reference', label: __('Agent order'), sortable: true);
             }
 
@@ -280,8 +284,8 @@ class IndexPurchaseOrders extends OrgAction
                 $table->column(key: 'parent_name', label: __('Supplier'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if ($parent instanceof Group || $parent instanceof Supplier || $this->getParentOrganisationAgent($parent)) {
-                $table->column(key: 'organisation_name', label: __('Organisation'), canBeHidden: false, searchable: true);
+            if ($parent instanceof Group || $parent instanceof Supplier || $organisationAgent) {
+                $table->column(key: 'organisation_name', label: $organisationAgent ? __('Client') : __('Organisation'), canBeHidden: false, searchable: true);
             }
 
             if ($parent instanceof OrgSupplierProduct) {
