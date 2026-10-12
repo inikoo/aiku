@@ -147,6 +147,10 @@ class EditPurchaseOrder extends OrgAction
     private function agentSections(PurchaseOrder $purchaseOrder): array
     {
         return [
+            ...array_values(array_filter(
+                $this->termsSections($purchaseOrder),
+                fn (array $section) => Arr::has($section, 'fields.estimated_production_date')
+            )),
             ...$this->productionSections($purchaseOrder),
             [
                 'label'  => __('Clean handover'),
