@@ -134,6 +134,14 @@ class ShowSeoKeywords extends OrgAction
                 'weekly' => PostSerpTasks::WEEKLY_DEPTH,
                 'daily'  => PostSerpTasks::DAILY_DEPTH,
             ],
+            'costPerPage'    => PostSerpTasks::COST_PER_PAGE,
+            'checkNow'       => $this->canEdit ? [
+                ...PostSerpTasks::make()->requestable($shop),
+                'route' => [
+                    'name'       => 'grp.models.shop.seo.keyword_checks.store',
+                    'parameters' => [$shop->id],
+                ],
+            ] : null,
             'runChecksRoute' => app()->environment('local') && $this->canEdit ? [
                 'name'       => 'grp.models.shop.seo.rank_checks.store',
                 'parameters' => [$shop->id],

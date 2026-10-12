@@ -1,6 +1,6 @@
 # Status
 
-Where each part of the [implementation plan](implementation-plan.md) stands, as of 9 October 2026.
+Where each part of the [implementation plan](implementation-plan.md) stands, as of 12 October 2026.
 Nothing here has been deployed yet.
 
 ## Done
@@ -17,7 +17,7 @@ Nothing here has been deployed yet.
 | 1.4 Page speed | Core Web Vitals (LCP, INP, CLS) from real visits, per website and per page, following HELP-3303: Google's Chrome UX Report and visitors' browsers | SEO dashboard: Page speed card and Page speed tab |
 | 2.1 Keyword research | Volume, 12 month trend, difficulty, intent and CPC for up to 5 seed keywords and the keywords that contain them, or the keywords a URL ranks for, through DataForSEO Labs; Search Console queries with the same words | SEO > Keywords: Research tab |
 | Tracked keywords and competitors | The keyword list and competitor domains per shop, set by the team | SEO > Keywords: Tracked keywords tab; SEO > Competitors |
-| 2.2 Rank tracking | Google position of every tracked keyword, weekly (top 30) or daily (top 20), with SERP features, AI Overview citations and competitor positions; volumes refreshed monthly | SEO > Keywords: Rankings tab |
+| 2.2 Rank tracking | Google position of every tracked keyword, on request with Check now (the default), monthly or weekly (top 30), or daily (top 20), with SERP features, AI Overview citations and competitor positions; volumes refreshed monthly | SEO > Keywords: Rankings tab |
 | 3.1 Backlinks | Weekly rank, referring domains and backlinks for our websites and competitors; our links one by one every four weeks with new, lost and broken; backlink gap against up to four domains; backlinks per 404 path | SEO > Backlinks; SEO dashboard: Missing pages tab |
 | 3.2 Competitor research | Competitor domains and the ones Google results suggest; domain comparison (links, organic keywords, estimated traffic, intent) and keyword gap against up to four domains, in the shop's market | SEO > Competitors |
 | 3.3 AI visibility | The team's prompts sent to ChatGPT weekly per country through DataForSEO: whether the answer names us and the competitors, our place in its list, the sources it cites (our pages matched to webpages); monthly LLM Mentions of our domain and the competitors in Google AI Overviews and ChatGPT | SEO > AI visibility; AI prompts column in Top pages; SEO portfolio; weekly SEO report |
@@ -42,7 +42,7 @@ Nothing here has been deployed yet.
 
 | Part | What has to happen first |
 | --- | --- |
-| Switching rank tracking on | Approve the monthly budget ([budget.md](budget.md)) and fill the tracked keyword list and competitors; nothing is checked while the list is empty |
+| Switching rank tracking on | Approve the monthly budget ([budget.md](budget.md)) and fill the tracked keyword list and competitors; a new keyword is only checked when someone presses Check now, until it is set to Monthly, Weekly or Daily |
 | Switching AI visibility on | The team writes ten to twenty prompts per brand and checks the brand names on SEO > AI visibility > Prompts; no prompt is sent while the list is empty. LLM Mentions runs monthly without prompts |
 
 ### Phase 3: the outside world
@@ -58,8 +58,9 @@ Found against the marketing team's research of 8 October 2026; see
 
 | Part | What has to happen first |
 | --- | --- |
-| Tracking depth per keyword (top 20, 30 or 100) | The team's go-ahead; top 100 costs more per check |
-| Content briefs, competitor page changes | Optional; the team's go-ahead |
+| Content briefs | Agreed by the marketing team on 12 October 2026; next to build |
+| Competitor page changes | The marketing team is still discussing it |
+| Research for ChatGPT Ads, Amazon Ads and eBay | The PPC team's markets, whether it needs research before launch or reports after, and who owns the ad accounts |
 
 ### Still open in Phase 1
 

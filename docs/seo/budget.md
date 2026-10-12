@@ -67,7 +67,7 @@ and 5,000 keywords checked that way through DataForSEO cost about $900 a month o
 
 | Part | Settings | Per month |
 | --- | --- | --- |
-| Rank tracking | 5,000 keywords weekly (top 30), plus 500 key keywords daily (top 20) | ~$60 |
+| Rank tracking | At most: 5,000 keywords weekly (top 30), plus 500 key keywords daily (top 20). New keywords are checked on request only ($0.0018 a check), so the real spend follows what the team sets to Monthly, Weekly or Daily | up to ~$60 |
 | Keyword research | | ~$5 |
 | Backlinks | Weekly summaries, our own link lists monthly | ~$50 |
 | Competitor and gap tools | | ~$25 |
