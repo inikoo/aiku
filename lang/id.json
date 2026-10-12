@@ -13955,6 +13955,8 @@
     "Set as confirmed by the supplier.": "Ditandai sebagai dikonfirmasi oleh pemasok.",
     "Estimated date the supplier dispatches the goods to the agent": "Perkiraan tanggal pemasok mengirim barang ke agen",
     "Estimated date the supplier dispatches the goods": "Perkiraan tanggal pemasok mengirim barang",
+    "Date the buyer or the agent proposes the goods will be ready for handover": "Tanggal yang diusulkan pembeli atau agen bahwa barang siap diserahkan",
+    "Ready date approved by management, in answer to the proposed date": "Tanggal siap yang disetujui manajemen, sebagai jawaban atas tanggal yang diusulkan",
     "Estimated date the goods arrive at the delivery address": "Perkiraan tanggal barang tiba di alamat pengiriman",
     "Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.": "Klik setelah pemasok menyatakan sanggup menyediakan produk ini. Ini hanya mencatat jawaban mereka di sini, tidak ada yang dikirim ke pemasok.",
     "Set as default": "Tetapkan sebagai default",

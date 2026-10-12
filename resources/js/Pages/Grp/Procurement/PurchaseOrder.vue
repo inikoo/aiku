@@ -928,11 +928,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<span v-else class="text-gray-700">{{ box_stats.first_block.orderer.via_agent.name }}</span>
 				</div>
 				<div v-if="box_stats.first_block.clean_handover" class="flex flex-col gap-1 text-sm text-gray-500">
-					<div class="flex items-center gap-3">
+					<div v-tooltip="ctrans('Date the buyer or the agent proposes the goods will be ready for handover')" class="flex w-fit items-center gap-3">
 						<FontAwesomeIcon icon="fal fa-calendar-alt" class="text-gray-400" aria-hidden="true" fixed-width />
 						<span>{{ ctrans("Proposed ready") }}: {{ box_stats.first_block.clean_handover.proposed_ready_at ? useFormatTime(box_stats.first_block.clean_handover.proposed_ready_at) : "-" }}</span>
 					</div>
-					<div class="flex items-center gap-3">
+					<div v-tooltip="ctrans('Ready date approved by management, in answer to the proposed date')" class="flex w-fit items-center gap-3">
 						<FontAwesomeIcon icon="fal fa-calendar-alt" class="text-gray-400" aria-hidden="true" fixed-width />
 						<span>{{ ctrans("Approved ready") }}: {{ box_stats.first_block.clean_handover.approved_ready_at ? useFormatTime(box_stats.first_block.clean_handover.approved_ready_at) : "-" }}</span>
 					</div>
