@@ -70,6 +70,8 @@ class StoreLeaveConcurrencyTarget extends OrgAction
 
     public function asController(Organisation $organisation, LeaveConcurrencyRule $leaveConcurrencyRule, ActionRequest $request): LeaveConcurrencyTarget
     {
+        abort_unless($leaveConcurrencyRule->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($leaveConcurrencyRule, $this->validatedData);

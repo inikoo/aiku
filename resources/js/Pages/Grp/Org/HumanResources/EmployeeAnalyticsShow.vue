@@ -77,6 +77,11 @@ const formatNumber = (num: number | null | undefined, decimals = 2): string => {
 	return num.toFixed(decimals)
 }
 
+const formatDays = (days: number | null | undefined): string => {
+	const value = Number(days ?? 0)
+	return Number.isInteger(value) ? String(value) : value.toFixed(1)
+}
+
 const getLeaveColor = (type: string): string => {
 	const colors: Record<string, string> = {
 		annual: "bg-blue-500",
@@ -129,11 +134,11 @@ const getLeaveColor = (type: string): string => {
 							<div class="text-sm text-gray-500">{{ ctrans("Working Days") }}</div>
 						</div>
 						<div class="text-center p-4 bg-green-50 rounded-lg">
-							<div class="text-2xl font-bold text-green-600">{{ formatNumber(analytics.attendance.present_days, 0) }}</div>
+							<div class="text-2xl font-bold text-green-600">{{ formatDays(analytics.attendance.present_days) }}</div>
 							<div class="text-sm text-gray-500">{{ ctrans("Present Days") }}</div>
 						</div>
 						<div class="text-center p-4 bg-red-50 rounded-lg">
-							<div class="text-2xl font-bold text-red-600">{{ formatNumber(analytics.attendance.absent_days, 0) }}</div>
+							<div class="text-2xl font-bold text-red-600">{{ formatDays(analytics.attendance.absent_days) }}</div>
 							<div class="text-sm text-gray-500">{{ ctrans("Absent Days") }}</div>
 						</div>
 						<div class="text-center p-4 rounded-lg" :class="analytics.summary.attendance_percentage >= 90 ? 'bg-green-50' : analytics.summary.attendance_percentage >= 75 ? 'bg-yellow-50' : 'bg-red-50'">
@@ -194,7 +199,7 @@ const getLeaveColor = (type: string): string => {
 					<h3 class="text-lg font-medium text-gray-900 mb-4">{{ ctrans("Leave Summary") }}</h3>
 					
 					<div class="text-center p-4 bg-blue-50 rounded-lg mb-4">
-						<div class="text-3xl font-bold text-blue-600">{{ formatNumber(analytics.leave.total_leave_days, 0) }}</div>
+						<div class="text-3xl font-bold text-blue-600">{{ formatDays(analytics.leave.total_leave_days) }}</div>
 						<div class="text-sm text-gray-500">{{ ctrans("Total Leave Days") }}</div>
 					</div>
 
@@ -208,7 +213,7 @@ const getLeaveColor = (type: string): string => {
 								<div class="w-3 h-3 rounded-full" :class="getLeaveColor(type)"></div>
 								<span class="text-sm">{{ leaveTypes[type] || type }}</span>
 							</div>
-							<span class="font-medium">{{ formatNumber(days, 0) }} {{ ctrans("days") }}</span>
+							<span class="font-medium">{{ formatDays(days) }} {{ ctrans("days") }}</span>
 						</div>
 						<div 
 							v-if="Object.keys(analytics.leave.leave_breakdown).length === 0"

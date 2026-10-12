@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $body
  * @property int $number_recipients
  * @property int $number_pending
- * @property array<int, array{path: string, name: string}> $attachments
+ * @property array<int, array{path: string, name: string, size?: int}> $attachments
+ * @property array<int, array{employee_id: int, name: string}>|null $recipients
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Organisation $organisation
@@ -31,6 +32,7 @@ class EmployeeBulkEmail extends Model
     {
         return [
             'attachments' => 'array',
+            'recipients'  => 'array',
         ];
     }
 

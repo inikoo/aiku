@@ -51,6 +51,8 @@ class UpdateRestrictedPeriod extends OrgAction
 
     public function asController(Organisation $organisation, RestrictedPeriod $restrictedPeriod, ActionRequest $request): RestrictedPeriod
     {
+        abort_unless($restrictedPeriod->organisation_id === $organisation->id, 404);
+
         $this->restrictedPeriod = $restrictedPeriod;
         $this->initialisation($organisation, $request);
 

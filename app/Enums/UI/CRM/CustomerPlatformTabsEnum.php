@@ -19,6 +19,7 @@ enum CustomerPlatformTabsEnum: string
 
     case SHOWCASE = 'showcase';
     case HISTORY  = 'history';
+    case SETTINGS = 'settings';
 
     public function blueprint(): array
     {
@@ -30,6 +31,12 @@ enum CustomerPlatformTabsEnum: string
             CustomerPlatformTabsEnum::HISTORY => [
                 'title' => __('History'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            CustomerPlatformTabsEnum::SETTINGS => [
+                'title' => __('Settings'),
+                'icon'  => 'fal fa-sliders-h',
                 'type'  => 'icon',
                 'align' => 'right',
             ],

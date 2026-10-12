@@ -19,11 +19,10 @@ const props = defineProps<{
     subSections: SubSection[]
 }>();
 
-// Check current Route is had provided routeName
-const isSubSectionActive = (routeName: string) => {
-    if (!routeName) return false;
-
-    return (layoutStore.currentRoute).includes(routeName);
+const isSubSectionActive = (subSection: SubSection) => {
+    return [subSection.root, ...(subSection.roots ?? [])]
+        .filter(Boolean)
+        .some((root) => (layoutStore.currentRoute).includes(root));
 };
 
 const isLoading = ref<string | boolean>(false)
@@ -50,7 +49,7 @@ const getTooltip = (subSection: SubSection) => {
             @finish="() => isLoading = false"
         >
             <div :class="[
-                isSubSectionActive(subSection.root)
+                isSubSectionActive(subSection)
                     ? 'bottomNavigationActive'
                     : 'bottomNavigation'
             ]" />

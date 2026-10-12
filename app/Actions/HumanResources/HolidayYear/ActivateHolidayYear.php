@@ -27,6 +27,8 @@ class ActivateHolidayYear extends OrgAction
 
     public function asController(Organisation $organisation, HolidayYear $holidayYear, ActionRequest $request): RedirectResponse
     {
+        abort_unless($holidayYear->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         $this->handle($organisation, $holidayYear);

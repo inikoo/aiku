@@ -13,6 +13,7 @@ import { capitalize } from "@/Composables/capitalize"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
 import Chart from "primevue/chart"
+import Select from "primevue/select"
 import TicketsCreatedInterval from "@/Components/Tickets/TicketsCreatedInterval.vue"
 import { useLiveTickets } from "@/Composables/useLiveTickets"
 import ProcurementOverviewPill from "@/Components/DataDisplay/Dashboard/Widget/ProcurementOverviewPill.vue"
@@ -45,6 +46,7 @@ const props = defineProps<{
         daily: { date: string; created: number; done: number; open: number }[]
         timezone: string
         by_time_of_day: [number, number, number][]
+        by_hour: { hour: number; created: number; started: number; done: number }[]
         breakdown: [string, string, string, string, string | null, number][]
         modules: { value: string; label: string; total: number }[]
         kinds: { value: string; label: string; total: number }[]
@@ -118,6 +120,47 @@ const lineOptions = computed(() => ({
     scales: {
         x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 0 } },
         y: { beginAtZero: true, ticks: { precision: 0 } },
+    },
+}))
+
+const HOURLY_SERIES: { key: "created" | "started" | "done"; label: string; color: string }[] = [
+    { key: "created", label: ctrans("Created"), color: "#c0399f" },
+    { key: "started", label: ctrans("Work started"), color: "#3b82f6" },
+    { key: "done", label: ctrans("Resolved"), color: "#1f845a" },
+]
+
+const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.days, 1)) * 100) / 100
+
+const hourLabel = (hour: number) => `${String(hour).padStart(2, "0")}:00`
+
+const hourlyChart = computed(() => ({
+    labels: props.stats.by_hour.map((row) => hourLabel(row.hour)),
+    datasets: HOURLY_SERIES.map((series) => ({
+        label: series.label,
+        data: props.stats.by_hour.map((row) => averagePerDay(row[series.key])),
+        totals: props.stats.by_hour.map((row) => row[series.key]),
+        borderColor: series.color,
+        backgroundColor: series.color,
+        tension: 0.3,
+        borderWidth: 1.5,
+        pointRadius: 2,
+    })),
+}))
+
+const hourlyOptions = computed(() => ({
+    ...lineOptions.value,
+    plugins: {
+        legend: lineOptions.value.plugins.legend,
+        tooltip: {
+            callbacks: {
+                title: (items: any[]) => `${items[0].label} – ${hourLabel((items[0].dataIndex + 1) % 24)}`,
+                label: (item: any) => `${item.dataset.label}: ${item.formattedValue} ${ctrans("per day")} (${item.dataset.totals[item.dataIndex]} ${ctrans("in total")})`,
+            },
+        },
+    },
+    scales: {
+        x: { grid: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 24, maxRotation: 0 } },
+        y: { beginAtZero: true },
     },
 }))
 
@@ -549,19 +592,25 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
             </Link>
         </div>
 
-        <div class="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-2">
-        <div class="flex flex-wrap items-center gap-2">
-            <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0" />
-            <label class="ml-auto flex items-center">
-                <select
-                    :value="stats.assignee ?? ''"
-                    class="cursor-pointer rounded-md border-gray-300 py-1 pl-2 pr-8 text-xs normal-case tracking-normal text-gray-700 transition duration-200 focus:border-[--app-accent] focus:ring-[--app-accent]"
-                    :class="stats.assignee && '!border-[--app-accent] !bg-[--app-accent-soft] !text-[--app-accent-strong]'"
+        <div class="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+        <div class="flex flex-wrap items-center gap-3">
+            <TicketsCreatedInterval :options="createdIntervals" :selected="stats.interval" compact class="min-w-0 flex-1" />
+            <label class="ml-auto flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {{ ctrans("Filter by") }}
+                <Select
+                    :modelValue="stats.assignee"
+                    :options="assigneeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="ctrans('All assignees')"
                     :aria-label="ctrans('Filter by assignee')"
-                    @change="filterByAssignee(($event.target as HTMLSelectElement).value)">
-                    <option value="">{{ ctrans("All assignees") }}</option>
-                    <option v-for="option in assigneeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
+                    size="small"
+                    filter
+                    showClear
+                    class="w-52 normal-case tracking-normal"
+                :pt="{ label: { class: '!text-xs' }, option: { class: '!text-xs' }, emptyMessage: { class: '!text-xs' }, pcFilter: { root: { class: '!text-xs !py-1' } } }"
+                    :class="stats.assignee && '!border-[--app-accent] !bg-[--app-accent-soft]'"
+                    @update:modelValue="(value) => filterByAssignee(value ?? '')" />
             </label>
         </div>
 
@@ -638,6 +687,19 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
                         </table>
                     </div>
                 </div>
+            </div>
+        </DashboardWidgetBox>
+
+        <DashboardWidgetBox v-if="reportTab === 'overview'" storageKey="tickets_reports_by_hour_collapsed">
+            <template #header>
+                <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                    <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                    {{ ctrans("Average day, hour by hour") }}
+                </span>
+                <span class="text-xs text-gray-400">{{ ctrans("Tickets per hour, averaged over the :days days of this period", { days: stats.days }) }} · {{ stats.timezone }}</span>
+            </template>
+            <div class="h-72">
+                <Chart type="line" :data="hourlyChart" :options="hourlyOptions" class="h-full" />
             </div>
         </DashboardWidgetBox>
 

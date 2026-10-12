@@ -31,6 +31,7 @@ class DashboardOvertime extends OrgAction
 
         $employeesQuery = $organisation->employees()
             ->where('state', 'working')
+            ->with(Employee::AVATAR_RELATIONS)
             ->orderBy('contact_name');
 
         if ($employeeId) {
@@ -56,10 +57,13 @@ class DashboardOvertime extends OrgAction
         $overtimeRequests = $overtimeRequestsQuery->get()->groupBy('employee_id');
 
         $calendarData = $employees->map(function (Employee $employee) use ($overtimeRequests) {
+            $avatar = $employee->avatarUrl();
+
             return [
                 'id' => $employee->id,
                 'name' => $employee->contact_name,
-                'overtimes' => $overtimeRequests->get($employee->id, collect())->map(function (OvertimeRequest $request) {
+                'avatar' => $avatar,
+                'overtimes' => $overtimeRequests->get($employee->id, collect())->map(function (OvertimeRequest $request) use ($avatar) {
                     $requestedMinutes = $request->requested_duration_minutes;
                     $recordedMinutes = $request->recorded_duration_minutes;
 
@@ -79,6 +83,7 @@ class DashboardOvertime extends OrgAction
                         'recorded_duration' => $recordedMinutes,
                         'recorded_formatted_duration' => $recordedMinutes ? floor($recordedMinutes / 60) . 'h ' . ($recordedMinutes % 60 > 0 ? ($recordedMinutes % 60) . 'm' : '') : null,
                         'employee_name' => $request->employee->contact_name,
+                        'employee_avatar' => $avatar,
                         'approver_name' => $request->approver ? $request->approver->contact_name : '-',
                         'overtime_type' => $request->overtimeType->name,
                     ];

@@ -50,6 +50,7 @@ class TimesheetsResource extends JsonResource
             'date'                      => $this->date,
             'subject_name'              => $this->subject_name,
             'subject_slug'              => $this->subject_slug ?? null,
+            'avatar'                    => $this->avatar ?? null,
             'subject_has_left'          => $subjectHasLeft,
             'start_at'                  => $startAt,
             'end_at'                    => $endAt,
