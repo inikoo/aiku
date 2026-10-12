@@ -47,7 +47,9 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Masters\MasterAsset\MasterAssetTypeEnum;
 use App\Enums\Catalogue\MasterProductCategory\MasterProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
+use App\Enums\Helpers\TaxCategories\TaxCategoryTypeEnum;
 use App\Models\Helpers\TaxCategory;
+use App\Models\Helpers\TaxNumber;
 use App\Models\Masters\MasterAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
@@ -671,6 +673,39 @@ test('a uk delivery is standard rated whatever the billing country, and a delive
     'billed in the UK, delivered in the Isle of Man' => ['GB', 'IM', 0.2],
     'both in the UK'                          => ['GB', 'GB', 0.2],
     'billed in Ukraine, delivered in France'  => ['UA', 'FR', 0.0],
+]);
+
+/**
+ * INI-095: the intra-Community exemption needs a VAT number from a member state other than the one
+ * the goods leave (VAT Directive art. 138(1)(b)); a number from the seller's own country gets its VAT.
+ */
+test('a valid eu vat number is zero rated only when another member state issued it', function (string $taxNumberCountry, string $delivery, ?bool $isSellerVatCharged) {
+    $country = fn (string $code) => Country::where('code', $code)->firstOrFail();
+    $address = fn (string $code) => new Address(array_merge(Address::factory()->definition(), [
+        'country_id'   => $country($code)->id,
+        'country_code' => $code,
+    ]));
+    $taxNumber = new TaxNumber([
+        'country_id'   => $country($taxNumberCountry)->id,
+        'country_code' => $taxNumberCountry,
+        'number'       => '123456789',
+        'valid'        => true,
+    ]);
+
+    $taxCategory = GetTaxCategory::run($country('SK'), $taxNumber, $address('AT'), $address($delivery));
+
+    $slovakStandard = TaxCategory::where('type', TaxCategoryTypeEnum::STANDARD)->where('country_id', $country('SK')->id)->where('status', true)->firstOrFail();
+
+    expect((float)$slovakStandard->rate)->toBeGreaterThan(0.0)
+        ->and($taxCategory->id)->toBe(match ($isSellerVatCharged) {
+            true  => $slovakStandard->id,
+            false => 2,
+            null  => 1,
+        });
+})->with([
+    'german number, slovak seller, delivered in Austria' => ['DE', 'AT', false],
+    'slovak number, slovak seller, delivered in Austria' => ['SK', 'AT', true],
+    'slovak number, slovak seller, exported to Norway'   => ['SK', 'NO', null],
 ]);
 
 /** A pastpay invoice rendered its pdf before its lines existed, caching an empty relation, and the
