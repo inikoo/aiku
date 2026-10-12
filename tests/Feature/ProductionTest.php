@@ -3338,6 +3338,88 @@ test('to produce board lists each artisan and their share of a split job order',
     $artefact->update(['org_stock_id' => null]);
 });
 
+test('to produce board shows the artisan and name of the step a job order is on', function () {
+    $stock    = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, array_merge(\App\Models\Goods\Stock::factory()->definition(), ['state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]));
+    $orgStock = createOrgStocks($this->organisation, [$stock])[0];
+    $artefact = StoreArtefact::make()->action($this->production, ['code' => 'STEP-'.rand(1000, 9999), 'name' => 'Made in two steps']);
+    $artefact->update(['org_stock_id' => $orgStock->id]);
+    $secondStep = stepTestManufactureTask($this->production);
+    $artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+        $secondStep->id            => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    [$maker, $packer] = collect(range(1, 2))->map(function () {
+        $modelData = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+
+        return StoreEmployee::make()->action($this->organisation, $modelData);
+    })->all();
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $jobOrder->update(['employee_id' => $maker->id]);
+    $line = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 5]);
+
+    actingAs($this->guest->getUser());
+    patch(route('grp.models.job-order-item.split', ['jobOrderItem' => $line->id]), ['assignments' => [
+        ['id' => $line->id, 'employee_id' => $maker->id, 'quantity' => 3],
+        ['employee_id' => $packer->id, 'quantity' => 2],
+    ]])->assertSessionHasNoErrors();
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $boardLine = \App\Models\Procurement\PartnerShoppingListItem::create([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'stock_id'        => $orgStock->stock_id,
+        'org_stock_id'    => $orgStock->id,
+        'quantity'        => 5,
+        'job_order_id'    => $jobOrder->id,
+    ]);
+
+    $card = function () use ($jobOrder) {
+        foreach (get(route('grp.org.productions.show.to_produce.index', [$this->organisation->slug, $this->production->slug]))->assertOk()->viewData('page')['props']['groups'] as $lane) {
+            foreach ($lane['items'] as $item) {
+                if (data_get($item, 'job_order_id') === $jobOrder->id) {
+                    return [$lane['label'], data_get($item, 'current_steps')];
+                }
+            }
+        }
+
+        return null;
+    };
+    $firstStep = $this->manufactureTask->name;
+    $everyone  = collect([$maker->contact_name, $packer->contact_name])->sort()->values()->all();
+
+    expect($card())->toBe(['Assigned', [['name' => $firstStep, 'artisans' => $everyone]]]);
+
+    $firstTask = $line->tasks()->orderBy('position')->first();
+    $session   = StartManufactureTaskSession::make()->action($this->guest->getUser(), $firstTask);
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => $firstTask->quantity_required]);
+    expect($card())->toBe(['Producing', [
+        ['name' => $firstStep, 'artisans' => [$packer->contact_name]],
+        ['name' => $secondStep->name, 'artisans' => [$maker->contact_name]],
+    ]]);
+
+    $line->refresh()->update(['employee_id' => null]);
+    $jobOrder->update(['employee_id' => null]);
+    expect($card())->toBe(['Producing', [
+        ['name' => $firstStep, 'artisans' => [$packer->contact_name]],
+        ['name' => $secondStep->name, 'artisans' => [null]],
+    ]]);
+
+    $boardLine->forceDelete();
+    $taskIds = \App\Models\Production\JobOrderItemTask::where('job_order_id', $jobOrder->id)->pluck('id');
+    \App\Models\Production\ManufactureTaskSession::whereIn('job_order_item_task_id', $taskIds)->delete();
+    \App\Models\Production\JobOrderItemTask::whereIn('id', $taskIds)->delete();
+    $jobOrder->jobOrderItems()->forceDelete();
+    $jobOrder->forceDelete();
+    $artefact->update(['org_stock_id' => null]);
+});
+
 test('to produce queue only shows lines with an artefact in this factory', function () {
     $stocks    = createStocks($this->group);
     $orgStocks = createOrgStocks($this->organisation, [$stocks[0], $stocks[1]]);

@@ -152,9 +152,10 @@ function createJobOrders(ids: number[] = Object.keys(selected).map(Number), empl
     )
 }
 
-type BoardItem = { id: number, batch_size?: number | null, packed_in?: number | null, order_quantum?: number | null, is_hitchhiker?: boolean, stock_code: string, stock_name: string, state: string, quantity: number, quantity_to_produce: number | null, maker: string | null, maker_id: number | null, preparing_at: string | null, kind?: "item" | "mix", artefact_id?: number, job_order_id?: number | null, job_order_state?: string | null, job_order_reference?: string | null, job_order_artisan?: string | null, job_order_sub_jobs?: { reference: string, artisan: string | null, quantity: number }[], stock_available?: number | null, stock_promised?: number | null, buyer_code?: string | null, published_labels?: PublishedLabel[], batch_code?: string | null, run_batch_code?: string | null, run_expiry?: string | null, label_expiry_date?: string | null, pipeline?: { pending_booking: number, in_production: number, job_orders: string[] } }
+type BoardItem = { id: number, batch_size?: number | null, packed_in?: number | null, order_quantum?: number | null, is_hitchhiker?: boolean, stock_code: string, stock_name: string, state: string, quantity: number, quantity_to_produce: number | null, maker: string | null, maker_id: number | null, preparing_at: string | null, kind?: "item" | "mix", artefact_id?: number, job_order_id?: number | null, job_order_state?: string | null, job_order_reference?: string | null, job_order_artisan?: string | null, current_steps?: { name: string, artisans: (string | null)[] }[], job_order_sub_jobs?: { reference: string, artisan: string | null, quantity: number }[], stock_available?: number | null, stock_promised?: number | null, buyer_code?: string | null, published_labels?: PublishedLabel[], batch_code?: string | null, run_batch_code?: string | null, run_expiry?: string | null, label_expiry_date?: string | null, pipeline?: { pending_booking: number, in_production: number, job_orders: string[] } }
 
 function artisansOf(item: BoardItem): string[] {
+    if (item.current_steps?.length) return [...new Set(item.current_steps.flatMap(step => step.artisans.map(artisan => artisan ?? "")))]
     return item.job_order_sub_jobs?.length
         ? [...new Set(item.job_order_sub_jobs.map(subJob => subJob.artisan ?? ""))]
         : [item.job_order_artisan ?? ""]
@@ -883,7 +884,16 @@ function jobOrderHref(item: { job_order_slug: string }) {
                             </template>
                         </div>
                     </div>
-                    <div v-if="item.job_order_sub_jobs?.length" class="space-y-0.5 text-gray-600">
+                    <div v-if="item.current_steps?.length" class="space-y-0.5 text-gray-600">
+                        <div v-for="step in item.current_steps" :key="step.name" class="flex items-center gap-1" :title="ctrans('Current step: :step', { step: step.name })">
+                            <FontAwesomeIcon icon="fal fa-user-hard-hat" class="text-gray-400" fixed-width />
+                            <span class="truncate">
+                                <template v-for="(artisan, artisanIndex) in step.artisans" :key="artisanIndex"><template v-if="artisanIndex">, </template><span :class="artisan ? '' : 'font-medium text-amber-600'">{{ artisan ?? ctrans("Unassigned") }}</span></template>
+                                · {{ step.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-else-if="item.job_order_sub_jobs?.length" class="space-y-0.5 text-gray-600">
                         <div v-for="subJob in item.job_order_sub_jobs" :key="subJob.reference" class="flex items-center gap-1" :title="subJob.reference">
                             <FontAwesomeIcon icon="fal fa-user-hard-hat" class="text-gray-400" fixed-width />
                             <span class="truncate">{{ subJob.artisan ?? ctrans("No artisan") }}</span>
