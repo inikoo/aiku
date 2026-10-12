@@ -176,6 +176,7 @@ const props = defineProps<{
 	costing: {
 		is_costed: boolean
 		is_partner: boolean
+		viewed_by_agent: boolean
 		can_edit: boolean
 		can_edit_payments: boolean
 		reopened: { at: string, by: string | null, reason: string } | null
@@ -373,18 +374,24 @@ const costBlocks = computed(() => {
 	const status = (missing: string | null, done: string) =>
 		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
 
+	const invoiceBlock = {
+		...firstBlock,
+		summary: money(orgCurrency, invoiceTotal),
+		summarySub: agentInvoice
+			? (agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? "" : money(agentInvoice.currency, agentInvoice.total))
+			: (sameCurrency ? "" : money(currency, goods)),
+		detail: "",
+		balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
+		balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
+		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
+	}
+
+	if (props.costing.viewed_by_agent) {
+		return [invoiceBlock]
+	}
+
 	return [
-		{
-			...firstBlock,
-			summary: money(orgCurrency, invoiceTotal),
-			summarySub: agentInvoice
-				? (agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? "" : money(agentInvoice.currency, agentInvoice.total))
-				: (sameCurrency ? "" : money(currency, goods)),
-			detail: "",
-			balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
-			balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
-			status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
-		},
+		invoiceBlock,
 		{
 			key: "landed",
 			summary: money(orgCurrency, localTotal),
@@ -1116,7 +1123,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 											:hasCharges="box_stats.invoice.charges_list.length > 0"
 											:isEstimate="box_stats.invoice.source === 'estimated'"
 										/>
-										<div v-if="isCostingVisible" class="mt-3">
+										<div v-if="isCostingVisible && !costing.viewed_by_agent" class="mt-3">
 											<Button
 												v-if="blockIndex === 0"
 												type="tertiary"
