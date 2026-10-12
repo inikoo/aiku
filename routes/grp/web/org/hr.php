@@ -76,8 +76,11 @@ use App\Actions\HumanResources\Overtime\ApproveOvertimeRequest;
 use App\Actions\HumanResources\Overtime\RejectOvertimeRequest;
 use App\Actions\HumanResources\Overtime\StoreOvertimeRequest;
 use App\Actions\HumanResources\Overtime\UI\DashboardOvertime;
+use App\Actions\HumanResources\EmployeeBulkEmail\DownloadEmployeeBulkEmailAttachment;
 use App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail;
+use App\Actions\HumanResources\EmployeeBulkEmail\UI\CreateEmployeeBulkEmail;
 use App\Actions\HumanResources\EmployeeBulkEmail\UI\IndexEmployeeBulkEmails;
+use App\Actions\HumanResources\EmployeeBulkEmail\UI\ShowEmployeeBulkEmail;
 use App\Actions\HumanResources\Holiday\UI\IndexHolidays;
 use App\Actions\HumanResources\Holiday\StoreHoliday;
 use App\Actions\HumanResources\Holiday\UpdateHoliday;
@@ -94,7 +97,10 @@ Route::get('/org-chart', ShowOrgChart::class)->name('org_chart');
 Route::get('/staff-chat', [IndexStaffChatAnalytics::class, 'inOrganisation'])->name('staff_chat.index');
 Route::get('/staff-chat/{staffConversation}', ShowStaffChatConversation::class)->name('staff_chat.show');
 Route::get('/bulk-emails', IndexEmployeeBulkEmails::class)->name('bulk_emails.index');
+Route::get('/bulk-emails/create', CreateEmployeeBulkEmail::class)->name('bulk_emails.create');
 Route::post('/bulk-emails', SendEmployeeBulkEmail::class)->name('bulk_emails.store');
+Route::get('/bulk-emails/{employeeBulkEmail}', ShowEmployeeBulkEmail::class)->name('bulk_emails.show')->whereNumber('employeeBulkEmail');
+Route::get('/bulk-emails/{employeeBulkEmail}/attachments/{attachment}', DownloadEmployeeBulkEmailAttachment::class)->name('bulk_emails.attachments.download')->whereNumber(['employeeBulkEmail', 'attachment']);
 
 Route::prefix('employees')->as('employees.')->group(function () {
     Route::get('', IndexEmployees::class)->name('index');
