@@ -92,6 +92,7 @@ use App\Models\Traits\InOrganisation;
 use App\Models\Web\Redirect;
 use App\Models\Web\SeoAiPrompt;
 use App\Models\Web\SeoCompetitor;
+use App\Models\Web\SeoContentBrief;
 use App\Models\Web\SeoTrackedKeyword;
 use App\Models\Web\Website;
 use Eloquent;
@@ -268,6 +269,7 @@ use App\Models\HumanResources\WorkSchedule;
  * @property-read LaravelCollection<int, WebUser> $webUsers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoAiPrompt> $seoAiPrompts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoCompetitor> $seoCompetitors
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoContentBrief> $seoContentBriefs
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SeoTrackedKeyword> $seoTrackedKeywords
  * @property-read Website|null $website
  * @property-read LaravelCollection<int, WorkSchedule> $workSchedules
@@ -469,6 +471,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function seoAiPrompts(): HasMany
     {
         return $this->hasMany(SeoAiPrompt::class);
+    }
+
+    public function seoContentBriefs(): HasMany
+    {
+        return $this->hasMany(SeoContentBrief::class);
     }
 
     public function invoices(): HasMany

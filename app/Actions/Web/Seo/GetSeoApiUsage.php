@@ -37,6 +37,7 @@ class GetSeoApiUsage
      * keyword research (a URL) and competitor research; it is counted as competitor research.
      */
     private const array FEATURES = [
+        'content_brief'                           => 'Content briefs',
         'content_suggestions'                     => 'Content help',
         'ai_optimization/'                        => 'AI visibility',
         'serp/'                                   => 'Rank tracking',

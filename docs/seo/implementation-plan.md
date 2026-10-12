@@ -611,10 +611,25 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   average position, tracked keywords in the top 10, referring domains with the week's new and lost,
   and DataForSEO rank, and the answers of the last 28 days that name the shop in ChatGPT (3.3);
   totals above, each website opening its shop's SEO dashboard. From stored data only.
-- **Content briefs.** 3.4 only writes meta titles and descriptions. A brief for a keyword (the
-  headings, length, questions and terms of the pages ranking in the top 10, read by our crawler from
-  the SERP results of 2.2, written up through the AI gateway) is the part of Semrush's content tools
-  the research asks for. Optional.
+- **Content briefs.** Built on 12 October 2026, after the marketing team agreed to it. SEO >
+  Keywords, tab Content briefs: a keyword, country and language give a writer's brief in about half
+  a minute, for about half a cent (one live SERP check, $0.002, and one AI gateway call, $0.0026 in
+  the first briefs).
+  - `GenerateSeoContentBrief` (a job) reads Google's top 10 for the keyword with the questions and
+    related searches it shows, fetches those pages side by side and reads their headings, length
+    and opening text (`ReadPage`, menus and footers left out), and finds our own page for the
+    search: from Search Console, else in the results, else from the rank tracking.
+  - The AI gateway writes the brief from that: search intent, kind of page, whether to improve our
+    page or write a new one, title, meta description, H1, an outline with notes, questions to
+    answer, terms to use and where to do better than the ranking pages. Guidance is in English, the
+    copy to use in the keyword's language. Lengths and counts are measured, not asked from the
+    model, and numbers or claims about our range may only come from our own page.
+  - Pages that block robots (Cloudflare, marketplaces) are marked as not read and only their Google
+    title and snippet are used; in the first two briefs 8 of 10 and 6 of 9 pages were read. Only
+    public http and https addresses are fetched.
+  - The list shows each brief with its suggested title and the typical length; a brief opens in
+    full, copies as text for the writer, can be written again (Google read afresh) or deleted. A
+    brief still pending after 10 minutes counts as failed and can be asked for again.
 - **Competitor page changes.** The research proposes Apify to watch competitor pages. Our crawler
   can fetch a short list of competitor URLs weekly and report title, content and price changes,
   without Apify. Optional.
