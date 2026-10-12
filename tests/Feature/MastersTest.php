@@ -1707,6 +1707,31 @@ test('UI Show Master Product attachments tab lists trade unit documents read onl
         ->has('attachments.documents'));
 })->depends('create master asset');
 
+test('master product page offers edit and add to other shop only to masters edit', function (MasterAsset $masterAsset) {
+    $actionKeys = fn (): array => collect(
+        get(route('grp.masters.master_shops.show.master_products.show', [
+            'masterShop'    => $masterAsset->masterShop->slug,
+            'masterProduct' => $masterAsset->slug,
+        ]))->assertOk()->viewData('page')['props']['pageHead']['actions']
+    )->filter()->pluck('key')->values()->all();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
+        expect($actionKeys())->not->toContain('edit', 'assign', 'repair-mismatch');
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.edit', 'masters.view']);
+        expect($actionKeys())->toContain('edit', 'assign');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('create master asset');
+
 test('UI Index Master Products bulk edit tab lists products with their tax preset', function () {
     $masterShop = createFreshMasterShop();
 
