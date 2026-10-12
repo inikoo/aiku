@@ -4234,7 +4234,7 @@ test('tickets are linked jira style and read from both sides', function () {
         ->and($link->type)->toBe(\App\Enums\Helpers\Ticket\TicketLinkTypeEnum::BLOCKS);
 
     $linksOf = fn ($ticket) => collect(\App\Actions\Helpers\Ticket\UI\ShowTicket::make()->linksFor($ticket->fresh(), $this->user))->map(fn ($row) => $row['label'].' '.$row['reference'])->all();
-    expect($linksOf($blocker))->toBe(['Blocks '.$blocked->reference])
+    expect($linksOf($blocker))->toBe(['Is blocking '.$blocked->reference])
         ->and($linksOf($blocked))->toContain('Is blocked by '.$blocker->reference, 'Relates to '.$customer->reference);
 
     $props = get(route('grp.tickets.show', $blocked->reference))->inertiaProps();

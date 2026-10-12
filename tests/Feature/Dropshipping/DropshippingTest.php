@@ -1320,7 +1320,7 @@ test('staff who can edit CRM manage a channel\'s settings from the channel page,
 
     expect($editable['args']['updateRoute']['name'])->toBe('grp.models.customer_sales_channel.settings.update')
         ->and($editable['args']['updateRoute']['parameters'])->toBe(['customerSalesChannel' => $channel->id])
-        ->and($editableFields->all())->toBe($customerFields->all())
+        ->and($editableFields->all())->toEqual($customerFields->all())
         ->and($readOnly['args']['updateRoute'])->toBeNull()
         ->and($readOnlyFields->keys()->all())->toBe($customerFields->keys()->all())
         ->and($readOnlyFields->every(fn ($field) => $field['readonly'] && $field['disabled'] && $field['noSaveButton'] && !isset($field['saveConfirmation'])))->toBeTrue()

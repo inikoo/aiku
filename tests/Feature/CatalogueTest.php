@@ -1209,6 +1209,7 @@ test('repair command resyncs product ingredients and origin from trade units', f
     \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [
         ['id' => $this->tradeUnit1->id, 'quantity' => 1],
     ]);
+    \App\Actions\Catalogue\Product\RepairProductIngredientsAndOriginFromTradeUnits::make()->handle($shop->id);
 
     Product::where('id', $product->id)->update([
         'marketing_ingredients' => 'Glass',

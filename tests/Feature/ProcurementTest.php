@@ -4071,16 +4071,16 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
 
     expect($keys($actionKeys($worker)))->toBe(['receive_stock_delivery', 'action']);
 
-    $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id))->assertRedirect();
+    $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), ['reason' => 'Invoice not sent yet'])->assertRedirect();
     expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::RECEIVED)
-        ->and($keys($actionKeys($worker)))->toBe(['action'])
-        ->and($keys($actionKeys($supervisor)))->toBe(['unreceive_stock_delivery', 'action']);
+        ->and($keys($actionKeys($worker)))->toBe(['book_in_link', 'action'])
+        ->and($keys($actionKeys($supervisor)))->toBe(['book_in_link', 'unreceive_stock_delivery', 'action']);
 
     $this->actingAs($worker)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertForbidden();
     $this->actingAs($supervisor)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertRedirect();
     expect($stockDelivery->refresh()->state)->not->toBe(StockDeliveryStateEnum::RECEIVED);
 
-    $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id))->assertRedirect();
+    $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), ['reason' => 'Invoice not sent yet'])->assertRedirect();
     $checkResponse = $this->actingAs($worker)->patch(route('grp.models.stock-delivery-item.set-checked', $stockDeliveryItem->id), ['unit_quantity_checked' => 10]);
     expect($checkResponse->status())->not->toBe(403)
         ->and($stockDeliveryItem->refresh()->state)->toBe(StockDeliveryItemStateEnum::CHECKED);
@@ -12508,10 +12508,11 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
         ->assertInertia(fn (AssertableInertia $page) => $page->where('uncostedStockDeliveries.value', $card['value'])->etc());
 
     foreach ($card['metrics'] as $metric) {
-        $references = collect($this->get(route($metric['route']['name'], [$this->organisation->slug, ...$metric['route']['parameters']['_query']]))
-            ->viewData('page')['props']['data']['data'])->pluck('reference');
+        $list       = $this->get(route($metric['route']['name'], [$this->organisation->slug, ...$metric['route']['parameters']['_query']]))->viewData('page')['props']['data'];
+        $references = collect($list['data'])->pluck('reference');
 
-        expect($references)->toHaveCount($metric['value'])
+        expect($list['meta']['total'])->toBe($metric['value'])
+            ->and($references)
             ->not->toContain("UNCOSTED-NEW-$token", "UNCOSTED-PLACED-$token", "COSTED-AGENT-$token");
     }
 });
