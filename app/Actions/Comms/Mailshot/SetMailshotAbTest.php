@@ -28,7 +28,7 @@ class SetMailshotAbTest extends OrgAction
     use WithMarketingEditAuthorisation;
 
     /**
-     * @param  array{enabled?: bool, variant_delay_hours?: int, tracking_hours?: int, winning_metric?: string}  $modelData
+     * @param  array{enabled?: bool, variant_delay_seconds?: int, tracking_hours?: int, winning_metric?: string}  $modelData
      *
      * @throws \Throwable
      */
@@ -47,7 +47,7 @@ class SetMailshotAbTest extends OrgAction
         }
 
         $settings = array_filter([
-            'ab_test_variant_delay_hours' => Arr::get($modelData, 'variant_delay_hours'),
+            'ab_test_variant_delay_seconds' => Arr::get($modelData, 'variant_delay_seconds'),
             'ab_test_tracking_hours'      => Arr::get($modelData, 'tracking_hours'),
             'ab_test_winning_metric'      => Arr::get($modelData, 'winning_metric'),
         ], fn ($value) => $value !== null);
@@ -114,7 +114,7 @@ class SetMailshotAbTest extends OrgAction
     {
         return [
             'enabled'             => ['sometimes', 'boolean'],
-            'variant_delay_hours' => ['sometimes', 'integer', 'min:0', 'max:168'],
+            'variant_delay_seconds' => ['sometimes', 'integer', 'min:0', 'max:604800'],
             'tracking_hours'      => ['sometimes', 'integer', 'min:1', 'max:720'],
             'winning_metric'      => ['sometimes', Rule::enum(MailshotAbTestWinningMetricEnum::class)->except(MailshotAbTestWinningMetricEnum::unavailable())],
         ];

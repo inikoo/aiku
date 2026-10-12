@@ -14,7 +14,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('mailshots', function (Blueprint $table) {
-            $table->unsignedSmallInteger('ab_test_variant_delay_hours')->default(0);
+            $table->unsignedInteger('ab_test_variant_delay_seconds')->default(0);
             $table->unsignedSmallInteger('ab_test_tracking_hours')->default(24);
             $table->string('ab_test_winning_metric')->default('click_rate');
         });
@@ -24,7 +24,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('mailshots', function (Blueprint $table) {
-            $table->dropColumn(['ab_test_variant_delay_hours', 'ab_test_tracking_hours', 'ab_test_winning_metric']);
+            $table->dropColumn(['ab_test_variant_delay_seconds', 'ab_test_tracking_hours', 'ab_test_winning_metric']);
         });
     }
 };

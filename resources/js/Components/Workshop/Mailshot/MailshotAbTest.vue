@@ -34,7 +34,7 @@ export interface AbTest {
     winning_metric: string
     winning_metric_options: { value: string, label: string, disabled: boolean }[]
     is_blocked_by_second_wave: boolean
-    variant_delay_hours: number
+    variant_delay_seconds: number
     variant_sends_at: string | null
     tracking_hours: number
     tracking_ends_at: string | null
@@ -47,6 +47,14 @@ const props = defineProps<{
     abTest: AbTest
     canEdit?: boolean
 }>()
+
+function splitDuration(totalSeconds: number) {
+    return {
+        hours: Math.floor(totalSeconds / 3600),
+        minutes: Math.floor(totalSeconds % 3600 / 60),
+        seconds: totalSeconds % 60,
+    }
+}
 
 const metrics: { key: string, label: string, isRate: boolean, isHigherBetter: boolean }[] = [
     { key: 'sent', label: ctrans('Sent'), isRate: false, isHigherBetter: true },
@@ -62,16 +70,20 @@ const metrics: { key: string, label: string, isRate: boolean, isHigherBetter: bo
     { key: 'bounce_rate', label: ctrans('Bounce rate'), isRate: true, isHigherBetter: false },
 ]
 
-const variantDelayHours = ref(props.abTest.variant_delay_hours)
+const variantDelay = ref(splitDuration(props.abTest.variant_delay_seconds))
 const trackingDays = ref(Math.floor(props.abTest.tracking_hours / 24))
 const trackingHoursOfDay = ref(props.abTest.tracking_hours % 24)
 const winningMetric = ref(props.abTest.winning_metric)
 watch(() => props.abTest, abTest => {
-    variantDelayHours.value = abTest.variant_delay_hours
+    variantDelay.value = splitDuration(abTest.variant_delay_seconds)
     trackingDays.value = Math.floor(abTest.tracking_hours / 24)
     trackingHoursOfDay.value = abTest.tracking_hours % 24
     winningMetric.value = abTest.winning_metric
 })
+
+const variantDelaySeconds = computed(() =>
+    (variantDelay.value.hours ?? 0) * 3600 + (variantDelay.value.minutes ?? 0) * 60 + (variantDelay.value.seconds ?? 0)
+)
 
 const trackingHours = computed(() => trackingDays.value * 24 + trackingHoursOfDay.value)
 
@@ -79,13 +91,13 @@ const hourOptions = Array.from({ length: 24 }, (_, hours) => ({ value: hours, la
 const dayOptions = Array.from({ length: 31 }, (_, days) => ({ value: days, label: ctrans(':count days', { count: days }) }))
 
 const isSettingsChanged = computed(() =>
-    variantDelayHours.value !== props.abTest.variant_delay_hours
+    variantDelaySeconds.value !== props.abTest.variant_delay_seconds
     || trackingHours.value !== props.abTest.tracking_hours
     || winningMetric.value !== props.abTest.winning_metric
 )
 
 const saveAllSettings = () => saveSettings({
-    variant_delay_hours: variantDelayHours.value ?? 0,
+    variant_delay_seconds: variantDelaySeconds.value,
     tracking_hours: trackingHours.value,
     winning_metric: winningMetric.value,
 })
@@ -122,7 +134,7 @@ const errorMessage = (exception: any, fallback: string): string => {
     return (Object.values(errors)[0] as string[] | undefined)?.[0] ?? fallback
 }
 
-const saveSettings = async (payload: { enabled?: boolean, variant_delay_hours?: number, tracking_hours?: number, winning_metric?: string }) => {
+const saveSettings = async (payload: { enabled?: boolean, variant_delay_seconds?: number, tracking_hours?: number, winning_metric?: string }) => {
     isSaving.value = true
     try {
         await axios.post(route(props.abTest.update_route.name, props.abTest.update_route.parameters), payload)
@@ -199,9 +211,19 @@ const winningMetricLabel = computed(() =>
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                     <div class="text-sm font-semibold text-gray-800">{{ ctrans('Send version B') }}</div>
-                    <p class="text-xs text-gray-500">{{ ctrans('Hours after version A starts sending. 0 sends both at the same time.') }}</p>
-                    <InputNumber v-model="variantDelayHours" :min="0" :max="168" :suffix="` ${ctrans('hours after A')}`"
-                        :disabled="isSaving" class="mt-2" inputClass="!h-8 !py-1 !text-sm w-44" />
+                    <p class="text-xs text-gray-500">{{ ctrans('Time after version A starts sending. 0 sends both at the same time.') }}</p>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <InputNumber v-model="variantDelay.hours" :min="0" :max="168" :suffix="` ${ctrans('h')}`"
+                            :disabled="isSaving" :aria-label="ctrans('Hours')" inputClass="!h-8 !py-1 !text-sm w-20" />
+                        <InputNumber v-model="variantDelay.minutes" :min="0" :max="59" :suffix="` ${ctrans('min')}`"
+                            :disabled="isSaving" :aria-label="ctrans('Minutes')" inputClass="!h-8 !py-1 !text-sm w-20" />
+                        <InputNumber v-model="variantDelay.seconds" :min="0" :max="59" :suffix="` ${ctrans('s')}`"
+                            :disabled="isSaving" :aria-label="ctrans('Seconds')" inputClass="!h-8 !py-1 !text-sm w-20" />
+                        <span class="text-sm text-gray-600">{{ ctrans('after A') }}</span>
+                    </div>
+                    <p v-if="variantDelaySeconds > 0" class="mt-1 text-xs text-gray-500">
+                        {{ ctrans('Sent within a minute of that time, once A has finished sending.') }}
+                    </p>
                 </div>
                 <div>
                     <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
@@ -222,7 +244,7 @@ const winningMetricLabel = computed(() =>
 
             <div v-if="isSettingsChanged" class="flex justify-end">
                 <Button type="tertiary" :label="ctrans('Save A/B test settings')" :loading="isSaving"
-                    :disabled="trackingHours < 1" @click="saveAllSettings">
+                    :disabled="trackingHours < 1 || variantDelaySeconds > 604800" @click="saveAllSettings">
                     <template #icon>
                         <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
                     </template>

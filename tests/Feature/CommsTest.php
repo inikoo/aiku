@@ -2206,11 +2206,11 @@ test('ab test route needs the mailshot of the route shop and saves the settings'
     $route     = fn (Shop $routeShop) => route('grp.models.shop.mailshot.ab-test', [$routeShop->id, $mailshot->id]);
 
     $this->post($route($otherShop), ['enabled' => false])->assertNotFound();
-    $this->post($route($shop), ['variant_delay_hours' => 200, 'tracking_hours' => 0, 'winning_metric' => 'revenue'])->assertSessionHasErrors(['variant_delay_hours', 'tracking_hours', 'winning_metric']);
+    $this->post($route($shop), ['variant_delay_seconds' => 604801, 'tracking_hours' => 0, 'winning_metric' => 'revenue'])->assertSessionHasErrors(['variant_delay_seconds', 'tracking_hours', 'winning_metric']);
     $this->post($route($shop), ['winning_metric' => MailshotAbTestWinningMetricEnum::PLACED_ORDER_RATE->value])->assertSessionHasErrors('winning_metric');
-    $this->post($route($shop), ['variant_delay_hours' => 4, 'tracking_hours' => 48, 'winning_metric' => 'open_rate'])->assertRedirect();
+    $this->post($route($shop), ['variant_delay_seconds' => 4 * 3600 + 30 * 60 + 15, 'tracking_hours' => 48, 'winning_metric' => 'open_rate'])->assertRedirect();
 
-    expect($mailshot->refresh()->ab_test_variant_delay_hours)->toBe(4)
+    expect($mailshot->refresh()->ab_test_variant_delay_seconds)->toBe(4 * 3600 + 30 * 60 + 15)
         ->and($mailshot->ab_test_tracking_hours)->toBe(48)
         ->and($mailshot->ab_test_winning_metric)->toBe(MailshotAbTestWinningMetricEnum::OPEN_RATE)
         ->and(GetMailshotAbTest::run($mailshot, true)['estimated_recipients'])->toBeInt()
@@ -2244,10 +2244,10 @@ test('ab test splits the whole list in two random halves, one per version', func
         ->and($mailshot->refresh()->recipients_count)->toBe(count($sentToVersionA));
 })->depends('outbox seeded when shop created');
 
-test('ab test version B sent hours after A goes to everyone who did not get A', function (Shop $shop) {
+test('ab test version B sent a set time after A goes to everyone who did not get A', function (Shop $shop) {
     Queue::fake();
 
-    $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop), ['variant_delay_hours' => 2]);
+    $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop), ['variant_delay_seconds' => 90 * 60]);
     $variant  = $mailshot->abTestVariant;
     createMarketingSubscribers($shop, 'ab-delay', 10);
 
@@ -2267,7 +2267,7 @@ test('ab test version B sent hours after A goes to everyone who did not get A', 
 
     RunMailshotAbTestVariants::run();
     expect($variant->refresh()->state)->toBe(MailshotStateEnum::READY)
-        ->and(GetMailshotAbTest::run($mailshot->refresh(), true)['variant_sends_at']->toIso8601String())->toBe($mailshot->start_sending_at->copy()->addHours(2)->toIso8601String());
+        ->and(GetMailshotAbTest::run($mailshot->refresh(), true)['variant_sends_at']->toIso8601String())->toBe($mailshot->start_sending_at->copy()->addMinutes(90)->toIso8601String());
 
     $mailshot->update(['start_sending_at' => now()->subHours(3)]);
     RunMailshotAbTestVariants::run();

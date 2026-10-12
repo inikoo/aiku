@@ -48,7 +48,7 @@ class GetMailshotAbTest
                 'disabled' => !$metric->isAvailable(),
             ])->all(),
             'is_blocked_by_second_wave' => $original->is_second_wave_enabled,
-            'variant_delay_hours'       => $original->ab_test_variant_delay_hours,
+            'variant_delay_seconds'     => $original->ab_test_variant_delay_seconds,
             'variant_sends_at'          => $variant && !$variant->start_sending_at ? $original->abTestVariantSendsAt() : null,
             'tracking_hours'            => $original->ab_test_tracking_hours,
             'tracking_ends_at'          => $trackingEndsAt,

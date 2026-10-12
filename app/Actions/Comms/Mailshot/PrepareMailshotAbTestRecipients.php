@@ -23,7 +23,7 @@ class PrepareMailshotAbTestRecipients
     public function handle(Mailshot $mailshot, ?Builder $audienceQuery): void
     {
         $variant          = $mailshot->abTestVariant;
-        $isVariantDelayed = $mailshot->ab_test_variant_delay_hours > 0;
+        $isVariantDelayed = $mailshot->ab_test_variant_delay_seconds > 0;
 
         if (!$isVariantDelayed) {
             $variant->update([

@@ -78,7 +78,7 @@ use App\Models\Web\Webpage;
  * @property string|null $name
  * @property string|null $preview_text
  * @property int|null $ab_test_variant_of_id
- * @property int $ab_test_variant_delay_hours
+ * @property int $ab_test_variant_delay_seconds
  * @property int $ab_test_tracking_hours
  * @property MailshotAbTestWinningMetricEnum $ab_test_winning_metric
  * @property string|null $sender_name
@@ -152,7 +152,7 @@ class Mailshot extends Model implements Auditable
         'subject',
         'schedule_at',
         'is_second_wave_enabled',
-        'ab_test_variant_delay_hours',
+        'ab_test_variant_delay_seconds',
         'ab_test_tracking_hours',
         'ab_test_winning_metric',
         'sender_name',
@@ -303,7 +303,7 @@ class Mailshot extends Model implements Auditable
 
     public function abTestVariantSendsAt(): ?Carbon
     {
-        return $this->start_sending_at?->copy()->addHours($this->ab_test_variant_delay_hours);
+        return $this->start_sending_at?->copy()->addSeconds($this->ab_test_variant_delay_seconds);
     }
 
     public function abTestTrackingEndsAt(): ?Carbon

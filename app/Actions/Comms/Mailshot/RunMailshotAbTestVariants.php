@@ -25,8 +25,8 @@ class RunMailshotAbTestVariants
     {
         $dueOriginals = Mailshot::query()
             ->where('state', MailshotStateEnum::SENT)
-            ->where('ab_test_variant_delay_hours', '>', 0)
-            ->whereRaw("start_sending_at + (ab_test_variant_delay_hours || ' hours')::interval <= ?", [Carbon::now()->utc()])
+            ->where('ab_test_variant_delay_seconds', '>', 0)
+            ->whereRaw("start_sending_at + (ab_test_variant_delay_seconds || ' seconds')::interval <= ?", [Carbon::now()->utc()])
             ->whereHas('abTestVariant', fn ($query) => $query->where('state', MailshotStateEnum::READY)->whereNull('start_sending_at'));
 
         foreach ($dueOriginals->cursor() as $mailshot) {
