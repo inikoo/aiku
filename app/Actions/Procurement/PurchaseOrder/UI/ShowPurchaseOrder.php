@@ -63,6 +63,8 @@ class ShowPurchaseOrder extends OrgAction
     use WithPurchaseOrderWeightAndVolume;
     use WithAgentOrganisation;
 
+    private const array AGENT_ACTION_KEYS = ['confirm_purchase_order', 'edit_estimated_delivery_date', 'cancel_purchase_order'];
+
     private bool $agentCanEdit = false;
 
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
@@ -225,7 +227,11 @@ class ShowPurchaseOrder extends OrgAction
                         ],
                         ...($uploadExcel ? [] : [$this->downloadExcelAction($purchaseOrder)]),
                         ...($this->emailToSupplierAction($purchaseOrder) ?? []),
-                        ...($this->canEdit ? $this->getActions($purchaseOrder, $showProductsTab) : []),
+                        ...match (true) {
+                            $this->agentCanEdit => $this->getAgentActions($purchaseOrder),
+                            $this->canEdit      => $this->getActions($purchaseOrder, $showProductsTab),
+                            default             => [],
+                        },
                     ],
                 ],
                 'upload_excel'             => $uploadExcel ? $this->uploadExcel($purchaseOrder) : null,
@@ -667,6 +673,14 @@ class ShowPurchaseOrder extends OrgAction
         }
 
         return $actions;
+    }
+
+    public function getAgentActions(PurchaseOrder $purchaseOrder): array
+    {
+        return array_values(array_filter(
+            $this->getActions($purchaseOrder, false),
+            fn (array $action) => in_array(Arr::get($action, 'key'), self::AGENT_ACTION_KEYS, true)
+        ));
     }
 
     /**
