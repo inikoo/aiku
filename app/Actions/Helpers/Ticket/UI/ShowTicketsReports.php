@@ -140,6 +140,21 @@ class ShowTicketsReports extends OrgAction
             ->get()
             ->map(fn ($row) => [(int) $row->weekday, (int) $row->slot, (int) $row->total]);
 
+        $countByHour = fn (string $column) => (clone $base)->whereBetween("tickets.$column", [$from, $to])
+            ->selectRaw("extract(hour from tickets.$column at time zone $zone)::int as hour, count(*) as total")
+            ->groupBy('hour')
+            ->toBase()
+            ->pluck('total', 'hour');
+        $createdByHour  = $countByHour('created_at');
+        $startedByHour  = $countByHour('started_at');
+        $resolvedByHour = $countByHour('resolved_at');
+        $byHour         = collect(range(0, 23))->map(fn (int $hour) => [
+            'hour'    => $hour,
+            'created' => (int) ($createdByHour[$hour] ?? 0),
+            'started' => (int) ($startedByHour[$hour] ?? 0),
+            'done'    => (int) ($resolvedByHour[$hour] ?? 0),
+        ]);
+
         $oldestOpen = (clone $base)->whereNotIn('status', [TicketStatusEnum::RESOLVED, TicketStatusEnum::CANCELLED])->orderBy('created_at')->first();
 
         return [
@@ -158,6 +173,7 @@ class ShowTicketsReports extends OrgAction
             'daily'         => $daily->values()->all(),
             'timezone'      => $timezone,
             'by_time_of_day' => $byTimeOfDay->values()->all(),
+            'by_hour'       => $byHour->all(),
             'breakdown'     => $breakdown->values()->all(),
             'modules'       => $labelled(TicketModuleEnum::labels() + ['none' => __('No module')], 1),
             'kinds'         => $labelled(TicketKindEnum::labels() + ['none' => __('No kind')], 2),

@@ -54,7 +54,7 @@ class SubmitAgentOrder extends OrgAction
 
             foreach ($withProducts as $purchaseOrder) {
                 if ($waiting = SendAgentDraftsToAgent::organisationsNotReady($purchaseOrder)) {
-                    throw ValidationException::withMessages(['agent_order' => __(':organisations are also ordering from :supplier and have not said they are ready. Send it from Drafts to send.', [
+                    throw ValidationException::withMessages(['agent_order' => __(':organisations are also ordering from :supplier and have not said they are ready. Submit it from POs to submit.', [
                         'organisations' => implode(', ', $waiting),
                         'supplier'      => $purchaseOrder->parent_code,
                     ])]);

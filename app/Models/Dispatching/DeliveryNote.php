@@ -211,6 +211,7 @@ class DeliveryNote extends Model implements Auditable
     use HasAddresses;
     use HasHistory;
     use HasSearch;
+    public const array STAFF_NOTE_FIELDS = ['private_warehouse_note', 'shipping_notes'];
 
     protected $casts = [
         'handled_in_aurora'       => 'boolean',
@@ -598,6 +599,11 @@ class DeliveryNote extends Model implements Auditable
     public function canBeShippedBy(User $user): bool
     {
         return $this->canBeWorkedOnBy($user) || $user->authTo("orders.$this->shop_id.edit");
+    }
+
+    public function canBeNotedBy(User $user): bool
+    {
+        return $this->canBeShippedBy($user);
     }
 
     public function canBeUndispatchedBy(User $user): bool

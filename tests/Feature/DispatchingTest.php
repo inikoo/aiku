@@ -2366,6 +2366,16 @@ test('delivery note steps need dispatching, and undispatching needs a supervisor
     patch(route('grp.models.delivery_note.state.auto_finish_waiting', $deliveryNote->id))->assertForbidden();
     expect($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::HANDLING_BLOCKED);
 
+    actingAsUserWithRoles($user, [RolesEnum::getRoleName(RolesEnum::CUSTOMER_SERVICE_CLERK->value, $deliveryNote->shop)]);
+    $stateBefore = $deliveryNote->refresh()->state;
+    expect($deliveryNote->canBeWorkedOnBy($user))->toBeFalse()
+        ->and($deliveryNote->canBeNotedBy($user))->toBeTrue();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), [])->assertForbidden();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), ['private_warehouse_note' => 'Check the seal', 'state' => DeliveryNoteStateEnum::DISPATCHED->value])->assertForbidden();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), ['private_warehouse_note' => 'Check the seal'])->assertSessionHasNoErrors();
+    expect($deliveryNote->refresh()->private_warehouse_note)->toBe('Check the seal')
+        ->and($deliveryNote->state)->toBe($stateBefore);
+
     actingAsUserWithRoles($user, [RolesEnum::getRoleName('dispatch-clerk', $this->warehouse)]);
     expect($can())->toBe([true, false, true]);
     patch(route('grp.models.delivery_note.state.rollback', $deliveryNote->id))->assertForbidden();

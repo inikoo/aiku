@@ -1,8 +1,8 @@
 ---
 title: Cubrir a un compañero de baja
 summary: Cuando alguien está ausente, RR. HH. elige a un compañero que lo cubra. Durante los días de la ausencia, quien cubre recibe los permisos de la persona ausente, se une a sus tareas y tickets abiertos, y ve en un solo lugar todo lo que dejó pendiente. Los permisos se retiran solos cuando termina la ausencia.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, tasks
 category: hr
 ---
@@ -53,7 +53,7 @@ Mientras dura la ausencia, quien cubre se añade como colaborador en las tareas 
 
 El panel <b>Covering for</b> de la barra lateral derecha muestra a las mismas personas, con cuántos elementos quedan por atender y si la cobertura es <b>now</b> (ahora) o <b>upcoming</b> (próxima). Un icono de llave significa que tienes sus permisos.
 
-En <b>HR → Employees</b>, la columna <b>Covered by</b> muestra quién cubre a cada persona que está ausente hoy.
+En <b>Leave Requests</b>, y en la pestaña <b>Leave</b> de la página de un empleado, cada ausencia muestra quién la cubre en <b>Covered by</b>. Consulta <a href="/docs/handling-leave-requests-es">Gestionar las solicitudes de ausencia</a>.
 
 ## La página Absence cover
 

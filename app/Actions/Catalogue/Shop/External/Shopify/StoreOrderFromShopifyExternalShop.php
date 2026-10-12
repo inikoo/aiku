@@ -3,10 +3,10 @@
 namespace App\Actions\Catalogue\Shop\External\Shopify;
 
 use App\Actions\Catalogue\Shop\Traits\WithShopifyExternalShopApi;
+use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
-use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
-use App\Actions\Ordering\Order\UpdateOrderDeliveryAddress;
+use App\Actions\Ordering\Order\UpdateOrderShippingEngineAsManual;
 use App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\SalesChannel;
 use Illuminate\Support\Arr;
@@ -84,7 +85,7 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
                 return $this->result('skipped', errors: $result['errors']);
             }
 
-            $order = DB::transaction(fn () => $this->storeOrder($shop, $shopifyOrder, $orderGid, $externalId, $shippingAddress, $result['transactions']));
+            $order = DB::transaction(fn () => $this->storeOrder($shop, $shopifyOrder, $orderGid, $externalId, $result['transactions']));
 
             return $this->result('created', $order);
         } finally {
@@ -95,10 +96,9 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
     /**
      * @throws \Throwable
      */
-    private function storeOrder(Shop $shop, array $shopifyOrder, string $orderGid, string $externalId, array $shippingAddress, array $transactions): Order
+    private function storeOrder(Shop $shop, array $shopifyOrder, string $orderGid, string $externalId, array $transactions): Order
     {
-        $customer       = StoreCustomerFromShopify::make()->handleFromOrder($shop, $shopifyOrder);
-        $billingAddress = $this->getShopifyOrderAddress($shopifyOrder, 'billingAddress') ?? $shippingAddress;
+        $customer = StoreCustomerFromShopify::make()->handleFromOrder($shop, $shopifyOrder);
 
         $orderData = [
             'is_shipping_by_external' => false,
@@ -121,6 +121,7 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
                     'totalTaxSet',
                     'totalShippingPriceSet',
                     'totalDiscountsSet',
+                    'shippingLines',
                 ]),
                 'shopify_fulfillment_order_ids' => $this->getFulfillmentOrderIds($shopifyOrder),
                 'platform_milestones' => [
@@ -135,9 +136,6 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
         }
 
         $order = StoreOrder::make()->action($customer, $orderData);
-
-        $order = UpdateOrderBillingAddress::make()->action($order, ['address' => $billingAddress]);
-        $order = UpdateOrderDeliveryAddress::make()->action($order, ['address' => $shippingAddress]);
 
         $recipient     = Arr::get($shopifyOrder, 'shippingAddress', []);
         $recipientData = array_filter([
@@ -158,7 +156,13 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
             );
         }
 
+        CalculateOrderTotalAmounts::run($order, calculateDiscounts: false);
+
         $order = SubmitOrder::make()->action($order->refresh());
+
+        if (($shippingAmount = $this->getShippingAmount($shopifyOrder)) > 0) {
+            $order = UpdateOrderShippingEngineAsManual::run($order, ['shipping_amount' => $shippingAmount]);
+        }
 
         if ($warehouse = $shop->organisation->warehouses()->first()) {
             SendOrderToWarehouse::make()->action($order, [
@@ -309,6 +313,25 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
         ];
     }
 
+    /**
+     * What the customer paid the store for shipping, without tax as every other amount in Aiku.
+     */
+    public function getShippingAmount(array $shopifyOrder): float
+    {
+        $taxesIncluded = (bool) Arr::get($shopifyOrder, 'taxesIncluded', false);
+
+        $shippingAmount = collect(Arr::get($shopifyOrder, 'shippingLines.nodes', []))
+            ->reject(fn (array $shippingLine) => Arr::get($shippingLine, 'isRemoved', false))
+            ->sum(function (array $shippingLine) use ($taxesIncluded) {
+                $price = (float) Arr::get($shippingLine, 'discountedPriceSet.shopMoney.amount', 0);
+                $tax   = collect(Arr::get($shippingLine, 'taxLines', []))->sum(fn (array $taxLine) => (float) Arr::get($taxLine, 'priceSet.shopMoney.amount', 0));
+
+                return $taxesIncluded ? $price - $tax : $price;
+            });
+
+        return round(max($shippingAmount, 0), 2);
+    }
+
     public function findProduct(Shop $shop, array $lineItem): ?Product
     {
         if ($variantId = Arr::get($lineItem, 'variant.id')) {
@@ -344,14 +367,20 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
     }
 
     /**
-     * The Shopify order name ("#1001") is unique in the store; the shop code keeps it unique in the organisation,
-     * where the delivery note takes the same reference.
+     * The order carries the number the store shows ("#1001" is 1001). The delivery note takes the same reference
+     * and that must be unique in the organisation, so a number another delivery note already has gets the shop
+     * code in front instead of failing the import.
      */
     public function getOrderReference(Shop $shop, array $shopifyOrder): string
     {
-        $name = ltrim(trim((string) Arr::get($shopifyOrder, 'name')), '#');
+        $number = ltrim(trim((string) Arr::get($shopifyOrder, 'name')), '#') ?: Str::afterLast((string) Arr::get($shopifyOrder, 'id'), '/');
 
-        return $shop->code.'-'.($name ?: Str::afterLast((string) Arr::get($shopifyOrder, 'id'), '/'));
+        $isTaken = DeliveryNote::withTrashed()
+            ->where('organisation_id', $shop->organisation_id)
+            ->whereRaw('lower(reference) = lower(?)', [$number])
+            ->exists();
+
+        return $isTaken ? $shop->code.'-'.$number : $number;
     }
 
     /**
