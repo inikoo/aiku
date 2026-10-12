@@ -420,7 +420,7 @@ function receiveIntoStock() {
                             <tr v-for="subJob in item.sub_jobs" :key="subJob.id">
                                 <td class="py-2 pr-3 whitespace-nowrap">{{ subJob.reference }}</td>
                                 <td class="py-2 pr-3">{{ subJob.artisan ?? ctrans('Anyone') }}</td>
-                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity }}</td>
+                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity_target }}</td>
                                 <td class="py-2 pr-3 min-w-32">
                                     <div class="tabular-nums">{{ subJob.quantity_made }} / {{ subJob.quantity_target }}</div>
                                     <div class="mt-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">

@@ -806,7 +806,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                             {{ ctrans("SKO") }}
                         </span>
                         <span class="ml-auto flex items-center gap-1 tabular-nums" :class="item.priority === 'urgent' ? 'text-red-600 font-semibold' : ''">
-                            ×{{ useLocaleStore().number(Number(item.quantity)) }} {{ ctrans("SKO") }}
+                            ×{{ useLocaleStore().number(Math.ceil(Number(item.quantity))) }} {{ ctrans("SKO") }}
                             <template v-if="laneIndex === LANE_PREPARING && item.state === 'open'">
                                 <span class="text-indigo-600">→</span>
                                 <input

@@ -9,10 +9,12 @@
 namespace App\Actions\Production\JobOrderItem;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\JobOrder\BatchedUnitsForDemand;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
+use App\Models\Production\Artefact;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Http\RedirectResponse;
@@ -107,6 +109,13 @@ class StoreJobOrderItem extends OrgAction
     public function asController(JobOrder $jobOrder, ActionRequest $request): JobOrderItem
     {
         $this->initialisationFromProduction($jobOrder->production, $request);
+
+        $artefact = Artefact::with('orgStock')->find($this->validatedData['artefact_id']);
+        data_set($this->validatedData, 'quantity', BatchedUnitsForDemand::make()->wholeOuters(
+            (int) $this->validatedData['quantity'],
+            $artefact->orgStock?->packed_in,
+            $artefact->recommended_batch_size
+        ));
 
         return $this->handle($jobOrder, $this->validatedData);
     }

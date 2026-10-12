@@ -138,6 +138,13 @@ class SplitJobOrderItem extends OrgAction
             return;
         }
 
+        $packedIn = max(1, (int) $line->artefact->orgStock?->packed_in);
+        if ($total % $packedIn === 0 && $assignments->contains(fn (array $assignment) => $assignment['quantity'] % $packedIn)) {
+            $validator->errors()->add('assignments', __('Each artisan gets whole outers: multiples of :count units.', ['count' => $packedIn]));
+
+            return;
+        }
+
         $assignedIds = $assignments->pluck('id')->filter();
         if ($assignedIds->diff($subJobs->keys())->isNotEmpty() || $assignedIds->duplicates()->isNotEmpty()) {
             $validator->errors()->add('assignments', __('This job changed meanwhile, reload the page.'));
