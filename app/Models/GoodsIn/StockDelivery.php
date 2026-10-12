@@ -8,6 +8,7 @@
 
 namespace App\Models\GoodsIn;
 
+use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\AgentPayment;
@@ -402,6 +403,11 @@ class StockDelivery extends Model implements HasMedia, Auditable
     public function parent(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
     }
 
     public function agentPayments(): HasMany

@@ -8,7 +8,14 @@
 
 namespace App\Actions\SupplyChain\AgentPayment;
 
+use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
+use App\Models\SysAdmin\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SupplyChain\AgentPayment;
 use Illuminate\Http\RedirectResponse;
@@ -20,12 +27,26 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class StoreAgentPayment extends OrgAction
 {
+    private StockDelivery $stockDelivery;
+
     /**
-     * @param  array{date: string, amount: float|string, reference?: string|null, notes?: string|null}  $modelData
+     * @param  array{date: string, amount: float|string, method?: string|null, reference?: string|null, notes?: string|null, bank_statement?: UploadedFile|null}  $modelData
      */
     public function handle(StockDelivery $stockDelivery, array $modelData): AgentPayment
     {
-        return $stockDelivery->agentPayments()->create([
+        $file  = Arr::get($modelData, 'bank_statement');
+        $media = $file ? SaveModelAttachment::make()->action($stockDelivery, [
+            'path'         => $file->getPathName(),
+            'originalName' => $file->getClientOriginalName(),
+            'extension'    => $file->getClientOriginalExtension(),
+            'scope'        => PurchaseOrderAttachmentScopeEnum::BANK_STATEMENT->value,
+            'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+        ]) : null;
+
+        return $stockDelivery->agentPayments()->create(array_filter([
+            'method'   => Arr::get($modelData, 'method'),
+            'media_id' => $media?->id,
+        ]) + [
             'group_id'        => $stockDelivery->group_id,
             'agent_id'        => $stockDelivery->agent_id,
             'organisation_id' => $stockDelivery->organisation_id,
@@ -38,24 +59,39 @@ class StoreAgentPayment extends OrgAction
         ]);
     }
 
+    /**
+     * The organisation's purchaser or accountant, or the staff of the agent the delivery comes through.
+     */
+    public static function canRecord(StockDelivery $stockDelivery, User $user): bool
+    {
+        return $user->authTo(array_filter([
+            "procurement.$stockDelivery->organisation_id.edit",
+            "accounting.$stockDelivery->organisation_id.edit",
+            ($agentOrganisationId = $stockDelivery->agent?->organisation_id) ? "procurement.$agentOrganisationId.edit" : null,
+        ]));
+    }
+
     public function rules(): array
     {
         return [
-            'date'      => ['required', 'date'],
-            'amount'    => ['required', 'numeric', 'gt:0', 'max:999999999999'],
-            'reference' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'notes'     => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'date'           => ['required', 'date'],
+            'amount'         => ['required', 'numeric', 'gt:0', 'max:999999999999'],
+            'method'         => ['required', Rule::enum(PurchaseOrderPaymentMethodEnum::class)],
+            'reference'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'notes'          => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'bank_statement' => ['required_unless:method,cash', 'nullable', 'file', 'max:20480', 'mimes:pdf,jpg,jpeg,png,webp,heic'],
         ];
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo(["procurement.{$this->organisation->id}.edit", "accounting.{$this->organisation->id}.edit"]);
+        return self::canRecord($this->stockDelivery, $request->user());
     }
 
     public function asController(StockDelivery $stockDelivery, ActionRequest $request): AgentPayment
     {
         abort_unless($stockDelivery->agent_id, 404);
+        $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
         return $this->handle($stockDelivery, $this->validatedData);

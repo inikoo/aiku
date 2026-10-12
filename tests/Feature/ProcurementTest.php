@@ -4080,6 +4080,86 @@ function createStockDeliveryWithItems($test, string $code, array $unitQuantities
     return $stockDelivery->refresh();
 }
 
+function agentPaymentsClerk(Organisation $agentOrganisation): User
+{
+    $existing = User::where('username', 'agent-pay-clerk')->first();
+    if ($existing) {
+        return $existing;
+    }
+
+    $orgAdmin = JobPosition::where('organisation_id', $agentOrganisation->id)->where('code', 'org-admin')->firstOrFail();
+    $employee = StoreEmployee::make()->action($agentOrganisation, [
+        'worker_number'   => 'agent-pay-clerk',
+        'alias'           => 'agent-pay-clerk',
+        'contact_name'    => 'Agent Payments Clerk',
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $orgAdmin->slug, 'scopes' => []]],
+    ]);
+
+    return StoreUser::make()->action($employee, [
+        'username'       => 'agent-pay-clerk',
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+}
+
+test('payments to an agent carry their method and bank statement, and the agent staff record theirs and pay deposits too (HELP-3872)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-PAY-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    $statement  = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+    $storeRoute = route('grp.models.stock-delivery.agent_payment.store', $stockDelivery->id);
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'method' => 'bank_transfer'])->assertSessionHasErrors('bank_statement');
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'bank_statement' => $statement('a.pdf')])->assertSessionHasErrors('method');
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'method' => 'bank_transfer', 'reference' => 'TT-80', 'bank_statement' => $statement('a.pdf')])
+        ->assertRedirect()->assertSessionHasNoErrors();
+
+    $organisationPayment = $stockDelivery->agentPayments()->latest('id')->firstOrFail();
+    expect($organisationPayment->method->value)->toBe('bank_transfer')
+        ->and($organisationPayment->media_id)->not->toBeNull()
+        ->and($stockDelivery->attachments()->wherePivot('scope', 'Bank statement')->count())->toBe(1);
+
+    setPermissionsTeamId($this->group->id);
+    $agentClerk = agentPaymentsClerk($this->agent->organisation);
+    expect($agentClerk->authTo("procurement.{$this->organisation->id}.edit"))->toBeFalse();
+    actingAs($agentClerk);
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 20, 'method' => 'cash'])->assertRedirect()->assertSessionHasNoErrors();
+    $agentPayment = $stockDelivery->agentPayments()->latest('id')->firstOrFail();
+    expect($agentPayment->created_by)->toBe($agentClerk->id);
+
+    $panel = \App\Actions\SupplyChain\AgentInvoice\UI\GetAgentContainerInvoiceData::run($this->agent->organisation, $stockDelivery->refresh());
+    $rows  = collect($panel['payments'])->keyBy('id');
+    expect($panel['payment_store_route'])->not->toBeNull()
+        ->and($rows[$organisationPayment->id]['method'])->toBe('Bank transfer')
+        ->and($rows[$organisationPayment->id]['bank_statement'])->not->toBeNull()
+        ->and($rows[$organisationPayment->id]['delete_route'])->toBeNull()
+        ->and($rows[$agentPayment->id]['delete_route'])->not->toBeNull();
+
+    $this->delete(route('grp.models.agent_payment.delete', $organisationPayment->id))->assertForbidden();
+    $this->delete(route('grp.models.agent_payment.delete', $agentPayment->id))->assertRedirect();
+    expect($stockDelivery->agentPayments()->pluck('id')->all())->toBe([$organisationPayment->id]);
+
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action(
+        $orgSupplier,
+        array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'AGENT-DEP-'.uniqid()]),
+        strict: false
+    );
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'cost_total' => 500]);
+    expect($purchaseOrder->isAgentOrder())->toBeTrue();
+
+    $this->patch(route('grp.models.purchase-order.payment.deposit', $purchaseOrder->id), ['amount' => 150])->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->deposit_paid_by_id)->toBe($agentClerk->id);
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('an agent invoices a container from its lines, adds its charges, takes off what was paid in advance and can not dispatch it without the invoice', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-INV-'.Str::random(6), [10, 4]);
     $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
