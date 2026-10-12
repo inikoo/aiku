@@ -26,7 +26,7 @@ enum TicketLinkTypeEnum: string
     {
         return match ($this) {
             self::RELATES    => __('Relates to'),
-            self::BLOCKS     => __('Blocks'),
+            self::BLOCKS     => __('Is blocking'),
             self::DUPLICATES => __('Duplicates'),
         };
     }

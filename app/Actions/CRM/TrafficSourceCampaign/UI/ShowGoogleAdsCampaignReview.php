@@ -137,7 +137,7 @@ class ShowGoogleAdsCampaignReview extends OrgAction
             'Org/Shop/CRM/GoogleAdsCampaignReview',
             [
                 'breadcrumbs' => ShowGoogleAdsCampaign::make()->getBreadcrumbs($campaign, $parameters),
-                'title'       => __('Review').' '.$campaign->name,
+                'title'       => __('Review :name', ['name' => $campaign->name]),
                 'pageHead'    => [
                     'title'      => $campaign->name,
                     'model'      => __('Campaign:'),
