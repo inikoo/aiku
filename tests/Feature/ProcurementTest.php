@@ -5368,6 +5368,32 @@ describe('stock delivery service invoices', function () {
     });
 });
 
+function procurementAccountingClerk(\App\Models\SysAdmin\Organisation $organisation): \App\Models\SysAdmin\User
+{
+    $existing = \App\Models\SysAdmin\User::where('username', 'acc-clerk')->first();
+    if ($existing) {
+        return $existing;
+    }
+
+    $accCode  = JobPosition::where('organisation_id', $organisation->id)->where('code', 'acc-c')->firstOrFail();
+    $employee = StoreEmployee::make()->action($organisation, [
+        'worker_number'   => 'acc-clerk',
+        'alias'           => 'acc-clerk',
+        'contact_name'    => 'Accounting Clerk',
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $accCode->slug, 'scopes' => []]],
+    ]);
+
+    return StoreUser::make()->action($employee, [
+        'username'       => 'acc-clerk',
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+}
+
 describe('supplier deposits', function () {
     beforeEach(function () {
         [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
@@ -5578,22 +5604,7 @@ describe('supplier deposits', function () {
 
         setPermissionsTeamId($this->group->id);
 
-        $accCode  = JobPosition::where('organisation_id', $this->organisation->id)->where('code', 'acc-c')->firstOrFail();
-        $employee = StoreEmployee::make()->action($this->organisation, [
-            'worker_number'   => 'acc-clerk',
-            'alias'           => 'acc-clerk',
-            'contact_name'    => 'Accounting Clerk',
-            'state'           => EmployeeStateEnum::WORKING,
-            'type'            => EmployeeTypeEnum::EMPLOYEE,
-            'employment_type' => EmploymentTypeEnum::FULL_TIME,
-            'positions'       => [['slug' => $accCode->slug, 'scopes' => []]],
-        ]);
-        $accountingClerk = StoreUser::make()->action($employee, [
-            'username'       => 'acc-clerk',
-            'password'       => Str::random(32),
-            'status'         => true,
-            'reset_password' => false,
-        ]);
+        $accountingClerk = procurementAccountingClerk($this->organisation);
 
         expect($accountingClerk->authTo("procurement.{$this->organisation->id}.view"))->toBeTrue()
             ->and($accountingClerk->authTo("procurement.{$this->organisation->id}.edit"))->toBeFalse();
@@ -5626,6 +5637,74 @@ describe('supplier deposits', function () {
         $this->patch(route('grp.models.stock-delivery.update', $delivery->id), ['org_exchange' => 0.8, 'incoterm' => 'FOB'])->assertForbidden();
 
         actingAs($this->adminGuest->getUser());
+    });
+
+    test('a deposit is set and paid on the purchase order, with its bank statement (HELP-3872)', function () {
+        $purchaseOrder = $this->depositPurchaseOrder;
+        $statement     = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+        $confirmRoute  = route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id);
+        $depositRoute  = route('grp.models.purchase-order.payment.deposit', $purchaseOrder->id);
+        $payment       = fn (array $overrides = []) => array_merge(['paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'reference' => 'SWIFT-123', 'bank_statement' => $statement('deposit.pdf')], $overrides);
+
+        $purchaseOrder->update(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'cost_total' => 1000, 'deposit_amount' => null, 'deposit_paid_at' => null]);
+
+        $this->patch($depositRoute, ['amount' => 300])->assertSessionHasErrors('amount');
+
+        $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+        $this->post($confirmRoute, $payment())->assertSessionHasErrors('paid_at');
+
+        $this->patch($depositRoute, ['amount' => 0])->assertRedirect()->assertSessionHasNoErrors();
+        expect((float) $purchaseOrder->refresh()->deposit_amount)->toBe(0.0);
+        $this->post($confirmRoute, $payment())->assertSessionHasErrors('paid_at');
+
+        $this->patch($depositRoute, ['amount' => null])->assertRedirect()->assertSessionHasNoErrors();
+        expect($purchaseOrder->refresh()->deposit_amount)->toBeNull();
+
+        $this->patch($depositRoute, ['amount' => 1500])->assertSessionHasErrors('amount');
+        $this->patch($depositRoute, ['amount' => 1000])->assertRedirect()->assertSessionHasNoErrors();
+        $this->patch($depositRoute, ['amount' => 300])->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->post($confirmRoute, $payment(['bank_statement' => null]))->assertSessionHasErrors('bank_statement');
+        $this->post($confirmRoute, $payment(['method' => null]))->assertSessionHasErrors('method');
+        expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
+
+        setPermissionsTeamId($this->group->id);
+        $accountingClerk = procurementAccountingClerk($this->organisation);
+        expect($accountingClerk->authTo("procurement.{$this->organisation->id}.edit"))->toBeFalse();
+        actingAs($accountingClerk);
+
+        $this->post($confirmRoute, $payment())->assertRedirect()->assertSessionHasNoErrors();
+
+        $purchaseOrder->refresh();
+        expect($purchaseOrder->deposit_paid_at)->not->toBeNull()
+            ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0)
+            ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
+            ->and(data_get($purchaseOrder->data, 'payments.deposit.method'))->toBe('bank_transfer')
+            ->and($purchaseOrder->attachments()->wherePivot('scope', 'Bank statement')->wherePivot('sub_scope', 'deposit')->count())->toBe(1);
+
+        $this->post($confirmRoute, $payment(['bank_statement' => $statement('again.pdf')]))->assertSessionHasErrors('paid_at');
+        $this->patch($depositRoute, ['amount' => 400])->assertSessionHasErrors('amount');
+
+        actingAs($this->adminGuest->getUser());
+
+        $this->withoutVite();
+        $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('payments.can_confirm', true)
+                ->where('payments.deposit.amount', fn ($amount) => (float) $amount === 300.0)
+                ->where('payments.deposit.bank_statements.0.caption', 'deposit')
+                ->where('payments.deposit.method', 'Bank transfer')
+                ->where('payments.deposit.reference', 'SWIFT-123')
+                ->where('payments.deposit.paid_by', $accountingClerk->contact_name)
+                ->where('payments.balance', fn ($amount) => (float) $amount === 700.0)
+                ->etc());
+
+        $this->patch(route('grp.models.purchase-order.payment.undo', $purchaseOrder->id))->assertRedirect();
+        expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull()
+            ->and($purchaseOrder->deposit_paid_by_id)->toBeNull()
+            ->and(data_get($purchaseOrder->data, 'payments.deposit.method'))->toBeNull()
+            ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0);
     });
 });
 
@@ -12612,6 +12691,56 @@ test('an Aurora stock delivery gets an estimated supplier or agent invoice from 
         ->and($agentInvoice->number)->toBeNull()
         ->and($agentInvoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ESTIMATED)
         ->and(ApplyAgentInvoiceCosting::run($agentDelivery->refresh()))->toBeNull();
+});
+
+test('supplier payments are recorded on the stock delivery against its invoice, after the deposit of its purchase order (HELP-3872)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'SUP-PAY-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null, 'cost_shipping' => 0, 'cost_extra' => 0]);
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
+        'reference'    => 'SUP-PAY-INV',
+        'date'         => '2026-03-02',
+        'goods_amount' => 1000,
+        'charges'      => [],
+    ])->assertSessionHasNoErrors();
+    $invoice = $stockDelivery->supplierInvoice()->firstOrFail();
+
+    $purchaseOrder = StorePurchaseOrder::make()->action(
+        $stockDelivery->parent,
+        array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'SUP-PAY-PO-'.uniqid()]),
+        strict: false
+    );
+    $purchaseOrder->update(['currency_id' => $invoice->currency_id, 'deposit_amount' => 300, 'deposit_paid_at' => now()]);
+    $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
+
+    $statement  = \Illuminate\Http\UploadedFile::fake()->createWithContent('balance.pdf', '%PDF-1.4 balance '.Str::random(12));
+    $storeRoute = route('grp.models.stock-delivery.supplier_payment.store', $stockDelivery->id);
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 500, 'method' => 'bank_transfer'])->assertSessionHasErrors('bank_statement');
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 0, 'method' => 'cash'])->assertSessionHasErrors('amount');
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 500, 'method' => 'bank_transfer', 'reference' => 'TT-9', 'bank_statement' => $statement])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 50, 'method' => 'cash'])->assertRedirect()->assertSessionHasNoErrors();
+
+    $payments = $stockDelivery->supplierPayments()->orderBy('id')->get();
+    expect($payments)->toHaveCount(2)
+        ->and($payments[0]->media_id)->not->toBeNull()
+        ->and($payments[0]->currency_id)->toBe($invoice->currency_id)
+        ->and($payments[1]->media_id)->toBeNull()
+        ->and($stockDelivery->attachments()->wherePivot('scope', 'Bank statement')->count())->toBe(1);
+
+    $summary = ShowStockDelivery::make()->getInvoiceSummary($stockDelivery->refresh());
+    expect($summary['supplier']['deposits'])->toHaveCount(1)
+        ->and($summary['supplier']['paid'])->toBe(850.0)
+        ->and($summary['supplier']['balance_due'])->toBe(150.0)
+        ->and($summary['supplier']['payments'][0]['method'])->toBe('Bank transfer');
+
+    $this->delete(route('grp.models.supplier_payment.delete', $payments[1]->id))->assertRedirect();
+    expect(ShowStockDelivery::make()->getInvoiceSummary($stockDelivery->refresh())['supplier']['balance_due'])->toBe(200.0);
+
+    $stockDelivery->updateQuietly(['agent_id' => \App\Models\SupplyChain\Agent::query()->value('id')]);
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 10, 'method' => 'cash'])->assertNotFound();
 });
 
 test('staff enter the real invoice of a delivery in place of its estimate, keeping the estimate, but never over the agent own invoice', function () {
