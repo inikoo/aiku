@@ -9,6 +9,7 @@ import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
@@ -17,9 +18,9 @@ import { useLocaleStore } from "@/Stores/locale"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronRight, faChevronDown, faChevronLeft, faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt } from "@fal"
+import { faChevronRight, faChevronDown, faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt } from "@fal"
 
-library.add(faChevronRight, faChevronDown, faChevronLeft, faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt)
+library.add(faChevronRight, faChevronDown, faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt)
 
 type Row = {
     id: number
@@ -58,7 +59,6 @@ const props = defineProps<{
     title: string
     stage: string
     isOrdered: boolean
-    dateLabel: string
     note: string
     agentName: string
     orgCurrency: string
@@ -66,13 +66,12 @@ const props = defineProps<{
     scope: "ours" | "all"
     oursCount: number
     lines: Record<number, Line[]>
-    rows: { data: Row[], from: number | null, to: number | null, total: number, prev_page_url: string | null, next_page_url: string | null }
+    rows: { data: Row[] }
 }>()
 
 const locale = useLocaleStore()
 
-const hasEta = computed(() => props.stage === "preparing" || props.stage === "on-the-way")
-const columnCount = computed(() => 8 + (hasEta.value ? 1 : 0))
+const rowAt = (index: number) => props.rows.data[index]
 
 const money = (row: Row, amount: number) => (row.currency ? locale.currencyFormat(row.currency, amount) : locale.number(amount))
 const orgMoney = (row: Row, amount: number) => (row.org_exchange ? locale.currencyFormat(props.orgCurrency, amount * row.org_exchange) : null)
@@ -122,100 +121,85 @@ const toggleEveryRow = () => showRows(isEveryRowOpen.value ? new Set() : new Set
                 @click="toggleEveryRow" />
         </div>
 
-        <div v-if="rows.data.length" class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-            <table class="min-w-full text-sm">
-                <thead class="border-b border-gray-200 bg-gray-50 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                    <tr>
-                        <th class="px-4 py-2">{{ isOrdered ? ctrans("Purchase order") : ctrans("Stock delivery") }}</th>
-                        <th class="px-2 py-2">{{ isOrdered ? ctrans("Supplier") : ctrans("Purchase orders") }}</th>
-                        <th class="px-2 py-2">{{ dateLabel }}</th>
-                        <th v-if="hasEta" class="px-2 py-2">{{ ctrans("Expected") }}</th>
-                        <th class="px-2 py-2 text-right">{{ ctrans("Products") }}</th>
-                        <th class="px-2 py-2 text-right">{{ ctrans("Cartons") }}</th>
-                        <th class="px-2 py-2 text-right">{{ ctrans("Unit cost") }}</th>
-                        <th class="px-2 py-2 text-right">{{ ctrans("Total") }}</th>
-                        <th class="py-2 pl-2 pr-4 text-right">{{ ctrans("Volume") }}</th>
-                    </tr>
-                </thead>
-                <tbody v-for="row in rows.data" :key="row.id" class="border-b border-gray-100 last:border-b-0">
-                    <tr :class="{ 'bg-gray-100': row.is_ours && scope === 'all' }">
-                        <td class="py-2 pl-4 pr-2">
-                            <div class="flex items-start gap-2">
-                                <button
-                                    type="button"
-                                    class="mt-0.5 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
-                                    :aria-expanded="openRows.has(row.id)"
-                                    :aria-label="openRows.has(row.id) ? ctrans('Hide the products') : ctrans('Show the products')"
-                                    @click="toggleRow(row.id)">
-                                    <FontAwesomeIcon :icon="openRows.has(row.id) ? faChevronDown : faChevronRight" fixed-width aria-hidden="true" />
-                                </button>
-                                <div class="min-w-0">
-                                    <div v-tooltip="row.organisation_name" class="font-medium text-gray-800">{{ row.organisation_code }}</div>
-                                    <Link v-if="row.url" :href="row.url" :title="row.reference" class="block max-w-xs truncate text-[11px] leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ row.reference }}</Link>
-                                    <div v-else :title="row.reference" class="max-w-xs truncate text-[11px] leading-tight text-gray-400">{{ row.reference }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-2 py-2">
-                            <template v-if="isOrdered">
-                                <div class="font-medium text-gray-800">{{ row.supplier_code }}</div>
-                                <div :title="row.supplier_name ?? ''" class="max-w-[14rem] truncate text-[11px] leading-tight text-gray-500">{{ row.supplier_name }}</div>
-                            </template>
-                            <span v-else class="tabular-nums">{{ locale.number(row.purchase_orders ?? 0) }}</span>
-                        </td>
-                        <td class="px-2 py-2 whitespace-nowrap">
-                            <div class="tabular-nums">{{ day(row.date) }}</div>
-                            <div class="text-[11px] leading-tight text-gray-500">{{ row.state_label }}</div>
-                        </td>
-                        <td v-if="hasEta" class="px-2 py-2 whitespace-nowrap">
-                            <div class="tabular-nums">{{ day(row.eta) }}</div>
-                            <div v-if="row.days_late" class="text-[11px] font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(row.days_late) }) }}</div>
-                        </td>
-                        <td class="px-2 py-2 text-right tabular-nums">{{ locale.number(row.lines) }}</td>
-                        <td class="px-2 py-2 text-right tabular-nums">{{ cartons(row.cartons) }}</td>
-                        <td />
-                        <td class="px-2 py-2 whitespace-nowrap text-right tabular-nums">
-                            <div>{{ orgMoney(row, row.amount) ?? money(row, row.amount) }}</div>
-                            <div v-if="row.org_exchange" class="text-[11px] font-normal leading-tight text-gray-400">{{ money(row, row.amount) }}</div>
-                        </td>
-                        <td class="py-2 pl-2 pr-4 whitespace-nowrap text-right tabular-nums">
-                            <div>{{ volume(row.cbm) }}</div>
-                            <div v-if="row.cbm" v-tooltip="ctrans(':share of a :container', { share: containerShare(row.cbm), container: container.label })" class="text-[11px] font-normal leading-tight text-gray-400">{{ containerShare(row.cbm) }}</div>
-                        </td>
-                    </tr>
-                    <template v-if="openRows.has(row.id)">
-                        <tr v-for="line in lines[row.id] ?? []" :key="line.id" class="border-t border-gray-50 text-gray-600">
-                            <td class="py-1.5 pl-12 pr-2" :colspan="columnCount - 4">
-                                <span class="font-medium text-gray-700">{{ line.code }}</span>
-                                <span class="ml-2">{{ line.name }}</span>
-                            </td>
-                            <td class="px-2 py-1.5 text-right tabular-nums">{{ cartons(line.cartons) }}</td>
-                            <td class="px-2 py-1.5 text-right tabular-nums">{{ line.unit_cost === null ? "—" : money(row, line.unit_cost) }}</td>
-                            <td class="px-2 py-1.5 whitespace-nowrap text-right tabular-nums">
-                                <div>{{ orgMoney(row, line.amount) ?? money(row, line.amount) }}</div>
-                                <div v-if="row.org_exchange" class="text-[11px] font-normal leading-tight text-gray-400">{{ money(row, line.amount) }}</div>
-                            </td>
-                            <td class="py-1.5 pl-2 pr-4 whitespace-nowrap text-right tabular-nums">{{ volume(line.cbm) }}</td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-            <div v-if="rows.prev_page_url || rows.next_page_url" class="flex items-center justify-between gap-3 border-t border-gray-200 px-4 py-2 text-xs text-gray-500">
-                <span class="tabular-nums">{{ ctrans(":from to :to of :total", { from: locale.number(rows.from ?? 0), to: locale.number(rows.to ?? 0), total: locale.number(rows.total) }) }}</span>
-                <div class="flex gap-2">
-                    <Link v-if="rows.prev_page_url" :href="rows.prev_page_url" preserve-scroll>
-                        <Button :label="ctrans('Previous')" type="tertiary" icon="fal fa-chevron-left" size="s" />
-                    </Link>
-                    <Link v-if="rows.next_page_url" :href="rows.next_page_url" preserve-scroll>
-                        <Button :label="ctrans('Next')" type="tertiary" iconRight="fal fa-chevron-right" size="s" />
-                    </Link>
+        <Table :resource="rows" class="mt-0" useExpandTable>
+            <template #cell(reference)="{ item }">
+                <div class="flex items-start gap-2">
+                    <button
+                        type="button"
+                        class="mt-0.5 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                        :aria-expanded="openRows.has(item.id)"
+                        :aria-label="openRows.has(item.id) ? ctrans('Hide the products') : ctrans('Show the products')"
+                        @click="toggleRow(item.id)">
+                        <FontAwesomeIcon :icon="openRows.has(item.id) ? faChevronDown : faChevronRight" fixed-width aria-hidden="true" />
+                    </button>
+                    <div class="min-w-0">
+                        <div v-tooltip="item.organisation_name" class="font-medium text-gray-800">{{ item.organisation_code }}</div>
+                        <Link v-if="item.url" :href="item.url" :title="item.reference" class="block max-w-xs truncate text-xs leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
+                        <div v-else :title="item.reference" class="max-w-xs truncate text-xs leading-tight text-gray-400">{{ item.reference }}</div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </template>
+            <template #cell(supplier_code)="{ item }">
+                <div class="font-medium text-gray-800">{{ item.supplier_code }}</div>
+                <div :title="item.supplier_name ?? ''" class="max-w-[14rem] truncate text-xs leading-tight text-gray-500">{{ item.supplier_name }}</div>
+            </template>
+            <template #cell(purchase_orders)="{ item }">
+                <span class="tabular-nums">{{ locale.number(item.purchase_orders ?? 0) }}</span>
+            </template>
+            <template #cell(date)="{ item }">
+                <div class="whitespace-nowrap tabular-nums">{{ day(item.date) }}</div>
+                <div class="text-xs leading-tight text-gray-500">{{ item.state_label }}</div>
+            </template>
+            <template #cell(eta)="{ item }">
+                <div class="whitespace-nowrap tabular-nums">{{ day(item.eta) }}</div>
+                <div v-if="item.days_late" class="text-xs font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(item.days_late) }) }}</div>
+            </template>
+            <template #cell(lines)="{ item }">
+                <span class="tabular-nums">{{ locale.number(item.lines) }}</span>
+            </template>
+            <template #cell(cartons)="{ item }">
+                <span class="tabular-nums">{{ cartons(item.cartons) }}</span>
+            </template>
+            <template #cell(amount)="{ item }">
+                <div class="whitespace-nowrap tabular-nums">{{ orgMoney(item, item.amount) ?? money(item, item.amount) }}</div>
+                <div v-if="item.org_exchange" class="whitespace-nowrap text-xs leading-tight text-gray-400">{{ money(item, item.amount) }}</div>
+            </template>
+            <template #cell(cbm)="{ item }">
+                <div class="whitespace-nowrap tabular-nums">{{ volume(item.cbm) }}</div>
+                <div v-if="item.cbm" v-tooltip="ctrans(':share of a :container', { share: containerShare(item.cbm), container: container.label })" class="text-xs leading-tight text-gray-400">{{ containerShare(item.cbm) }}</div>
+            </template>
+            <template #expandRow="{ item }">
+                <div v-if="rowAt(item.rowIndex) && openRows.has(rowAt(item.rowIndex).id)" class="border-y border-gray-200 bg-gray-50 py-2 pl-12 pr-4">
+                    <table class="w-full text-sm text-gray-600">
+                        <thead class="text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                            <tr>
+                                <th class="py-1 pr-2">{{ ctrans("Product") }}</th>
+                                <th class="px-2 py-1 text-right">{{ ctrans("Cartons") }}</th>
+                                <th class="px-2 py-1 text-right">{{ ctrans("Unit cost") }}</th>
+                                <th class="px-2 py-1 text-right">{{ ctrans("Total") }}</th>
+                                <th class="py-1 pl-2 text-right">{{ ctrans("Volume") }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="line in lines[rowAt(item.rowIndex).id] ?? []" :key="line.id" class="border-t border-gray-200">
+                                <td class="py-1.5 pr-2">
+                                    <span class="font-medium text-gray-700">{{ line.code }}</span>
+                                    <span class="ml-2">{{ line.name }}</span>
+                                </td>
+                                <td class="px-2 py-1.5 text-right tabular-nums">{{ cartons(line.cartons) }}</td>
+                                <td class="px-2 py-1.5 text-right tabular-nums">{{ line.unit_cost === null ? "—" : money(rowAt(item.rowIndex), line.unit_cost) }}</td>
+                                <td class="px-2 py-1.5 whitespace-nowrap text-right tabular-nums">
+                                    <div>{{ orgMoney(rowAt(item.rowIndex), line.amount) ?? money(rowAt(item.rowIndex), line.amount) }}</div>
+                                    <div v-if="rowAt(item.rowIndex).org_exchange" class="text-xs leading-tight text-gray-400">{{ money(rowAt(item.rowIndex), line.amount) }}</div>
+                                </td>
+                                <td class="py-1.5 pl-2 whitespace-nowrap text-right tabular-nums">{{ volume(line.cbm) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </Table>
 
-        <p v-else class="py-16 text-center text-sm text-gray-400">
-            {{ scope === "ours" ? ctrans("Nothing of your organisation here for :agent", { agent: agentName }) : ctrans("Nothing here for :agent", { agent: agentName }) }}
-        </p>
         <p class="mt-8 max-w-3xl text-xs text-gray-400">{{ note }}</p>
     </div>
 </template>

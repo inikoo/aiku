@@ -77,6 +77,19 @@ trait WithAgentShoppingSubNavigation
                 "number"   => $parent->stats->number_org_suppliers,
                 "align"    => "right",
             ],
+            [
+                "label"    => __("Products"),
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.supplier_products.index",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-box-usd"],
+                    "tooltip" => __("Products"),
+                ],
+                "number"   => $parent->stats->number_org_supplier_products,
+                "align"    => "right",
+            ],
         ];
     }
 }

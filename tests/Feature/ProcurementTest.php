@@ -2857,6 +2857,8 @@ test('UI show org agents', function () {
             ->component('Procurement/OrgAgent')
             ->has('title')
             ->has('breadcrumbs', 3)
+            ->where('pageHead.subNavigation.0.route.name', 'grp.org.procurement.org_agents.show.shopping.dashboard')
+            ->has('pageHead.subNavigation', 9)
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -9278,7 +9280,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered', 'Suppliers'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered', 'Suppliers', 'Products'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -12947,7 +12949,7 @@ test('UI agent order stages', function (string $stage) {
         ->where('orgCurrency', $this->organisation->currency->code)
         ->where('oursCount', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->has('rows.data')
-        ->has('pageHead.subNavigation', 8)
+        ->has('pageHead.subNavigation', 9)
         ->where('rows.data', fn ($rows) => collect($rows)->every(fn (array $row) => $row['is_ours'])));
 
     $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'all']))
