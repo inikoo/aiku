@@ -68,6 +68,8 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Models\Inventory\Warehouse;
+use App\Actions\UI\Incoming\ShowIncomingHub;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -87,9 +89,30 @@ class ShowStockDelivery extends OrgAction
     private bool $canBookIn = false;
     private bool $canUnreceive = false;
     private bool $viewedByAgent = false;
+    private bool $goodsIn = false;
+
+    private const array BOOKING_IN_TABS = [
+        StockDeliveryTabsEnum::PENDING_ITEMS,
+        StockDeliveryTabsEnum::DONE_ITEMS,
+    ];
+
+    private const array PROCUREMENT_ONLY_TABS = [
+        StockDeliveryTabsEnum::ITEMS,
+        StockDeliveryTabsEnum::UNDER_OVER_DELIVERED,
+        StockDeliveryTabsEnum::CUSTOMS,
+        StockDeliveryTabsEnum::PURCHASE_ORDERS,
+        StockDeliveryTabsEnum::SHOWCASE,
+    ];
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->goodsIn) {
+            $this->canBookIn    = $this->authToBookIn($request, 'incoming.%d.edit');
+            $this->canUnreceive = $this->authToBookIn($request, 'supervisor-incoming.%d');
+
+            return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
+        }
+
         $this->canEdit          = $request->user()->authTo("procurement.{$this->organisation->id}.edit");
         $isAgent                = $this->organisation->type === OrganisationTypeEnum::AGENT;
         $this->canEditPayments  = !$isAgent && ($this->canEdit || $request->user()->authTo("accounting.{$this->organisation->id}.edit"));
@@ -109,8 +132,26 @@ class ShowStockDelivery extends OrgAction
     {
         $this->stockDelivery = $stockDelivery;
         $this->viewedByAgent = $organisation->type === OrganisationTypeEnum::AGENT && $stockDelivery->organisation_id !== $organisation->id;
-        $this->initialisation($organisation, $request)->withTab($this->getTabs($stockDelivery));
+        $this->initialisation($organisation, $request);
+        if (in_array($this->get('tab'), array_column(self::BOOKING_IN_TABS, 'value'), true)) {
+            $this->set('tab', null);
+        }
+        $this->withTab($this->getTabs($stockDelivery));
         $this->authorizeProcurementRecord($stockDelivery);
+
+        return $this->handle($stockDelivery);
+    }
+
+    /**
+     * The warehouse's page of a delivery: booking in, with no costing to edit.
+     */
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
+    {
+        abort_unless($stockDelivery->organisation_id === $warehouse->organisation_id, 404);
+
+        $this->stockDelivery = $stockDelivery;
+        $this->goodsIn       = true;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab($this->getTabs($stockDelivery));
 
         return $this->handle($stockDelivery);
     }
@@ -138,7 +179,9 @@ class ShowStockDelivery extends OrgAction
             'Procurement/StockDelivery',
             [
                 'title'            => __('Stock Delivery'),
-                'breadcrumbs'      => $this->getBreadcrumbs($stockDelivery, $request->route()->originalParameters()),
+                'breadcrumbs'      => $this->goodsIn
+                    ? $this->getGoodsInBreadcrumbs($stockDelivery, $request->route()->originalParameters())
+                    : $this->getBreadcrumbs($stockDelivery, $request->route()->originalParameters()),
                 'pageHead'         => [
                     'title'      => $stockDelivery->reference,
                     'model'      => __('Stock Delivery'),
@@ -156,7 +199,7 @@ class ShowStockDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters()),
                         ],
                     ] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getAllowedActions($stockDelivery)),
+                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery)),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
@@ -233,9 +276,9 @@ class ShowStockDelivery extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($stockDelivery, StockDeliveryTabsEnum::HISTORY->value, auditScope: $this->historyAuditScope($stockDelivery)))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($stockDelivery, StockDeliveryTabsEnum::HISTORY->value, auditScope: $this->historyAuditScope($stockDelivery)))),
             ]
-        )->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::ITEMS->value, withCosting: !$this->viewedByAgent))
-            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PENDING_ITEMS->value))
-            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::DONE_ITEMS->value))
+        )->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::ITEMS->value, withCosting: !$this->viewedByAgent, bookingIn: false))
+            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PENDING_ITEMS->value, withCosting: false))
+            ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::DONE_ITEMS->value, withCosting: false))
             ->table(IndexStockDeliveryUnderOverDeliveredItems::make()->tableStructure(prefix: StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
             ->table(IndexPurchaseOrders::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PURCHASE_ORDERS->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: StockDeliveryTabsEnum::ATTACHMENTS->value))
@@ -843,6 +886,74 @@ class ShowStockDelivery extends OrgAction
         );
     }
 
+    private function getGoodsInBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters): array
+    {
+        $warehouseParameters = Arr::only($routeParameters, ['organisation', 'warehouse']);
+
+        return array_merge(
+            ShowIncomingHub::make()->getBreadcrumbs($warehouseParameters),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'label' => __('Stock deliveries'),
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.index',
+                                'parameters' => $warehouseParameters,
+                            ],
+                        ],
+                        'model' => [
+                            'label' => $stockDelivery->reference,
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.show',
+                                'parameters' => $routeParameters,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+    }
+
+    /**
+     * Booking in is done on the warehouse's page of the delivery; procurement gets the way there.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getBookInLinkAction(StockDelivery $stockDelivery, ActionRequest $request): array
+    {
+        $bookingInStates = [
+            StockDeliveryStateEnum::RECEIVED,
+            StockDeliveryStateEnum::CHECKED,
+            StockDeliveryStateEnum::BOOKING_IN,
+            StockDeliveryStateEnum::BOOKED_IN,
+        ];
+
+        if ($this->goodsIn || $this->viewedByAgent || !in_array($stockDelivery->state, $bookingInStates, true) || $stockDelivery->organisation_id !== $this->organisation->id) {
+            return [];
+        }
+
+        $warehouse = $this->organisation->warehouses()->get()
+            ->first(fn (Warehouse $warehouse) => $request->user()->authTo("incoming.$warehouse->id.view"));
+
+        return $warehouse ? [[
+            'type'  => 'button',
+            'style' => 'tertiary',
+            'label' => __('Book in'),
+            'icon'  => 'fal fa-inventory',
+            'key'   => 'book_in_link',
+            'route' => [
+                'name'       => 'grp.org.warehouses.show.incoming.stock_deliveries.show',
+                'parameters' => [
+                    'organisation'  => $this->organisation->slug,
+                    'warehouse'     => $warehouse->slug,
+                    'stockDelivery' => $stockDelivery->slug,
+                ],
+            ],
+        ]] : [];
+    }
+
     private function pendingItemStates(): array
     {
         return StockDeliveryItemStateEnum::valuesExcept([
@@ -1190,19 +1301,13 @@ class ShowStockDelivery extends OrgAction
 
     private function getTabsNavigation(StockDelivery $stockDelivery): array
     {
-        $navigation = $this->hasUnderOverDeliveredTab($stockDelivery)
-            ? StockDeliveryTabsEnum::navigation()
-            : StockDeliveryTabsEnum::navigationExcept([StockDeliveryTabsEnum::UNDER_OVER_DELIVERED]);
+        $navigation = Arr::only(StockDeliveryTabsEnum::navigation(), $this->getTabs($stockDelivery));
 
         if (!$stockDelivery->purchaseOrders()->exists()) {
             unset($navigation[StockDeliveryTabsEnum::PURCHASE_ORDERS->value]);
         }
 
-        if (!$this->hasCustomsTab($stockDelivery)) {
-            unset($navigation[StockDeliveryTabsEnum::CUSTOMS->value]);
-        }
-
-        if ($stockDelivery->state === StockDeliveryStateEnum::PLACED && !$this->viewedByAgent) {
+        if (!$this->goodsIn && $stockDelivery->state === StockDeliveryStateEnum::PLACED && !$this->viewedByAgent) {
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['title'] = __('Items (costing)');
             $navigation[StockDeliveryTabsEnum::ITEMS->value]['icon']  = 'fal fa-box-usd';
         }
@@ -1223,7 +1328,10 @@ class ShowStockDelivery extends OrgAction
 
     private function getTabs(StockDelivery $stockDelivery): array
     {
-        $tabs = StockDeliveryTabsEnum::values();
+        $tabs = array_values(array_diff(
+            StockDeliveryTabsEnum::values(),
+            array_column($this->goodsIn ? self::PROCUREMENT_ONLY_TABS : self::BOOKING_IN_TABS, 'value')
+        ));
         if (!$this->hasCustomsTab($stockDelivery)) {
             $tabs = array_values(array_diff($tabs, [StockDeliveryTabsEnum::CUSTOMS->value]));
         }

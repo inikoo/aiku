@@ -3901,30 +3901,58 @@ test('UI show stock delivery', function () {
     });
 });
 
+function allowGoodsInOn(\App\Models\Inventory\Warehouse $warehouse, User $user): void
+{
+    setPermissionsTeamId($warehouse->group_id);
+    \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::GOODS_IN_CLERK->value, $warehouse));
+}
+
 test('UI show stock delivery pending and done item tabs', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'PENDING-DONE-TABS', [10, 10]);
     $items         = $stockDelivery->items()->orderBy('id')->get();
 
     UpdateStateToConfirmedStockDeliveryItem::make()->action($items[0]);
 
-    $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]));
+    $warehouse      = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    allowGoodsInOn($warehouse, $this->adminGuest->getUser());
+    $procurementUrl = route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]);
+    $goodsInUrl     = route('grp.org.warehouses.show.incoming.stock_deliveries.show', [$this->organisation->slug, $warehouse->slug, $stockDelivery->slug]);
 
-    $response->assertInertia(function (AssertableInertia $page) {
+    $this->withoutExceptionHandling();
+    $this->withoutVite();
+
+    $this->get($procurementUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
-            ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
-            ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value);
+            ->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value);
     });
 
-    $pendingResponse = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::PENDING_ITEMS->value);
-    $pendingResponse->assertInertia(function (AssertableInertia $page) {
+    $this->get($procurementUrl.'?tab='.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value));
+
+    $this->get($goodsInUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
+            ->where('tabs.current', StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->where('pageHead.edit', false)
+            ->where('costing.can_edit', false)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::SHOWCASE->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
             ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2);
     });
 
-    $doneResponse = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::DONE_ITEMS->value);
+    $this->withExceptionHandling();
+    $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::ITEMS->value)->assertNotFound();
+    $this->withoutExceptionHandling();
+
+    $doneResponse = $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::DONE_ITEMS->value);
     $doneResponse->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
@@ -4311,7 +4339,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
     $this->get($url)->assertInertia(function (AssertableInertia $page) {
         $page
             ->where('queryBuilderProps.items.elementGroups.state.elements.placed.1', 0)
-            ->has('tabs.navigation', 8)
+            ->has('tabs.navigation', 6)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
     });
 
@@ -4329,7 +4357,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
 
     $response->assertOk()
         ->assertJsonPath('props.queryBuilderProps.items.elementGroups.state.elements.placed.1', 1)
-        ->assertJsonCount(9, 'props.tabs.navigation')
+        ->assertJsonCount(7, 'props.tabs.navigation')
         ->assertJsonPath(
             'props.tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.title',
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->blueprint()['title']
@@ -4543,20 +4571,30 @@ test('UI show stock delivery items exposes the placement and sowings data', func
         'location_org_stock_id' => $locationOrgStock->id,
     ]);
 
+    allowGoodsInOn($locationOrgStock->warehouse, $this->adminGuest->getUser());
+
     $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('queryBuilderProps.items.columns.3.key', 'quantity')
+            ->where('queryBuilderProps.items.columns.4.key', 'checked_quantity')
+            ->where('queryBuilderProps.items.columns.5.key', 'placed_quantity')
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains('key', 'book_in_link')));
+
+    $response = $this->get(route('grp.org.warehouses.show.incoming.stock_deliveries.show', [
         $this->organisation->slug,
+        $locationOrgStock->warehouse->slug,
         $stockDelivery->slug,
     ]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($locationOrgStock) {
         $page
             ->component('Procurement/StockDelivery')
-            ->where('queryBuilderProps.items.columns.4.key', 'sowings')
-            ->where('queryBuilderProps.items.columns.5.key', 'checked_unit')
-            ->where('queryBuilderProps.items.columns.6.key', 'placement')
+            ->where('queryBuilderProps.pending_items.columns.4.key', 'sowings')
+            ->where('queryBuilderProps.pending_items.columns.5.key', 'checked_unit')
+            ->where('queryBuilderProps.pending_items.columns.6.key', 'placement')
             ->has(
-                StockDeliveryTabsEnum::ITEMS->value.'.data',
+                StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data',
                 1,
                 fn (AssertableInertia $page) => $page
                     ->where('placement_remaining', 6)

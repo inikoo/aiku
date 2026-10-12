@@ -124,7 +124,14 @@ function differenceClass(value: number | null) {
 }
 
 function checkedQuantityBreakdown(item: any) {
-    const units = Number(item.unit_quantity_checked)
+    return unitsBreakdown(item, Number(item.unit_quantity_checked))
+}
+
+function placedQuantityBreakdown(item: any) {
+    return unitsBreakdown(item, Number(item.unit_quantity_placed))
+}
+
+function unitsBreakdown(item: any, units: number) {
     const pack = Number(item.units_per_pack) || 1
     const carton = Number(item.units_per_carton) || 1
 
@@ -519,6 +526,10 @@ async function saveAllCosts() {
 
         <template #cell(checked_quantity)="{ item }">
             <span class="text-gray-500">{{ checkedQuantityBreakdown(item) }}</span>
+        </template>
+
+        <template #cell(placed_quantity)="{ item }">
+            <span class="text-gray-500">{{ placedQuantityBreakdown(item) }}</span>
         </template>
 
         <template #cell(difference_percentage)="{ item }">
