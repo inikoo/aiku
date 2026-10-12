@@ -1035,11 +1035,16 @@ class ShowProduct extends OrgAction
     }
 
     /**
-     * @return array{replacement: array{code: string, name: string, price: string, route: array{name: string, parameters: array<string, string>}}, retire_route: array{name: string, parameters: array<string, int>}, keep_route: array{name: string, parameters: array<string, int>}}|null
+     * @return array{replacement: array{code: string, name: string, price: string, route: array{name: string, parameters: array<string, string>}}, retire_route: array{name: string, parameters: array<string, int>}|null, keep_route: array{name: string, parameters: array<string, int>}}|null
      */
     private function getRetirementDecision(Product $product): ?array
     {
-        if (!Arr::get($product->data, 'retire_at_cutover') || $product->state == ProductStateEnum::DISCONTINUED) {
+        if (!Arr::get($product->data, 'retire_at_cutover')) {
+            return null;
+        }
+
+        $isDiscontinued = $product->state == ProductStateEnum::DISCONTINUED;
+        if ($isDiscontinued && !$this->isUrlHeldByReplacement($product)) {
             return null;
         }
 
@@ -1062,7 +1067,7 @@ class ShowProduct extends OrgAction
                     ],
                 ],
             ],
-            'retire_route' => [
+            'retire_route' => $isDiscontinued ? null : [
                 'name'       => 'grp.models.product.retire_into_replacement',
                 'parameters' => ['product' => $product->id],
             ],

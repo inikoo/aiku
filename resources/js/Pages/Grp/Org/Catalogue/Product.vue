@@ -45,6 +45,7 @@ import Action from '@/Components/Forms/Fields/Action.vue'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faShapes, faStar, faExclamationTriangle } from '@fas'
 import { faHatCowboy } from "@far"
+import { faCheck as falCheck, faTimes as falTimes } from "@fal"
 import TableOffers from '@/Components/Shop/Offers/TableOffers.vue'
 import TableReviews from "@/Components/Shop/Reviews/TableReviews.vue"
 import Dialog from "primevue/dialog"
@@ -122,7 +123,7 @@ const props = defineProps<{
     exclusive_customers?: { name: string, reference: string, route: routeType }[]
     retirement_decision?: {
         replacement: { code: string, name: string, price: string, route: routeType }
-        retire_route: routeType
+        retire_route: routeType | null
         keep_route: routeType
     } | null
     sales?: {}
@@ -421,30 +422,45 @@ const saveProductReview = async () => {
     <div v-if="retirement_decision" class="m-4 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm">
         <div class="flex items-center gap-2 text-base font-semibold text-amber-800">
             <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
-            {{ ctrans('This product needs a decision') }}
+            {{ retirement_decision.retire_route ? ctrans('This product needs a decision') : ctrans('The webpage of this product shows another product') }}
         </div>
         <p class="mt-2 text-gray-700">
             {{ ctrans('At the Aurora cutover this product was merged into') }}
             <Link :href="route(retirement_decision.replacement.route.name, retirement_decision.replacement.route.parameters)" class="font-semibold underline">{{ retirement_decision.replacement.code }}</Link>
-            {{ ctrans('which took over its webpage and sells the same goods with quantity discounts. It was later put back on sale without a webpage of its own, so its link on the website opens the other product.') }}
+            <template v-if="retirement_decision.retire_route">
+                {{ ctrans('which took over its webpage and sells the same goods with quantity discounts. It was later put back on sale without a webpage of its own, so its link on the website opens the other product.') }}
+            </template>
+            <template v-else>
+                {{ ctrans('which took over its webpage, and this product was discontinued. Its link on the website opens the other product. Nothing needs doing if this product is no longer sold.') }}
+            </template>
         </p>
 
-        <div class="mt-4 font-semibold text-gray-800">{{ ctrans('Choose one option') }}:</div>
+        <div v-if="retirement_decision.retire_route" class="mt-4 font-semibold text-gray-800">{{ ctrans('Choose one option') }}:</div>
         <div class="mt-2 flex flex-col gap-3 md:flex-row md:items-stretch">
-            <div class="flex flex-1 flex-col rounded-md border border-red-200 bg-white p-4">
-                <div class="text-xs font-semibold uppercase tracking-wide text-red-600">{{ ctrans('Option 1') }}</div>
-                <div class="mt-1 font-semibold text-gray-900">{{ ctrans('Sell it only through :code', { code: retirement_decision.replacement.code }) }}</div>
-                <p class="mt-2 flex-1 text-gray-600">{{ ctrans('This product is taken off sale and discontinued. Customers buy the other product and get the quantity discount. If it sits in an order being processed it is hidden now and discontinued later.') }}</p>
-                <Button class="mt-3 self-start" type="negative" :label="ctrans('Retire this product')" :loading="retirementLoading === 'retire'" :disabled="!!retirementLoading" @click="submitRetirementDecision(retirement_decision.retire_route, 'retire')" />
-            </div>
+            <template v-if="retirement_decision.retire_route">
+                <div class="flex flex-1 flex-col rounded-md border border-red-200 bg-white p-4">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-red-600">{{ ctrans('Option 1') }}</div>
+                    <div class="mt-1 font-semibold text-gray-900">{{ ctrans('Sell it only through :code', { code: retirement_decision.replacement.code }) }}</div>
+                    <p class="mt-2 flex-1 text-gray-600">{{ ctrans('This product is taken off sale and discontinued. Customers buy the other product and get the quantity discount. If it sits in an order being processed it is hidden now and discontinued later.') }}</p>
+                    <Button class="mt-3 self-start" type="tertiary" :label="ctrans('Retire this product')" :loading="retirementLoading === 'retire'" :disabled="!!retirementLoading" @click="submitRetirementDecision(retirement_decision.retire_route, 'retire')">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="falTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
 
-            <div class="flex items-center justify-center text-xs font-semibold uppercase text-gray-400">{{ ctrans('or') }}</div>
+                <div class="flex items-center justify-center text-xs font-semibold uppercase text-gray-400">{{ ctrans('or') }}</div>
+            </template>
 
             <div class="flex flex-1 flex-col rounded-md border border-green-200 bg-white p-4">
-                <div class="text-xs font-semibold uppercase tracking-wide text-green-600">{{ ctrans('Option 2') }}</div>
-                <div class="mt-1 font-semibold text-gray-900">{{ ctrans('Keep it as its own product') }}</div>
-                <p class="mt-2 flex-1 text-gray-600">{{ ctrans('This product gets its webpage back and stays on sale. :code goes back to its own webpage, which may need content. Review the quantity discount on :code afterwards so both do not undercut each other.', { code: retirement_decision.replacement.code }) }}</p>
-                <Button class="mt-3 self-start" type="save" :label="ctrans('Keep as separate product')" :loading="retirementLoading === 'keep'" :disabled="!!retirementLoading" @click="submitRetirementDecision(retirement_decision.keep_route, 'keep')" />
+                <div v-if="retirement_decision.retire_route" class="text-xs font-semibold uppercase tracking-wide text-green-600">{{ ctrans('Option 2') }}</div>
+                <div class="mt-1 font-semibold text-gray-900">{{ retirement_decision.retire_route ? ctrans('Keep it as its own product') : ctrans('Sell this product again') }}</div>
+                <p class="mt-2 flex-1 text-gray-600">{{ retirement_decision.retire_route ? ctrans('This product gets its webpage back and stays on sale. :code goes back to its own webpage, which may need content. Review the quantity discount on :code afterwards so both do not undercut each other.', { code: retirement_decision.replacement.code }) : ctrans('This product is put back on sale and gets its webpage back. :code goes back to its own webpage, which may need content. Review the quantity discount on :code afterwards so both do not undercut each other.', { code: retirement_decision.replacement.code }) }}</p>
+                <Button class="mt-3 self-start" type="tertiary" :label="retirement_decision.retire_route ? ctrans('Keep as separate product') : ctrans('Put back on sale with its webpage')" :loading="retirementLoading === 'keep'" :disabled="!!retirementLoading" @click="submitRetirementDecision(retirement_decision.keep_route, 'keep')">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="falCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </div>
     </div>

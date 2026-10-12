@@ -23,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class KeepRetiredProductAsSeparate extends OrgAction
@@ -34,6 +35,12 @@ class KeepRetiredProductAsSeparate extends OrgAction
      */
     public function handle(Product $product): Product
     {
+        if ($product->isExclusive()) {
+            throw ValidationException::withMessages([
+                'product' => __('This product is exclusive to a customer, putting it back on sale would show it to everyone. Remove the exclusive customer first.'),
+            ]);
+        }
+
         $pagesToRefresh = [];
 
         $product = DB::transaction(function () use ($product, &$pagesToRefresh) {
