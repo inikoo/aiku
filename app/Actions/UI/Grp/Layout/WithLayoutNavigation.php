@@ -271,6 +271,11 @@ trait WithLayoutNavigation
                             'tooltip' => __('Holidays'),
                             'icon'    => ['fal', 'fa-umbrella'],
                             'root'    => 'grp.org.hr.holidays.',
+                            'roots'   => [
+                                'grp.org.hr.calendars.',
+                                'grp.org.hr.holiday_years.',
+                                'grp.org.hr.restricted_periods.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.holidays.index',
                                 'parameters' => [$organisation->slug],
@@ -281,6 +286,10 @@ trait WithLayoutNavigation
                             'tooltip' => __('Overtime'),
                             'icon'    => ['fal', 'fa-stopwatch'],
                             'root'    => 'grp.org.hr.overtime.',
+                            'roots'   => [
+                                'grp.org.hr.overtime_types.',
+                                'grp.org.hr.overtime_requests.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.overtime.index',
                                 'parameters' => [$organisation->slug],
@@ -291,6 +300,10 @@ trait WithLayoutNavigation
                             'tooltip' => __('Leave Requests'),
                             'icon'    => ['fas', 'fa-house-leave'],
                             'root'    => 'grp.org.hr.leaves.',
+                            'roots'   => [
+                                'grp.org.hr.leave_approvers.',
+                                'grp.org.hr.leave_concurrency_rules.',
+                            ],
                             'route'   => [
                                 'name'       => 'grp.org.hr.leaves.index',
                                 'parameters' => [$organisation->slug],

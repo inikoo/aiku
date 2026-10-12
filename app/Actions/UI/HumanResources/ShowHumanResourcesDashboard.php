@@ -267,10 +267,78 @@ class ShowHumanResourcesDashboard extends OrgAction
                 ],
                 'birthdays'     => $this->getBirthdaysThisMonth($today),
                 'leaveOverview' => $this->getLeaveOverview($today),
+                'leaveOverviewPeriod' => $this->getLeaveOverviewPeriod($today, $routeParameters),
                 'employeeLeaves' => $this->getEmployeeLeaves($today),
-                'leaveTypes'    => $this->getLeaveTypesDistribution($today),
+                'leaveTypes'    => $this->getLeaveTypesDistribution($today, $routeParameters),
+                'leaveTypesPeriod' => $this->getLeaveTypesPeriod($today, $routeParameters),
             ]
         );
+    }
+
+    /**
+     * @return array{label: string, dates: string, route: array{name: string, parameters: array<string, mixed>}}
+     */
+    private function getLeaveOverviewPeriod(Carbon $today, array $routeParameters): array
+    {
+        $monday = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $friday = $monday->copy()->addDays(4);
+
+        return [
+            'label' => __('This week'),
+            'dates' => $monday->isSameMonth($friday)
+                ? $monday->format('j').'–'.$friday->translatedFormat('j M')
+                : $monday->translatedFormat('j M').' – '.$friday->translatedFormat('j M'),
+            'route' => $this->leaveCalendarRoute($routeParameters, [
+                'view'       => 'week',
+                'week_start' => $monday->toDateString(),
+            ]),
+        ];
+    }
+
+    /**
+     * @return array{label: string, dates: string, route: array{name: string, parameters: array<string, mixed>}}
+     */
+    private function getLeaveTypesPeriod(Carbon $today, array $routeParameters): array
+    {
+        return [
+            'label' => __('This month'),
+            'dates' => $today->translatedFormat('F Y'),
+            'route' => $this->leaveCalendarRoute($routeParameters, [
+                'year'  => $today->year,
+                'month' => $today->month,
+            ]),
+        ];
+    }
+
+    /**
+     * @return array{name: string, parameters: array<string, mixed>}
+     */
+    private function leaveCalendarRoute(array $routeParameters, array $query): array
+    {
+        if ($this->isRestrictedToSection()) {
+            return $this->approvedLeavesRoute($routeParameters, null);
+        }
+
+        return [
+            'name'       => 'grp.org.hr.leaves.dashboard',
+            'parameters' => array_merge($routeParameters, ['_query' => $query]),
+        ];
+    }
+
+    /**
+     * @return array{name: string, parameters: array<string, mixed>}
+     */
+    private function approvedLeavesRoute(array $routeParameters, ?string $type): array
+    {
+        return [
+            'name'       => 'grp.org.hr.leaves.index',
+            'parameters' => array_merge($routeParameters, [
+                '_query' => array_filter([
+                    'status' => LeaveStatusEnum::APPROVED->value,
+                    'type'   => $type,
+                ]),
+            ]),
+        ];
     }
 
     private function getSectionStats(int $workingCount, array $routeParameters): array
@@ -313,6 +381,7 @@ class ShowHumanResourcesDashboard extends OrgAction
             $day = $startOfWeek->copy()->addDays($i);
 
             $days[] = [
+                'date'     => $day->toDateString(),
                 'label'    => $day->format('D'),
                 'count'    => $this->countEmployeesOnLeaveForDay($day),
                 'is_today' => $day->isSameDay($today),
@@ -356,7 +425,7 @@ class ShowHumanResourcesDashboard extends OrgAction
         })->all();
     }
 
-    private function getLeaveTypesDistribution(Carbon $today): array
+    private function getLeaveTypesDistribution(Carbon $today, array $routeParameters): array
     {
         $startMonth = $today->copy()->startOfMonth()->toDateString();
         $endMonth   = $today->copy()->endOfMonth()->toDateString();
@@ -378,11 +447,15 @@ class ShowHumanResourcesDashboard extends OrgAction
                     'name'      => $name,
                     'color'     => $leave->leaveType?->color,
                     'employees' => [],
+                    'codes'     => [],
                 ];
             }
 
             $groups[$name]['color']                     ??= $leave->leaveType?->color;
             $groups[$name]['employees'][$leave->employee_id] = true;
+            if (is_string($leave->type) && $leave->type !== '') {
+                $groups[$name]['codes'][$leave->type] = true;
+            }
         }
 
         $counts = array_map(fn (array $group): int => count($group['employees']), $groups);
@@ -392,10 +465,12 @@ class ShowHumanResourcesDashboard extends OrgAction
 
         $types = collect($groups)
             ->values()
-            ->map(function (array $group, int $index) use ($total, $palette): array {
+            ->map(function (array $group, int $index) use ($total, $palette, $routeParameters): array {
                 $count = count($group['employees']);
+                $codes = array_keys($group['codes']);
 
                 return [
+                    'route'      => $this->approvedLeavesRoute($routeParameters, count($codes) === 1 ? (string) $codes[0] : null),
                     'name'       => $group['name'],
                     'color'      => $group['color'] ? $this->leaveColorHex($group['color']) : $palette[$index % count($palette)],
                     'count'      => $count,

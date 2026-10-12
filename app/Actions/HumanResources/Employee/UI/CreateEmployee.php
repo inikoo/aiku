@@ -70,7 +70,7 @@ class CreateEmployee extends OrgAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('personal information'),
+                            'title'  => __('Personal information'),
                             'fields' => [
                                 'contact_name'  => [
                                     'type'     => 'input',
@@ -79,12 +79,12 @@ class CreateEmployee extends OrgAction
                                 ],
                                 'date_of_birth' => [
                                     'type'  => 'date',
-                                    'label' => __('date of birth'),
+                                    'label' => __('Date of birth'),
                                     'value' => ''
                                 ],
                                 'email'         => [
                                     'type'  => 'input',
-                                    'label' => __('personal email'),
+                                    'label' => __('Personal email'),
                                     'value' => ''
                                 ],
                                 'phone' => [
@@ -123,7 +123,7 @@ class CreateEmployee extends OrgAction
                                 ],
                                 'identity_document_type'         => [
                                     'type'  => 'input',
-                                    'label' => __('identity document type'),
+                                    'label' => __('Identity document type'),
                                     'value' => ''
                                 ],
                                 'identity_document_number'         => [
@@ -133,7 +133,7 @@ class CreateEmployee extends OrgAction
                                 ],
                                 'notes'         => [
                                     'type'  => 'textarea',
-                                    'label' => __('notes'),
+                                    'label' => __('Notes'),
                                     'value' => ''
                                 ],
 
@@ -156,11 +156,11 @@ class CreateEmployee extends OrgAction
                                             'value'       => EmployeeTypeEnum::EMPLOYEE->value
                                         ],
                                         [
-                                            'title'       => __('volunteer'),
+                                            'title'       => __('Volunteer'),
                                             'value'       => EmployeeTypeEnum::VOLUNTEER->value
                                         ],
                                         [
-                                            'title'       => __('temporal worker'),
+                                            'title'       => __('Temporal worker'),
                                             'value'       => EmployeeTypeEnum::TEMPORAL_WORKER->value
                                         ],
                                     ]
@@ -231,7 +231,7 @@ class CreateEmployee extends OrgAction
                             ]
                         ],
                         [
-                            'title'  => __('job'),
+                            'title'  => __('Job'),
                             'fields' => [
                                 'job_title' => [
                                     'type' => 'select_create',

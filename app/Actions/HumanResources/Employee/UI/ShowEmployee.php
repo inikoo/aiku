@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
+use App\Actions\HumanResources\Leave\UI\IndexEmployeeLeaves;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -43,8 +44,15 @@ class ShowEmployee extends OrgAction
         return $employee;
     }
 
+    public function rules(): array
+    {
+        return IndexEmployeeLeaves::make()->rules(EmployeeTabsEnum::LEAVES->value);
+    }
+
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
         abort_unless($this->canSeeEmployee($employee->id), 403);
 
@@ -54,6 +62,12 @@ class ShowEmployee extends OrgAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         $user     = $this->isRestrictedToSection() ? null : $employee->getUser();
+        $leaves   = fn (): array => IndexEmployeeLeaves::make()->getTabData(
+            $employee,
+            EmployeeTabsEnum::LEAVES->value,
+            IndexEmployeeLeaves::make()->resolveFilters($this->validatedData, EmployeeTabsEnum::LEAVES->value),
+            $request
+        );
         $response = Inertia::render(
             'Org/HumanResources/Employee',
             [
@@ -127,6 +141,7 @@ class ShowEmployee extends OrgAction
                 EmployeeTabsEnum::SHOWCASE->value => $this->tab == EmployeeTabsEnum::SHOWCASE->value ?
                     fn () => [...GetEmployeeShowcase::run($employee), 'can_edit' => $this->canEdit]
                     : Inertia::optional(fn () => [...GetEmployeeShowcase::run($employee), 'can_edit' => $this->canEdit]),
+                EmployeeTabsEnum::LEAVES->value => $this->tab == EmployeeTabsEnum::LEAVES->value ? $leaves : Inertia::optional($leaves),
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee, EmployeeTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($employee, EmployeeTabsEnum::HISTORY->value))),
