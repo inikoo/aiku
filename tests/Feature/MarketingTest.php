@@ -4723,6 +4723,29 @@ describe('mailshot link address', function () {
         expect($mailshot->email->refresh()->liveSnapshot->compiled_layout)->toBe('<a href="'.$new.'">x</a>');
     });
 
+    it('labels the links of a draft that was only auto saved', function () {
+        $domain   = createWebsite($this->shop)->domain;
+        $mailshot = StoreMailshot::make()->action($this->outbox, Mailshot::factory()->definition());
+        $button   = 'https://'.$domain.'/button-page';
+        $text     = 'https://'.$domain.'/text-page';
+        $layout   = ['rows' => [
+            ['button' => ['href' => $button, 'label' => 'Shop now']],
+            ['text' => '<p><a href="'.$text.'">here</a></p>'],
+        ]];
+
+        App\Actions\Comms\Mailshot\UpdateWorkshopMailShot::make()->handle($mailshot, [
+            'layout'          => $layout,
+            'compiled_layout' => '<a class="button" href="'.$button.'" target="_blank"><span>Shop now</span></a><p><a href="'.$text.'">here</a></p>',
+        ]);
+
+        $roles = collect(App\Actions\Comms\Mailshot\GetMailshotUrls::make()->handle($mailshot->refresh())['links'])->pluck('roles', 'url');
+        expect($roles[$button])->toBe(['hero_button'])
+            ->and($roles[$text])->toBe(['text_1']);
+
+        App\Actions\Comms\Mailshot\UpdateWorkshopMailShot::make()->handle($mailshot->refresh(), ['layout' => $layout]);
+        expect($mailshot->email->unpublishedSnapshot->refresh()->compiled_layout)->toBeNull();
+    });
+
     it('does not change the links of an email that has gone out', function () {
         $mailshot = StoreMailshot::make()->action($this->outbox, Mailshot::factory()->definition());
         $mailshot->updateQuietly(['state' => App\Enums\Comms\Mailshot\MailshotStateEnum::SENT]);

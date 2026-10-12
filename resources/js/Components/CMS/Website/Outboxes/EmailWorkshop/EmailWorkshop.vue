@@ -130,6 +130,7 @@ let isApplyingHistory = false
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 let pendingChangesSince: number | null = null
 let isAutoSaveRunning = false
+let autoSaveRequest: Promise<void> | null = null
 let hasChangesDuringAutoSave = false
 let historyTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -558,8 +559,14 @@ const persistDraft = async () => {
     isDirty.value = false
     pendingChangesSince = null
     autoSaveStatus.value = 'saving'
+    autoSaveRequest = sendDraft()
+    await autoSaveRequest
+    autoSaveRequest = null
+}
+
+const sendDraft = async () => {
     try {
-        await axios.patch(route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), { layout: withDerivedHtml(email.value) })
+        await axios.patch(route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), { layout: withDerivedHtml(email.value), compiled_layout: renderEmailHtml(email.value) })
         lastSavedAt.value = new Date()
         autoSaveStatus.value = isDirty.value ? 'pending' : 'saved'
     } catch {
@@ -593,9 +600,12 @@ const markDirty = () => {
     scheduleAutoSave()
 }
 
-const saveDraftNow = () => {
+const saveDraftNow = async () => {
+    if (autoSaveRequest) {
+        await autoSaveRequest
+    }
     if (isDirty.value) {
-        persistDraft()
+        await persistDraft()
     }
 }
 

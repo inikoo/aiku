@@ -71,6 +71,10 @@ const props = defineProps<{
 }>()
 
 const isUtmLinksModalOpen = ref(false)
+const openUtmLinks = async () => {
+    await _beefree.value?.saveDraftNow?.()
+    isUtmLinksModalOpen.value = true
+}
 
 const mailshotSavedSubject = ref(props.mailshot.subject)
 const pageHeadData = computed(() => ({ ...props.pageHead, title: mailshotSavedSubject.value }))
@@ -391,7 +395,7 @@ onMounted(() => {
                 :icon="faSyncAlt" :disabled="!isBeefreeReady" />
         </template>
         <template #button-utm="{ action }">
-            <Button :label="action.label" type="tertiary" :icon="faLink" @click="isUtmLinksModalOpen = true" />
+            <Button :label="action.label" type="tertiary" :icon="faLink" @click="openUtmLinks" />
         </template>
         <template #button-review="{ action }">
             <Button :label="action.label" type="primary" iconRight="fal fa-arrow-right"

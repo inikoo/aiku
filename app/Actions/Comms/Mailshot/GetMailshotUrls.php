@@ -27,7 +27,7 @@ class GetMailshotUrls extends OrgAction
         $settings  = GetMailshotUtmSettings::run($mailshot);
         $overrides = $this->getUtmOverrides($mailshot);
         $domains   = $this->getWebsiteDomains($mailshot);
-        $roles     = $this->getContentLabelsByUrl($mailshot->email?->liveSnapshot?->compiled_layout, $domains);
+        $roles     = $this->getContentLabelsByUrl($mailshot->email?->unpublishedSnapshot?->compiled_layout ?: $mailshot->email?->liveSnapshot?->compiled_layout, $domains);
 
         $links = collect($this->extractUrls($mailshot->email?->unpublishedSnapshot?->layout ?? []))
             ->map(fn (string $url) => [
