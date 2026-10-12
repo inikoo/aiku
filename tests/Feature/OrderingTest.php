@@ -499,6 +499,42 @@ test('create transaction', function ($order) {
     return $transaction;
 })->depends('delete previous transaction');
 
+test('customer orders search finds the order holding a product', function (Transaction $transaction) {
+    $order    = $transaction->order;
+    $customer = $order->customer;
+    $product  = $transaction->historicAsset;
+
+    $shopState = $this->shop->state;
+    $this->shop->update(['state' => ShopStateEnum::OPEN]);
+
+    $ordersFound = fn (string $routeName, array $parameters, string $search) => collect(
+        get(route($routeName, $parameters + ['orders_filter' => ['global' => $search]]))
+            ->assertOk()
+            ->inertiaProps('data.data')
+    )->pluck('id');
+
+    $customerRoute = 'grp.org.shops.show.crm.customers.show.orders.index';
+    $customerPage  = [$this->organisation->slug, $this->shop->slug, $customer->slug];
+
+    expect($ordersFound($customerRoute, $customerPage, $product->code))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $product->name))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $order->reference))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, 'no product is called this'))->toBeEmpty()
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $order->reference))->toContain($order->id)
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $product->code))->not->toContain($order->id);
+
+    $dialogOrders = fn (array $parameters) => collect(
+        get(route('grp.search.index', ['q' => $product->code, 'shop' => $this->shop->slug, 'organisation' => $this->organisation->slug] + $parameters))
+            ->assertOk()
+            ->json('results.orders')
+    )->pluck('id');
+
+    expect($dialogOrders(['route_src' => $customerRoute, 'customer' => $customer->slug]))->toContain($order->id)
+        ->and($dialogOrders(['route_src' => 'grp.org.shops.show.crm.customers.index']))->not->toContain($order->id);
+
+    $this->shop->update(['state' => $shopState]);
+})->depends('create transaction');
+
 test('store transaction for existing product adds to quantity instead of duplicating', function (Transaction $transaction) {
     $order         = $transaction->order;
     $historicAsset = $this->product->historicAsset;

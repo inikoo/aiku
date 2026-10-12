@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\Helpers\Ticket\TicketTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\Masters\MasterShop;
 use App\Models\Production\Production;
@@ -183,6 +184,9 @@ class Search extends OrgAction
                 "accounting.{$shop->organisation_id}.view",
             ]);
             $options = ['shop_id' => $shop->id, 'language' => $shop->language->code];
+            if ($scope === 'customers' && $request->query('customer')) {
+                $options['customer_id'] = Customer::where('slug', $request->query('customer'))->where('shop_id', $shop->id)->first()?->id;
+            }
         } else {
             return [];
         }
