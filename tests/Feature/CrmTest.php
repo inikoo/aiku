@@ -2090,6 +2090,14 @@ test('newsletter sign-up stores the phone number on the prospect', function () {
 
     expect($prospectWithoutPhone->phone)->toBeNull();
 
+    $prospectWithPhoneOnly = $subscribe(['email' => null, 'phone' => '+44 7911 654321']);
+
+    expect($prospectWithPhoneOnly->phone)->toBe('+44 7911 654321')
+        ->and($prospectWithPhoneOnly->email)->toBeNull();
+
+    expect(fn () => $subscribe(['email' => null, 'phone' => null]))
+        ->toThrow(ValidationException::class);
+
     expect(fn () => $subscribe(['email' => 'dialog.badphone@example.com', 'phone' => 'call me']))
         ->toThrow(ValidationException::class);
 

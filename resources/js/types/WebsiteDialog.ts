@@ -12,7 +12,9 @@ export interface WebsiteDialogTemplateData {
             text: string
         }
         subscribe?: {
+            show_email?: boolean
             placeholder?: string
+            show_phone?: boolean
             phone_placeholder?: string
             success_text?: string
         }
