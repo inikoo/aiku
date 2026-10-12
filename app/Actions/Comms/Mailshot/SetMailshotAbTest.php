@@ -11,12 +11,14 @@ namespace App\Actions\Comms\Mailshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithMarketingEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Comms\Mailshot\MailshotAbTestWinningMetricEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -26,7 +28,7 @@ class SetMailshotAbTest extends OrgAction
     use WithMarketingEditAuthorisation;
 
     /**
-     * @param  array{enabled?: bool, size_percentage?: int}  $modelData
+     * @param  array{enabled?: bool, size_percentage?: int, variant_delay_hours?: int, tracking_hours?: int, winning_metric?: string}  $modelData
      *
      * @throws \Throwable
      */
@@ -44,8 +46,15 @@ class SetMailshotAbTest extends OrgAction
             ]);
         }
 
-        if (Arr::has($modelData, 'size_percentage')) {
-            $this->update($mailshot, ['ab_test_size_percentage' => $modelData['size_percentage']]);
+        $settings = array_filter([
+            'ab_test_size_percentage'     => Arr::get($modelData, 'size_percentage'),
+            'ab_test_variant_delay_hours' => Arr::get($modelData, 'variant_delay_hours'),
+            'ab_test_tracking_hours'      => Arr::get($modelData, 'tracking_hours'),
+            'ab_test_winning_metric'      => Arr::get($modelData, 'winning_metric'),
+        ], fn ($value) => $value !== null);
+
+        if ($settings) {
+            $this->update($mailshot, $settings);
         }
 
         if (!Arr::has($modelData, 'enabled')) {
@@ -105,8 +114,11 @@ class SetMailshotAbTest extends OrgAction
     public function rules(): array
     {
         return [
-            'enabled'         => ['sometimes', 'boolean'],
-            'size_percentage' => ['sometimes', 'integer', 'min:10', 'max:100'],
+            'enabled'             => ['sometimes', 'boolean'],
+            'size_percentage'     => ['sometimes', 'integer', 'min:10', 'max:100'],
+            'variant_delay_hours' => ['sometimes', 'integer', 'min:0', 'max:168'],
+            'tracking_hours'      => ['sometimes', 'integer', 'min:1', 'max:720'],
+            'winning_metric'      => ['sometimes', Rule::enum(MailshotAbTestWinningMetricEnum::class)->except(MailshotAbTestWinningMetricEnum::unavailable())],
         ];
     }
 

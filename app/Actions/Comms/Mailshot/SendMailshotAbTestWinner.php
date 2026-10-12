@@ -45,6 +45,13 @@ class SendMailshotAbTestWinner extends OrgAction
             ]);
         }
 
+        $trackingEndsAt = $mailshot->abTestTrackingEndsAt();
+        if ($trackingEndsAt?->isFuture()) {
+            throw ValidationException::withMessages([
+                'winner_mailshot_id' => __('Results are still being tracked until :date.', ['date' => $trackingEndsAt->toDayDateTimeString()]),
+            ]);
+        }
+
         $claimed = Mailshot::whereKey($mailshot->id)
             ->whereNull('ab_test_winner_sent_at')
             ->update([

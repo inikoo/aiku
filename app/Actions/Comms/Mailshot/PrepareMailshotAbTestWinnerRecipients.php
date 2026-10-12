@@ -9,7 +9,6 @@
 namespace App\Actions\Comms\Mailshot;
 
 use App\Models\Comms\Mailshot;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class PrepareMailshotAbTestWinnerRecipients
@@ -30,17 +29,8 @@ class PrepareMailshotAbTestWinnerRecipients
             return;
         }
 
-        $testMailshotIds = [$mailshot->id, $mailshot->abTestVariant->id];
-
         $prepareAbTest = PrepareMailshotAbTestRecipients::make();
-        $audienceQuery = $prepareAbTest->audienceQuery($mailshot);
-        $audienceQuery?->whereNotExists(function ($query) use ($testMailshotIds) {
-            $query->select(DB::raw(1))
-                ->from('mailshot_recipients')
-                ->whereColumn('mailshot_recipients.recipient_id', 'customers.id')
-                ->where('mailshot_recipients.recipient_type', 'Customer')
-                ->whereIn('mailshot_recipients.mailshot_id', $testMailshotIds);
-        });
+        $audienceQuery = $prepareAbTest->excludeRecipientsOf($prepareAbTest->audienceQuery($mailshot), [$mailshot->id, $mailshot->abTestVariant->id]);
 
         $customerIds = $prepareAbTest->validCustomerIds($audienceQuery)->values()->all();
 

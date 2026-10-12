@@ -9,6 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Comms\Mailshot\MailshotAbTestWinningMetricEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -79,6 +81,9 @@ use App\Models\Web\Webpage;
  * @property int $ab_test_size_percentage
  * @property int|null $ab_test_winner_mailshot_id
  * @property \Illuminate\Support\Carbon|null $ab_test_winner_sent_at
+ * @property int $ab_test_variant_delay_hours
+ * @property int $ab_test_tracking_hours
+ * @property MailshotAbTestWinningMetricEnum $ab_test_winning_metric
  * @property string|null $sender_name
  * @property-read Mailshot|null $abTestVariant
  * @property-read Mailshot|null $abTestOriginal
@@ -130,6 +135,7 @@ class Mailshot extends Model implements Auditable
         'cancelled_at'           => 'datetime',
         'stopped_at'             => 'datetime',
         'ab_test_winner_sent_at' => 'datetime',
+        'ab_test_winning_metric' => MailshotAbTestWinningMetricEnum::class,
     ];
 
     protected $attributes = [
@@ -153,6 +159,9 @@ class Mailshot extends Model implements Auditable
         'is_second_wave_enabled',
         'ab_test_size_percentage',
         'ab_test_winner_mailshot_id',
+        'ab_test_variant_delay_hours',
+        'ab_test_tracking_hours',
+        'ab_test_winning_metric',
         'sender_name',
     ];
 
@@ -302,6 +311,21 @@ class Mailshot extends Model implements Auditable
         }
 
         $variant->assertSubjectIsNotDefault();
+    }
+
+    public function abTestVariantSendsAt(): ?Carbon
+    {
+        return $this->start_sending_at?->copy()->addHours($this->ab_test_variant_delay_hours);
+    }
+
+    public function abTestTrackingEndsAt(): ?Carbon
+    {
+        $variant = $this->abTestVariant;
+        if (!$variant || !$this->sent_at || !$variant->sent_at) {
+            return null;
+        }
+
+        return $this->sent_at->max($variant->sent_at)->copy()->addHours($this->ab_test_tracking_hours);
     }
 
     public function toSearchableArray(): array

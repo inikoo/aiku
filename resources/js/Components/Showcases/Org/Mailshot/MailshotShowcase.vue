@@ -10,7 +10,6 @@ import {
     ArcElement,
 } from "chart.js";
 import Modal from "@/Components/Utils/Modal.vue"
-import { faExpand } from "@fal";
 import ScreenView from "@/Components/ScreenView.vue"
 import { setIframeView } from "@/Composables/Workshop"
 import EmptyState from "@/Components/Utils/EmptyState.vue";
@@ -50,6 +49,12 @@ const props = defineProps<{
         },
         compiled_layout: any,
         compiled_layout_size: number
+        ab_test_previews?: Array<{
+            label: string,
+            id: number,
+            subject: string | null,
+            compiled_layout: string | null
+        }>
     }
     liveStats?: any[]
     ownShopTemplates?: Array<{
@@ -72,6 +77,18 @@ const props = defineProps<{
 }>()
 
 const previewOpen = ref(false)
+const previewLayout = ref<string | null>(null)
+const isAbTest = computed(() => !!props.data.ab_test_previews?.length)
+const previews = computed(() =>
+    isAbTest.value
+        ? props.data.ab_test_previews!
+        : [{ label: null, id: props.data.mailshot.data.id, subject: null, compiled_layout: props.data.compiled_layout }]
+)
+
+const openPreview = (compiledLayout: string | null) => {
+    previewLayout.value = compiledLayout
+    previewOpen.value = true
+}
 const iframeClass = ref('w-full h-full')
 
 const stats = computed(
@@ -220,20 +237,22 @@ const effectiveOtherShopTemplates = computed(() =>
             </div>
 
             <!-- Preview and chart -->
-            <div class="grid gap-4 mt-8" :class="isReady ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'">
-                <div class="h-auto mb-3">
+            <div class="grid gap-4 mt-8" :class="isReady && !isAbTest ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'">
+                <div v-for="preview in previews" :key="preview.id" class="h-auto mb-3">
+                    <div v-if="preview.label" class="mb-2 flex items-baseline gap-2">
+                        <span class="font-semibold text-gray-900">{{ ctrans('Version :label', { label: preview.label }) }}</span>
+                        <span class="text-sm text-gray-500 truncate">{{ preview.subject }}</span>
+                    </div>
                     <div class="bg-white p-4 rounded-lg shadow relative overflow-auto">
-                        <button @click="previewOpen = true"
-                            class="absolute top-4 right-3 bg-gray-300 text-white px-2 py-1 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            <FontAwesomeIcon :icon="faExpand" fixed-width />
-                        </button>
-                        <div v-if="data.compiled_layout" v-html="data.compiled_layout"></div>
-                        <EmptyState v-else :data="{ title: 'You don’t have any preview' }" />
+                        <Button class="!absolute top-4 right-3" type="tertiary" size="xs" icon="fal fa-expand"
+                            :tooltip="ctrans('Full preview')" @click="openPreview(preview.compiled_layout)" />
+                        <div v-if="preview.compiled_layout" v-html="preview.compiled_layout"></div>
+                        <EmptyState v-else :data="{ title: ctrans('You don’t have any preview') }" />
                     </div>
                 </div>
 
-                <div class="h-auto mb-3">
-                    <div v-if="!isReady"
+                <div v-if="!isReady" class="h-auto mb-3" :class="{ 'md:col-span-2': isAbTest }">
+                    <div
                         class="bg-white p-4 rounded-lg shadow relative min-h-[28rem] flex justify-center items-center">
                         <Pie :data="dataSet" :options="pieOptions" />
                         <div v-if="totalValue == 0"
@@ -250,7 +269,7 @@ const effectiveOtherShopTemplates = computed(() =>
                     <div class="bg-gray-300">
                         <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
                     </div>
-                    <div v-html="data.compiled_layout"></div>
+                    <div v-html="previewLayout"></div>
                 </div>
             </Modal>
         </template>
