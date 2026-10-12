@@ -8,11 +8,11 @@
 
 namespace App\Actions\Maintenance\Dropshipping;
 
-use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Dropshipping\Bundle\UpdateBundle;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\Bundle;
+use App\Models\Goods\TradeUnit;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
@@ -28,7 +28,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * Only the trade units of the bundle product are written. Its price, its units and the sku of its
  * portfolio stay as they are, and nothing is pushed to the store of the customer: the sku is already
  * on their listings. A bundle that holds more than its items say, or other trade units than its
- * items, is reported and left for a person to look at.
+ * items, is reported and left for a person to look at, who can then give that one bundle exactly
+ * what its items add up to with --rederive.
  */
 class RepairBundlesHoldingFewerTradeUnits
 {
@@ -40,12 +41,12 @@ class RepairBundlesHoldingFewerTradeUnits
 
     private const float TOLERANCE = 0.01;
 
-    public string $commandSignature = 'repair:bundles_holding_fewer_trade_units {shop? : Slug of one shop, all shops when omitted} {--bundle= : Code of one bundle product} {--dry-run : Report what would be repaired without writing}';
+    public string $commandSignature = 'repair:bundles_holding_fewer_trade_units {shop? : Slug of one shop, all shops when omitted} {--bundle= : Code of one bundle product} {--rederive : With --bundle, give the bundle exactly what its items add up to, even when it holds more or other trade units} {--dry-run : Report what would be repaired without writing}';
 
     /**
      * @return array{outcome: string, changes: array<int, array{trade_unit: string, from: float, to: float}>, reason?: string}
      */
-    public function handle(Bundle $bundle, bool $dryRun = false): array
+    public function handle(Bundle $bundle, bool $dryRun = false, bool $rederive = false): array
     {
         /** @var Product $product */
         $product = $bundle->bundleable;
@@ -53,25 +54,28 @@ class RepairBundlesHoldingFewerTradeUnits
         $expected = collect(UpdateBundle::make()->getCurrentBundleTradeUnits($bundle))
             ->mapWithKeys(fn (array $tradeUnit) => [$tradeUnit['id'] => (float) $tradeUnit['quantity']]);
 
-        $tradeUnits = $product->tradeUnits()->get();
-        $current    = $tradeUnits->mapWithKeys(fn ($tradeUnit) => [$tradeUnit->id => (float) $tradeUnit->pivot->quantity]);
+        $current = $product->tradeUnits()->get()->mapWithKeys(fn ($tradeUnit) => [$tradeUnit->id => (float) $tradeUnit->pivot->quantity]);
 
-        if ($expected->isEmpty() || $expected->keys()->sort()->values()->all() !== $current->keys()->sort()->values()->all()) {
+        if ($expected->isEmpty()) {
+            return ['outcome' => self::NEEDS_REVIEW, 'changes' => [], 'reason' => 'its items have no trade units'];
+        }
+
+        if (!$rederive && $expected->keys()->sort()->values()->all() !== $current->keys()->sort()->values()->all()) {
             return ['outcome' => self::NEEDS_REVIEW, 'changes' => [], 'reason' => 'trade units are not those of its items'];
         }
 
+        $codes   = TradeUnit::whereIn('id', $expected->keys()->merge($current->keys()))->pluck('code', 'id');
         $changes = [];
-        foreach ($expected as $tradeUnitId => $quantity) {
-            if ($current[$tradeUnitId] - $quantity > self::TOLERANCE) {
+        foreach ($expected->keys()->merge($current->keys())->unique() as $tradeUnitId) {
+            $held     = $current->get($tradeUnitId, 0.0);
+            $quantity = $expected->get($tradeUnitId, 0.0);
+
+            if (!$rederive && $held - $quantity > self::TOLERANCE) {
                 return ['outcome' => self::NEEDS_REVIEW, 'changes' => [], 'reason' => 'holds more than its items say'];
             }
 
-            if ($quantity - $current[$tradeUnitId] > self::TOLERANCE) {
-                $changes[] = [
-                    'trade_unit' => $tradeUnits->firstWhere('id', $tradeUnitId)->code,
-                    'from'       => $current[$tradeUnitId],
-                    'to'         => $quantity,
-                ];
+            if (abs($quantity - $held) > self::TOLERANCE) {
+                $changes[] = ['trade_unit' => $codes[$tradeUnitId], 'from' => $held, 'to' => $quantity];
             }
         }
 
@@ -81,10 +85,7 @@ class RepairBundlesHoldingFewerTradeUnits
 
         if (!$dryRun) {
             try {
-                UpdateProduct::make()->action($product, [
-                    'trade_units' => $expected->map(fn (float $quantity, int $tradeUnitId) => ['id' => $tradeUnitId, 'quantity' => $quantity])->values()->all(),
-                    'units'       => $product->units,
-                ]);
+                UpdateBundle::make()->writeCurrentBundleTradeUnits($bundle);
             } catch (ValidationException $exception) {
                 return ['outcome' => self::NEEDS_REVIEW, 'changes' => [], 'reason' => collect($exception->errors())->flatten()->first()];
             }
@@ -118,6 +119,13 @@ class RepairBundlesHoldingFewerTradeUnits
             }
         }
 
+        $rederive = (bool) $command->option('rederive');
+        if ($rederive && !$command->option('bundle')) {
+            $command->error('--rederive works on one bundle at a time, name it with --bundle');
+
+            return 1;
+        }
+
         $dryRun   = (bool) $command->option('dry-run');
         $query    = $this->bundlesQuery($shop, $command->option('bundle'));
         $counts   = [self::REPAIRED => 0, self::CORRECT => 0, self::NEEDS_REVIEW => 0];
@@ -126,9 +134,9 @@ class RepairBundlesHoldingFewerTradeUnits
 
         $progressBar = $command->getOutput()->createProgressBar($query->count());
 
-        $query->with('bundleable')->chunkById(200, function ($bundles) use (&$counts, &$repaired, &$review, $dryRun, $progressBar) {
+        $query->with('bundleable')->chunkById(200, function ($bundles) use (&$counts, &$repaired, &$review, $dryRun, $rederive, $progressBar) {
             foreach ($bundles as $bundle) {
-                $result = $this->handle($bundle, $dryRun);
+                $result = $this->handle($bundle, $dryRun, $rederive);
                 $counts[$result['outcome']]++;
 
                 foreach ($result['changes'] as $change) {

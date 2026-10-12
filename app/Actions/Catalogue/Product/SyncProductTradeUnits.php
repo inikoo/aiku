@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Product;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateTagsFromTradeUnits;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\Dispatching\DeliveryNoteItem\SyncDeliveryNoteItemsRequiredPickQuantity;
+use App\Actions\Dropshipping\Bundle\SyncBundlesOfComponent;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateBarcodeFromTradeUnit;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateGrossWeightFromTradeUnits;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHeathAndSafetyFromTradeUnits;
@@ -25,6 +26,7 @@ use App\Actions\Traits\ModelHydrateSingleTradeUnits;
 use App\Models\Catalogue\Product;
 use App\Models\Goods\TradeUnit;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class SyncProductTradeUnits
@@ -79,7 +81,20 @@ class SyncProductTradeUnits
 
         $this->dispatchCustomAuditTradeUnit($product, $oldTradeUnitData);
 
+        if (!$product->is_bundle && $this->quantitiesPerTradeUnit($oldTradeUnitData) != $this->quantitiesPerTradeUnit($product->tradeUnits)) {
+            SyncBundlesOfComponent::dispatch($product);
+        }
+
         return $product;
     }
 
+    /**
+     * @return array<int, float>
+     */
+    private function quantitiesPerTradeUnit(Collection $tradeUnits): array
+    {
+        return $tradeUnits->mapWithKeys(fn (TradeUnit $tradeUnit) => [$tradeUnit->id => (float) $tradeUnit->pivot->quantity])
+            ->sortKeys()
+            ->all();
+    }
 }
