@@ -5956,3 +5956,51 @@ test('a job carried at a part pack still walks whole units, and the bays can be 
         ->and($inBay($buyers[0]))->toBe(4.0)
         ->and($inBay($buyers[1]))->toBe(2.0);
 });
+
+test('a recipe change does not ask again for a step whose replaced step is already finished', function () {
+    $pouring   = stepTestManufactureTask($this->production, 'POUR', 'Pouring');
+    $labelling = stepTestManufactureTask($this->production, 'LABEL', 'Labelling');
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $madeItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 5]);
+    $newItem  = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 3]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $making = $madeItem->tasks()->first();
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $making), ['quantity_made' => 5]);
+
+    $newRecipe = [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [
+            ['manufacture_task_id' => $pouring->id, 'position' => 1, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $labelling->id, 'position' => 2, 'units_per_artefact' => 1],
+        ],
+    ];
+    SetArtefactsRecipe::make()->action($this->production, $newRecipe);
+
+    $steps = $madeItem->tasks()->get();
+    expect($steps->pluck('manufacture_task_id')->all())->toBe([$this->manufactureTask->id, $labelling->id])
+        ->and($steps->last()->blockingStep($steps))->toBeNull()
+        ->and($newItem->tasks()->pluck('manufacture_task_id')->all())->toBe([$pouring->id, $labelling->id]);
+
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [
+            ['manufacture_task_id' => $labelling->id, 'position' => 1, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $this->manufactureTask->id, 'position' => 2, 'units_per_artefact' => 1],
+        ],
+    ]);
+    expect($madeItem->tasks()->where('manufacture_task_id', $labelling->id)->exists())->toBeTrue();
+
+    $singleStepItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 2]);
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+    $singleStepItem->tasks()->where('manufacture_task_id', '!=', $this->manufactureTask->id)->delete();
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $singleStepItem->tasks()->first()), ['quantity_made' => 2]);
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [['manufacture_task_id' => $pouring->id, 'position' => 1, 'units_per_artefact' => 1]],
+    ]);
+    expect($singleStepItem->tasks()->where('manufacture_task_id', $pouring->id)->exists())->toBeTrue();
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});

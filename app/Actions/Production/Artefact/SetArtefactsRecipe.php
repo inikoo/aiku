@@ -70,7 +70,14 @@ class SetArtefactsRecipe extends OrgAction
             ],
         ])->all();
 
-        $removedTaskIds = $artefact->manufactureTasks()->pluck('manufacture_tasks.id')->diff(array_keys($recipe));
+        $previousPositions = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->position]);
+        $removedTaskIds    = $previousPositions->keys()->diff(array_keys($recipe));
+        $lastPosition      = $steps->max('position');
+        $replacedSteps     = $steps
+            ->filter(fn (array $step) => !$previousPositions->has($step['manufacture_task_id']) && $step['position'] < $lastPosition)
+            ->mapWithKeys(fn (array $step) => [$step['manufacture_task_id'] => $removedTaskIds->first(fn (int $id) => $previousPositions[$id] == $step['position'])])
+            ->filter()
+            ->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching($recipe);
 
@@ -87,7 +94,7 @@ class SetArtefactsRecipe extends OrgAction
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem));
+            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, $replacedSteps));
 
         ManufactureTask::whereIn('id', $removedTaskIds)
             ->each(fn (ManufactureTask $manufactureTask) => DetachManufactureTaskFromArtefact::make()->handle($artefact, $manufactureTask));
