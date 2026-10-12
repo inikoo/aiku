@@ -9581,7 +9581,7 @@ test('UI agent cover bucket items index', function () {
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
             ->has('items.meta.total')
-            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered'])->every(fn (string $key) => array_key_exists($key, $item))))
+            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered', 'org_exchange'])->every(fn (string $key) => array_key_exists($key, $item))))
             ->has('miniCart.count')
             ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
             ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')

@@ -43,6 +43,7 @@ type BucketItem = {
     currency: string | null
     ordered_quantity: number
     units_per_pack: number
+    org_exchange: number | null
     has_org_stock: boolean
     stock_in_locations: string | null
 }
@@ -211,6 +212,22 @@ const applySuggestion = (item: BucketItem, skos: number) => {
 }
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
+
+const orgAmountOf = (item: BucketItem) =>
+    item.org_exchange && item.currency && item.currency !== props.orgAgent.currency ? amountOf(item) * item.org_exchange : null
+
+const quantityBreakdown = (item: BucketItem) => {
+    const units = cartonsFor(item) * unitsPerCarton(item)
+    const skos = units / packOf(item)
+    const parts = [
+        ctransChoice(":number carton|:number cartons", cartonsFor(item), { number: locale.number(cartonsFor(item)) }),
+        ctransChoice(":number SKO|:number SKOs", skos, { number: locale.number(Math.round(skos * 100) / 100) }),
+    ]
+    if (packOf(item) !== 1) {
+        parts.push(ctransChoice(":number unit|:number units", units, { number: locale.number(units) }))
+    }
+    return parts.join(" · ")
+}
 </script>
 
 <template>
@@ -301,9 +318,12 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                 <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
                                 <div v-else class="space-y-0.5 tabular-nums">
                                     <div class="text-gray-500">
-                                        {{ ctrans(":cartons cartons · :units units", { cartons: locale.number(cartonsFor(item)), units: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}
+                                        {{ quantityBreakdown(item) }}
                                     </div>
-                                    <div v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</div>
+                                    <div v-if="item.cost !== null" class="font-medium text-gray-800">
+    {{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}
+    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgAgent.currency, orgAmountOf(item)!) }})</span>
+</div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                                 </div>
                             </div>
@@ -363,9 +383,12 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                     <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
                     <div v-else class="space-y-0.5 tabular-nums">
                         <div class="text-gray-500">
-                            {{ ctrans(":cartons cartons · :units units", { cartons: locale.number(cartonsFor(item)), units: locale.number(cartonsFor(item) * unitsPerCarton(item)) }) }}
+                            {{ quantityBreakdown(item) }}
                         </div>
-                        <div v-if="item.cost !== null" class="font-medium text-gray-800">{{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}</div>
+                        <div v-if="item.cost !== null" class="font-medium text-gray-800">
+    {{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}
+    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgAgent.currency, orgAmountOf(item)!) }})</span>
+</div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                     </div>
                 </template>

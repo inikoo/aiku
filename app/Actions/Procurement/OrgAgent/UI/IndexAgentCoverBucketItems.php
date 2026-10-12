@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
 use App\Actions\Inventory\OrgStock\GetOrgStocksStockDeliveries;
 use App\Actions\OrgAction;
@@ -20,6 +21,7 @@ use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -88,6 +90,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sup.code as supplier_code',
                 'sup.slug as supplier_slug',
                 'cur.code as currency',
+                'sp.currency_id',
                 'os.id as org_stock_id',
                 'os.quantity_available',
                 's.days_of_cover',
@@ -147,7 +150,12 @@ class IndexAgentCoverBucketItems extends OrgAction
 
         IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $this->orgAgent->organisation_id);
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries) {
+        $organisationCurrency = $this->orgAgent->organisation->currency;
+        $exchanges            = $rows->pluck('currency_id')->filter()->unique()->mapWithKeys(fn (int $currencyId) => [
+            $currencyId => GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
+        ]);
+
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $exchanges) {
             $images   = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
             $orgStock = $orgStocks->get($row->org_stock_id);
 
@@ -169,6 +177,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'minimum_carton_order' => $row->minimum_carton_order ? (int) $row->minimum_carton_order : null,
                 'cost'                 => $row->cost !== null ? (float) $row->cost : null,
                 'currency'             => $row->currency,
+                'org_exchange'         => $exchanges->get($row->currency_id),
                 'ordered_quantity'     => (float) ($draftQuantities[$row->id] ?? 0),
                 'quantity_ordered'     => (float) ($draftQuantities[$row->id] ?? 0),
                 'units_per_pack'       => $row->units_per_pack ? (float) $row->units_per_pack : 1,
