@@ -50,7 +50,7 @@ class GetGroupWarehouseDashboardData
             ])->values()->all(),
             'organisations' => $organisations->values()->all(),
             'routes'        => [
-                'stock_levels' => request()->user()?->hasGroupAccess()
+                'stock_levels' => auth()->user()?->hasGroupAccess()
                     ? ['name' => 'grp.dashboard.stock_levels.index', 'parameters' => []]
                     : null,
             ],
