@@ -251,7 +251,7 @@ watch(
         <code v-for="tip in searchHelp" :key="tip" class="rounded bg-gray-100 px-1.5 py-0.5 text-gray-500">{{ tip }}</code>
     </div>
     <div class="[&_tbody_tr]:cursor-pointer" @click="onTableClick">
-        <Table :resource="data" class="mt-2 max-md:[&_td.max-w-0]:max-w-none max-md:[&_th.max-w-0]:max-w-none">
+        <Table :resource="data" class="mt-2 max-md:[&_td.max-w-0]:max-w-none max-md:[&_th.max-w-0]:max-w-none" :useTopPagination="true">
             <template #cell(reference)="{ item }">
                 <span class="inline-flex items-center"><Icon v-if="item.type_icon" :data="item.type_icon" class="mr-1 text-gray-400" /><Link :href="ticketRoute(item.reference)" class="primaryLink" :data-ticket-id="item.id">{{ item.reference }}</Link></span>
             </template>
