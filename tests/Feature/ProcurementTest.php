@@ -9362,7 +9362,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === [$this->orgAgent->slug, 'What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === [$this->orgAgent->slug, 'What to order', 'Ordering', 'POs to submit', 'Ordered', 'Preparing', 'On the way', 'Delivered'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9626,15 +9626,15 @@ test('UI agent drafts to send remembers the view the user picked', function () {
 
     $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards')->where('lines', []));
 
-    $this->get($url.'?view=items')->assertInertia(fn (AssertableInertia $page) => $page
-        ->where('tabs.current', 'items')
-        ->has('tabs.navigation', 3)
+    $this->get($url.'?view=orders')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('tabs.current', 'orders')
+        ->has('tabs.navigation', 2)
         ->has('lines'));
 
-    expect(auth()->user()->fresh()->settings['views']['agent_drafts_to_send'])->toBe('items');
+    expect(auth()->user()->fresh()->settings['views']['agent_drafts_to_send'])->toBe('orders');
 
-    $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
-    $this->get($url.'?view=nonsense')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
+    $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'orders'));
+    $this->get($url.'?view=nonsense')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'orders'));
 
     $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards'));
 });
