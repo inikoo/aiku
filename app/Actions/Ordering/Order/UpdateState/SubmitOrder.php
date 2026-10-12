@@ -427,7 +427,7 @@ class SubmitOrder extends OrgAction
 
             $isStockExhausted = false;
             if ($clearanceFamilyId = Arr::get($allowanceGiftData, 'discontinuing_in_family_id')) {
-                [$giftLines, $isStockExhausted] = $this->getClearanceGiftLines($clearanceFamilyId, Arr::get($allowanceGiftData, 'product_id'), $quantity);
+                [$giftLines, $isStockExhausted] = GetDiscontinuingProductsInFamily::make()->getGiftLines(ProductCategory::find($clearanceFamilyId), Arr::get($allowanceGiftData, 'product_id'), $quantity);
             } else {
                 $gift      = Product::where('shop_id', $order->shop_id)->where('id', Arr::get($allowanceGiftData, 'product_id'))->first();
                 $giftLines = $gift ? [[$gift, $quantity]] : [];
@@ -443,34 +443,6 @@ class SubmitOrder extends OrgAction
         }
 
         return $order;
-    }
-
-    /**
-     * Discontinued stock of the family, cheapest first, spilling to the next product when one runs short.
-     * Also says whether this order takes the last of it, so the offer can finish (HELP-3794).
-     *
-     * @return array{0: array<int, array{0: Product, 1: int}>, 1: bool}
-     */
-    private function getClearanceGiftLines(int $familyId, ?int $productId, int $quantity): array
-    {
-        $family     = ProductCategory::find($familyId);
-        $candidates = $family ? GetDiscontinuingProductsInFamily::run($family) : collect();
-        if ($productId) {
-            $candidates = $candidates->where('id', $productId);
-        }
-
-        $giftLines = [];
-        $remaining = $quantity;
-        foreach ($candidates as $product) {
-            if ($remaining <= 0) {
-                break;
-            }
-            $giftQuantity = min($remaining, (int)$product->available_quantity);
-            $giftLines[]  = [$product, $giftQuantity];
-            $remaining    -= $giftQuantity;
-        }
-
-        return [$giftLines, $candidates->sum('available_quantity') <= $quantity - $remaining];
     }
 
     private function storeGiftTransaction(Order $order, object $giftOfferData, int $offerAllowanceId, Product $gift, int $quantity): void

@@ -12,15 +12,16 @@ import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { ctrans } from '@/Composables/useTrans'
 import { debounce, get, set } from "lodash-es"
-import { inject, reactive, ref } from "vue"
+import { computed, inject, reactive, ref } from "vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import LinkIris from "@/Iris/Components/LinkIris.vue"
 import Discount from "@/Components/Utils/Label/Discount.vue"
 import GridProducts from "@/Components/Product/GridProducts/GridProducts.vue"
 import { pushGtmEvent, buildGtmProductPayload } from "@/Composables/useGtm"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faInfoCircle, faTrashAlt } from "@fal"
+import { faGift, faInfoCircle, faTrashAlt } from "@fal"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import { BasketBonusStock } from "@/types/Iris/BasketBonusStock"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 library.add(faInfoCircle)
@@ -32,10 +33,44 @@ const props = defineProps<{
     state?: string
     readonly?: boolean
     preOrderLines?: Record<string, { basket_label: string, in_stock_quantity: number, pre_order_quantity: number }>
+    bonusStock?: BasketBonusStock[]
 }>()
 
 const layout = inject("layout", {})
 const locale = inject("locale", retinaLayoutStructure)
+
+const bonusStockRows = computed(() => (props.bonusStock || [])
+    .filter(bonusStock => bonusStock.is_reached && !bonusStock.is_in_basket)
+    .flatMap(bonusStock => bonusStock.products.map(product => ({
+        id: `bonus-stock-${bonusStock.offer_id}-${product.id}`,
+        is_bonus_stock: true,
+        bonus_stock_label: bonusStock.label,
+        asset_code: product.code,
+        asset_name: product.name,
+        units: product.units,
+        image: product.web_image_thumbnail ? { source: product.web_image_thumbnail } : null,
+        webpage_url: product.canonical_url ? `/${product.canonical_url}` : null,
+        price: 0,
+        quantity_ordered: product.quantity,
+        gross_amount: 0,
+        net_amount: 0,
+        currency_code: layout?.iris?.currency?.code,
+    }))))
+
+const resourceWithBonusStock = computed(() => {
+    const resource: any = props.data
+    const rows = Array.isArray(resource) ? resource : resource?.data
+    const isLastPage = !resource?.meta || resource.meta.current_page >= resource.meta.last_page
+    if (!rows?.length || !bonusStockRows.value.length || !isLastPage) {
+        return resource
+    }
+
+    const rowsWithBonusStock = [...rows, ...bonusStockRows.value]
+
+    return Array.isArray(resource) ? rowsWithBonusStock : { ...resource, data: rowsWithBonusStock }
+})
+
+const bonusStockRowColor = (item: any) => item.is_bonus_stock ? 'bg-green-50' : ''
 
 const outOfStockTooltip = (item: { held_quantity: number | string }) => ctrans(
     'This item went out of stock, so its quantity is set to 0 and it is not charged. If it is back in stock before you place the order, your :count is put back automatically.',
@@ -117,7 +152,7 @@ const onUpdateQuantity = (item: any, value: number) => {
                         set(listState.value, [idTransaction, "quantity"], null)
                     }, 3000)
             },
-            only: ["transactions", "summary", "total_to_pay", "balance", "iris", "gr_gifts", "missed_offers", "pre_orders", "stock_issues"],
+            only: ["transactions", "summary", "total_to_pay", "balance", "iris", "gr_gifts", "missed_offers", "pre_orders", "stock_issues", "bonus_stock"],
             preserveScroll: true
         }
     )
@@ -143,7 +178,7 @@ const isOffersData = (offersData: any): boolean => {
 
 
 <template>
-    <Table :resource="data" :name="tab" class="hidden md:block">
+    <Table :resource="resourceWithBonusStock" :name="tab" :rowColorFunction="bonusStockRowColor" class="hidden md:block">
         <template #tableExtraAction>
             <slot name="tableHeaderActions" />
         </template>
@@ -179,7 +214,12 @@ const isOffersData = (offersData: any): boolean => {
                 </span>
                 <div class="text-base"><span v-if="Number(item.units) > 1" class="mr-1">{{ Number(item.units)
                         }}x</span>{{ item.asset_name }}</div>
-                <div v-if="preOrderLines?.[item.id]" class="text-xs text-amber-800">
+                <div v-if="item.is_bonus_stock" v-tooltip="item.bonus_stock_label"
+                    class="mt-1 inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium bg-[color-mix(in_srgb,var(--theme-color-0)_12%,white)] text-[var(--theme-color-0)]">
+                    <FontAwesomeIcon :icon="faGift" fixed-width aria-hidden="true" />
+                    {{ ctrans(':quantity x Bonus Stock', { quantity: locale.number(item.quantity_ordered) }) }}
+                </div>
+                <div v-else-if="preOrderLines?.[item.id]" class="text-xs text-amber-800">
                     {{ preOrderLines[item.id].basket_label }}
                 </div>
                 <div v-else-if="!item.available_quantity">
@@ -200,7 +240,10 @@ const isOffersData = (offersData: any): boolean => {
 
         <!-- Column: Quantity -->
         <template #cell(quantity_ordered)="{ item }">
-            <div class="px-2 relative text-right w-full">
+            <div v-if="item.is_bonus_stock" v-tooltip="ctrans('Free quantity, set by the offer')" class="px-2 text-right w-full tabular-nums text-gray-600">
+                {{ locale.number(item.quantity_ordered) }}
+            </div>
+            <div v-else class="px-2 relative text-right w-full">
                 <div class="w-fit ml-auto flex items-stretch">
                     <Link
                         :href="item.deleteRoute?.name ? route(item.deleteRoute.name, item.deleteRoute.parameters) : '#'"
@@ -239,7 +282,7 @@ const isOffersData = (offersData: any): boolean => {
     </Table>
 
 
-    <GridProducts :resource="data" :showHeader="false" :preserve-scroll="true" class="mt-5 block md:hidden"
+    <GridProducts :resource="resourceWithBonusStock" :showHeader="false" :preserve-scroll="true" class="mt-5 block md:hidden"
         gridClass="lg:grid-cols-1 xl:grid-cols-1 grid grid-cols-1">
 
         <template #headerActions>
@@ -247,7 +290,7 @@ const isOffersData = (offersData: any): boolean => {
         </template>
 
         <template #card="{ item }">
-            <li class="flex py-1 relative border-b">
+            <li class="flex py-1 relative border-b" :class="item.is_bonus_stock ? 'bg-green-50' : ''">
                 <div v-if="item?.isLoadingRemove" class="inset-0 bg-gray-500/20 absolute z-10" />
 
                 <div class="flex flex-col items-center">
@@ -276,7 +319,12 @@ const isOffersData = (offersData: any): boolean => {
                                 </a>
                                 <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                                     <div class="text-xs text-gray-400">{{ item.asset_code }}</div>
-                                    <div v-if="preOrderLines?.[item.id]" class="text-xs text-amber-800">
+                                    <div v-if="item.is_bonus_stock" v-tooltip="item.bonus_stock_label"
+                                        class="inline-flex items-center gap-x-1 rounded px-2 py-0.5 text-xs font-medium bg-[color-mix(in_srgb,var(--theme-color-0)_12%,white)] text-[var(--theme-color-0)]">
+                                        <FontAwesomeIcon :icon="faGift" fixed-width aria-hidden="true" />
+                                        {{ ctrans(':quantity x Bonus Stock', { quantity: locale.number(item.quantity_ordered) }) }}
+                                    </div>
+                                    <div v-else-if="preOrderLines?.[item.id]" class="text-xs text-amber-800">
                                         {{ preOrderLines[item.id].basket_label }}
                                     </div>
                                     <div v-else-if="!item.available_quantity">
@@ -294,7 +342,7 @@ const isOffersData = (offersData: any): boolean => {
                             </div>
                         </div>
                         <div class="flex items-center justify-between gap-x-3 pt-2">
-                            <div class="flex gap-x-2 h-fit items-center">
+                            <div v-if="!item.is_bonus_stock" class="flex gap-x-2 h-fit items-center">
                                 <div class="flex items-stretch -ml-[4.25rem]">
                                     <Link
                                         :href="item.deleteRoute?.name ? route(item.deleteRoute.name, item.deleteRoute.parameters) : '#'"

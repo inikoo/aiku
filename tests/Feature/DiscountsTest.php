@@ -72,6 +72,7 @@ use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Masters\MasterShop\StoreMasterShop;
 use App\Actions\Ordering\Order\AddVoucherToOrder;
 use App\Actions\Ordering\Order\CalculateOrderDiscounts;
+use App\Actions\Iris\Basket\GetBasketBonusStockPreview;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateCategoriesData;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\Ordering\Order\CalculateOrderShipping;
@@ -2193,6 +2194,59 @@ describe('calculate order discounts', function () {
 
         DB::table('transaction_has_offer_allowances')->whereIn('transaction_id', $giftTransactions->pluck('id'))->delete();
         $giftTransactions->each->forceDelete();
+        $giftProduct->update(['state' => ProductStateEnum::ACTIVE]);
+    });
+
+    test('basket previews the discontinued stock a family offer will give, as a free line once the family quantity is reached', function () {
+        $order       = Order::latest('id')->first();
+        $giftProduct = Product::where('shop_id', $this->shop->id)->where('code', 'GIFT-PROD')->firstOrFail();
+        $giftProduct->update(['state' => ProductStateEnum::DISCONTINUING, 'available_quantity' => 5, 'is_for_sale' => true, 'exclusive_for_customer_id' => null, 'is_on_demand' => false]);
+        $order->customer->update(['settings' => [...($order->customer->settings ?? []), 'is_gift_opted_out' => false]]);
+
+        $familyId       = $this->product->family_id;
+        $familyQuantity = (int)DB::table('transactions')
+            ->join('products', 'products.id', '=', 'transactions.model_id')
+            ->where('transactions.order_id', $order->id)
+            ->where('transactions.model_type', 'Product')
+            ->where('products.family_id', $familyId)
+            ->whereNull('transactions.deleted_at')
+            ->sum('transactions.quantity_ordered');
+        expect($familyQuantity)->toBeGreaterThan(0);
+
+        $offer = StoreProductCategoryDiscount::make()->action(
+            $this->product->family,
+            [
+                'type'                       => 'quantity',
+                'trigger_data_item_quantity' => $familyQuantity,
+                'free_quantity'              => 2,
+                'duration'                   => 'permanent',
+                'start_at'                   => now(),
+                'accept_responsibility'      => 'I accept responsibility',
+            ]
+        );
+
+        OrderHydrateCategoriesData::run($order->refresh());
+        CalculateOrderDiscounts::run($order->refresh());
+        $gift = collect(GetBasketBonusStockPreview::run($order->refresh()))->firstWhere('offer_id', $offer->id);
+
+        expect($gift)->not->toBeNull()
+            ->and($gift['is_reached'])->toBeTrue()
+            ->and($gift['is_in_basket'])->toBeFalse()
+            ->and($gift['quantity'])->toBe(2)
+            ->and($gift['family_code'])->toBe($this->product->family->code)
+            ->and(collect($gift['products'])->sum('quantity'))->toBe(2)
+            ->and(collect($gift['products'])->pluck('id'))->toContain($giftProduct->id);
+
+        $offer->update(['trigger_data' => ['item_quantity' => $familyQuantity + 1]]);
+        CalculateOrderDiscounts::run($order->refresh());
+        $gift = collect(GetBasketBonusStockPreview::run($order->refresh()))->firstWhere('offer_id', $offer->id);
+
+        expect($gift['is_reached'])->toBeFalse()
+            ->and($gift['current'])->toBe((float)$familyQuantity)
+            ->and($gift['target'])->toBe((float)($familyQuantity + 1));
+
+        FinishOffer::run($offer, false);
+        CalculateOrderDiscounts::run($order->refresh());
         $giftProduct->update(['state' => ProductStateEnum::ACTIVE]);
     });
 

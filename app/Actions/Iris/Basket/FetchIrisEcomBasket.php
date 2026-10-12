@@ -210,6 +210,7 @@ class FetchIrisEcomBasket extends IrisAction
 
 
         $orderArr['products'] = $transactions;
+        $orderArr['bonus_stock'] = GetBasketBonusStockPreview::run($order);
 
         // Section: Missed Offers - Maybe can take from HasBasketDetails->getMissedOffers()
         $shopOffersData            = $this->shop->offers_data;
