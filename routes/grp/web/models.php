@@ -189,6 +189,7 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\CheckCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\ForceSyncCustomerSalesChannelPortfolios;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannelSettings;
 use App\Actions\Dropshipping\Ebay\Product\MatchBulkNewProductToCurrentEbay;
 use App\Actions\Dropshipping\Portfolio\MatchBulkPortfoliosToPlatform;
 use App\Actions\Dropshipping\Ebay\Product\MatchPortfolioToCurrentEbayProduct;
@@ -1505,6 +1506,7 @@ Route::name('customer_sales_channel.')->prefix('customer-sales-channel/{customer
     Route::delete('delete', CloseCustomerSalesChannel::class)->name('delete');
     Route::patch('reset-shopify', ResetShopifyChannel::class)->name('shopify_reset');
     Route::patch('force-sync-portfolios', ForceSyncCustomerSalesChannelPortfolios::class)->name('force_sync_portfolios');
+    Route::patch('settings', UpdateCustomerSalesChannelSettings::class)->name('settings.update');
 });
 
 Route::post('{shop:id}/purge', StorePurge::class)->name('purge.store');
