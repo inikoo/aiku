@@ -366,11 +366,12 @@ function hideImagePreview() {
     imagePreviewPopover.value?.hide()
 }
 
-function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
-    const organisation = route().params.organisation as string | undefined
+const currentOrganisation = route().params.organisation as string | undefined
+const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
 
-    if (item.org_supplier_product_slug && isAgentOrganisation(organisation)) {
-        return route('grp.org.procurement.org_supplier_products.show', [organisation, item.org_supplier_product_slug])
+function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
+    if (item.org_supplier_product_slug && isInAgentOrganisation) {
+        return route('grp.org.procurement.org_supplier_products.show', [currentOrganisation, item.org_supplier_product_slug])
     }
 
     if (!item.slug) {
@@ -382,7 +383,7 @@ function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?:
 
 
 function orgStockRoute(item: { org_stock_id?: number }) {
-    if (!item.org_stock_id || isAgentOrganisation(route().params.organisation as string | undefined)) {
+    if (!item.org_stock_id || isInAgentOrganisation) {
         return ''
     }
 
