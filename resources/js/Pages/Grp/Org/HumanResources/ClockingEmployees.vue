@@ -32,6 +32,7 @@ import {
 	faCameraRetro,
 	faQrcode,
 	faPlus,
+	faStopwatch,
 } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
@@ -42,6 +43,7 @@ import TableOvertimeEmployee from "@/Components/Tables/Grp/Org/HumanResources/Ta
 import EmployeeCalendar from "@/Components/HumanResources/EmployeeCalendar.vue"
 
 library.add(
+	faStopwatch,
 	faEnvelope,
 	faIdCard,
 	faPhone,
@@ -103,6 +105,8 @@ onMounted(() => {
 })
 const isRequestLeaveModalOpen = ref(false)
 const isRequestOvertimeModalOpen = ref(false)
+const isRequestAdjustmentModalOpen = ref(false)
+const tabComponent = ref<{ openModal?: () => void } | null>(null)
 
 const openRequestLeaveModal = () => {
 	isRequestLeaveModalOpen.value = true
@@ -149,6 +153,18 @@ const component = computed(() => {
 				icon="fal fa-plus"
 				type="create"
 				@click="openRequestLeaveModal" />
+			<Button
+				v-if="currentTab === 'adjustments'"
+				:label="ctrans('Clocking adjustment')"
+				icon="fal fa-plus"
+				type="create"
+				@click="isRequestAdjustmentModalOpen = true" />
+			<Button
+				v-if="currentTab === 'overtime'"
+				:label="ctrans('New overtime request')"
+				icon="fal fa-plus"
+				type="create"
+				@click="tabComponent?.openModal?.()" />
 		</template>
 	</PageHeading>
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
@@ -157,6 +173,7 @@ const component = computed(() => {
 
 	<component
 		v-else
+		ref="tabComponent"
 		:is="component"
 		:data="
 			currentTab === 'leaves'
@@ -182,12 +199,13 @@ const component = computed(() => {
 					? adjustments?.organisation
 					: currentTab === 'overtime'
 						? overtime?.organisation
-						: null
+						: (timesheets?.organisation ?? null)
 		"
 		:overtimeTypeOptions="currentTab === 'overtime' ? overtime?.overtimeTypeOptions : undefined"
 		:tab="currentTab"
 		:isRequestLeaveModalOpen="isRequestLeaveModalOpen"
 		:isRequestOvertimeModalOpen="isRequestOvertimeModalOpen"
+		:isRequestAdjustmentModalOpen="isRequestAdjustmentModalOpen"
 		:activeTimeTracker="clock_in_out?.active_time_tracker"
 		:clockingStatus="clock_in_out?.clocking_status"
 		:todayTimesheet="clock_in_out?.today_timesheet"
@@ -198,6 +216,7 @@ const component = computed(() => {
 		:availableMethods="clock_in_out?.available_methods"
 		:pin="clock_in_out?.pin"
 		@update:isRequestLeaveModalOpen="isRequestLeaveModalOpen = $event"
+		@update:isRequestAdjustmentModalOpen="isRequestAdjustmentModalOpen = $event"
 		@update:isRequestOvertimeModalOpen="isRequestOvertimeModalOpen = $event">
 	</component>
 </template>

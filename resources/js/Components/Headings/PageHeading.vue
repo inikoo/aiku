@@ -31,6 +31,7 @@ import {
 	faCogs
 } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import LayeredIcon from "@/Components/Utils/LayeredIcon.vue"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
 import Action from "@/Components/Forms/Fields/Action.vue"
@@ -199,7 +200,9 @@ const setError = (e) => {
 					</div>
 					<div v-if="data.icon" class="inline text-gray-400">
 						<slot name="mainIcon">
-							<Icon v-if="data.icon.icon" :data="data.icon" size="sm" />
+							<LayeredIcon v-if="data.icon.icon_layers" v-tooltip="data.icon.title || ''" :layers="data.icon.icon_layers" class="text-[0.8em] mr-1" />
+
+							<Icon v-else-if="data.icon.icon" :data="data.icon" size="sm" />
 
 							<FontAwesomeIcon
 								v-else

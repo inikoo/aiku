@@ -3,7 +3,11 @@
 namespace App\Actions\HumanResources\AttendanceAdjustment;
 
 use App\Actions\HumanResources\Timesheet\Hydrators\TimesheetHydrateTimeTrackers;
+use App\Actions\HumanResources\Clocking\StoreManualClocking;
+use App\Actions\HumanResources\Timesheet\GetTimesheet;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
+use Illuminate\Validation\ValidationException;
 use App\Enums\HumanResources\Attendance\AttendanceAdjustmentStatusEnum;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Http\Resources\HumanResources\AttendanceAdjustmentResource;
@@ -19,31 +23,52 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ApproveAttendanceAdjustment extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
+
     public function handle(AttendanceAdjustment $adjustment): AttendanceAdjustment
     {
-        $adjustment->update([
-            'status' => AttendanceAdjustmentStatusEnum::APPROVED,
-            'approved_by' => Auth::id(),
-            'approved_at' => now(),
-        ]);
+        return DB::transaction(function () use ($adjustment) {
+            $adjustment->update([
+                'status' => AttendanceAdjustmentStatusEnum::APPROVED,
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
 
-        if ($adjustment->timesheet_id) {
-            $timesheet = Timesheet::with('timeTrackers')->find($adjustment->timesheet_id);
-            if ($timesheet) {
-                DB::transaction(function () use ($timesheet, $adjustment) {
-                    $this->correctTimeTrackers($timesheet, $adjustment);
+            $timesheet = $adjustment->timesheet_id
+                ? Timesheet::with('timeTrackers')->find($adjustment->timesheet_id)
+                : null;
 
-                    $timesheet->update([
-                        'start_at' => $adjustment->requested_start_at,
-                        'end_at' => $adjustment->requested_end_at,
-                    ]);
-                });
+            if ($timesheet && $timesheet->timeTrackers->isNotEmpty()) {
+                $this->correctTimeTrackers($timesheet, $adjustment);
+
+                $timesheet->update(array_filter([
+                    'start_at' => $adjustment->requested_start_at,
+                    'end_at'   => $adjustment->requested_end_at,
+                ]));
 
                 TimesheetHydrateTimeTrackers::run($timesheet->id);
+
+                return $adjustment;
             }
+
+            $this->addMissingClockings($timesheet, $adjustment);
+
+            return $adjustment;
+        });
+    }
+
+    private function addMissingClockings(?Timesheet $timesheet, AttendanceAdjustment $adjustment): void
+    {
+        $timesheet ??= GetTimesheet::run($adjustment->employee, $adjustment->date);
+
+        foreach (array_filter([$adjustment->requested_start_at, $adjustment->requested_end_at]) as $clockedAt) {
+            StoreManualClocking::make()->action($timesheet, [
+                'clocked_at' => $clockedAt->toIso8601String(),
+                'notes'      => __('Approved clocking request #:id', ['id' => $adjustment->id]),
+            ]);
         }
 
-        return $adjustment;
+        $adjustment->update(['timesheet_id' => $timesheet->id]);
     }
 
     /**
@@ -97,7 +122,17 @@ class ApproveAttendanceAdjustment extends OrgAction
 
     public function asController(Organisation $organisation, AttendanceAdjustment $adjustment, ActionRequest $request): AttendanceAdjustment
     {
+        if ($adjustment->organisation_id !== $organisation->id) {
+            abort(404);
+        }
+
         $this->initialisation($organisation, $request);
+
+        if ($adjustment->status !== AttendanceAdjustmentStatusEnum::PENDING) {
+            throw ValidationException::withMessages([
+                'status' => __('This request has already been decided.'),
+            ]);
+        }
 
         return $this->handle($adjustment);
     }
