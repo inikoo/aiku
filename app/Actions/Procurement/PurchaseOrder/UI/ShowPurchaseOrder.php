@@ -543,7 +543,7 @@ class ShowPurchaseOrder extends OrgAction
             PurchaseOrderStateEnum::SUBMITTED => [
                 [
                     'label'   => __('Confirm'),
-                    'tooltip' => __('Set as confirmed by the supplier.'),
+                    'tooltip' => __('Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'key'     => 'confirm_purchase_order',
