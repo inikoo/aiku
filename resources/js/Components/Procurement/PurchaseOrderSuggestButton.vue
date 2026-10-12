@@ -10,6 +10,7 @@ const props = defineProps<{
 	item: any
 	isPartner?: boolean
 	typedSkosById?: Record<number, number>
+	quantityLabel?: (skos: number) => string
 }>()
 
 const emit = defineEmits<{
@@ -33,7 +34,7 @@ const orderedSkos = computed(() => {
 
 const isApplied = computed(() => suggestion.value !== null && Math.round(orderedSkos.value) === suggestion.value)
 
-const formattedSuggestion = computed(() => locale.number(Math.round(suggestion.value ?? 0)))
+const formattedSuggestion = computed(() => (props.quantityLabel ? props.quantityLabel(suggestion.value ?? 0) : locale.number(Math.round(suggestion.value ?? 0))))
 
 const partnerStock = computed(() =>
 	props.isPartner && props.item.partner_stock !== undefined && props.item.partner_stock !== null ? Math.max(0, Number(props.item.partner_stock) || 0) : null
@@ -55,10 +56,15 @@ const tooltip = computed(() =>
 		? ctrans("You are using the suggested quantity. It covers :time after it arrives, based on the sales forecast, stock in hand, stock coming and the lead time", {
 				time: weeksLabel(targetDays.value - leadDays.value),
 			})
-		: ctrans("Suggested from the sales forecast, stock in hand, stock coming and the lead time: enough for :time after it arrives. Click to use :quantity SKOs", {
-				time: weeksLabel(targetDays.value - leadDays.value),
-				quantity: formattedSuggestion.value,
-			})
+		: props.quantityLabel
+			? ctrans("Suggested from the sales forecast, stock in hand, stock coming and the lead time: enough for :time after it arrives. Click to use :quantity", {
+					time: weeksLabel(targetDays.value - leadDays.value),
+					quantity: formattedSuggestion.value,
+				})
+			: ctrans("Suggested from the sales forecast, stock in hand, stock coming and the lead time: enough for :time after it arrives. Click to use :quantity SKOs", {
+					time: weeksLabel(targetDays.value - leadDays.value),
+					quantity: formattedSuggestion.value,
+				})
 )
 </script>
 
