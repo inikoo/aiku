@@ -107,7 +107,7 @@ class DashboardLeave extends OrgAction
                 $employeesQuery->orderBy('contact_name');
         }
 
-        $employees = $employeesQuery->get();
+        $employees = $employeesQuery->get()->load(Employee::AVATAR_RELATIONS);
 
         $leavesQuery = Leave::query()
             ->where('organisation_id', $organisation->id)
@@ -152,6 +152,7 @@ class DashboardLeave extends OrgAction
             return [
                 'id' => $employee->id,
                 'name' => $employee->contact_name,
+                'avatar' => $employee->avatarUrl(),
                 'job_title' => $jobTitle,
                 'department' => $department,
                 'leaves' => $visibleLeaves->map(function ($leave) {

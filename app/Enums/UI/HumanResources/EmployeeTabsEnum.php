@@ -17,7 +17,8 @@ enum EmployeeTabsEnum: string
     use HasTabs;
 
     case SHOWCASE                       = 'showcase';
-    case HISTORY                        = 'history';
+    case LEAVES                         = 'leaves';
+    case HISTORY                       = 'history';
     case ATTACHMENTS                    = 'attachments';
     case REQUESTS                       = 'requests';
     case SEARCHES                       = 'searches';
@@ -52,6 +53,10 @@ enum EmployeeTabsEnum: string
             EmployeeTabsEnum::SHOWCASE => [
                 'title' => __('Overview'),
                 'icon'  => 'fal fa-tachometer-alt-fast',
+            ],
+            EmployeeTabsEnum::LEAVES => [
+                'title' => __('Leave'),
+                'icon'  => 'fal fa-calendar-minus',
             ],
             EmployeeTabsEnum::REQUESTS => [
                 'title' => __('Requests'),

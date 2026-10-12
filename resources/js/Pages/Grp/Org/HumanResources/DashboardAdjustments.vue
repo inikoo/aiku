@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3"
-import { computed, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
+import { useLayoutStore } from "@/Stores/layout"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import EmployeeAvatar from "@/Components/HumanResources/EmployeeAvatar.vue"
+import Select from "primevue/select"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronLeft, faChevronRight } from "@fal"
+import { faChevronLeft, faChevronRight, faFilter, faTimes } from "@fal"
 
-library.add(faChevronLeft, faChevronRight)
+library.add(faChevronLeft, faChevronRight, faFilter, faTimes)
 
 const props = defineProps<{
 	pageHead: PageHeadingTypes
@@ -24,6 +28,7 @@ const props = defineProps<{
 	calendarData: {
 		id: number
 		name: string
+		avatar: string | null
 		adjustments: {
 			id: number
 			date: string
@@ -40,6 +45,26 @@ const props = defineProps<{
 	employeeOptions: { value: number; label: string }[]
 	statusOptions: { value: string; label: string }[]
 }>()
+
+const selectedFilters = reactive({
+	year: props.filters.year,
+	month: props.filters.month,
+	employee_id: props.filters.employee_id ?? null,
+	status: props.filters.status ?? null,
+})
+
+const layout = useLayoutStore()
+const stickyTopClass = computed(() => (layout.hasTopBanner ? "top-[61px] lg:top-[68px]" : "top-[33px] lg:top-10"))
+const filtersOpen = ref(false)
+const activeFilterCount = computed(() => [selectedFilters.employee_id, selectedFilters.status].filter((value) => value !== null && value !== undefined && value !== "").length)
+const gridHeaderScroller = ref<HTMLElement | null>(null)
+const syncGridHeaderScroll = (event: Event) => {
+	if (gridHeaderScroller.value) {
+		gridHeaderScroller.value.scrollLeft = (event.target as HTMLElement).scrollLeft
+	}
+}
+
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
 const showModal = ref(false)
 const selectedAdjustment = ref<any>(null)
@@ -66,22 +91,22 @@ const monthOptions = computed(() => {
 
 const yearOptions = computed(() => {
 	const currentYear = new Date().getFullYear()
-	return Array.from({ length: 5 }, (_, i) => {
-		return {
-			value: currentYear - 2 + i,
-			label: String(currentYear - 2 + i),
-		}
-	})
+	const years = new Set(Array.from({ length: 5 }, (_, i) => currentYear - 2 + i))
+	years.add(selectedFilters.year)
+
+	return [...years].sort((a, b) => a - b).map((year) => ({ value: year, label: String(year) }))
 })
+
+const periodSelectPt = { label: { class: "!text-base !font-semibold !text-gray-800" } }
 
 const updateFilter = () => {
 	router.get(
 		route("grp.org.hr.adjustments.dashboard", route().params),
 		{
-			year: props.filters.year,
-			month: props.filters.month,
-			employee_id: props.filters.employee_id,
-			status: props.filters.status,
+			year: selectedFilters.year,
+			month: selectedFilters.month,
+			employee_id: selectedFilters.employee_id,
+			status: selectedFilters.status,
 		},
 		{
 			preserveState: true,
@@ -90,43 +115,22 @@ const updateFilter = () => {
 	)
 }
 
-const prevMonth = () => {
-	let newMonth = props.filters.month - 1
-	let newYear = props.filters.year
-	if (newMonth < 1) {
-		newMonth = 12
-		newYear--
-	}
-
-	router.visit(
-		route("grp.org.hr.adjustments.dashboard", {
-			...route().params,
-			year: newYear,
-			month: newMonth,
-		})
-	)
+const shiftMonth = (delta: number) => {
+	const target = new Date(selectedFilters.year, selectedFilters.month - 1 + delta, 1)
+	selectedFilters.year = target.getFullYear()
+	selectedFilters.month = target.getMonth() + 1
+	updateFilter()
 }
 
-const nextMonth = () => {
-	let newMonth = props.filters.month + 1
-	let newYear = props.filters.year
-	if (newMonth > 12) {
-		newMonth = 1
-		newYear++
-	}
+const prevMonth = () => shiftMonth(-1)
 
-	router.visit(
-		route("grp.org.hr.adjustments.dashboard", {
-			...route().params,
-			year: newYear,
-			month: newMonth,
-		})
-	)
-}
+const nextMonth = () => shiftMonth(1)
 
 const days = computed(() => {
 	return Array.from({ length: props.daysInMonth }, (_, i) => i + 1)
 })
+
+const gridWidthStyle = computed(() => ({ minWidth: `${12 + days.value.length * 2.5}rem` }))
 
 const getDayName = (day: number) => {
 	const date = new Date(props.filters.year, props.filters.month - 1, day)
@@ -167,89 +171,132 @@ const getStatusColor = (status: string): string => {
 	</PageHeading>
 
 	<div class="mt-5 bg-white shadow-sm rounded-lg p-4">
-		<div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
-			<div class="flex gap-2 items-center">
-				<Button type="secondary" :icon="faChevronLeft" size="sm" @click="prevMonth" />
-				<h2 class="text-xl font-bold text-gray-800 w-48 text-center">
-					{{ monthName }} {{ filters.year }}
-				</h2>
-				<Button type="secondary" :icon="faChevronRight" size="sm" @click="nextMonth" />
+		<div class="sticky z-10 -mx-4 -mt-4 rounded-t-lg bg-white px-4 pt-4" :class="stickyTopClass">
+		<div class="flex flex-col sm:flex-row max-lg:flex-wrap gap-3 lg:gap-4 items-center justify-between mb-3 lg:mb-6">
+			<div class="flex max-w-full gap-2 items-center">
+				<Button type="tertiary" size="sm" :tooltip="ctrans('Previous month')" @click="prevMonth">
+					<template #icon>
+						<FontAwesomeIcon :icon="faChevronLeft" class="text-gray-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<h2 class="sr-only" aria-live="polite">{{ monthName }} {{ filters.year }}</h2>
+				<Select
+					v-model="selectedFilters.month"
+					:options="monthOptions"
+					optionLabel="label"
+					optionValue="value"
+					:aria-label="ctrans('Month')"
+					size="small"
+					class="w-40 min-w-0 sm:shrink-0"
+					:class="fieldFocusClass"
+					:pt="periodSelectPt"
+					@update:modelValue="updateFilter" />
+				<Select
+					v-model="selectedFilters.year"
+					:options="yearOptions"
+					optionLabel="label"
+					optionValue="value"
+					:aria-label="ctrans('Year')"
+					size="small"
+					class="w-28 shrink-0"
+					:class="fieldFocusClass"
+					:pt="periodSelectPt"
+					@update:modelValue="updateFilter" />
+				<Button type="tertiary" size="sm" :tooltip="ctrans('Next month')" @click="nextMonth">
+					<template #icon>
+						<FontAwesomeIcon :icon="faChevronRight" class="text-gray-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 
-			<div class="flex gap-2 items-center flex-wrap">
-				<select
-					v-model="filters.employee_id"
-					@change="updateFilter"
-					class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm">
-					<option :value="null">{{ ctrans("All Employees") }}</option>
-					<option
-						v-for="employee in employeeOptions"
-						:key="employee.value"
-						:value="employee.value">
-						{{ employee.label }}
-					</option>
-				</select>
+			<div class="relative lg:hidden">
+				<Button type="tertiary" size="sm" :label="ctrans('Filters')" :aria-expanded="filtersOpen" @click="filtersOpen = !filtersOpen">
+					<template #icon>
+						<FontAwesomeIcon :icon="faFilter" class="text-gray-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<span
+					v-if="activeFilterCount"
+					class="pointer-events-none absolute -right-1.5 -top-1.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[--app-accent] px-1 text-[10px] font-semibold leading-none tabular-nums text-[--app-accent-text]">
+					{{ activeFilterCount }}
+				</span>
+			</div>
 
-				<select
-					v-model="filters.status"
-					@change="updateFilter"
-					class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm">
-					<option :value="null">{{ ctrans("All Statuses") }}</option>
-					<option
-						v-for="status in statusOptions"
-						:key="status.value"
-						:value="status.value">
-						{{ status.label }}
-					</option>
-				</select>
+			<div class="gap-2 items-center flex-wrap max-lg:w-full max-lg:justify-center" :class="filtersOpen ? 'flex' : 'hidden lg:flex'">
+				<Select
+					v-model="selectedFilters.employee_id"
+					:options="employeeOptions"
+					optionLabel="label"
+					optionValue="value"
+					:placeholder="ctrans('All Employees')"
+					size="small"
+					filter
+					showClear
+					class="w-52"
+					:class="fieldFocusClass"
+					@update:modelValue="updateFilter" />
 
-				<select
-					v-model="filters.year"
-					@change="updateFilter"
-					class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm">
-					<option v-for="year in yearOptions" :key="year.value" :value="year.value">
-						{{ year.label }}
-					</option>
-				</select>
-
-				<select
-					v-model="filters.month"
-					@change="updateFilter"
-					class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm">
-					<option v-for="month in monthOptions" :key="month.value" :value="month.value">
-						{{ month.label }}
-					</option>
-				</select>
+				<Select
+					v-model="selectedFilters.status"
+					:options="statusOptions"
+					optionLabel="label"
+					optionValue="value"
+					:placeholder="ctrans('All Statuses')"
+					size="small"
+					showClear
+					class="w-40"
+					:class="fieldFocusClass"
+					@update:modelValue="updateFilter" />
 			</div>
 		</div>
 
-		<div class="overflow-x-auto">
-			<div class="min-w-max">
-				<table class="w-full border-collapse">
+		<div ref="gridHeaderScroller" class="overflow-hidden">
+			<div :style="gridWidthStyle">
+				<table class="w-full table-fixed border-collapse">
+					<colgroup>
+						<col class="w-32 sm:w-48" />
+						<col v-for="day in days" :key="day" />
+					</colgroup>
 					<thead>
 						<tr>
 							<th
-								class="p-2 border-b border-r border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10 w-48 min-w-[12rem]">
+								class="p-2 border-b border-r border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 z-10">
 								{{ ctrans("Employee") }}
 							</th>
 							<th
 								v-for="day in days"
 								:key="day"
-								class="p-1 border-b border-gray-200 bg-gray-50 text-center w-10 min-w-[2.5rem]"
+								class="p-1 border-b border-gray-200 bg-gray-50 text-center"
 								:class="{ 'bg-gray-100': isWeekend(day) }">
 								<div class="text-xs font-semibold text-gray-700">{{ day }}</div>
 								<div class="text-[10px] text-gray-500">{{ getDayName(day) }}</div>
 							</th>
 						</tr>
 					</thead>
+				</table>
+			</div>
+		</div>
+		</div>
+
+		<div class="relative z-0 overflow-x-auto" @scroll.passive="syncGridHeaderScroll">
+			<div :style="gridWidthStyle">
+				<table class="w-full table-fixed border-collapse">
+					<colgroup>
+						<col class="w-32 sm:w-48" />
+						<col v-for="day in days" :key="day" />
+					</colgroup>
 					<tbody class="bg-white divide-y divide-gray-200">
 						<tr
 							v-for="employee in calendarData"
 							:key="employee.id"
 							class="hover:bg-gray-50">
 							<td
-								class="p-2 border-r border-gray-200 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white z-10">
-								{{ employee.name }}
+								class="p-2 border-r border-gray-200 truncate text-sm font-medium text-gray-900 sticky left-0 bg-white z-10"
+								:title="employee.name">
+								<div class="flex min-w-0 items-center gap-2">
+									<EmployeeAvatar :name="employee.name" :image="employee.avatar" size="xs" class="shrink-0" />
+									<span class="truncate">{{ employee.name }}</span>
+								</div>
 							</td>
 							<td
 								v-for="day in days"
@@ -378,8 +425,10 @@ const getStatusColor = (status: string): string => {
 			</div>
 
 			<div class="mt-6 flex justify-end">
-				<Button type="secondary" @click="closeModal">
-					{{ ctrans("Close") }}
+				<Button type="tertiary" :label="ctrans('Close')" @click="closeModal">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
 				</Button>
 			</div>
 		</div>

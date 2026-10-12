@@ -15,6 +15,7 @@ export interface SubSection {
     icon?: string | string[]
     tooltip?: string
     root: string
+    roots?: string[]
     route: routeType
 }
 

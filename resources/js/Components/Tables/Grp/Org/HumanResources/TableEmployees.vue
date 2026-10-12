@@ -10,6 +10,7 @@ import Table from "@/Components/Table/Table.vue"
 import { Employee } from "@/types/employee"
 import Icon from "@/Components/Icon.vue"
 import Tag from "@/Components/Tag.vue"
+import EmployeeAvatar from "@/Components/HumanResources/EmployeeAvatar.vue"
 
 const props = defineProps<{
 	data: object
@@ -54,6 +55,13 @@ function employeeRoute(employee: Employee) {
 			<Link :href="employeeRoute(employee)" class="primaryLink">
 				{{ employee["slug"] }}
 			</Link>
+		</template>
+
+		<template #cell(contact_name)="{ item: employee }">
+			<div class="flex items-center gap-2">
+				<EmployeeAvatar :name="employee.contact_name" :image="employee.avatar" size="sm" />
+				<span>{{ employee.contact_name }}</span>
+			</div>
 		</template>
 
 		<template #cell(positions)="{ item: employee }">
