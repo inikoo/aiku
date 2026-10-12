@@ -2857,8 +2857,11 @@ test('UI show org agents', function () {
             ->component('Procurement/OrgAgent')
             ->has('title')
             ->has('breadcrumbs', 3)
-            ->where('pageHead.subNavigation.0.route.name', 'grp.org.procurement.org_agents.show.shopping.dashboard')
-            ->has('pageHead.subNavigation', 9)
+            ->where('pageHead.subNavigation.0.route.name', 'grp.org.procurement.org_agents.show')
+            ->where('pageHead.subNavigation.1.route.name', 'grp.org.procurement.org_agents.show.shopping.dashboard')
+            ->has('pageHead.subNavigation', 8)
+            ->where('pageHead.meta.0.route.name', 'grp.org.procurement.org_agents.show.suppliers.index')
+            ->where('pageHead.meta.1.route.name', 'grp.org.procurement.org_agents.show.supplier_products.index')
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
@@ -9280,7 +9283,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered', 'Suppliers', 'Products'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === [$this->orgAgent->slug, 'What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9532,7 +9535,7 @@ test('UI agent drafts to send', function () {
             ->has('cards')
             ->has('agentName')
             ->where('orgCurrency', $this->organisation->currency->code)
-            ->where('pageHead.subNavigation.2.number', collect($page->toArray()['props']['cards'])->where('has_ours', true)->count())
+            ->where('pageHead.subNavigation.3.number', collect($page->toArray()['props']['cards'])->where('has_ours', true)->count())
             ->where('sendRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.send')
             ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1
                 && array_key_exists('org_exchange', $card) && ($card['currency'] !== $this->organisation->currency->code || $card['org_exchange'] === null)));
@@ -12993,7 +12996,7 @@ test('UI agent order stages', function (string $stage) {
         ->where('orgCurrency', $this->organisation->currency->code)
         ->where('oursCount', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->has('rows.data')
-        ->has('pageHead.subNavigation', 9)
+        ->has('pageHead.subNavigation', 8)
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->firstWhere('active', true)['number'] === App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->where('active', true)->pluck('route.parameters.2')->all() === [$stage])
         ->where('rows.data', fn ($rows) => collect($rows)->every(fn (array $row) => $row['is_ours'])));
