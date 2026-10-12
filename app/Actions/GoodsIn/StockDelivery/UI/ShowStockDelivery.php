@@ -9,6 +9,10 @@
 namespace App\Actions\GoodsIn\StockDelivery\UI;
 
 use App\Models\SupplyChain\AgentPayment;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
+use App\Models\SupplyChain\SupplierInvoice;
+use App\Models\SupplyChain\SupplierPayment;
+use App\Models\Procurement\PurchaseOrder;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
@@ -587,6 +591,12 @@ class ShowStockDelivery extends OrgAction
             $orderer = OrgSupplierResource::make($stockDelivery->parent)->toArray($request);
         } elseif ($stockDelivery->parent instanceof OrgPartner) {
             $orderer = OrgPartnerResource::make($stockDelivery->parent)->toArray($request);
+        } elseif ($stockDelivery->parent_name) {
+            $orderer = [
+                'type' => $stockDelivery->parent_type,
+                'code' => $stockDelivery->parent_code,
+                'name' => $stockDelivery->parent_name,
+            ];
         }
 
         $weightAndVolume = $this->getStockDeliveryWeightAndVolume($stockDelivery);
@@ -697,6 +707,49 @@ class ShowStockDelivery extends OrgAction
                 ])->values()->all(),
                 'payment_store_route' => ['name' => 'grp.models.stock-delivery.agent_payment.store', 'parameters' => ['stockDelivery' => $stockDelivery->id]],
             ] : null,
+            'supplier'     => !$isAgentInvoice && !$stockDelivery->agent_id && $stockDelivery->parent_type === 'OrgSupplier' ? $this->getSupplierPayments($stockDelivery, $invoice) : null,
+        ];
+    }
+
+    /**
+     * A purchase order's deposit is taken off the invoice of its first delivery only, so an order that arrives
+     * in several deliveries does not have it counted twice.
+     *
+     * @return array<string, mixed>
+     */
+    private function getSupplierPayments(StockDelivery $stockDelivery, SupplierInvoice $invoice): array
+    {
+        $deposits = $stockDelivery->purchaseOrders()
+            ->whereNotNull('deposit_paid_at')
+            ->where('deposit_amount', '>', 0)
+            ->where('purchase_orders.currency_id', $invoice->currency_id)
+            ->get()
+            ->filter(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->stockDeliveries()->min('stock_deliveries.id') === $stockDelivery->id)
+            ->map(fn (PurchaseOrder $purchaseOrder) => [
+                'reference' => $purchaseOrder->reference,
+                'date'      => $purchaseOrder->deposit_paid_at->toDateString(),
+                'amount'    => (float) $purchaseOrder->deposit_amount,
+            ])->values();
+
+        $payments = $stockDelivery->supplierPayments()->with('bankStatement:id,ulid')->orderBy('date')->get();
+        $paid     = round((float) $deposits->sum('amount') + (float) $payments->sum('amount'), 2);
+
+        return [
+            'can_edit'            => $this->canEditPayments,
+            'methods'             => PurchaseOrderPaymentMethodEnum::options(),
+            'deposits'            => $deposits->all(),
+            'payments'            => $payments->map(fn (SupplierPayment $payment) => [
+                'id'             => $payment->id,
+                'date'           => $payment->date->toDateString(),
+                'amount'         => (float) $payment->amount,
+                'method'         => $payment->method->labels()[$payment->method->value],
+                'reference'      => $payment->reference,
+                'bank_statement' => $payment->bankStatement?->ulid,
+                'delete_route'   => ['name' => 'grp.models.supplier_payment.delete', 'parameters' => ['supplierPayment' => $payment->id]],
+            ])->values()->all(),
+            'paid'                => $paid,
+            'balance_due'         => round((float) $invoice->total_amount - $paid, 2),
+            'payment_store_route' => ['name' => 'grp.models.stock-delivery.supplier_payment.store', 'parameters' => ['stockDelivery' => $stockDelivery->id]],
         ];
     }
 

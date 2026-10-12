@@ -14,6 +14,7 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Http\Resources\Procurement\ProcurementNoteResource;
@@ -21,6 +22,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\ResolvePurchaseOrderDeliveryAddress;
 use App\Actions\Procurement\PurchaseOrder\Traits\WithPurchaseOrderWeightAndVolume;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
@@ -249,6 +251,7 @@ class ShowPurchaseOrder extends OrgAction
                         ])->values()
                     : [],
                 'deposits'                 => $purchaseOrder->isAgentOrder() ? $this->getDeposits($purchaseOrder) : null,
+                'payments'                 => ConfirmPurchaseOrderPayment::acceptsPayments($purchaseOrder) ? $this->getPayments($purchaseOrder, $request) : null,
                 'delivery_items'            => $purchaseOrder->state === PurchaseOrderStateEnum::CONFIRMED
                     ? $purchaseOrder->purchaseOrderTransactions()
                         ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED)
@@ -803,6 +806,43 @@ class ShowPurchaseOrder extends OrgAction
         }
 
         return $timeline;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPayments(PurchaseOrder $purchaseOrder, ActionRequest $request): array
+    {
+        $deposit = $purchaseOrder->deposit_amount === null ? null : (float) $purchaseOrder->deposit_amount;
+        $route   = fn (string $name) => [
+            'name'       => "grp.models.purchase-order.payment.$name",
+            'parameters' => ['purchaseOrder' => $purchaseOrder->id],
+        ];
+
+        return [
+            'can_confirm'   => ConfirmPurchaseOrderPayment::canConfirm($purchaseOrder, $request->user()),
+            'currency_code' => $purchaseOrder->currency?->code,
+            'total'         => (float) $purchaseOrder->cost_total,
+            'methods'       => PurchaseOrderPaymentMethodEnum::options(),
+            'deposit'       => [
+                'amount'          => $deposit,
+                'paid_at'         => $purchaseOrder->deposit_paid_at,
+                'paid_by'         => $purchaseOrder->depositPaidBy?->contact_name,
+                'method'          => Arr::get(PurchaseOrderPaymentMethodEnum::labels(), (string) Arr::get($purchaseOrder->data, 'payments.deposit.method')),
+                'reference'       => Arr::get($purchaseOrder->data, 'payments.deposit.reference'),
+                'bank_statements' => $purchaseOrder->attachments()
+                    ->withPivot('sub_scope')
+                    ->wherePivot('scope', PurchaseOrderAttachmentScopeEnum::BANK_STATEMENT->value)
+                    ->wherePivot('sub_scope', 'deposit')
+                    ->get()
+                    ->map(fn ($media) => ['ulid' => $media->ulid, 'caption' => $media->pivot->caption])
+                    ->values(),
+            ],
+            'balance'       => (float) $purchaseOrder->cost_total - (float) $deposit,
+            'confirm_route' => $route('confirm'),
+            'undo_route'    => $route('undo'),
+            'deposit_route' => $route('deposit'),
+        ];
     }
 
     private function getDeposits(PurchaseOrder $purchaseOrder): array

@@ -25,6 +25,7 @@ import StockDeliveryCostingChecklist from "@/Components/Procurement/StockDeliver
 import StockDeliveryInvoiceCosting from "@/Components/Procurement/StockDeliveryInvoiceCosting.vue"
 import StockDeliveryInvoiceEntry from "@/Components/Procurement/StockDeliveryInvoiceEntry.vue"
 import StockDeliveryAgentPayments from "@/Components/Procurement/StockDeliveryAgentPayments.vue"
+import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliverySupplierPayments.vue"
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
@@ -163,6 +164,7 @@ const props = defineProps<{
 				payments: { id: number; date: string; amount: number; reference: string | null; notes: string | null; delete_route: routeType }[]
 				payment_store_route: routeType
 			} | null
+			supplier: InstanceType<typeof StockDeliverySupplierPayments>["$props"]["supplier"] | null
 		} | null
 	}
 	tabs: {
@@ -1121,6 +1123,15 @@ const confirmDeleteStockDelivery = (action: any) => {
 											:agent="box_stats.invoice.agent"
 											:currency="box_stats.invoice.currency"
 											:hasCharges="box_stats.invoice.charges_list.length > 0"
+											:isEstimate="box_stats.invoice.source === 'estimated'"
+										/>
+										<StockDeliverySupplierPayments
+											v-if="blockIndex === 0 && box_stats.invoice?.supplier && (box_stats.invoice.total > 0 || box_stats.invoice.supplier.payments.length > 0)"
+											:supplier="box_stats.invoice.supplier"
+											:currency="box_stats.invoice.currency"
+											:total="box_stats.invoice.total"
+											:orgCurrency="box_stats.invoice.org_currency"
+											:orgExchange="box_stats.invoice.org_exchange"
 											:isEstimate="box_stats.invoice.source === 'estimated'"
 										/>
 										<div v-if="isCostingVisible && !costing.viewed_by_agent" class="mt-3">
