@@ -2880,6 +2880,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             @update:tab="handleTabUpdate" :ref="(e) => _refComponents = e"
             :routesProductsListModification="routes.products_list_modification"
             :is_shop_external
+            :marketplace_price_source="external_shop?.engine_value === 'shopify' ? external_shop?.engine_label : undefined"
             :allow_order_modification
             :locked="isEditLocked"
         />

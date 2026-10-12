@@ -37,7 +37,7 @@ trait HasDeliveryNoteHydrators
         OrganisationHydrateDeliveryNotesState::dispatch($deliveryNote->organisation_id, $deliveryNoteStateEnum)->delay($this->hydratorsDelay);
         ShopHydrateDeliveryNotesState::dispatch($deliveryNote->shop_id, $deliveryNoteStateEnum)->delay($this->hydratorsDelay);
         // Get directly from shop.type because some deliveryNote has no shop_type somehow (null), probably old order_data
-        OrganisationHydrateShopTypeDeliveryNotesState::dispatch($deliveryNote->organisation_id, $deliveryNote->shop_type ?? $deliveryNote->shop->type, $deliveryNoteStateEnum);
+        OrganisationHydrateShopTypeDeliveryNotesState::dispatch($deliveryNote->organisation_id, $deliveryNote->shop->dispatchingChannel(), $deliveryNoteStateEnum);
     }
 
     public function intrastatHydrators(DeliveryNote $deliveryNote): void
