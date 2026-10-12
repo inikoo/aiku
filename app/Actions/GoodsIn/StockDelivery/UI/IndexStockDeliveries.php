@@ -54,6 +54,14 @@ class IndexStockDeliveries extends OrgAction
 
     private Warehouse|Organisation|OrgAgent|OrgPartner|OrgSupplier|Agent|Supplier $parent;
 
+    private const array STAGED_STATES = [
+        StockDeliveryStateEnum::IN_PROCESS,
+        StockDeliveryStateEnum::CONFIRMED,
+        StockDeliveryStateEnum::READY_TO_SHIP,
+    ];
+
+    private ?bool $onlyStagedContainers = null;
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -140,9 +148,24 @@ class IndexStockDeliveries extends OrgAction
                 'elements' => [
                     'costed'     => [__('Costed'), $costedCounts[1] ?? 0],
                     'not_costed' => [__('Not costed'), $costedCounts[0] ?? 0],
+                    'costs_missing' => [__('Costs missing, put-away blocked'), $this->applyParentFilter(StockDelivery::query())->withCostsMissingForPutAway()->count()],
+                    'estimated'     => [__('Costed with an estimate'), $this->applyParentFilter(StockDelivery::query())->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))->count()],
                 ],
                 'engine'   => function ($query, $elements) {
-                    $query->where('stock_deliveries.is_costed', in_array('costed', $elements));
+                    $query->where(function ($query) use ($elements) {
+                        if (in_array('costed', $elements)) {
+                            $query->orWhere('stock_deliveries.is_costed', true);
+                        }
+                        if (in_array('not_costed', $elements)) {
+                            $query->orWhere('stock_deliveries.is_costed', false);
+                        }
+                        if (in_array('estimated', $elements)) {
+                            $query->orWhere(fn ($query) => $query->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true)));
+                        }
+                        if (in_array('costs_missing', $elements)) {
+                            $query->orWhere(fn ($query) => $query->withCostsMissingForPutAway());
+                        }
+                    });
                 },
             ];
         }
@@ -201,6 +224,13 @@ class IndexStockDeliveries extends OrgAction
         $query = QueryBuilder::for(StockDelivery::class);
 
         $this->applyParentFilter($query);
+
+        if ($this->onlyStagedContainers !== null) {
+            $stagedStates = array_map(fn (StockDeliveryStateEnum $state) => $state->value, self::STAGED_STATES);
+            $this->onlyStagedContainers
+                ? $query->whereIn('stock_deliveries.state', $stagedStates)
+                : $query->whereNotIn('stock_deliveries.state', $stagedStates);
+        }
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             $query->whereElementGroup(
@@ -327,6 +357,20 @@ class IndexStockDeliveries extends OrgAction
         return $this->handle();
     }
 
+    public function inAgentCurrent(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->onlyStagedContainers = true;
+
+        return $this->asController($organisation, $request);
+    }
+
+    public function inAgentPast(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->onlyStagedContainers = false;
+
+        return $this->asController($organisation, $request);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
@@ -388,6 +432,12 @@ class IndexStockDeliveries extends OrgAction
         $iconRight     = null;
         $subNavigation = null;
 
+        if ($this->onlyStagedContainers !== null) {
+            $title = $this->onlyStagedContainers ? __('Current staged containers') : __('Past containers');
+        } elseif ($this->parent instanceof Organisation && $this->getParentOrganisationAgent($this->parent)) {
+            $title = __('Containers');
+        }
+
         if ($this->parent instanceof OrgAgent) {
             $title         = $this->parent->agent->organisation->name;
             $icon          = [
@@ -440,7 +490,7 @@ class IndexStockDeliveries extends OrgAction
         return Inertia::render(
             'Procurement/StockDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($this->onlyStagedContainers === null ? $request->route()->getName() : 'grp.org.procurement.stock_deliveries.index', $request->route()->originalParameters()),
                 'title'       => __('Stock Deliveries'),
                 'navigation'  => $this->getParentSiblingsNavigation($this->parent, $request),
                 'pageHead'    => [

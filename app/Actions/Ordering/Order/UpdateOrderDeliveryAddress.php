@@ -17,12 +17,14 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class UpdateOrderDeliveryAddress extends OrgAction
 {
@@ -30,6 +32,7 @@ class UpdateOrderDeliveryAddress extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
     use HasOrderHydrators;
+    use WithOrderEditAuthorisation;
 
     private Order $order;
 
@@ -59,7 +62,11 @@ class UpdateOrderDeliveryAddress extends OrgAction
             ]);
         }
 
-        CalculateOrderTotalAmounts::run($order, calculateDiscounts: false);
+        if (in_array($order->state, [OrderStateEnum::CREATING, OrderStateEnum::SUBMITTED])) {
+            CalculateOrderShipping::run($order);
+        }
+
+        CalculateOrderTotalAmounts::run($order, calculateShipping: false, calculateDiscounts: false);
 
         if (Arr::get($modelData, 'update_parent')) {
             $addressData = Arr::only(

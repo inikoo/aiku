@@ -14,17 +14,17 @@ import Table from "@/Components/Table/Table.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding } from "@fal"
+import { faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding, faBells } from "@fal"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import CopyButton from "@/Components/Utils/CopyButton.vue"
 import ArtisanPicker from "@/Components/Production/ArtisanPicker.vue"
 import ModalCreateManualJobOrder from "@/Components/Production/ModalCreateManualJobOrder.vue"
 
-library.add(faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding)
+library.add(faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding, faBells)
 
 type PublishedLabel = { id: number, name: string, run_sources: string[], pdf_url: string }
 
@@ -492,7 +492,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
     <PageHeading :data="pageHead" />
 
     <div v-if="Object.keys(selected).length" class="sticky top-0 z-10 mx-4 mt-4 flex items-center justify-between rounded-lg bg-indigo-600 px-4 py-2 text-white">
-        <span>{{ Object.keys(selected).length }} {{ ctrans("lines selected") }}</span>
+        <span>{{ ctransChoice(":count line selected|:count lines selected", Object.keys(selected).length) }}</span>
         <div class="flex gap-2">
             <button type="button" class="rounded bg-white px-3 py-1 text-indigo-600" @click="createJobOrders">
                 {{ ctrans("Create job orders") }}
@@ -601,7 +601,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                                 v-if="item.batch_size"
                                 class="rounded bg-indigo-50 px-1.5 py-px text-indigo-700"
                                 :title="ctrans('Batch of :batch units, packed in :packed', { batch: item.batch_size ?? 0, packed: item.packed_in ?? 1 })">
-                                {{ ctrans("makes") }} {{ jobUnits(item) }} {{ ctrans("units") }}
+                                {{ ctransChoice("makes :count unit|makes :count units", jobUnits(item)) }}
                             </span>
                         </label>
                     </div>
@@ -783,6 +783,13 @@ function jobOrderHref(item: { job_order_slug: string }) {
                     <div class="flex items-center gap-1.5">
                         <span class="font-medium">{{ item.stock_code }}</span>
                         <span
+                            v-if="item.poked_at"
+                            class="rounded bg-red-100 px-1 font-normal text-red-700"
+                            :title="ctrans(':who poked :at: the buyer urgently needs this', { who: item.poked_by ?? item.buyer_code ?? '', at: useFormatTime(item.poked_at, { formatTime: 'dd MMM HH:mm' }) })">
+                            <FontAwesomeIcon icon="fal fa-bells" fixed-width aria-hidden="true" />
+                            {{ ctrans("Poked") }}
+                        </span>
+                        <span
                             v-if="item.is_hitchhiker"
                             class="rounded bg-gray-100 px-1 font-normal text-gray-500 dark:bg-gray-800"
                             :title="ctrans('Under a batch of :batch units, waiting for another order to ride with', { batch: item.batch_size ?? 0 })">
@@ -813,7 +820,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                                     @mousedown.stop
                                     @change="updatePreparingQuantity(item, $event)" />
                             </template>
-                            <span v-else-if="item.job_order_quantity" class="text-indigo-600" :title="ctrans('Making :count units', { count: item.job_order_quantity })">→ {{ useLocaleStore().number(Number(item.job_order_quantity) / (Number(item.packed_in) || 1)) }} {{ ctrans("SKO") }} ({{ useLocaleStore().number(Number(item.job_order_quantity)) }} {{ ctrans("units") }})</span>
+                            <span v-else-if="item.job_order_quantity" class="text-indigo-600" :title="ctrans('Making :count units', { count: item.job_order_quantity })">→ {{ useLocaleStore().number(Number(item.job_order_quantity) / (Number(item.packed_in) || 1)) }} {{ ctrans("SKO") }} ({{ ctransChoice(":number unit|:number units", Number(item.job_order_quantity), { number: useLocaleStore().number(Number(item.job_order_quantity)) }) }})</span>
                             <span v-else-if="item.quantity_to_produce && Number(item.quantity_to_produce) !== Number(item.quantity)" class="text-indigo-600" :title="ctrans('Making :count SKO', { count: item.quantity_to_produce })">→ {{ useLocaleStore().number(Number(item.quantity_to_produce)) }} {{ ctrans("SKO") }}</span>
                         </span>
                     </div>
@@ -950,7 +957,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
             <span v-else>{{ item.customer_name }} <span class="text-gray-500">{{ item.order_reference }}</span></span>
         </template>
         <template #cell(stock_code)="{ item }">
-            <div class="whitespace-nowrap">{{ item.stock_code }} <span v-if="item.family" class="ml-1 rounded-full bg-gray-100 border border-gray-200 px-2 py-0.5 text-xs text-gray-600">{{ item.family }}</span></div>
+            <div class="whitespace-nowrap">{{ item.stock_code }} <span v-if="item.poked_at" class="ml-1 rounded bg-red-100 px-1 text-xs text-red-700" :title="ctrans(':who poked :at: the buyer urgently needs this', { who: item.poked_by ?? item.buyer_code ?? '', at: useFormatTime(item.poked_at, { formatTime: 'dd MMM HH:mm' }) })"><FontAwesomeIcon icon="fal fa-bells" fixed-width aria-hidden="true" /> {{ ctrans("Poked") }}</span> <span v-if="item.family" class="ml-1 rounded-full bg-gray-100 border border-gray-200 px-2 py-0.5 text-xs text-gray-600">{{ item.family }}</span></div>
             <div class="text-gray-500">{{ item.stock_name }}</div>
         </template>
         <template #cell(job_order_reference)="{ item }">

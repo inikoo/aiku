@@ -229,7 +229,7 @@ const orgPackedInSummary = (item: any): { label: string; diverges: boolean } | n
     }
     const distinct = [...new Set(orgs.map(org => Number(org.packed_in)))]
     if (distinct.length === 1) {
-        return { label: ctrans('(SKO packed in :packs)', { packs: distinct[0] + 's' }), diverges: false }
+        return { label: ctrans('(SKO is a pack of :packs)', { packs: distinct[0] }), diverges: false }
     }
     return {
         label: '(' + groupOrgsByValue(orgs, org => Number(org.packed_in) + 's') + ')',
@@ -399,13 +399,13 @@ defineExpose({
                 <slot name="committed-list" :committedProducts="committedProducts"
                     :deleteFormCommited="deleteFormCommited">
                     <div v-for="item in committedProducts" :key="item.id + '-'"
-                        class="flex items-center justify-between gap-4 p-2 border-b last:border-b-0 bg-white hover:bg-gray-50">
+                        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 p-2 border-b last:border-b-0 bg-white hover:bg-gray-50">
 
                         <!-- Info -->
                         <slot name="info" :data="item" :key="item.id + '-'">
                             <div class="flex items-center gap-3">
                                 <Image v-if="item.image" :src="item.image.thumbnail"
-                                    class="w-12 h-12 rounded object-cover" />
+                                    class="w-12 h-12 rounded object-cover shrink-0" />
                                 <div>
                                     <div class="font-medium leading-none">{{ item.name }}</div>
                                     <div class="flex justify-beetween mt-1 gap-5">
@@ -425,14 +425,14 @@ defineExpose({
                         <!-- Warning: partial pack, the classic sign one side of the composition is wrong -->
                         <div v-if="partialPackOrgs(item)"
                             v-tooltip="ctrans('This quantity is not a whole number of warehouse packs of :packed_in. Either this quantity or the SKU packing is wrong, check both before saving.', { packed_in: partialPackOrgs(item) })"
-                            class="text-xs text-amber-600 whitespace-nowrap"
+                            class="text-xs text-amber-600 min-w-0"
                         >
                             <FontAwesomeIcon :icon="faExclamationTriangle" class="text-amber-500 mr-1" fixed-width aria-hidden="true" />
                             {{ ctrans('Partial pack') }}: {{ item[props.key_quantity] || 1 }} / {{ partialPackOrgs(item) }}
                         </div>
 
                         <!-- Quantity + Delete -->
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 shrink-0">
                             <NumberWithButtonSave v-if="withQuantity"
                                 :key="item.id + '-' + (item[props.key_quantity] || 1)"
                                 :modelValue="item[props.key_quantity]" :bindToTarget="item.is_divisible ? { min: 0.001, maxFractionDigits: 3 } : { min: 1 }"
@@ -461,7 +461,7 @@ defineExpose({
                                         :class="orgPackedInSummary(item)!.diverges ? 'text-amber-600' : 'text-teal-600/70'">
                                         {{ orgPackedInSummary(item)!.label }}
                                     </button>
-                                    <span v-else class="text-teal-600/70">{{ ctrans('(SKO packed in :packs)', { packs: (Number(item.packed_in) || 1) + 's' }) }}</span>
+                                    <span v-else class="text-teal-600/70">{{ ctrans('(SKO is a pack of :packs)', { packs: Number(item.packed_in) || 1 }) }}</span>
                                 </div>
 
                                 </template>

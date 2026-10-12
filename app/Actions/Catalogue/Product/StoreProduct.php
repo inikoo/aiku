@@ -30,6 +30,7 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Product\ProductTradeConfigEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Discounts\Offer\OfferTypeEnum;
 use App\Models\Catalogue\Product;
@@ -63,10 +64,6 @@ class StoreProduct extends OrgAction
         data_set($modelData, 'is_for_sale', true, false);
         data_set($modelData, 'status', ProductStatusEnum::FOR_SALE, false);
         data_set($modelData, 'state', ProductStateEnum::ACTIVE, false);
-
-        if (!Arr::has($modelData, 'unit_price')) {
-            data_set($modelData, 'unit_price', Arr::get($modelData, 'price') / Arr::get($modelData, 'units', 1));
-        }
 
         $orgStocks  = null;
         $tradeUnits = null;
@@ -267,7 +264,6 @@ class StoreProduct extends OrgAction
                     ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
             ],
             'price'             => ['required', 'numeric', 'min:0'],
-            'unit_price'        => ['sometimes', 'numeric', 'min:0'],
             'unit'              => ['sometimes', 'required', 'string'],
             'rrp'               => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'description'       => ['sometimes', 'required', 'max:15000'],
@@ -299,6 +295,10 @@ class StoreProduct extends OrgAction
                 'sometimes',
                 Rule::unique('products', 'marketplace_id')->where(function ($query) {
                     $query->where('group_id', $this->shop->group_id);
+                    if ($this->shop->engine === ShopEngineEnum::WIX) {
+                        $query->where('shop_id', $this->shop->id)
+                            ->where('marketplace_second_id', $this->get('marketplace_second_id'));
+                    }
                 })
             ],
             'marketing_weight'          => ['sometimes', 'numeric', 'min:0'],
@@ -321,6 +321,7 @@ class StoreProduct extends OrgAction
 
             $rules                              = $this->noStrictStoreRules($rules);
             $rules['historic_source_id']        = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['marketplace_second_id']     = ['sometimes', 'nullable', 'string'];
             $rules['state']                     = ['required', Rule::enum(ProductStateEnum::class)];
             $rules['status']                    = ['required', Rule::enum(ProductStatusEnum::class)];
             $rules['trade_config']              = ['required', Rule::enum(ProductTradeConfigEnum::class)];

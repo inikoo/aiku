@@ -844,6 +844,103 @@ test('a product can be priced at zero, free gifts are not editable otherwise', f
     expect((float)$product->refresh()->price)->toBe(0.0);
 })->depends('create family');
 
+test('a Wix order with a product missing from the catalogue is skipped and reported once, not on every poll', function (ProductCategory $family) {
+    $action   = \App\Actions\Catalogue\Shop\External\Wix\StoreOrderFromWix::make();
+    $wixOrder = [
+        'id'        => 'wix-order-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(8)),
+        'status'    => 'APPROVED',
+        'number'    => '20189',
+        'lineItems' => [['id' => 'line-1', 'physicalProperties' => ['sku' => 'NOT-IN-CATALOGUE-'.\Illuminate\Support\Str::random(6)], 'quantity' => 1]],
+    ];
+    $reportKey = $action->skippedOrderReportKey($family->shop, $wixOrder['id']);
+
+    expect(\Illuminate\Support\Facades\Cache::has($reportKey))->toBeFalse()
+        ->and($action->handle($family->shop, $wixOrder))->toBeNull()
+        ->and(\Illuminate\Support\Facades\Cache::has($reportKey))->toBeTrue()
+        ->and($action->handle($family->shop, $wixOrder))->toBeNull();
+})->depends('create family');
+
+test('a free Wix variant syncs onto an existing product without an rrp', function (ProductCategory $family) {
+    $product = StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10, 'rrp' => 12]
+    ));
+
+    $synced = \App\Actions\Catalogue\Shop\External\Wix\GetWixProducts::make()->upsertWixProduct($product->shop, [
+        'product_id'  => 'wix-free-gift',
+        'variant_id'  => 'wix-free-gift-variant',
+        'sku'         => $product->code,
+        'name'        => 'Free gift',
+        'description' => null,
+        'price'       => 0.0,
+        'image'       => null,
+        'visible'     => true,
+    ]);
+
+    expect($synced?->id)->toBe($product->id)
+        ->and((float) $synced->price)->toBe(0.0)
+        ->and($synced->rrp)->toBeNull();
+})->depends('create family');
+
+test('wix products without variants share the all-zero variant id and still import as separate products', function () {
+    $wixShop = StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), [
+        'type'   => ShopTypeEnum::EXTERNAL->value,
+        'engine' => \App\Enums\Catalogue\Shop\ShopEngineEnum::WIX->value,
+    ]));
+    $action           = \App\Actions\Catalogue\Shop\External\Wix\GetWixProducts::make();
+    $defaultVariantId = \App\Actions\Catalogue\Shop\External\Wix\GetWixProducts::WIX_V1_DEFAULT_VARIANT_ID;
+    $wixVariant       = fn (string $wixProductId, string $sku) => [
+        'product_id'  => $wixProductId,
+        'variant_id'  => $defaultVariantId,
+        'sku'         => $sku,
+        'name'        => "Soap $sku",
+        'description' => null,
+        'price'       => 45.58,
+        'image'       => null,
+        'visible'     => true,
+    ];
+
+    $suffix   = \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6));
+    $products = collect(range(1, 5))->map(fn (int $i) => $action->upsertWixProduct($wixShop, $wixVariant("wix-product-$suffix-$i", "RAWM-$suffix-$i")));
+
+    expect($products->filter()->pluck('id')->unique())->toHaveCount(5)
+        ->and($products->map(fn (Product $product) => $product->refresh()->marketplace_id)->unique()->all())->toBe([$defaultVariantId])
+        ->and($products[0]->code)->toBe("RAWM-$suffix-1")
+        ->and($products[0]->marketplace_second_id)->toBe("wix-product-$suffix-1")
+        ->and($products[4]->code)->toBe("RAWM-$suffix-5");
+
+    $resynced = $action->upsertWixProduct($wixShop, $wixVariant("wix-product-$suffix-2", "RAWM-$suffix-2"));
+
+    expect($resynced->id)->toBe($products[1]->id)
+        ->and($products[0]->refresh()->code)->toBe("RAWM-$suffix-1");
+
+    $products->each(fn (Product $product) => $product->updateQuietly(['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE]));
+    $liveVariantKeys = $products->take(4)
+        ->mapWithKeys(fn (Product $product) => [$action->getWixVariantKey($product->marketplace_second_id, $product->marketplace_id) => true])
+        ->all();
+
+    expect($action->discontinueProductsGoneFromWix($wixShop, $liveVariantKeys))->toBe(1)
+        ->and($products[4]->refresh()->state)->toBe(\App\Enums\Catalogue\Product\ProductStateEnum::DISCONTINUED)
+        ->and($products[0]->refresh()->state)->toBe(\App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE);
+});
+
+test('stock changes of several variants of one wix product queue a single inventory push', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    $variant = fn (int $id, string $wixProductId) => (new Product())->forceFill(['id' => $id, 'shop_id' => 900001, 'marketplace_second_id' => $wixProductId]);
+    $wixProductId = 'wix-product-'.uniqid();
+
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::dispatch($variant(1, $wixProductId));
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::dispatch($variant(2, $wixProductId));
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::dispatch($variant(3, $wixProductId.'-other'));
+
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::assertPushed(2);
+
+    $this->travel(61)->seconds();
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::dispatch($variant(4, $wixProductId));
+
+    \App\Actions\Catalogue\Shop\External\Wix\UpdateWixProductInventoryQuantity::assertPushed(3);
+});
+
 test('a product can be exclusive to several customers and only they can see it', function () {
     list($organisation, $user, $shop) = createShop();
 
@@ -1006,8 +1103,10 @@ test('staff choose who a product is sold to from its edit page', function () {
 
 test('repair repoints products from a discontinued org stock to its active twin', function () {
     $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
-    createProduct($shop);
-    $product = $shop->products()->where('state', ProductStateEnum::ACTIVE)->orderBy('id')->first();
+    $product = UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
 
     $activeOrgStock = $this->orgStock1;
     $activeOrgStock->update(['state' => \App\Enums\Inventory\OrgStock\OrgStockStateEnum::ACTIVE, 'code' => 'REPAIR-01']);
@@ -1061,6 +1160,43 @@ test('product ingredients and origin stop reflecting a trade unit once it is rem
     $product->refresh();
 
     expect($product->country_of_origin)->toBeNull();
+});
+
+test('a multi part product declares only its main part to customs', function () {
+    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    createProduct($shop);
+    $product = $shop->products()->orderBy('id')->first();
+
+    $lamp = $this->tradeUnit1;
+    $lamp->update(['tariff_code' => '9405990090', 'country_of_origin' => 'PAK']);
+    $base = $this->tradeUnit2;
+    $base->update(['tariff_code' => '4421999999', 'country_of_origin' => 'CHN']);
+
+    \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [
+        ['id' => $lamp->id, 'quantity' => 1],
+        ['id' => $base->id, 'quantity' => 1],
+    ]);
+    $product = Product::find($product->id);
+    $product->update(['customs_trade_unit_id' => null]);
+    \App\Actions\Catalogue\Product\Hydrators\ProductHydrateHeathAndSafetyFromTradeUnits::run($product);
+
+    expect($product->refresh()->tariff_code)->toContain(',');
+
+    $product = UpdateProduct::make()->action($product, ['customs_trade_unit_id' => $lamp->id]);
+
+    expect($product->refresh()->tariff_code)->toBe($lamp->getTariffCodeForOrganisation($product->organisation_id))
+        ->and($product->country_of_origin)->toBe('PAK');
+
+    $product = UpdateProduct::make()->action($product, ['customs_trade_unit_id' => null]);
+
+    expect($product->refresh()->country_of_origin)->toContain('CHN')
+        ->and($product->country_of_origin)->toContain('PAK');
+
+    $outsider = \App\Models\Goods\TradeUnit::whereNotIn('id', [$lamp->id, $base->id])->first();
+    if ($outsider) {
+        expect(fn () => UpdateProduct::make()->action($product, ['customs_trade_unit_id' => $outsider->id]))
+            ->toThrow(\Illuminate\Validation\ValidationException::class);
+    }
 });
 
 test('repair command resyncs product ingredients and origin from trade units', function () {
@@ -1128,31 +1264,58 @@ test('a bundle combines its trade unit ingredients and shows no component dimens
     expect(Product::find($product->id)->marketing_dimensions)->toBeNull();
 });
 
-test('a bundle spec block says which component each ingredient and size belongs to', function () {
+test('a starter spec block lists its components with a link to each one sold on its own', function () {
     $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
-    createProduct($shop);
-    $product = $shop->products()->orderBy('id')->first();
+    createWebsite($shop);
 
-    $bulb = $this->tradeUnit1;
-    $bulb->update(['marketing_ingredients' => 'Cotton', 'marketing_dimensions' => ['type' => 'rectangular', 'units' => 'cm', 'l' => 0.02, 'w' => 0.02, 'h' => 0.04]]);
+    $storeTradeUnit = fn (string $ingredients) => \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action(
+        $this->group,
+        array_merge(\App\Models\Goods\TradeUnit::factory()->definition(), ['marketing_ingredients' => $ingredients])
+    );
+    $lotion = $storeTradeUnit('Aqua, Glycerin');
+    $stand  = $storeTradeUnit('Recycled Teak');
 
-    $lamp = $this->tradeUnit2;
-    $lamp->update(['marketing_ingredients' => 'Himalayan Salt', 'marketing_dimensions' => ['type' => 'rectangular', 'units' => 'cm', 'l' => 0.1, 'w' => 0.1, 'h' => 0.19]]);
+    $storeProduct = fn (array $tradeUnits) => StoreProduct::make()->action($shop, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => $tradeUnits, 'price' => 10]
+    ));
 
-    \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [
-        ['id' => $bulb->id, 'quantity' => 1],
-        ['id' => $lamp->id, 'quantity' => 1],
+    $lotionProduct = $storeProduct([['id' => $lotion->id, 'quantity' => 4]]);
+    $lotionWebpage = StoreProductWebpage::make()->action($lotionProduct);
+    $lotionWebpage->update(['state' => WebpageStateEnum::LIVE]);
+    DB::table('products')->where('id', $lotionProduct->id)->update(['state' => ProductStateEnum::ACTIVE->value, 'is_single_trade_unit' => true]);
+
+    $starter = $storeProduct([
+        ['id' => $lotion->id, 'quantity' => 4],
+        ['id' => $stand->id, 'quantity' => 1],
     ]);
 
-    $specifications = \App\Actions\Iris\Catalogue\GetProductDetail::make()
-        ->jsonResponse(Product::find($product->id), \Lorisleiva\Actions\ActionRequest::createFrom(request()))['specifications'];
+    $request = \Lorisleiva\Actions\ActionRequest::createFrom(request());
+    $detail  = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($starter->id), $request);
 
-    expect($specifications['ingredients'])
-        ->toContain($bulb->code.' (Cotton)')
-        ->toContain($lamp->code.' (Himalayan Salt)')
-        ->and($specifications['dimensions'])
-        ->toContain($bulb->code.' (')
-        ->toContain($lamp->code.' (');
+    $components = collect($detail['components'])->keyBy('code');
+
+    expect($detail['components'])->toHaveCount(2)
+        ->and($detail['specifications']['ingredients'])->toBeNull()
+        ->and($detail['specifications']['dimensions'])->toBeNull()
+        ->and($detail['specifications']['cpnp'])->toBeNull()
+        ->and($components[$lotionProduct->code]['name'])->toBe($lotionProduct->name)
+        ->and($components[$lotionProduct->code]['quantity'])->toBe(4.0)
+        ->and($components[$lotionProduct->code]['url'])->toEndWith('/'.$lotionWebpage->url)
+        ->and($components[$lotionProduct->code]['ingredients'])->toBeNull()
+        ->and($components[$stand->code]['name'])->toBe($stand->name)
+        ->and($components[$stand->code]['url'])->toBeNull()
+        ->and($components[$stand->code]['ingredients'])->toBe('Recycled Teak');
+
+    $blockSpecifications = \App\Http\Resources\Web\WebBlockProductResource::make(Product::find($starter->id))->toArray($request)['specifications'];
+
+    expect($blockSpecifications['ingredients'])->toBeNull()
+        ->and($blockSpecifications['cpnp'])->toBeNull();
+
+    $single = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($lotionProduct->id), $request);
+
+    expect($single['components'])->toBe([])
+        ->and($single['specifications']['ingredients'])->toBe('Aqua, Glycerin');
 });
 
 test('product detail carries the public documents of the selected variant', function () {
@@ -1169,6 +1332,38 @@ test('product detail carries the public documents of the selected variant', func
     expect($attachments)->toHaveCount(1)
         ->and($attachments[0]['media_ulid'])->toBe($publicDocument->ulid)
         ->and($attachments[0]['scope'])->toBe('doc');
+});
+
+test('product detail carries the incoming stock only while the shop lets customers see it', function () {
+    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    createProduct($shop);
+    $product = $shop->products()->orderBy('id')->first();
+    $request = \Lorisleiva\Actions\ActionRequest::createFrom(request());
+
+    $settings = $shop->settings;
+    data_set($settings, 'catalog.allow_stocks_to_be_shown_on_iris', true);
+    data_set($settings, 'catalog.allow_incoming_stocks_to_be_shown_on_iris', true);
+    $shop->update(['settings' => $settings]);
+
+    $detail = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($product->id), $request);
+
+    expect($detail['allow_stocks_to_be_shown_on_iris'])->toBeTrue()
+        ->and($detail['allow_incoming_stocks_to_be_shown_on_iris'])->toBeTrue()
+        ->and($detail['incoming_stock'])->toBe(\App\Actions\Catalogue\Product\GetProductIncomingStock::run(Product::find($product->id), true));
+
+    data_set($settings, 'catalog.allow_stocks_to_be_shown_on_iris', false);
+    data_set($settings, 'catalog.allow_incoming_stocks_to_be_shown_on_iris', false);
+    $shop->update(['settings' => $settings]);
+
+    $detail = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($product->id), $request);
+
+    expect($detail['allow_stocks_to_be_shown_on_iris'])->toBeFalse()
+        ->and($detail['allow_incoming_stocks_to_be_shown_on_iris'])->toBeFalse()
+        ->and($detail['incoming_stock'])->toBe([]);
+
+    data_set($settings, 'catalog.allow_stocks_to_be_shown_on_iris', true);
+    data_set($settings, 'catalog.allow_incoming_stocks_to_be_shown_on_iris', true);
+    $shop->update(['settings' => $settings]);
 });
 
 test('bulk update product unit is scoped to shop', function () {
@@ -1459,8 +1654,10 @@ test('iris collection lists the product that owns a member product webpage', fun
 
 test('shop products json carries the outer size from the stock, not the product units', function () {
     $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
-    createProduct($shop);
-    $product = $shop->products()->where('state', ProductStateEnum::ACTIVE)->orderBy('id')->first();
+    $product = UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
 
     $orgStock = $this->orgStock1;
     $orgStock->update(['packed_in' => 6]);
@@ -1490,8 +1687,10 @@ test('shop products json carries the outer size from the stock, not the product 
 
 test('an on-demand stock never caps a product, and the shop products json reports what is on the shelf', function () {
     $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
-    createProduct($shop);
-    $product = $shop->products()->where('state', ProductStateEnum::ACTIVE)->orderBy('id')->first();
+    $product = UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
 
     $onDemandStock      = $this->orgStock1;
     $stockedStock       = $this->orgStock2;

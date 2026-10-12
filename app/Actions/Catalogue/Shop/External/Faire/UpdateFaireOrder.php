@@ -38,6 +38,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\Product;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
@@ -48,10 +49,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderPaymentAuthorisation;
 
 class UpdateFaireOrder extends OrgAction
 {
     use WithDeliveryNoteQuantitySync;
+    use WithOrderPaymentAuthorisation;
 
     /**
      * @throws \Throwable
@@ -523,7 +526,7 @@ class UpdateFaireOrder extends OrgAction
 
 
             foreach ($product->orgStocks as $orgStock) {
-                $quantity             = $orgStock->pivot->quantity * ($transaction->quantity_ordered + $transaction->quantity_bonus);
+                $quantity             = DeliveryNoteItem::requiredQuantity((float) $orgStock->pivot->quantity, (float) $transaction->quantity_ordered + (float) $transaction->quantity_bonus);
                 $deliveryNoteItemData = [
                     'org_stock_id'               => $orgStock->id,
                     'transaction_id'             => $transaction->id,
@@ -538,7 +541,7 @@ class UpdateFaireOrder extends OrgAction
              * A line the warehouse has never seen cannot be picked from a note that is already
              * packed, so the note goes back far enough for the new line to be worked.
              */
-            $this->walkDeliveryNoteBackToPicking($deliveryNote->refresh(), true, false, null);
+            $this->walkDeliveryNoteBackToPicking($deliveryNote->refresh(), true, null);
         });
     }
 
@@ -586,7 +589,7 @@ class UpdateFaireOrder extends OrgAction
                     ->exists();
 
                 if (!$exists) {
-                    $quantity = $orgStock->pivot->quantity * ($transaction->quantity_ordered + $transaction->quantity_bonus);
+                    $quantity = DeliveryNoteItem::requiredQuantity((float) $orgStock->pivot->quantity, (float) $transaction->quantity_ordered + (float) $transaction->quantity_bonus);
 
                     StoreDeliveryNoteItem::make()->action($deliveryNote, [
                         'org_stock_id'               => $orgStock->id,
@@ -601,7 +604,7 @@ class UpdateFaireOrder extends OrgAction
             $this->syncDeliveryNote($deliveryNote->refresh(), $transaction, $orgStocks, null);
 
             if ($createdItem) {
-                $this->walkDeliveryNoteBackToPicking($deliveryNote->refresh(), true, false, null);
+                $this->walkDeliveryNoteBackToPicking($deliveryNote->refresh(), true, null);
             }
 
             return false;

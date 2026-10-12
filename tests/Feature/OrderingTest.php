@@ -68,6 +68,7 @@ use App\Actions\Ordering\Order\ImportTransactionInOrder;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateShipments;
 use App\Actions\Ordering\Order\PayOrder;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Order\UpdateOrderProductionReview;
 use App\Actions\Ordering\Order\StoreSubmittedOrder;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalance;
 use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
@@ -657,9 +658,16 @@ test('small order charge configured through the UI applies to an order', functio
     $order->goods_amount = 1000;
     CalculateOrderHangingCharges::run($order);
 
-    expect((float) $chargeTransactions()->first()->net_amount)->toBe(0.0)
+    $order->refresh();
+    expect($order->charges_engine)->toBe(OrderChargesEngineEnum::MANUAL)
+        ->and((float) $chargeTransactions()->first()->net_amount)->toBe(0.0)
         ->and((int) $chargeTransactions()->first()->gross_amount)->toBe(255);
 
+    CalculateOrderTotalAmounts::make()->handle($order, forceRecalculate: true);
+
+    expect((float) $chargeTransactions()->first()->net_amount)->toBe(0.0);
+
+    $order->update(['charges_engine' => OrderChargesEngineEnum::AUTO]);
     $order->goods_amount = 3000;
     CalculateOrderHangingCharges::run($order);
 
@@ -6108,4 +6116,193 @@ test('group orders hydrator counts orders in a single scan', function () {
         ->and($stats->number_orders_state_creating)->toBe((clone $liveOrders)->where('state', OrderStateEnum::CREATING)->count())
         ->and($stats->number_orders_status_creating)->toBe((clone $liveOrders)->where('status', OrderStatusEnum::CREATING)->count())
         ->and($stats->number_orders_handing_type_shipping)->toBe((clone $liveOrders)->where('handing_type', OrderHandingTypeEnum::SHIPPING)->count());
+});
+
+test('production managers mark orders as production reviewed, one by one or in bulk, and filter the backlog by it', function () {
+    $wasManufacturingHub = $this->organisation->is_manufacturing_hub;
+    $this->organisation->update(['is_manufacturing_hub' => false]);
+    expect(UpdateOrderProductionReview::isUsedBy($this->organisation))->toBeFalse();
+    $this->organisation->update(['is_manufacturing_hub' => true]);
+
+    $this->organisation->productions()->first()
+        ?? \App\Actions\Production\Production\StoreProduction::make()->action($this->organisation, ['code' => 'PRV', 'name' => 'PRV']);
+    $this->organisation->unsetRelation('productions');
+    $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN]);
+
+    $customer = freshCustomerLike($this->shop, $this->customer);
+    $first    = StoreOrder::make()->action($customer, Order::factory()->definition());
+    $second   = StoreOrder::make()->action($customer, Order::factory()->definition());
+
+    actingAs($this->user);
+    $this->patch(route('grp.models.order.production_review', ['order' => $first->id]), ['reviewed' => true])->assertRedirect();
+    $first->refresh();
+    expect($first->production_reviewed_at)->not->toBeNull()
+        ->and($first->production_reviewed_by)->toBe($this->user->id);
+
+    $counts   = \App\Actions\Ordering\Order\UI\IndexOrders::make()->backlogFilterCounts($this->shop->fresh(), 'in_basket')['production_review'];
+    $creating = Order::where('shop_id', $this->shop->id)->where('state', OrderStateEnum::CREATING);
+    expect($counts)->toBe([
+        'reviewed'   => (clone $creating)->whereNotNull('production_reviewed_at')->count(),
+        'unreviewed' => (clone $creating)->whereNull('production_reviewed_at')->count(),
+    ])->and($counts['reviewed'])->toBeGreaterThan(0);
+
+    $this->patch(route('grp.models.organisation.orders.production_review', ['organisation' => $this->organisation->id]), [
+        'reviewed'  => true,
+        'order_ids' => [$first->id, $second->id],
+    ])->assertRedirect();
+    expect($second->refresh()->production_reviewed_at)->not->toBeNull();
+
+    $this->patch(route('grp.models.order.production_review', ['order' => $first->id]), ['reviewed' => false])->assertRedirect();
+    $first->refresh();
+    expect($first->production_reviewed_at)->toBeNull()
+        ->and($first->production_reviewed_by)->toBeNull();
+
+    $this->organisation->update(['is_manufacturing_hub' => $wasManufacturingHub]);
+});
+
+test('the orders backlog shows how long an order sits in its stage and flags the stuck ones and the lines waiting for stock', function () {
+    $adminGuest = createAdminGuest($this->group);
+    actingAs($adminGuest->getUser());
+
+    $this->shop->update(['state' => ShopStateEnum::OPEN]);
+
+    $orderInWarehouse = function (): Order {
+        $order = StoreOrder::make()->action(freshCustomerLike($this->shop, $this->customer), Order::factory()->definition());
+        StoreTransaction::make()->action($order, $this->product->currentHistoricProduct, Transaction::factory()->definition());
+        SubmitOrder::make()->action($order);
+        $deliveryNote = SendOrderToWarehouse::make()->action($order->refresh(), []);
+
+        $stock = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+        $stock = \App\Actions\Goods\Stock\UpdateStock::make()->action($stock, ['state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]);
+        \App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem::make()->action($deliveryNote, [
+            'delivery_note_id'  => $deliveryNote->id,
+            'org_stock_id'      => \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock)->id,
+            'transaction_id'    => $order->transactions()->first()->id,
+            'quantity_required' => 10,
+        ]);
+
+        return $order->refresh();
+    };
+
+    $stuckOrder = $orderInWarehouse();
+    $freshOrder = $orderInWarehouse();
+    expect($stuckOrder->state)->toEqual(OrderStateEnum::IN_WAREHOUSE)
+        ->and($freshOrder->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
+
+    $itemsOf = fn (Order $order) => \App\Models\Dispatching\DeliveryNoteItem::whereIn('delivery_note_id', $order->deliveryNotes()->pluck('delivery_notes.id'));
+    $itemsOf($stuckOrder)->update(['quantity_waiting_warehouse' => 0]);
+    $itemsOf($freshOrder)->update(['quantity_waiting_warehouse' => 0]);
+
+    $indexOrders = \App\Actions\Ordering\Order\UI\IndexOrders::make();
+    $before      = $indexOrders->backlogAttentionCounts($this->shop, 'in_warehouse');
+
+    Order::where('id', $stuckOrder->id)->update(['in_warehouse_at' => now()->subYears(30)]);
+    Order::where('id', $freshOrder->id)->update(['in_warehouse_at' => now()]);
+    $stuckLinesWaitingStock = $itemsOf($stuckOrder)->update(['quantity_waiting_warehouse' => 1]);
+    expect($stuckLinesWaitingStock)->toBeGreaterThan(0);
+
+    $after = $indexOrders->backlogAttentionCounts($this->shop, 'in_warehouse');
+    expect($after['stuck'] - $before['stuck'])->toBe(1)
+        ->and($after['waiting_stock'] - $before['waiting_stock'])->toBe(1)
+        ->and($after['waiting_cs'])->toBe($before['waiting_cs']);
+
+    $url = route('grp.org.shops.show.ordering.backlog', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug,
+        'tab'          => 'in_warehouse',
+    ]);
+
+    $pageFor = function (string $query) use ($url) {
+        $response = get($url.$query);
+        $response->assertOk();
+
+        return $response->viewData('page')['props'];
+    };
+
+    $props = $pageFor('');
+    $rows  = collect($props['in_warehouse']['data'])->keyBy('reference');
+    expect($rows->first()['reference'])->toBe($stuckOrder->reference)
+        ->and($rows[$stuckOrder->reference]['is_stuck'])->toBeTrue()
+        ->and($rows[$stuckOrder->reference]['warehouse_progress']['lines_waiting_stock'])->toBe($stuckLinesWaitingStock)
+        ->and($rows[$freshOrder->reference]['is_stuck'])->toBeFalse()
+        ->and($rows[$freshOrder->reference]['warehouse_progress']['lines_waiting_stock'])->toBe(0)
+        ->and($props['backlog_filters']['counts']['attention']['stuck'])->toBe($after['stuck'])
+        ->and(collect($props['attention']['oldest'])->first()['reference'])->toBe($stuckOrder->reference)
+        ->and(collect($props['attention']['stages'])->firstWhere('tab', 'in_warehouse')['waiting_stock'])->toBe($after['waiting_stock']);
+
+    Order::where('id', $stuckOrder->id)->update(['pay_status' => \App\Enums\Ordering\Order\OrderPayStatusEnum::PAID]);
+    Order::where('id', $freshOrder->id)->update(['pay_status' => \App\Enums\Ordering\Order\OrderPayStatusEnum::UNPAID]);
+    $paidOnly = $pageFor('&in_warehouse_elements[payment]=paid');
+    expect(collect($paidOnly['in_warehouse']['data'])->pluck('reference'))->toContain($stuckOrder->reference)->not->toContain($freshOrder->reference)
+        ->and(array_sum($paidOnly['backlog_filters']['counts']['payment']))->toBe($after['total'])
+        ->and($paidOnly['backlog_filters']['counts']['scope']['domestic'] + $paidOnly['backlog_filters']['counts']['scope']['export'])->toBe($paidOnly['backlog_filters']['counts']['payment']['paid'])
+        ->and($pageFor('&tab=submitted_paid')['backlog_filters']['counts'])->not->toHaveKey('payment');
+
+    foreach (['stuck', 'waiting_stock'] as $signal) {
+        $references = collect($pageFor('&in_warehouse_elements[attention]='.$signal)['in_warehouse']['data'])->pluck('reference');
+        expect($references)->toContain($stuckOrder->reference)->not->toContain($freshOrder->reference);
+    }
+});
+
+test('an orders viewer reads an order but cannot change it, and accounts can still take payment', function () {
+    $modelData = Order::factory()->definition();
+    data_set($modelData, 'billing_address', new Address(Address::factory()->definition()));
+    data_set($modelData, 'delivery_address', new Address(Address::factory()->definition()));
+    $order       = StoreOrder::make()->action($this->customer, $modelData);
+    $transaction = StoreTransaction::make()->action($order, $this->product->historicAsset, Transaction::factory()->definition());
+    $shop        = $this->shop;
+    $parameters  = [$this->organisation->slug, $shop->slug, $order->slug];
+    $paymentAccountId = $shop->paymentAccountShops()->firstOrFail()->payment_account_id;
+
+    $originalRoles       = $this->user->roles->pluck('name')->all();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+    $actingWithOnly      = function (array $permissions) {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncRoles([]);
+        $this->user->syncPermissions($permissions);
+        \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        actingAs($this->user->refresh());
+    };
+
+    try {
+        $actingWithOnly(["orders.$shop->id.view"]);
+
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_edit'])->toBeFalse()
+            ->and($props['can_pay'])->toBeFalse()
+            ->and($props['readonly'])->toBeTrue()
+            ->and(collect($props['pageHead']['wrapped_actions'])->pluck('route.name'))->not->toContain('grp.org.shops.show.ordering.orders.edit')
+            ->and(collect($props['notes']['note_list'])->pluck('editable')->unique()->all())->toBe([false]);
+
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'viewer note'])->assertForbidden();
+        $this->patch(route('grp.models.transaction.update', ['transaction' => $transaction->id]), ['quantity_ordered' => 3])->assertForbidden();
+        $this->delete(route('grp.models.transaction.delete', ['transaction' => $transaction->id]))->assertForbidden();
+        $this->post(route('grp.models.order.add_voucher', ['order' => $order->id]), ['voucher' => 'viewer'])->assertForbidden();
+        $this->patch(route('grp.models.order.discount.update', ['order' => $order->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.order.set_shipping_engine_manual', ['order' => $order->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.order.recalculate-vat', ['order' => $order->id]), [])->assertForbidden();
+        $this->post(route('grp.models.order.payment.store', ['order' => $order->id, 'paymentAccount' => $paymentAccountId]), ['amount' => 1])->assertForbidden();
+        $this->post(route('grp.models.order.write_off_shortfall', ['order' => $order->id]))->assertForbidden();
+        $this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->assertForbidden();
+
+        $actingWithOnly(["orders.$shop->id.view", "accounting.{$this->organisation->id}.edit"]);
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_pay'])->toBeTrue()
+            ->and($props['can_edit'])->toBeFalse();
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'accounts note'])->assertForbidden();
+        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        expect($this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->status())->not->toBe(403);
+
+        $actingWithOnly(["orders.$shop->id.view", "orders.$shop->id.edit"]);
+        $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
+        expect($props['can_edit'])->toBeTrue()
+            ->and($props['can_pay'])->toBeTrue();
+        $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'orders note'])->assertSessionHasNoErrors();
+        expect($order->refresh()->public_notes)->toBe('orders note');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
 });

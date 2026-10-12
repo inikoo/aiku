@@ -111,7 +111,7 @@ const props = defineProps<{
     route_login?: routeType
     route_register?: routeType
     route_forgot_pass?: routeType
-    pagespeed_history?: Record<"crux" | "visitors", {
+    real_user_speed_history?: Record<"crux" | "visitors", {
         scope: "page" | "website" | null
         url: string | null
         history: Record<string, any[]>
@@ -255,7 +255,7 @@ const links = computed(() => {
                     <div class="font-semibold w-fit text-lg mb-2">
                         {{ ctrans('Page Speed') }}
                     </div>
-                    <RealUserSpeed :report="props.pagespeed_history" />
+                    <RealUserSpeed :report="props.real_user_speed_history" />
                 </div>
 
                 <!-- Section: PIC Webmaster and SEO -->
@@ -312,12 +312,14 @@ const links = computed(() => {
 
                     <hr class="pb-1" v-if="route_login?.name || route_register?.name || route_forgot_pass?.name">
 
+                    <template v-if="data.can_edit">
                     <div v-for="(item, index) in links" :key="index" class="px-2 py-1">
                         <ButtonWithLink :routeTarget="item.route_target" full :icon="item.icon" :label="item.label"
                             type="secondary" :disabled="item?.disabled" />
                     </div>
+                    </template>
 
-                    <div class="p-2 space-y-2">
+                    <div v-if="data.can_edit" class="p-2 space-y-2">
                         <ModalConfirmationDelete
                             :description="ctrans('Purge all cached files. Purging your cache may slow your website temporarily')"
                             :title="ctrans('Break cache')" :noLabel="ctrans('Confirm')" noIcon="" :routeDelete="{

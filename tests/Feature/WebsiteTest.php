@@ -16,6 +16,8 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\CheckoutAbandonment\RunCheckoutAbandonmentScan;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\SysAdmin\GetSectionRoute;
+use App\Actions\SysAdmin\User\SetUserAuthorisedModels;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
 use App\Actions\Web\Announcement\PublishAnnouncement;
 use App\Actions\Web\Announcement\StoreAnnouncement;
@@ -71,7 +73,6 @@ use App\Models\Web\CruxRecord;
 use App\Actions\Web\WebVital\GetWebVitalsReport;
 use App\Actions\Web\Webpage\GetWebpageEngagementMetrics;
 use App\Actions\Web\Webpage\GetWebpageSeo;
-use App\Actions\Web\Website\PruneWebsitePageViews;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Actions\Web\Webpage\GetWebpagePerformance;
 use App\Actions\Web\Webpage\PublishWebpage;
@@ -704,6 +705,40 @@ test('store redirect', function (Webpage $webpage) {
     return $redirect;
 })->depends('create webpage');
 
+test('a shop viewer sees the webpage but none of the controls to change it', function (Webpage $webpage, Redirect $redirect) {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    SetUserAuthorisedModels::run($this->user);
+    \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+
+    expect($this->user->refresh()->authTo('websites-view.'.$this->organisation->id))->toBeTrue();
+
+    $response = get(route('grp.org.shops.show.web.webpages.show', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $webpage->website->slug,
+        $webpage->slug
+    ]));
+
+    $props          = $response->viewData('page')['props'];
+    $actionRoutes   = collect($props['pageHead']['actions'])->pluck('route.name')->filter();
+
+    expect($props['can_edit'])->toBeFalse()
+        ->and($actionRoutes->contains(fn (string $name) => str_ends_with($name, '.workshop') || str_ends_with($name, '.edit')))->toBeFalse();
+
+    delete(route('grp.models.redirect.delete', ['redirect' => $redirect->id]))->assertForbidden();
+    post(route('grp.models.website.break_cache', ['website' => $webpage->website_id]))->assertForbidden();
+    expect(Redirect::find($redirect->id))->not->toBeNull();
+
+    $productCategory = \App\Models\Catalogue\ProductCategory::where('shop_id', $this->shop->id)->first();
+    if ($productCategory) {
+        post(route('grp.models.webpages.product_category.store', ['productCategory' => $productCategory->id]))->assertForbidden();
+    }
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+    SetUserAuthorisedModels::run($this->user);
+})->depends('create webpage', 'store redirect');
+
 
 test('web sitemap creation', function () {
 
@@ -737,7 +772,7 @@ test('UI show website exposes showcase props the component actually reads', func
         )
         ->etc());
 
-    expect($response->original->getData()['page']['deferredProps'] ?? [])->toHaveKey('pagespeed_history');
+    expect($response->original->getData()['page']['deferredProps'] ?? [])->toHaveKey('real_user_speed_history');
 })->depends('launch website');
 
 test('UI show website showcase offers the ads testing card', function (Website $website) {
@@ -1164,7 +1199,7 @@ test('UI show webpage in shop website', function (Website $website, Webpage $web
             ->has('seo');
     });
 
-    expect($response->original->getData()['page']['deferredProps'] ?? [])->toHaveKey('pagespeed');
+    expect($response->original->getData()['page']['deferredProps'] ?? [])->toHaveKey('real_user_speed');
 
     $webpage->update(['state' => $originalState]);
 })->depends('create b2b website', 'create webpage');
@@ -1213,9 +1248,9 @@ test('a webpage that is not live offers no page speed report', function (Website
         ])
     );
 
-    $response->assertInertia(fn (AssertableInertia $page) => $page->where('pagespeed', null)->etc());
+    $response->assertInertia(fn (AssertableInertia $page) => $page->where('real_user_speed', null)->etc());
 
-    expect($response->original->getData()['page']['deferredProps'] ?? [])->not->toHaveKey('pagespeed');
+    expect($response->original->getData()['page']['deferredProps'] ?? [])->not->toHaveKey('real_user_speed');
 
     $webpage->update(['state' => $originalState]);
 })->depends('create b2b website', 'create webpage');
@@ -1499,6 +1534,30 @@ test('create catalogue webpages', function (Website $website) {
 
     return compact('department', 'family', 'subDepartment', 'product', 'departmentWebpage', 'familyWebpage', 'subDepartmentWebpage', 'productWebpage', 'blogWebpage');
 })->depends('launch website');
+
+test('a blog offers a page speed report only once it is live', function (Website $website, array $catalogueWebpages) {
+    $this->withoutExceptionHandling();
+
+    /** @var Webpage $blogWebpage */
+    $blogWebpage   = $catalogueWebpages['blogWebpage'];
+    $originalState = $blogWebpage->state;
+    $showBlog      = fn () => get(route('grp.org.shops.show.web.blogs.show', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $website->slug,
+        $blogWebpage->slug
+    ]));
+
+    $blogWebpage->update(['state' => WebpageStateEnum::IN_PROCESS]);
+    $notLiveResponse = $showBlog();
+    $notLiveResponse->assertInertia(fn (AssertableInertia $page) => $page->where('real_user_speed', null)->etc());
+    expect($notLiveResponse->original->getData()['page']['deferredProps'] ?? [])->not->toHaveKey('real_user_speed');
+
+    $blogWebpage->update(['state' => WebpageStateEnum::LIVE]);
+    expect($showBlog()->original->getData()['page']['deferredProps'] ?? [])->toHaveKey('real_user_speed');
+
+    $blogWebpage->update(['state' => $originalState]);
+})->depends('launch website', 'create catalogue webpages');
 
 test('update website search boosts', function (Website $website) {
     $website->refresh();
@@ -2312,11 +2371,11 @@ test('UI show ads testing webpage does not offer page speed', function (Website 
 
     // The showcase moves the detail up beside the preview when there is no page speed to show, and
     // shows how the visitors the advert is bought for behaved instead.
-    expect($adsTestingPage['props']['pagespeed'])->toBeNull()
-        ->and($adsTestingPage['deferredProps'] ?? [])->not->toHaveKey('pagespeed')
+    expect($adsTestingPage['props']['real_user_speed'])->toBeNull()
+        ->and($adsTestingPage['deferredProps'] ?? [])->not->toHaveKey('real_user_speed')
         ->and($adsTestingPage['deferredProps'] ?? [])->toHaveKey('engagement')
         ->and($adsTestingPage['props']['showcase']['is_hidden_from_search_engines'])->toBeTrue()
-        ->and($contentPage['deferredProps'] ?? [])->toHaveKey('pagespeed')
+        ->and($contentPage['deferredProps'] ?? [])->toHaveKey('real_user_speed')
         ->and($contentPage['deferredProps'] ?? [])->not->toHaveKey('engagement')
         ->and($contentPage['props']['engagement'])->toBeNull()
         ->and($contentPage['props']['showcase']['is_hidden_from_search_engines'])->toBeFalse();
@@ -2387,6 +2446,23 @@ test('ads testing webpage metrics are read from the page views already recorded'
         'updated_at'         => now(),
     ]);
 
+    DB::table('website_conversion_events')->insert([
+        'group_id'           => $this->shop->group_id,
+        'organisation_id'    => $this->shop->organisation_id,
+        'shop_id'            => $this->shop->id,
+        'website_id'         => $website->id,
+        'website_visitor_id' => $engagedVisitor,
+        'webpage_id'         => null,
+        'landing_webpage_id' => $adsTestingWebpage->id,
+        'event_type'         => WebsiteConversionEventTypeEnum::PURCHASE->value,
+        'quantity'           => 1,
+        'page_url'           => 'https://test/checkout',
+        'page_path'          => '/checkout',
+        'event_date'         => now()->toDateString(),
+        'created_at'         => now(),
+        'updated_at'         => now(),
+    ]);
+
     $metrics = GetWebpageEngagementMetrics::run($adsTestingWebpage);
 
     expect($metrics['page_views'])->toBe(2)
@@ -2397,14 +2473,14 @@ test('ads testing webpage metrics are read from the page views already recorded'
         ->and($metrics['bounce_rate'])->toBe(50.0)
         ->and($metrics['timed_page_views'])->toBe(1)
         ->and($metrics['avg_time_on_page'])->toBe(40)
-        ->and($metrics['days'])->toBe(PruneWebsitePageViews::RETENTION_DAYS);
+        ->and($metrics['days'])->toBe(GetWebpageEngagementMetrics::DEFAULT_DAYS);
 
     // The chart is drawn from a row per day, including the days nothing happened on, and the last
     // one is today: a rate is left empty on a day with no views rather than drawn as nought.
     $today     = collect($metrics['history'])->last();
     $yesterday = collect($metrics['history'])->firstWhere('date', now()->subDay()->toDateString());
 
-    expect($metrics['history'])->toHaveCount(PruneWebsitePageViews::RETENTION_DAYS)
+    expect($metrics['history'])->toHaveCount(GetWebpageEngagementMetrics::DEFAULT_DAYS)
         ->and($today['date'])->toBe(now()->toDateString())
         ->and($today['page_views'])->toBe(2)
         ->and($today['conversion_rate'])->toBe(50.0)
@@ -3755,3 +3831,37 @@ function blogWebpageAuthor(Webpage $webpage): ?array
 {
     return json_decode(json_encode(data_get($webpage->webBlocks()->first()->layout, 'data.fieldValue.author')), true);
 }
+
+test('website write routes need the web edit permission of the shop, INI-073', function (Website $website) {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Web\\') || str_starts_with($action, 'App\\Actions\\Helpers\\Snapshot\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $title   = $webpage->title;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view", "products.{$shop->id}.edit"]);
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\post(route('grp.models.website.publish.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.update', $webpage->id), ['title' => 'Changed without permission'])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.delete', $webpage->id))->assertForbidden();
+        expect($webpage->refresh()->title)->toBe($title)
+            ->and($webpage->trashed())->toBeFalse();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertRedirect()->assertSessionHasNoErrors();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('launch website');

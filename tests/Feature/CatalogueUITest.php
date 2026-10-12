@@ -1253,6 +1253,16 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
         ->assertSee('avif-bytes');
     $this->get(Str::after($shortOriginal, 'https://www.shop.test'))->assertOk();
     \Illuminate\Support\Facades\Http::assertSent(fn ($request) => $request->url() === $thumb);
+
+    config(['img-proxy.internal_url' => 'http://127.0.0.1:8094']);
+    \Illuminate\Support\Facades\Http::fake([
+        '127.0.0.1:8094/*' => \Illuminate\Support\Facades\Http::response('local-bytes', 200, ['Content-Type' => 'image/avif']),
+    ]);
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertOk()->assertSee('local-bytes');
+    \Illuminate\Support\Facades\Http::assertSent(fn ($request) => $request->url() === Str::replaceStart(config('img-proxy.base_url'), 'http://127.0.0.1:8094', $thumb));
+
+    \Illuminate\Support\Facades\Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('cURL error 28'));
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertStatus(504)->assertHeader('Cache-Control', 'max-age=60, public');
 });
 
 test('products export ends with the weight unit columns', function () {
@@ -1264,6 +1274,19 @@ test('products export ends with the weight unit columns', function () {
 
     expect(array_slice($export->headings(), -2))->toBe(['Unit weight (marketing) unit', 'Gross weight unit'])
         ->and(array_slice($row, -2))->toBe(['g', null]);
+});
+
+test('products export unit price follows the current outer price and units', function () {
+    $product = \App\Models\Catalogue\Product::where('shop_id', $this->shop->id)->where('is_main', true)->whereNull('exclusive_for_customer_id')->first();
+    $original = $product->only(['price', 'units']);
+    $product->updateQuietly(['price' => 8.5, 'units' => 2]);
+
+    $export = new \App\Exports\Catalogue\ProductsExport($this->shop, 'all', ['price', 'unit_price']);
+    $row    = $export->mapRow($export->dataQuery()->where('products.id', $product->id)->first());
+    $product->updateQuietly($original);
+
+    expect((float) $row[0])->toBe(8.5)
+        ->and((float) $row[1])->toBe(4.25);
 });
 
 test('UI show product sends the available stock of each part', function () {
@@ -1435,6 +1458,18 @@ test('shop month sales target defaults to last year plus growth until management
         ->and($block['gap'])->toBe(round(max(0, 123456.78 - $block['sales_so_far'] - $block['pipeline']['amount']), 2));
 });
 
+test('sales targets count the invoices issued so far, partners included', function () {
+    $shop       = $this->shop;
+    $today      = Carbon::parse('2032-03-10', 'UTC');
+    $timeSeries = ShopTimeSeries::firstOrCreate(['shop_id' => $shop->id, 'frequency' => TimeSeriesFrequencyEnum::DAILY]);
+    foreach (['2032-01-20' => [4, 0], '2032-03-02' => [3, 2], '2032-03-15' => [7, 0]] as $period => [$invoices, $invoicesInternal]) {
+        $timeSeries->records()->updateOrCreate(['period' => $period, 'frequency' => TimeSeriesFrequencyEnum::DAILY->singleLetter()], ['invoices' => $invoices, 'invoices_internal' => $invoicesInternal]);
+    }
+
+    expect(GetShopMonthSalesTarget::run($shop, null, $today)['invoices'])->toBe(5)
+        ->and(GetShopYearSalesTarget::run($shop, null, $today, false)['invoices'])->toBe(9);
+});
+
 test('shop year sales target compares the same days last year, January included, and sums monthly targets', function () {
     $shop  = $this->shop;
     $today = Carbon::parse('2031-03-10', 'UTC');
@@ -1556,15 +1591,15 @@ test('expected month and year end add the TimesFM forecast of the days left, dra
 
     expect(ForecastShopSales::run($today))->toBeGreaterThanOrEqual(1);
 
-    Http::assertSent(fn ($request) => $request['horizon'] === 22 && $request->hasHeader('Authorization', 'Bearer secret'));
-    Http::assertSent(fn ($request) => $request['horizon'] === 34);
+    Http::assertSent(fn ($request) => $request['horizon'] === 34 && $request->hasHeader('Authorization', 'Bearer secret'));
+    Http::assertSentCount(1);
 
     $variance = round((220 / 2.563) ** 2, 2);
     $forecast = $shop->stats->fresh()->sales_forecast;
     expect($forecast['version'])->toBe('3')
         ->and($forecast['from'])->toBe('2036-05-10')
         ->and($forecast['org'])->toHaveCount(22 + 214)
-        ->and($forecast['org']['2036-05-10'])->toEqual([102.22, $variance])
+        ->and($forecast['org']['2036-05-10'])->toEqual([14.6, round($variance / 7, 2)])
         ->and($forecast['org']['2036-06-01'])->toEqual([14.6, round($variance / 7, 2)])
         ->and(array_key_last($forecast['org']))->toBe('2036-12-31');
 
@@ -1572,22 +1607,22 @@ test('expected month and year end add the TimesFM forecast of the days left, dra
     $block      = GetShopMonthSalesTarget::run($shop, null, $today);
     $line       = $block['chart']['forecast'];
     expect($block['sales_so_far'])->toEqual($salesSoFar)
-        ->and($block['expected'])->toEqualWithDelta($salesSoFar + 21 * 102.22, 0.01)
+        ->and($block['expected'])->toEqualWithDelta($salesSoFar + 21 * 14.6, 0.01)
         ->and($line['expected'][8])->toBeNull()
         ->and($line['expected'][9])->toEqual($salesSoFar)
         ->and($line['expected'][30])->toEqualWithDelta($block['expected'], 0.01)
         ->and($line['low'][30])->toBeGreaterThan($salesSoFar)->toBeLessThan($line['expected'][30])
-        ->and($line['high'][30])->toEqualWithDelta($line['expected'][30] + 1.2816 * 1.5 * sqrt(21 * $variance), 0.05);
+        ->and($line['high'][30])->toEqualWithDelta($line['expected'][30] + 1.2816 * 1.5 * sqrt(21 * round($variance / 7, 2)), 0.05);
 
     $year = GetShopYearSalesTarget::run($shop, null, $today);
-    expect($year['expected'])->toEqualWithDelta($year['sales_so_far'] + 21 * 102.22 + 214 * 14.6, 0.05)
+    expect($year['expected'])->toEqualWithDelta($year['sales_so_far'] + 235 * 14.6, 0.05)
         ->and($year['chart']['forecast']['expected'][3])->toEqual(round($year['sales_so_far'] - $salesSoFar, 2))
         ->and($year['chart']['forecast']['expected'][11])->toEqualWithDelta($year['expected'], 0.05)
         ->and($year['chart']['forecast']['high'][11])->toBeGreaterThan($year['expected']);
 
     $shopChild = collect(GetShopMonthSalesTarget::run($this->organisation, null, $today)['children'])->firstWhere('key', (string) $shop->id);
     $nextMonth = GetShopMonthSalesTarget::run($shop, null, Carbon::parse('2036-06-02', 'UTC'));
-    expect($shopChild['expected'])->toEqualWithDelta($salesSoFar + 21 * 102.22, 0.01)
+    expect($shopChild['expected'])->toEqualWithDelta($salesSoFar + 21 * 14.6, 0.01)
         ->and($nextMonth['expected'])->toEqual(0)
         ->and($nextMonth['chart']['forecast'])->toBeNull();
 
@@ -1595,6 +1630,35 @@ test('expected month and year end add the TimesFM forecast of the days left, dra
     expect(ForecastShopSales::run($today))->toBe(0);
 
     $shop->stats->update(['sales_forecast' => null, 'sales_forecast_hydrated_at' => null]);
+});
+
+test('the shop sales forecast averages TimesFM with last year on the recent trend', function () {
+    $shop  = $this->shop;
+    $today = Carbon::parse('2041-05-10', 'UTC');
+
+    $daily = ShopTimeSeries::firstOrCreate(['shop_id' => $shop->id, 'frequency' => TimeSeriesFrequencyEnum::DAILY]);
+    for ($day = Carbon::parse('2040-04-01'); $day->lt($today); $day->addDay()) {
+        $daily->records()->updateOrCreate(
+            ['period' => $day->toDateString(), 'frequency' => TimeSeriesFrequencyEnum::DAILY->singleLetter()],
+            ['sales_org_currency_external' => $day->year === 2041 ? 50 : 25, 'sales_grp_currency_external' => 40]
+        );
+    }
+
+    config(['services.timesfm.url' => 'http://timesfm.test', 'services.timesfm.token' => 'secret']);
+    Http::fake(['timesfm.test/forecast' => fn ($request) => Http::response([
+        'version' => '3',
+        'deciles' => array_fill(0, count($request['series']), array_fill(0, $request['horizon'], [-20, 40, 60, 80, 100, 120, 140, 160, 220])),
+    ])]);
+
+    ForecastShopSales::run($today);
+
+    $forecast = $shop->stats->fresh()->sales_forecast;
+    expect($forecast['org']['2041-05-10'][0])->toEqual(round((14.6 + 25 * 2) / 2, 2))
+        ->and($forecast['org']['2041-12-31'][0])->toEqual(round((14.6 + 50 * 2) / 2, 2))
+        ->and($forecast['grp']['2041-05-10'][0])->toEqual(round((14.6 + 40) / 2, 2));
+
+    $shop->stats->update(['sales_forecast' => null, 'sales_forecast_hydrated_at' => null]);
+    config(['services.timesfm.url' => null]);
 });
 
 test('group target adds up every organisation in the group currency', function () {
@@ -1777,6 +1841,42 @@ test('warehouse page opens on its own operations tab', function () {
         ->assertJsonCount(1, 'warehouses');
 });
 
+test('operations dashboard numbers open lists holding exactly what was counted', function () {
+    $warehouse = createWarehouse();
+    actingAs($this->user);
+
+    $figures = getJson(route('grp.dashboard.operations', ['warehouse' => $warehouse->id, 'remember' => 0]))->assertOk()->json();
+
+    $counted = [
+        'age_under_4h'      => $figures['age_buckets']['under_4h'],
+        'age_4_24h'         => $figures['age_buckets']['h4_24'],
+        'age_1_2d'          => $figures['age_buckets']['d1_2'],
+        'age_over_2d'       => $figures['age_buckets']['over_2d'],
+        'dispatched'        => $figures['time_to_dispatch']['records'],
+        'not_counted'       => $figures['stock']['not_audited_90d'],
+        'picked_today'      => $figures['people']['pickers']['records'],
+        'short_today'       => $figures['people']['pickers']['short_records'],
+        'packed_today'      => $figures['people']['packers']['records'],
+    ];
+
+    foreach ($counted as $list => $tile) {
+        $listRoute = $tile['breakdown'][0]['route'];
+        expect($listRoute['parameters']['list'])->toBe($list);
+        get(route($listRoute['name'], $listRoute['parameters']))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->component('Org/Warehouse/OperationsRecords')->where('data.meta.total', $tile['count']));
+    }
+
+    expect($figures['returns']['processed']['breakdown'][0]['route']['parameters']['list'])->toBe('returns_processed');
+    foreach (['returns_processed', 'return_reasons'] as $list) {
+        get(route('grp.org.warehouses.show.operations.records', [$warehouse->organisation->slug, $warehouse->slug, $list, 'reason' => 'damaged']))->assertOk();
+    }
+
+    $unrelated = StoreGuest::make()->action($this->group, array_merge(Guest::factory()->definition(), ['positions' => []]))->getUser();
+    actingAs($unrelated);
+    get(route('grp.org.warehouses.show.operations.records', [$warehouse->organisation->slug, $warehouse->slug, 'not_counted']))->assertForbidden();
+});
+
 test('operations dashboard: warehouse staff land on it, only see their warehouse and no money', function () {
     $warehouse = createWarehouse();
     setPermissionsTeamId($this->group->id);
@@ -1798,7 +1898,13 @@ test('operations dashboard: warehouse staff land on it, only see their warehouse
         ->and($response->json('pipeline.unassigned.amount'))->toBeNull()
         ->and($response->json('pipeline.unassigned.count'))->toBe(DB::table('delivery_notes')->where('warehouse_id', $warehouse->id)->whereNull('deleted_at')->where('state', 'unassigned')->count())
         ->and($response->json('sales.rows.0.value_today'))->toBeNull()
-        ->and(array_keys($response->json('attention')))->toBe(['urgent', 'at_risk', 'blocked', 'customer_service', 'out_of_stock', 'replenishment', 'overdue', 'stock_errors']);
+        ->and(array_keys($response->json('attention')))->toBe(['urgent', 'at_risk', 'blocked', 'customer_service', 'out_of_stock', 'replenishment', 'overdue', 'stock_errors'])
+        ->and($response->json('attention.blocked.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.dispatching.handling-blocked.delivery-notes')
+        ->and($response->json('goods_in.counts.to_book_in.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.incoming.stock_deliveries.index')
+        ->and($response->json('goods_in.overdue.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.incoming.stock_deliveries.index')
+        ->and($response->json('stock.negative.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.inventory.org_stocks.negative_stocks.index')
+        ->and($response->json('stock.replenishment.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.inventory.org_stocks.replenishments.index')
+        ->and($response->json('returns.received.breakdown.0.route.name'))->toBe('grp.org.warehouses.show.incoming.returns.index');
 
     getJson(route('grp.dashboard.operations', ['channel' => 'b2b', 'period' => 7, 'remember' => 1]))
         ->assertOk()
@@ -2108,4 +2214,117 @@ test('platform and country top listed and top sold tabs count portfolios and inv
     $countryUrl = route('grp.org.shops.show.crm.countries.show', [$this->organisation->slug, $this->shop->slug, 'AQ', 'tab' => 'top_products']);
     expect(get($countryUrl)->assertOk()->viewData('page')['props']['top_products']['data'])->toHaveCount(1)
         ->and($rowFor($countryUrl, 'top_products', $this->product->asset_id))->toMatchArray(['code' => $this->product->code, 'total_sold' => 6, 'total_amount' => 20]);
+});
+
+test('reviews need website or CRM view to open and website or CRM edit to manage', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    $parameters    = [$this->organisation->slug, $this->shop->slug];
+
+    actingAsUserWithRoles($this->user, []);
+    get(route('grp.org.shops.show.reviews.backlog', $parameters))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    get(route('grp.org.shops.show.reviews.backlog', $parameters))->assertOk();
+    get(route('grp.org.shops.show.reviews.overall', $parameters))->assertOk();
+
+    $review = \App\Models\Reviews\Review::where('shop_id', $this->shop->id)->first();
+    if ($review) {
+        $this->patch(route('grp.models.review.approve', ['review' => $review->id]))->assertForbidden();
+        $this->patch(route('grp.models.review.reject', ['review' => $review->id]))->assertForbidden();
+        $this->delete(route('grp.models.review.delete', ['review' => $review->id]))->assertForbidden();
+    }
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('a shop viewer sees billables but cannot open their create or edit forms', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    $parameters = [$this->organisation->slug, $this->shop->slug];
+
+    expect(get(route('grp.org.shops.show.billables.packagings.index', $parameters))->assertOk()->viewData('page')['props']['can_edit'])->toBeFalse()
+        ->and(get(route('grp.org.shops.show.billables.shipping.index', $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions'] ?? [])->toBeEmpty();
+
+    get(route('grp.org.shops.show.billables.packagings.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.leaflets.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.shipping.create', $parameters))->assertForbidden();
+    get(route('grp.org.shops.show.billables.charges.create', $parameters))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('a shop viewer sees category offers and related categories but none of the controls to change them', function () {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+
+    $departmentUrl = route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug]);
+    $props         = get($departmentUrl.'?tab=related_product_category')->assertOk()->viewData('page')['props'];
+
+    expect($props['can_edit_offers'])->toBeFalse()
+        ->and($props['related_product_category']['editable'])->toBeFalse();
+
+    $this->patch(route('grp.models.product_category.related_product_categories.sync', ['productCategory' => $this->department->id]), ['related_product_categories_id' => []])->assertForbidden();
+    $this->post(route('grp.models.category_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+    $this->post(route('grp.models.bogo_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+
+    $subDepartment = ProductCategory::where('shop_id', $this->shop->id)->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::SUB_DEPARTMENT)->first();
+    if ($subDepartment) {
+        $this->post(route('grp.models.sub-department.families.attach', ['subDepartment' => $subDepartment->id]), ['families_id' => []])->assertForbidden();
+    }
+
+    $family = $this->product->family;
+    if ($family) {
+        $this->patch(route('grp.models.product_category.reorder_index', ['productCategory' => $family->id]), [])->assertForbidden();
+        $this->patch(route('grp.models.product_category.repair_product_images', ['productCategory' => $family->id]))->assertForbidden();
+    }
+    $this->post(route('grp.models.gift_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+    $this->post(route('grp.models.step_discount.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+
+    $collection = \App\Models\Catalogue\Collection::where('shop_id', $this->shop->id)->first();
+    if ($collection) {
+        $this->patch(route('grp.models.collection.webpage_disable', ['collection' => $collection->id]), [])->assertForbidden();
+    }
+
+    $productProps = get(route('grp.org.shops.show.catalogue.products.all_products.show', [$this->organisation->slug, $this->shop->slug, $this->product->slug]))->assertOk()->viewData('page')['props'];
+    expect($productProps['can_edit'])->toBeFalse()
+        ->and($productProps['can_edit_offers'])->toBeFalse();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
+
+test('family edit needs catalogue edit and the shop dashboard needs a permission for the shop', function () {
+    $shop       = $this->shop;
+    $parameters = [$this->organisation->slug, $shop->slug];
+    $familyEdit = route('grp.org.shops.show.catalogue.families.edit', [...$parameters, $this->family->slug]);
+    $dashboards = [
+        route('grp.org.shops.show.dashboard.show', $parameters),
+        route('grp.org.shops.show.dashboard.brands', $parameters),
+        route('grp.org.shops.show.dashboard.sales_analysis', $parameters),
+    ];
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["products.$shop->id.view"]);
+        get($familyEdit)->assertForbidden();
+        get($dashboards[0])->assertOk();
+        get($dashboards[1])->assertOk();
+        get($dashboards[2])->assertRedirect();
+
+        actingAsUserWithOnlyPermissions($this->user, ["products.$shop->id.edit"]);
+        get($familyEdit)->assertOk();
+
+        actingAsUserWithOnlyPermissions($this->user, ["human-resources.{$this->organisation->id}.view", "shops-view.{$this->organisation->id}"]);
+        foreach ($dashboards as $dashboard) {
+            get($dashboard)->assertForbidden();
+        }
+
+        actingAsUserWithOnlyPermissions($this->user, ["accounting.{$this->organisation->id}.view"]);
+        get($dashboards[0])->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
 });

@@ -27,10 +27,12 @@ use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class StoreTransaction extends OrgAction
 {
     use WithOrderExchanges;
+    use WithOrderEditAuthorisation;
 
 
     /**
@@ -192,7 +194,7 @@ class StoreTransaction extends OrgAction
             'marketplace_id'          => [
                 'sometimes',
                 Rule::unique('transactions', 'marketplace_id')->where(function ($query) {
-                    $query->where('group_id', $this->shop->group_id);
+                    $query->where('group_id', $this->shop->group_id)->whereNull('deleted_at');
                 })
             ],
         ];

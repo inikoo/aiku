@@ -15,6 +15,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\UpdateDeliveryNoteItem;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePickingSessions;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingEditAuthorisation;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\PickingSession\PickingSessionStateEnum;
 use App\Enums\Dispatching\PickingSession\PickingSessionTypeEnum;
@@ -35,6 +36,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StorePickingSession extends OrgAction
 {
+    use WithDispatchingEditAuthorisation;
     use AsAction;
     use WithAttributes;
 
@@ -46,12 +48,14 @@ class StorePickingSession extends OrgAction
         return DB::transaction(function () use ($warehouse, $modelData, $queued) {
             $deliveryNoteIds      = Arr::pull($modelData, 'delivery_notes');
             $validDeliveryNoteIds = DeliveryNote::whereIn('id', $deliveryNoteIds)
+                ->orderBy('id')
+                ->lockForUpdate()
                 ->get()
                 ->filter(function ($deliveryNote) {
                     return $deliveryNote->pickingSessions->isEmpty()
                         && in_array($deliveryNote->state, [
                             DeliveryNoteStateEnum::UNASSIGNED,
-                            DeliveryNoteStateEnum::QUEUED->value
+                            DeliveryNoteStateEnum::QUEUED
                         ]);
                 })
                 ->pluck('id')

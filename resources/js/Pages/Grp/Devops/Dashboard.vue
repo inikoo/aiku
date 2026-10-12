@@ -22,6 +22,7 @@ import { Trace } from "@/Components/DevOps/TraceWaterfall.vue"
 import { ExceptionDetailData } from "@/Components/DevOps/ExceptionDetail.vue"
 import { Logs } from "@/Components/DevOps/LogsView.vue"
 import ServerUsageCard, { ServerSummary } from "@/Components/DevOps/ServerUsageCard.vue"
+import DatabaseReplicas, { DatabaseReplica } from "@/Components/DevOps/DatabaseReplicas.vue"
 import { LiveServerReading, useLiveServerMetrics } from "@/Composables/useLiveServerMetrics"
 
 library.add(faChartLine, faDatabase, faFlask, faRocket, faServer, faSpinnerThird, faTools)
@@ -31,6 +32,7 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     servers: ServerSummary[]
     liveReadings: Record<string, LiveServerReading[]>
+    databaseReplicas: DatabaseReplica[]
     ciRuns: {
         deploy: CiRunDetail | null
         tests: CiRunDetail | null
@@ -112,6 +114,7 @@ const serverGroups = computed(() => props.servers.reduce<Record<string, ServerSu
                 </div>
             </section>
         </div>
+        <DatabaseReplicas v-if="currentTab === 'servers' && databaseReplicas.length" :replicas="databaseReplicas" class="mb-6" />
         <div v-if="currentTab === 'deployments'" class="mb-6 max-w-4xl">
             <CiRunCard :title="ctrans('Production deploy')" :run="ciRuns.deploy" :recent="ciRuns.recent_deploys" :usual-seconds="ciRuns.usual_deploy_seconds" />
         </div>

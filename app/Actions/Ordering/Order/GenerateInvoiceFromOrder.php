@@ -43,12 +43,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderPaymentAuthorisation;
 
 class GenerateInvoiceFromOrder extends OrgAction
 {
     use WithActionUpdate;
     use WithLineTaxCategories;
     use HasOrderHydrators;
+    use WithOrderPaymentAuthorisation;
 
     /**
      * @throws \Throwable
@@ -97,7 +99,6 @@ class GenerateInvoiceFromOrder extends OrgAction
                 'tax_amount'                => Arr::get($updatedData, 'tax_amount', $order->tax_amount),
                 'customer_sales_channel_id' => $order->customer_sales_channel_id,
                 'platform_id'               => $order->platform_id,
-                'footer'                    => $order->shop->invoice_footer ?? '',
                 'shipping_zone_schema_id'   => $order->shipping_zone_schema_id,
                 'shipping_zone_id'          => $order->shipping_zone_id,
                 'has_insurance'             => $order->has_insurance,
@@ -381,6 +382,7 @@ class GenerateInvoiceFromOrder extends OrgAction
      */
     public function action(Order $order): Invoice
     {
+        $this->asAction = true;
         $this->initialisationFromShop($order->shop, []);
 
         return $this->handle($order);

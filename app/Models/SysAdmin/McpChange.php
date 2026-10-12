@@ -9,8 +9,11 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
+use App\Models\GoodsIn\StockDelivery;
+use App\Models\Production\Production;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Arr;
 
 /**
  * Every change an AI assistant makes through the MCP, with the state before and after, so it
@@ -68,12 +71,42 @@ class McpChange extends Model
 
     public function canBeRevertedBy(User $user): bool
     {
-        if ($this->reverted_at) {
+        if ($this->reverted_at || $this->type === McpChangeTypeEnum::PLACED_ORDER) {
             return false;
         }
 
         setPermissionsTeamId($user->group_id);
 
-        return $user->authTo('sysadmin.edit') || $user->{$this->type->userSwitch()};
+        if ($user->authTo('sysadmin.edit')) {
+            return true;
+        }
+
+        if (!$user->{$this->type->userSwitch()}) {
+            return false;
+        }
+
+        if ($this->type === McpChangeTypeEnum::MASTER_PRICES) {
+            return $user->authTo('masters.edit');
+        }
+
+        if ($this->type === McpChangeTypeEnum::STOCK_DELIVERY_COSTS) {
+            $organisationId = data_get($this->data, 'organisation_id');
+            $stockDelivery  = StockDelivery::find(data_get($this->data, 'target.stock_delivery_id'));
+
+            if ($organisationId && Arr::has($stockDelivery?->data ?? [], 'costing_reopened')) {
+                return $user->authTo("org-supervisor.$organisationId.accounting");
+            }
+
+            return $organisationId && $user->authTo(["procurement.$organisationId.edit", "accounting.$organisationId.edit"]);
+        }
+
+        $productionId = data_get($this->data, 'target.production_id');
+        if (in_array($this->type, [McpChangeTypeEnum::PRODUCTION_RECORD, McpChangeTypeEnum::PRODUCTION_RECIPE])) {
+            $production = $productionId ? Production::find($productionId) : null;
+
+            return $production && $production->canBeSetUpBy($user);
+        }
+
+        return true;
     }
 }

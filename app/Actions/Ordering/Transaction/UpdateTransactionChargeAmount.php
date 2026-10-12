@@ -13,16 +13,19 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Charge\ChargeTypeEnum;
+use App\Enums\Ordering\Order\OrderChargesEngineEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Billables\Charge;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Traits\Authorisations\Ordering\WithOrderEditAuthorisation;
 
 class UpdateTransactionChargeAmount extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithOrderEditAuthorisation;
 
     private Transaction $transaction;
 
@@ -68,6 +71,9 @@ class UpdateTransactionChargeAmount extends OrgAction
 
         UpdateTransaction::run($transaction, $dataToUpdate);
 
+        if ($charge->type == ChargeTypeEnum::HANGING->value) {
+            $transaction->order->update(['charges_engine' => OrderChargesEngineEnum::MANUAL]);
+        }
 
         return $transaction;
     }

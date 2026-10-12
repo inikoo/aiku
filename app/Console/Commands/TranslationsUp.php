@@ -54,7 +54,7 @@ class TranslationsUp extends Command
         }
 
         $this->newLine();
-        $this->info('Done. A language POEditor still shows at 0% needs seeding through /translations/add.');
+        $this->info('Done. Translations for terms POEditor held empty are not sent by the upload: run t:seed <code> for a language whose percentage did not move.');
 
         return self::SUCCESS;
     }

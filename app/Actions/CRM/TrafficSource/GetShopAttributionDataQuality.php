@@ -276,7 +276,7 @@ class GetShopAttributionDataQuality
             'value'  => empty($unmatched) ? __('None') : (string) count($unmatched),
             'hint'   => __('These touches credit their channel but no campaign. Non numeric references are never auto created, so they need a campaign row before they can be reported on.'),
             'items'  => array_map(
-                fn (string $key, int $count) => $key.' ('.$count.' '.__('touches').')',
+                fn (string $key, int $count) => $key.' ('.trans_choice(':count touch|:count touches', $count).')',
                 array_keys($top),
                 array_values($top)
             ),

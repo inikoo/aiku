@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ctrans } from '@/Composables/useTrans'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { debounce, get, set } from 'lodash-es'
@@ -33,6 +33,9 @@ import MissedOfferFOB from '@/Components/Iris/Offers/MissedOffers/MissedOfferFOB
 import InputVoucherInBasket from '@/Components/Retina/Ecom/Order/InputVoucherInBasket.vue'
 import { retinaLayoutStructure } from '@/Composables/useRetinaLayoutStructure'
 import LabelOfAvailableDiscountInRightBasket from '@/Components/Utils/Iris/Label/LabelOfAvailableDiscountInRightBasket.vue'
+import BasketBonusStockMeter from '@/Components/Iris/Basket/BasketBonusStockMeter.vue'
+import BasketBonusStockLine from '@/Components/Iris/Basket/BasketBonusStockLine.vue'
+import { BasketBonusStock } from '@/types/Iris/BasketBonusStock'
 library.add(faMinus, faArrowRight, faPlus, fasPlus, faCheck, faChevronRight, faChevronDown, faTrashAlt, faCheckCircle, faExclamationTriangle, faPlusCircle, faGift, faImage, faTimes, faTruck, faStickyNote)
 
 interface DataSideBasket {
@@ -51,6 +54,7 @@ interface DataSideBasket {
     voucher: {
         
     }
+    bonus_stock?: BasketBonusStock[]
 }
 
 interface Product {
@@ -276,6 +280,12 @@ const onChangeCharge = async (key_db: string, val: boolean, routeUpdate: routeTy
 
 const idxProductLoading = ref<number | null>(null)
 
+const otherOfferMeters = computed(() => {
+    const bonusStockOfferIds = (dataSideBasket.value?.bonus_stock || []).map(bonusStock => bonusStock.offer_id)
+
+    return Object.values(layout.offer_meters || {}).filter((offer: any) => !bonusStockOfferIds.includes(offer.offer_id))
+})
+
 
 const basketContainer = ref<HTMLElement | null>(null)
 
@@ -425,6 +435,8 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
 <template>
     <div class="flex h-full flex-col overflow-hidden bg-white" ref="basketRef">
         <div class="flex-1 min-h-0 flex flex-col px-4 pt-6 sm:px-6">
+            <BasketBonusStockMeter v-for="bonusStock in dataSideBasket?.bonus_stock" :key="bonusStock.offer_id" :bonusStock class="mb-4" />
+
             <div class="flex items-start justify-between mb-1">
                 <div class="text-lg font-medium">
                     {{ ctrans("Your Basket (:xxx items)", { xxx: layout.iris_variables?.cart_count ?? 0 }) }}
@@ -461,7 +473,7 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
                     {{ ctrans("Order Number #:reference", { reference: dataSideBasket?.order_data?.reference ?? '' }) }}
                 </div>
 
-                <div v-for="offer in layout.offer_meters" class="grid grid-cols-2 mb-3 gap-x-3">
+                <div v-for="offer in otherOfferMeters" class="grid grid-cols-2 mb-3 gap-x-3">
                     <div v-if="offer.is_gift" :class="convertToFloat2(offer.metadata?.current) >= convertToFloat2(offer.metadata?.target) ? 'text-green-700' : ''"
                         class="flex items-center whitespace-nowrap text-ellipsis truncate w-full">
                         <FontAwesomeIcon icon='fal fa-gift' class='opacity-60 mr-1' fixed-width aria-hidden='true' />
@@ -625,6 +637,12 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
                             </div>
                            
                         </li>
+
+                        <template v-for="bonusStock in dataSideBasket?.bonus_stock" :key="bonusStock.offer_id">
+                            <template v-if="bonusStock.is_reached && !bonusStock.is_in_basket">
+                                <BasketBonusStockLine v-for="bonusProduct in bonusStock.products" :key="bonusProduct.id" :bonusStock :product="bonusProduct" />
+                            </template>
+                        </template>
                     </template>
 
                     <template v-else>
@@ -787,7 +805,7 @@ onBeforeUnmount(() => window.removeEventListener('pageshow', onPageShow))
             <div class="mt-2 flex justify-start text-center text-sm text-gray-500">
                 <p>
                     {{ 'or' }}
-                    <LinkIris href="/app/basket" class="font-medium text-indigo-600 hover:text-indigo-500"
+                    <LinkIris href="/app/basket" class="font-medium text-[var(--theme-color-0)] hover:underline"
                         @click="open = false">
                         {{ ctrans("Open basket") }}
                         <span aria-hidden="true"> &rarr;</span>

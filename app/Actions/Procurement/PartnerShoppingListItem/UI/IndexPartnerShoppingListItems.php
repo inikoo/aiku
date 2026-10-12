@@ -21,6 +21,7 @@ use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithPartnerShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Catalogue\HealthRankEnum;
+use App\Enums\Procurement\ShoppingListItem\ShoppingListItemPriorityEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
@@ -54,8 +55,8 @@ class IndexPartnerShoppingListItems extends OrgAction
     private ?array $filterGroups = null;
 
     /**
-     * The ongoing PO is the drafts staff build and submit; the sent view follows, read only, what the
-     * partner does with the submitted lines.
+     * The ongoing PO is the drafts staff build and submit; the sent view follows what the partner does
+     * with the submitted lines, which can still be changed or removed until the partner starts them.
      *
      * @return array<int, string>
      */
@@ -163,6 +164,38 @@ class IndexPartnerShoppingListItems extends OrgAction
     }
 
     /**
+     * @return array<string, array{label: string, elements: array<string, array{0: string, 1: int, 2: null, 3: array{icon: string, class: string, tooltip: string}}>, engine: Closure}>
+     */
+    private function elementGroups(OrgPartner $orgPartner): array
+    {
+        $priorityCounts = DB::table('partner_shopping_list_items')
+            ->where('org_partner_id', $orgPartner->id)
+            ->whereIn('state', $this->statesInView())
+            ->whereNull('deleted_at')
+            ->when($this->isSentView, fn ($query) => PartnerShoppingListItem::whereNotSplitPiece($query, $this->statesInView()))
+            ->selectRaw('priority, count(*) as total')
+            ->groupBy('priority')
+            ->pluck('total', 'priority');
+
+        return [
+            'priority' => [
+                'label'    => __('Priority'),
+                'elements' => collect(ShoppingListItemPriorityEnum::cases())->mapWithKeys(
+                    fn (ShoppingListItemPriorityEnum $priority) => [
+                        $priority->value => [
+                            ShoppingListItemPriorityEnum::labels()[$priority->value],
+                            (int) ($priorityCounts[$priority->value] ?? 0),
+                            null,
+                            ShoppingListItemPriorityEnum::icons()[$priority->value],
+                        ],
+                    ]
+                )->all(),
+                'engine'   => fn ($query, array $elements) => $query->whereIn('partner_shopping_list_items.priority', $elements),
+            ],
+        ];
+    }
+
+    /**
      * Price of one SKO in the selling partner's catalogue, correlated to the item's row.
      */
     public function handle(OrgPartner $orgPartner): LengthAwarePaginator
@@ -182,6 +215,14 @@ class IndexPartnerShoppingListItems extends OrgAction
 
         if ($this->isSentView) {
             PartnerShoppingListItem::whereNotSplitPiece($queryBuilder->getEloquentBuilder(), $this->statesInView());
+        }
+
+        foreach ($this->elementGroups($orgPartner) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+            );
         }
 
         $paginator = $queryBuilder
@@ -279,6 +320,9 @@ class IndexPartnerShoppingListItems extends OrgAction
                 'partner_shopping_list_items.created_at',
                 'partner_shopping_list_items.pre_picked_at',
                 'partner_shopping_list_items.preparing_at',
+                'partner_shopping_list_items.job_order_id',
+                'partner_shopping_list_items.transaction_id',
+                'partner_shopping_list_items.poked_at',
                 'partner_shopping_list_items.suggested_by_hub',
                 'partner_shopping_list_items.dismiss_reason',
                 'partner_shopping_list_items.dismissed_at',
@@ -296,7 +340,7 @@ class IndexPartnerShoppingListItems extends OrgAction
                 'orders.reference as order_reference',
                 'orders.state as order_state',
                 DB::raw("(select coalesce(sum(location_org_stocks.quantity), 0) from location_org_stocks
-                    where location_org_stocks.location_id = ".OrgPartner::bayIdSql('seller_partner', '(select stocks.is_cosmetic from stocks where stocks.id = partner_shopping_list_items.stock_id)')."
+                    where location_org_stocks.location_id = ".OrgPartner::bayIdSql('seller_partner', 'partner_shopping_list_items.stock_id')."
                         and location_org_stocks.org_stock_id = partner_org_stocks.id) as quantity_staged"),
                 DB::raw("(select delivery_notes.reference from delivery_notes
                     join delivery_note_order on delivery_note_order.delivery_note_id = delivery_notes.id
@@ -341,6 +385,9 @@ class IndexPartnerShoppingListItems extends OrgAction
             $row->image_sources            = $tradeUnit?->imageSources(160, 160);
             $row->price_per_sko            = $row->price_per_sko === null ? null : round((float) $row->price_per_sko * $exchange, 4);
             $row->progress                 = $this->progressOf($row);
+            $row->is_editable              = $row->state === ShoppingListItemStateEnum::DRAFT || (empty($row->folded_ids) && $row->isWaitingForPartner());
+            $row->can_be_poked             = $this->isSentView && $row->canBePoked();
+            $row->is_recently_poked        = $row->poked_at?->gt(now()->subHour()) ?? false;
             $row->stock_in_locations       = $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations);
             $row->stock_cover              = $orgStock ? GetOrgStockBuyingSignals::run($orgStock, null, $leadTimeDays) : null;
             $row->quarterly_usage          = $quarterlyUsage->get($row->org_stock_id) ?? collect();
@@ -360,7 +407,8 @@ class IndexPartnerShoppingListItems extends OrgAction
 
     /**
      * Lines already sent to this partner count as incoming stock for the same SKO, so the suggestion
-     * does not order it twice.
+     * does not order it twice, each shown at the stage the partner has it. Once its delivery note is
+     * dispatched the line arrives as a stock delivery, which is counted on its own.
      *
      * @param Collection<int, OrgStock> $orgStocks
      */
@@ -368,30 +416,38 @@ class IndexPartnerShoppingListItems extends OrgAction
     {
         $rows = $paginator->getCollection();
 
-        $sentSkos = DB::table('partner_shopping_list_items')
-            ->where('org_partner_id', $orgPartner->id)
-            ->whereIn('org_stock_id', $rows->pluck('org_stock_id')->filter()->unique()->values())
-            ->whereIn('state', [ShoppingListItemStateEnum::OPEN->value, ShoppingListItemStateEnum::ORDERED->value])
-            ->whereNull('deleted_at')
-            ->selectRaw('org_stock_id, id, quantity')
+        $sentLines = $this->linesQuery(PartnerShoppingListItem::query(), $orgPartner)
+            ->whereIn('partner_shopping_list_items.org_stock_id', $rows->pluck('org_stock_id')->filter()->unique()->values())
+            ->whereIn('partner_shopping_list_items.state', [ShoppingListItemStateEnum::OPEN->value, ShoppingListItemStateEnum::ORDERED->value])
             ->get()
-            ->groupBy('org_stock_id');
+            ->reject(fn ($line) => $line->delivery_note_state === 'dispatched' || in_array($line->order_state, ['dispatched', 'cancelled']));
+
+        $this->loadProductionSteps($sentLines);
+        $sentLines = $sentLines->groupBy('org_stock_id');
 
         $partnerName = $orgPartner->partner->name;
 
-        $rows->transform(function ($row) use ($sentSkos, $orgStocks, $partnerName) {
-            $skos = (float) $sentSkos->get($row->org_stock_id, collect())->whereNotIn('id', [$row->id, ...($row->folded_ids ?? [])])->sum('quantity');
+        $rows->transform(function ($row) use ($sentLines, $orgStocks, $partnerName) {
+            $lines = $sentLines->get($row->org_stock_id, collect())->whereNotIn('id', [$row->id, ...($row->folded_ids ?? [])]);
 
-            if ($skos > 0) {
-                $packedIn = (float) ($orgStocks->get($row->org_stock_id)?->packed_in ?: 1);
-
-                $row->other_open_purchase_orders = collect($row->other_open_purchase_orders ?? [])->push([
-                    'slug'             => null,
-                    'reference'        => __('from :partner', ['partner' => $partnerName]),
-                    'state'            => 'sent',
-                    'quantity_ordered' => $skos * $packedIn,
-                ])->all();
+            if ($lines->isEmpty()) {
+                return $row;
             }
+
+            $packedIn = (float) ($orgStocks->get($row->org_stock_id)?->packed_in ?: 1);
+
+            $row->other_open_purchase_orders = collect($row->other_open_purchase_orders ?? [])->concat(
+                $lines->map(fn ($line) => ['line' => $line, 'stage' => $this->stageOf($line)])
+                    ->groupBy(fn ($sent) => $sent['stage']['label'].'|'.$sent['stage']['reference'])
+                    ->map(fn ($group) => [
+                        'slug'             => null,
+                        'reference'        => $group->first()['stage']['reference'] ?? __('from :partner', ['partner' => $partnerName]),
+                        'state'            => 'sent',
+                        'stage'            => $group->first()['stage']['label'],
+                        'quantity_ordered' => $group->sum(fn ($sent) => (float) $sent['line']->quantity) * $packedIn,
+                    ])
+                    ->values()
+            )->all();
 
             return $row;
         });
@@ -535,9 +591,11 @@ class IndexPartnerShoppingListItems extends OrgAction
             ->selectRaw('sum(job_order_item_tasks.quantity_made) as made, sum(job_order_item_tasks.quantity_required) as required, min(job_order_item_tasks.position) as position')
             ->selectRaw("(select string_agg(distinct employees.alias, ', ') from manufacture_task_sessions
                 join employees on employees.id = manufacture_task_sessions.employee_id
-                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))) as who")
+                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))
+                   or manufacture_task_sessions.id in (select manufacture_task_session_id from manufacture_task_session_shares where job_order_item_task_id = any(array_agg(job_order_item_tasks.id)))) as who")
             ->selectRaw('(select max(coalesce(manufacture_task_sessions.ended_at, manufacture_task_sessions.started_at)) from manufacture_task_sessions
-                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))) as last_at')
+                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))
+                   or manufacture_task_sessions.id in (select manufacture_task_session_id from manufacture_task_session_shares where job_order_item_task_id = any(array_agg(job_order_item_tasks.id)))) as last_at')
             ->orderBy('position')
             ->get()
             ->groupBy('item_id')
@@ -564,8 +622,15 @@ class IndexPartnerShoppingListItems extends OrgAction
                 ->column(key: 'org_stock_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'info', label: __('SKO description'), canBeHidden: false)
                 ->column(key: 'quantity', label: __('SKOs'), canBeHidden: false, align: 'right')
-                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, align: 'right')
-                ->column(key: 'priority', label: __('Priority'), canBeHidden: false, sortable: true);
+                ->column(key: 'amount', label: __('Amount'), canBeHidden: false, align: 'right');
+
+            foreach ($this->elementGroups($orgPartner) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements'],
+                );
+            }
 
             if ($this->isSentView) {
                 $table
@@ -573,10 +638,6 @@ class IndexPartnerShoppingListItems extends OrgAction
             }
 
             $table->column(key: 'created_at', label: __('Added'), canBeHidden: false, sortable: true);
-
-            if (!$this->isSentView) {
-                $table->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
-            }
 
             $table->defaultSort('-created_at');
         };
@@ -600,7 +661,7 @@ class IndexPartnerShoppingListItems extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $items, ActionRequest $request): Response
     {
-        $pageTitle = $this->isSentView ? __('Sent to :partner', ['partner' => $this->orgPartner->partner->name]) : __('Ongoing PO');
+        $pageTitle = $this->isSentView ? __('Orders at :partner factory', ['partner' => $this->orgPartner->partner->name]) : __('Basket');
         $pageIcon  = $this->isSentView ? 'fa-paper-plane' : 'fa-shopping-basket';
 
         return Inertia::render(
@@ -614,7 +675,7 @@ class IndexPartnerShoppingListItems extends OrgAction
                         'title' => $pageTitle,
                     ],
                     'model'         => $this->orgPartner->partner->name,
-                    'title'         => $this->isSentView ? __('Sent') : __('Ongoing PO'),
+                    'title'         => $this->isSentView ? __('Orders') : __('Basket'),
                     'actions'       => [
                         [
                             'type'  => 'button',
@@ -708,7 +769,7 @@ class IndexPartnerShoppingListItems extends OrgAction
                             'name'       => $this->isSentView ? 'grp.org.procurement.org_partners.show.shopping_list.sent' : 'grp.org.procurement.org_partners.show.shopping_list.index',
                             'parameters' => $routeParameters,
                         ],
-                        'label' => $this->isSentView ? __('Sent') : __('Ongoing PO'),
+                        'label' => $this->isSentView ? __('Orders') : __('Basket'),
                         'icon'  => $this->isSentView ? 'fal fa-paper-plane' : 'fal fa-shopping-basket',
                     ],
                 ],

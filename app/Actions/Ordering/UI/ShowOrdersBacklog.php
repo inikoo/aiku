@@ -70,6 +70,12 @@ class ShowOrdersBacklog extends OrgAction
                     'navigation' => $tabsBox
                 ],
                 'backlog_filters' => $this->tab == OrdersBacklogTabsEnum::RETURNED->value ? null : $this->getBacklogFilters($parent, $request),
+                'attention'       => IndexOrders::make()->backlogAttention($parent) + ['waiting_items_route' => $waitingItemsData['route']],
+                'production_review_bulk_route' => !$parent instanceof Group && IndexOrders::make()->usesProductionReview($parent) ? [
+                    'method'     => 'patch',
+                    'name'       => 'grp.models.organisation.orders.production_review',
+                    'parameters' => ['organisation' => $parent instanceof Shop ? $parent->organisation_id : $parent->id],
+                ] : null,
 
                 OrdersBacklogTabsEnum::IN_BASKET->value => $this->tab == OrdersBacklogTabsEnum::IN_BASKET->value ?
                     fn () => OrdersResource::collection(IndexOrders::run(parent: $parent, prefix: OrdersBacklogTabsEnum::IN_BASKET->value, bucket: OrdersBacklogTabsEnum::IN_BASKET->value))
@@ -139,22 +145,44 @@ class ShowOrdersBacklog extends OrgAction
     }
 
     /**
-     * @return array{prefix: string, current: array{scope: ?string, channel: ?string}, counts: array{scope: array{domestic: int, export: int}, channel: array{direct: int, partner: int}}}
+     * @return array{prefix: string, current: array{scope: ?string, channel: ?string, production_review?: ?string, attention?: ?string}, counts: array<string, array<string, int>>}
      */
     protected function getBacklogFilters(Group|Organisation|Shop $parent, ActionRequest $request): array
     {
-        $currentScope   = $request->input($this->tab.'_elements.scope');
-        $currentScope   = in_array($currentScope, ['domestic', 'export']) ? $currentScope : null;
-        $currentChannel = $request->input($this->tab.'_elements.channel');
-        $currentChannel = in_array($currentChannel, ['direct', 'partner']) ? $currentChannel : null;
+        $allowed = [
+            'scope'   => ['domestic', 'export'],
+            'channel' => ['direct', 'partner'],
+        ];
+        if (IndexOrders::make()->usesProductionReview($parent)) {
+            $allowed['production_review'] = ['reviewed', 'unreviewed'];
+        }
+        $showsStage = IndexOrders::make()->showsStage($this->tab);
+        if ($showsStage) {
+            $allowed['attention'] = ['stuck', 'waiting_stock', 'waiting_cs'];
+        }
+        $splitsPayment = !in_array($this->tab, [OrdersBacklogTabsEnum::IN_BASKET->value, OrdersBacklogTabsEnum::SUBMITTED_PAID->value, OrdersBacklogTabsEnum::SUBMITTED_UNPAID->value]);
+        if ($splitsPayment) {
+            $allowed['payment'] = ['paid', 'unpaid'];
+        }
+
+        $current = [];
+        foreach ($allowed as $key => $values) {
+            $value         = $request->input($this->tab.'_elements.'.$key);
+            $current[$key] = in_array($value, $values) ? $value : null;
+        }
+
+        $counts = IndexOrders::make()->backlogFilterCounts($parent, $this->tab, $current);
+        if (!$splitsPayment) {
+            unset($counts['payment']);
+        }
+        if ($showsStage) {
+            $counts['attention'] = Arr::only(IndexOrders::make()->backlogAttentionCounts($parent, $this->tab, $current), $allowed['attention']);
+        }
 
         return [
             'prefix'  => $this->tab,
-            'current' => [
-                'scope'   => $currentScope,
-                'channel' => $currentChannel,
-            ],
-            'counts'  => IndexOrders::make()->backlogFilterCounts($parent, $this->tab, $currentScope, $currentChannel),
+            'current' => $current,
+            'counts'  => $counts,
         ];
     }
 

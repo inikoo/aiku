@@ -38,6 +38,7 @@ import { Navigation } from "swiper/modules"
 
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import LinkIris from "@/Iris/Components/LinkIris.vue"
+import ProductComponentsList from "@/Components/CMS/Webpage/Product1/ProductComponentsList.vue"
 import EcomAddToBasketv2 from "@/Components/Iris/Products/EcomAddToBasketv2.vue"
 import Product2Image from "@/Components/CMS/Webpage/Product2/Product2Image.vue"
 import GoldenProductBadge from "@/Components/CMS/Webpage/Products/GoldenProductBadge.vue"
@@ -45,6 +46,7 @@ import Image from "@common/Components/Image.vue"
 
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
+import StockInfoPopover from "@/Components/Iris/Products/StockInfoPopover.vue"
 import ButtonOutOfStock from "@/Components/Iris/Products/ButtonOutOfStock.vue"
 import { urlLoginWithRedirect } from "@/Composables/urlLoginWithRedirect"
 import { getStyles } from "@/Composables/styles"
@@ -249,7 +251,7 @@ const specificationRows = computed(() => {
 })
 
 const hasSpecifications = computed(() =>
-    Boolean(specificationRows.value.length || countriesOfOrigin.value.length)
+    Boolean(specificationRows.value.length || countriesOfOrigin.value.length || product.value?.components?.length)
 )
 
 const offersData = computed(() => product.value?.offers_data || props.customerData?.offers_data || null)
@@ -476,9 +478,11 @@ onMounted(async () => {
 
                         <div v-if="layout?.iris?.is_logged_in" class="flex items-center justify-between">
                             <div class="flex items-center gap-2 text-sm">
-                                <FontAwesomeIcon :icon="faCircle" class="text-[10px]"
-                                    :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'" fixed-width />
-                                <span>{{ product.stock > 0 ? ctrans("In stock") : ctrans("Out of stock") }}</span>
+                                <StockInfoPopover :product="product">
+                                    <FontAwesomeIcon :icon="faCircle" class="text-[10px]"
+                                        :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'" fixed-width />
+                                    <span>{{ product.stock > 0 ? ctrans("In stock") : ctrans("Out of stock") }}</span>
+                                </StockInfoPopover>
                             </div>
 
                             <button v-if="product.stock <= 0 && layout?.outboxes?.oos_notification?.state == 'active'"
@@ -661,6 +665,11 @@ onMounted(async () => {
                             <div class="spec-value">{{ row.value }}</div>
                         </div>
 
+                        <div v-if="product?.components?.length" class="py-1">
+                            <div class="spec-label mb-1">{{ ctrans("Contents") }}</div>
+                            <ProductComponentsList :components="product.components" class="text-xs text-gray-600" />
+                        </div>
+
                         <div v-if="countriesOfOrigin.length" class="spec-row">
                             <div class="spec-label">{{ ctrans('Origin Country') }}</div>
                             <div class="spec-value flex  gap-1 justify-end align-end">
@@ -743,9 +752,11 @@ onMounted(async () => {
                 </div>
 
                 <div v-if="layout?.iris?.is_logged_in" class="flex items-center gap-2 text-sm">
-                    <FontAwesomeIcon :icon="faCircle" class="text-[10px]"
-                        :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'" fixed-width />
-                    <span>{{ product.stock > 0 ? ctrans("In stock") : ctrans("Out of stock") }}</span>
+                    <StockInfoPopover :product="product">
+                        <FontAwesomeIcon :icon="faCircle" class="text-[10px]"
+                            :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'" fixed-width />
+                        <span>{{ product.stock > 0 ? ctrans("In stock") : ctrans("Out of stock") }}</span>
+                    </StockInfoPopover>
                 </div>
             </div>
 
@@ -888,6 +899,11 @@ onMounted(async () => {
                     <div v-for="row in specificationRows" :key="row.key" class="spec-row">
                         <div class="spec-label">{{ row.label }}</div>
                         <div class="spec-value">{{ row.value }}</div>
+                    </div>
+
+                    <div v-if="product?.components?.length" class="py-1">
+                        <div class="spec-label mb-1">{{ ctrans("Contents") }}</div>
+                        <ProductComponentsList :components="product.components" class="text-xs text-gray-600" />
                     </div>
 
                     <div v-if="countriesOfOrigin.length" class="spec-row">

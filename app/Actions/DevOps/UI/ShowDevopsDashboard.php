@@ -8,6 +8,7 @@
 
 namespace App\Actions\DevOps\UI;
 
+use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\DevOps\Server\StoreServerLiveMetric;
 use App\Actions\OrgAction;
 use App\Models\DevOps\CiRun;
@@ -29,7 +30,6 @@ class ShowDevopsDashboard extends OrgAction
         'boro'  => ['Production', 'Primary'],
         'litio' => ['Production', 'Secondary'],
         'helio' => ['Ops support', 'CI & replica'],
-        'neon'  => ['Ops support', 'Staging'],
     ];
 
     public function authorize(ActionRequest $request): bool
@@ -67,6 +67,7 @@ class ShowDevopsDashboard extends OrgAction
                     ],
                 ],
                 'servers'          => $servers = $this->getServerSummaries(),
+                'databaseReplicas' => rescue(fn () => MonitorDatabaseReplicas::make()->report(), []),
                 'ciRuns'           => $this->getCiRuns(),
                 'liveReadings'     => $servers->mapWithKeys(fn (object $server) => [$server->slug => StoreServerLiveMetric::recentReadings($server->slug)]),
                 'telemetry'        => Inertia::optional(fn () => app(GetNightOwlTelemetry::class)->overview(GetNightOwlTelemetry::range($request->query('range')))),

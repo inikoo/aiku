@@ -1,13 +1,14 @@
 import { format, formatDuration, intervalToDuration, addSeconds, formatDistanceToNow,
     formatDistanceToNowStrict, startOfDay, isPast, parseISO, isAfter, differenceInDays  } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
-import { zhCN, enUS, enGB, fr, de, id, ja, sk, es, bg, cs, hr, hu, it, nl, pl, pt, ro, sv, uk } from 'date-fns/locale'
+import { zhCN, enUS, enGB, fr, de, id, ja, sk, es, bg, cs, hi, hr, hu, it, nl, pl, pt, ro, sv, tr, uk } from 'date-fns/locale'
 import { getActiveLanguage } from 'laravel-vue-i18n'
+import { ne } from '@/Composables/nepaliDateLocale'
 import { ctrans } from '@/Composables/useTrans'
 
 export const localesCode: any = {
     zhCN, enUS, enGB, fr, de, id, ja, sk, es,
-    'zh-Hans': zhCN, en: enGB, bg, cs, hr, hu, it, nl, pl, pt, ro, sv, uk,
+    'zh-Hans': zhCN, en: enGB, bg, cs, hi, hr, hu, it, ne, nl, pl, pt, ro, sv, tr, uk,
 }
 
 export interface OptionsTime {
@@ -30,6 +31,7 @@ export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: 
     let tempDateIso = OptionsTime?.keepTimezone
         ? new Date((typeof dateIso === 'string' ? dateIso : dateIso.toISOString()).replace('Z', ''))
         : new Date(dateIso)
+    if (isNaN(tempDateIso.getTime())) return '-'
     if (OptionsTime?.formatTime === 'short-datetime') return format(tempDateIso, 'EEE, dd MMM yy HH:mm', { locale: localesCode[tempLocaleCode] })
     if (OptionsTime?.formatTime === 'aiku') return format(tempDateIso, 'EEE, do MMM yy', { locale: localesCode[tempLocaleCode] })  // Sun, 1st Jan 23
     if (OptionsTime?.formatTime === 'ddmy') return format(tempDateIso, 'PPPP', { locale: localesCode[tempLocaleCode] })  // Friday, April 29th, 1453

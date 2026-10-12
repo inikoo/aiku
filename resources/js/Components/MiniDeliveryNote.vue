@@ -26,7 +26,8 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Skeleton from 'primevue/skeleton';
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { Fieldset, InputNumber } from "primevue"
+import { Fieldset, InputNumber, Select } from "primevue"
+import { parcelPresets, findParcelPreset, applyParcelPreset } from "@/Composables/useParcelPresets"
 import Icon from "@/Components/Icon.vue"
 import axios from "axios"
 import PageHeading from "./Headings/PageHeading.vue";
@@ -240,10 +241,10 @@ onMounted(() => {
                 class="mr-3"
             />
 
-            <Button v-if="props.deliveryNote?.delivery_note_id && props.deliveryNote.delivery_note_state === 'packed'"
+            <Button v-if="data?.delivery_note?.can_work && props.deliveryNote?.delivery_note_id && props.deliveryNote.delivery_note_state === 'packed'"
                 type="save" :label="isCollection ? ctrans('Finalise and set as Collected') : ctrans('Finalise and Dispatch')" :loading="loadingFinal" @click="handleFinaliseAndDispatch" />
 
-            <Button v-if="props.deliveryNote?.delivery_note_id && (props.deliveryNote.delivery_note_state === 'handling' || props.deliveryNote.delivery_note_state === 'picked' || props.deliveryNote.delivery_note_state === 'packing')"
+            <Button v-if="data?.delivery_note?.can_work && props.deliveryNote?.delivery_note_id && (props.deliveryNote.delivery_note_state === 'handling' || props.deliveryNote.delivery_note_state === 'picked' || props.deliveryNote.delivery_note_state === 'packing')"
                 type="save" :label="ctrans('Set as packed')" size="sm" class="mx-3 whitespace-nowrap" :loading="loadingFinal"
                 @click="handleSetAsPacked" />
         </template>
@@ -332,7 +333,7 @@ onMounted(() => {
                         <div class="font-medium text-gray-700">
                             {{ ctrans("Parcels") }} ({{ data.delivery_note?.parcels?.length ?? 0 }})
                         </div>
-                        <div v-if="statesWithEditableParcels.includes(data.delivery_note?.state)"
+                        <div v-if="data.delivery_note?.can_work && statesWithEditableParcels.includes(data.delivery_note?.state)"
                             class="text-gray-500 cursor-pointer hover:text-gray-700"
                             @click="onOpenModalParcels">
                             {{ data.delivery_note?.parcels?.length ? ctrans("Edit") : ctrans("Add") }}
@@ -380,7 +381,7 @@ onMounted(() => {
 </div>
 
 
-    <Modal :isOpen="isModalParcels" @onClose="isModalParcels = false" width="w-full max-w-lg">
+    <Modal :isOpen="isModalParcels" @onClose="isModalParcels = false" width="w-full max-w-xl">
         <div class="text-center font-bold mb-4">
             {{ ctrans('Add shipment') }}
         </div>
@@ -426,7 +427,15 @@ onMounted(() => {
                                 <div class="text-gray-400">x</div>
                                 <InputNumber :min="0.001" v-model="parcel.dimensions[2]" class="w-16" size="small"
                                     placeholder="0" fluid />
-                                <!-- <button class="text-gray-600">≡</button> -->
+                                <Select
+                                    :modelValue="findParcelPreset(parcel.dimensions)"
+                                    :options="parcelPresets"
+                                    optionLabel="label"
+                                    :placeholder="ctrans('Preset size')"
+                                    size="small"
+                                    class="ml-1 w-36 shrink-0 text-xs"
+                                    @change="(e) => applyParcelPreset(parcel, e.value)"
+                                />
                             </div>
                         </div>
                     </TransitionGroup>

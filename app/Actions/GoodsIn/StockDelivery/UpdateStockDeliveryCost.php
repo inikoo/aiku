@@ -11,8 +11,10 @@ namespace App\Actions\GoodsIn\StockDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithStockDeliveryCostingEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Models\GoodsIn\StockDeliveryCost;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,14 +27,15 @@ class UpdateStockDeliveryCost extends OrgAction
 
     public function rules(): array
     {
-        return [
+        return array_merge(StoreStockDeliveryCost::serviceInvoiceRules($this->asAction), [
             'label'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            'category'    => ['sometimes', 'nullable', Rule::in(array_column(StockDeliveryServiceInvoiceTypeEnum::extraOptions(), 'value'))],
             'amount'      => ['sometimes', 'nullable', 'numeric', 'gte:0'],
             'received_at' => ['sometimes', 'nullable', 'date'],
             'is_na'       => ['sometimes', 'boolean'],
             'currency_id' => ['sometimes', 'nullable', 'exists:currencies,id'],
             'exchange'    => ['sometimes', 'nullable', 'numeric', 'gt:0'],
-        ];
+        ], StoreStockDeliveryCost::waitingRules());
     }
 
     public function afterValidator(Validator $validator): void
@@ -40,13 +43,26 @@ class UpdateStockDeliveryCost extends OrgAction
         if (!$this->asAction && $this->stockDeliveryCost->stockDelivery->is_costed) {
             $validator->errors()->add('state', __('This stock delivery is costed, an accounting manager can change it with Update costing'));
         }
+
+        if (!$this->asAction && $this->stockDeliveryCost->from_service_invoices) {
+            $validator->errors()->add('type', __('This cost comes from the service invoices, change the invoice instead'));
+        }
     }
 
     public function handle(StockDeliveryCost $stockDeliveryCost, array $modelData): StockDeliveryCost
     {
-        $stockDeliveryCost = $this->update($stockDeliveryCost, StoreStockDeliveryCost::withExchange($stockDeliveryCost->stockDelivery, $modelData));
+        $hasCurrency   = array_key_exists('currency_id', $modelData);
+        $keepsCurrency = !$hasCurrency || $modelData['currency_id'] == $stockDeliveryCost->currency_id;
 
-        EvaluateStockDeliveryCosting::run($stockDeliveryCost->stockDelivery);
+        if ($keepsCurrency && empty($modelData['exchange'])) {
+            unset($modelData['currency_id'], $modelData['exchange']);
+        }
+
+        $stockDeliveryCost = $this->update($stockDeliveryCost, StoreStockDeliveryCost::withExchange($stockDeliveryCost->stockDelivery, StoreStockDeliveryCost::withWaiting($modelData, $stockDeliveryCost)));
+
+        if ($stockDeliveryCost->wasChanged(['amount', 'currency_id', 'exchange', 'is_na', 'received_at'])) {
+            EvaluateStockDeliveryCosting::run($stockDeliveryCost->stockDelivery);
+        }
 
         return $stockDeliveryCost;
     }

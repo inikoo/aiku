@@ -3,6 +3,7 @@
 namespace App\Actions\SupplyChain\SupplierProduct\Upload;
 
 use App\Actions\Goods\Barcode\AssignNextBarcodeToTradeUnit;
+use App\Actions\Goods\Packaging\StorePackagingFamilyFromComponents;
 use App\Actions\Goods\Barcode\StoreBarcode;
 use App\Actions\Goods\Barcode\SyncBarcodeToTradeUnit;
 use App\Actions\Goods\Stock\StoreStock;
@@ -12,6 +13,8 @@ use App\Actions\Goods\TradeUnit\AttachTradeUnitsToTradeUnitFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily;
+use App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock;
+use App\Actions\Procurement\OrgSupplierProducts\ResolveOrgStockForSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrderTransaction\UpdatePurchaseOrderTransaction;
@@ -22,6 +25,7 @@ use App\Enums\Helpers\Barcode\BarcodeStatusEnum;
 use App\Enums\Helpers\Barcode\BarcodeTypeEnum;
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
 use App\Enums\Helpers\Import\UploadStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
@@ -36,7 +40,9 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
@@ -72,6 +78,7 @@ class ImportSupplierProductUpload
         }
 
         $this->createDraftPurchaseOrders($supplier, $upload, $records->filter(fn (UploadRecord $record) => Arr::get($record->data, 'supplier_product_id')));
+        $this->declaration($supplier, $upload);
 
         $upload->update([
             'state'          => UploadStateEnum::IMPORTED,
@@ -137,11 +144,32 @@ class ImportSupplierProductUpload
      */
     protected function importRecord(Supplier $supplier, UploadRecord $record): void
     {
-        $values = $record->values;
+        $decisions = collect(Arr::get($record->data, 'findings', []))
+            ->filter(fn (array $finding) => Arr::get($record->data, 'decisions.'.$finding['code'].'.accepted'))
+            ->mapWithKeys(fn (array $finding) => [$finding['code'] => [...Arr::get($record->data, 'decisions.'.$finding['code']), 'message' => $finding['message']]])
+            ->all();
 
+        ['supplier_product' => $supplierProduct, 'trade_unit' => $tradeUnit] = $this->importValues($supplier, $record->values, $decisions);
+
+        $record->update(['data' => array_merge($record->data ?? [], ['supplier_product_id' => $supplierProduct->id, 'trade_unit_id' => $tradeUnit->id])]);
+    }
+
+    /**
+     * Creates one checked product (a sheet row or the New supplier product form) and its SKO in every organisation
+     * buying from the supplier. Run it inside a transaction.
+     *
+     * @param array<string, mixed> $values
+     * @param array<string, array{accepted: bool, user_id: ?int, at: string, message: string}> $decisions the findings someone accepted, kept on the supplier product
+     *
+     * @return array{supplier_product: SupplierProduct, trade_unit: TradeUnit}
+     * @throws Throwable
+     */
+    public function importValues(Supplier $supplier, array $values, array $decisions = []): array
+    {
         $stockFamily     = $this->stockFamily($supplier, $values['family']);
         $tradeUnitFamily = $this->tradeUnitFamily($supplier, $values['family']);
         $tradeUnit       = $this->tradeUnit($supplier, $values);
+        $tradeUnit       = $this->compliance($supplier, $tradeUnit, $values);
 
         if (!$tradeUnit->trade_unit_family_id) {
             AttachTradeUnitsToTradeUnitFamily::make()->handle($tradeUnitFamily, ['trade_units' => [$tradeUnit->id]]);
@@ -153,7 +181,27 @@ class ImportSupplierProductUpload
         $supplierProduct = $this->supplierProduct($supplier, $values);
         SyncSupplierProductTradeUnits::run($supplierProduct, [$tradeUnit->id => ['quantity' => $values['units_per_sko']]]);
 
-        $record->update(['data' => array_merge($record->data, ['supplier_product_id' => $supplierProduct->id, 'trade_unit_id' => $tradeUnit->id])]);
+        if ($decisions !== []) {
+            $supplierProduct->update(['data' => array_merge($supplierProduct->data ?? [], ['decisions' => array_merge(Arr::get($supplierProduct->data, 'decisions', []), $decisions)])]);
+        }
+
+        $this->orgStocks($supplierProduct);
+
+        return ['supplier_product' => $supplierProduct, 'trade_unit' => $tradeUnit];
+    }
+
+    /**
+     * Every organisation buying from the supplier gets the SKO now and has it linked to its supplier product,
+     * instead of waiting for its first purchase order.
+     */
+    protected function orgStocks(SupplierProduct $supplierProduct): void
+    {
+        foreach ($supplierProduct->orgSupplierProducts()->with('organisation')->get() as $orgSupplierProduct) {
+            $orgStock = ResolveOrgStockForSupplierProduct::run($orgSupplierProduct->organisation, $supplierProduct);
+            if ($orgStock && !in_array($orgStock->state, [OrgStockStateEnum::DISCONTINUING, OrgStockStateEnum::DISCONTINUED], true)) {
+                AttachOrgSupplierProductToOrgStock::make()->action($orgStock, $orgSupplierProduct);
+            }
+        }
     }
 
     protected function stockFamily(Supplier $supplier, string $code): StockFamily
@@ -195,6 +243,58 @@ class ImportSupplierProductUpload
         }
 
         return $tradeUnit;
+    }
+
+    /**
+     * The v7 compliance columns and packaging components. Like the rest of the row they only fill what the trade
+     * unit does not have yet: a GPSR text, a compliance answer or a packaging family already there is kept.
+     *
+     * @param array<string, mixed> $values
+     */
+    protected function compliance(Supplier $supplier, TradeUnit $tradeUnit, array $values): TradeUnit
+    {
+        $modelData = array_filter(Arr::get($values, 'gpsr', []), fn ($value, string $field) => blank($tradeUnit->{$field}), ARRAY_FILTER_USE_BOTH);
+
+        $filled     = fn (array $answers) => array_filter($answers, fn ($answer) => !blank($answer));
+        $current    = $tradeUnit->compliance ?? [];
+        $sheet      = Arr::get($values, 'compliance', []);
+        $compliance = $filled($current) + $sheet;
+        if (Arr::has($sheet, 'eudr')) {
+            $compliance['eudr'] = $filled(Arr::get($current, 'eudr', [])) + $sheet['eudr'];
+        }
+        if ($compliance != $current) {
+            $modelData['compliance'] = $compliance;
+        }
+
+        $packaging = Arr::get($values, 'packaging', []);
+        if (!$tradeUnit->packaging_family_id && $packaging !== []) {
+            $modelData['packaging_family_id'] = StorePackagingFamilyFromComponents::run($supplier->group, 'PF-'.$tradeUnit->code, $tradeUnit->name, $packaging)->id;
+        }
+
+        if ($modelData === []) {
+            return $tradeUnit;
+        }
+
+        return UpdateTradeUnit::make()->action($tradeUnit, $modelData, strict: false);
+    }
+
+    /**
+     * The signed Supplier declarations tab, kept once per upload.
+     */
+    protected function declaration(Supplier $supplier, Upload $upload): void
+    {
+        $declaration = Arr::get($upload->data, 'declaration');
+        if (!$declaration
+            || !$upload->records()->where('status', UploadRecordStatusEnum::COMPLETE)->exists()
+            || $supplier->declarations()->where('upload_id', $upload->id)->exists()) {
+            return;
+        }
+
+        $supplier->declarations()->create([
+            'group_id'  => $supplier->group_id,
+            'upload_id' => $upload->id,
+            ...Arr::only($declaration, ['company', 'signed_by', 'position', 'signed_on', 'answers']),
+        ]);
     }
 
     protected function barcode(Supplier $supplier, TradeUnit $tradeUnit, ?string $barcode): void
@@ -298,8 +398,8 @@ class ImportSupplierProductUpload
     }
 
     /**
-     * Each organisation's lines go on its open draft (the org supplier's, or the org agent's when it buys
-     * through an agent), or on a new draft when the preview asked for one. The sheet sets the quantity.
+     * Each organisation's lines go on its org supplier's open draft (sent through the agent when the
+     * supplier has one), or on a new draft when the preview asked for one. The sheet sets the quantity.
      *
      * @param Collection<int, UploadRecord> $records
      */
@@ -323,8 +423,7 @@ class ImportSupplierProductUpload
             }
 
             try {
-                $parent        = $orgSupplier->org_agent_id ? $orgSupplier->orgAgent : $orgSupplier;
-                $purchaseOrder = $this->draftPurchaseOrder($parent, $upload, $key);
+                $purchaseOrder = $this->draftPurchaseOrder($orgSupplier, $upload, $key);
             } catch (Throwable $e) {
                 $summary[$key] = ['error' => $this->errorText($e)];
 
@@ -351,10 +450,10 @@ class ImportSupplierProductUpload
                 }
             }
 
-            $summary[$key] = ['purchase_order' => $purchaseOrder->reference, 'lines' => $added, 'errors' => $errors];
+            $summary[$key] = ['purchase_order' => $purchaseOrder->reference, 'purchase_order_id' => $purchaseOrder->id, 'lines' => $added, 'errors' => $errors];
         }
 
-        $upload->update(['data' => array_merge($upload->data, ['purchase_orders' => $summary])]);
+        $upload->update(['data' => array_merge($upload->data ?? [], ['purchase_orders' => $summary])]);
     }
 
     protected function draftPurchaseOrder(mixed $parent, Upload $upload, string $key): PurchaseOrder
@@ -369,8 +468,22 @@ class ImportSupplierProductUpload
         return StorePurchaseOrder::make()->action($parent, array_filter(['buyer_id' => $upload->user_id]));
     }
 
+    /**
+     * What staff see on the preview page: validation messages as they are, anything else without URLs,
+     * which can carry service keys (a currency lookup that timed out showed its api_key).
+     */
     protected function errorText(Throwable $e): string
     {
-        return $e instanceof ValidationException ? collect($e->errors())->flatten()->implode(' ') : $e->getMessage();
+        if ($e instanceof ValidationException) {
+            return collect($e->errors())->flatten()->implode(' ');
+        }
+
+        Log::warning('Supplier product upload import: '.$e->getMessage());
+
+        if ($e instanceof ConnectionException || str_contains($e->getMessage(), 'cURL error')) {
+            return __('An outside service did not answer in time, please try again.');
+        }
+
+        return trim(preg_replace('#\bhttps?://\S+#i', '[link removed]', $e->getMessage()));
     }
 }
