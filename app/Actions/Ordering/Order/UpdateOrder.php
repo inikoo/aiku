@@ -171,8 +171,9 @@ class UpdateOrder extends OrgAction
             }
 
             if (Arr::has($changedFields, 'is_shipping_by_external')) {
-                $deliveryNote = $order->deliveryNotes()->where('delivery_notes.type', DeliveryNoteTypeEnum::ORDER)->first();
-                UpdateDeliveryNote::run($deliveryNote, ['is_shipping_by_external' => $order->is_shipping_by_external]);
+                foreach ($order->deliveryNotes()->where('delivery_notes.type', DeliveryNoteTypeEnum::ORDER)->get() as $deliveryNote) {
+                    UpdateDeliveryNote::run($deliveryNote, ['is_shipping_by_external' => $order->is_shipping_by_external]);
+                }
             }
 
             if (Arr::has($changedFields, 'private_warehouse_note')) {

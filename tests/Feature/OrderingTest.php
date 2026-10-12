@@ -3330,6 +3330,8 @@ test('UI show order flags unpaid API orders as auto-held', function () {
 
 test('UI show order tells per delivery note whether the sales channel ships it', function () {
     $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => false]);
 
     $noteData = fn (string $reference): array => [
         'reference'        => $reference,
@@ -3343,9 +3345,8 @@ test('UI show order tells per delivery note whether the sales channel ships it',
 
     $orderNote   = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id));
     $replacement = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id.'-r1'));
-    $order->update(['is_shipping_by_external' => true]);
-    $orderNote->update(['is_shipping_by_external' => true]);
-    $replacement->update(['is_shipping_by_external' => false]);
+    $replacement->update(['type' => DeliveryNoteTypeEnum::REPLACEMENT]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
 
     $notes = collect(ShowOrder::make()->getOrderBoxStats($order->refresh())['delivery_notes'])->keyBy('id');
 
