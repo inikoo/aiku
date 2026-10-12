@@ -59,6 +59,7 @@ const toneDot: Record<string, string> = {
     amber: "bg-amber-400",
     yellow: "bg-yellow-300",
     green: "bg-green-500",
+    "green-light": "bg-green-300",
     blue: "bg-blue-500",
     gray: "bg-gray-400",
 }
@@ -74,8 +75,8 @@ const orgStockRoute = (orgStock: StockCoverOrgStock) => route("grp.org.warehouse
 })
 
 const organisationStockLevelRoute = (orgStock: StockCoverOrgStock) => route("grp.org.procurement.stock_cover.index", {
-    organisation: orgStock.organisation_slug,
-    elements: { cover: orgStock.bucket },
+    organisation: orgStock.organisation_slug ?? "",
+    _query: { elements: { cover: orgStock.bucket } },
 })
 
 const downloadHref = () => props.exportRoute ? route(props.exportRoute.name, props.exportRoute.parameters) + window.location.search : null

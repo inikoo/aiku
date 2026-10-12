@@ -10,7 +10,7 @@ import { useLocaleStore } from "@/Stores/locale"
 
 library.add(faHeartbeat, faQuestionCircle, faChevronRight)
 
-type Route = { name: string; parameters: Record<string, string | null> }
+type Route = { name: string; parameters: Record<string, string> }
 type Figures = {
 	stock_health: Record<string, number>
 }
@@ -37,6 +37,7 @@ const toneColor: Record<string, string> = {
 	amber: "bg-amber-400",
 	yellow: "bg-yellow-300",
 	green: "bg-green-500",
+	"green-light": "bg-green-300",
 	blue: "bg-sky-400",
 	gray: "bg-gray-400",
 }
@@ -64,7 +65,7 @@ const organisationHref = (organisation: Organisation, bucket?: string): string |
 	if (!stockHealthRoute) return null
 
 	return route(stockHealthRoute.name, bucket
-		? { ...stockHealthRoute.parameters, elements: { cover: bucket } }
+		? { ...stockHealthRoute.parameters, _query: { elements: { cover: bucket } } }
 		: stockHealthRoute.parameters)
 }
 
@@ -72,7 +73,7 @@ const groupBucketHref = (bucket: string): string | null => {
 	const stockLevelsRoute = props.overview.routes?.stock_levels
 	if (!stockLevelsRoute) return null
 
-	return route(stockLevelsRoute.name, { ...stockLevelsRoute.parameters, elements: { cover: bucket } })
+	return route(stockLevelsRoute.name, { ...stockLevelsRoute.parameters, _query: { elements: { cover: bucket } } })
 }
 
 const bucketPopover = ref<InstanceType<typeof Popover> | null>(null)
