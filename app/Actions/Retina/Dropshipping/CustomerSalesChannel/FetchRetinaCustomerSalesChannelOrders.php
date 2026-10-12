@@ -60,6 +60,14 @@ class FetchRetinaCustomerSalesChannelOrders extends RetinaAction
             );
         }
 
+        if ($customerSalesChannel->isHandedOverToExternalShop()) {
+            return $this->notification(
+                'error',
+                __('No new orders here'),
+                __('This channel no longer takes new orders. The orders already here can still be finished.')
+            );
+        }
+
         if (!$this->isSupported($customerSalesChannel)) {
             return $this->notification(
                 'error',

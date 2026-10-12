@@ -7,7 +7,7 @@ import Tag from "@/Components/Tag.vue"
 import { routeType } from "@/types/route"
 import { Table as TableTS } from "@/types/Table"
 import { faPencil, faTimes, faTrashAlt, faMoneyCheckEditAlt, faPlus, faMinus } from "@far"
-import { faBarcode, faGift, faRepeat, faTrash, faUndo } from "@fal"
+import { faBarcode, faGift, faRepeat, faStore, faTrash, faUndo } from "@fal"
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { debounce, get, set, toInteger } from "lodash-es"
@@ -33,7 +33,7 @@ import error from "@iris/Pages/Errors/Error.vue"
 import { ctrans } from "@/Composables/useTrans"
 import MarginCell from "@/Components/Margin/MarginCell.vue"
 
-library.add(faBadgePercent, faFragile, faMoneyCheckEditAlt, faBarcode, faGift, faRepeat, faExclamationTriangle)
+library.add(faBadgePercent, faFragile, faMoneyCheckEditAlt, faBarcode, faGift, faRepeat, faStore, faExclamationTriangle)
 
 type ProductRow = {
     id: number
@@ -60,6 +60,8 @@ const props = defineProps<{
     fetchRoute?: routeType
     routesProductsListModification?: routeType
     is_shop_external: boolean
+    /** Name of the sales platform that set the line amounts (e.g. Shopify), shown under each net amount. */
+    marketplace_price_source?: string
     allow_order_modification: boolean
     /** Grp order page only: below lg the table keeps a minimum width and scrolls sideways with arrows instead of squashing. Off by default so RetinaOrder, which shares this table, keeps its layout. */
     scrollOnMobile?: boolean
@@ -812,7 +814,7 @@ const isOffersData = (offersData: any): boolean => {
                             createNewQty[item.id].quantity_ordered).toFixed(2)) }}
                         </div>
                     </div>
-                    <div v-else>
+                    <div v-else class="text-right">
                         <p class="" :class="item.gross_amount != item.net_amount ? 'text-green-500' : ''">
                             <span v-if="item.gross_amount != item.net_amount"
                                   class="text-gray-500 line-through mr-1 opacity-70">{{
@@ -854,6 +856,12 @@ const isOffersData = (offersData: any): boolean => {
                                     :icon="faUndo" class="ml-1 !px-1 text-red-500 hover:text-red-700" 
                                 />
                             </span>
+                        </p>
+                        <p v-if="marketplace_price_source && item.model_type === 'Product'"
+                            v-tooltip="ctrans('This amount is what :platform charged for the line, after its own discounts and without tax. Aiku did not calculate it.', { platform: marketplace_price_source })"
+                            class="text-xxs text-purple-500 whitespace-nowrap">
+                            <FontAwesomeIcon icon="fal fa-store" class="mr-0.5" fixed-width aria-hidden="true" />
+                            {{ ctrans(':platform price', { platform: marketplace_price_source }) }}
                         </p>
                     </div>
                 </div>

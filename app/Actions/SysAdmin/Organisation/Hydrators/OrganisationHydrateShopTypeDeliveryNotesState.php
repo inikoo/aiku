@@ -15,6 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
+use App\Models\Catalogue\Shop;
 
 class OrganisationHydrateShopTypeDeliveryNotesState implements ShouldBeUnique
 {
@@ -94,7 +95,7 @@ class OrganisationHydrateShopTypeDeliveryNotesState implements ShouldBeUnique
         // Get directly from shop.type because some deliveryNote has no shop_type somehow (null), probably old order_data
         $baseQuery = DeliveryNote::leftJoin('shops', 'shops.id', '=', 'delivery_notes.shop_id')
             ->where('delivery_notes.organisation_id', $organisation->id)
-            ->where('shops.type', $shopTypeEnum->value) // Use shops.type instead of delivery_notes.shop_type
+            ->whereRaw(Shop::dispatchingChannelSql().' = ?', [$shopTypeEnum->value])
             ->where('shops.is_aiku', true) // Todo: this hacks has to be deleted after we migrate from aurora
             ->where('delivery_notes.handled_in_aurora', false)
             ->whereNull('delivery_notes.deleted_at');

@@ -15,6 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\QueryBuilder;
+use App\Models\Catalogue\Shop;
 
 trait WithDeliveryNotesChannel
 {
@@ -31,7 +32,7 @@ trait WithDeliveryNotesChannel
             return;
         }
 
-        $queryWithShopsJoined->where('shops.type', $this->channelShopType($channel));
+        $queryWithShopsJoined->whereRaw(Shop::dispatchingChannelSql().' = ?', [$this->channelShopType($channel)]);
         $this->whereDeliveryNotesPartnership($queryWithShopsJoined, $channel);
     }
 

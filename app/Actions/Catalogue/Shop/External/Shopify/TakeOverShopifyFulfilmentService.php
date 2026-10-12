@@ -75,7 +75,7 @@ class TakeOverShopifyFulfilmentService extends OrgAction
         data_set($settings, 'shopify.fulfilment_service_id', $fulfilmentServiceId);
         data_set($settings, 'shopify.location_id', Arr::get($fulfilmentService, 'location.id'));
         data_set($settings, 'shopify.location_name', Arr::get($fulfilmentService, 'location.name'));
-        $shop->update(['settings' => $settings]);
+        $shop->update(['settings' => $settings, 'is_aiku' => true]);
 
         $command?->info('Fulfilment requests now come to '.$shop->name.' at '.Arr::get($fulfilmentService, 'location.name'));
 

@@ -12,12 +12,22 @@ use App\Actions\RetinaAction;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class RetinaDeleteCustomerSalesChannel extends RetinaAction
 {
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function handle(CustomerSalesChannel $customerSalesChannel): ?bool
     {
+        if ($customerSalesChannel->isHandedOverToExternalShop()) {
+            throw ValidationException::withMessages([
+                'message' => __('This channel still shares its store connection, it can not be deleted.')
+            ]);
+        }
+
         return CloseCustomerSalesChannel::run($customerSalesChannel);
     }
 
