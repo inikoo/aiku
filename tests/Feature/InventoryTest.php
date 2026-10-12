@@ -4913,3 +4913,29 @@ test('a location counted batch by batch and the best-before of what is on the sh
     expect($mapped['Earliest Best-before'])->toBe($soon)
         ->and($mapped['Expiring within 30 days'])->toBe(4.0);
 })->depends('create warehouse area');
+
+test('the skos tab of a location filters by its search box and sorts by reference', function () {
+    $warehouse = createWarehouse();
+    $location  = StoreLocation::make()->action($warehouse, Location::factory()->definition());
+    $orgStocks = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 2));
+
+    foreach ($orgStocks as $orgStock) {
+        StoreLocationOrgStock::make()->action($orgStock, $location, ['type' => LocationStockTypeEnum::PICKING]);
+    }
+
+    [$wanted, $other] = $orgStocks;
+    expect($wanted->code)->not->toBe($other->code);
+
+    $codesShown = fn (array $query): array => collect(
+        $this->withoutVite()->get(route('grp.org.warehouses.show.infrastructure.locations.show', array_merge(
+            [$this->organisation->slug, $warehouse->slug, $location->slug, 'tab' => 'org_stocks'],
+            $query
+        )))->assertOk()->viewData('page')['props']['org_stocks']['data']
+    )->pluck('code')->all();
+
+    expect($codesShown([]))->toContain($wanted->code, $other->code)
+        ->and($codesShown(['org_stocks_filter' => ['global' => $wanted->code]]))->toBe([$wanted->code]);
+
+    $ascending = $codesShown(['org_stocks_sort' => 'code']);
+    expect($codesShown(['org_stocks_sort' => '-code']))->toBe(array_reverse($ascending));
+});
