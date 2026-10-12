@@ -17,6 +17,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 
 class IndexOrgStocksInLocation extends OrgAction
 {
@@ -63,7 +64,7 @@ class IndexOrgStocksInLocation extends OrgAction
                 'location_org_stocks.quantity',
                 'location_org_stocks.notes',
             ])
-            ->allowedSorts(['type', 'picking_priority', 'value', 'dropshipping_pipe', 'quantity', 'notes'])
+            ->allowedSorts([AllowedSort::field('code', 'org_stocks.code'), 'type', 'picking_priority', 'value', 'dropshipping_pipe', 'quantity', 'notes'])
             ->allowedFilters([$globalSearch, AllowedFilter::exact('state')])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();

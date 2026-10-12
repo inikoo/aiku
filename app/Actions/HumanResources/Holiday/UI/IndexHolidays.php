@@ -22,7 +22,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use Illuminate\Support\Carbon;
 
 class IndexHolidays extends OrgAction
 {
@@ -63,9 +62,7 @@ class IndexHolidays extends OrgAction
             $queryBuilder->where('holidays.group_id', $parent->id);
         }
 
-        $selectedYear = Arr::get(request()->input('filter', []), 'year', (string) now()->year);
-
-        $queryBuilder->where('holidays.year', $selectedYear);
+        $queryBuilder->where('holidays.year', $this->selectedYear());
 
         $queryBuilder->leftJoin('organisations', 'holidays.organisation_id', '=', 'organisations.id');
 
@@ -97,41 +94,8 @@ class IndexHolidays extends OrgAction
                     ->pageName($prefix . 'Page');
             }
 
-            $yearsQuery = Holiday::query();
-
-            if ($parent instanceof Organisation) {
-                $yearsQuery->where('organisation_id', $parent->id);
-            } else {
-                $yearsQuery->where('group_id', $parent->id);
-            }
-
-            $years = $yearsQuery
-                ->whereNotNull('year')
-                ->distinct()
-                ->orderByDesc('year')
-                ->pluck('year')
-                ->toArray();
-
-            if (empty($years)) {
-                $years = [(int) now()->year];
-            }
-
-            $yearOptions = collect($years)->mapWithKeys(function ($year) {
-                return [(string) $year => (string) $year];
-            })->all();
-
-            $monthOptions = collect(range(1, 12))->mapWithKeys(function ($month) {
-                $label = Carbon::createFromDate(null, $month, 1)->translatedFormat('F');
-
-                return [(string) $month => $label];
-            })->all();
-
-            $defaultYear = (string) now()->year;
-
             $table
                 ->withGlobalSearch()
-                ->selectFilter('year', $yearOptions, __('Year'), $defaultYear, false)
-                ->selectFilter('month', $monthOptions, __('Month'))
                 ->column(key: 'year', label: __('Year'), sortable: true)
                 ->column(key: 'label', label: __('Name'), sortable: true, searchable: true)
                 ->column(key: 'type_label', label: __('Type'), sortable: true)
@@ -147,6 +111,39 @@ class IndexHolidays extends OrgAction
 
             $table->defaultSort('from');
         };
+    }
+
+    private function selectedYear(): string
+    {
+        $year = Arr::get((array) request()->input('filter', []), 'year');
+
+        return is_numeric($year) ? (string) (int) $year : (string) now()->year;
+    }
+
+    private function selectedMonth(): ?string
+    {
+        $month = Arr::get((array) request()->input('filter', []), 'month');
+
+        return is_numeric($month) && (int) $month >= 1 && (int) $month <= 12 ? (string) (int) $month : null;
+    }
+
+    /**
+     * @return array<int, array{value: string, label: string}>
+     */
+    private function yearOptions(Group|Organisation $parent): array
+    {
+        return Holiday::query()
+            ->where($parent instanceof Organisation ? 'organisation_id' : 'group_id', $parent->id)
+            ->whereNotNull('year')
+            ->distinct()
+            ->pluck('year')
+            ->map(fn ($year) => (int) $year)
+            ->push((int) now()->year, (int) $this->selectedYear())
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->map(fn (int $year) => ['value' => (string) $year, 'label' => (string) $year])
+            ->all();
     }
 
     public function jsonResponse(LengthAwarePaginator $holidays): AnonymousResourceCollection
@@ -180,6 +177,11 @@ class IndexHolidays extends OrgAction
                     ->map(fn ($label, $value) => ['value' => $value, 'label' => $label])
                     ->values()
                     ->all(),
+                'yearOptions' => $this->yearOptions($this->parent),
+                'filters'     => [
+                    'year'  => $this->selectedYear(),
+                    'month' => $this->selectedMonth(),
+                ],
             ]
         )->table($this->tableStructure($this->parent));
     }

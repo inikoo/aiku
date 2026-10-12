@@ -35,6 +35,7 @@ import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
 import Select from "primevue/select"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
+import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -52,12 +53,12 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
 library.add(
-	faDownload,
+	faDownload, faChevronDown, faChevronRight,
 	faIdCardAlt,
 	faEnvelope,
 	faPhone,
@@ -113,6 +114,7 @@ const props = defineProps < {
         number_purchase_orders: number
     }[]
     deposits?: object | null
+    payments?: InstanceType<typeof PurchaseOrderPayments>["$props"]["payments"] | null
     delivery_items: {
         id: number
         code: string | null
@@ -305,6 +307,14 @@ const costBlocks = computed(() => {
 	return sameCurrency ? [supplierBlock] : [supplierBlock, organisationBlock]
 })
 
+const showExtraCosts = ref(false)
+
+const paymentsOrgRate = computed(() => {
+	const { currency, org_currency } = props.box_stats.third_block
+
+	return org_currency && org_currency !== currency ? Number(orgPerOrder.value) || null : null
+})
+
 const summaryGroups = computed(() => {
 	const { items, extra, shipping, duties, tax, total, currency, org_currency, org_items } = props.box_stats.third_block
 	const inOrgCurrency = org_currency && org_currency !== currency
@@ -315,9 +325,14 @@ const summaryGroups = computed(() => {
 	return [
 		[{ label: ctrans("Items"), quantity: props.box_stats.second_block.total_items, price_total: Number(items) || 0, information: orgMoney(Number(org_items) || 0) }],
 		[
-			{ label: ctrans("Extra costs"), price_total: Number(extra) || 0 },
-			{ label: ctrans("Shipping"), price_total: Number(shipping) || 0 },
-			{ label: ctrans("Duties"), price_total: Number(duties) || 0 },
+			{ label: ctrans("Extra costs, shipping and duties"), price_total: (Number(extra) || 0) + (Number(shipping) || 0) + (Number(duties) || 0), slot_name: "extra_costs" },
+			...(showExtraCosts.value
+				? [
+					{ label: ctrans("Extra costs"), price_total: Number(extra) || 0, label_class: "pl-5" },
+					{ label: ctrans("Shipping"), price_total: Number(shipping) || 0, label_class: "pl-5" },
+					{ label: ctrans("Duties"), price_total: Number(duties) || 0, label_class: "pl-5" },
+				]
+				: []),
 		],
 		[
 			{ label: ctrans("Net"), price_total: net },
@@ -1077,7 +1092,17 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 								aria-hidden="true" />
 						</span>
 					</div>
-					<OrderSummary :order_summary="summaryGroups" :currency_code="box_stats.third_block.currency ?? ''" />
+					<OrderSummary :order_summary="summaryGroups" :currency_code="box_stats.third_block.currency ?? ''">
+						<template #cell_extra_costs_1="{ fieldSummary }">
+							<dt class="col-span-3">
+								<button type="button" class="flex items-center gap-1.5 text-left leading-none hover:text-gray-800" :aria-expanded="showExtraCosts" @click="showExtraCosts = !showExtraCosts">
+									<FontAwesomeIcon :icon="showExtraCosts ? 'fal fa-chevron-down' : 'fal fa-chevron-right'" class="w-3.5 text-gray-400" aria-hidden="true" />
+									{{ fieldSummary.label }}
+								</button>
+							</dt>
+						</template>
+					</OrderSummary>
+					<PurchaseOrderPayments v-if="payments" :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 				</section>
 			</div>
 		</BoxStatPallet>

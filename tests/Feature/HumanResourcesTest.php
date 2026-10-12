@@ -48,6 +48,7 @@ use App\Actions\HumanResources\Overtime\RejectOvertimeRequest;
 use App\Actions\HumanResources\Overtime\DeleteOvertimeRequest;
 use App\Actions\HumanResources\Overtime\UpdateOvertimeRequest;
 use App\Actions\HumanResources\Overtime\UpdateOvertimeType;
+use App\Actions\HumanResources\Overtime\UI\IndexOvertime;
 use App\Actions\HumanResources\Overtime\DeleteOvertimeType;
 use App\Actions\HumanResources\AttendanceAdjustment\StoreAttendanceAdjustment;
 use App\Actions\HumanResources\AttendanceAdjustment\ApproveAttendanceAdjustment;
@@ -115,7 +116,9 @@ use App\Models\HumanResources\EmployeeLeaveBalance;
 use App\Models\SysAdmin\User;
 use App\Enums\HumanResources\Leave\LeaveStatusEnum;
 use App\Enums\HumanResources\Overtime\OvertimeRequestStatusEnum;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
@@ -976,6 +979,112 @@ test('can update overtime request', function () {
     expect($updated->requested_duration_minutes)->toBe(90);
 });
 
+test('every page of the holidays, overtime and leave families keeps its top menu item active', function () {
+    $user = Mockery::mock(User::class);
+    $user->shouldReceive('authTo')->andReturn(true);
+
+    $navigationBuilder = new class () {
+        use \App\Actions\UI\Grp\Layout\WithLayoutNavigation;
+    };
+
+    $subSections = collect($navigationBuilder->getHumanResourcesNavs($user, $this->organisation, [])['hr']['topMenu']['subSections']);
+
+    $activeMenuItems = fn (string $routeName) => $subSections
+        ->filter(fn (array $subSection) => collect([$subSection['root'], ...($subSection['roots'] ?? [])])->contains(fn (string $root) => str_contains($routeName, $root)))
+        ->pluck('route.name')
+        ->values()
+        ->all();
+
+    $families = [
+        'grp.org.hr.holidays.index' => ['grp.org.hr.calendars.', 'grp.org.hr.holidays.', 'grp.org.hr.holiday_years.', 'grp.org.hr.restricted_periods.'],
+        'grp.org.hr.overtime.index' => ['grp.org.hr.overtime.', 'grp.org.hr.overtime_types.', 'grp.org.hr.overtime_requests.'],
+        'grp.org.hr.leaves.index'   => ['grp.org.hr.leaves.', 'grp.org.hr.leave_approvers.', 'grp.org.hr.leave_concurrency_rules.'],
+    ];
+
+    $routeNames = collect(Route::getRoutes()->getRoutesByName())->keys();
+
+    foreach ($families as $menuItemRoute => $prefixes) {
+        $familyRoutes = $routeNames->filter(fn (string $routeName) => \Illuminate\Support\Str::startsWith($routeName, $prefixes));
+
+        foreach ($prefixes as $prefix) {
+            expect($familyRoutes->contains(fn (string $routeName) => str_starts_with($routeName, $prefix)))->toBeTrue();
+        }
+
+        foreach ($familyRoutes as $routeName) {
+            expect($activeMenuItems($routeName))->toBe([$menuItemRoute]);
+        }
+    }
+
+    foreach (['grp.org.hr.dashboard', 'grp.org.hr.employees.index', 'grp.org.hr.adjustments.dashboard', 'grp.org.hr.workplaces.show.clocking_machines.index'] as $routeName) {
+        expect($activeMenuItems($routeName))->toHaveCount(1);
+    }
+});
+
+test('overtime index filters by status and requested date range', function () {
+    $index   = fn (array $filters) => IndexOvertime::make()->handle($this->organisation, null, $filters)->total();
+    $inMarch = ['from' => '2031-03-01', 'to' => '2031-03-31'];
+
+    $baseline = [
+        'march'          => $index($inMarch),
+        'march approved' => $index([...$inMarch, 'status' => 'approved']),
+        'march pending'  => $index([...$inMarch, 'status' => 'pending']),
+        'from april'     => $index(['from' => '2031-04-01']),
+        'until february' => $index(['to' => '2031-02-28']),
+    ];
+
+    $pendingInMarch  = createOvertimeRequestFixture($this->organisation, $this->group);
+    $approvedInMarch = createOvertimeRequestFixture($this->organisation, $this->group);
+    $pendingInApril  = createOvertimeRequestFixture($this->organisation, $this->group);
+
+    $pendingInMarch->update(['requested_date' => '2031-03-01']);
+    $approvedInMarch->update(['requested_date' => '2031-03-31']);
+    $pendingInApril->update(['requested_date' => '2031-04-01']);
+    ApproveOvertimeRequest::make()->action($approvedInMarch);
+
+    expect($index($inMarch))->toBe($baseline['march'] + 2)
+        ->and($index([...$inMarch, 'status' => 'approved']))->toBe($baseline['march approved'] + 1)
+        ->and($index([...$inMarch, 'status' => 'pending']))->toBe($baseline['march pending'] + 1)
+        ->and($index(['from' => '2031-04-01']))->toBe($baseline['from april'] + 1)
+        ->and($index(['to' => '2031-02-28']))->toBe($baseline['until february']);
+
+    $rules = IndexOvertime::make()->rules();
+
+    expect(Validator::make(['status' => 'approved', 'from' => '2031-03-01', 'to' => '2031-03-31'], $rules)->passes())->toBeTrue()
+        ->and(Validator::make(['status' => 'not-a-status'], $rules)->errors()->keys())->toBe(['status'])
+        ->and(Validator::make(['from' => '01/03/2031', 'to' => 'tomorrow'], $rules)->errors()->keys())->toBe(['from', 'to']);
+});
+
+test('overtime request with a verdict cannot be approved, rejected or edited again', function () {
+    $approvedRequest = ApproveOvertimeRequest::make()->action(createOvertimeRequestFixture($this->organisation, $this->group));
+    $rejectedRequest = RejectOvertimeRequest::make()->action(createOvertimeRequestFixture($this->organisation, $this->group));
+
+    $editPayload = fn (OvertimeRequest $overtimeRequest) => [
+        'employee_id' => $overtimeRequest->employee_id,
+        'overtime_type_id' => $overtimeRequest->overtime_type_id,
+        'requested_date' => '2026-07-02',
+        'requested_duration_minutes' => 120,
+        'status' => OvertimeRequestStatusEnum::PENDING,
+    ];
+
+    foreach ([$approvedRequest, $rejectedRequest] as $processedRequest) {
+        $verdict = $processedRequest->status;
+
+        expect(fn () => ApproveOvertimeRequest::make()->action($processedRequest))
+            ->toThrow(\Illuminate\Validation\ValidationException::class, 'Only pending overtime requests can be approved.')
+            ->and(fn () => RejectOvertimeRequest::make()->action($processedRequest))
+            ->toThrow(\Illuminate\Validation\ValidationException::class, 'Only pending overtime requests can be rejected.')
+            ->and(fn () => UpdateOvertimeRequest::make()->action($this->organisation, $processedRequest, $editPayload($processedRequest)))
+            ->toThrow(\Illuminate\Validation\ValidationException::class, 'Only pending overtime requests can be edited.');
+
+        $processedRequest->refresh();
+
+        expect($processedRequest->status)->toBe($verdict)
+            ->and($processedRequest->requested_duration_minutes)->toBe(60);
+    }
+
+    expect(DeleteOvertimeRequest::make()->action($approvedRequest))->toBeTrue();
+});
+
 test('can delete overtime request', function () {
     $overtimeRequest = createOvertimeRequestFixture($this->organisation, $this->group);
 
@@ -1695,6 +1804,59 @@ test('can generate next year holidays from recurring holidays', function () {
     expect(Holiday::where('organisation_id', $this->organisation->id)->where('year', 2027)->count())->toBe(1);
 });
 
+test('holidays index filters by year and month from one page level filter', function () {
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $user->forgetWildcardPermissionIndex();
+    actingAs($user);
+
+    foreach (['Filter Fixture March' => '2033-03-14', 'Filter Fixture July' => '2033-07-21'] as $label => $date) {
+        StoreHoliday::make()->action($this->organisation, [
+            'type'  => \App\Enums\HumanResources\Holiday\HolidayTypeEnum::COMPANY,
+            'from'  => $date,
+            'to'    => $date,
+            'label' => $label,
+        ]);
+    }
+
+    $labels = fn ($rows) => collect($rows)->pluck('label');
+
+    get(route('grp.org.hr.holidays.index', [$this->organisation->slug, 'filter' => ['year' => 2033, 'month' => 3]]))
+        ->assertOk()
+        ->assertInertia(
+            fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('filters.year', '2033')
+                ->where('filters.month', '3')
+                ->where('yearOptions', fn ($options) => collect($options)->pluck('value')->contains('2033')
+                    && collect($options)->pluck('value')->contains((string) now()->year))
+                ->where('data.data', fn ($rows) => $labels($rows)->contains('Filter Fixture March')
+                    && !$labels($rows)->contains('Filter Fixture July'))
+                ->has('queryBuilderProps.default.filters', 0)
+                ->etc()
+        );
+
+    get(route('grp.org.hr.holidays.index', [$this->organisation->slug, 'filter' => ['year' => 2033]]))
+        ->assertOk()
+        ->assertInertia(
+            fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('filters.month', null)
+                ->where('data.data', fn ($rows) => $labels($rows)->contains('Filter Fixture March')
+                    && $labels($rows)->contains('Filter Fixture July'))
+                ->etc()
+        );
+
+    get(route('grp.org.hr.holidays.index', $this->organisation->slug))
+        ->assertOk()
+        ->assertInertia(
+            fn (\Inertia\Testing\AssertableInertia $page) => $page
+                ->where('filters.year', (string) now()->year)
+                ->where('data.data', fn ($rows) => !$labels($rows)->contains('Filter Fixture March'))
+                ->etc()
+        );
+});
+
 test('can activate holiday year deactivating the others', function () {
     $holidayYearOne = StoreHolidayYear::make()->action($this->organisation, [
         'label' => 'Year One',
@@ -1907,6 +2069,54 @@ test('can delete work schedule', function () {
 
     expect($result)->toBeTrue();
     expect(WorkSchedule::find($workSchedule->id))->toBeNull();
+});
+
+test('shift schedule form payload keeps its name and working hours through validation', function () {
+    $payload = [
+        'name' => 'Renamed Shift',
+        'working_hours' => [
+            'data' => [
+                1 => ['s' => '08:00', 'e' => '17:00', 'b' => [['s' => '12:00', 'e' => '13:00', 'n' => 'Lunch', 'p' => false]]],
+                2 => ['s' => null, 'e' => null, 'b' => []],
+            ],
+        ],
+    ];
+
+    $validated = \Illuminate\Support\Facades\Validator::make($payload, UpdateWorkSchedule::make()->rules())->validated();
+
+    expect($validated)->toBe($payload)
+        ->and(\Illuminate\Support\Facades\Validator::make(['name' => ''], UpdateWorkSchedule::make()->rules())->fails())->toBeTrue();
+});
+
+test('shift schedule can be created with its working hours and edited without losing breaks', function () {
+    $schedule = StoreWorkSchedule::make()->action($this->organisation, [
+        'name' => 'Shift Created With Hours',
+        'type' => 'shift',
+        'working_hours' => [
+            'data' => [
+                1 => ['s' => '22:00', 'e' => '06:00', 'b' => [['s' => '01:00', 'e' => '01:30', 'n' => 'Rest', 'p' => true]]],
+                2 => ['s' => null, 'e' => null, 'b' => []],
+            ],
+        ],
+    ]);
+
+    $loaded = \App\Actions\HumanResources\WorkSchedule\EditWorkSchedule::make()->handle($this->organisation, $schedule->fresh());
+    $monday = $loaded->days->firstWhere('day_of_week', 1);
+    $tuesday = $loaded->days->firstWhere('day_of_week', 2);
+
+    expect($loaded->type)->toBe('shift')
+        ->and($monday->is_working_day)->toBeTrue()
+        ->and(substr($monday->start_time, 0, 5))->toBe('22:00')
+        ->and(substr($monday->end_time, 0, 5))->toBe('06:00')
+        ->and($monday->relationLoaded('breaks'))->toBeTrue()
+        ->and($monday->breaks)->toHaveCount(1)
+        ->and($monday->breaks->first()->break_name)->toBe('Rest')
+        ->and($tuesday->is_working_day)->toBeFalse()
+        ->and($loaded->days->firstWhere('day_of_week', 3))->toBeNull();
+
+    $renamed = UpdateWorkSchedule::make()->action($this->organisation, $schedule, ['name' => 'Shift Renamed']);
+
+    expect($renamed->name)->toBe('Shift Renamed');
 });
 
 
@@ -3558,6 +3768,236 @@ test('a human resources supervisor can open the organisation clockings and emplo
         ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page->where('analytics.leave.leave_balance.annual_remaining', 17));
 });
 
+test('employee analytics attendance only expects the working days that have already happened', function () {
+    \Carbon\Carbon::setTestNow('2026-10-14 10:00:00');
+
+    try {
+        $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->make()->toArray(), [
+            'worker_number'       => 'analytics-elapsed-1',
+            'alias'               => 'analytics-elapsed-1',
+            'type'                => EmployeeTypeEnum::EMPLOYEE,
+            'employment_type'     => EmploymentTypeEnum::FULL_TIME,
+            'state'               => EmployeeStateEnum::WORKING,
+            'employment_start_at' => '2026-01-01',
+        ]));
+
+        foreach (['2026-10-08', '2026-10-09', '2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13', '2026-10-14'] as $date) {
+            \App\Models\HumanResources\Timesheet::create([
+                'group_id'                  => $this->group->id,
+                'organisation_id'           => $this->organisation->id,
+                'date'                      => $date,
+                'subject_type'              => 'Employee',
+                'subject_id'                => $employee->id,
+                'subject_name'              => $employee->contact_name,
+                'start_at'                  => $date.' 08:00:00',
+                'working_duration'          => 8 * 3600,
+                'breaks_duration'           => 0,
+                'total_duration'            => 8 * 3600,
+                'number_time_trackers'      => 1,
+                'number_open_time_trackers' => 0,
+            ]);
+        }
+
+        $service = new \App\Services\EmployeeAnalyticsService();
+        $attendance = $service->calculateAttendanceMetrics($employee, \Carbon\Carbon::parse('2026-10-08'), \Carbon\Carbon::parse('2026-10-31'));
+        $summary = $service->calculateSummaryMetrics($attendance, ['total_leave_days' => 0]);
+
+        expect($attendance['working_days'])->toBeGreaterThan(0)->toBeLessThanOrEqual(7)
+            ->and($attendance['present_days'])->toBe($attendance['working_days'])
+            ->and($attendance['absent_days'])->toBe(0)
+            ->and($summary['attendance_percentage'])->toBe(100.0);
+
+        $future = $service->calculateAttendanceMetrics($employee, \Carbon\Carbon::parse('2026-10-20'), \Carbon\Carbon::parse('2026-10-31'));
+
+        expect($future['working_days'])->toBe(0)
+            ->and($future['attendance_eligible_days'])->toBe(0);
+    } finally {
+        \Carbon\Carbon::setTestNow();
+    }
+});
+
+test('employee analytics reports the attendance window it measures and the days behind each percentage', function () {
+    config(['employee-analytics.enabled' => true]);
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $viewer->forgetWildcardPermissionIndex();
+    actingAs($viewer);
+
+    $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->make()->toArray(), [
+        'worker_number'       => 'analytics-window-1',
+        'alias'               => 'analytics-window-1',
+        'type'                => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type'     => EmploymentTypeEnum::FULL_TIME,
+        'state'               => EmployeeStateEnum::WORKING,
+        'employment_start_at' => '2026-01-01',
+    ]));
+
+    $activeScheduleIds = WorkSchedule::query()
+        ->where('schedulable_type', 'Organisation')
+        ->where('schedulable_id', $this->organisation->id)
+        ->where('is_active', true)
+        ->pluck('id');
+    WorkSchedule::whereIn('id', $activeScheduleIds)->update(['is_active' => false]);
+    \Carbon\Carbon::setTestNow('2026-10-12 10:00:00');
+
+    try {
+        foreach (['2026-10-01', '2026-10-02', '2026-10-05'] as $date) {
+            \App\Models\HumanResources\Timesheet::create([
+                'group_id'                  => $this->group->id,
+                'organisation_id'           => $this->organisation->id,
+                'date'                      => $date,
+                'subject_type'              => 'Employee',
+                'subject_id'                => $employee->id,
+                'subject_name'              => $employee->contact_name,
+                'start_at'                  => $date.' 08:00:00',
+                'working_duration'          => 8 * 3600,
+                'breaks_duration'           => 0,
+                'total_duration'            => 8 * 3600,
+                'number_time_trackers'      => 1,
+                'number_open_time_trackers' => 0,
+            ]);
+        }
+
+        $service = new \App\Services\EmployeeAnalyticsService();
+        $window = fn (string $from, string $to): array => $service->getAttendanceWindow($this->organisation->id, \Carbon\Carbon::parse($from), \Carbon\Carbon::parse($to));
+
+        $toDate = $window('2026-10-01', '2026-10-31');
+        expect($toDate['status'])->toBe('to_date')
+            ->and($toDate['start'])->toBe('2026-10-01')
+            ->and($toDate['end'])->toBe('2026-10-12')
+            ->and($toDate['today'])->toBe('2026-10-12')
+            ->and($toDate['working_days'])->toBe(8)
+            ->and($toDate['employees_measured'])->toBeGreaterThanOrEqual(1);
+
+        $past = $window('2026-09-01', '2026-09-30');
+        expect($past['status'])->toBe('past')
+            ->and($past['start'])->toBe('2026-09-01')
+            ->and($past['end'])->toBe('2026-09-30')
+            ->and($past['working_days'])->toBe(22);
+
+        $future = $window('2026-11-01', '2026-11-30');
+        expect($future['status'])->toBe('future')
+            ->and($future['end'])->toBeNull()
+            ->and($future['working_days'])->toBe(0)
+            ->and($future['employees_measured'])->toBe(0);
+
+        $row = collect($service->getEmployeeAttendanceBreakdown($this->organisation->id, \Carbon\Carbon::parse('2026-10-01'), \Carbon\Carbon::parse('2026-10-31'), 100000))
+            ->firstWhere('id', $employee->id);
+
+        expect($row['present_days'])->toBe(3)
+            ->and($row['attendance_eligible_days'])->toBe(8)
+            ->and($row['attendance_percentage'])->toEqual(37.5);
+
+        get(route('grp.org.hr.analytics.index', $this->organisation->slug))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('attendance_window.status', 'to_date')
+                ->where('attendance_window.start', '2026-10-01')
+                ->where('attendance_window.end', '2026-10-12')
+                ->where('attendance_window.working_days', 8)
+                ->has('attendance_breakdown.0.present_days')
+                ->has('attendance_breakdown.0.attendance_eligible_days')
+                ->has('attendance_breakdown.0.avatar')
+                ->etc());
+    } finally {
+        \Carbon\Carbon::setTestNow();
+        WorkSchedule::whereIn('id', $activeScheduleIds)->update(['is_active' => true]);
+    }
+});
+
+test('employee analytics counts approved leave in days, halves half days and clips a leave to the selected range', function () {
+    $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->make()->toArray(), [
+        'worker_number'       => 'analytics-leave-1',
+        'alias'               => 'analytics-leave-1',
+        'type'                => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type'     => EmploymentTypeEnum::FULL_TIME,
+        'state'               => EmployeeStateEnum::WORKING,
+        'employment_start_at' => '2026-01-01',
+    ]));
+
+    $makeLeave = fn (string $from, string $to, int $days, LeaveStatusEnum $status, bool $isHalfDay = false): Leave => Leave::create([
+        'group_id'        => $employee->group_id,
+        'organisation_id' => $employee->organisation_id,
+        'employee_id'     => $employee->id,
+        'employee_name'   => $employee->contact_name,
+        'type'            => 'annual',
+        'start_date'      => $from,
+        'end_date'        => $to,
+        'duration_days'   => $days,
+        'is_half_day'     => $isHalfDay,
+        'session'         => $isHalfDay ? 'Morning' : 'Full',
+        'status'          => $status,
+    ]);
+
+    $activeScheduleIds = WorkSchedule::query()
+        ->where('schedulable_type', 'Organisation')
+        ->where('schedulable_id', $this->organisation->id)
+        ->where('is_active', true)
+        ->pluck('id');
+    WorkSchedule::whereIn('id', $activeScheduleIds)->update(['is_active' => false]);
+    \Carbon\Carbon::setTestNow('2029-06-29 10:00:00');
+
+    try {
+        $rangeStart = \Carbon\Carbon::parse('2029-06-04');
+        $rangeEnd = \Carbon\Carbon::parse('2029-06-15');
+        $service = new \App\Services\EmployeeAnalyticsService();
+
+        expect($service->calculateLeaveMetrics($employee, $rangeStart, $rangeEnd)['total_leave_days'])->toEqual(0);
+
+        $makeLeave('2029-06-12', '2029-06-12', 1, LeaveStatusEnum::PENDING);
+        $makeLeave('2029-06-12', '2029-06-12', 1, LeaveStatusEnum::REJECTED);
+        $makeLeave('2029-06-12', '2029-06-12', 1, LeaveStatusEnum::APPROVED)->delete();
+
+        expect($service->calculateLeaveMetrics($employee, $rangeStart, $rangeEnd)['total_leave_days'])->toEqual(0);
+
+        $makeLeave('2029-06-04', '2029-06-08', 5, LeaveStatusEnum::APPROVED);
+        expect($service->calculateLeaveMetrics($employee, $rangeStart, $rangeEnd)['total_leave_days'])->toEqual(5);
+
+        $makeLeave('2029-06-11', '2029-06-11', 1, LeaveStatusEnum::APPROVED, true);
+        expect($service->calculateLeaveMetrics($employee, $rangeStart, $rangeEnd)['total_leave_days'])->toEqual(5.5);
+
+        $makeLeave('2029-06-13', '2029-06-20', 6, LeaveStatusEnum::APPROVED);
+        $leave = $service->calculateLeaveMetrics($employee, $rangeStart, $rangeEnd);
+        expect($leave['total_leave_days'])->toEqual(8.5)
+            ->and($leave['leave_breakdown']['annual'])->toEqual(8.5);
+
+        \App\Models\HumanResources\Timesheet::create([
+            'group_id'                  => $this->group->id,
+            'organisation_id'           => $this->organisation->id,
+            'date'                      => '2029-06-11',
+            'subject_type'              => 'Employee',
+            'subject_id'                => $employee->id,
+            'subject_name'              => $employee->contact_name,
+            'start_at'                  => '2029-06-11 13:00:00',
+            'working_duration'          => 4 * 3600,
+            'breaks_duration'           => 0,
+            'total_duration'            => 4 * 3600,
+            'number_time_trackers'      => 1,
+            'number_open_time_trackers' => 0,
+        ]);
+
+        $attendance = $service->calculateAttendanceMetrics($employee, $rangeStart, $rangeEnd);
+        $summary = $service->calculateSummaryMetrics($attendance, $leave);
+
+        expect($attendance['working_days'])->toBe(10)
+            ->and($attendance['total_leave_days'])->toEqual(8.5)
+            ->and($attendance['attendance_eligible_days'])->toEqual(1.5)
+            ->and($attendance['present_days'])->toEqual(0.5)
+            ->and($attendance['absent_days'])->toEqual(1)
+            ->and($summary['attendance_percentage'])->toEqual(33.33);
+
+        $organisationLeave = collect($service->getTopEmployeesByLeave($this->organisation->id, $rangeStart, $rangeEnd, 1000))
+            ->firstWhere('id', $employee->id);
+
+        expect($organisationLeave['total_leave_days'])->toEqual(8.5);
+    } finally {
+        \Carbon\Carbon::setTestNow();
+        WorkSchedule::whereIn('id', $activeScheduleIds)->update(['is_active' => true]);
+    }
+});
+
 test('shopkeeper clerks are merged into the supervisor position on all the shops they held', function () {
     setPermissionsTeamId($this->group->id);
     $positionIds = JobPosition::where('organisation_id', $this->organisation->id)
@@ -3886,4 +4326,1576 @@ test('a job position whose roles are reseeded passes them to the people already 
     \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($this->organisation);
 
     expect($user->refresh()->hasRole($roleName))->toBeTrue();
+});
+
+test('the hr dashboard leave cards state their period and link to matching leave pages, and absence cover rows carry status and type colour', function () {
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $user->forgetWildcardPermissionIndex();
+    actingAs($user);
+
+    $leaveType = StoreLeaveType::make()->action($this->organisation, [
+        'code'     => 'LC'.rand(10000, 99999),
+        'name'     => 'Leave Card Type '.rand(10000, 99999),
+        'category' => \App\Enums\HumanResources\Leave\LeaveCategoryEnum::MEDICAL,
+    ]);
+    $leaveType->update(['color' => 'green']);
+
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+
+    $leave = Leave::create([
+        'group_id'        => $employee->group_id,
+        'organisation_id' => $employee->organisation_id,
+        'employee_id'     => $employee->id,
+        'employee_name'   => $employee->contact_name,
+        'type'            => $leaveType->code,
+        'leave_type_id'   => $leaveType->id,
+        'start_date'      => now()->toDateString(),
+        'end_date'        => now()->toDateString(),
+        'duration_days'   => 1,
+        'is_half_day'     => false,
+        'session'         => 'Full',
+        'reason'          => 'Leave card fixture',
+        'status'          => LeaveStatusEnum::APPROVED,
+    ]);
+
+    $monday = now()->startOfWeek(\Illuminate\Support\Carbon::MONDAY);
+
+    get(route('grp.org.hr.dashboard', $this->organisation->slug))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaveOverviewPeriod.route.name', 'grp.org.hr.leaves.dashboard')
+                ->where('leaveOverviewPeriod.route.parameters._query.view', 'week')
+                ->where('leaveOverviewPeriod.route.parameters._query.week_start', $monday->toDateString())
+                ->where('leaveOverviewPeriod.dates', fn (string $dates) => str_starts_with($dates, $monday->format('j')))
+                ->where('leaveOverview.0.date', $monday->toDateString())
+                ->where('leaveTypesPeriod.dates', now()->translatedFormat('F Y'))
+                ->where('leaveTypesPeriod.route.parameters._query.month', now()->month)
+                ->where('leaveTypes.types', fn ($types) => collect($types)->contains(
+                    fn ($type) => $type['name'] === $leaveType->name
+                        && data_get($type, 'route.name') === 'grp.org.hr.leaves.index'
+                        && data_get($type, 'route.parameters._query.type') === $leaveType->code
+                        && data_get($type, 'route.parameters._query.status') === LeaveStatusEnum::APPROVED->value
+                ))
+                ->etc()
+        );
+
+    get(route('grp.org.hr.leaves.index', [
+        'organisation' => $this->organisation->slug,
+        'type'         => $leaveType->code,
+        'status'       => LeaveStatusEnum::APPROVED->value,
+    ]))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$leave->id])
+                ->etc()
+        );
+
+    get(route('grp.org.hr.covers.index', ['organisation' => $this->organisation->slug, 'global' => $employee->contact_name]))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('data.data', fn ($rows) => collect($rows)->contains(
+                    fn ($row) => $row['id'] === $leave->id
+                        && $row['status'] === 'ongoing'
+                        && $row['type_color'] === '#16A34A'
+                        && $row['covered_by'] === null
+                ))
+                ->etc()
+        );
+});
+
+function bulkEmailEmployee(mixed $context, array $attributes = []): Employee
+{
+    return Employee::factory()->create(array_merge([
+        'organisation_id' => $context->organisation->id,
+        'group_id'        => $context->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+        'email'           => 'bulk-'.uniqid().'@example.com',
+    ], $attributes));
+}
+
+test('a bulk email with an explicit recipient list only reaches the working people on it who have an email', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+
+    $first        = bulkEmailEmployee($this);
+    $second       = bulkEmailEmployee($this, ['email' => null, 'work_email' => 'bulk-work-'.uniqid().'@example.com']);
+    $notSelected  = bulkEmailEmployee($this);
+    $withoutEmail = bulkEmailEmployee($this, ['email' => null, 'work_email' => null]);
+    $hasLeft      = bulkEmailEmployee($this, ['state' => EmployeeStateEnum::LEFT]);
+
+    $employeeBulkEmail = \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail::make()->action($this->organisation, [
+        'subject'      => 'Explicit list',
+        'body'         => '<p>Hello</p>',
+        'employee_ids' => [$first->id, $second->id, $withoutEmail->id, $hasLeft->id],
+    ]);
+
+    $recipients = [];
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::assertPushedWith(
+        function (\App\Models\HumanResources\EmployeeBulkEmail $pushedBulkEmail, string $email) use ($employeeBulkEmail, &$recipients): bool {
+            if ($pushedBulkEmail->id === $employeeBulkEmail->id) {
+                $recipients[] = $email;
+            }
+
+            return true;
+        }
+    );
+
+    expect($employeeBulkEmail->number_recipients)->toBe(2)
+        ->and($employeeBulkEmail->number_pending)->toBe(2)
+        ->and($recipients)->toEqualCanonicalizing([$first->email, $second->work_email])
+        ->and($recipients)->not->toContain($notSelected->email);
+});
+
+test('a bulk email refuses recipients from another organisation', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+
+    $ownEmployee = bulkEmailEmployee($this);
+    $outsider    = Employee::factory()->create([
+        'organisation_id' => $otherOrganisation->id,
+        'group_id'        => $this->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+        'email'           => 'outsider-'.uniqid().'@example.com',
+    ]);
+
+    $numberBulkEmails = \App\Models\HumanResources\EmployeeBulkEmail::count();
+
+    expect(fn () => \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail::make()->action($this->organisation, [
+        'subject'      => 'Cross organisation',
+        'body'         => '<p>Hello</p>',
+        'employee_ids' => [$ownEmployee->id, $outsider->id],
+    ]))->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    expect(\App\Models\HumanResources\EmployeeBulkEmail::count())->toBe($numberBulkEmails);
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::assertNotPushed();
+});
+
+test('a bulk email without a recipient list still goes to every working employee with an email', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+
+    bulkEmailEmployee($this);
+    bulkEmailEmployee($this, ['email' => null, 'work_email' => null]);
+    bulkEmailEmployee($this, ['state' => EmployeeStateEnum::LEFT]);
+
+    $numberReachable = $this->organisation->employees()
+        ->where('state', EmployeeStateEnum::WORKING)
+        ->get()
+        ->filter(fn (Employee $employee): bool => (bool) ($employee->work_email ?: $employee->email))
+        ->count();
+
+    $employeeBulkEmail = \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail::make()->action($this->organisation, [
+        'subject' => 'Everyone',
+        'body'    => '<p>Hello</p>',
+    ]);
+
+    expect($numberReachable)->toBeGreaterThan(0)
+        ->and($employeeBulkEmail->number_recipients)->toBe($numberReachable);
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::assertPushed($numberReachable);
+});
+
+test('the bulk email compose page lists working employees without exposing addresses and sending keeps its attachment limits', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+    Storage::fake('local');
+
+    $recipient    = bulkEmailEmployee($this);
+    $withoutEmail = bulkEmailEmployee($this, ['email' => null, 'work_email' => null]);
+    $hasLeft      = bulkEmailEmployee($this, ['state' => EmployeeStateEnum::LEFT]);
+
+    $createRoute = route('grp.org.hr.bulk_emails.create', [$this->organisation->slug]);
+    $storeRoute  = route('grp.org.hr.bulk_emails.store', [$this->organisation->slug]);
+    $indexRoute  = route('grp.org.hr.bulk_emails.index', [$this->organisation->slug]);
+
+    actingAsUserWithOnlyPermissions(User::factory()->create(['group_id' => $this->group->id]), ["human-resources.{$this->organisation->id}.view"]);
+    get($createRoute)->assertForbidden();
+    post($storeRoute, ['subject' => 'Nope', 'body' => '<p>Nope</p>', 'employee_ids' => [$recipient->id]])->assertForbidden();
+
+    actingAsUserWithOnlyPermissions(User::factory()->create(['group_id' => $this->group->id]), ["human-resources.{$this->organisation->id}.view", "human-resources.{$this->organisation->id}.edit"]);
+
+    get($createRoute)
+        ->assertOk()
+        ->assertInertia(function (AssertableInertia $page) use ($recipient, $withoutEmail, $hasLeft, $indexRoute) {
+            $employees = collect($page->toArray()['props']['employees'])->keyBy('id');
+
+            expect($employees->get($recipient->id))->toMatchArray(['name' => $recipient->contact_name, 'has_email' => true])
+                ->and(array_keys($employees->get($recipient->id)))->toEqualCanonicalizing(['id', 'name', 'job_title', 'has_email', 'avatar'])
+                ->and($employees->get($withoutEmail->id)['has_email'])->toBeFalse()
+                ->and($employees->has($hasLeft->id))->toBeFalse()
+                ->and(json_encode($page->toArray()['props']['employees']))->not->toContain($recipient->email);
+
+            $page->component('Org/HumanResources/CreateEmployeeBulkEmail', false)
+                ->where('pageHead.actions.0.key', 'cancel')
+                ->where('pageHead.actions.0.route.name', 'grp.org.hr.bulk_emails.index')
+                ->where('sendRoute.name', 'grp.org.hr.bulk_emails.store')
+                ->where('attachmentLimits.max_files', 5)
+                ->where('attachmentLimits.max_file_kilobytes', 5120)
+                ->where('breadcrumbs.'.(count($page->toArray()['props']['breadcrumbs']) - 1).'.creatingModel.label', __('New bulk email'));
+        });
+
+    get($indexRoute)
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.actions.0.route.name', 'grp.org.hr.bulk_emails.create')
+            ->missing('employeeOptions'));
+
+    $navigationBuilder = new class () {
+        use \App\Actions\UI\Grp\Layout\WithLayoutNavigation;
+    };
+    $navigationUser = Mockery::mock(User::class);
+    $navigationUser->shouldReceive('authTo')->andReturn(true);
+    $bulkEmailsNav = collect($navigationBuilder->getHumanResourcesNavs($navigationUser, $this->organisation, [])['hr']['topMenu']['subSections'])
+        ->firstWhere('route.name', 'grp.org.hr.bulk_emails.index');
+    expect(str_starts_with('grp.org.hr.bulk_emails.create', $bulkEmailsNav['root']))->toBeTrue();
+
+    $numberBulkEmails = \App\Models\HumanResources\EmployeeBulkEmail::count();
+    $message          = ['subject' => 'With files', 'body' => '<p>Hello</p>', 'employee_ids' => [$recipient->id]];
+    $file             = fn (int $kilobytes) => \Illuminate\Http\UploadedFile::fake()->create('notes-'.uniqid().'.pdf', $kilobytes);
+
+    post($storeRoute, array_merge($message, ['attachments' => array_map(fn () => $file(10), range(1, 6))]))
+        ->assertSessionHasErrors('attachments');
+    post($storeRoute, array_merge($message, ['attachments' => [$file(5121)]]))
+        ->assertSessionHasErrors('attachments.0');
+    post($storeRoute, array_merge($message, ['employee_ids' => [$recipient->id, $recipient->id]]))
+        ->assertSessionHasErrors('employee_ids.0');
+    expect(\App\Models\HumanResources\EmployeeBulkEmail::count())->toBe($numberBulkEmails);
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::assertNotPushed();
+
+    post($storeRoute, array_merge($message, ['attachments' => array_map(fn () => $file(5120), range(1, 5))]))
+        ->assertSessionHasNoErrors()
+        ->assertRedirect($indexRoute)
+        ->assertSessionHas('notification.status', 'success');
+
+    $employeeBulkEmail = \App\Models\HumanResources\EmployeeBulkEmail::where('organisation_id', $this->organisation->id)->where('subject', 'With files')->latest('id')->firstOrFail();
+
+    expect($employeeBulkEmail->number_recipients)->toBe(1)
+        ->and($employeeBulkEmail->attachments)->toHaveCount(5)
+        ->and($employeeBulkEmail->sender_id)->toBe(auth()->id());
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::assertPushed(1);
+});
+
+test('the bulk email list searches subject and message, filters by sent date and carries what the preview shows', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+    Storage::fake('local');
+
+    $recipient = bulkEmailEmployee($this);
+    $token     = 'zq'.uniqid();
+
+    $sender = User::factory()->create(['group_id' => $this->group->id]);
+    actingAsUserWithOnlyPermissions($sender, ["human-resources.{$this->organisation->id}.view", "human-resources.{$this->organisation->id}.edit"]);
+
+    $indexRoute = fn (array $query = []) => route('grp.org.hr.bulk_emails.index', array_merge([$this->organisation->slug], $query));
+    $listedIds  = fn (array $query) => collect(get($indexRoute($query))->assertOk()->viewData('page')['props']['data']['data'])->pluck('id')->all();
+
+    post(route('grp.org.hr.bulk_emails.store', [$this->organisation->slug]), [
+        'subject'      => "Roster {$token}subject",
+        'body'         => '<p>Please read the <strong>new roster</strong>.</p><p>Thanks &amp; regards</p>',
+        'employee_ids' => [$recipient->id],
+        'attachments'  => [\Illuminate\Http\UploadedFile::fake()->create('roster.pdf', 12)],
+    ])->assertSessionHasNoErrors();
+
+    $bySubject = \App\Models\HumanResources\EmployeeBulkEmail::where('subject', "Roster {$token}subject")->firstOrFail();
+    $byBody    = \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail::make()->action($this->organisation, [
+        'subject'      => 'Canteen closed',
+        'body'         => "<p>Closed for <em>{$token}body</em> works.</p>",
+        'employee_ids' => [$recipient->id],
+    ]);
+    $byBody->forceFill(['created_at' => '2020-01-15 10:00:00'])->save();
+
+    get($indexRoute(['filter' => ['global' => "{$token}subject"]]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('filters.search', "{$token}subject")
+            ->has('data.data', 1)
+            ->where('data.data.0.id', $bySubject->id)
+            ->where('data.data.0.excerpt', 'Please read the new roster. Thanks & regards')
+            ->where('data.data.0.number_recipients', 1)
+            ->where('data.data.0.sender.name', $sender->contact_name ?: $sender->username)
+            ->where('data.data.0.attachments.0.name', 'roster.pdf')
+            ->where('data.data.0.attachments.0.size', 12 * 1024)
+            ->missing('data.data.0.attachments.0.path'));
+
+    expect($listedIds(['filter' => ['global' => "{$token}body"]]))->toBe([$byBody->id])
+        ->and($listedIds(['filter' => ['global' => 'strong']]))->not->toContain($bySubject->id);
+
+    $january2020 = $listedIds(['from' => '2020-01-01', 'to' => '2020-01-31']);
+    expect($january2020)->toContain($byBody->id)->not->toContain($bySubject->id)
+        ->and($listedIds(['from' => '2020-02-01']))->toContain($bySubject->id)->not->toContain($byBody->id)
+        ->and($listedIds(['to' => '2020-01-14']))->not->toContain($byBody->id)->not->toContain($bySubject->id);
+
+    get($indexRoute(['from' => '2020-01-01', 'to' => '2020-01-31']))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('filters.from', '2020-01-01')->where('filters.to', '2020-01-31'));
+
+    get($indexRoute(['from' => 'yesterday']))->assertSessionHasErrors('from');
+    get($indexRoute(['to' => '31/01/2020']))->assertSessionHasErrors('to');
+    get($indexRoute(['filter' => ['global' => str_repeat('a', 256)]]))->assertSessionHasErrors('filter.global');
+});
+
+test('leave requests index filters by status, type, overlapping leave period and search', function () {
+    $index   = fn (array $filters) => \App\Actions\HumanResources\Leave\UI\IndexLeavesAdmin::make()->handle($this->organisation, null, $filters)->total();
+    $inMarch = ['from' => '2031-03-10', 'to' => '2031-03-20'];
+    $type    = 'filter-type-'.rand(10000, 99999);
+    $needle  = 'Quillfeather'.rand(10000, 99999);
+
+    $baseline = [
+        'march'          => $index($inMarch),
+        'march approved' => $index([...$inMarch, 'status' => 'approved']),
+        'march pending'  => $index([...$inMarch, 'status' => 'pending']),
+        'after'          => $index(['from' => '2031-03-21']),
+        'before'         => $index(['to' => '2031-03-04']),
+    ];
+
+    $straddlingPending = createPendingLeaveFixture($this->organisation, $this->group);
+    $approvedInside    = createPendingLeaveFixture($this->organisation, $this->group);
+    $pendingAfter      = createPendingLeaveFixture($this->organisation, $this->group);
+
+    $straddlingPending->update(['start_date' => '2031-03-05', 'end_date' => '2031-03-12', 'employee_name' => 'Zed '.$needle]);
+    $approvedInside->update(['start_date' => '2031-03-15', 'end_date' => '2031-03-16', 'status' => LeaveStatusEnum::APPROVED, 'type' => $type]);
+    $pendingAfter->update(['start_date' => '2031-03-21', 'end_date' => '2031-03-22']);
+
+    expect($index($inMarch))->toBe($baseline['march'] + 2)
+        ->and($index([...$inMarch, 'status' => 'approved']))->toBe($baseline['march approved'] + 1)
+        ->and($index([...$inMarch, 'status' => 'pending']))->toBe($baseline['march pending'] + 1)
+        ->and($index(['type' => $type]))->toBe(1)
+        ->and($index(['from' => '2031-03-21']))->toBe($baseline['after'] + 1)
+        ->and($index(['to' => '2031-03-04']))->toBe($baseline['before']);
+
+    $rules = \App\Actions\HumanResources\Leave\UI\IndexLeavesAdmin::make()->rules();
+
+    expect(Validator::make(['status' => 'approved', 'from' => '2031-03-01', 'to' => '2031-03-31'], $rules)->passes())->toBeTrue()
+        ->and(Validator::make(['status' => 'not-a-status'], $rules)->errors()->keys())->toBe(['status'])
+        ->and(Validator::make(['from' => '01/03/2031', 'to' => 'tomorrow'], $rules)->errors()->keys())->toBe(['from', 'to']);
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $user->forgetWildcardPermissionIndex();
+    actingAs($user);
+
+    get(route('grp.org.hr.leaves.index', [
+        'organisation' => $this->organisation->slug,
+        'filter'       => ['global' => strtolower($needle)],
+        'status'       => 'pending',
+    ]))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$straddlingPending->id])
+                ->where('leaves.total', 1)
+                ->has('leaves.data.0.employee_avatar')
+                ->has('leaves.data.0.cover_employee_avatar')
+                ->has('leaves.data.0.approver_avatar')
+                ->where('filters.search', strtolower($needle))
+                ->where('filters.status', 'pending')
+                ->where('can_delete', true)
+                ->etc()
+        );
+
+    get(route('grp.org.hr.leaves.index', [
+        'organisation'  => $this->organisation->slug,
+        'leaves_filter' => ['type' => $type, 'status' => 'approved'],
+    ]))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$approvedInside->id])
+                ->where('filters.status', 'approved')
+                ->where('filters.type', $type)
+                ->etc()
+        );
+});
+
+test('clocking adjustments index filters by status, date range and search and sends organisation-local times', function () {
+    $index   = fn (array $filters) => \App\Actions\HumanResources\AttendanceAdjustment\UI\IndexAttendanceAdjustmentsAdmin::make()->handle($this->organisation, null, $filters)->total();
+    $inMarch = ['from' => '2031-03-01', 'to' => '2031-03-31'];
+    $needle  = 'Badgeless'.rand(10000, 99999);
+
+    $baseline = [
+        'march'          => $index($inMarch),
+        'march approved' => $index([...$inMarch, 'status' => 'approved']),
+        'march pending'  => $index([...$inMarch, 'status' => 'pending']),
+        'from april'     => $index(['from' => '2031-04-01']),
+        'until february' => $index(['to' => '2031-02-28']),
+    ];
+
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+
+    $makeAdjustment = fn (string $date, string $status, string $reason) => AttendanceAdjustment::create([
+        'group_id'           => $this->group->id,
+        'organisation_id'    => $this->organisation->id,
+        'employee_id'        => $employee->id,
+        'employee_name'      => $employee->contact_name,
+        'date'               => $date,
+        'reason'             => $reason,
+        'requested_start_at' => $date.' 08:30:00',
+        'status'             => $status,
+    ]);
+
+    $pendingInMarch = $makeAdjustment('2031-03-01', 'pending', 'Forgot badge '.$needle);
+    $makeAdjustment('2031-03-31', 'approved', 'Reader was offline');
+    $makeAdjustment('2031-04-01', 'pending', 'Reader was offline');
+
+    expect($index($inMarch))->toBe($baseline['march'] + 2)
+        ->and($index([...$inMarch, 'status' => 'approved']))->toBe($baseline['march approved'] + 1)
+        ->and($index([...$inMarch, 'status' => 'pending']))->toBe($baseline['march pending'] + 1)
+        ->and($index(['from' => '2031-04-01']))->toBe($baseline['from april'] + 1)
+        ->and($index(['to' => '2031-02-28']))->toBe($baseline['until february']);
+
+    $rules = \App\Actions\HumanResources\AttendanceAdjustment\UI\IndexAttendanceAdjustmentsAdmin::make()->rules();
+
+    expect(Validator::make(['status' => 'rejected', 'from' => '2031-03-01', 'to' => '2031-03-31'], $rules)->passes())->toBeTrue()
+        ->and(Validator::make(['status' => 'not-a-status'], $rules)->errors()->keys())->toBe(['status'])
+        ->and(Validator::make(['from' => '01/03/2031', 'to' => 'tomorrow'], $rules)->errors()->keys())->toBe(['from', 'to']);
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $user->forgetWildcardPermissionIndex();
+    actingAs($user);
+
+    $expectedLocalStart = $pendingInMarch->refresh()->requested_start_at->copy()->timezone($this->organisation->timezone->name)->format('H:i');
+
+    get(route('grp.org.hr.adjustments.index', [
+        'organisation' => $this->organisation->slug,
+        'filter'       => ['global' => strtolower($needle)],
+        'status'       => 'pending',
+        ...$inMarch,
+    ]))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('adjustments.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$pendingInMarch->id])
+                ->where('adjustments.data.0.requested_start_time_local', $expectedLocalStart)
+                ->where('adjustments.data.0.original_start_time_local', null)
+                ->where('adjustments.data.0.timezone', $this->organisation->timezone->name)
+                ->where('filters.search', strtolower($needle))
+                ->where('filters.status', 'pending')
+                ->where('filters.from', '2031-03-01')
+                ->where('can_edit', true)
+                ->etc()
+        );
+});
+
+function createApprovedLeaveBalanceFixture(Employee $employee, array $attributes = []): Leave
+{
+    $leave = Leave::create(array_merge([
+        'group_id'        => $employee->group_id,
+        'organisation_id' => $employee->organisation_id,
+        'employee_id'     => $employee->id,
+        'employee_name'   => $employee->contact_name,
+        'type'            => 'annual',
+        'start_date'      => now()->toDateString(),
+        'end_date'        => now()->toDateString(),
+        'duration_days'   => 1,
+        'is_half_day'     => false,
+        'session'         => 'Full',
+        'reason'          => 'Balance fixture',
+        'status'          => LeaveStatusEnum::APPROVED,
+        'approved_at'     => now(),
+    ], $attributes));
+
+    if ($leave->status === LeaveStatusEnum::APPROVED) {
+        ApproveLeave::make()->applyBalanceDeduction($leave);
+    }
+
+    return $leave;
+}
+
+test('a bulk email records who received it and its page lists them without addresses', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+
+    $token = 'rc'.uniqid();
+    $staff = collect(range(1, 7))->map(fn (int $number) => bulkEmailEmployee($this, ['contact_name' => "Recipient {$number} {$token}"]));
+
+    $employeeBulkEmail = \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmail::make()->action($this->organisation, [
+        'subject'      => "Recorded {$token}",
+        'body'         => '<p>Hello team</p>',
+        'employee_ids' => $staff->pluck('id')->all(),
+    ]);
+
+    expect($employeeBulkEmail->number_recipients)->toBe(7)
+        ->and($employeeBulkEmail->refresh()->recipients)->toHaveCount(7)
+        ->and(array_keys($employeeBulkEmail->recipients[0]))->toEqualCanonicalizing(['employee_id', 'name'])
+        ->and(array_column($employeeBulkEmail->recipients, 'name'))->toBe($staff->pluck('contact_name')->sort(SORT_NATURAL | SORT_FLAG_CASE)->values()->all())
+        ->and(array_column($employeeBulkEmail->recipients, 'employee_id'))->toEqualCanonicalizing($staff->pluck('id')->all())
+        ->and($employeeBulkEmail->getRawOriginal('recipients'))->not->toContain('@');
+
+    $removed = $staff->get(1);
+    $removed->delete();
+
+    $leaver = $staff->first();
+    $leaver->update(['state' => EmployeeStateEnum::LEFT]);
+
+    $legacyBulkEmail = \App\Models\HumanResources\EmployeeBulkEmail::create([
+        'group_id'          => $this->group->id,
+        'organisation_id'   => $this->organisation->id,
+        'subject'           => "Legacy {$token}",
+        'body'              => '<p>Sent before recipients were recorded</p>',
+        'number_recipients' => 3,
+        'number_pending'    => 0,
+        'attachments'       => [],
+    ]);
+
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+    $foreignBulkEmail = \App\Models\HumanResources\EmployeeBulkEmail::create([
+        'group_id'          => $this->group->id,
+        'organisation_id'   => $otherOrganisation->id,
+        'subject'           => "Foreign {$token}",
+        'body'              => '<p>Not yours</p>',
+        'number_recipients' => 0,
+        'number_pending'    => 0,
+        'attachments'       => [],
+    ]);
+
+    $showRoute = fn (\App\Models\HumanResources\EmployeeBulkEmail $bulkEmail) => route('grp.org.hr.bulk_emails.show', [$this->organisation->slug, $bulkEmail->id]);
+
+    actingAsUserWithOnlyPermissions(User::factory()->create(['group_id' => $this->group->id]), []);
+    get($showRoute($employeeBulkEmail))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions(User::factory()->create(['group_id' => $this->group->id]), ["human-resources.{$this->organisation->id}.view"]);
+
+    get($showRoute($employeeBulkEmail))
+        ->assertOk()
+        ->assertInertia(function (AssertableInertia $page) use ($employeeBulkEmail, $staff, $leaver, $removed, $token) {
+            $props      = $page->toArray()['props'];
+            $recipients = collect($props['recipients'])->keyBy('name');
+
+            expect($recipients)->toHaveCount(7)
+                ->and(array_keys($recipients->first()))->toEqualCanonicalizing(['id', 'name', 'avatar', 'job_title', 'is_working'])
+                ->and($recipients->get($leaver->contact_name)['is_working'])->toBeFalse()
+                ->and($recipients->get($staff->last()->contact_name)['is_working'])->toBeTrue()
+                ->and($recipients->get($staff->last()->contact_name)['id'])->toBe($staff->last()->id)
+                ->and($recipients->get($removed->contact_name))->toMatchArray(['avatar' => null, 'job_title' => null, 'is_working' => false])
+                ->and(json_encode($props))->not->toContain('@example.com');
+
+            $page->component('Org/HumanResources/EmployeeBulkEmail', false)
+                ->where('email.id', $employeeBulkEmail->id)
+                ->where('email.subject', "Recorded {$token}")
+                ->where('email.number_recipients', 7)
+                ->where('pageHead.title', "Recorded {$token}")
+                ->where('pageHead.actions.0.key', 'back')
+                ->where('pageHead.actions.0.route.name', 'grp.org.hr.bulk_emails.index')
+                ->where('breadcrumbs.'.(count($props['breadcrumbs']) - 1).'.simple.label', "Recorded {$token}")
+                ->where('breadcrumbs.'.(count($props['breadcrumbs']) - 2).'.simple.route.name', 'grp.org.hr.bulk_emails.index');
+        });
+
+    get($showRoute($legacyBulkEmail))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('email.number_recipients', 3)->has('recipients', 0));
+
+    get($showRoute($foreignBulkEmail))->assertNotFound();
+
+    get(route('grp.org.hr.bulk_emails.index', [$this->organisation->slug, 'filter' => ['global' => "Recorded {$token}"]]))
+        ->assertOk()
+        ->assertInertia(function (AssertableInertia $page) {
+            $props = $page->toArray()['props'];
+
+            expect(json_encode($props['data']))->not->toContain('@example.com');
+
+            $page->has('data.data', 1)
+                ->where('data.data.0.number_recipients', 7)
+                ->has('data.data.0.recipients_sample', 5)
+                ->missing('data.data.0.recipients');
+
+            expect(array_keys($props['data']['data'][0]['recipients_sample'][0]))->toEqualCanonicalizing(['id', 'name', 'avatar']);
+        });
+
+    $navigationBuilder = new class () {
+        use \App\Actions\UI\Grp\Layout\WithLayoutNavigation;
+    };
+    $navigationUser = Mockery::mock(User::class);
+    $navigationUser->shouldReceive('authTo')->andReturn(true);
+    $bulkEmailsNav = collect($navigationBuilder->getHumanResourcesNavs($navigationUser, $this->organisation, [])['hr']['topMenu']['subSections'])
+        ->firstWhere('route.name', 'grp.org.hr.bulk_emails.index');
+    expect(str_starts_with('grp.org.hr.bulk_emails.show', $bulkEmailsNav['root']))->toBeTrue();
+});
+
+test('bulk email attachments are kept after delivery and human resources can download them', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+    \Illuminate\Support\Facades\Notification::fake();
+    \Illuminate\Support\Facades\Mail::fake();
+    Storage::fake('local');
+
+    $token     = 'at'.uniqid();
+    $recipient = bulkEmailEmployee($this);
+    $editor    = User::factory()->create(['group_id' => $this->group->id]);
+    $hrAccess  = ["human-resources.{$this->organisation->id}.view", "human-resources.{$this->organisation->id}.edit"];
+
+    actingAsUserWithOnlyPermissions($editor, $hrAccess);
+
+    post(route('grp.org.hr.bulk_emails.store', [$this->organisation->slug]), [
+        'subject'      => "Handbook {$token}",
+        'body'         => '<p>See attached</p>',
+        'employee_ids' => [$recipient->id],
+        'attachments'  => [\Illuminate\Http\UploadedFile::fake()->create('handbook.pdf', 12, 'application/pdf')],
+    ])->assertSessionHasNoErrors();
+
+    $employeeBulkEmail = \App\Models\HumanResources\EmployeeBulkEmail::where('subject', "Handbook {$token}")->firstOrFail();
+    $storedPath        = $employeeBulkEmail->attachments[0]['path'];
+
+    \App\Actions\HumanResources\EmployeeBulkEmail\SendEmployeeBulkEmailToEmployee::run($employeeBulkEmail, $recipient->email, $recipient->contact_name);
+
+    \Illuminate\Support\Facades\Notification::assertSentOnDemand(\App\Notifications\EmployeeBulkEmailNotification::class);
+    expect($employeeBulkEmail->refresh()->number_pending)->toBe(0);
+    Storage::disk('local')->assertExists($storedPath);
+
+    $downloadRoute = fn (\App\Models\HumanResources\EmployeeBulkEmail $bulkEmail, int $attachment) => route('grp.org.hr.bulk_emails.attachments.download', [$this->organisation->slug, $bulkEmail->id, $attachment]);
+
+    get($downloadRoute($employeeBulkEmail, 0))->assertOk()->assertDownload('handbook.pdf');
+    get($downloadRoute($employeeBulkEmail, 1))->assertNotFound();
+
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+    $foreignBulkEmail = \App\Models\HumanResources\EmployeeBulkEmail::create([
+        'group_id'          => $this->group->id,
+        'organisation_id'   => $otherOrganisation->id,
+        'subject'           => "Foreign {$token}",
+        'body'              => '<p>Not yours</p>',
+        'number_recipients' => 0,
+        'number_pending'    => 0,
+        'attachments'       => $employeeBulkEmail->attachments,
+    ]);
+    get($downloadRoute($foreignBulkEmail, 0))->assertNotFound();
+
+    actingAsUserWithOnlyPermissions(User::factory()->create(['group_id' => $this->group->id]), []);
+    get($downloadRoute($employeeBulkEmail, 0))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($editor, $hrAccess);
+    get(route('grp.org.hr.bulk_emails.show', [$this->organisation->slug, $employeeBulkEmail->id]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('email.attachments.0.name', 'handbook.pdf')
+            ->where('email.attachments.0.index', 0)
+            ->where('email.attachments.0.available', true)
+            ->missing('email.attachments.0.path'));
+
+    Storage::disk('local')->delete($storedPath);
+
+    get($downloadRoute($employeeBulkEmail, 0))->assertNotFound();
+    get(route('grp.org.hr.bulk_emails.show', [$this->organisation->slug, $employeeBulkEmail->id]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('email.attachments.0.available', false));
+});
+
+function giveAvatarImage(Employee|User $model): void
+{
+    $imagePath = tempnam(sys_get_temp_dir(), 'avatar-').'.png';
+    file_put_contents($imagePath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
+
+    \App\Actions\Helpers\Media\SaveModelImage::run(
+        model: $model,
+        imageData: ['path' => $imagePath, 'originalName' => 'me.png', 'extension' => 'png'],
+        scope: 'avatar'
+    );
+    unlink($imagePath);
+}
+
+test('the employees list, the overtime, adjustment and leave dashboards, absence cover and employee analytics pages carry each employee avatar', function () {
+    config(['employee-analytics.enabled' => true]);
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $viewer->forgetWildcardPermissionIndex();
+    actingAs($viewer);
+
+    $token       = 'Avatar'.uniqid();
+    $newEmployee = fn (string $name): Employee => Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+        'contact_name'    => "{$token} {$name}",
+    ]);
+
+    $withOwnPicture  = $newEmployee('Own');
+    $withUserPicture = $newEmployee('Linked');
+    $withoutPicture  = $newEmployee('None');
+
+    giveAvatarImage($withOwnPicture);
+    $linkedUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    giveAvatarImage($linkedUser);
+    $withUserPicture->update(['user_id' => $linkedUser->id]);
+
+    $isPictureUrl = fn (mixed $avatar): bool => is_string($avatar) && $avatar !== '';
+
+    expect($withOwnPicture->fresh()->avatarUrl())->toBeString()->not->toBeEmpty()
+        ->and($withUserPicture->fresh()->avatarUrl())->toBeString()->not->toBeEmpty()
+        ->and($withoutPicture->fresh()->avatarUrl())->toBeNull();
+
+    get(route('grp.org.hr.employees.index', ['organisation' => $this->organisation->slug, 'global' => $token]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', function ($rows) use ($withOwnPicture, $withUserPicture, $withoutPicture, $isPictureUrl) {
+            $rows = collect($rows)->keyBy('id');
+
+            return $rows->every(fn ($row) => array_key_exists('avatar', $row) && ! array_key_exists('email', $row))
+                && $isPictureUrl($rows->get($withOwnPicture->id)['avatar'])
+                && $isPictureUrl($rows->get($withUserPicture->id)['avatar'])
+                && $rows->get($withoutPicture->id)['avatar'] === null;
+        }));
+
+    foreach (['grp.org.hr.overtime.dashboard', 'grp.org.hr.adjustments.dashboard', 'grp.org.hr.leaves.dashboard'] as $dashboardRoute) {
+        get(route($dashboardRoute, $this->organisation->slug))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('calendarData', function ($rows) use ($withOwnPicture, $withUserPicture, $withoutPicture, $isPictureUrl) {
+                $rows = collect($rows)->keyBy('id');
+
+                return $rows->every(fn ($row) => array_key_exists('avatar', $row) && ! array_key_exists('email', $row))
+                    && $isPictureUrl($rows->get($withOwnPicture->id)['avatar'])
+                    && $isPictureUrl($rows->get($withUserPicture->id)['avatar'])
+                    && $rows->get($withoutPicture->id)['avatar'] === null;
+            })->etc());
+    }
+
+    $leaveType = StoreLeaveType::make()->action($this->organisation, [
+        'code'     => 'AV'.rand(10000, 99999),
+        'name'     => 'Avatar Leave Type '.rand(10000, 99999),
+        'category' => \App\Enums\HumanResources\Leave\LeaveCategoryEnum::MEDICAL,
+    ]);
+    $newLeave = fn (Employee $employee, ?Employee $cover): Leave => Leave::create([
+        'group_id'          => $employee->group_id,
+        'organisation_id'   => $employee->organisation_id,
+        'employee_id'       => $employee->id,
+        'employee_name'     => $employee->contact_name,
+        'cover_employee_id' => $cover?->id,
+        'type'              => $leaveType->code,
+        'leave_type_id'     => $leaveType->id,
+        'start_date'        => now()->toDateString(),
+        'end_date'          => now()->toDateString(),
+        'duration_days'     => 1,
+        'is_half_day'       => false,
+        'session'           => 'Full',
+        'reason'            => 'Avatar fixture',
+        'status'            => LeaveStatusEnum::APPROVED,
+    ]);
+    $coveredLeave   = $newLeave($withOwnPicture, $withUserPicture);
+    $uncoveredLeave = $newLeave($withoutPicture, null);
+
+    get(route('grp.org.hr.covers.index', ['organisation' => $this->organisation->slug, 'global' => $token]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', function ($rows) use ($coveredLeave, $uncoveredLeave, $isPictureUrl) {
+            $rows = collect($rows)->keyBy('id');
+
+            return $isPictureUrl($rows->get($coveredLeave->id)['employee_avatar'])
+                && $isPictureUrl($rows->get($coveredLeave->id)['covered_by_avatar'])
+                && $rows->get($uncoveredLeave->id)['employee_avatar'] === null
+                && $rows->get($uncoveredLeave->id)['covered_by_avatar'] === null;
+        })->etc());
+
+    get(route('grp.org.hr.analytics.index', $this->organisation->slug))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('attendance_breakdown', fn ($rows) => collect($rows)->every(fn ($row) => array_key_exists('avatar', $row) && ! array_key_exists('email', $row)))
+            ->where('top_employees_by_leave', fn ($rows) => collect($rows)->every(fn ($row) => array_key_exists('avatar', $row) && ! array_key_exists('email', $row)))
+            ->etc());
+
+    [$attendanceRows, $leaveRows] = \App\Actions\HumanResources\EmployeeAnalytics\UI\IndexEmployeeAnalytics::make()->withAvatars(
+        [['id' => $withOwnPicture->id, 'name' => 'a'], ['id' => $withoutPicture->id, 'name' => 'b']],
+        [['id' => $withUserPicture->id, 'name' => 'c']]
+    );
+
+    expect($attendanceRows[0]['avatar'])->toBeString()->not->toBeEmpty()
+        ->and($attendanceRows[0]['name'])->toBe('a')
+        ->and($attendanceRows[1]['avatar'])->toBeNull()
+        ->and($leaveRows[0]['avatar'])->toBeString()->not->toBeEmpty();
+});
+
+test('the timesheets by employee views and the by date tab carry each employee avatar', function () {
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $viewer->forgetWildcardPermissionIndex();
+    actingAs($viewer);
+
+    $token       = 'Sheetavatar'.uniqid();
+    $newEmployee = function (string $name) use ($token): Employee {
+        $employee = Employee::factory()->create([
+            'organisation_id' => $this->organisation->id,
+            'group_id'        => $this->group->id,
+            'state'           => EmployeeStateEnum::WORKING,
+            'contact_name'    => "{$token} {$name}",
+        ]);
+
+        \App\Models\HumanResources\Timesheet::create([
+            'group_id'                  => $this->group->id,
+            'organisation_id'           => $this->organisation->id,
+            'date'                      => now()->toDateString(),
+            'subject_type'              => 'Employee',
+            'subject_id'                => $employee->id,
+            'subject_name'              => $employee->contact_name,
+            'start_at'                  => now()->startOfDay()->addHours(8),
+            'working_duration'          => 3600,
+            'breaks_duration'           => 0,
+            'total_duration'            => 3600,
+            'number_time_trackers'      => 1,
+            'number_open_time_trackers' => 0,
+        ]);
+
+        return $employee;
+    };
+
+    $withPicture    = $newEmployee('Own');
+    $withoutPicture = $newEmployee('None');
+    giveAvatarImage($withPicture);
+
+    $carriesAvatars = function ($rows) use ($withPicture, $withoutPicture): bool {
+        $rows = collect($rows)->keyBy(fn ($row) => $row['subject_name']);
+
+        return $rows->count() === 2
+            && $rows->every(fn ($row) => array_key_exists('avatar', $row) && ! array_key_exists('email', $row))
+            && is_string($rows->get($withPicture->contact_name)['avatar'])
+            && $rows->get($withPicture->contact_name)['avatar'] !== ''
+            && $rows->get($withoutPicture->contact_name)['avatar'] === null
+            && (int) $rows->get($withPicture->contact_name)['working_duration'] === 3600;
+    };
+
+    foreach (\App\Enums\UI\HumanResources\TimesheetEmployeeViewEnum::cases() as $view) {
+        get(route('grp.org.hr.timesheets.index', [
+            'organisation'    => $this->organisation->slug,
+            'tab'             => 'employee',
+            'view'            => $view->value,
+            'employee_filter' => ['global' => $token],
+        ]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('employee.data', $carriesAvatars)->etc());
+    }
+
+    get(route('grp.org.hr.timesheets.index', [
+        'organisation'     => $this->organisation->slug,
+        'tab'              => 'employees',
+        'employees_filter' => ['global' => $token],
+    ]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('employees.data', $carriesAvatars)->etc());
+});
+
+function createEmployeeLeaveTabLeave(Employee $employee, string $startDate, int $days, LeaveStatusEnum $status, array $attributes = []): Leave
+{
+    return Leave::create(array_merge([
+        'group_id'        => $employee->group_id,
+        'organisation_id' => $employee->organisation_id,
+        'employee_id'     => $employee->id,
+        'employee_name'   => $employee->contact_name,
+        'type'            => 'annual',
+        'start_date'      => $startDate,
+        'end_date'        => \Carbon\Carbon::parse($startDate)->addDays($days - 1)->toDateString(),
+        'duration_days'   => $days,
+        'is_half_day'     => false,
+        'session'         => 'Full',
+        'reason'          => 'Leave tab fixture',
+        'status'          => $status,
+    ], $attributes));
+}
+
+test('the employee page leave tab counts that employee leave by status and year, filters its list and follows the page authorisation', function () {
+    $thisYear = now()->year;
+    $lastYear = $thisYear - 1;
+
+    $leaveType = StoreLeaveType::make()->action($this->organisation, [
+        'code'     => 'ET'.rand(10000, 99999),
+        'name'     => 'Employee Tab Type '.rand(10000, 99999),
+        'category' => \App\Enums\HumanResources\Leave\LeaveCategoryEnum::MEDICAL,
+    ]);
+    $leaveType->update(['color' => 'green']);
+
+    $newEmployee = fn (): Employee => Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+    ]);
+    $employee  = $newEmployee();
+    $colleague = $newEmployee();
+    $employee->stats()->create();
+
+    $contract = StoreEmployeeContract::make()->action($employee, [
+        'start_date'        => now()->subMonth()->toDateString(),
+        'annual_leave_days' => 20,
+    ]);
+    EmployeeLeaveBalance::where('employee_contract_id', $contract->id)->firstOrFail()->update(['annual_used' => 3.5, 'medical_used' => 1]);
+
+    $approvedTyped    = createEmployeeLeaveTabLeave($employee, "$thisYear-03-02", 3, LeaveStatusEnum::APPROVED, ['leave_type_id' => $leaveType->id, 'type' => $leaveType->code, 'cover_employee_id' => $colleague->id]);
+    $approvedHalfDay  = createEmployeeLeaveTabLeave($employee, "$thisYear-04-10", 1, LeaveStatusEnum::APPROVED, ['is_half_day' => true, 'session' => 'Morning']);
+    $pending          = createEmployeeLeaveTabLeave($employee, "$thisYear-05-05", 2, LeaveStatusEnum::PENDING);
+    $rejected         = createEmployeeLeaveTabLeave($employee, "$thisYear-02-01", 1, LeaveStatusEnum::REJECTED, ['rejection_reason' => 'Peak season']);
+    $approvedLastYear = createEmployeeLeaveTabLeave($employee, "$lastYear-08-03", 2, LeaveStatusEnum::APPROVED);
+    $rejectedLastYear = createEmployeeLeaveTabLeave($employee, "$lastYear-09-01", 1, LeaveStatusEnum::REJECTED);
+    createEmployeeLeaveTabLeave($employee, "$thisYear-06-01", 4, LeaveStatusEnum::APPROVED)->delete();
+    createEmployeeLeaveTabLeave($employee, "$lastYear-10-01", 5, LeaveStatusEnum::PENDING)->delete();
+    createEmployeeLeaveTabLeave($colleague, "$thisYear-03-02", 7, LeaveStatusEnum::APPROVED);
+
+    $index = \App\Actions\HumanResources\Leave\UI\IndexEmployeeLeaves::make();
+
+    expect($index->summary($index->statistics($employee)))->toEqual(['total' => 6, 'approved' => 3, 'pending' => 1, 'rejected' => 2, 'days_taken' => 5.5])
+        ->and($index->resolveFilters([], 'leaves'))->toBe(['status' => null, 'year' => $thisYear])
+        ->and($index->resolveFilters(['leaves_year' => 'all', 'leaves_status' => 'pending'], 'leaves'))->toBe(['status' => 'pending', 'year' => null])
+        ->and(Validator::make(['leaves_status' => 'approved', 'leaves_year' => (string) $lastYear], $index->rules('leaves'))->passes())->toBeTrue()
+        ->and(Validator::make(['leaves_status' => 'cancelled', 'leaves_year' => 'next'], $index->rules('leaves'))->errors()->keys())->toBe(['leaves_status', 'leaves_year']);
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $user = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $user->forgetWildcardPermissionIndex();
+    actingAs($user);
+
+    $leaveTab  = fn (array $query = []) => get(route('grp.org.hr.employees.show', ['organisation' => $this->organisation->slug, 'employee' => $employee->slug, 'tab' => 'leaves', ...$query]));
+    $summaryIs = fn (array $expected) => fn ($summary) => collect($summary)->map(fn ($value) => (float) $value)->all() == $expected;
+    $idsAre    = fn (array $expected) => fn ($rows) => collect($rows)->pluck('id')->all() === $expected;
+
+    $leaveTab()
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('tabs.current', 'leaves')
+                ->where('tabs.navigation', fn ($navigation) => collect($navigation)->keys()->take(2)->all() === ['showcase', 'leaves'])
+                ->where('leaves.filters.year', $thisYear)
+                ->where('leaves.filters.status', null)
+                ->where('leaves.year_options', fn ($years) => collect($years)->all() === [$thisYear, $lastYear])
+                ->where('leaves.summary', $summaryIs(['total' => 4.0, 'approved' => 2.0, 'pending' => 1.0, 'rejected' => 1.0, 'days_taken' => 3.5]))
+                ->where('leaves.by_type', function ($types) use ($leaveType) {
+                    $types = collect($types)->map(fn ($type) => collect($type)->all())->all();
+
+                    return count($types) === 2
+                        && $types[0]['key'] === 'id:'.$leaveType->id
+                        && $types[0]['label'] === $leaveType->name
+                        && $types[0]['color_hex'] === '#16A34A'
+                        && [$types[0]['requests'], $types[0]['approved'], (float) $types[0]['approved_days']] === [1, 1, 3.0]
+                        && $types[1]['key'] === 'code:annual'
+                        && [$types[1]['requests'], $types[1]['approved'], (float) $types[1]['approved_days']] === [3, 1, 0.5];
+                })
+                ->where('leaves.balance', fn ($balance) => (float) $balance['annual_allowance'] === 20.0
+                    && (float) $balance['annual_used'] === 3.5
+                    && (float) $balance['annual_remaining'] === 16.5
+                    && (float) $balance['medical_used'] === 1.0
+                    && (float) $balance['unpaid_used'] === 0.0)
+                ->where('leaves.leaves.total', 4)
+                ->where('leaves.leaves.data', $idsAre([$pending->id, $approvedHalfDay->id, $approvedTyped->id, $rejected->id]))
+                ->where('leaves.leaves.data.1.days', fn ($days) => (float) $days === 0.5)
+                ->where('leaves.leaves.data.2.days', fn ($days) => (float) $days === 3.0)
+                ->where('leaves.leaves.data.2.type_color_hex', '#16A34A')
+                ->where('leaves.leaves.data.2.cover_employee_name', $colleague->contact_name)
+                ->where('leaves.leaves.data.3.rejection_reason', 'Peak season')
+                ->where('leaves.leave_requests_route.name', 'grp.org.hr.leaves.index')
+                ->where('leaves.leave_requests_route.parameters.filter.global', $employee->contact_name)
+                ->where('leaves.query_parameters.status', 'leaves_status')
+                ->where('leaves.query_parameters.year', 'leaves_year')
+                ->etc()
+        );
+
+    $leaveTab(['leaves_year' => $lastYear])
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.filters.year', $lastYear)
+                ->where('leaves.summary', $summaryIs(['total' => 2.0, 'approved' => 1.0, 'pending' => 0.0, 'rejected' => 1.0, 'days_taken' => 2.0]))
+                ->where('leaves.leaves.data', $idsAre([$rejectedLastYear->id, $approvedLastYear->id]))
+                ->etc()
+        );
+
+    $leaveTab(['leaves_year' => 'all', 'leaves_status' => 'rejected'])
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.filters.year', 'all')
+                ->where('leaves.filters.status', 'rejected')
+                ->where('leaves.summary', $summaryIs(['total' => 6.0, 'approved' => 3.0, 'pending' => 1.0, 'rejected' => 2.0, 'days_taken' => 5.5]))
+                ->where('leaves.leaves.data', $idsAre([$rejected->id, $rejectedLastYear->id]))
+                ->etc()
+        );
+
+    $leaveTab(['leaves_status' => 'approved'])
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.leaves.data', $idsAre([$approvedHalfDay->id, $approvedTyped->id]))
+                ->where('leaves.summary', $summaryIs(['total' => 4.0, 'approved' => 2.0, 'pending' => 1.0, 'rejected' => 1.0, 'days_taken' => 3.5]))
+                ->etc()
+        );
+
+    $leaveTab(['leaves_year' => $thisYear + 1])
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('leaves.summary', $summaryIs(['total' => 0.0, 'approved' => 0.0, 'pending' => 0.0, 'rejected' => 0.0, 'days_taken' => 0.0]))
+                ->where('leaves.by_type', fn ($types) => collect($types)->isEmpty())
+                ->where('leaves.leaves.total', 0)
+                ->where('leaves.year_options', fn ($years) => collect($years)->all() === [$thisYear + 1, $thisYear, $lastYear])
+                ->etc()
+        );
+
+    $leaveTab(['leaves_status' => 'cancelled'])->assertSessionHasErrors('leaves_status');
+
+    get(route('grp.org.hr.employees.show', [$this->organisation->slug, $employee->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'showcase')->missing('leaves')->etc());
+
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+
+    $otherOrganisationUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $otherOrganisationUser->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $otherOrganisation));
+    $otherOrganisationUser->forgetWildcardPermissionIndex();
+    actingAs($otherOrganisationUser);
+
+    $leaveTab()->assertForbidden();
+    $leaveTab(['organisation' => $otherOrganisation->slug])->assertNotFound();
+});
+
+test('a section supervisor opens the leave tab of an employee in their section only', function () {
+    $warehouse    = createWarehouse();
+    $organisation = $warehouse->organisation;
+    setPermissionsTeamId($warehouse->group_id);
+    \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
+    \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($organisation);
+
+    $positions = JobPosition::where('organisation_id', $organisation->id)->whereIn('code', ['wah-m', 'wah-sc', 'acc-c'])->get()->keyBy('code');
+
+    $newEmployee = function () use ($organisation): Employee {
+        $employee = Employee::factory()->create([
+            'organisation_id' => $organisation->id,
+            'group_id'        => $organisation->group_id,
+            'state'           => EmployeeStateEnum::WORKING,
+        ]);
+        $employee->stats()->create();
+
+        return $employee;
+    };
+
+    $warehouseClerk = $newEmployee();
+    SyncEmployeeJobPositions::make()->handle($warehouseClerk, [$positions['wah-sc']->id => ['Warehouse' => [$warehouse->id]]]);
+
+    $accountingClerk = $newEmployee();
+    SyncEmployeeJobPositions::make()->handle($accountingClerk, [$positions['acc-c']->id => []]);
+
+    $clerkLeave = createEmployeeLeaveTabLeave($warehouseClerk, now()->year.'-03-02', 2, LeaveStatusEnum::APPROVED);
+    createEmployeeLeaveTabLeave($accountingClerk, now()->year.'-03-02', 2, LeaveStatusEnum::APPROVED);
+
+    $supervisor = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    \App\Actions\SysAdmin\User\SyncUserPseudoOrganisationJobPositions::make()->handle($supervisor, $organisation, [$positions['wah-m']->id => ['Warehouse' => [$warehouse->id]]]);
+    actingAs($supervisor->refresh());
+
+    get(route('grp.org.hr.employees.show', ['organisation' => $organisation->slug, 'employee' => $warehouseClerk->slug, 'tab' => 'leaves']))
+        ->assertOk()
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('tabs.navigation', fn ($navigation) => collect($navigation)->has('leaves') && !collect($navigation)->has('requests'))
+                ->where('leaves.summary.approved', 1)
+                ->where('leaves.leaves.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$clerkLeave->id])
+                ->etc()
+        );
+
+    get(route('grp.org.hr.employees.show', ['organisation' => $organisation->slug, 'employee' => $accountingClerk->slug, 'tab' => 'leaves']))->assertForbidden();
+});
+
+test('the clockings list breadcrumb carries the organisation its link needs', function () {
+    $breadcrumbs = \App\Actions\HumanResources\Clocking\UI\IndexClockings::make()
+        ->getBreadcrumbs('grp.org.hr.clockings.index', ['organisation' => $this->organisation->slug]);
+
+    $clockingsCrumb = collect($breadcrumbs)->last();
+
+    expect(data_get($clockingsCrumb, 'simple.route.name'))->toBe('grp.org.hr.clockings.index')
+        ->and(data_get($clockingsCrumb, 'simple.route.parameters'))->toBe(['organisation' => $this->organisation->slug])
+        ->and(route(data_get($clockingsCrumb, 'simple.route.name'), data_get($clockingsCrumb, 'simple.route.parameters')))->toContain('/hr/clocking');
+});
+
+test('a leave with a verdict cannot be approved or rejected again while multi-level approval still works', function () {
+    Notification::fake();
+
+    createLeaveApproverFixture($this->organisation, 1);
+    createLeaveApproverFixture($this->organisation, 2);
+
+    $approved = createPendingLeaveFixture($this->organisation, $this->group);
+    $levels   = $approved->approvalLevels();
+    $balance  = fn (Leave $leave) => (float) EmployeeLeaveBalance::where('employee_id', $leave->employee_id)->value('annual_used');
+
+    expect(count($levels))->toBeGreaterThanOrEqual(2);
+
+    $lastApprover = null;
+    foreach ($levels as $level) {
+        $lastApprover = createLeaveApproverFixture($this->organisation, $level);
+        actingAs($lastApprover->user);
+        ApproveLeave::make()->handle($approved);
+
+        expect($approved->refresh()->status)->toBe($level === end($levels) ? LeaveStatusEnum::APPROVED : LeaveStatusEnum::PENDING);
+    }
+
+    expect($balance($approved))->toBe(2.0);
+
+    expect(fn () => RejectLeave::make()->handle($approved, 'Changed my mind'))
+        ->toThrow(\Illuminate\Validation\ValidationException::class, 'This leave request has already been approved.')
+        ->and(fn () => ApproveLeave::make()->handle($approved))
+        ->toThrow(\Illuminate\Validation\ValidationException::class, 'This leave request has already been approved.');
+
+    $leaveRoute = fn (string $name, Leave $leave) => route($name, ['organisation' => $this->organisation->slug, 'leave' => $leave->id]);
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $lastApprover->user->update(['status' => true]);
+    $lastApprover->user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $lastApprover->user->forgetWildcardPermissionIndex();
+    actingAs($lastApprover->user->refresh());
+
+    post($leaveRoute('grp.org.hr.leaves.reject', $approved), ['rejection_reason' => 'Changed my mind'])->assertSessionHasErrors('status');
+    post($leaveRoute('grp.org.hr.leaves.approve', $approved))->assertSessionHasErrors('status');
+
+    expect($approved->refresh()->status)->toBe(LeaveStatusEnum::APPROVED)
+        ->and($approved->rejection_reason)->toBeNull()
+        ->and($balance($approved))->toBe(2.0);
+
+    $rejected = createPendingLeaveFixture($this->organisation, $this->group);
+
+    $firstLevelApprover = createLeaveApproverFixture($this->organisation, $levels[0]);
+    actingAs($firstLevelApprover->user);
+    ApproveLeave::make()->handle($rejected);
+    expect($rejected->refresh()->status)->toBe(LeaveStatusEnum::PENDING);
+
+    actingAs($lastApprover->user);
+    post($leaveRoute('grp.org.hr.leaves.reject', $rejected), ['rejection_reason' => 'No cover available'])->assertSessionHasNoErrors();
+
+    expect($rejected->refresh()->status)->toBe(LeaveStatusEnum::REJECTED)
+        ->and($rejected->rejection_reason)->toBe('No cover available');
+
+    expect(fn () => ApproveLeave::make()->handle($rejected))
+        ->toThrow(\Illuminate\Validation\ValidationException::class, 'This leave request has already been rejected.')
+        ->and(fn () => RejectLeave::make()->handle($rejected, 'Again'))
+        ->toThrow(\Illuminate\Validation\ValidationException::class, 'This leave request has already been rejected.');
+
+    post($leaveRoute('grp.org.hr.leaves.approve', $rejected))->assertSessionHasErrors('status');
+
+    expect($rejected->refresh()->status)->toBe(LeaveStatusEnum::REJECTED)
+        ->and($rejected->rejection_reason)->toBe('No cover available')
+        ->and($balance($rejected))->toBe(0.0);
+});
+
+test('the overtime list and the clocking adjustment list carry each employee avatar', function () {
+    setPermissionsTeamId($this->organisation->group_id);
+
+    $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $viewer->forgetWildcardPermissionIndex();
+    actingAs($viewer);
+
+    $withPicture    = createOvertimeRequestFixture($this->organisation, $this->group);
+    $withoutPicture = createOvertimeRequestFixture($this->organisation, $this->group);
+    $withPicture->update(['requested_date' => '2033-07-07']);
+    $withoutPicture->update(['requested_date' => '2033-07-07']);
+
+    if ($withoutPicture->employee_id === $withPicture->employee_id) {
+        $withoutPicture->update(['employee_id' => Employee::factory()->create([
+            'organisation_id' => $this->organisation->id,
+            'group_id'        => $this->group->id,
+        ])->id]);
+    }
+
+    $pictured = $withPicture->employee;
+    giveAvatarImage($pictured);
+    $plain = $withoutPicture->refresh()->employee;
+    $plain->update(['image_id' => null, 'user_id' => null]);
+
+    $carriesAvatars = function (array $keys, int $picturedId, int $plainId): Closure {
+        return function ($rows) use ($keys, $picturedId, $plainId): bool {
+            $rows = collect($rows)->keyBy('id');
+
+            return $rows->every(fn ($row) => collect($keys)->every(fn ($key) => array_key_exists($key, $row)) && ! array_key_exists('email', $row))
+                && is_string($rows->get($picturedId)['employee_avatar'])
+                && $rows->get($picturedId)['employee_avatar'] !== ''
+                && $rows->get($plainId)['employee_avatar'] === null;
+        };
+    };
+
+    get(route('grp.org.hr.overtime.index', ['organisation' => $this->organisation->slug, 'from' => '2033-07-07', 'to' => '2033-07-07']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', $carriesAvatars(['employee_avatar', 'approver_avatar'], $withPicture->id, $withoutPicture->id))
+            ->etc());
+
+    $makeAdjustment = fn (Employee $employee) => AttendanceAdjustment::create([
+        'group_id'           => $this->group->id,
+        'organisation_id'    => $this->organisation->id,
+        'employee_id'        => $employee->id,
+        'employee_name'      => $employee->contact_name,
+        'date'               => '2033-07-08',
+        'reason'             => 'Avatar fixture',
+        'requested_start_at' => '2033-07-08 08:30:00',
+        'status'             => 'pending',
+    ]);
+    $picturedAdjustment = $makeAdjustment($pictured);
+    $plainAdjustment    = $makeAdjustment($plain);
+
+    get(route('grp.org.hr.adjustments.index', ['organisation' => $this->organisation->slug, 'from' => '2033-07-08', 'to' => '2033-07-08']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('adjustments.data', $carriesAvatars(['employee_avatar', 'approver_avatar'], $picturedAdjustment->id, $plainAdjustment->id))
+            ->etc());
+});
+
+test('human resources pages and actions never serve or change a record of another organisation', function () {
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+
+    $newEmployee = function (\App\Models\SysAdmin\Organisation $organisation): Employee {
+        $employee = Employee::factory()->create([
+            'organisation_id' => $organisation->id,
+            'group_id'        => $organisation->group_id,
+            'state'           => EmployeeStateEnum::WORKING,
+        ]);
+        $employee->stats()->create();
+
+        return $employee;
+    };
+
+    $employee      = $newEmployee($this->organisation);
+    $otherEmployee = $newEmployee($otherOrganisation);
+
+    $contract      = StoreEmployeeContract::make()->action($employee, ['start_date' => now()->subMonth()->toDateString(), 'annual_leave_days' => 20]);
+    $otherContract = StoreEmployeeContract::make()->action($otherEmployee, ['start_date' => now()->subMonth()->toDateString(), 'annual_leave_days' => 20]);
+    $timesheet     = makeAdjustmentTimesheet($this, $employee, '2031-05-06');
+    $employeeUser  = StoreUserFromEmployee::make()->handle($employee, ['username' => 'scope-'.$employee->id, 'password' => 'secret123']);
+    $workplace     = StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'Scoped Workplace '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::HQ,
+    ]);
+    $jobPosition   = JobPosition::where('organisation_id', $this->organisation->id)->firstOrFail();
+    $overtimeType  = StoreOvertimeType::make()->action($this->organisation, [
+        'code'              => 'SC'.rand(10000, 99999),
+        'name'              => 'Scoped overtime '.uniqid(),
+        'category'          => \App\Enums\HumanResources\Overtime\OvertimeCategoryEnum::cases()[0]->value,
+        'compensation_type' => \App\Enums\HumanResources\Overtime\OvertimeCompensationTypeEnum::cases()[0]->value,
+    ]);
+
+    $employee->refresh();
+    $nameBefore      = $employee->contact_name;
+    $pinBefore       = $employee->pin;
+    $contractsBefore = $employee->contracts()->count();
+    $annualBefore    = (float) $contract->annual_leave_days;
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $hrUserOf = function (\App\Models\SysAdmin\Organisation $organisation): User {
+        $user = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+        $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $organisation));
+        $user->forgetWildcardPermissionIndex();
+
+        return $user;
+    };
+
+    $other = $otherOrganisation->slug;
+    $pages = fn (string $organisation, Employee $subject, EmployeeContract $subjectContract): array => [
+        'show'             => route('grp.org.hr.employees.show', [$organisation, $subject->slug]),
+        'leave tab'        => route('grp.org.hr.employees.show', [$organisation, $subject->slug, 'tab' => 'leaves']),
+        'edit'             => route('grp.org.hr.employees.edit', [$organisation, $subject->slug]),
+        'positions'        => route('grp.org.hr.employees.show.positions.index', [$organisation, $subject->slug]),
+        'timesheets'       => route('grp.org.hr.employees.show.timesheets.index', [$organisation, $subject->slug]),
+        'contracts'        => route('grp.org.hr.employees.show.contracts.index', [$organisation, $subject->slug]),
+        'contracts create' => route('grp.org.hr.employees.show.contracts.create', [$organisation, $subject->slug]),
+        'contracts edit'   => route('grp.org.hr.employees.show.contracts.edit', [$organisation, $subject->slug, $subjectContract->id]),
+    ];
+
+    actingAs($hrUserOf($otherOrganisation));
+
+    foreach ($pages($other, $employee, $contract) as $page => $url) {
+        expect(get($url)->status())->toBe(404, $page);
+    }
+
+    foreach ([
+        'pin'               => route('grp.org.hr.employees.generate-pin', [$other, $employee->slug]),
+        'timesheets pdf'    => route('grp.org.hr.employees.show.timesheets.pdf', [$other, $employee->slug]),
+        'timesheets export' => route('grp.org.hr.employees.show.timesheets.export', [$other, $employee->slug]),
+        'timesheet'         => route('grp.org.hr.employees.show.timesheets.show', [$other, $employee->slug, $timesheet->id]),
+        'own timesheet url' => route('grp.org.hr.employees.show.timesheets.show', [$other, $otherEmployee->slug, $timesheet->id]),
+        'org timesheet'     => route('grp.org.hr.timesheets.show', [$other, $timesheet->id]),
+        'user'              => route('grp.org.hr.employees.show.users.show', [$other, $employee->slug, $employeeUser->slug]),
+        'unlinked user'     => route('grp.org.hr.employees.show.users.show', [$other, $otherEmployee->slug, $employeeUser->slug]),
+        'user edit'         => route('grp.org.hr.employees.show.users.edit', [$other, $otherEmployee->slug, $employeeUser->slug]),
+        'foreign contract'  => route('grp.org.hr.employees.show.contracts.edit', [$other, $otherEmployee->slug, $contract->id]),
+        'contract json'     => route('grp.org.hr.employees.contract', [$other, $employee->slug]),
+        'workplace'         => route('grp.org.hr.workplaces.show', [$other, $workplace->slug]),
+        'workplace edit'    => route('grp.org.hr.workplaces.edit', [$other, $workplace->slug]),
+        'job position'      => route('grp.org.hr.job_positions.show', [$other, $jobPosition->slug]),
+    ] as $page => $url) {
+        expect(get($url)->status())->toBe(404, $page);
+    }
+
+    post(route('grp.org.hr.employees.regenerate-pin', [$other, $employee->slug]))->assertNotFound();
+    $this->patch(route('grp.org.hr.employees.adjust-leave', [$other, $employee->slug]))->assertNotFound();
+    $this->patch(route('grp.org.hr.overtime_types.update', [$other, $overtimeType->id]), ['name' => 'Taken over'])->assertNotFound();
+    $this->delete(route('grp.org.hr.overtime_types.delete', [$other, $overtimeType->id]))->assertNotFound();
+
+    $this->patch(route('grp.models.employee.update', $employee->id), ['contact_name' => 'Taken Over'])->assertForbidden();
+    $this->delete(route('grp.models.employee..delete', $employee->id))->assertForbidden();
+    post(route('grp.models.employee.contracts.store', $employee->id), ['start_date' => now()->addYear()->toDateString()])->assertForbidden();
+    $this->patch(route('grp.models.employee.contracts.update', $contract->id), ['annual_leave_days' => 99])->assertForbidden();
+
+    $employee->refresh();
+    expect($employee->trashed())->toBeFalse()
+        ->and($employee->contact_name)->toBe($nameBefore)
+        ->and($employee->pin)->toBe($pinBefore)
+        ->and($employee->contracts()->count())->toBe($contractsBefore)
+        ->and((float) $contract->refresh()->annual_leave_days)->toBe($annualBefore)
+        ->and($overtimeType->refresh()->name)->not->toBe('Taken over');
+
+    foreach ($pages($other, $otherEmployee, $otherContract) as $page => $url) {
+        expect(get($url)->status())->toBe(200, $page);
+    }
+
+    actingAs($hrUserOf($this->organisation));
+
+    foreach ($pages($this->organisation->slug, $employee, $contract) as $page => $url) {
+        expect(get($url)->status())->toBe(200, $page);
+    }
+
+    get(route('grp.org.hr.employees.show.timesheets.show', [$this->organisation->slug, $employee->slug, $timesheet->id]))->assertOk();
+    get(route('grp.org.hr.workplaces.show', [$this->organisation->slug, $workplace->slug]))->assertOk();
+    get(route('grp.org.hr.job_positions.show', [$this->organisation->slug, $jobPosition->slug]))->assertOk();
+
+    $this->patch(route('grp.models.employee.contracts.update', $contract->id), ['annual_leave_days' => 21])->assertRedirect();
+    $this->patch(route('grp.models.employee.update', $employee->id), ['contact_name' => 'Renamed By Own Hr'])->assertRedirect();
+
+    expect((float) $contract->refresh()->annual_leave_days)->toBe(21.0)
+        ->and($employee->refresh()->contact_name)->toBe('Renamed By Own Hr');
+});
+
+test('an employee with a contract but no balance for the requested year can request leave and gets that year balance', function () {
+    Notification::fake();
+
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+    ]);
+    $user = StoreUserFromEmployee::make()->handle($employee, [
+        'username' => 'leave-year-'.$employee->id,
+        'password' => 'secret123',
+    ]);
+
+    $contractStart = now()->subYears(2)->subMonths(2)->startOfMonth();
+    $contract      = StoreEmployeeContract::make()->action($employee, [
+        'start_date'        => $contractStart->toDateString(),
+        'annual_leave_days' => 18,
+    ]);
+
+    $firstYear = EmployeeLeaveBalance::where('employee_contract_id', $contract->id)->firstOrFail();
+    $firstYear->update(['annual_used' => 4, 'medical_used' => 1]);
+    $firstYearBefore = $firstYear->refresh()->only(['period_start', 'period_end', 'annual_used', 'medical_used', 'unpaid_used']);
+
+    $leaveType = StoreLeaveType::make()->action($this->organisation, [
+        'code'     => 'YR'.rand(10000, 99999),
+        'name'     => 'Year balance type '.rand(10000, 99999),
+        'category' => \App\Enums\HumanResources\Leave\LeaveCategoryEnum::MEDICAL,
+    ]);
+
+    $day = now()->addDays(10)->startOfDay();
+    while ($day->isWeekend() || Holiday::where('organisation_id', $this->organisation->id)->whereDate('from', '<=', $day)->whereDate('to', '>=', $day)->exists()) {
+        $day->addDay();
+    }
+
+    actingAs($user);
+
+    post(route('grp.clocking_employees.leaves.store'), [
+        'organisation' => $this->organisation->slug,
+        'type'         => $leaveType->code,
+        'start_date'   => $day->toDateString(),
+        'end_date'     => $day->toDateString(),
+        'reason'       => 'Check-up',
+    ])->assertSessionHasNoErrors();
+
+    expect(Leave::where('employee_id', $employee->id)->where('status', LeaveStatusEnum::PENDING)->count())->toBe(1);
+
+    $balances = EmployeeLeaveBalance::where('employee_id', $employee->id)->orderBy('id')->get();
+    $thisYear = $balances->firstWhere('id', '!=', $firstYear->id);
+
+    expect($balances)->toHaveCount(2)
+        ->and($thisYear->employee_contract_id)->toBe($contract->id)
+        ->and($thisYear->period_start->toDateString())->toBe($contractStart->copy()->addYears(2)->toDateString())
+        ->and($thisYear->period_end->toDateString())->toBe($contractStart->copy()->addYears(3)->subDay()->toDateString())
+        ->and([(float) $thisYear->annual_used, (float) $thisYear->medical_used, (float) $thisYear->unpaid_used])->toBe([0.0, 0.0, 0.0])
+        ->and($thisYear->contract->annual_leave_days)->toBe(18.0)
+        ->and((float) $thisYear->annual_remaining)->toBe(18.0)
+        ->and($firstYear->refresh()->only(['period_start', 'period_end', 'annual_used', 'medical_used', 'unpaid_used']))->toEqual($firstYearBefore);
+});
+
+test('leave records of another organisation cannot be changed and generating a balance needs hr edit', function () {
+    $otherOrganisation = \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()
+        ->action($this->group, array_merge(
+            \App\Models\SysAdmin\Organisation::factory()->definition(),
+            [
+                'code'  => 'o'.substr(uniqid(), -5),
+                'name'  => 'Other Leave Org '.uniqid(),
+                'email' => 'org-'.uniqid().'@example.com',
+            ]
+        ));
+
+    $leave     = createPendingLeaveFixture($this->organisation, $this->group);
+    $approver  = createLeaveApproverFixture($this->organisation, 1);
+    $leaveType = StoreLeaveType::make()->action($this->organisation, [
+        'code'     => 'XO'.rand(10000, 99999),
+        'name'     => 'Scoped leave type',
+        'category' => \App\Enums\HumanResources\Leave\LeaveCategoryEnum::PERSONAL,
+    ]);
+
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+        'state'           => EmployeeStateEnum::WORKING,
+    ]);
+    $contract = StoreEmployeeContract::make()->action($employee, ['start_date' => now()->subMonth()->toDateString(), 'annual_leave_days' => 20]);
+
+    setPermissionsTeamId($this->organisation->group_id);
+    $hrUserOf = function (\App\Models\SysAdmin\Organisation $organisation): User {
+        $user = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+        $user->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $organisation));
+        $user->forgetWildcardPermissionIndex();
+
+        return $user;
+    };
+
+    $generateBalance = route('grp.models.employee.contracts.generate_balance', ['contract' => $contract->id]);
+    $balanceCount    = fn (): int => EmployeeLeaveBalance::where('employee_contract_id', $contract->id)->count();
+
+    actingAs($hrUserOf($otherOrganisation));
+    $other = $otherOrganisation->slug;
+
+    $this->delete(route('grp.org.hr.leaves.delete', [$other, $leave->id]))->assertNotFound();
+    $this->patch(route('grp.org.hr.leaves.types.update', [$other, $leaveType->id]), ['name' => 'Taken over'])->assertNotFound();
+    $this->delete(route('grp.org.hr.leaves.types.delete', [$other, $leaveType->id]))->assertNotFound();
+    $this->delete(route('grp.org.hr.leave_approvers.delete', [$other, $approver->id]))->assertNotFound();
+    post($generateBalance)->assertForbidden();
+
+    expect(Leave::find($leave->id))->not->toBeNull()
+        ->and($leaveType->refresh()->name)->toBe('Scoped leave type')
+        ->and(LeaveApprover::find($approver->id))->not->toBeNull()
+        ->and($balanceCount())->toBe(1);
+
+    actingAs(User::factory()->create(['group_id' => $this->group->id, 'status' => true]));
+    post($generateBalance)->assertForbidden();
+
+    actingAs($hrUserOf($this->organisation));
+    $own = $this->organisation->slug;
+
+    post($generateBalance)->assertRedirect();
+    expect($balanceCount())->toBe(1);
+
+    $this->patch(route('grp.org.hr.leaves.types.update', [$own, $leaveType->id]), ['name' => 'Renamed by own hr'])->assertRedirect();
+    expect($leaveType->refresh()->name)->toBe('Renamed by own hr');
+
+    $this->delete(route('grp.org.hr.leaves.types.delete', [$own, $leaveType->id]))->assertRedirect();
+    $this->delete(route('grp.org.hr.leave_approvers.delete', [$own, $approver->id]))->assertRedirect();
+    $this->delete(route('grp.org.hr.leaves.delete', [$own, $leave->id]))->assertRedirect();
+
+    expect(LeaveType::find($leaveType->id))->toBeNull()
+        ->and(LeaveApprover::find($approver->id))->toBeNull()
+        ->and(Leave::find($leave->id))->toBeNull();
+
+    EmployeeLeaveBalance::where('employee_contract_id', $contract->id)->delete();
+    $this->artisan('leave:generate-balances')->assertExitCode(0);
+
+    expect($balanceCount())->toBe(1)
+        ->and(GenerateEmployeeLeaveBalance::run($contract)->employee_contract_id)->toBe($contract->id);
+});
+
+test('generating a clocking machine qr code needs hr edit', function () {
+    $workplace = StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'QR Guard Workplace '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::BRANCH,
+    ]);
+    $clockingMachine = StoreClockingMachine::make()->action($workplace, [
+        'name' => 'QR Guard Machine '.uniqid(),
+        'type' => \App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum::QR_CODE->value,
+    ]);
+
+    $generate    = route('grp.models.clocking-machine.qr.generate', ['clockingMachine' => $clockingMachine->slug]);
+    $qrCodeCount = fn (): int => ClockingMachineQRCode::where('clocking_machine_id', $clockingMachine->id)->count();
+    $baseline    = $qrCodeCount();
+
+    setPermissionsTeamId($this->organisation->group_id);
+
+    actingAs(User::factory()->create(['group_id' => $this->group->id, 'status' => true]));
+    $this->postJson($generate, ['label' => 'Not allowed'])->assertForbidden();
+    expect($qrCodeCount())->toBe($baseline);
+
+    $hrUser = User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $hrUser->assignRole(RolesEnum::getRoleName(RolesEnum::HUMAN_RESOURCES_SUPERVISOR->value, $this->organisation));
+    $hrUser->forgetWildcardPermissionIndex();
+
+    actingAs($hrUser);
+    $this->postJson($generate, ['label' => 'Front door'])->assertOk()->assertJsonPath('success', true);
+    expect($qrCodeCount())->toBe($baseline + 1);
+});
+
+test('clockings pages and the org chart are closed to users without human resources access', function () {
+    $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->make()->toArray(), [
+        'worker_number'   => 'closed-'.uniqid(),
+        'alias'           => 'closed-'.uniqid(),
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'state'           => EmployeeStateEnum::WORKING,
+    ]));
+    $workplace = StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'Closed Pages Workplace '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::BRANCH,
+    ]);
+    $clocking = StoreClocking::make()->action($this->organisation, $workplace, $employee, ['type' => 'in', 'at' => now()->toDateTimeString()], 0, true);
+
+    $organisation = $this->organisation->slug;
+    $pages        = [
+        route('grp.org.hr.clockings.index', $organisation),
+        route('grp.org.hr.clockings.show', [$organisation, $clocking->id]),
+        route('grp.org.hr.clockings.edit', [$organisation, $clocking->id]),
+        route('grp.org.hr.org_chart', $organisation),
+    ];
+
+    setPermissionsTeamId($this->organisation->group_id);
+    actingAs(User::factory()->create(['group_id' => $this->group->id, 'status' => true]));
+
+    foreach ($pages as $page) {
+        get($page)->assertForbidden();
+    }
 });

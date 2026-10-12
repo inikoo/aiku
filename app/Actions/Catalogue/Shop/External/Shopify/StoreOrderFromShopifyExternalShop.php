@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\SalesChannel;
 use Illuminate\Support\Arr;
@@ -344,14 +345,20 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
     }
 
     /**
-     * The Shopify order name ("#1001") is unique in the store; the shop code keeps it unique in the organisation,
-     * where the delivery note takes the same reference.
+     * The order carries the number the store shows ("#1001" is 1001). The delivery note takes the same reference
+     * and that must be unique in the organisation, so a number another delivery note already has gets the shop
+     * code in front instead of failing the import.
      */
     public function getOrderReference(Shop $shop, array $shopifyOrder): string
     {
-        $name = ltrim(trim((string) Arr::get($shopifyOrder, 'name')), '#');
+        $number = ltrim(trim((string) Arr::get($shopifyOrder, 'name')), '#') ?: Str::afterLast((string) Arr::get($shopifyOrder, 'id'), '/');
 
-        return $shop->code.'-'.($name ?: Str::afterLast((string) Arr::get($shopifyOrder, 'id'), '/'));
+        $isTaken = DeliveryNote::withTrashed()
+            ->where('organisation_id', $shop->organisation_id)
+            ->whereRaw('lower(reference) = lower(?)', [$number])
+            ->exists();
+
+        return $isTaken ? $shop->code.'-'.$number : $number;
     }
 
     /**

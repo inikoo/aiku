@@ -11,6 +11,8 @@ use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
+use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
+use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
 use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
@@ -178,6 +180,7 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\CheckCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\ForceSyncCustomerSalesChannelPortfolios;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannelSettings;
 use App\Actions\Dropshipping\Ebay\Product\MatchBulkNewProductToCurrentEbay;
 use App\Actions\Dropshipping\Portfolio\MatchBulkPortfoliosToPlatform;
 use App\Actions\Dropshipping\Ebay\Product\MatchPortfolioToCurrentEbayProduct;
@@ -441,7 +444,6 @@ use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategoryImages;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategoryTranslations;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterSubDepartmentsMasterDepartment;
-use App\Actions\Masters\MasterProductCategory\UploadImageMasterProductCategory;
 use App\Actions\Masters\MasterProductCategory\UploadImagesToMasterProductCategory;
 use App\Actions\Masters\MasterShop\StoreMasterShop;
 use App\Actions\Masters\MasterShop\UpdateMasterShop;
@@ -459,11 +461,15 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductAgentDetails;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonBarcode;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonWeights;
+use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
+use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderDeposit;
+use App\Actions\Procurement\PurchaseOrder\UndoPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
@@ -798,7 +804,6 @@ Route::prefix('upcoming-transaction/{upcomingTransaction:id}')->name('upcoming_t
 Route::patch('master-product-category/{masterProductCategory:id}', UpdateMasterProductCategory::class)->name('master_product_category.update')->withoutScopedBindings();
 Route::patch('master-product-category/{masterProductCategory:id}/clone-family', CloneFamilyAndProductsFromMaster::class)->name('master_product_category.clone-to-child-shops')->withoutScopedBindings();
 
-Route::post('master-product-category/{masterProductCategory:id}/image', UploadImageMasterProductCategory::class)->name('master_product_category_image.upload')->withoutScopedBindings();
 Route::patch('master-product-category/{masterProductCategory:id}/translations', UpdateMasterProductCategoryTranslations::class)->name('master_product_categories.translations.update');
 Route::patch('master-product-category/{masterProductCategory:id}/master-sub-department/parent', UpdateMasterSubDepartmentsMasterDepartment::class)->name('master_product_category.master_sub_department.parent.update');
 
@@ -960,6 +965,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('supplier', [StoreSupplier::class, 'inOrganisation'])->name('supplier.store');
     Route::post('org-supplier/from-supplier/{supplier:id}', [StoreOrgSupplier::class, 'inOrganisation'])->name('org_supplier.store')->withoutScopedBindings();
     Route::post('stock-delivery-service-invoice', StoreStockDeliveryServiceInvoice::class)->name('stock_delivery_service_invoice.store');
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/agent-details', UpdateOrgSupplierProductAgentDetails::class)->name('org_supplier_product.agent_details.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/org-stock/{orgStock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
 
@@ -1489,6 +1495,7 @@ Route::name('customer_sales_channel.')->prefix('customer-sales-channel/{customer
     Route::delete('delete', CloseCustomerSalesChannel::class)->name('delete');
     Route::patch('reset-shopify', ResetShopifyChannel::class)->name('shopify_reset');
     Route::patch('force-sync-portfolios', ForceSyncCustomerSalesChannelPortfolios::class)->name('force_sync_portfolios');
+    Route::patch('settings', UpdateCustomerSalesChannelSettings::class)->name('settings.update');
 });
 
 Route::post('{shop:id}/purge', StorePurge::class)->name('purge.store');
@@ -1623,11 +1630,13 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 });
 
 Route::delete('agent-payment/{agentPayment:id}', DeleteAgentPayment::class)->name('agent_payment.delete');
+Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::class)->name('supplier_payment.delete');
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
+    Route::post('supplier-payment', StoreSupplierPayment::class)->name('supplier_payment.store');
     Route::post('agent-invoice/approve-charges', ApproveAgentInvoiceCharges::class)->name('agent_invoice.approve_charges');
     Route::patch('update', UpdateStockDelivery::class)->name('update');
     Route::patch('dispatch', DispatchStockDelivery::class)->name('dispatch');
@@ -1698,6 +1707,9 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('update', UpdatePurchaseOrder::class)->name('update');
     Route::patch('journey-stage', UpdatePurchaseOrderJourneyStage::class)->name('journey_stage');
     Route::post('deposit', StoreAspoDeposit::class)->name('deposit.store');
+    Route::post('payment', ConfirmPurchaseOrderPayment::class)->name('payment.confirm');
+    Route::patch('payment/undo', UndoPurchaseOrderPayment::class)->name('payment.undo');
+    Route::patch('payment/deposit', SetPurchaseOrderDeposit::class)->name('payment.deposit');
     Route::delete('', DeletePurchaseOrder::class)->name('delete');
     Route::patch('submit', UpdatePurchaseOrderStateToSubmitted::class)->name('submit');
     Route::patch('ready-to-send', SetPurchaseOrderReadyToSend::class)->name('ready_to_send');

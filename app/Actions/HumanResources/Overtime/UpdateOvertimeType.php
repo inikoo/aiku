@@ -67,6 +67,8 @@ class UpdateOvertimeType extends OrgAction
 
     public function asController(Organisation $organisation, OvertimeType $overtimeType, ActionRequest $request): OvertimeType
     {
+        abort_unless($overtimeType->organisation_id === $organisation->id, 404);
+
         $this->overtimeType = $overtimeType;
         $this->initialisation($organisation, $request);
 

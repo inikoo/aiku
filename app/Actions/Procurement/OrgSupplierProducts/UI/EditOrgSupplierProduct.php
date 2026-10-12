@@ -9,16 +9,20 @@
 namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Actions\Procurement\WithAgentOrganisation;
+use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class EditOrgSupplierProduct extends OrgAction
 {
-    use WithProcurementAuthorisation;
+    use WithAgentOrganisation;
+    use WithProcurementEditAuthorisation;
 
     public function handle(OrgSupplierProduct $orgSupplierProduct): OrgSupplierProduct
     {
@@ -28,6 +32,7 @@ class EditOrgSupplierProduct extends OrgAction
     public function asController(Organisation $organisation, OrgSupplierProduct $orgSupplierProduct, ActionRequest $request): OrgSupplierProduct
     {
         $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($orgSupplierProduct);
 
         return $this->handle($orgSupplierProduct);
     }
@@ -39,13 +44,14 @@ class EditOrgSupplierProduct extends OrgAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('Edit supplier product'),
+                'title'       => '(' . $supplierProduct->code . ') ' . __('Edit supplier product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $orgSupplierProduct,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'model' => __('Supplier product'),
                     'title'   => $supplierProduct->code,
                     'actions' => [
                         [
@@ -58,34 +64,110 @@ class EditOrgSupplierProduct extends OrgAction
                         ]
                     ]
                 ],
-                'formData'    => [
-                    'blueprint' => [
-                        [
-                            'title'  => __('Supplier product'),
-                            'icon'   => 'fal fa-box-usd',
-                            'fields' => [
-                                'status' => [
-                                    'type'  => 'toggle',
-                                    'label' => __('Status'),
-                                    'value' => $orgSupplierProduct->status,
-                                ],
-                                'is_available' => [
-                                    'type'  => 'toggle',
-                                    'label' => __('Available'),
-                                    'value' => $orgSupplierProduct->is_available,
-                                ],
-                            ]
+                'formData'    => $this->organisationAgentSupplies($orgSupplierProduct)
+                    ? $this->getAgentFormData($orgSupplierProduct, $supplierProduct)
+                    : $this->getOrganisationFormData($orgSupplierProduct),
+            ]
+        );
+    }
+
+    /**
+     * @return array{blueprint: array<int, array<string, mixed>>, args: array<string, mixed>}
+     */
+    private function getOrganisationFormData(OrgSupplierProduct $orgSupplierProduct): array
+    {
+        return [
+            'blueprint' => [
+                [
+                    'title'  => __('Supplier product'),
+                    'icon'   => 'fal fa-box-usd',
+                    'fields' => [
+                        'status' => [
+                            'type'  => 'toggle',
+                            'label' => __('Status'),
+                            'value' => $orgSupplierProduct->status,
                         ],
-                    ],
-                    'args' => [
-                        'updateRoute' => [
-                            'name'       => 'grp.models.org_supplier_product.update',
-                            'parameters' => $orgSupplierProduct->id
+                        'is_available' => [
+                            'type'  => 'toggle',
+                            'label' => __('Available'),
+                            'value' => $orgSupplierProduct->is_available,
                         ],
                     ]
                 ],
+            ],
+            'args' => [
+                'updateRoute' => [
+                    'name'       => 'grp.models.org_supplier_product.update',
+                    'parameters' => $orgSupplierProduct->id
+                ],
             ]
-        );
+        ];
+    }
+
+    /**
+     * What the agent knows first hand about a product it supplies: how it is packed and how long it takes.
+     *
+     * @return array{blueprint: array<int, array<string, mixed>>, args: array<string, mixed>}
+     */
+    private function getAgentFormData(OrgSupplierProduct $orgSupplierProduct, SupplierProduct $supplierProduct): array
+    {
+        return [
+            'blueprint' => [
+                [
+                    'label'  => __('Ordering'),
+                    'icon'   => 'fal fa-box-usd',
+                    'fields' => [
+                        'minimum_carton_order' => [
+                            'type'        => 'input',
+                            'label'       => __('Minimum order (cartons)'),
+                            'information' => __('The fewest cartons that can be ordered at once. Leave empty when there is no minimum.'),
+                            'value'       => Arr::get($supplierProduct->data, 'minimum_carton_order'),
+                            'options'     => ['inputType' => 'number']
+                        ],
+                        ...($supplierProduct->measured_lead_time_days !== null ? [] : [
+                            'estimated_lead_time_days' => [
+                                'type'    => 'input',
+                                'label'   => __('Estimated delivery time (days)'),
+                                'value'   => $supplierProduct->estimated_lead_time_days,
+                                'options' => ['inputType' => 'number']
+                            ],
+                        ]),
+                    ]
+                ],
+                [
+                    'label'  => __('Packing'),
+                    'icon'   => 'fal fa-box',
+                    'fields' => [
+                        'units_per_pack' => [
+                            'type'    => 'input',
+                            'label'   => __('Units per pack'),
+                            'value'   => $supplierProduct->units_per_pack,
+                            'options' => ['inputType' => 'number']
+                        ],
+                        'units_per_carton' => [
+                            'type'    => 'input',
+                            'label'   => __('Units per carton'),
+                            'value'   => $supplierProduct->units_per_carton,
+                            'options' => ['inputType' => 'number']
+                        ],
+                        'cbm' => [
+                            'type'  => 'input',
+                            'label' => __('CBM'),
+                            'value' => $supplierProduct->cbm,
+                        ],
+                    ]
+                ],
+            ],
+            'args' => [
+                'updateRoute' => [
+                    'name'       => 'grp.models.org.org_supplier_product.agent_details.update',
+                    'parameters' => [
+                        'organisation'       => $this->organisation->id,
+                        'orgSupplierProduct' => $orgSupplierProduct->id,
+                    ],
+                ],
+            ]
+        ];
     }
 
     public function getBreadcrumbs(OrgSupplierProduct $orgSupplierProduct, string $routeName, array $routeParameters): array

@@ -1596,6 +1596,20 @@ const toggleHighlight = async (c: Contact) => {
     }
 }
 
+const markUnread = async (c: Contact) => {
+    openMenuUlid.value = null
+    if (!(await patchSession(c, sessionRoute("unread", c), "patch"))) return
+
+    if (selectedSession.value?.ulid === c.ulid) {
+        selectedSession.value = null
+        messages.value = []
+    }
+    const found = contacts.value.find((x) => x.ulid === c.ulid)
+    if (found) found.unread = Math.max(Number(found.unread) || 0, 1)
+    reloadContactsSoon()
+    fetchInboxNotifications()
+}
+
 const restoreChat = async (c: Contact) => {
     openMenuUlid.value = null
     if (await patchSession(c, sessionRoute("restore", c), "patch")) {
@@ -3122,6 +3136,12 @@ onUnmounted(() => {
                             <FontAwesomeIcon :icon="faStar" class="text-[10px]"
                                 :class="menuContact.is_highlighted ? 'text-amber-400' : ''" fixed-width />
                             {{ menuContact.is_highlighted ? ctrans("Remove highlight") : ctrans("Highlight") }}
+                        </button>
+                        <button v-if="!menuContact.unread" type="button"
+                            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+                            @click="markUnread(menuContact)">
+                            <FontAwesomeIcon :icon="faEnvelope" class="text-[10px]" fixed-width />
+                            {{ ctrans("Mark as unread") }}
                         </button>
                         <div class="border-t border-gray-100 my-1"></div>
 

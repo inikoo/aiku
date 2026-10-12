@@ -26,6 +26,8 @@ class DeleteOvertimeType extends OrgAction
 
     public function asController(Organisation $organisation, OvertimeType $overtimeType, ActionRequest $request): bool
     {
+        abort_unless($overtimeType->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($overtimeType);

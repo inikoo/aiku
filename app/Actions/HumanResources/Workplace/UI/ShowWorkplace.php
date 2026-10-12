@@ -38,6 +38,8 @@ class ShowWorkplace extends OrgAction
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
 
         return $this->handle($workplace);

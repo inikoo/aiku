@@ -27,6 +27,8 @@ class DeleteLeaveConcurrencyTarget extends OrgAction
 
     public function asController(Organisation $organisation, LeaveConcurrencyRule $leaveConcurrencyRule, LeaveConcurrencyTarget $leaveConcurrencyTarget, ActionRequest $request): bool
     {
+        abort_unless($leaveConcurrencyRule->organisation_id === $organisation->id && $leaveConcurrencyTarget->leave_concurrency_rule_id === $leaveConcurrencyRule->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($leaveConcurrencyTarget);

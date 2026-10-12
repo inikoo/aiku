@@ -56,7 +56,12 @@ class GetTaxCategory
             $deliveryAddress = $billingAddress;
         }
 
-        if ($billingAddress->country_code == $country->code || $deliveryAddress->country->code == $country->code) {
+        $isTaxNumberFromSellerCountry = $taxNumber
+            && $taxNumber->valid
+            && $taxNumber->country_id == $country->id
+            && IsEuropeanUnion::run($deliveryAddress->country->code);
+
+        if ($billingAddress->country_code == $country->code || $deliveryAddress->country->code == $country->code || $isTaxNumberFromSellerCountry) {
             if ($country->code == 'ES') {
                 $esCountryId = Country::where('code', 'ES')->first()->id;
                 if ($deliveryAddress->country_code == 'ES' && preg_match('/^(35|38|51|52)/', $deliveryAddress->postal_code)) {

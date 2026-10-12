@@ -41,6 +41,7 @@ const props = defineProps<{
         noTitle?: boolean
         compact?: boolean       // Tight table-like row, for read-only-until-edited fields
         noSaveButton?: boolean  // Button: save
+        readonly?: boolean      // Shows the value with every control disabled and no save
         updateRoute?: routeType
         isWithRefreshFieldForm?: boolean
         revisit_after_save?: boolean
@@ -98,6 +99,9 @@ watch(() => props.fieldData.value, (serverValue) => {
 
 // Gated here, not on the save button, so fields with their own save (trade units) cannot bypass it
 const submit = () => {
+    if (props.fieldData.readonly) {
+        return
+    }
     if (needsSaveConfirmation.value) {
         isModalConfirmation.value = true
         return
@@ -230,7 +234,7 @@ const needsSaveConfirmation = computed(() => {
             </dt>
 
             <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
-                <div class="relative w-full">
+                <component :is="fieldData.readonly ? 'fieldset' : 'div'" :disabled="fieldData.readonly || undefined" class="relative w-full" :class="fieldData.readonly ? 'min-w-0' : ''">
                     <component :is="getComponent(fieldData.type)"
                         :key="field + fieldData.type"
                         :form="form"
@@ -261,10 +265,10 @@ const needsSaveConfirmation = computed(() => {
                         <FontAwesomeIcon icon='fal fa-info-circle' class='opacity-80' fixed-width aria-hidden='true' />
                         <span class="ml-1 font-medium">{{ labelVerification }}</span>
                     </div>
-                </div>
+                </component>
 
                 <!-- Button: Save -->
-                <template v-if="fieldData.noSaveButton" />
+                <template v-if="fieldData.noSaveButton || fieldData.readonly" />
                 <span v-else-if="fieldData.save" class="ml-2 flex-shrink-0">
 
                 </span>

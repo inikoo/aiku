@@ -55,6 +55,8 @@ class ShowClockingMachine extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request)->withTab($this->getAvailableTabs($clockingMachine));
 
         return $clockingMachine;
@@ -64,6 +66,8 @@ class ShowClockingMachine extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request)->withTab($this->getAvailableTabs($clockingMachine));
 
         return $clockingMachine;

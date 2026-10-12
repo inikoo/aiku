@@ -18,6 +18,18 @@ trait WithAgentShoppingSubNavigation
     {
         return [
             [
+                "label"    => $parent->slug,
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-people-arrows"],
+                    "tooltip" => __("Agent"),
+                ],
+                "isAnchor" => true,
+            ],
+            [
                 "label"    => __("What to order"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.dashboard",
@@ -27,7 +39,6 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", "fa-shopping-basket"],
                     "tooltip" => __("What to order"),
                 ],
-                "isAnchor" => true,
             ],
             [
                 "label"    => __("Ordering"),
@@ -41,14 +52,14 @@ trait WithAgentShoppingSubNavigation
                 ],
             ],
             [
-                "label"    => __("Drafts to send"),
+                "label"    => __("POs to submit"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.drafts.index",
                     "parameters" => [$this->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-paper-plane"],
-                    "tooltip" => __("Drafts to send"),
+                    "tooltip" => __("Purchase orders to submit"),
                 ],
                 "number"   => ShowAgentDraftsToSend::drafts($parent)->where('po.organisation_id', $parent->organisation_id)->distinct()->count('po.supplier_id'),
             ],
@@ -62,21 +73,9 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", $meta['icon']],
                     "tooltip" => $meta['title'],
                 ],
-                "number"   => $stage === ShowAgentOrderStage::DELIVERED ? null : ShowAgentOrderStage::countOurs($parent, $stage),
+                "number"   => ShowAgentOrderStage::countOurs($parent, $stage),
+                "active"   => request()->route('stage') === $stage || ($stage === ShowAgentOrderStage::PREPARING && request()->routeIs('*.shopping.container')),
             ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
-            [
-                "label"    => __("Suppliers"),
-                "route"    => [
-                    "name"       => "grp.org.procurement.org_agents.show.suppliers.index",
-                    "parameters" => [$this->organisation->slug, $parent->slug],
-                ],
-                "leftIcon" => [
-                    "icon"    => ["fal", "fa-person-dolly"],
-                    "tooltip" => __("Suppliers"),
-                ],
-                "number"   => $parent->stats->number_org_suppliers,
-                "align"    => "right",
-            ],
         ];
     }
 }

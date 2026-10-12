@@ -31,6 +31,8 @@ class EditClockingMachine extends OrgAction
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);
@@ -40,6 +42,8 @@ class EditClockingMachine extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachine);

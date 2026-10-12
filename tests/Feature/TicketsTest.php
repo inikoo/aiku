@@ -768,6 +768,35 @@ test('tickets dashboard counts created, done, status and assignees', function ()
     );
 });
 
+test('tickets dashboard counts created, started and resolved tickets by the hour of the day in the viewer timezone', function () {
+    $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_hour'])->keyBy('hour');
+    $before = $hourly();
+    $day    = now('UTC')->subDay()->startOfDay();
+
+    $ticket = StoreTicket::make()->action($this->group, ['subject' => 'Hour by hour', 'assignee_id' => $this->user->id]);
+    $ticket->update([
+        'created_at'  => $day->copy()->setTime(5, 10),
+        'started_at'  => $day->copy()->setTime(9, 40),
+        'resolved_at' => $day->copy()->setTime(14, 5),
+    ]);
+
+    $after = $hourly();
+
+    expect($after->keys()->all())->toBe(range(0, 23))
+        ->and($after[5]['created'])->toBe($before[5]['created'] + 1)
+        ->and($after[9]['started'])->toBe($before[9]['started'] + 1)
+        ->and($after[14]['done'])->toBe($before[14]['done'] + 1)
+        ->and($after[5]['started'])->toBe($before[5]['started'])
+        ->and($after[5]['done'])->toBe($before[5]['done'])
+        ->and($after->sum('created'))->toBe($before->sum('created') + 1);
+
+    $kualaLumpurBefore = $before->sum('created');
+    $kualaLumpur       = $hourly('Asia/Kuala_Lumpur');
+
+    expect($kualaLumpur[13]['created'])->toBeGreaterThanOrEqual(1)
+        ->and($kualaLumpur->sum('created'))->toBeGreaterThanOrEqual($kualaLumpurBefore);
+});
+
 test('reporter rates a resolved ticket once and CSAT shows on the dashboard', function () {
     $ticket = StoreRetinaTicket::make()->action($this->webUser, ['subject' => 'Rate me']);
 

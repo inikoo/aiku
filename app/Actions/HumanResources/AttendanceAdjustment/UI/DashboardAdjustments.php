@@ -30,6 +30,7 @@ class DashboardAdjustments extends OrgAction
 
         $employeesQuery = $organisation->employees()
             ->where('state', 'working')
+            ->with(Employee::AVATAR_RELATIONS)
             ->orderBy('contact_name');
 
         if ($employeeId) {
@@ -59,6 +60,7 @@ class DashboardAdjustments extends OrgAction
             return [
                 'id' => $employee->id,
                 'name' => $employee->contact_name,
+                'avatar' => $employee->avatarUrl(),
                 'adjustments' => $employeeAdjustments->map(function ($adjustment) {
                     return [
                         'id' => $adjustment->id,

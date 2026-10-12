@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\EmployeeContract;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Models\HumanResources\EmployeeContract;
 use App\Models\HumanResources\EmployeeLeaveBalance;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +18,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmployeeContract extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
+
     public function handle(EmployeeContract $contract, array $data): EmployeeContract
     {
         $contract->update(array_filter([
