@@ -13,6 +13,7 @@ export interface WebsiteDialogTemplateData {
         }
         subscribe?: {
             placeholder?: string
+            phone_placeholder?: string
             success_text?: string
         }
         coupon?: {

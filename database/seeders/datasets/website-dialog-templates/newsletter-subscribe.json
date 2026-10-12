@@ -16,6 +16,7 @@
         },
         "subscribe": {
             "placeholder": "Your email address",
+            "phone_placeholder": "Your phone number (optional)",
             "success_text": "Thank you! You are on the list."
         },
         "button": {
