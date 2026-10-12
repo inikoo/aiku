@@ -2,7 +2,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithPurchaseOrderAgentEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CancelPurchaseOrderTransaction extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
+    use WithPurchaseOrderAgentEditAuthorisation;
     use WithActionUpdate;
 
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): PurchaseOrderTransaction
@@ -70,6 +70,7 @@ class CancelPurchaseOrderTransaction extends OrgAction
 
     public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
+        abort_unless($purchaseOrderTransaction->purchase_order_id === $purchaseOrder->id, 404);
         $this->initialisation($purchaseOrderTransaction->organisation, $request);
 
         return $this->handle($purchaseOrderTransaction);
