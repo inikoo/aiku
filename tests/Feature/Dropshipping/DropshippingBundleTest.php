@@ -549,3 +549,60 @@ test('a component swapped for another one moves the bundle portfolio sku to the 
         ->and($portfolio->refresh()->sku)->toContain($newStock->slug)
         ->and($portfolio->sku)->not->toContain($oldStock->slug);
 });
+
+test('a bundle left holding one piece of a pack is given the whole pack, without touching its price or its sku', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'repair_fewer_trade_units_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $twelvePack = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units' => [['id' => $this->tradeUnit->id, 'quantity' => 12]],
+            'price'       => 10,
+            'rrp'         => 20,
+        ]
+    ));
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Bundle Created Before The Pack Was Multiplied',
+        'products' => [
+            ['product_id' => $twelvePack->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $bundleProduct = $bundle->bundleable;
+    $portfolio     = \App\Models\Dropshipping\Portfolio::where('item_type', 'Product')->where('item_id', $bundleProduct->id)->firstOrFail();
+    $priceBefore   = $bundleProduct->price;
+    $skuBefore     = $portfolio->sku;
+
+    $holdOnTheBundle = fn (float $quantity) => $bundleProduct->tradeUnits()->updateExistingPivot($this->tradeUnit->id, ['quantity' => $quantity]);
+    $heldByTheBundle = fn () => (float) $bundleProduct->tradeUnits()->firstOrFail()->pivot->quantity;
+    $repair          = \App\Actions\Maintenance\Dropshipping\RepairBundlesHoldingFewerTradeUnits::make();
+
+    $holdOnTheBundle(1);
+
+    $dryRun = $repair->handle($bundle, true);
+    expect($dryRun['outcome'])->toBe('repaired')
+        ->and($dryRun['changes'][0]['from'])->toEqual(1.0)
+        ->and($dryRun['changes'][0]['to'])->toEqual(12.0)
+        ->and($heldByTheBundle())->toEqual(1.0);
+
+    expect($repair->handle($bundle)['outcome'])->toBe('repaired')
+        ->and($heldByTheBundle())->toEqual(12.0)
+        ->and($bundleProduct->refresh()->price)->toEqual($priceBefore)
+        ->and($portfolio->refresh()->sku)->toBe($skuBefore)
+        ->and($repair->handle($bundle)['outcome'])->toBe('correct')
+        ->and($repair->bundlesQuery($this->shop, $bundleProduct->code)->pluck('id')->all())->toBe([$bundle->id]);
+
+    $holdOnTheBundle(24);
+
+    expect($repair->handle($bundle)['outcome'])->toBe('needs_review')
+        ->and($heldByTheBundle())->toEqual(24.0);
+});

@@ -165,7 +165,7 @@ class UpdateBundle extends OrgAction
     /**
      * @return array<int, array{id: int, quantity: float}>
      */
-    private function getCurrentBundleTradeUnits(Bundle $bundle): array
+    public function getCurrentBundleTradeUnits(Bundle $bundle): array
     {
         $bundleItems = $bundle->items()
             ->where('item_type', class_basename(Product::class))
