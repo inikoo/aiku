@@ -66,7 +66,7 @@ class SettleShortJobOrderItemTask
             $root     = (int) Arr::get($original->data, 'carried_from', $original->id);
             $carried  = StoreJobOrder::make()->action($original->production, [
                 'employee_id' => $item->employee_id ?? $original->employee_id,
-                'reference'   => $this->carriedReference($original, $root),
+                'reference'   => $this->carriedReference($original),
             ]);
             $carried->update(['data' => array_merge($carried->data, ['carried_from' => $root])]);
             $carriedItem = StoreJobOrderItem::make()->action($carried, [
@@ -87,12 +87,32 @@ class SettleShortJobOrderItemTask
      * A job carried to the next day keeps its number: the rest is the same reference with the
      * next letter, so goods in read JOaroma-0002 and JOaroma-0002a as one job, not two.
      */
-    private function carriedReference(JobOrder $original, int $root): string
+    public function carriedReference(JobOrder $original): string
     {
-        $base    = preg_replace('/[a-z]+$/', '', (string) $original->reference);
+        $root    = (int) Arr::get($original->data, 'carried_from', $original->id);
+        $base    = self::baseReference($original);
         $carried = JobOrder::withTrashed()->where('data->carried_from', $root)->count();
 
         return $base.chr(ord('a') + min($carried, 25));
+    }
+
+    /**
+     * What closing this step short and carrying the rest would do, for the floor to say before it is done.
+     *
+     * @return array{reference: string, units_per_artefact: float, quantity: int}
+     */
+    public function preview(JobOrderItemTask $jobOrderItemTask): array
+    {
+        return [
+            'reference'          => $this->carriedReference($jobOrderItemTask->jobOrder),
+            'units_per_artefact' => $this->unitsPerArtefact($jobOrderItemTask->jobOrderItem, $jobOrderItemTask),
+            'quantity'           => (int) $jobOrderItemTask->jobOrderItem->quantity,
+        ];
+    }
+
+    public static function baseReference(JobOrder $jobOrder): string
+    {
+        return preg_replace('/[a-z]+$/', '', (string) $jobOrder->reference);
     }
 
     /**
@@ -182,7 +202,7 @@ class SettleShortJobOrderItemTask
         }
     }
 
-    private function unitsPerArtefact(JobOrderItem $item, JobOrderItemTask $task): float
+    public function unitsPerArtefact(JobOrderItem $item, JobOrderItemTask $task): float
     {
         return (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
             ->where('manufacture_task_id', $task->manufacture_task_id)

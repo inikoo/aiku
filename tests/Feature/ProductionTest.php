@@ -1127,6 +1127,51 @@ test('closing short can finish the job or carry the shortfall to a new job order
     $this->patch(route('grp.models.job-order-item.update', [$carriedAgain->jobOrderItems()->first()->id]), ['quantity' => 12])->assertSessionHasNoErrors();
 });
 
+test('pausing keeps the job and its count, and the floor links a carried job to the one it came from', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $user  = auth()->user();
+    $floor = fn () => get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]));
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 25]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task      = $item->tasks()->first();
+    $jobOrders = \App\Models\Production\JobOrder::where('production_id', $this->production->id)->count();
+
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $task), ['quantity_made' => 10]);
+    expect($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS)
+        ->and((float) $task->quantity_made)->toBe(10.0)
+        ->and((float) $task->quantity_required)->toBe(25.0)
+        ->and($item->refresh()->quantity)->toBe(25)
+        ->and(\App\Models\Production\JobOrder::where('production_id', $this->production->id)->count())->toBe($jobOrders);
+
+    StartManufactureTaskSession::make()->action($user, $task);
+    $floor()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('open_session.task.quantity_made', 10)
+        ->where('open_session.task.continued_from', null)
+        ->where('open_session.carry', ['reference' => $jobOrder->reference.'a', 'units_per_artefact' => 1, 'quantity' => 25])
+        ->etc());
+    get(route('grp.org.productions.show.operations.dashboard', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('command_control.open_session.carry.reference', $jobOrder->reference.'a')->where('command_control.open_session.task.continued_from', null)->etc());
+
+    $session = \App\Models\Production\ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)->first();
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 5, 'outcome' => 'carry_over']);
+    $carried     = \App\Models\Production\JobOrder::find($item->refresh()->data['carried_to']);
+    $carriedTask = $carried->jobOrderItems()->first()->tasks()->first();
+    expect($carried->reference)->toBe($jobOrder->reference.'a')
+        ->and((float) $carriedTask->quantity_required)->toBe(10.0);
+
+    $task->update(['state' => JobOrderItemTaskStateEnum::TODO]);
+    $cards = collect($floor()->viewData('page')['props']['tasks'])->keyBy('id');
+    expect($cards[$carriedTask->id]['continued_from'])->toBe($jobOrder->reference)
+        ->and($cards[$carriedTask->id]['continued_in'])->toBeNull()
+        ->and($cards[$task->id]['continued_in'])->toBe($carried->reference)
+        ->and($cards[$task->id]['continued_from'])->toBeNull();
+    $task->update(['state' => JobOrderItemTaskStateEnum::DONE]);
+});
+
 test('making more than the job asked for needs a manager badge or pin and grows the job to what was made', function () {
     $boxing = stepTestManufactureTask($this->production);
     $this->artefact->manufactureTasks()->sync([
