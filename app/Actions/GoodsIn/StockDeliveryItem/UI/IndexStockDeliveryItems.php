@@ -168,9 +168,9 @@ class IndexStockDeliveryItems extends OrgAction
         return $paginator;
     }
 
-    public function tableStructure(StockDelivery $stockDelivery, ?string $prefix = null): Closure
+    public function tableStructure(StockDelivery $stockDelivery, ?string $prefix = null, bool $withCosting = true): Closure
     {
-        return function (InertiaTable $table) use ($stockDelivery, $prefix) {
+        return function (InertiaTable $table) use ($stockDelivery, $prefix, $withCosting) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -205,7 +205,7 @@ class IndexStockDeliveryItems extends OrgAction
                 StockDeliveryStateEnum::READY_TO_SHIP,
             ];
 
-            if ($stockDelivery->state === StockDeliveryStateEnum::PLACED) {
+            if ($withCosting && $stockDelivery->state === StockDeliveryStateEnum::PLACED) {
                 $this->costingColumns($table, $stockDelivery);
 
                 return;
