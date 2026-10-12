@@ -15,10 +15,12 @@ use App\Actions\UI\Grp\GetFirstLoadProps;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\User;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaGrpRequests extends Middleware
 {
@@ -28,6 +30,8 @@ class HandleInertiaGrpRequests extends Middleware
     {
         return Vite::manifestHash('grp');
     }
+
+    private const string LAYOUT_SHARED_ATTRIBUTE = 'grpLayoutShared';
 
     /**
      * JSON endpoints outside grp.json.* polled from every open tab: the full layout is never read from their response.
@@ -85,6 +89,21 @@ class HandleInertiaGrpRequests extends Middleware
         return $user->authTo(WarehousePermissionsEnum::getStockEditPermissionNames($warehouse->organisation));
     }
 
+    /**
+     * The layout props only reach the browser on a page response. A login can pass through several
+     * redirects (/ to /dashboard to the organisation dashboard), so the flag is kept until one arrives.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        if ($request->attributes->get(self::LAYOUT_SHARED_ATTRIBUTE) && !$response->isRedirection()) {
+            Session::forget('reloadLayout');
+        }
+
+        return $response;
+    }
+
     public function share(Request $request): array
     {
         $routeName = $request->route()->getName();
@@ -99,13 +118,8 @@ class HandleInertiaGrpRequests extends Middleware
 
 
         if (!$request->inertia() || Session::get('reloadLayout')) {
-            $firstLoadOnlyProps          = GetFirstLoadProps::run($user);
-            if (Session::get('reloadLayout') == 'remove') {
-                Session::forget('reloadLayout');
-            }
-            if (Session::get('reloadLayout')) {
-                Session::put('reloadLayout', 'remove');
-            }
+            $firstLoadOnlyProps = GetFirstLoadProps::run($user);
+            $request->attributes->set(self::LAYOUT_SHARED_ATTRIBUTE, true);
         }
 
 
