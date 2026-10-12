@@ -1,8 +1,8 @@
 ---
 title: Darbs ar ražotnes ekrānu
 summary: Amatnieka rokasgrāmata - ekrāns Manu uzdevumi, darbu saraksts, kas atjaunojas pats, START un DONE, un ko spiest, ja izgatavoji mazāk, nekā prasīts.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-12
+source_date: 2026-10-12
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Tiem, kas ražo. <b>Factory</b> → <b>Jobs</b> (Ražotne → Darbi) ir visa tava diena vienā ekrānā: kreisajā pusē tev adresētie darbi, vidū tas, ar kuru strādā tagad. Spied <b>START</b> (Sākt), izgatavo, ieraksti, cik gatavs, spied <b>DONE</b> (Pabeigts). Ja izgatavoji mazāk, nekā prasīts, ekrāns uzdod vienu jautājumu: pabeigt darbu šeit, vai pārcelt atlikumu uz jaunu darbu. Nekas cits nav jāaizpilda.
+Tiem, kas ražo. <b>Factory</b> → <b>Jobs</b> (Ražotne → Darbi) ir visa tava diena vienā ekrānā: kreisajā pusē tev adresētie darbi, vidū tas, ar kuru strādā tagad. Spied <b>START</b> (Sākt), izgatavo, ieraksti, cik gatavs, spied <b>DONE</b> (Pabeigts). Ja izgatavoji mazāk, nekā prasīts, ekrāns uzdod vienu jautājumu: pauzēt un turpināt vēlāk, aizvērt darbu un pārcelt atlikumu uz jaunu, vai pabeigt to šeit. Nekas cits nav jāaizpilda.
 </aside>
 
 ## Ekrāns
 
 Lapa izskatās kā iesūtne.
 
-**Kreisajā pusē, vienmēr redzams:** saraksts. Augšā divi skaitītāji - šodien izgatavotās vienības un šodien pabeigtie uzdevumi. Zem tiem **Your jobs** (Tavi darbi) - tev adresētais darbs. Ja tavs amats ļauj ņemt no kopīgā klāsta, seko sadaļa **Open jobs** (Brīvie darbi). Apakšā **Finished today** (Šodien pabeigtie) - tas, ko jau esi aizvēris.
+**Kreisajā pusē, vienmēr redzams:** saraksts. Augšā divi skaitītāji - šodien izgatavotās vienības un šodien pabeigtie uzdevumi. Zem tiem **Your jobs** (Tavi darbi) - tev adresētais darbs: veseli darbi ar tavu vārdu un atsevišķi soļi, ko maiņas vadītājs tev nodevis dienas plānā (skaties [Ražošanas dienas plānošana](/docs/planning-the-production-day-lv)). Vienam darbam izgatavošana var būt pie viena cilvēka, bet iepakošana pie cita; katrs redz tikai savu soli. Ja tavs amats ļauj ņemt no kopīgā klāsta, seko sadaļa **Open jobs** (Brīvie darbi). Apakšā **Finished today** (Šodien pabeigtie) - tas, ko jau esi aizvēris.
 
 **Labajā pusē:** tas, ko izvēlējies. Pirms sākšanas tā ir darba informācija ar lielu **START** pogu. Kad darbs sākts, tā ir darba kartīte ar pulksteni.
 
@@ -48,13 +48,14 @@ Izgatavoji visu, kas prasīts? Ar to viss. Uzdevums aizveras, darba uzdevums ir 
 
 ## Ja izgatavoji mazāk, nekā prasīts
 
-Ieraksti reālo skaitu un spied **DONE** (Pabeigts). Ievades rindas vietā parādās īss panelis: *19 gatavi · 6 vēl jāizgatavo* un trīs pogas.
+Ieraksti reālo skaitu un spied **DONE** (Pabeigts). Ievades rindas vietā parādās īss panelis: *19 gatavi · 6 vēl jāizgatavo* un četras pogas.
 
-- **Continue later** (Turpināt vēlāk) - darbs aizveras ar 19, un tavā sarakstā parādās jauns, tev adresēts darba uzdevums par atlikušajiem 6. Ņem to rīt vai kad materiāls būs klāt.
+- **Pause** (Pauze) - tas pats maisījums, turpināsi vēlāk. Darbs paliek atvērts ar to pašu atsauci un to pašu partijas kodu, un skaitīšana turpinās no 19. Izmanto, ja diena beidzas pirms maisījuma.
+- **Close at 19 and move remaining 6 to new job …** (Aizvērt pie 19 un pārcelt atlikušos 6 uz jaunu darbu) - darbs aizveras ar 19, un 6 nonāk jaunā darba uzdevumā ar nākamo burtu (0127 kļūst par 0127a) un savu partijas kodu. Izmanto, ja atlikums būs jauns maisījums. Ekrāns lūdz apstiprināt ar **Yes, close and move** (Jā, aizvērt un pārcelt), jo aizvērtu darbu vairs nevar turpināt.
 - **Job finished** (Darbs pabeigts) - darbs aizveras ar 19, un ar to viss. Plānotājs redz darba uzdevumu, kas prasīja 25, bet saņēma 19.
 - **Back** (Atpakaļ) - mainīt skaitli.
 
-Jebkurā gadījumā darbs, ar kuru strādāji, aizveras un tiek apmaksāts par izgatavoto daudzumu. Nekas nepaliek pusatvērts tavā sarakstā.
+Darbs, kas pārcelts uz jaunu, savā kartītē rāda **Continued from 0127** (Turpinājums no 0127), bet darbs, no kura pārcelts, rāda **Continued in 0127a** (Turpināts darbā 0127a). Jaunais darbs paliek pie tiem pašiem cilvēkiem un tajā pašā dienas plānā.
 
 ## Ja izgatavoji vairāk, nekā prasīts
 
@@ -85,14 +86,14 @@ Izgatavot vairāk, nekā visas rindas kopā prasīja, var tikai ar vadītāja ka
 
 - **Viens darbs vienlaikus.** Kamēr tev ir atvērts darbs, START pogas ir neaktīvas. Vispirms aizver to.
 - **Tava samaksa par uzdevumu** seko skaitlim laukā Quantity made, kā aprakstīts [Ražotnes amatos](/docs/factory-positions-lv). Par brāķi nemaksā.
-- **Open jobs** (Brīvie darbi) ir darbi bez norādīta amatnieka vai ar norādītu kādu citu. Ņemt tādu ir pieļaujami, ja tavs amats to atļauj - tad tas ir tavs, līdz aizvērts.
+- **Open jobs** (Brīvie darbi) ir darbi un soļi bez norādīta amatnieka vai ar norādītu kādu citu. Ņemt tādu ir pieļaujami, ja tavs amats to atļauj - tad tas ir tavs, līdz aizvērts.
 
 <aside class="wayfinder"><strong>Kur klikšķināt aiku sistēmā</strong>
 <ul>
 <li><b>Tavs ekrāns:</b> tava organizācija → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Sākt:</b> pieskaries rindai → <b>START</b>.</li>
 <li><b>Pabeigt:</b> ieraksti <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Mazāk nekā prasīts:</b> <b>DONE</b> → <b>Continue later</b> vai <b>Job finished</b>.</li>
+<li><b>Mazāk nekā prasīts:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> vai <b>Job finished</b>.</li>
 <li><b>Viena partija vairākām rindām:</b> pieskaries rindai → <b>Combine … with other lines into one batch</b> → atzīmē rindas → <b>Combine</b>. Lai atceltu: pieskaries apvienotajai rindai → <b>Separate</b>.</li>
 </ul>
 </aside>

@@ -1,8 +1,8 @@
 ---
 title: Trabajar la pantalla de planta
 summary: La guía del artesano - la pantalla Mis tareas, la lista de trabajos que se actualiza sola, START y DONE, y qué pulsar cuando hiciste menos de lo pedido.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-12
+source_date: 2026-10-12
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Para las personas que fabrican. <b>Factory → Jobs</b> (Fábrica → Trabajos) es todo tu día en una sola pantalla: los trabajos asignados a ti a la izquierda, el que estás haciendo en el medio. Pulsa <b>START</b> (Empezar), hazlo, escribe cuántos hiciste, pulsa <b>DONE</b> (Terminado). Si hiciste menos de lo pedido, la pantalla te hace una sola pregunta: cerrar el trabajo aquí o pasar el resto a un trabajo nuevo. No hay nada más que rellenar.
+Para las personas que fabrican. <b>Factory → Jobs</b> (Fábrica → Trabajos) es todo tu día en una sola pantalla: los trabajos asignados a ti a la izquierda, el que estás haciendo en el medio. Pulsa <b>START</b> (Empezar), hazlo, escribe cuántos hiciste, pulsa <b>DONE</b> (Terminado). Si hiciste menos de lo pedido, la pantalla te hace una sola pregunta: pausar y seguir más tarde, cerrar el trabajo y pasar el resto a uno nuevo, o terminarlo aquí. No hay nada más que rellenar.
 </aside>
 
 ## La pantalla
 
 La página está organizada como una bandeja de entrada.
 
-**Izquierda, siempre visible:** la lista. Dos contadores arriba - unidades hechas hoy y tareas terminadas hoy. Debajo, <b>Your jobs</b> (Tus trabajos), el trabajo asignado a ti. Si tu puesto te permite coger trabajos del grupo abierto, sigue una sección <b>Open jobs</b> (Trabajos abiertos). Al final, <b>Finished today</b> (Terminado hoy), lo que ya has cerrado.
+**Izquierda, siempre visible:** la lista. Dos contadores arriba - unidades hechas hoy y tareas terminadas hoy. Debajo, <b>Your jobs</b> (Tus trabajos), el trabajo asignado a ti: trabajos enteros con tu nombre, y pasos sueltos que el supervisor te dio en el plan del día (ver [Planificar el día de producción](/docs/planning-the-production-day-es)). Un trabajo puede tener su fabricación con una persona y su embalaje con otra; cada una ve solo su propio paso. Si tu puesto te permite coger trabajos del grupo abierto, sigue una sección <b>Open jobs</b> (Trabajos abiertos). Al final, <b>Finished today</b> (Terminado hoy), lo que ya has cerrado.
 
 **Derecha:** lo que hayas seleccionado. Antes de empezar, son los detalles del trabajo con un botón grande <b>START</b>. Una vez empezado, es la tarjeta de trabajo con el reloj.
 
@@ -48,13 +48,14 @@ Una fila con una ▶ verde y una hora es la que estás trabajando, y cuándo la 
 
 ## Cuando hiciste menos de lo pedido
 
-Escribe el número real y pulsa <b>DONE</b>. La fila de entrada se sustituye por un panel corto: *19 hechos · 6 pendientes* y tres botones.
+Escribe el número real y pulsa <b>DONE</b>. La fila de entrada se sustituye por un panel corto: *19 hechos · 6 pendientes* y cuatro botones.
 
-- <b>Continue later</b> (Continuar más tarde) - el trabajo se cierra en 19, y aparece una nueva orden de trabajo por los 6 restantes en tu lista, asignada a ti. Retómala mañana, o cuando llegue el material.
+- <b>Pause</b> (Pausar) - misma mezcla, sigues más tarde. El trabajo queda abierto con la misma referencia y el mismo código de lote, y la cuenta sigue desde 19. Úsalo cuando el día termina antes que la mezcla.
+- <b>Close at 19 and move remaining 6 to new job …</b> (Cerrar en 19 y pasar los 6 restantes a un trabajo nuevo) - el trabajo se cierra en 19 y los 6 pasan a una nueva orden de trabajo con la letra siguiente (0127 pasa a 0127a) y su propio código de lote. Úsalo cuando el resto será una mezcla nueva. La pantalla te pide confirmar con <b>Yes, close and move</b> (Sí, cerrar y pasar), porque un trabajo cerrado no se puede continuar.
 - <b>Job finished</b> (Trabajo terminado) - el trabajo se cierra en 19 y ahí acaba. El planificador ve una orden de trabajo que pedía 25 y consiguió 19.
 - <b>Back</b> (Atrás) - cambiar el número.
 
-En cualquier caso, el trabajo que tenías abierto se cierra y se paga por lo que hiciste. Nada queda a medias en tu lista.
+Un trabajo pasado a uno nuevo muestra <b>Continued from 0127</b> (Continuación de 0127) en su tarjeta, y el de origen muestra <b>Continued in 0127a</b> (Continuado en 0127a). El trabajo nuevo sigue con las mismas personas y en el plan del mismo día.
 
 ## Cuando hiciste más de lo pedido
 
@@ -85,14 +86,14 @@ Hacer más de lo que pidieron todas las líneas requiere la tarjeta o el PIN de 
 
 - **Un trabajo a la vez.** Mientras tienes un trabajo abierto, los botones START están desactivados. Ciérralo primero.
 - **Tu pago por la tarea** sigue el número en Quantity made, como se explica en [Puestos de fábrica](/docs/factory-positions-es). Las piezas rechazadas no se pagan.
-- **Open jobs** (Trabajos abiertos) son trabajos sin artesano asignado, o con otra persona asignada. Coger uno está bien si tu puesto lo permite; a partir de entonces es tuyo hasta que se cierre.
+- **Open jobs** (Trabajos abiertos) son trabajos y pasos sin nadie asignado, o con otra persona asignada. Coger uno está bien si tu puesto lo permite; a partir de entonces es tuyo hasta que se cierre.
 
 <aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
 <ul>
 <li><b>Tu pantalla:</b> tu organización → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Empezar:</b> toca la fila → <b>START</b>.</li>
 <li><b>Terminar:</b> escribe <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Menos de lo pedido:</b> <b>DONE</b> → <b>Continue later</b> o <b>Job finished</b>.</li>
+<li><b>Menos de lo pedido:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> o <b>Job finished</b>.</li>
 <li><b>Un lote para varias líneas:</b> toca una línea → <b>Combine … with other lines into one batch</b> → marca las líneas → <b>Combine</b>. Para deshacer: toca la fila combinada → <b>Separate</b>.</li>
 </ul>
 </aside>

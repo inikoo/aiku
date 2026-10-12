@@ -65,8 +65,10 @@ class SettleShortJobOrderItemTask
             $original = $item->jobOrder;
             $root     = (int) Arr::get($original->data, 'carried_from', $original->id);
             $carried  = StoreJobOrder::make()->action($original->production, [
-                'employee_id' => $item->employee_id ?? $original->employee_id,
-                'reference'   => $this->carriedReference($original),
+                'employee_id'   => $item->employee_id ?? $original->employee_id,
+                'reference'     => $this->carriedReference($original),
+                'planned_for'   => $original->planned_for?->toDateString(),
+                'plan_position' => $original->plan_position,
             ]);
             $carried->update(['data' => array_merge($carried->data, ['carried_from' => $root])]);
             $carriedItem = StoreJobOrderItem::make()->action($carried, [
@@ -74,6 +76,9 @@ class SettleShortJobOrderItemTask
                 'quantity'    => $remainingArtefacts,
             ]);
             $item->update(['data' => array_merge($item->data ?? [], ['carried_to' => $carried->id])]);
+            foreach ($carriedItem->tasks as $carriedTask) {
+                $carriedTask->update(['employee_id' => $item->tasks->firstWhere('manufacture_task_id', $carriedTask->manufacture_task_id)?->employee_id]);
+            }
             $this->creditWorkAlreadyDone($carriedItem, $excessUnitsByTask);
             ConfirmJobOrder::make()->action($carried);
 

@@ -47,7 +47,7 @@ class StartManufactureTaskSession extends OrgAction
 
         $lead     = $group->first();
         $employee = GetUserCurrentEmployee::run($user, $lead->organisation_id);
-        $isMine   = $employee && $group->contains(fn (JobOrderItemTask $task) => ($task->jobOrderItem->employee_id ?? $task->jobOrder->employee_id) == $employee->id);
+        $isMine   = $employee && $group->contains(fn (JobOrderItemTask $task) => $task->assigneeId() == $employee->id);
 
         if (!$isMine && !ShowManufactureFloor::canPickOpenJobs($user, $lead->production)) {
             throw ValidationException::withMessages([
@@ -64,7 +64,7 @@ class StartManufactureTaskSession extends OrgAction
 
         foreach ($members->groupBy('job_order_id') as $jobOrderMembers) {
             $jobOrder        = $jobOrderMembers->first()->jobOrder;
-            $isMineInThisOne = $employee && $jobOrderMembers->contains(fn (JobOrderItemTask $task) => ($task->jobOrderItem->employee_id ?? $jobOrder->employee_id) == $employee->id);
+            $isMineInThisOne = $employee && $jobOrderMembers->contains(fn (JobOrderItemTask $task) => $task->assigneeId() == $employee->id);
             if ($jobOrder->state == JobOrderStateEnum::IN_PROCESS && $isMineInThisOne) {
                 ConfirmJobOrder::make()->action($jobOrder);
             } elseif ($jobOrder->state != JobOrderStateEnum::CONFIRMED) {

@@ -32,6 +32,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $booking_in_at
  * @property \Illuminate\Support\Carbon|null $booked_in_at
  * @property string|null $date
+ * @property \Illuminate\Support\Carbon|null $planned_for
+ * @property int|null $plan_position
  * @property string|null $customer_notes
  * @property string|null $public_notes
  * @property string|null $internal_notes
@@ -81,6 +83,7 @@ class JobOrder extends Model
         'booked_in_at'        => 'datetime',
         'booking_in_at'       => 'datetime',
         'dispatched_at'       => 'datetime',
+        'planned_for'         => 'date',
         'data'                => 'array'
     ];
 
@@ -113,6 +116,11 @@ class JobOrder extends Model
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(128);
+    }
+
+    public static function nextPlanPosition(int $productionId, string $plannedFor): int
+    {
+        return (int) self::where('production_id', $productionId)->whereDate('planned_for', $plannedFor)->max('plan_position') + 1;
     }
 
     public function organisation(): BelongsTo
