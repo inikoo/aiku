@@ -30,14 +30,14 @@ class GetOrganisationStockCoverBuckets
     public const EXCESS_DAYS = 120;
 
     public const BUCKETS = [
-        'out'    => ['label' => 'Out of stock', 'tone' => 'gray'],
+        'out'    => ['label' => 'Out of stock', 'tone' => 'red-deep'],
         'w1'     => ['label' => 'Doomed', 'description' => 'Gone before any delivery lands', 'tone' => 'red'],
         'w2'     => ['label' => 'Critical', 'description' => 'Out within 2 lead times', 'tone' => 'orange'],
         'w3'     => ['label' => 'Danger', 'description' => 'Out within 3 lead times', 'tone' => 'amber'],
         'w4'     => ['label' => 'Watch', 'description' => 'Out within 4 lead times', 'tone' => 'yellow'],
         'ok'     => ['label' => 'Covered', 'tone' => 'green-light'],
         'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'green'],
-        'dead'   => ['label' => 'Dead stock', 'tone' => 'red-deep'],
+        'dead'   => ['label' => 'Dead stock', 'tone' => 'maroon'],
     ];
 
     public const SOURCES = [

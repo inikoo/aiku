@@ -60,6 +60,7 @@ const toneDot: Record<string, string> = {
     yellow: "bg-yellow-300",
     green: "bg-green-500",
     "green-light": "bg-green-300",
+    maroon: "bg-red-900",
     blue: "bg-blue-500",
     gray: "bg-gray-400",
 }
