@@ -65,6 +65,8 @@ class GetShopifyProducts extends OrgAction
         $seenSkus       = [];
 
         foreach ($result['variants'] as $shopifyVariant) {
+            $shopifyVariant['sku'] ??= Product::where('shop_id', $shop->id)->where('marketplace_id', $shopifyVariant['variant_id'])->value('code');
+
             if (!$shopifyVariant['sku']) {
                 $command?->warn('Variant without SKU skipped: '.$shopifyVariant['name']);
 

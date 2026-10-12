@@ -160,7 +160,7 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
             );
         }
 
-        CalculateOrderTotalAmounts::run($order);
+        CalculateOrderTotalAmounts::run($order, calculateDiscounts: false);
 
         $order = SubmitOrder::make()->action($order->refresh());
 
