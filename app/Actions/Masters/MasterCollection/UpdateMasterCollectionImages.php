@@ -11,7 +11,7 @@ namespace App\Actions\Masters\MasterCollection;
 
 use App\Actions\Catalogue\Collection\UpdateCollectionImages;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithMastersMediaEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Helpers\CanUpdateImages;
 use App\Models\Masters\MasterCollection;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMasterCollectionImages extends OrgAction
 {
-    use WithMastersEditAuthorisation;
+    use WithMastersMediaEditAuthorisation;
     use WithActionUpdate;
     use CanUpdateImages;
 
