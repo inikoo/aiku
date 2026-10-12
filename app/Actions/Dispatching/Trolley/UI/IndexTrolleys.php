@@ -108,7 +108,7 @@ class IndexTrolleys extends OrgAction
                     'icon'   => ['fal', 'dolly-flatbed-alt'],
                     'model'  => __('Warehouse'),
                     'actions' => [
-                        [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('Create'),
@@ -116,7 +116,7 @@ class IndexTrolleys extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.dispatching.trolleys.create',
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ],
-                        ],
+                        ] : false,
                     ],
                 ],
                 'tabs'                            => [

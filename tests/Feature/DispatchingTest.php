@@ -1276,8 +1276,12 @@ test('dispatch clerk can view trolleys and picked bays but not create them', fun
     actingAs($user->refresh());
 
     $parameters = [$this->organisation->slug, $this->warehouse->slug];
-    get(route('grp.org.warehouses.show.dispatching.trolleys.index', $parameters))->assertOk();
-    get(route('grp.org.warehouses.show.dispatching.picked_bays.index', $parameters))->assertOk();
+    $headingActions = fn (string $routeName): array => array_values(array_filter(
+        get(route($routeName, $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions']
+    ));
+
+    expect($headingActions('grp.org.warehouses.show.dispatching.trolleys.index'))->toBe([])
+        ->and($headingActions('grp.org.warehouses.show.dispatching.picked_bays.index'))->toBe([]);
     get(route('grp.org.warehouses.show.dispatching.trolleys.create', $parameters))->assertForbidden();
     get(route('grp.org.warehouses.show.dispatching.picked_bays.create', $parameters))->assertForbidden();
 
