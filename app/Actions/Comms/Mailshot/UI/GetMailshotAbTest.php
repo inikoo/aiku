@@ -30,6 +30,7 @@ class GetMailshotAbTest
         }
 
         $variant          = $original->abTestVariant;
+        $hasRemainingList = $original->ab_test_size_percentage < 100;
         $bothSent         = $variant && $original->state === MailshotStateEnum::SENT && $variant->state === MailshotStateEnum::SENT;
         $trackingEndsAt   = $original->abTestTrackingEndsAt();
         $isTrackingOver   = $bothSent && !$trackingEndsAt?->isFuture();
@@ -48,14 +49,25 @@ class GetMailshotAbTest
                 'disabled' => !$metric->isAvailable(),
             ])->all(),
             'is_blocked_by_second_wave' => $original->is_second_wave_enabled,
+            'size_percentage'           => $original->ab_test_size_percentage,
+            'winner_mailshot_id'        => $original->ab_test_winner_mailshot_id,
+            'winner_sent_at'            => $original->ab_test_winner_sent_at,
+            'can_send_winner'           => $canEdit && $isTrackingOver && $hasRemainingList && !$original->ab_test_winner_sent_at,
             'variant_delay_seconds'     => $original->ab_test_variant_delay_seconds,
             'variant_sends_at'          => $variant && !$variant->start_sending_at ? $original->abTestVariantSendsAt() : null,
             'tracking_hours'            => $original->ab_test_tracking_hours,
             'tracking_ends_at'          => $trackingEndsAt,
-            'winner_id'                 => $isTrackingOver ? $this->winnerId($versions, $original->ab_test_winning_metric) : null,
+            'suggested_winner_id'       => $isTrackingOver ? $this->suggestedWinnerId($versions, $original->ab_test_winning_metric) : null,
             'versions'                  => $versions,
             'update_route'              => [
                 'name'       => 'grp.models.shop.mailshot.ab-test',
+                'parameters' => [
+                    'shop'     => $original->shop_id,
+                    'mailshot' => $original->id,
+                ],
+            ],
+            'send_winner_route'         => [
+                'name'       => 'grp.models.shop.mailshot.ab-test.winner',
                 'parameters' => [
                     'shop'     => $original->shop_id,
                     'mailshot' => $original->id,
@@ -149,7 +161,7 @@ class GetMailshotAbTest
      *
      * @param  array<int, array{id: int, stats: array<string, int|float>}>  $versions
      */
-    private function winnerId(array $versions, MailshotAbTestWinningMetricEnum $winningMetric): ?int
+    private function suggestedWinnerId(array $versions, MailshotAbTestWinningMetricEnum $winningMetric): ?int
     {
         [$versionA, $versionB] = $versions;
 

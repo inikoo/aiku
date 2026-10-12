@@ -34,8 +34,9 @@ class PrepareMailshotAbTestRecipients
 
         $customerIds = $this->validCustomerIds($audienceQuery)->shuffle()->values()->all();
 
-        $variantCustomers  = array_slice($customerIds, 0, intdiv(count($customerIds), 2));
-        $originalCustomers = array_slice($customerIds, count($variantCustomers));
+        $variantSize       = $this->variantGroupSize($mailshot, count($customerIds));
+        $variantCustomers  = array_slice($customerIds, 0, $variantSize);
+        $originalCustomers = array_slice($customerIds, $variantSize, $this->testGroupSize($mailshot, count($customerIds)) - $variantSize);
 
         $this->sendToCustomers($mailshot, $originalCustomers);
 
@@ -45,20 +46,32 @@ class PrepareMailshotAbTestRecipients
     }
 
     /**
-     * Version B sent hours after A goes to everyone on the list who did not get A.
+     * Version B sent hours after A: its half of the test group is drawn from whoever did not get A.
      */
     public function sendDelayedVariant(Mailshot $mailshot): void
     {
-        $variant       = $mailshot->abTestVariant;
+        $variant = $mailshot->abTestVariant;
+
+        $variantSize   = $this->variantGroupSize($mailshot, $this->validCustomerIds($this->audienceQuery($mailshot))->count());
         $audienceQuery = $this->excludeRecipientsOf($this->audienceQuery($mailshot), [$mailshot->id]);
 
-        $customerIds = $this->validCustomerIds($audienceQuery)->values()->all();
+        $customerIds = $this->validCustomerIds($audienceQuery)->shuffle()->take($variantSize)->values()->all();
 
         $this->sendToCustomers($variant, $customerIds);
 
         if (!$customerIds) {
             UpdateMailshotSentState::run($variant->refresh());
         }
+    }
+
+    private function testGroupSize(Mailshot $mailshot, int $audienceSize): int
+    {
+        return (int)round($audienceSize * $mailshot->ab_test_size_percentage / 100);
+    }
+
+    private function variantGroupSize(Mailshot $mailshot, int $audienceSize): int
+    {
+        return intdiv($this->testGroupSize($mailshot, $audienceSize), 2);
     }
 
     /**

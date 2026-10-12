@@ -65,8 +65,10 @@ use App\Actions\Comms\Mailshot\RunMailshotTrackingUpdates;
 use App\Actions\Comms\Mailshot\RunNewsletterScheduled;
 use App\Actions\Comms\Mailshot\SendMailShot;
 use App\Actions\Comms\Mailshot\RunMailshotAbTestVariants;
+use App\Actions\Comms\Mailshot\SendMailshotAbTestWinner;
 use App\Actions\Comms\Mailshot\SetMailshotAbTest;
 use App\Actions\Comms\Mailshot\PrepareMailshotAbTestRecipients;
+use App\Actions\Comms\Mailshot\PrepareMailshotAbTestWinnerRecipients;
 use App\Actions\Comms\Mailshot\UI\GetMailshotAbTest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Validation\ValidationException;
@@ -2157,7 +2159,7 @@ test('the database refuses a second recipient row for the same mailshot and cust
     expect(fn () => DB::table('mailshot_recipients')->insert($rows[1]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
 })->depends('outbox seeded when shop created')->skip('Needs the test database dumps regenerated with the mailshot_recipients unique index');
 
-function createMarketingMailshotWithAbTest(Shop $shop): Mailshot
+function createMarketingMailshotWithAbTest(Shop $shop, int $sizePercentage = 100): Mailshot
 {
     $outbox   = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
     $mailshot = StoreMailshot::make()->action($outbox, array_merge(
@@ -2166,7 +2168,7 @@ function createMarketingMailshotWithAbTest(Shop $shop): Mailshot
     ));
     $mailshot = createMailshotWithPublishedEmail($shop, $mailshot);
 
-    return SetMailshotAbTest::make()->action($mailshot, ['enabled' => true]);
+    return SetMailshotAbTest::make()->action($mailshot, ['enabled' => true, 'size_percentage' => $sizePercentage]);
 }
 
 function createMarketingSubscribers(Shop $shop, string $emailPrefix, int $count): array
@@ -2200,31 +2202,34 @@ test('ab test creates version B with its own email, excludes the 2nd wave and is
     expect($mailshot->refresh()->abTestVariant)->toBeNull();
 })->depends('outbox seeded when shop created');
 
-test('ab test route needs the mailshot of the route shop and saves the settings', function (Shop $shop) {
+test('ab test route needs the mailshot of the route shop and saves the test size', function (Shop $shop) {
     $mailshot  = createMarketingMailshotWithAbTest($shop);
     $otherShop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
     $route     = fn (Shop $routeShop) => route('grp.models.shop.mailshot.ab-test', [$routeShop->id, $mailshot->id]);
 
     $this->post($route($otherShop), ['enabled' => false])->assertNotFound();
+    $this->post($route($shop), ['size_percentage' => 5])->assertSessionHasErrors('size_percentage');
+    $this->post($route($shop), ['size_percentage' => 30])->assertRedirect();
     $this->post($route($shop), ['variant_delay_seconds' => 604801, 'tracking_hours' => 0, 'winning_metric' => 'revenue'])->assertSessionHasErrors(['variant_delay_seconds', 'tracking_hours', 'winning_metric']);
     $this->post($route($shop), ['winning_metric' => MailshotAbTestWinningMetricEnum::PLACED_ORDER_RATE->value])->assertSessionHasErrors('winning_metric');
     $this->post($route($shop), ['variant_delay_seconds' => 4 * 3600 + 30 * 60 + 15, 'tracking_hours' => 48, 'winning_metric' => 'open_rate'])->assertRedirect();
 
-    expect($mailshot->refresh()->ab_test_variant_delay_seconds)->toBe(4 * 3600 + 30 * 60 + 15)
+    expect($mailshot->refresh()->ab_test_size_percentage)->toBe(30)
+        ->and($mailshot->ab_test_variant_delay_seconds)->toBe(4 * 3600 + 30 * 60 + 15)
         ->and($mailshot->ab_test_tracking_hours)->toBe(48)
         ->and($mailshot->ab_test_winning_metric)->toBe(MailshotAbTestWinningMetricEnum::OPEN_RATE)
         ->and(GetMailshotAbTest::run($mailshot, true)['estimated_recipients'])->toBeInt()
         ->and($mailshot->abTestVariant)->not->toBeNull();
 })->depends('outbox seeded when shop created');
 
-test('ab test splits the whole list in two random halves, one per version', function (Shop $shop) {
+test('ab test sends a random half of the test group to each version and holds back the rest', function (Shop $shop) {
     Queue::fake();
 
-    $mailshot = createMarketingMailshotWithAbTest($shop);
+    $mailshot = createMarketingMailshotWithAbTest($shop, 20);
     createMarketingSubscribers($shop, 'ab-split', 10);
 
     $prepareAbTest = PrepareMailshotAbTestRecipients::make();
-    $listSize      = $prepareAbTest->validCustomerIds($prepareAbTest->audienceQuery($mailshot))->count();
+    $testSize      = (int)round($prepareAbTest->validCustomerIds($prepareAbTest->audienceQuery($mailshot))->count() * 20 / 100);
 
     PrepareMailshotRecipients::make()->handle($mailshot);
 
@@ -2236,29 +2241,29 @@ test('ab test splits the whole list in two random halves, one per version', func
     $sentToVersionA  = $customerIdsByMailshot->get($mailshot->id, []);
     $sentToVersionB  = $customerIdsByMailshot->get($variant->id, []);
 
-    expect(count($sentToVersionB))->toBe(intdiv($listSize, 2))
-        ->and(count($sentToVersionA))->toBe($listSize - intdiv($listSize, 2))
+    expect(count($sentToVersionB))->toBe(intdiv($testSize, 2))
+        ->and(count($sentToVersionA))->toBe($testSize - intdiv($testSize, 2))
         ->and(array_intersect($sentToVersionA, $sentToVersionB))->toBeEmpty()
         ->and($variant->state)->toBe(MailshotStateEnum::SENDING)
         ->and($variant->recipients_count)->toBe(count($sentToVersionB))
         ->and($mailshot->refresh()->recipients_count)->toBe(count($sentToVersionA));
 })->depends('outbox seeded when shop created');
 
-test('ab test version B sent a set time after A goes to everyone who did not get A', function (Shop $shop) {
+test('ab test version B sent a set time after A goes to people who did not get A', function (Shop $shop) {
     Queue::fake();
 
-    $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop), ['variant_delay_seconds' => 90 * 60]);
+    $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop, 20), ['variant_delay_seconds' => 90 * 60]);
     $variant  = $mailshot->abTestVariant;
     createMarketingSubscribers($shop, 'ab-delay', 10);
 
     $prepareAbTest = PrepareMailshotAbTestRecipients::make();
-    $listSize      = $prepareAbTest->validCustomerIds($prepareAbTest->audienceQuery($mailshot))->count();
+    $testSize      = (int)round($prepareAbTest->validCustomerIds($prepareAbTest->audienceQuery($mailshot))->count() * 20 / 100);
     $sendJobsOf    = fn (Mailshot $version) => Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === ProcessSendMailshot::class && $job->getParameters()[0] === $version->id);
 
     PrepareMailshotRecipients::make()->handle($mailshot);
 
     $sentToVersionA = $sendJobsOf($mailshot)->flatMap(fn ($job) => $job->getParameters()[1])->all();
-    expect(count($sentToVersionA))->toBe($listSize - intdiv($listSize, 2))
+    expect(count($sentToVersionA))->toBe($testSize - intdiv($testSize, 2))
         ->and($sendJobsOf($variant))->toBeEmpty()
         ->and($variant->refresh()->state)->toBe(MailshotStateEnum::READY);
 
@@ -2274,47 +2279,65 @@ test('ab test version B sent a set time after A goes to everyone who did not get
 
     $sentToVersionB = $sendJobsOf($variant)->flatMap(fn ($job) => $job->getParameters()[1])->all();
     expect($variant->refresh()->state)->toBe(MailshotStateEnum::SENDING)
-        ->and(count($sentToVersionB))->toBe(intdiv($listSize, 2))
+        ->and(count($sentToVersionB))->toBe(intdiv($testSize, 2))
         ->and(array_intersect($sentToVersionA, $sentToVersionB))->toBeEmpty();
 })->depends('outbox seeded when shop created');
 
-test('ab test decides the winner by the chosen metric once both versions are sent and the results tracked', function (Shop $shop) {
-    $mailshot = createMarketingMailshotWithAbTest($shop);
+test('ab test winner is sent once, after both versions are sent, to everyone who did not get the test', function (Shop $shop) {
+    Queue::fake();
+
+    $mailshot = createMarketingMailshotWithAbTest($shop, 20);
     $variant  = $mailshot->abTestVariant;
 
-    [$customerWithA, $customerWithB] = createMarketingSubscribers($shop, 'ab-winner', 2);
-    ProcessSendMailshot::make()->handle($mailshot->id, [$customerWithA]);
-    ProcessSendMailshot::make()->handle($variant->id, [$customerWithB]);
+    [$testedWithA, $testedWithB, $untested] = createMarketingSubscribers($shop, 'ab-winner', 3);
+    ProcessSendMailshot::make()->handle($mailshot->id, [$testedWithA]);
+    ProcessSendMailshot::make()->handle($variant->id, [$testedWithB]);
 
-    $mailshot->stats->update(['number_deliveries_success' => 10, 'number_delivered_open_success' => 6, 'number_opened_interact_success' => 1]);
-    $variant->stats->update(['number_deliveries_success' => 10, 'number_delivered_open_success' => 2, 'number_opened_interact_success' => 3]);
-
-    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['winner_id'])->toBeNull();
+    expect(fn () => SendMailshotAbTestWinner::make()->action($mailshot, ['winner_mailshot_id' => $variant->id]))->toThrow(ValidationException::class);
 
     $mailshot->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()]);
     $variant->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()]);
 
-    $abTest = GetMailshotAbTest::run($mailshot->refresh(), true);
-    expect($abTest['winner_id'])->toBeNull()
-        ->and($abTest['tracking_ends_at']->isFuture())->toBeTrue();
+    expect(fn () => SendMailshotAbTestWinner::make()->action($mailshot->refresh(), ['winner_mailshot_id' => $variant->id]))->toThrow(ValidationException::class)
+        ->and(GetMailshotAbTest::run($mailshot, true)['can_send_winner'])->toBeFalse();
 
     $trackingHours = $mailshot->ab_test_tracking_hours;
     $mailshot->update(['sent_at' => now()->subHours($trackingHours + 1), 'start_sending_at' => now()->subHours($trackingHours + 2)]);
     $variant->update(['sent_at' => now()->subHours($trackingHours)->subMinute(), 'start_sending_at' => now()->subHours($trackingHours + 2)]);
+    $mailshot->stats->update(['number_deliveries_success' => 10, 'number_delivered_open_success' => 6, 'number_opened_interact_success' => 1]);
+    $variant->stats->update(['number_deliveries_success' => 10, 'number_delivered_open_success' => 2, 'number_opened_interact_success' => 3]);
 
-    createDispatchedOrderFor(Customer::find($customerWithA), $shop, now()->subDays(5)->toDateTimeString());
-    createDispatchedOrderFor(Customer::find($customerWithB), $shop, now()->subHours($trackingHours)->toDateTimeString());
-    DB::table('orders')->whereIn('customer_id', [$customerWithA, $customerWithB])->update(['submitted_at' => DB::raw('created_at')]);
+    createDispatchedOrderFor(Customer::find($testedWithA), $shop, now()->subDays(5)->toDateTimeString());
+    createDispatchedOrderFor(Customer::find($testedWithB), $shop, now()->subHours($trackingHours)->toDateTimeString());
+    DB::table('orders')->whereIn('customer_id', [$testedWithA, $testedWithB])->update(['submitted_at' => DB::raw('created_at')]);
 
     $abTest = GetMailshotAbTest::run($mailshot->refresh(), true);
-    expect($abTest['winner_id'])->toBe($variant->id)
+    expect($abTest['can_send_winner'])->toBeTrue()
+        ->and($abTest['suggested_winner_id'])->toBe($variant->id)
         ->and(array_column(array_column($abTest['versions'], 'stats'), 'placed_orders'))->toBe([0, 1]);
 
     $mailshot->update(['ab_test_winning_metric' => MailshotAbTestWinningMetricEnum::OPEN_RATE]);
-    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['winner_id'])->toBe($mailshot->id);
+    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['suggested_winner_id'])->toBe($mailshot->id);
 
     $mailshot->update(['ab_test_winning_metric' => MailshotAbTestWinningMetricEnum::PLACED_ORDER_RATE]);
-    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['winner_id'])->toBe($variant->id);
+    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['suggested_winner_id'])->toBe($variant->id);
+
+    SendMailshotAbTestWinner::make()->action($mailshot, ['winner_mailshot_id' => $variant->id]);
+
+    Queue::assertPushed(JobDecorator::class, fn ($job) => $job->displayName() === PrepareMailshotAbTestWinnerRecipients::class);
+    expect($mailshot->refresh()->ab_test_winner_mailshot_id)->toBe($variant->id)
+        ->and($variant->refresh()->state)->toBe(MailshotStateEnum::SENDING)
+        ->and(fn () => SendMailshotAbTestWinner::make()->action($mailshot, ['winner_mailshot_id' => $mailshot->id]))->toThrow(ValidationException::class);
+
+    PrepareMailshotAbTestWinnerRecipients::make()->handle($mailshot);
+
+    $winnerCustomerIds = Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === ProcessSendMailshot::class && $job->getParameters()[0] === $variant->id)
+        ->flatMap(fn ($job) => $job->getParameters()[1])
+        ->all();
+
+    expect($winnerCustomerIds)->toContain($untested)
+        ->and($winnerCustomerIds)->not->toContain($testedWithA)
+        ->and($winnerCustomerIds)->not->toContain($testedWithB);
 })->depends('outbox seeded when shop created');
 
 test('ab test version B must be published before sending and cannot be sent on its own', function (Shop $shop) {
@@ -2328,7 +2351,7 @@ test('ab test version B must be published before sending and cannot be sent on i
 })->depends('outbox seeded when shop created');
 
 test('ab test comparison lists both versions with their rates, and B uses its own sender name', function (Shop $shop) {
-    $mailshot = createMarketingMailshotWithAbTest($shop);
+    $mailshot = createMarketingMailshotWithAbTest($shop, 40);
     $variant  = $mailshot->abTestVariant;
     $variant->update(['sender_name' => 'Anna at the shop']);
 
@@ -2337,6 +2360,7 @@ test('ab test comparison lists both versions with their rates, and B uses its ow
 
     expect($abTest['enabled'])->toBeTrue()
         ->and($abTest['can_edit_settings'])->toBeTrue()
+        ->and($abTest['size_percentage'])->toBe(40)
         ->and(array_column($abTest['versions'], 'label'))->toBe(['A', 'B'])
         ->and($abTest['versions'][0]['stats'])->toHaveKeys(['opened', 'clicked', 'open_rate', 'click_rate', 'spam_rate', 'unsubscribe_rate', 'bounce_rate'])
         ->and($abTest['versions'][1]['sender_name'])->toBe('Anna at the shop')
