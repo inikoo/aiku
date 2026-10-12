@@ -9917,6 +9917,15 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
     expect($item['other_organisations_drafts'])->toBe([
         ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'units' => 300],
     ])->and($item['ordered_quantity'])->toBe(0);
+
+    $ourDraft = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=items')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('agent_ordering.addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
+            ->where('items.data', fn ($items) => collect($items)->pluck('code')->all() === [$supplierProduct->code]
+                && $items[0]['other_organisations_drafts'][0]['organisation_code'] === $otherOrganisation->code)
+            ->etc());
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
@@ -10824,9 +10833,13 @@ test('purchase order products and items tabs show stock and quarterly usage of e
         'units_per_carton' => 10,
     ]);
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->orgSupplier, $supplierProduct);
-    StockHasSupplierProduct::firstOrCreate(
+    $stockHasSupplierProduct = StockHasSupplierProduct::firstOrCreate(
         ['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id],
         ['available' => true]
+    );
+    DB::table('org_stock_has_org_supplier_products')->updateOrInsert(
+        ['org_stock_id' => $orgStock->id, 'org_supplier_product_id' => $orgSupplierProduct->id],
+        ['stock_has_supplier_product_id' => $stockHasSupplierProduct->id, 'status' => true, 'local_priority' => 1, 'created_at' => now(), 'updated_at' => now()]
     );
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->orgSupplier, [
@@ -10886,7 +10899,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
 
     $items = $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug, 'tab' => 'items']))
         ->assertOk()->viewData('page')['props']['items']['data'];
-    $item  = collect($items)->firstWhere('id', $transaction->id);
+    $item  = collect($items)->firstWhere('code', $supplierProduct->code);
 
     expect($item['stock_in_locations'])->toBe('17')
         ->and((float) collect($item['quarterly_usage'])->last()['sales'])->toBe(6.0)
@@ -10901,7 +10914,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
 
     $items = $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug, 'tab' => 'items']))
         ->assertOk()->viewData('page')['props']['items']['data'];
-    $item  = collect($items)->firstWhere('id', $transaction->id);
+    $item  = collect($items)->firstWhere('code', $supplierProduct->code);
 
     expect(collect($item['stock_deliveries']['coming'])->pluck('reference'))->not->toContain($comingStockDelivery->reference)
         ->and($item['stock_deliveries']['last_received']['reference'])->toBe($comingStockDelivery->reference);

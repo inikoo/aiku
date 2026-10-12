@@ -16,6 +16,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
 import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -190,6 +191,11 @@ const props = defineProps < {
         }
 	}
 	items?: {}
+	agent_ordering?: {
+		orgAgent: { id: number, slug: string, currency: string }
+		addRoute: { name: string, parameters: (string | number)[] }
+		bucketLabels: Record<string, { label: string, tone: string }>
+	} | null
 	products?: {}
 	showcase?: { blueprint: any[]; updateRoute: routeType }
 	notes?: {}
@@ -1113,7 +1119,9 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
+		<AgentOrderingItems v-if="agent_ordering && currentTab === 'items' && items" :items="items" v-bind="agent_ordering" tableName="items" />
 		<component
+			v-else
 			:is="component"
 			:key="currentTab"
 			:data="props[currentTab as keyof typeof props]"
