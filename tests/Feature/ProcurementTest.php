@@ -12916,6 +12916,23 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
         ->filter(fn (string $stage) => $stages::documents($this->orgAgent, $stage)->where('sd.id', $stockDelivery->id)->exists())
         ->values()->all();
 
+    $stageUrl     = route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stages::PREPARING]);
+    $containerUrl = route('grp.org.procurement.org_agents.show.shopping.container', [$this->organisation->slug, $this->orgAgent->slug, $stockDelivery->slug]);
+
+    DB::table('stock_deliveries')->where('organisation_id', $this->organisation->id)->where('agent_id', $this->orgAgent->agent_id)
+        ->whereIn('state', ['in_process', 'confirmed', 'ready_to_ship'])->where('id', '!=', $stockDelivery->id)
+        ->update(['state' => StockDeliveryStateEnum::CANCELLED->value]);
+
+    $this->get($stageUrl)->assertRedirect($containerUrl);
+    $this->get($stageUrl.'?scope=all')->assertOk();
+    $this->get($containerUrl)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/AgentContainerInPreparation')
+        ->where('stockDelivery.reference', $stockDelivery->reference)
+        ->where('summary.products', 0)
+        ->where('container.cbm', $this->orgAgent->order_container->cbm())
+        ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->where('active', true)->pluck('route.parameters.2')->all() === [$stages::PREPARING])
+        ->has('rows.data', 0));
+
     foreach ([
         'in_process'    => [$stages::PREPARING],
         'ready_to_ship' => [$stages::PREPARING],
@@ -12928,6 +12945,8 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
         DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update(['state' => $state]);
         expect($stageOf())->toBe($expected);
     }
+
+    $this->get($containerUrl)->assertNotFound();
 
     DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update([
         'state'         => StockDeliveryStateEnum::DISPATCHED->value,
@@ -12986,7 +13005,7 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
 });
 
 test('UI agent order stages', function (string $stage) {
-    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage]));
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'ours']));
     $response->assertOk();
 
     $response->assertInertia(fn (AssertableInertia $page) => $page
