@@ -6487,6 +6487,29 @@ describe('partner shopping list', function () {
             ->and(data_get($blockedPurchaseOrder->data, 'seller_order_id'))->toBeNull();
 
         $seller->update(['settings' => $sellerSettings]);
+
+        $repackedTwin            = $this->buyerOrgStock->replicate();
+        $repackedTwin->code      = $this->buyerOrgStock->code.'-repacked';
+        $repackedTwin->slug      = $this->buyerOrgStock->slug.'-repacked';
+        $repackedTwin->packed_in = (float) ($this->buyerOrgStock->packed_in ?: 1) + 1;
+        $repackedTwin->saveQuietly();
+
+        $adminUser      = $this->adminGuest->getUser();
+        $submitProblems = SendPartnerPurchaseOrderToSeller::make()->submitProblems($blockedPurchaseOrder->refresh(), $adminUser);
+        $packingProblem = collect($submitProblems)->firstWhere('org_stock_id', $this->buyerOrgStock->id);
+        $fixRoutes      = array_column($packingProblem['fixes'], 'route');
+
+        expect(array_column($submitProblems, 'message'))->toBe(SendPartnerPurchaseOrderToSeller::make()->problems($blockedPurchaseOrder))
+            ->and($packingProblem['message'])->toContain($repackedTwin->code)
+            ->and($packingProblem['task']['description'])->toContain($blockedPurchaseOrder->reference)
+            ->and(array_column($fixRoutes, 'name'))->each->toBe('grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.composition')
+            ->and(array_column(array_column($fixRoutes, 'parameters'), 'orgStock'))->toBe([$this->buyerOrgStock->slug, $repackedTwin->slug]);
+
+        actingAs($adminUser);
+        $this->patch(route('grp.models.purchase-order.submit', $blockedPurchaseOrder->id))->assertSessionHasErrors('purchase_order');
+        expect($blockedPurchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+        $repackedTwin->forceDelete();
         $blockedPurchaseOrder->delete();
 
         $seller->update(['is_manufacturing_hub' => true]);

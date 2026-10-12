@@ -30,6 +30,8 @@ type Person = Pick<StaffCoworker, "id" | "name" | "avatar">
 const props = defineProps<{
     isOpen: boolean
     subject?: string
+    description?: string
+    department?: string | null
     sourceMessageId?: number | null
     modelType?: string | null
     modelId?: number | null
@@ -51,8 +53,8 @@ const isLoadingPeople = ref(false)
 
 const emptyForm = () => ({
     subject: props.subject ?? "",
-    description: "",
-    department: null as string | null,
+    description: props.description ?? "",
+    department: (props.department ?? null) as string | null,
     assignee_id: null as number | null,
     collaborator_ids: [] as number[],
     subtasks: [] as string[],

@@ -23,6 +23,7 @@ use App\Actions\Production\PartnerShippingList\SendPartnerOrderToWarehouse;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Models\Catalogue\Product;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Catalogue\Shop;
@@ -30,9 +31,12 @@ use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -59,30 +63,89 @@ class SendPartnerPurchaseOrderToSeller
      */
     public function problems(PurchaseOrder $purchaseOrder): array
     {
+        return array_column($this->detailedProblems($purchaseOrder), 'message');
+    }
+
+    /**
+     * What stops the purchase order from being submitted, with what the user can do about each:
+     * the packing pages they are allowed to edit, and the SKO a task for somebody else is about.
+     *
+     * @return array<int, array{message: string, org_stock_id: int|null, fixes: array<int, array{label: string, route: array{name: string, parameters: array<string, string>}}>, task: array{subject: string, description: string}}>
+     */
+    public function submitProblems(PurchaseOrder $purchaseOrder, User $user): array
+    {
+        /** @var OrgPartner $orgPartner */
+        $orgPartner = $purchaseOrder->parent;
+
+        return array_map(fn (array $problem) => [
+            'message'      => $problem['message'],
+            'org_stock_id' => $problem['org_stock_id'],
+            'fixes'        => $problem['packing'] ? array_values(array_filter([
+                $this->packingFix($user, $orgPartner->organisation, $problem['packing']->buyer_slug),
+                $this->packingFix($user, $orgPartner->partner, $problem['packing']->seller_slug),
+            ])) : [],
+            'task'         => [
+                'subject'     => Str::limit($problem['message'], 250),
+                'description' => __(':reference cannot be submitted to :partner until this is corrected.', ['reference' => $purchaseOrder->reference, 'partner' => $orgPartner->partner->name]),
+            ],
+        ], $this->detailedProblems($purchaseOrder));
+    }
+
+    /**
+     * @return array{label: string, route: array{name: string, parameters: array<string, string>}}|null
+     */
+    private function packingFix(User $user, Organisation $organisation, string $orgStockSlug): ?array
+    {
+        $warehouse = $organisation->warehouses()->orderBy('id')->first();
+        if (!$warehouse || !$user->authTo(WarehousePermissionsEnum::getStockEditPermissionNames($organisation))) {
+            return null;
+        }
+
+        return [
+            'label' => __('Change packing at :organisation', ['organisation' => $organisation->name]),
+            'route' => [
+                'name'       => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.composition',
+                'parameters' => [
+                    'organisation' => $organisation->slug,
+                    'warehouse'    => $warehouse->slug,
+                    'orgStock'     => $orgStockSlug,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{message: string, org_stock_id: int|null, packing: object|null}>
+     */
+    private function detailedProblems(PurchaseOrder $purchaseOrder): array
+    {
         /** @var OrgPartner $orgPartner */
         $orgPartner = $purchaseOrder->parent;
         $partner    = $orgPartner->partner;
+        $problem    = fn (string $message, ?int $orgStockId = null, ?object $packing = null) => ['message' => $message, 'org_stock_id' => $orgStockId, 'packing' => $packing];
 
         $shop = Shop::find(Arr::get($partner->settings, 'procurement.shop_id'));
         if (!$shop) {
-            return [__(':partner has no shop set up to sell to the other companies', ['partner' => $partner->name])];
+            return [$problem(__(':partner has no shop set up to sell to the other companies', ['partner' => $partner->name]))];
         }
         if (!$orgPartner->organisation->address) {
-            return [__(':organisation has no address, :partner cannot deliver to it', ['organisation' => $orgPartner->organisation->name, 'partner' => $partner->name])];
+            return [$problem(__(':organisation has no address, :partner cannot deliver to it', ['organisation' => $orgPartner->organisation->name, 'partner' => $partner->name]))];
         }
 
         $transactions = $this->transactions($purchaseOrder);
         $problems     = [];
         foreach ($transactions as $transaction) {
             if (!$this->sellingProduct($orgPartner, $transaction->stock_id, $shop->id)) {
-                $problems[] = __(':partner does not sell :code', ['partner' => $partner->name, 'code' => $transaction->orgStock->code]);
+                $problems[] = $problem(__(':partner does not sell :code', ['partner' => $partner->name, 'code' => $transaction->orgStock->code]), $transaction->org_stock_id);
             }
         }
 
-        return [
-            ...$problems,
-            ...EnsurePartnerOrderPackedInMatches::make()->mismatches($orgPartner, $transactions->pluck('stock_id')->unique()->all()),
-        ];
+        $packedInMatches = EnsurePartnerOrderPackedInMatches::make();
+        foreach ($packedInMatches->mismatchedRows($orgPartner, $transactions->pluck('stock_id')->unique()->all()) as $row) {
+            $problems[] = $problem($packedInMatches->mismatchMessage($orgPartner, $row), $row->buyer_id, $row);
+        }
+
+        return $problems;
     }
 
     /**

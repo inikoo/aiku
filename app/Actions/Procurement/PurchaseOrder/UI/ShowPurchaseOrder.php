@@ -36,6 +36,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier;
+use App\Actions\Procurement\PurchaseOrder\SendPartnerPurchaseOrderToSeller;
 use App\Actions\Ordering\Order\UI\IndexDispatchedEmailsInOrder;
 use App\Http\Resources\Ordering\DispatchedEmailsInOrderResource;
 use App\Http\Resources\History\HistoryResource;
@@ -244,6 +245,9 @@ class ShowPurchaseOrder extends OrgAction
                     ]),
                 ],
                 'upload_excel'             => $uploadExcel ? $this->uploadExcel($purchaseOrder) : null,
+                'submit_problems'          => Inertia::optional(fn () => $purchaseOrder->state === PurchaseOrderStateEnum::IN_PROCESS && SendPartnerPurchaseOrderToSeller::appliesTo($purchaseOrder)
+                    ? SendPartnerPurchaseOrderToSeller::make()->submitProblems($purchaseOrder, $request->user())
+                    : []),
                 'data'                     => PurchaseOrderResource::make($purchaseOrder),
                 'last_edit'                => BroadcastPurchaseOrderLastEdited::lastEdit($purchaseOrder),
                 'timelines'                => $this->getTimeline($purchaseOrder),

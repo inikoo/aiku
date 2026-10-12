@@ -35,6 +35,7 @@ import ConfirmDialog from "primevue/confirmdialog"
 import DatePicker from "primevue/datepicker"
 import Dialog from "primevue/dialog"
 import Select from "primevue/select"
+import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
@@ -54,7 +55,7 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
@@ -84,6 +85,13 @@ library.add(
 	faPeopleArrows,
 	faCalendarAlt,
 )
+
+interface SubmitProblem {
+    message: string
+    org_stock_id: number | null
+    fixes: { label: string, route: routeType }[]
+    task: { subject: string, description: string } | null
+}
 
 const props = defineProps < {
     title: string
@@ -123,6 +131,7 @@ const props = defineProps < {
         quantity_ordered: number | string
         image_thumbnail: object | null
     }[]
+    submit_problems?: SubmitProblem[]
     tabs: {
         current: string
         navigation: {}
@@ -486,15 +495,29 @@ const submitPurchaseOrder = (action: any) => {
 			submitDialogAction.value = null
 			sendVia.value = doNotSend
 		},
-		onError: () => {
-			notify({
-				title: ctrans("Something went wrong"),
-				text: ctrans("Failed to submit purchase order"),
-				type: "error",
-			})
+		onError: (errors) => {
+			submitErrors.value = Object.values(errors).flat() as string[]
+			submitProblemsOpen.value = true
+			router.reload({ only: ["submit_problems"] })
 		},
 	})
 }
+
+const submitErrors = ref<string[]>([])
+const submitProblemsOpen = ref(false)
+const taskProblem = ref<SubmitProblem | null>(null)
+
+const submitProblems = computed<SubmitProblem[]>(() => {
+	const problems = props.submit_problems ?? []
+	const explained = problems.map((problem) => problem.message)
+
+	return [
+		...problems,
+		...submitErrors.value
+			.filter((message) => !explained.includes(message))
+			.map((message) => ({ message, org_stock_id: null, fixes: [], task: null })),
+	]
+})
 
 const confirmDeletePurchaseOrder = (action: any) => {
 	confirm.require({
@@ -1269,6 +1292,58 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			/>
 		</template>
 	</Dialog>
+
+	<Dialog
+		v-model:visible="submitProblemsOpen"
+		modal
+		:header="ctrans('This purchase order cannot be submitted yet')"
+		:style="{ width: '44rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:draggable="false"
+	>
+		<p class="text-sm text-gray-600">
+			{{ submitProblems.length > 1 ? ctrans("These need correcting first. Nothing was sent.") : ctrans("This needs correcting first. Nothing was sent.") }}
+		</p>
+		<ul class="mt-3 divide-y divide-gray-200 border-y border-gray-200">
+			<li v-for="problem in submitProblems" :key="problem.message" class="py-3">
+				<div class="flex items-start gap-3">
+					<FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-amber-500" fixed-width aria-hidden="true" />
+					<span class="text-sm text-gray-800">{{ problem.message }}</span>
+				</div>
+				<div v-if="problem.fixes.length || problem.task" class="mt-2 flex flex-wrap gap-2 pl-8">
+					<a v-for="fix in problem.fixes" :key="fix.label" :href="route(fix.route.name, fix.route.parameters)" target="_blank">
+						<Button :label="fix.label" type="tertiary" :icon="faPencil" size="s" />
+					</a>
+					<Button
+						v-if="problem.task"
+						:label="problem.fixes.length ? ctrans('Ask somebody else to correct it') : ctrans('Ask somebody to correct it')"
+						type="tertiary"
+						:icon="faClipboardList"
+						size="s"
+						@click="taskProblem = problem"
+					/>
+				</div>
+			</li>
+		</ul>
+		<p class="mt-3 text-xs text-gray-500">{{ ctrans("Once it is corrected, press Submit again.") }}</p>
+
+		<template #footer>
+			<Button :label="ctrans('Close')" type="tertiary" @click="submitProblemsOpen = false">
+				<template #icon>
+					<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</Dialog>
+
+	<StaffTaskDialog
+		:is-open="!!taskProblem"
+		:subject="taskProblem?.task?.subject"
+		:description="taskProblem?.task?.description"
+		department="masters"
+		:model-type="taskProblem?.org_stock_id ? 'OrgStock' : null"
+		:model-id="taskProblem?.org_stock_id"
+		@close="taskProblem = null"
+	/>
 
 	<Dialog
 		v-model:visible="estimatedDeliveryDateModalOpen"
