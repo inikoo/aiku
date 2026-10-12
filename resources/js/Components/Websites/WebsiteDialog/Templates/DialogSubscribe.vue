@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from "vue"
+import { computed, inject, ref } from "vue"
 import axios from "axios"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -22,6 +22,9 @@ const props = defineProps<{
 const { screenType, fields, accent, accentSoft, editable } = useDialogTemplate(props)
 
 const layout = inject<{ iris?: { website?: { id?: number } } }>("layout", {})
+
+const isPhoneShown = computed(() => fields.value.subscribe?.show_phone !== false)
+const isEmailShown = computed(() => fields.value.subscribe?.show_email !== false || !isPhoneShown.value)
 
 const inputEmail = ref("")
 const inputPhone = ref("")
@@ -51,8 +54,8 @@ const onSubmit = async () => {
 
     try {
         await axios.post(window.origin + "/app/webhooks/subscribe-newsletter", {
-            email: inputEmail.value,
-            phone: inputPhone.value.trim() || null,
+            email: isEmailShown.value ? inputEmail.value : null,
+            phone: isPhoneShown.value ? inputPhone.value.trim() || null : null,
         })
         inputEmail.value = ""
         inputPhone.value = ""
@@ -102,7 +105,7 @@ const onSubmit = async () => {
                 <input v-model="honeypot" type="text" class="sr-only" aria-hidden="true" tabindex="-1" autocomplete="off" />
 
                 <div class="flex w-full flex-col gap-2">
-                    <label class="relative w-full">
+                    <label v-if="isEmailShown" class="relative w-full">
                         <span class="sr-only">{{ ctrans("Email address") }}</span>
                         <FontAwesomeIcon icon="fal fa-envelope" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
                         <input
@@ -117,15 +120,16 @@ const onSubmit = async () => {
                         />
                     </label>
 
-                    <label class="relative w-full">
+                    <label v-if="isPhoneShown" class="relative w-full">
                         <span class="sr-only">{{ ctrans("Phone number") }}</span>
                         <FontAwesomeIcon icon="fal fa-phone" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
                         <input
                             v-model="inputPhone"
                             type="tel"
                             maxlength="24"
+                            :required="!isEmailShown"
                             autocomplete="tel"
-                            :placeholder="fields.subscribe?.phone_placeholder || ctrans('Your phone number (optional)')"
+                            :placeholder="fields.subscribe?.phone_placeholder || (isEmailShown ? ctrans('Your phone number (optional)') : ctrans('Your phone number'))"
                             :disabled="isLoading || isEditable"
                             class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
                         />

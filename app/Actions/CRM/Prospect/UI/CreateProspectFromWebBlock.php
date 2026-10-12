@@ -29,18 +29,19 @@ class CreateProspectFromWebBlock extends IrisAction
      */
     public function handle(array $modelData): Prospect
     {
-        $prospectData = [
-            'is_opt_in' => true,
-            'email'     => Arr::get($modelData, 'email'),
-        ];
+        $prospectData = ['is_opt_in' => true];
 
-        if (filled(Arr::get($modelData, 'phone'))) {
-            $prospectData['phone'] = Arr::get($modelData, 'phone');
+        foreach (['email', 'phone'] as $contactField) {
+            if (filled(Arr::get($modelData, $contactField))) {
+                $prospectData[$contactField] = Arr::get($modelData, $contactField);
+            }
         }
 
         $prospect = StoreProspect::make()->action($this->shop, $prospectData);
 
-        RunProspectConvertionEmailBulkRuns::dispatch($prospect?->id);
+        if ($prospect->email) {
+            RunProspectConvertionEmailBulkRuns::dispatch($prospect->id);
+        }
 
         return $prospect;
     }
@@ -49,7 +50,8 @@ class CreateProspectFromWebBlock extends IrisAction
     {
         return [
             'email' => [
-                'required',
+                'required_without:phone',
+                'nullable',
                 'email',
                 'max:500',
                 new IUnique(
@@ -61,7 +63,7 @@ class CreateProspectFromWebBlock extends IrisAction
                 )
             ],
             'phone' => [
-                'sometimes',
+                'required_without:email',
                 'nullable',
                 'max:24',
                 new Phone(),
@@ -101,7 +103,7 @@ class CreateProspectFromWebBlock extends IrisAction
         }
 
 
-        if (Customer::where('email', $this->get('email'))
+        if (filled($this->get('email')) && Customer::where('email', $this->get('email'))
             ->where('shop_id', $this->shop->id)
             ->exists()) {
             $validator->errors()->add('email', __('This email is already registered as a customer in this shop.'));
