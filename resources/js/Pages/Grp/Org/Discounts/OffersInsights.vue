@@ -9,8 +9,10 @@ import { Head, Link, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import DashboardSettings from "@/Components/DataDisplay/Dashboard/DashboardSettings.vue"
 import Table from "@/Components/Table/Table.vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
 import Icon from "@/Components/Icon.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
@@ -18,13 +20,14 @@ import { ctrans } from "@/Composables/useTrans"
 import Select from "primevue/select"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { Table as TableTS } from "@/types/Table"
+import { Tabs as TabsTS } from "@/types/Tabs"
 import { Intervals } from "@/types/Components/Dashboard"
 import { RouteParams } from "@/types/route-params"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faAnalytics, faBadgePercent, faShoppingCart, faUsers, faCoin, faPiggyBank, faPercent, faTrophy, faThumbsDown, faTags, faClock, faChevronDown } from "@fal"
+import { faAnalytics, faBadgePercent, faShoppingCart, faUsers, faCoin, faPiggyBank, faPercent, faTrophy, faThumbsDown, faTags, faClock, faChevronDown, faCommentDollar, faStore, faRepeat, faPercentage, faFlag, faBox, faSortAmountUp, faHandHoldingUsd, faTruck, faGift } from "@fal"
 
-library.add(faAnalytics, faBadgePercent, faShoppingCart, faUsers, faCoin, faPiggyBank, faPercent, faTrophy, faThumbsDown, faTags, faChevronDown)
+library.add(faAnalytics, faBadgePercent, faShoppingCart, faUsers, faCoin, faPiggyBank, faPercent, faTrophy, faThumbsDown, faTags, faChevronDown, faCommentDollar, faStore, faRepeat, faPercentage, faFlag, faBox, faSortAmountUp, faHandHoldingUsd, faTruck, faGift)
 
 interface OfferPerformance {
     slug: string
@@ -80,7 +83,9 @@ const props = defineProps<{
         campaign: string | null
         type: string | null
     }
-    offers: TableTS
+    tabs: TabsTS
+    offers?: TableTS
+    campaigns?: TableTS
     dashboard: { super_blocks: OffersInsightsSuperBlock[] }
 }>()
 
@@ -101,20 +106,44 @@ const campaignOptions = computed(() => props.filters.campaigns.map(campaign => (
 
 const typeOptions = computed(() => props.filters.types.map(type => ({ label: type, value: type })))
 
+const currentTab = ref(props.tabs.current)
+
+const insightsRoute = () => route("grp.org.shops.show.discounts.insights", [
+    (route().params as RouteParams).organisation,
+    (route().params as RouteParams).shop,
+])
+
+const insightsQuery = (tabSlug: string) => ({
+    ...(selectedCampaign.value ? { campaign: selectedCampaign.value } : {}),
+    ...(selectedType.value ? { type: selectedType.value } : {}),
+    tab: tabSlug,
+})
+
 const applyFilters = () => {
     isLoadingFilter.value = true
     router.get(
-        route("grp.org.shops.show.discounts.insights", [
-            (route().params as RouteParams).organisation,
-            (route().params as RouteParams).shop,
-        ]),
-        {
-            ...(selectedCampaign.value ? { campaign: selectedCampaign.value } : {}),
-            ...(selectedType.value ? { type: selectedType.value } : {}),
-        },
+        insightsRoute(),
+        insightsQuery(currentTab.value),
         {
             preserveScroll: true,
             onFinish: () => { isLoadingFilter.value = false },
+        }
+    )
+}
+
+const handleTabUpdate = (tabSlug: string) => {
+    if (tabSlug === currentTab.value) {
+        return
+    }
+
+    router.get(
+        insightsRoute(),
+        insightsQuery(tabSlug),
+        {
+            only: [tabSlug],
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => { currentTab.value = tabSlug },
         }
     )
 }
@@ -181,6 +210,11 @@ const isLeastOffersOpen = ref(true)
 
 const activeMetric = ref<"redemptions" | "discounted_amount">("redemptions")
 
+const trendMetricOptions = computed<{ label: string, value: "redemptions" | "discounted_amount" }[]>(() => [
+    { label: ctrans("Redemptions"), value: "redemptions" },
+    { label: ctrans("Discount given"), value: "discounted_amount" },
+])
+
 const trendBars = computed(() => {
     const trend = insights.value.trend
     const metric = activeMetric.value
@@ -190,10 +224,20 @@ const trendBars = computed(() => {
         label: record.period,
         height: `${(record[metric] / max) * 100}%`,
         tooltip: metric === "redemptions"
-            ? `${record.period} — ${locale.number(record.redemptions)} ${ctrans("redemptions")}`
-            : `${record.period} — ${currency(record.discounted_amount)}`,
+            ? `${record.period}: ${locale.number(record.redemptions)} ${ctrans("redemptions")}`
+            : `${record.period}: ${currency(record.discounted_amount)}`,
     }))
 })
+
+const campaignRoute = (campaign: { slug: string }) => {
+    return route("grp.org.shops.show.discounts.campaigns.show", {
+        organisation: (route().params as RouteParams).organisation,
+        shop: (route().params as RouteParams).shop,
+        offerCampaign: campaign.slug,
+    })
+}
+
+const formatLastUsed = (lastUsedAt: string) => useFormatTime(lastUsedAt, { localeCode: locale.language.code, formatTime: "aiku" })
 
 const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
     return route("grp.org.shops.show.discounts.offers.show", {
@@ -210,7 +254,7 @@ const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
     <PageHeading :data="pageHead" />
 
     <div class="px-6">
-        <DashboardSettings :intervals="intervals" :settings="{}" currentTab="insights" />
+        <DashboardSettings :intervals="intervals" :settings="{}" currentTab="insights" :reloadOnly="['dashboard', currentTab]" />
     </div>
 
     <!-- Section: campaign & type filters -->
@@ -296,30 +340,7 @@ const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
             <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:col-span-2">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <h3 class="text-sm font-semibold text-gray-800">{{ ctrans("Trend") }}</h3>
-                    <div class="flex rounded-lg bg-gray-100 p-1">
-                        <button
-                            type="button"
-                            @click="activeMetric = 'redemptions'"
-                            class="rounded-md px-3 py-1.5 text-left transition"
-                            :class="activeMetric === 'redemptions' ? 'bg-white shadow-sm' : 'opacity-60 hover:opacity-100'">
-                            <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                                <span class="inline-block h-2 w-2 rounded-full bg-[--app-accent]" />
-                                {{ ctrans("Redemptions") }}
-                            </div>
-                            <div class="text-lg font-semibold tabular-nums text-gray-900">{{ locale.number(insights.totals.redemptions) }}</div>
-                        </button>
-                        <button
-                            type="button"
-                            @click="activeMetric = 'discounted_amount'"
-                            class="rounded-md px-3 py-1.5 text-left transition"
-                            :class="activeMetric === 'discounted_amount' ? 'bg-white shadow-sm' : 'opacity-60 hover:opacity-100'">
-                            <div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                                <span class="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-                                {{ ctrans("Discount given") }}
-                            </div>
-                            <div class="text-lg font-semibold tabular-nums text-gray-900">{{ currency(insights.totals.discounted_amount) }}</div>
-                        </button>
-                    </div>
+                    <SegmentedToggle v-model="activeMetric" :options="trendMetricOptions" :ariaLabel="ctrans('Trend metric')" />
                 </div>
 
                 <div v-if="insights.trend.length" class="mt-5">
@@ -408,8 +429,11 @@ const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
             </div>
         </div>
 
-        <!-- Section: per-coupon table -->
-        <Table :resource="offers" :useTopPagination="true">
+        <!-- Section: per-coupon and per-campaign tables -->
+        <div>
+        <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+
+        <Table v-if="currentTab === 'offers' && offers" :resource="offers" name="offers" :useTopPagination="true">
             <template #cell(name)="{ item: offer }">
                 <Link :href="offerRoute(offer)" class="primaryLink">
                     {{ offer.name }}
@@ -430,7 +454,7 @@ const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
             </template>
 
             <template #cell(last_used_at)="{ item: offer }">
-                <span v-if="offer.last_used_at">{{ useFormatTime(offer.last_used_at, { localeCode: locale.language.code, formatTime: "aiku" }) }}</span>
+                <span v-if="offer.last_used_at">{{ formatLastUsed(offer.last_used_at) }}</span>
                 <span v-else class="text-gray-400">-</span>
             </template>
 
@@ -443,5 +467,43 @@ const offerRoute = (offer: { slug: string }, extraParams?: {}) => {
                 {{ item.created_by ?? ctrans('System') }}
             </template>
         </Table>
+
+        <Table v-else-if="currentTab === 'campaigns' && campaigns" :resource="campaigns" name="campaigns">
+            <template #cell(name)="{ item: campaign }">
+                <Link :href="campaignRoute(campaign)" class="primaryLink">
+                    {{ campaign.name }}
+                </Link>
+            </template>
+
+            <template #cell(active_offers)="{ item: campaign }">
+                <span class="tabular-nums">{{ locale.number(campaign.active_offers) }}</span>
+            </template>
+
+            <template #cell(redeemed_offers)="{ item: campaign }">
+                <span class="tabular-nums">{{ locale.number(campaign.redeemed_offers) }}</span>
+            </template>
+
+            <template #cell(redemptions)="{ item: campaign }">
+                <span class="tabular-nums">{{ locale.number(campaign.redemptions) }}</span>
+            </template>
+
+            <template #cell(redemption_customers)="{ item: campaign }">
+                <span class="tabular-nums">{{ locale.number(campaign.redemption_customers) }}</span>
+            </template>
+
+            <template #cell(discounted_amount)="{ item: campaign }">
+                <span class="tabular-nums">{{ currency(campaign.discounted_amount) }}</span>
+            </template>
+
+            <template #cell(revenue_net_amount)="{ item: campaign }">
+                <span class="tabular-nums">{{ currency(campaign.revenue_net_amount) }}</span>
+            </template>
+
+            <template #cell(last_used_at)="{ item: campaign }">
+                <span v-if="campaign.last_used_at">{{ formatLastUsed(campaign.last_used_at) }}</span>
+                <span v-else class="text-gray-400">-</span>
+            </template>
+        </Table>
+        </div>
     </div>
 </template>

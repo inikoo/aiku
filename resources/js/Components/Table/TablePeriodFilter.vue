@@ -155,11 +155,8 @@ onMounted(() => {
         <div v-for="period, idxPeriod in periodList"
             :key="'datePickerPeriod' + idxPeriod"
             @click="() => onClickPeriodType(period)"
-            class="px-3 py-1 cursor-pointer flex items-center gap-x-2"
-            :class="[selectedPeriodType === period.type ? '' : 'rounded-lg bg-white hover:bg-gray-50']"
-            :style="{
-                backgroundColor: selectedPeriodType === period.type ? layout?.app?.theme[4] + '22' : '' 
-            }"
+            class="h-8 px-3 cursor-pointer flex items-center gap-x-2 bg-white first:rounded-l-md last:rounded-r-md"
+            :class="[selectedPeriodType === period.type ? 'text-[--app-accent] font-medium' : 'hover:bg-gray-50']"
         >
             {{ period.label }}
 
@@ -170,10 +167,11 @@ onMounted(() => {
                 v-bind="{ [`${selectedPeriodType}-picker`]: true }"
                 auto-apply
                 :enableTimePicker="false"
+                menu-class-name="dp-app-accent"
             >
                 <template #trigger>
-                    <div class="px-1 py-0.5 bg-gray-700 text-white rounded w-fit">
-                        <FontAwesomeIcon icon='fal fa-calendar-alt' class='cursor-pointer hover:text-gray-600'
+                    <div class="flex h-6 items-center px-1 text-sm bg-[--app-accent] text-[--app-accent-text] hover:bg-[--app-accent-strong] rounded w-fit">
+                        <FontAwesomeIcon icon='fal fa-calendar-alt' class='cursor-pointer'
                             fixed-width aria-hidden='true' />
                     </div>
                 </template>
@@ -181,3 +179,10 @@ onMounted(() => {
         </div>
     </div>
 </template>
+
+<style>
+.dp-app-accent {
+    --dp-primary-color: var(--app-accent);
+    --dp-primary-text-color: var(--app-accent-text);
+}
+</style>

@@ -45,13 +45,15 @@ class WebBlockProductResource extends JsonResource
             $countriesOrigin[] = NaturalLanguage::make()->country($country);
         }
 
+        $hasSeveralTradeUnits = !$product->is_single_trade_unit && $product->tradeUnits()->count() > 1;
+
         $specifications = [
             'countries_of_origin' => $countriesOrigin,
-            'ingredients'       => $product->marketing_ingredients,
+            'ingredients'       => $hasSeveralTradeUnits ? null : $product->marketing_ingredients,
             'gross_weight'      => $product->gross_weight,
             'barcode'           => $product->barcode,
-            'dimensions'        => NaturalLanguage::make()->dimensions(json_encode($product->marketing_dimensions)),
-            'cpnp'              => $product->cpnp_number,
+            'dimensions'        => $hasSeveralTradeUnits ? null : NaturalLanguage::make()->dimensions(json_encode($product->marketing_dimensions)),
+            'cpnp'              => $hasSeveralTradeUnits ? null : $product->cpnp_number,
             'marketing_weight'  => $product->marketing_weight,
             'unit'              => $product->unit,
         ];

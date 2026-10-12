@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { ctrans } from '@/Composables/useTrans'
 import Toggle from '@/Components/Pure/Toggle.vue'
+import Select from 'primevue/select'
 
 type CalendarHoliday = {
   date: string
@@ -62,6 +63,24 @@ const initialMonth = props.calendar.month && props.calendar.month >= 1 && props.
 const filterYear = ref<string>(String(displayYear.value))
 const filterMonth = ref<string>(initialMonth)
 const filterHolidayYear = ref<number | null>(props.calendar.holidayYearPeriod?.id ?? null)
+
+const fieldFocusClass = "[&.p-focus]:!border-[--app-accent]"
+const holidayYearOptions = computed(() =>
+  (props.calendar.allHolidayYears ?? []).map((holidayYear: any) => ({
+    value: holidayYear.id,
+    label: `${holidayYear.label} (${holidayYear.start_date} - ${holidayYear.end_date})`,
+  }))
+)
+const yearOptions = computed(() =>
+  [-3, -2, -1, 0, 1, 2, 3].map((offset) => {
+    const year = String(Number(displayYear.value) + offset)
+    return { value: year, label: year }
+  })
+)
+const monthOptions = computed(() => [
+  { value: "", label: ctrans("All months") },
+  ...monthNames.map((name: string, index: number) => ({ value: index + 1, label: name })),
+])
 const useHolidayYearPeriod = ref<boolean>(!!props.calendar.holidayYearPeriod)
 
 const holidaysMap = computed<Record<string, CalendarHoliday>>(() => {
@@ -274,48 +293,39 @@ const isWeekendColumn = (index: number): boolean => index === 5 || index === 6
 
       <div class="flex items-center gap-2 justify-end flex-wrap">
         <template v-if="useHolidayYearPeriod && calendar.allHolidayYears && calendar.allHolidayYears.length">
-          <select
+          <Select
             v-model="filterHolidayYear"
-            class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm min-w-[220px]"
-          >
-            <option
-              v-for="hy in calendar.allHolidayYears"
-              :key="hy.id"
-              :value="hy.id"
-            >
-              {{ hy.label }} ({{ hy.start_date }} - {{ hy.end_date }})
-            </option>
-          </select>
+            :options="holidayYearOptions"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+            :aria-label="ctrans('Holiday Year')"
+            class="min-w-[220px]"
+            :class="fieldFocusClass"
+          />
         </template>
         <template v-else>
-          <select
+          <Select
             v-model="filterYear"
-            class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option
-              v-for="y in [Number(displayYear)-3, Number(displayYear)-2, Number(displayYear)-1, Number(displayYear), Number(displayYear)+1, Number(displayYear)+2, Number(displayYear)+3]"
-              :key="y"
-              :value="String(y)"
-            >
-              {{ y }}
-            </option>
-          </select>
+            :options="yearOptions"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+            :aria-label="ctrans('Year')"
+            :class="fieldFocusClass"
+          />
 
-          <select
+          <Select
             v-model="filterMonth"
-            class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option value="">
-              {{ ctrans('All months') }}
-            </option>
-            <option
-              v-for="(name, idx) in monthNames"
-              :key="idx"
-              :value="idx + 1"
-            >
-              {{ name }}
-            </option>
-          </select>
+            :options="monthOptions"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+            :placeholder="ctrans('All months')"
+            :aria-label="ctrans('Month')"
+            class="min-w-[9rem]"
+            :class="fieldFocusClass"
+          />
         </template>
 
         <div v-if="calendar.allHolidayYears && calendar.allHolidayYears.length" class="flex items-center gap-2 ml-2">

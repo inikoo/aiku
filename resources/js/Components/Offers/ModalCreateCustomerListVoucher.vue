@@ -41,10 +41,20 @@ type PreviewCustomer = { id: number; reference: string; name: string; state: str
 
 const MAX_AMOUNT_OFF_RATIO = 0.3
 
-const stateOptions: { value: CustomerState; label: string }[] = [
-	{ value: "losing", label: "Potential Comebacks" },
-	{ value: "lost", label: "Dormant" },
+const stateOptions: { value: CustomerState; label: string; information: string }[] = [
+	{
+		value: "losing",
+		label: "Potential Comebacks",
+		information: "Customers whose status is Potential Comebacks. Aiku does not calculate this status: each customer keeps the one they had in Aurora (Losing) on the day the shop moved to Aiku, so some of them may have ordered recently.",
+	},
+	{
+		value: "lost",
+		label: "Dormant",
+		information: "Customers whose status is Dormant. Aiku does not calculate this status: each customer keeps the one they had in Aurora (Lost) on the day the shop moved to Aiku, so some of them may have ordered recently.",
+	},
 ]
+
+const orderedOnceInformation = "Customers with exactly one invoice, dated inside the range of months you set. Aiku works this out from their invoices, so it is up to date."
 
 const rewardOptions: { value: RewardType; label: string }[] = [
 	{ value: "percentage_off", label: "Percentage off" },
@@ -317,6 +327,9 @@ const submit = () => {
 							:class="states.includes(option.value) ? 'border-green-500 bg-green-50 text-green-700 font-semibold' : 'border-gray-200 hover:border-gray-300'">
 							<Checkbox v-model="states" :value="option.value" :inputId="`voucher-state-${option.value}`" />
 							<span>{{ ctrans(option.label) }}</span>
+							<span class="font-normal text-gray-500" @click.prevent>
+								<InformationIcon :information="ctrans(option.information)" />
+							</span>
 						</label>
 
 						<label
@@ -325,6 +338,9 @@ const submit = () => {
 							:class="orderedOnce ? 'border-green-500 bg-green-50 text-green-700 font-semibold' : 'border-gray-200 hover:border-gray-300'">
 							<Checkbox v-model="orderedOnce" binary inputId="voucher-ordered-once" />
 							<span>{{ ctrans("Ordered only once") }}</span>
+							<span class="font-normal text-gray-500" @click.prevent>
+								<InformationIcon :information="ctrans(orderedOnceInformation)" />
+							</span>
 						</label>
 					</div>
 
