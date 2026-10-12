@@ -1222,31 +1222,58 @@ test('a bundle combines its trade unit ingredients and shows no component dimens
     expect(Product::find($product->id)->marketing_dimensions)->toBeNull();
 });
 
-test('a bundle spec block says which component each ingredient and size belongs to', function () {
+test('a starter spec block lists its components with a link to each one sold on its own', function () {
     $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
-    createProduct($shop);
-    $product = $shop->products()->orderBy('id')->first();
+    createWebsite($shop);
 
-    $bulb = $this->tradeUnit1;
-    $bulb->update(['marketing_ingredients' => 'Cotton', 'marketing_dimensions' => ['type' => 'rectangular', 'units' => 'cm', 'l' => 0.02, 'w' => 0.02, 'h' => 0.04]]);
+    $storeTradeUnit = fn (string $ingredients) => \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action(
+        $this->group,
+        array_merge(\App\Models\Goods\TradeUnit::factory()->definition(), ['marketing_ingredients' => $ingredients])
+    );
+    $lotion = $storeTradeUnit('Aqua, Glycerin');
+    $stand  = $storeTradeUnit('Recycled Teak');
 
-    $lamp = $this->tradeUnit2;
-    $lamp->update(['marketing_ingredients' => 'Himalayan Salt', 'marketing_dimensions' => ['type' => 'rectangular', 'units' => 'cm', 'l' => 0.1, 'w' => 0.1, 'h' => 0.19]]);
+    $storeProduct = fn (array $tradeUnits) => StoreProduct::make()->action($shop, array_merge(
+        Product::factory()->definition(),
+        ['trade_units' => $tradeUnits, 'price' => 10]
+    ));
 
-    \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [
-        ['id' => $bulb->id, 'quantity' => 1],
-        ['id' => $lamp->id, 'quantity' => 1],
+    $lotionProduct = $storeProduct([['id' => $lotion->id, 'quantity' => 4]]);
+    $lotionWebpage = StoreProductWebpage::make()->action($lotionProduct);
+    $lotionWebpage->update(['state' => WebpageStateEnum::LIVE]);
+    DB::table('products')->where('id', $lotionProduct->id)->update(['state' => ProductStateEnum::ACTIVE->value, 'is_single_trade_unit' => true]);
+
+    $starter = $storeProduct([
+        ['id' => $lotion->id, 'quantity' => 4],
+        ['id' => $stand->id, 'quantity' => 1],
     ]);
 
-    $specifications = \App\Actions\Iris\Catalogue\GetProductDetail::make()
-        ->jsonResponse(Product::find($product->id), \Lorisleiva\Actions\ActionRequest::createFrom(request()))['specifications'];
+    $request = \Lorisleiva\Actions\ActionRequest::createFrom(request());
+    $detail  = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($starter->id), $request);
 
-    expect($specifications['ingredients'])
-        ->toContain($bulb->code.' (Cotton)')
-        ->toContain($lamp->code.' (Himalayan Salt)')
-        ->and($specifications['dimensions'])
-        ->toContain($bulb->code.' (')
-        ->toContain($lamp->code.' (');
+    $components = collect($detail['components'])->keyBy('code');
+
+    expect($detail['components'])->toHaveCount(2)
+        ->and($detail['specifications']['ingredients'])->toBeNull()
+        ->and($detail['specifications']['dimensions'])->toBeNull()
+        ->and($detail['specifications']['cpnp'])->toBeNull()
+        ->and($components[$lotionProduct->code]['name'])->toBe($lotionProduct->name)
+        ->and($components[$lotionProduct->code]['quantity'])->toBe(4.0)
+        ->and($components[$lotionProduct->code]['url'])->toEndWith('/'.$lotionWebpage->url)
+        ->and($components[$lotionProduct->code]['ingredients'])->toBeNull()
+        ->and($components[$stand->code]['name'])->toBe($stand->name)
+        ->and($components[$stand->code]['url'])->toBeNull()
+        ->and($components[$stand->code]['ingredients'])->toBe('Recycled Teak');
+
+    $blockSpecifications = \App\Http\Resources\Web\WebBlockProductResource::make(Product::find($starter->id))->toArray($request)['specifications'];
+
+    expect($blockSpecifications['ingredients'])->toBeNull()
+        ->and($blockSpecifications['cpnp'])->toBeNull();
+
+    $single = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($lotionProduct->id), $request);
+
+    expect($single['components'])->toBe([])
+        ->and($single['specifications']['ingredients'])->toBe('Aqua, Glycerin');
 });
 
 test('product detail carries the public documents of the selected variant', function () {
