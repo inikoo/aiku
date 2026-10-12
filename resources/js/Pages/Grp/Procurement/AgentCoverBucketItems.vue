@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { Head, Link, router } from "@inertiajs/vue3"
+import { useFormatTime } from "@/Composables/useFormatTime"
 import { computed, ref, watch } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Image from "@common/Components/Image.vue"
@@ -23,6 +24,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { faThLarge, faList, faSearch } from "@fal"
+import { faCheckCircle } from "@fas"
 
 type BucketItem = {
     id: number
@@ -46,6 +48,9 @@ type BucketItem = {
     org_exchange: number | null
     has_org_stock: boolean
     stock_in_locations: string | null
+    other_organisations_drafts: { organisation_code: string, organisation_name: string, units: number }[]
+    stock_deliveries?: { coming?: { slug: string, reference: string, state_label: string, quantity: number }[], recent_received?: { slug: string, reference: string, received_at: string, quantity: number }[] } | null
+    other_open_purchase_orders?: { slug: string | null, reference: string, stage?: string | null, state: string, quantity_ordered: number }[]
 }
 
 const props = defineProps<{
@@ -61,7 +66,7 @@ const props = defineProps<{
         rank: { value: string, label: string, count: number }[]
         supplier: { value: number, label: string }[]
     }
-    active: { cover: string | null, rank: string | null, supplier: number | null, drafts: boolean, search: string }
+    active: { cover: string | null, rank: string | null, supplier: number | null, drafts: boolean, hide_ordered: boolean, search: string }
     rank: string | null
     items: { data: BucketItem[], links: { prev: string | null, next: string | null }, meta: { total: number, from: number | null, to: number | null } }
     miniCart: { count: number, total: number, currency: string, listRoute: { name: string, parameters: (string | number)[] } }
@@ -108,7 +113,7 @@ const bucketChip: Record<string, string> = {
 const searchTerm = ref(props.active.search)
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
-type ActiveFilters = { cover: string | null, rank: string | null, supplier: number | null, drafts: boolean, search: string }
+type ActiveFilters = { cover: string | null, rank: string | null, supplier: number | null, drafts: boolean, hide_ordered: boolean, search: string }
 
 const visit = (change: Partial<ActiveFilters>) => {
     const next = { ...props.active, search: searchTerm.value.trim(), ...change }
@@ -123,6 +128,7 @@ const visit = (change: Partial<ActiveFilters>) => {
             ...(next.cover ? { cover: next.cover } : {}),
             ...(next.rank ? { rank: next.rank } : {}),
             ...(next.drafts ? { drafts: 1 } : {}),
+            ...(next.hide_ordered ? { hide_ordered: 1 } : {}),
             ...(next.supplier ? { "filter[supplier]": next.supplier } : {}),
             ...(next.search ? { "filter[global]": next.search } : {}),
             ...(current.get("sort") ? { sort: current.get("sort") } : {}),
@@ -155,8 +161,7 @@ function cartonsFor(item: BucketItem): number {
 
 
 function setCartons(item: BucketItem, quantity: number) {
-    const minimum = item.minimum_carton_order ?? 1
-    cartons.value[item.id] = quantity > 0 ? Math.max(minimum, quantity) : 0
+    cartons.value[item.id] = Math.max(0, quantity)
     if (commitTimers[item.id]) {
         clearTimeout(commitTimers[item.id])
     }
@@ -202,7 +207,10 @@ const typedSkos = computed<Record<number, number>>(() =>
     Object.fromEntries(props.items.data.map((item) => [item.id, (cartonsFor(item) * unitsPerCarton(item)) / packOf(item)]))
 )
 
-const suggestedCartons = (item: BucketItem, skos: number) => Math.max(item.minimum_carton_order ?? 1, Math.ceil((skos * packOf(item)) / unitsPerCarton(item)))
+const otherCartons = (item: BucketItem) => (item.other_organisations_drafts ?? []).reduce((units, draft) => units + draft.units, 0) / unitsPerCarton(item)
+
+const suggestedCartons = (item: BucketItem, skos: number) =>
+    Math.max(Math.ceil((item.minimum_carton_order ?? 1) - otherCartons(item)), Math.ceil((skos * packOf(item)) / unitsPerCarton(item)))
 
 const suggestionLabel = (item: BucketItem, skos: number) =>
     ctransChoice(":number carton|:number cartons", suggestedCartons(item, skos), { number: locale.number(suggestedCartons(item, skos)) })
@@ -210,6 +218,64 @@ const suggestionLabel = (item: BucketItem, skos: number) =>
 const applySuggestion = (item: BucketItem, skos: number) => {
     setCartons(item, suggestedCartons(item, skos))
 }
+
+const moqLabel = (item: BucketItem) =>
+    `${ctrans("MOQ")} ${item.minimum_carton_order ? ctransChoice(":number carton|:number cartons", item.minimum_carton_order, { number: locale.number(item.minimum_carton_order) }) : `(${ctrans("not set")})`}`
+
+const draftCartonsLabel = (item: BucketItem, units: number) => {
+    const cartons = Math.round((units / unitsPerCarton(item)) * 100) / 100
+    return ctransChoice(":number carton|:number cartons", cartons, { number: locale.number(cartons) })
+}
+
+const groupCartons = (item: BucketItem) => cartonsFor(item) + otherCartons(item)
+
+const isMoqMet = (item: BucketItem) => !item.minimum_carton_order || groupCartons(item) >= item.minimum_carton_order
+
+const moqTooltip = (item: BucketItem) =>
+    item.minimum_carton_order
+        ? ctrans("The supplier's minimum of :moq is met: :ordered on drafts, every organisation counted", {
+            moq: ctransChoice(":number carton|:number cartons", item.minimum_carton_order, { number: locale.number(item.minimum_carton_order) }),
+            ordered: ctransChoice(":number carton|:number cartons", groupCartons(item), { number: locale.number(Math.round(groupCartons(item) * 100) / 100) }),
+        })
+        : ctrans("This product has no minimum order")
+
+type OnTheWayRow = { key: string, label: string, tone: string, reference: string, tooltip: string, href: string | null, units: number }
+
+const onTheWayRows = (item: BucketItem): OnTheWayRow[] => [
+    ...(item.other_organisations_drafts ?? []).map((draft) => ({
+        key: `draft-${draft.organisation_code}`,
+        label: ctrans("Draft"),
+        tone: "text-gray-500",
+        reference: draft.organisation_code,
+        tooltip: draft.organisation_name,
+        href: null,
+        units: draft.units,
+    })),
+    ...(item.stock_deliveries?.coming ?? []).map((delivery) => ({
+        key: `delivery-${delivery.slug}`,
+        label: delivery.state_label,
+        tone: "text-emerald-700",
+        reference: delivery.reference,
+        tooltip: delivery.reference,
+        href: stockDeliveryRoute(delivery.slug),
+        units: Number(delivery.quantity) || 0,
+    })),
+    ...(item.other_open_purchase_orders ?? []).map((order) => ({
+        key: `order-${order.slug ?? order.reference}`,
+        label: order.stage ?? (order.state === "sent" ? ctrans("Requested") : ctrans("Ordered")),
+        tone: "text-amber-700",
+        reference: order.reference,
+        tooltip: order.reference,
+        href: order.slug ? route("grp.org.procurement.purchase_orders.show", [route().params.organisation, order.slug]) : null,
+        units: Number(order.quantity_ordered) || 0,
+    })),
+]
+
+const pastDeliveriesShown = ref<Record<number, boolean>>({})
+
+const recentDeliveries = (item: BucketItem) => item.stock_deliveries?.recent_received ?? []
+
+const stockDeliveryRoute = (slug: string) => route("grp.org.procurement.stock_deliveries.show", [route().params.organisation, slug])
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
 
@@ -261,6 +327,10 @@ const quantityBreakdown = (item: BucketItem) => {
                     <Checkbox :modelValue="active.drafts" binary size="small" @update:modelValue="(value: boolean) => visit({ drafts: value })" />
                     {{ ctrans("On my drafts only") }}
                 </label>
+                <label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1 text-xs" :class="active.hide_ordered ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-gray-200 bg-white text-gray-600'">
+                    <Checkbox :modelValue="active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => visit({ hide_ordered: value })" />
+                    {{ ctrans("Hide what is already on order") }}
+                </label>
                 <IconField class="min-w-[14rem] flex-1 sm:max-w-xs">
                     <InputIcon>
                         <FontAwesomeIcon :icon="faSearch" fixed-width aria-hidden="true" />
@@ -304,19 +374,17 @@ const quantityBreakdown = (item: BucketItem) => {
                             <div class="text-xs text-gray-500">
                                 {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
                                 <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
-                                <template v-if="item.minimum_carton_order && item.minimum_carton_order > 1"> · {{ ctrans("smallest order :n cartons", { n: item.minimum_carton_order }) }}</template>
                             </div>
                             <div v-if="item.lead_time_days" class="text-xs text-gray-500">
                                 {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
                             </div>
                             <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
-                            <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" />
+                            <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing />
                         </div>
 
                         <div class="mt-auto flex items-end justify-between gap-3 pt-2">
                             <div class="text-xs">
-                                <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
-                                <div v-else class="space-y-0.5 tabular-nums">
+                                <div v-if="cartonsFor(item)" class="space-y-0.5 tabular-nums">
                                     <div class="text-gray-500">
                                         {{ quantityBreakdown(item) }}
                                     </div>
@@ -326,6 +394,10 @@ const quantityBreakdown = (item: BucketItem) => {
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                                 </div>
+<div v-if="cartonsFor(item) || item.minimum_carton_order" class="flex items-center gap-1 pt-1.5 tabular-nums" :class="cartonsFor(item) && !isMoqMet(item) ? 'text-amber-600' : 'text-gray-500'">
+    <FontAwesomeIcon v-if="cartonsFor(item) && isMoqMet(item)" v-tooltip="moqTooltip(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
+    <span>{{ moqLabel(item) }}</span>
+</div>
                             </div>
                             <div class="flex flex-col items-end">
                                 <NumberWithButtonSave
@@ -340,6 +412,29 @@ const quantityBreakdown = (item: BucketItem) => {
                                 <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />
                             </div>
                         </div>
+<table v-if="onTheWayRows(item).length" class="mt-2 w-full border-collapse border border-gray-200 text-left text-xs text-gray-600">
+    <tr v-for="row in onTheWayRows(item)" :key="row.key" class="border-b border-gray-200 last:border-b-0">
+        <td class="px-1.5 py-0.5 text-[10px] uppercase tracking-wide" :class="row.tone">{{ row.label }}</td>
+        <td class="w-full px-1.5 py-0.5">
+            <Link v-if="row.href" v-tooltip="row.tooltip" :href="row.href" class="block max-w-[9rem] truncate font-mono text-gray-700 hover:underline">{{ row.reference }}</Link>
+            <span v-else v-tooltip="row.tooltip" class="font-medium text-gray-700">{{ row.reference }}</span>
+        </td>
+        <td class="whitespace-nowrap px-1.5 py-0.5 text-right tabular-nums">{{ draftCartonsLabel(item, row.units) }}</td>
+    </tr>
+</table>
+<div v-if="recentDeliveries(item).length" class="mt-1 flex flex-col items-start text-xs text-gray-400">
+    <button type="button" class="hover:text-gray-600" @click="pastDeliveriesShown[item.id] = !pastDeliveriesShown[item.id]">
+        {{ ctrans("Last arrived :date", { date: useFormatTime(recentDeliveries(item)[0].received_at) }) }}
+        <span class="text-[10px]">{{ pastDeliveriesShown[item.id] ? "▴" : "▾" }}</span>
+    </button>
+    <table v-if="pastDeliveriesShown[item.id]" class="mt-1 w-full border-collapse border border-gray-200 text-left">
+        <tr v-for="delivery in recentDeliveries(item)" :key="delivery.slug" class="border-b border-gray-200 last:border-b-0">
+            <td class="whitespace-nowrap px-1.5 py-0.5">{{ useFormatTime(delivery.received_at) }}</td>
+            <td class="w-full px-1.5 py-0.5"><Link v-tooltip="delivery.reference" :href="stockDeliveryRoute(delivery.slug)" class="block max-w-[9rem] truncate font-mono hover:text-gray-600 hover:underline">{{ delivery.reference }}</Link></td>
+            <td class="whitespace-nowrap px-1.5 py-0.5 text-right tabular-nums">{{ draftCartonsLabel(item, delivery.quantity) }}</td>
+        </tr>
+    </table>
+</div>
                     </div>
                 </div>
                 <p v-if="!items.data.length" class="col-span-full py-10 text-center text-sm text-gray-400">
@@ -362,13 +457,12 @@ const quantityBreakdown = (item: BucketItem) => {
                         <div class="text-xs text-gray-500">
                             {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
                             <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
-                            <template v-if="item.minimum_carton_order && item.minimum_carton_order > 1"> · {{ ctrans("smallest order :n cartons", { n: item.minimum_carton_order }) }}</template>
                         </div>
                         <div v-if="item.lead_time_days" class="text-xs text-gray-500">
                             {{ ctrans("Lead time") }}: <span class="tabular-nums" :class="item.lead_time_measured ? 'text-gray-700' : 'text-gray-400'">{{ item.lead_time_days }}{{ ctrans("d") }} {{ item.lead_time_measured ? ctrans("measured") : ctrans("estimate") }}</span>
                         </div>
                         <div v-if="!item.has_org_stock" class="text-xs font-medium text-violet-600">{{ ctrans("never stocked") }}</div>
-                        <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" />
+                        <PurchaseOrderItemStockInfo :item="item" :typedSkosById="typedSkos" hideComing />
                     </div>
                 </template>
                 <template #cell(bucket)="{ item }">
@@ -380,8 +474,7 @@ const quantityBreakdown = (item: BucketItem) => {
                     >{{ bucketLabels[item.bucket].label.split(":")[0] }}</span>
                 </template>
                 <template #cell(subtotals)="{ item }">
-                    <span v-if="!cartonsFor(item)" class="text-gray-300">-</span>
-                    <div v-else class="space-y-0.5 tabular-nums">
+                    <div v-if="cartonsFor(item)" class="space-y-0.5 tabular-nums">
                         <div class="text-gray-500">
                             {{ quantityBreakdown(item) }}
                         </div>
@@ -391,6 +484,10 @@ const quantityBreakdown = (item: BucketItem) => {
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                     </div>
+<div v-if="cartonsFor(item) || item.minimum_carton_order" class="flex items-center gap-1 pt-1.5 tabular-nums" :class="cartonsFor(item) && !isMoqMet(item) ? 'text-amber-600' : 'text-gray-500'">
+    <FontAwesomeIcon v-if="cartonsFor(item) && isMoqMet(item)" v-tooltip="moqTooltip(item)" :icon="faCheckCircle" class="text-green-600" aria-hidden="true" />
+    <span>{{ moqLabel(item) }}</span>
+</div>
                 </template>
                 <template #cell(cartons)="{ item }">
                     <div class="flex flex-col items-end">
@@ -404,6 +501,29 @@ const quantityBreakdown = (item: BucketItem) => {
                             @update:modelValue="(value: number) => setCartons(item, value)"
                         />
                         <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />
+<table v-if="onTheWayRows(item).length" class="mt-1.5 border-collapse border border-gray-200 text-left text-xs text-gray-600">
+    <tr v-for="row in onTheWayRows(item)" :key="row.key" class="border-b border-gray-200 last:border-b-0">
+        <td class="px-1.5 py-0.5 text-[10px] uppercase tracking-wide" :class="row.tone">{{ row.label }}</td>
+        <td class="px-1.5 py-0.5">
+            <Link v-if="row.href" v-tooltip="row.tooltip" :href="row.href" class="block max-w-[9rem] truncate font-mono text-gray-700 hover:underline">{{ row.reference }}</Link>
+            <span v-else v-tooltip="row.tooltip" class="font-medium text-gray-700">{{ row.reference }}</span>
+        </td>
+        <td class="whitespace-nowrap px-1.5 py-0.5 text-right tabular-nums">{{ draftCartonsLabel(item, row.units) }}</td>
+    </tr>
+</table>
+<div v-if="recentDeliveries(item).length" class="mt-1 flex flex-col items-end text-xs text-gray-400">
+    <button type="button" class="hover:text-gray-600" @click="pastDeliveriesShown[item.id] = !pastDeliveriesShown[item.id]">
+        {{ ctrans("Last arrived :date", { date: useFormatTime(recentDeliveries(item)[0].received_at) }) }}
+        <span class="text-[10px]">{{ pastDeliveriesShown[item.id] ? "▴" : "▾" }}</span>
+    </button>
+    <table v-if="pastDeliveriesShown[item.id]" class="mt-1 border-collapse border border-gray-200 text-left">
+        <tr v-for="delivery in recentDeliveries(item)" :key="delivery.slug" class="border-b border-gray-200 last:border-b-0">
+            <td class="whitespace-nowrap px-1.5 py-0.5">{{ useFormatTime(delivery.received_at) }}</td>
+            <td class="px-1.5 py-0.5"><Link v-tooltip="delivery.reference" :href="stockDeliveryRoute(delivery.slug)" class="block max-w-[9rem] truncate font-mono hover:text-gray-600 hover:underline">{{ delivery.reference }}</Link></td>
+            <td class="whitespace-nowrap px-1.5 py-0.5 text-right tabular-nums">{{ draftCartonsLabel(item, delivery.quantity) }}</td>
+        </tr>
+    </table>
+</div>
                     </div>
                 </template>
             </Table>

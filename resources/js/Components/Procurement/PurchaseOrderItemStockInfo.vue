@@ -20,6 +20,7 @@ const props = defineProps<{
 	typedSkosById?: Record<number, number>
 	isOrderClosed?: boolean
 	isOrderLocked?: boolean
+	hideComing?: boolean
 }>()
 
 const locale = useLocaleStore()
@@ -429,22 +430,24 @@ function purchaseOrderRoute(slug: string) {
 			<span v-tooltip="verdict.tooltip" class="cursor-help font-semibold uppercase tracking-wide" :class="verdict.class">{{ verdict.label }}</span>
 		</div>
 
-		<div v-if="comingDeliveries.length || otherOrders.length" class="space-y-0.5">
-			<div v-for="delivery in comingDeliveries" :key="delivery.slug" class="flex items-baseline gap-1.5 text-gray-600">
+		<template v-if="!hideComing">
+		<div v-if="comingDeliveries.length || otherOrders.length" class="grid w-fit grid-cols-[auto_auto_auto] items-baseline gap-x-2 gap-y-0.5 text-gray-600">
+			<div v-for="delivery in comingDeliveries" :key="delivery.slug" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-emerald-700">{{ delivery.state_label }}</span>
 				<Link :href="stockDeliveryRoute(delivery.slug)" class="font-mono text-gray-700 hover:underline">{{ delivery.reference }}</Link>
-				<span class="tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatNumber(Number(delivery.quantity) / pack) }}</span>
 			</div>
-			<div v-for="order in otherOrders" :key="order.slug ?? order.reference" class="flex items-baseline gap-1.5 text-gray-600">
+			<div v-for="order in otherOrders" :key="order.slug ?? order.reference" class="contents">
 				<span class="text-[10px] uppercase tracking-wide text-amber-700">{{ order.stage ?? (order.state === "sent" ? ctrans("Requested") : ctrans("Ordered")) }}</span>
 				<Link v-if="order.slug" :href="purchaseOrderRoute(order.slug)" class="font-mono text-gray-700 hover:underline">{{ order.reference }}</Link>
 				<span v-else class="text-gray-700">{{ order.reference }}</span>
-				<span class="tabular-nums">{{ formatNumber(Number(order.quantity_ordered) / pack) }}</span>
+				<span class="text-right tabular-nums">{{ formatNumber(Number(order.quantity_ordered) / pack) }}</span>
 			</div>
 		</div>
 		<div v-else-if="!isOrderClosed" class="text-gray-400">{{ ctrans("Nothing on order or coming") }}</div>
+		</template>
 
-		<div v-if="recentDeliveries.length" class="text-gray-400">
+		<div v-if="recentDeliveries.length && !hideComing" class="text-gray-400">
 			<button type="button" class="hover:text-gray-600" @click="showPastDeliveries = !showPastDeliveries">
 				{{ ctrans("Last arrived :date", { date: useFormatTime(recentDeliveries[0].received_at) }) }}
 				<span class="text-[10px]">{{ showPastDeliveries ? "▴" : "▾" }}</span>
