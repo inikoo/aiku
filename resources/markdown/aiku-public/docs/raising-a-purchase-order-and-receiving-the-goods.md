@@ -1,7 +1,7 @@
 ---
 title: Raising a purchase order and receiving the goods
 summary: Buy from an ordinary supplier - raise the purchase order, get it confirmed, then turn the delivery into stock you can sell.
-date: 2026-10-10
+date: 2026-10-12
 tags: procurement, purchase orders, stock deliveries, suppliers, supplier claims, customs
 category: procurement
 help_routes: grp.org.procurement.org_suppliers, grp.org.procurement.purchase_orders, grp.org.procurement.stock_deliveries
@@ -72,6 +72,8 @@ The delivery then moves through its own states:
 - **Checked** - if nothing has been placed into stock yet, you can still **Cancel** here.
 - **Booking in / Booked in** - the checked quantities are being booked into the warehouse's stock.
 - **Booked in** - press **Place** to put the received stock away. This is the delivery's final working state.
+
+For deliveries created from 12 October 2026, the costs come before the goods: marking a delivery as received while its costs are missing asks for a reason, and its goods can not be put away until the invoice, the shipping and the duty each have an amount, an estimate or **N/A**. See [costing a stock delivery](/docs/costing-a-stock-delivery).
 
 Checking an item means confirming how much of each line actually arrived - not every order arrives complete, and short or extra quantities show up on the **Under/Over delivered items** tab so nothing gets lost in the gap between what you ordered and what showed up.
 
