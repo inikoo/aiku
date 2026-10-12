@@ -2217,7 +2217,7 @@
     "Banners": "Banners",
     "Barcode": "Barcode",
     "Barcode / EAN": "Barcode / EAN",
-    "Barcode :number is already assigned to trade unit :code.": "Barcode :number is already assigned to trade unit :code.",
+    "Barcode :number already belongs to a different item, :item. Each item needs its own barcode.": "Barcode :number already belongs to a different item, :item. Each item needs its own barcode.",
     "Barcode Number": "Barcode Number",
     "Barcode Scanner": "Barcode Scanner",
     "Barcode Scanner Configuration": "Barcode Scanner Configuration",
