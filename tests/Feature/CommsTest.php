@@ -903,6 +903,13 @@ test('upload images to email from workshop', function (Mailshot $mailShot) {
         ->and($response->json('data.0.source.original'))->toBeString()->not->toBeEmpty()
         ->and($email->shop->images()->wherePivot('scope', 'email')->count())->toBe(1);
 
+    $gifResponse = postJson($uploadRoute, [
+        'images' => [UploadedFile::fake()->image('banner.gif', 20, 20)],
+    ])->assertSuccessful();
+
+    expect($gifResponse->json('data.0.mime_type'))->toBe('image/gif')
+        ->and($gifResponse->json('data.0.source.original'))->toBeString()->not->toBeEmpty();
+
     postJson($uploadRoute, [
         'images' => [UploadedFile::fake()->create('brochure.pdf', 10, 'application/pdf')],
     ])->assertUnprocessable();
