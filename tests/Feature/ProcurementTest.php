@@ -50,6 +50,7 @@ use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\StartStockDeliveryCosting;
 use App\Actions\GoodsIn\Sowing\DeleteSowing;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\PrefillDomesticStockDeliveryCosts;
 use App\Actions\GoodsIn\StockDelivery\ReceiveStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
@@ -13370,4 +13371,31 @@ test('UI agent order stages', function (string $stage) {
 
 test('agent order stage rejects an unknown stage', function () {
     $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]).'/nowhere')->assertNotFound();
+});
+
+test('a delivery from a supplier in the organisation country starts with shipping and duty not applicable and its invoice estimated', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'DOM-'.Str::random(6), [10, 4]);
+    $stockDelivery->items()->orderBy('id')->get()->each(fn ($item, $index) => $item->updateQuietly(['net_amount' => [100, 40][$index]]));
+    $stockDelivery->updateQuietly(['agent_id' => null, 'created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+    $address = $stockDelivery->parent->supplier->address;
+
+    $address->updateQuietly(['country_id' => App\Models\Helpers\Country::where('id', '!=', $this->organisation->country_id)->value('id')]);
+    PrefillDomesticStockDeliveryCosts::run(StockDelivery::find($stockDelivery->id));
+    expect($stockDelivery->costs()->exists())->toBeFalse()
+        ->and($stockDelivery->supplierInvoice()->exists())->toBeFalse();
+
+    $address->updateQuietly(['country_id' => $this->organisation->country_id]);
+    PrefillDomesticStockDeliveryCosts::run(StockDelivery::find($stockDelivery->id));
+    $stockDelivery = StockDelivery::find($stockDelivery->id);
+    expect($stockDelivery->costsMissingForPutAway())->toBe([])
+        ->and($stockDelivery->is_costed)->toBeFalse()
+        ->and($stockDelivery->costs()->where('is_na', true)->pluck('type')->map->value->sort()->values()->all())->toBe(['duty', 'shipping'])
+        ->and($stockDelivery->supplierInvoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ESTIMATED)
+        ->and((float) $stockDelivery->supplierInvoice->goods_amount)->toBe(140.0);
+
+    $stockDelivery->items()->orderBy('id')->first()->updateQuietly(['net_amount' => 60, 'cost_items' => null]);
+    PrefillDomesticStockDeliveryCosts::run(StockDelivery::find($stockDelivery->id));
+    expect(SupplierInvoice::where('stock_delivery_id', $stockDelivery->id)->count())->toBe(1)
+        ->and((float) $stockDelivery->supplierInvoice()->first()->goods_amount)->toBe(100.0)
+        ->and($stockDelivery->costs()->count())->toBe(2);
 });

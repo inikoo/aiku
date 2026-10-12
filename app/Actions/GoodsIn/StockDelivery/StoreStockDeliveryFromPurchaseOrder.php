@@ -147,6 +147,8 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
 
         StockDeliveriesHydrateItems::dispatch($stockDelivery);
 
+        rescue(fn () => PrefillDomesticStockDeliveryCosts::run($stockDelivery));
+
         return $stockDelivery->refresh();
     }
 
