@@ -46,6 +46,8 @@ class StoreRestrictedPeriodTarget extends OrgAction
 
     public function asController(Organisation $organisation, RestrictedPeriod $restrictedPeriod, ActionRequest $request): RestrictedPeriodTarget
     {
+        abort_unless($restrictedPeriod->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($restrictedPeriod, $this->validatedData);

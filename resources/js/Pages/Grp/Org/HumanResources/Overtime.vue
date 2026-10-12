@@ -1,25 +1,33 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { Head, router, useForm } from '@inertiajs/vue3'
+import { computed, reactive, ref, watch } from 'vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
-import Table from '@/Components/Table/Table.vue'
+import Pagination from '@/Components/Table/Pagination.vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
-import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
+import Dialog from 'primevue/dialog'
+import OvertimeTimeFields from '@/Components/HumanResources/OvertimeTimeFields.vue'
+import SegmentedToggle from '@/Components/Utils/SegmentedToggle.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Tag from '@/Components/Tag.vue'
+import HrRequestCard from '@/Components/HumanResources/HrRequestCard.vue'
+import HrRequestFilters from '@/Components/HumanResources/HrRequestFilters.vue'
+import HrConfirmDialog from '@/Components/HumanResources/HrConfirmDialog.vue'
+import EmployeeAvatar from '@/Components/HumanResources/EmployeeAvatar.vue'
+import { debounce } from 'lodash-es'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
 import RadioButton from 'primevue/radiobutton'
 import Textarea from 'primevue/textarea'
+import { useConfirm } from 'primevue/useconfirm'
+import { notify } from '@kyvg/vue3-notification'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { ctrans } from '@/Composables/useTrans'
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faDownload, faFileExcel, faFileCsv } from "@fal";
+import { faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faDownload, faFileExcel, faFileCsv, faClock } from "@fal";
 
-library.add(faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faDownload, faFileExcel, faFileCsv)
+library.add(faTrash, faEdit, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup, faDownload, faFileExcel, faFileCsv, faClock)
 
 const props = defineProps<{
     pageHead: PageHeadingTypes
@@ -29,6 +37,12 @@ const props = defineProps<{
     overtimeTypeOptions: { value: number; label: string }[]
     statusOptions: { value: string; label: string }[]
     can_edit?: boolean
+    filters?: {
+        search: string
+        status: string | null
+        from: string | null
+        to: string | null
+    }
 }>()
 
 const showRequestModal = ref(false)
@@ -36,16 +50,181 @@ const isExportModalOpen = ref(false)
 const isEditMode = ref(false)
 const editingOvertimeId = ref<number | null>(null)
 const isExporting = ref(false)
+const processingOvertimeId = ref<number | null>(null)
+const confirm = useConfirm()
+const confirmGroup = 'overtime-requests'
 
-const hourOptions = Array.from({ length: 24 }, (_, index) =>
-    index < 10 ? `0${index}` : `${index}`
+const isPending = (item: any): boolean => item.status === 'pending'
+
+const overtimeRequestUrl = (routeName: string, item: any): string =>
+    route(routeName, { ...route().params, overtimeRequest: item.id })
+
+const overtimeVisitOptions = (item: any, failureText: string) => ({
+    preserveScroll: true,
+    onStart: () => {
+        processingOvertimeId.value = item.id
+    },
+    onFinish: () => {
+        processingOvertimeId.value = null
+    },
+    onError: (errors: Record<string, string>) => {
+        notify({
+            title: ctrans('Something went wrong'),
+            text: errors?.status ?? failureText,
+            type: 'error',
+        })
+    },
+})
+
+const filterState = reactive({
+    search: props.filters?.search ?? '',
+    status: props.filters?.status ?? 'all',
+    from: props.filters?.from ?? '',
+    to: props.filters?.to ?? '',
+})
+const isLoadingList = ref(false)
+
+const statusFilterOptions = computed(() => [
+    { label: ctrans('All'), value: 'all' },
+    { label: ctrans('Pending'), value: 'pending', tone: 'amber' as const },
+    { label: ctrans('Approved'), value: 'approved', tone: 'emerald' as const },
+    { label: ctrans('Rejected'), value: 'rejected', tone: 'red' as const },
+])
+
+const rows = computed<any[]>(() => props.data?.data ?? [])
+const paginationMeta = computed(() => props.data?.meta ?? props.data ?? {})
+const totalRequests = computed<number>(() => paginationMeta.value?.total ?? rows.value.length)
+const hasActiveFilters = computed(
+    () => filterState.search.trim() !== '' || filterState.status !== 'all' || filterState.from !== '' || filterState.to !== ''
 )
 
-const minuteOptions = Array.from({ length: 60 }, (_, index) =>
-    index < 10 ? `0${index}` : `${index}`
+const listVisitOptions = {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+    only: ['data', 'filters'],
+    onStart: () => {
+        isLoadingList.value = true
+    },
+    onFinish: () => {
+        isLoadingList.value = false
+    },
+}
+
+const reloadList = (extraQuery: Record<string, any> = {}) => {
+    const query: Record<string, any> = { ...extraQuery }
+    const search = filterState.search.trim()
+
+    if (search) query.filter = { global: search }
+    if (filterState.status !== 'all') query.status = filterState.status
+    if (filterState.from) query.from = filterState.from
+    if (filterState.to) query.to = filterState.to
+
+    router.get(
+        route('grp.org.hr.overtime.index', { organisation: (route().params as Record<string, any>).organisation }),
+        query,
+        listVisitOptions
+    )
+}
+
+const reloadListDebounced = debounce(() => reloadList(), 350)
+
+watch(
+    () => filterState.search,
+    () => reloadListDebounced()
 )
 
-const durationBaseMinutes = [0, 15, 30, 45]
+watch(
+    () => [filterState.status, filterState.from, filterState.to],
+    () => {
+        reloadListDebounced.cancel()
+        reloadList()
+    }
+)
+
+const clearFilters = () => {
+    filterState.search = ''
+    filterState.status = 'all'
+    filterState.from = ''
+    filterState.to = ''
+}
+
+const visitPage = (url?: string | null) => {
+    if (!url) return
+    router.get(url, {}, listVisitOptions)
+}
+
+const changePerPage = (perPage: number) => reloadList({ perPage })
+
+const statusLabel = (status: string): string =>
+    props.statusOptions.find((option) => option.value === status)?.label ?? status
+
+const formatClock = (value?: string | null): string => (value ? useFormatTime(value, { formatTime: 'HH:mm' }) : '—')
+
+const hasRecordedTime = (item: any): boolean => Boolean(item.recorded_start_at || item.recorded_duration_minutes)
+
+const recordedDifference = (item: any): number =>
+    item.recorded_duration_minutes && item.requested_duration_minutes
+        ? item.recorded_duration_minutes - item.requested_duration_minutes
+        : 0
+
+const decisionDate = (item: any): string | null => {
+    if (item.status === 'approved') return item.approved_at ?? null
+    if (item.status === 'rejected') return item.rejected_at ?? null
+    return null
+}
+
+const confirmApprove = (item: any) => {
+    confirm.require({
+        group: confirmGroup,
+        header: ctrans('Approve overtime request'),
+        message: ctrans('Are you sure you want to approve the overtime request of :name?', { name: item.employee_name }),
+        rejectProps: { label: ctrans('Cancel') },
+        acceptProps: { label: ctrans('Yes, approve') },
+        accept: () => {
+            router.patch(
+                overtimeRequestUrl('grp.org.hr.overtime_requests.approve', item),
+                {},
+                overtimeVisitOptions(item, ctrans('Failed to approve the overtime request'))
+            )
+        },
+    })
+}
+
+const confirmReject = (item: any) => {
+    confirm.require({
+        group: confirmGroup,
+        header: ctrans('Reject overtime request'),
+        message: ctrans('Are you sure you want to reject the overtime request of :name?', { name: item.employee_name }),
+        rejectProps: { label: ctrans('Cancel') },
+        acceptProps: { label: ctrans('Yes, reject'), severity: 'danger' },
+        accept: () => {
+            router.patch(
+                overtimeRequestUrl('grp.org.hr.overtime_requests.reject', item),
+                {},
+                overtimeVisitOptions(item, ctrans('Failed to reject the overtime request'))
+            )
+        },
+    })
+}
+
+const confirmDelete = (item: any) => {
+    confirm.require({
+        group: confirmGroup,
+        header: ctrans('Delete overtime request'),
+        message: isPending(item)
+            ? ctrans('Are you sure you want to delete the overtime request of :name?', { name: item.employee_name })
+            : ctrans('The overtime request of :name has already been processed. Are you sure you want to delete it?', { name: item.employee_name }),
+        rejectProps: { label: ctrans('Cancel') },
+        acceptProps: { label: ctrans('Delete'), severity: 'danger' },
+        accept: () => {
+            router.delete(
+                overtimeRequestUrl('grp.org.hr.overtime_requests.delete', item),
+                overtimeVisitOptions(item, ctrans('Failed to delete the overtime request'))
+            )
+        },
+    })
+}
 
 const form = useForm<{
     employee_id: number | null
@@ -88,33 +267,19 @@ const exportForm = useForm({
     format: 'xlsx',
 })
 
-const hourSelectOptions = computed(() =>
-    hourOptions.map((hour) => ({
-        label: hour,
-        value: hour,
-    }))
-)
+const fieldFocusClass = '[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]'
 
-const minuteSelectOptions = computed(() =>
-    minuteOptions.map((minute) => ({
-        label: minute,
-        value: minute,
-    }))
-)
+const recordedTimeOptions = computed(() => [
+    { label: ctrans('Same as requested'), value: 'same' },
+    { label: ctrans('Different time'), value: 'different' },
+])
 
-const durationHourOptions = computed(() =>
-    Array.from({ length: 13 }, (_, index) => ({
-        label: `${index} ${ctrans('hrs')}`,
-        value: String(index),
-    }))
-)
-
-const durationMinuteOptions = computed(() =>
-    durationBaseMinutes.map((minute) => ({
-        label: `${minute} ${ctrans('mins')}`,
-        value: String(minute),
-    }))
-)
+const recordedTimeMode = computed<string>({
+    get: () => (form.recorded_same_as_requested ? 'same' : 'different'),
+    set: (value) => {
+        form.recorded_same_as_requested = value !== 'different'
+    },
+})
 
 const exportFormatOptions = computed(() => [
     { label: ctrans('Excel (XLSX)'), value: 'xlsx' },
@@ -400,407 +565,315 @@ const submitRequest = () => {
     <PageHeading :data="pageHead">
         <template #button-overtime-request="{ action }">
             <div class="flex gap-2">
-                <Button
-                    type="secondary"
-                    :icon="faDownload"
-                    size="xs"
-                    :label="ctrans('Export')"
-                    @click="openExportModal"
-                />
-                <Button
-                    type="create"
-                    :icon="action.icon"
-                    size="xs"
-                    :label="action.label"
-                    @click="openRequestModal"
-                />
+                <Button type="tertiary" :label="ctrans('Export')" @click="openExportModal">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faDownload" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+                <Button type="create" icon="fal fa-plus" :label="action.label" @click="openRequestModal" />
             </div>
         </template>
     </PageHeading>
 
-    <div class="mt-4">
-        <Table :resource="data">
-            <template #cell(employee_name)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.employee_name }}
-                </span>
-            </template>
+    <HrRequestFilters
+        v-model:search="filterState.search"
+        v-model:status="filterState.status"
+        v-model:from="filterState.from"
+        v-model:to="filterState.to"
+        :total="totalRequests"
+        :countLabel="totalRequests === 1 ? ctrans('overtime request') : ctrans('overtime requests')"
+        :loading="isLoadingList"
+        :statusOptions="statusFilterOptions"
+        :searchPlaceholder="ctrans('Search staff, approver, type or reason')"
+        @clear="clearFilters"
+    />
 
-            <template #cell(requested_date)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ useFormatTime(item.requested_date) }}
-                </span>
-            </template>
-
-            <template #cell(approver_name)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.approver_name ?? '—' }}
-                </span>
-            </template>
-
-            <template #cell(requested_start_at)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ useFormatTime(item.requested_start_at, { formatTime: 'hm' }) }}
-                </span>
-            </template>
-
-            <template #cell(recorded_start_at)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.recorded_start_at ? useFormatTime(item.recorded_start_at, { formatTime: 'hm' }) : '—' }}
-                </span>
-            </template>
-
-            <template #cell(recorded_end_at)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.recorded_end_at ? useFormatTime(item.recorded_end_at, { formatTime: 'hm' }) : '—' }}
-                </span>
-            </template>
-
-            <template #cell(requested_duration_minutes)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ formatDuration(item.requested_duration_minutes) }}
-                </span>
-            </template>
-
-            <template #cell(recorded_duration_minutes)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.recorded_duration_minutes ? formatDuration(item.recorded_duration_minutes) : '—' }}
-                </span>
-            </template>
-
-            <template #cell(lieu_requested_minutes)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ formatDuration(item.lieu_requested_minutes) }}
-                </span>
-            </template>
-
-            <template #cell(recorder_name)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.recorder_name ?? '—' }}
-                </span>
-            </template>
-
-            <template #cell(status)="{ item }">
-                <Tag
-                    :theme="item.status === 'approved' ? 3 : item.status === 'pending' ? 1 : item.status === 'rejected' ? 7 : 99"
-                    size="xs"
-                    :label="item.status"
-                >
-                    <template #label>
-                        <span class="capitalize">
-                            {{ item.status }}
-                        </span>
+    <div class="px-4 py-4 transition-opacity" :class="{ 'pointer-events-none opacity-50': isLoadingList }" :aria-busy="isLoadingList">
+        <div v-if="rows.length === 0" class="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+            <FontAwesomeIcon :icon="faClock" class="text-3xl text-gray-300" aria-hidden="true" />
+            <p class="mt-3 text-sm font-medium text-gray-900">
+                {{ hasActiveFilters ? ctrans('No overtime requests match these filters') : ctrans('No overtime requests yet') }}
+            </p>
+            <p v-if="hasActiveFilters" class="mt-1 text-sm text-gray-500">
+                {{ ctrans('Try a different search, status or date range.') }}
+            </p>
+            <div v-if="hasActiveFilters" class="mt-4 flex justify-center">
+                <Button type="tertiary" :label="ctrans('Clear filters')" @click="clearFilters">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
                     </template>
-                </Tag>
-            </template>
+                </Button>
+            </div>
+        </div>
 
-            <template #cell(reason)="{ item }">
-                <span class="whitespace-nowrap">
-                    {{ item.reason ?? '—' }}
-                </span>
-            </template>
+        <div v-else class="flex flex-col gap-4">
+            <HrRequestCard v-for="item in rows" :key="item.id" :status="item.status" :statusLabel="statusLabel(item.status)">
+                <template #avatar>
+                    <EmployeeAvatar :name="item.employee_name" :image="item.employee_avatar" size="md" />
+                </template>
+                <template #title>{{ item.employee_name }}</template>
+                <template #meta>
+                    <span class="inline-flex rounded bg-white/70 px-1.5 py-0.5 ring-1 ring-inset ring-gray-200">
+                        {{ item.overtime_type_name }}
+                    </span>
+                </template>
 
-            <template #cell(options)="{ item }">
-                <div v-if="can_edit !== false" class="flex gap-2">
-                    <Button
-                        type="transparent"
-                        size="xs"
-                        :icon="faEdit"
-                        :label="ctrans('Edit')"
-                        @click="() => openEditModal(item)"
-                    />
-                    <ModalConfirmation
-                        :routeYes="{
-                            name: 'grp.org.hr.overtime_requests.approve',
-                            parameters: { ...route().params, overtimeRequest: item.id },
-                            method: 'patch',
-                        }"
-                    >
-                        <template #default="{ changeModel, isLoadingdelete }">
-                            <Button
-                                type="positive"
-                                size="xs"
-                                :icon="faCheck"
-                                :label="ctrans('Approve')"
-                                :loading="isLoadingdelete"
-                                @click="changeModel"
-                            />
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div class="rounded-md bg-gray-50 px-3 py-2">
+                        <div class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans('Requested') }}</div>
+                        <div class="mt-1 text-sm font-medium text-gray-900">{{ useFormatTime(item.requested_date) }}</div>
+                        <div class="text-sm tabular-nums text-gray-600">
+                            {{ ctrans('From') }} {{ formatClock(item.requested_start_at) }}
+                            <span class="text-gray-300">·</span>
+                            {{ formatDuration(item.requested_duration_minutes) }}
+                        </div>
+                    </div>
+
+                    <div class="rounded-md bg-gray-50 px-3 py-2">
+                        <div class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans('Recorded') }}</div>
+                        <template v-if="hasRecordedTime(item)">
+                            <div class="mt-1 text-sm font-medium tabular-nums text-gray-900">
+                                {{ formatClock(item.recorded_start_at) }} → {{ formatClock(item.recorded_end_at) }}
+                            </div>
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm tabular-nums text-gray-600">
+                                {{ formatDuration(item.recorded_duration_minutes) }}
+                                <span
+                                    v-if="recordedDifference(item) !== 0"
+                                    class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+                                >
+                                    {{ recordedDifference(item) > 0 ? '+' : '−' }}{{ formatDuration(Math.abs(recordedDifference(item))) }}
+                                    {{ ctrans('vs requested') }}
+                                </span>
+                            </div>
                         </template>
-                        <template #btn-yes="{ clickYes, isLoadingdelete }">
-                            <Button
-                                :loading="isLoadingdelete"
-                                @click="clickYes"
-                                :label="ctrans('Yes, approve')"
-                                type="positive"
-                            />
-                        </template>
-                    </ModalConfirmation>
-                    <ModalConfirmation
-                        :routeYes="{
-                            name: 'grp.org.hr.overtime_requests.reject',
-                            parameters: { ...route().params, overtimeRequest: item.id },
-                            method: 'patch',
-                        }"
-                    >
-                        <template #default="{ changeModel, isLoadingdelete }">
-                            <Button
-                                type="warning"
-                                size="xs"
-                                :icon="faTimes"
-                                :label="ctrans('Reject')"
-                                :loading="isLoadingdelete"
-                                @click="changeModel"
-                            />
-                        </template>
-                        <template #btn-yes="{ clickYes, isLoadingdelete }">
-                            <Button
-                                :loading="isLoadingdelete"
-                                @click="clickYes"
-                                :label="ctrans('Yes, reject')"
-                                type="warning"
-                            />
-                        </template>
-                    </ModalConfirmation>
-                    <ModalConfirmationDelete
-                        :routeDelete="{
-                            name: 'grp.org.hr.overtime_requests.delete',
-                            parameters: { ...route().params, overtimeRequest: item.id },
-                        }"
-                    >
-                        <template #default="{ changeModel, isLoadingdelete }">
-                            <Button
-                                type="negative"
-                                size="xs"
-                                :icon="faTrash"
-                                :label="ctrans('Delete')"
-                                :loading="isLoadingdelete"
-                                @click="changeModel"
-                            />
-                        </template>
-                    </ModalConfirmationDelete>
+                        <div v-else class="mt-1 text-sm text-gray-400">{{ ctrans('Not recorded yet') }}</div>
+                    </div>
                 </div>
-            </template>
-        </Table>
+
+                <dl class="mt-4 space-y-2 text-sm empty:hidden">
+                    <div v-if="item.reason">
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans('Reason') }}</dt>
+                        <dd class="whitespace-pre-line break-words text-gray-700">{{ item.reason }}</dd>
+                    </div>
+                    <div v-if="item.lieu_requested_minutes">
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans('Lieu requested') }}</dt>
+                        <dd class="tabular-nums text-gray-700">{{ formatDuration(item.lieu_requested_minutes) }}</dd>
+                    </div>
+                    <div v-if="item.approver_name || decisionDate(item) || item.decision_note">
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans('Decision') }}</dt>
+                        <dd class="text-gray-700">
+                            <span v-if="item.approver_name" class="inline-flex items-center gap-1.5 align-middle">
+                                <EmployeeAvatar :name="item.approver_name" :image="item.approver_avatar" size="xs" />
+                                {{ item.approver_name }}
+                            </span>
+                            <span v-if="item.approver_name && decisionDate(item)" class="text-gray-300"> · </span>
+                            <span v-if="decisionDate(item)" class="tabular-nums">{{ useFormatTime(decisionDate(item), { formatTime: 'hm' }) }}</span>
+                            <p v-if="item.decision_note" class="whitespace-pre-line break-words text-gray-600">{{ item.decision_note }}</p>
+                        </dd>
+                    </div>
+                </dl>
+
+                <template v-if="can_edit !== false" #actions>
+                    <template v-if="isPending(item)">
+                        <Button
+                            type="tertiary"
+                            size="xs"
+                            :label="ctrans('Approve')"
+                            :disabled="processingOvertimeId === item.id"
+                            @click="() => confirmApprove(item)"
+                        >
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                        <Button
+                            type="tertiary"
+                            size="xs"
+                            :label="ctrans('Reject')"
+                            :disabled="processingOvertimeId === item.id"
+                            @click="() => confirmReject(item)"
+                        >
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                        <Button type="tertiary" size="xs" :label="ctrans('Edit')" @click="() => openEditModal(item)">
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faEdit" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                    </template>
+                    <span v-else class="mr-auto whitespace-nowrap text-xs text-gray-400">
+                        {{ ctrans('Processed') }}
+                    </span>
+                    <Button
+                        type="tertiary"
+                        size="xs"
+                        :label="ctrans('Delete')"
+                        :disabled="processingOvertimeId === item.id"
+                        @click="() => confirmDelete(item)"
+                    >
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTrash" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </template>
+            </HrRequestCard>
+        </div>
+
+        <Pagination
+            v-if="rows.length > 0 && Number(paginationMeta?.total ?? 0) > 15"
+            :on-click="visitPage"
+            :has-data="true"
+            :meta="paginationMeta"
+            :on-per-page-change="changePerPage"
+            custom-wrapper-class="mt-4 rounded-lg border border-gray-200"
+        />
     </div>
 
-    <Modal :isOpen="showRequestModal" @onClose="closeRequestModal" width="w-full max-w-lg">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-            {{ ctrans('Create overtime request') }}
-        </h2>
-
+    <Dialog
+        :visible="showRequestModal"
+        modal
+        :draggable="false"
+        :header="isEditMode ? ctrans('Edit overtime request') : ctrans('New overtime request')"
+        :style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+        @update:visible="(isVisible: boolean) => !isVisible && closeRequestModal()"
+    >
         <form class="space-y-4" @submit.prevent="submitRequest">
             <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Which staff member?') }}
+                <label for="overtime-employee" class="mb-1 block text-sm font-medium text-gray-700">
+                    {{ ctrans('Staff member') }} <span class="text-red-500">*</span>
                 </label>
                 <Select
                     v-model="form.employee_id"
+                    inputId="overtime-employee"
                     :options="employeeOptions"
                     optionLabel="label"
                     optionValue="value"
-                    class="mt-1 w-full"
+                    filter
+                    :invalid="!!form.errors.employee_id"
                     :placeholder="ctrans('Select staff member')"
+                    fluid
+                    :class="fieldFocusClass"
                 />
-                <div v-if="form.errors.employee_id" class="mt-1 text-sm text-red-600">
-                    {{ form.errors.employee_id }}
-                </div>
+                <p v-if="form.errors.employee_id" class="mt-1 text-sm text-red-500">{{ form.errors.employee_id }}</p>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('What type of overtime do you want to submit?') }}
-                </label>
-                <Select
-                    v-model="form.overtime_type_id"
-                    :options="overtimeTypeOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    class="mt-1 w-full"
-                    :placeholder="ctrans('Select overtime type')"
-                />
-                <div v-if="form.errors.overtime_type_id" class="mt-1 text-sm text-red-600">
-                    {{ form.errors.overtime_type_id }}
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('What date did the overtime occur?') }}
-                </label>
-                <DatePicker
-                    v-model="requestedDateModel"
-                    class="mt-1 w-full"
-                    dateFormat="yy-mm-dd"
-                    showIcon
-                />
-                <div v-if="form.errors.requested_date" class="mt-1 text-sm text-red-600">
-                    {{ form.errors.requested_date }}
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">
-                        {{ ctrans('What time did it start?') }}
+                    <label for="overtime-type" class="mb-1 block text-sm font-medium text-gray-700">
+                        {{ ctrans('Overtime type') }} <span class="text-red-500">*</span>
                     </label>
-                    <div class="mt-1 flex gap-2">
-                        <Select
-                            v-model="form.start_hour"
-                            :options="hourSelectOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            class="w-full"
-                        />
-                        <Select
-                            v-model="form.start_minute"
-                            :options="minuteSelectOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            class="w-full"
-                        />
-                    </div>
-                    <div v-if="getFormError('requested_start_at')" class="mt-1 text-sm text-red-600">
-                        {{ getFormError('requested_start_at') }}
-                    </div>
+                    <Select
+                        v-model="form.overtime_type_id"
+                        inputId="overtime-type"
+                        :options="overtimeTypeOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :invalid="!!form.errors.overtime_type_id"
+                        :placeholder="ctrans('Select overtime type')"
+                        fluid
+                        :class="fieldFocusClass"
+                    />
+                    <p v-if="form.errors.overtime_type_id" class="mt-1 text-sm text-red-500">{{ form.errors.overtime_type_id }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">
-                        {{ ctrans('How long was the overtime?') }}
+                    <label for="overtime-date" class="mb-1 block text-sm font-medium text-gray-700">
+                        {{ ctrans('Date worked') }} <span class="text-red-500">*</span>
                     </label>
-                    <div class="mt-1 flex gap-2">
-                        <Select
-                            v-model="form.duration_hours"
-                            :options="durationHourOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            class="w-full"
-                        />
-                        <Select
-                            v-model="form.duration_minutes"
-                            :options="durationMinuteOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            class="w-full"
-                        />
-                    </div>
-                    <div v-if="getFormError('requested_duration_minutes')" class="mt-1 text-sm text-red-600">
-                        {{ getFormError('requested_duration_minutes') }}
-                    </div>
+                    <DatePicker
+                        v-model="requestedDateModel"
+                        inputId="overtime-date"
+                        dateFormat="d M yy"
+                        :manualInput="false"
+                        :invalid="!!form.errors.requested_date"
+                        :placeholder="ctrans('Select a date')"
+                        showIcon
+                        iconDisplay="input"
+                        fluid
+                        :class="fieldFocusClass"
+                    />
+                    <p v-if="form.errors.requested_date" class="mt-1 text-sm text-red-500">{{ form.errors.requested_date }}</p>
                 </div>
             </div>
 
-            <div class="border-t border-gray-200 pt-4 mt-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ ctrans('Recorded time') }}
-                </label>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                        <RadioButton
-                            v-model="form.recorded_same_as_requested"
-                            :value="true"
-                            inputId="recorded_same_as_requested_true"
-                        />
-                        <span>{{ ctrans('Same as requested time') }}</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
-                        <RadioButton
-                            v-model="form.recorded_same_as_requested"
-                            :value="false"
-                            inputId="recorded_same_as_requested_false"
-                        />
-                        <span>{{ ctrans('Use different recorded time') }}</span>
-                    </label>
-                </div>
+            <OvertimeTimeFields
+                v-model:startHour="form.start_hour"
+                v-model:startMinute="form.start_minute"
+                v-model:durationHours="form.duration_hours"
+                v-model:durationMinutes="form.duration_minutes"
+                idPrefix="overtime-requested"
+                :startError="getFormError('requested_start_at')"
+                :durationError="getFormError('requested_duration_minutes')"
+            />
 
-                <div v-if="!form.recorded_same_as_requested" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            {{ ctrans('Recorded start time') }}
-                        </label>
-                        <div class="mt-1 flex gap-2">
-                            <Select
-                                v-model="form.recorded_start_hour"
-                                :options="hourSelectOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full"
-                            />
-                            <Select
-                                v-model="form.recorded_start_minute"
-                                :options="minuteSelectOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full"
-                            />
-                        </div>
-                    </div>
+            <div class="border-t border-gray-200 pt-4">
+                <span class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans('Recorded time') }}</span>
+                <SegmentedToggle v-model="recordedTimeMode" :options="recordedTimeOptions" :ariaLabel="ctrans('Recorded time')" />
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            {{ ctrans('Recorded duration') }}
-                        </label>
-                        <div class="mt-1 flex gap-2">
-                            <Select
-                                v-model="form.recorded_duration_hours"
-                                :options="durationHourOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full"
-                            />
-                            <Select
-                                v-model="form.recorded_duration_minutes"
-                                :options="durationMinuteOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <OvertimeTimeFields
+                    v-if="!form.recorded_same_as_requested"
+                    v-model:startHour="form.recorded_start_hour"
+                    v-model:startMinute="form.recorded_start_minute"
+                    v-model:durationHours="form.recorded_duration_hours"
+                    v-model:durationMinutes="form.recorded_duration_minutes"
+                    idPrefix="overtime-recorded"
+                    class="mt-3"
+                    :startLabel="ctrans('Recorded start time')"
+                    :durationLabel="ctrans('Recorded duration')"
+                    :startError="getFormError('recorded_start_at')"
+                    :durationError="getFormError('recorded_duration_minutes')"
+                />
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Status') }}
+                <label for="overtime-status" class="mb-1 block text-sm font-medium text-gray-700">
+                    {{ ctrans('Status') }} <span class="text-red-500">*</span>
                 </label>
                 <Select
                     v-model="form.status"
+                    inputId="overtime-status"
                     :options="statusOptions"
                     optionLabel="label"
                     optionValue="value"
-                    class="mt-1 w-full"
+                    :invalid="!!form.errors.status"
+                    fluid
+                    :class="fieldFocusClass"
                 />
-                <div v-if="form.errors.status" class="mt-1 text-sm text-red-600">
-                    {{ form.errors.status }}
-                </div>
+                <p v-if="form.errors.status" class="mt-1 text-sm text-red-500">{{ form.errors.status }}</p>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">
-                    {{ ctrans('Any notes?') }}
+                <label for="overtime-reason" class="mb-1 block text-sm font-medium text-gray-700">
+                    {{ ctrans('Reason') }}
                 </label>
                 <Textarea
                     v-model="form.reason"
+                    id="overtime-reason"
                     rows="3"
-                    class="mt-1 w-full"
+                    autoResize
+                    fluid
+                    :invalid="!!form.errors.reason"
+                    class="focus:!border-[--app-accent]"
                 />
-                <div v-if="form.errors.reason" class="mt-1 text-sm text-red-600">
-                    {{ form.errors.reason }}
-                </div>
+                <p v-if="form.errors.reason" class="mt-1 text-sm text-red-500">{{ form.errors.reason }}</p>
             </div>
 
-            <div class="mt-6 flex justify-end gap-2">
-                <Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeRequestModal" />
-                <Button
-                    type="save"
-                    :label="ctrans('Submit')"
-                    :loading="form.processing"
-                    nativeType="submit"
-                />
+            <div class="flex justify-end gap-2 pt-2">
+                <Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeRequestModal">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+                <Button type="tertiary" :label="isEditMode ? ctrans('Update request') : ctrans('Submit request')" :loading="form.processing" nativeType="submit">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </form>
-    </Modal>
+    </Dialog>
 
     <Modal :isOpen="isExportModalOpen" @onClose="closeExportModal" width="w-full max-w-lg">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">
@@ -897,15 +970,19 @@ const submitRequest = () => {
             </div>
 
             <div class="mt-6 flex justify-end gap-2">
-                <Button @click="closeExportModal" :label="ctrans('Cancel')" type="tertiary" />
-                <Button
-                    type="save"
-                    nativeType="submit"
-                    :label="ctrans('Export')"
-                    :loading="isExporting"
-                    icon="fal fa-download"
-                />
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="closeExportModal">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
+                <Button type="tertiary" nativeType="submit" :label="ctrans('Export')" :loading="isExporting">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faDownload" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </form>
     </Modal>
+
+    <HrConfirmDialog :group="confirmGroup" />
 </template>

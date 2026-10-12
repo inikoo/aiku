@@ -13,7 +13,7 @@ class EditWorkSchedule extends OrgAction
 {
     public function handle(Organisation $organisation, WorkSchedule $workSchedule): WorkSchedule
     {
-        return $workSchedule->load('days');
+        return $workSchedule->load('days.breaks');
     }
 
     public function authorize(ActionRequest $request): bool
@@ -65,7 +65,12 @@ class EditWorkSchedule extends OrgAction
                 ],
                 'title' => __('Edit Shift Schedule'),
                 'pageHead' => [
-                    'title' => __('Edit Shift Schedule'),
+                    'title' => $workSchedule->name,
+                    'model' => __('Edit shift schedule'),
+                    'icon' => [
+                        'icon' => ['fal', 'clock'],
+                        'title' => __('Shift schedule'),
+                    ],
                 ],
                 'schedule' => $workSchedule,
             ]

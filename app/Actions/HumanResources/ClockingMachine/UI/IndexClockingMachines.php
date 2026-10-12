@@ -135,6 +135,8 @@ class IndexClockingMachines extends OrgAction
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $workplace;
         $this->initialisation($organisation, $request)->withTab(ClockingMachinesTabsEnum::values());
 

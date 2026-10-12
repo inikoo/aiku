@@ -26,6 +26,7 @@ class DeleteLeaveType extends OrgAction
 
     public function asController(Organisation $organisation, LeaveType $leaveType, ActionRequest $request): bool
     {
+        abort_unless($leaveType->organisation_id === $organisation->id, 404);
         $this->initialisation($organisation, $request);
 
         return $this->handle($leaveType);

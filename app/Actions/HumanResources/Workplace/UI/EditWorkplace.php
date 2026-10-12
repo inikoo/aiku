@@ -36,6 +36,8 @@ class EditWorkplace extends OrgAction
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($workplace);
@@ -70,7 +72,7 @@ class EditWorkplace extends OrgAction
                 ],
                 'timezone_id' => [
                     'type'        => 'select',
-                    'label'       => __('timezone'),
+                    'label'       => __('Timezone'),
                     'placeholder' => __('Select a timezone'),
                     'options'     => GetTimeZonesOptions::run(),
                     'value'       => $workplace->timezone_id,

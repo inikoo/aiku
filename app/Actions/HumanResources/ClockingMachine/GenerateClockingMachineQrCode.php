@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Http\Resources\HumanResources\ClockingMachineQRCodeResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\ClockingMachineQRCode;
@@ -18,6 +19,8 @@ use Illuminate\Http\JsonResponse;
 
 class GenerateClockingMachineQrCode extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
+
     public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachineQRCode
     {
         /** @var ClockingMachineQRCode $clockingMachineQRCode */

@@ -2,11 +2,14 @@
 import { computed, ref, watch } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { ctrans } from '@/Composables/useTrans'
+import { useLayoutStore } from '@/Stores/layout'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Toggle from '@/Components/Pure/Toggle.vue'
+import Select from 'primevue/select'
+import ToggleSwitch from 'primevue/toggleswitch'
+import { fieldFocusClass } from '@/Composables/useHrFormControls'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faChevronLeft, faChevronRight , faDownload } from '@fal'
 
@@ -64,6 +67,9 @@ const props = defineProps<{
     }
 }>()
 
+const layout = useLayoutStore()
+const stickyTopClass = computed(() => (layout.hasTopBanner ? 'top-[61px] lg:top-[68px]' : 'top-[33px] lg:top-10'))
+
 const currentYear = new Date().getFullYear()
 
 const displayYear = computed(() => props.year ?? currentYear)
@@ -92,16 +98,16 @@ watch(useHolidayYearPeriod, (val) => {
 })
 
 const yearOptions = computed(() => {
-    const baseYear = currentYear
+    const years = new Set(Array.from({ length: 7 }, (_, index) => currentYear - 3 + index))
 
-    return Array.from({ length: 7 }, (_, index) => {
-        const year = baseYear - 3 + index
+    years.add(Number(filterYear.value))
 
-        return {
+    return [...years]
+        .sort((a, b) => a - b)
+        .map((year) => ({
             value: String(year),
             label: String(year),
-        }
-    })
+        }))
 })
 
 const monthOptions = [
@@ -118,6 +124,49 @@ const monthOptions = [
     { value: '11', label: ctrans('November') },
     { value: '12', label: ctrans('December') },
 ]
+
+const monthModel = computed<string | null>({
+    get: () => filterMonth.value || null,
+    set: (value) => {
+        filterMonth.value = value ?? ''
+    },
+})
+
+const holidayYearOptions = computed(() =>
+    (props.allHolidayYears ?? []).map((holidayYear) => ({
+        value: holidayYear.id,
+        label: `${holidayYear.label} (${holidayYear.start_date} - ${holidayYear.end_date})`,
+    }))
+)
+
+const periodTitle = computed(() => {
+    if (useHolidayYearPeriod.value && selectedHolidayYear.value) {
+        return selectedHolidayYear.value.label
+    }
+
+    if (filterMonth.value) {
+        return `${monthNames[Number(filterMonth.value) - 1]} ${filterYear.value}`
+    }
+
+    return `${ctrans('Year')} ${filterYear.value}`
+})
+
+const periodSelectPt = { label: { class: '!text-base !font-semibold !text-gray-800' } }
+
+const toggleAccentClass = '[&.p-toggleswitch-checked_.p-toggleswitch-slider]:!bg-[--app-accent]'
+
+const exportHolidays = () => {
+    window.open(
+        route('grp.org.hr.holidays.export', {
+            organisation: route().params.organisation,
+            year: Number(filterYear.value),
+            month: filterMonth.value ? Number(filterMonth.value) : undefined,
+            format: 'xlsx',
+        }),
+        '_blank',
+        'noopener'
+    )
+}
 
 const holidaysMap = computed<Record<string, CalendarHoliday>>(() => {
     const map: Record<string, CalendarHoliday> = {}
@@ -387,109 +436,94 @@ const goNext = () => {
 
 <template layout="Grp">
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Button
+                type="tertiary"
+                icon="fal fa-download"
+                :label="ctrans('Export')"
+                @click="exportHolidays"
+            />
+        </template>
+    </PageHeading>
 
     <div class="px-6 pb-10 pt-5">
         <div class="mt-5 bg-white shadow-sm rounded-lg p-4">
-            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
-                <div class="flex gap-2 items-center">
+            <div
+                class="sticky z-10 -mx-4 -mt-4 mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-t-lg border-b border-gray-200 bg-white px-4 pb-3 pt-4 lg:gap-y-3"
+                :class="stickyTopClass"
+            >
+                <div class="flex max-w-full items-center gap-2 sm:flex-wrap">
                     <Button
-                        type="secondary"
-                        :icon="faChevronLeft"
-                        size="sm"
+                        type="tertiary"
+                        size="s"
+                        icon="fal fa-chevron-left"
+                        :tooltip="ctrans('Previous')"
                         @click="goPrevious"
                     />
 
-                    <h2 class="text-xl font-bold text-gray-800 w-48 text-center">
-                        <template v-if="useHolidayYearPeriod && selectedHolidayYear">
-                            {{ selectedHolidayYear.label }}
-                        </template>
-                        <template v-else-if="filterMonth">
-                            {{ monthNames[Number(filterMonth) - 1] }} {{ filterYear }}
-                        </template>
-                        <template v-else>
-                            {{ ctrans('Year') }} {{ filterYear }}
-                        </template>
-                    </h2>
+                    <h2 class="sr-only" aria-live="polite">{{ periodTitle }}</h2>
+
+                    <Select
+                        v-if="useHolidayYearPeriod && holidayYearOptions.length"
+                        v-model="filterHolidayYear"
+                        :options="holidayYearOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        size="small"
+                        :aria-label="ctrans('Holiday Year')"
+                        class="w-[220px] min-w-0 sm:w-auto sm:min-w-[220px]"
+                        :class="fieldFocusClass"
+                        :pt="periodSelectPt"
+                    />
+                    <template v-else>
+                        <Select
+                            v-model="monthModel"
+                            :options="monthOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            size="small"
+                            showClear
+                            :placeholder="ctrans('All months')"
+                            :aria-label="ctrans('Month')"
+                            class="w-44 min-w-0 sm:shrink-0"
+                            :class="fieldFocusClass"
+                            :pt="periodSelectPt"
+                            @change="applyFilters"
+                        />
+
+                        <Select
+                            v-model="filterYear"
+                            :options="yearOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            size="small"
+                            :aria-label="ctrans('Year')"
+                            class="w-28 shrink-0"
+                            :class="fieldFocusClass"
+                            :pt="periodSelectPt"
+                            @change="applyFilters"
+                        />
+                    </template>
 
                     <Button
-                        type="secondary"
-                        :icon="faChevronRight"
-                        size="sm"
+                        type="tertiary"
+                        size="s"
+                        icon="fal fa-chevron-right"
+                        :tooltip="ctrans('Next')"
                         @click="goNext"
                     />
                 </div>
 
-                <div class="flex gap-2 items-center flex-wrap">
-                    <template v-if="useHolidayYearPeriod && allHolidayYears && allHolidayYears.length">
-                        <select
-                            v-model="filterHolidayYear"
-                            class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm min-w-[200px]"
-                        >
-                            <option
-                                v-for="hy in allHolidayYears"
-                                :key="hy.id"
-                                :value="hy.id"
-                            >
-                                {{ hy.label }} ({{ hy.start_date }} - {{ hy.end_date }})
-                            </option>
-                        </select>
-                    </template>
-                    <template v-else>
-                        <select
-                            v-model="filterYear"
-                            @change="applyFilters"
-                            class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                        >
-                            <option
-                                v-for="option in yearOptions"
-                                :key="option.value"
-                                :value="option.value"
-                            >
-                                {{ option.label }}
-                            </option>
-                        </select>
-
-                        <select
-                            v-model="filterMonth"
-                            @change="applyFilters"
-                            class="rounded-md border-gray-300 shadow-sm focus:border-[--app-accent] focus:ring-[--app-accent] sm:text-sm"
-                        >
-                            <option value="">
-                                {{ ctrans('All months') }}
-                            </option>
-                            <option
-                                v-for="option in monthOptions"
-                                :key="option.value"
-                                :value="option.value"
-                            >
-                                {{ option.label }}
-                            </option>
-                        </select>
-                    </template>
-
-                    <div v-if="allHolidayYears && allHolidayYears.length" class="flex items-center gap-2 ml-2">
-                        <span class="text-sm text-gray-600">{{ ctrans('Holiday Year') }}</span>
-                        <Toggle v-model="useHolidayYearPeriod" />
-                    </div>
-
-                    <a
-                        :href="route('grp.org.hr.holidays.export', {
-                            organisation: route().params.organisation,
-                            year: Number(filterYear),
-                            month: filterMonth ? Number(filterMonth) : undefined,
-                            format: 'xlsx',
-                        })"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        <Button
-                            type="secondary"
-                            size="sm"
-                            :icon="faDownload"
-                            :label="ctrans('Export')"
+                <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <div v-if="holidayYearOptions.length" class="flex items-center gap-2 sm:ml-2">
+                        <label for="calendar-holiday-year-toggle" class="cursor-pointer text-sm text-gray-600">{{ ctrans('Holiday Year') }}</label>
+                        <ToggleSwitch
+                            v-model="useHolidayYearPeriod"
+                            inputId="calendar-holiday-year-toggle"
+                            :class="toggleAccentClass"
                         />
-                    </a>
+                    </div>
                 </div>
             </div>
 

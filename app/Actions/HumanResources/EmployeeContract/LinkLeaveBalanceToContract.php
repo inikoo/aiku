@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\EmployeeContract;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Models\HumanResources\EmployeeContract;
 use App\Models\HumanResources\EmployeeLeaveBalance;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class LinkLeaveBalanceToContract extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
     use AsAction;
     public function handle(EmployeeLeaveBalance $balance, EmployeeContract $contract): EmployeeLeaveBalance
     {
@@ -41,6 +43,7 @@ class LinkLeaveBalanceToContract extends OrgAction
         $this->initialisation($balance->employee->organisation, $request);
 
         $contract = EmployeeContract::findOrFail($this->validatedData['contract_id']);
+        abort_unless($contract->employee_id === $balance->employee_id, 404);
 
         $this->handle($balance, $contract);
 

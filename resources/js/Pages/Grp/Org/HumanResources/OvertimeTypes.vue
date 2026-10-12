@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Table from '@/Components/Table/Table.vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
+import HrConfirmDialog from '@/Components/HumanResources/HrConfirmDialog.vue'
+import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
+import Textarea from 'primevue/textarea'
+import Select from 'primevue/select'
+import Checkbox from 'primevue/checkbox'
+import { useConfirm } from 'primevue/useconfirm'
+import { notify } from '@kyvg/vue3-notification'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { ctrans } from '@/Composables/useTrans'
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrash, faTachometerAlt, faList, faLayerGroup } from "@fal";
+import { faTrash, faPencil, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup } from "@fal";
 
-library.add(faTrash, faTachometerAlt, faList, faLayerGroup);
+library.add(faTrash, faPencil, faCheck, faTimes, faTachometerAlt, faList, faLayerGroup);
 const props = defineProps<{
     pageHead: PageHeadingTypes
     title: string
@@ -106,6 +114,49 @@ const submit = () => {
     }
 }
 
+const confirm = useConfirm()
+const confirmGroup = 'overtime-types'
+const deletingOvertimeTypeId = ref<number | null>(null)
+
+const fieldFocusClass = '[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]'
+const inputFocusClass = 'focus:!border-[--app-accent]'
+const checkboxAccentClass =
+    '[&.p-checkbox-checked_.p-checkbox-box]:!border-[--app-accent] [&.p-checkbox-checked_.p-checkbox-box]:!bg-[--app-accent] [&.p-checkbox-checked_.p-checkbox-icon]:!text-[--app-accent-text]'
+
+const optionLabel = (options: { value: string; label: string }[], value: string): string =>
+    options.find((option) => option.value === value)?.label ?? value
+
+const confirmDelete = (item: any) => {
+    confirm.require({
+        group: confirmGroup,
+        header: ctrans('Delete overtime type'),
+        message: ctrans('Are you sure you want to delete the overtime type :name?', { name: item.name }),
+        rejectProps: { label: ctrans('Cancel') },
+        acceptProps: { label: ctrans('Delete'), severity: 'danger' },
+        accept: () => {
+            router.delete(
+                route('grp.org.hr.overtime_types.delete', { ...route().params, overtimeType: item.id }),
+                {
+                    preserveScroll: true,
+                    onStart: () => {
+                        deletingOvertimeTypeId.value = item.id
+                    },
+                    onFinish: () => {
+                        deletingOvertimeTypeId.value = null
+                    },
+                    onError: (errors: Record<string, string>) => {
+                        notify({
+                            title: ctrans('Something went wrong'),
+                            text: Object.values(errors ?? {})[0] ?? ctrans('Failed to delete the overtime type'),
+                            type: 'error',
+                        })
+                    },
+                }
+            )
+        },
+    })
+}
+
 const modalTitle = computed(() =>
     isEditMode.value ? ctrans('Edit overtime type') : ctrans('Create overtime type')
 )
@@ -116,12 +167,7 @@ const modalTitle = computed(() =>
 
     <PageHeading :data="pageHead">
         <template #button-overtime-type="{ action }">
-            <Button
-                :icon="action.icon"
-                :label="action.label"
-                :style="action.style"
-                @click="openModal"
-            />
+            <Button type="create" icon="fal fa-plus" :label="action.label" @click="openModal" />
         </template>
     </PageHeading>
 
@@ -135,40 +181,45 @@ const modalTitle = computed(() =>
             <span v-else class="text-gray-400 text-sm italic">{{ ctrans('No color') }}</span>
         </template>
 
+        <template #cell(category)="{ item }">
+            <span class="inline-flex whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
+                {{ optionLabel(categoryOptions, item.category) }}
+            </span>
+        </template>
+
+        <template #cell(compensation_type)="{ item }">
+            <span class="inline-flex whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
+                {{ optionLabel(compensationTypeOptions, item.compensation_type) }}
+            </span>
+        </template>
+
+        <template #cell(is_active)="{ item }">
+            <span
+                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                :class="item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
+            >
+                {{ item.is_active ? ctrans('Active') : ctrans('Inactive') }}
+            </span>
+        </template>
+
         <template #cell(action)="{ item }">
             <div class="flex justify-end gap-2">
-                <Button
-                    type="secondary"
-                    label="Edit"
-                    icon="fal fa-pencil"
-                    size="xs"
-                    v-tooltip="ctrans('Edit overtime type')"
-                    @click="openEdit(item)"
-                />
-                <ModalConfirmationDelete
-                    :routeDelete="{
-                        name: 'grp.org.hr.overtime_types.delete',
-                        parameters: {
-                            ...route().params,
-                            overtimeType: item.id,
-                        },
-                    }"
-                    :isFullLoading="false"
-                    :title="ctrans('Are you sure you want to delete this overtime type?')"
-                    :noLabel="ctrans('Delete')"
-                    noIcon="fal fa-trash"
-                >
-                    <template #default="{ changeModel }">
-                        <Button
-                            type="negative"
-                            label="Delete"
-                            :icon="faTrash"
-                            size="xs"
-                            v-tooltip="ctrans('Delete overtime type')"
-                            @click="changeModel()"
-                        />
+                <Button type="tertiary" size="xs" :label="ctrans('Edit')" @click="openEdit(item)">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faPencil" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                     </template>
-                </ModalConfirmationDelete>
+                </Button>
+                <Button
+                    type="tertiary"
+                    size="xs"
+                    :label="ctrans('Delete')"
+                    :disabled="deletingOvertimeTypeId === item.id"
+                    @click="confirmDelete(item)"
+                >
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTrash" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </template>
     </Table>
@@ -179,18 +230,12 @@ const modalTitle = computed(() =>
         </h2>
 
         <form class="space-y-4" @submit.prevent="submit">
-            <!-- Code + Name -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
                         {{ ctrans('Code') }}
                     </label>
-                    <input
-                        v-model="form.code"
-                        type="text"
-                        :disabled="isEditMode"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent] disabled:bg-gray-100"
-                    />
+                    <InputText v-model="form.code" :disabled="isEditMode" :invalid="!!form.errors.code" fluid class="mt-1" :class="inputFocusClass" />
                     <div v-if="form.errors.code" class="mt-1 text-sm text-red-600">
                         {{ form.errors.code }}
                     </div>
@@ -200,11 +245,7 @@ const modalTitle = computed(() =>
                     <label class="block text-sm font-medium text-gray-700">
                         {{ ctrans('Name') }}
                     </label>
-                    <input
-                        v-model="form.name"
-                        type="text"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]"
-                    />
+                    <InputText v-model="form.name" :invalid="!!form.errors.name" fluid class="mt-1" :class="inputFocusClass" />
                     <div v-if="form.errors.name" class="mt-1 text-sm text-red-600">
                         {{ form.errors.name }}
                     </div>
@@ -225,42 +266,32 @@ const modalTitle = computed(() =>
                 </div>
             </div>
 
-            <!-- Description -->
             <div>
                 <label class="block text-sm font-medium text-gray-700">
                     {{ ctrans('Description') }}
                 </label>
-                <textarea
-                    v-model="form.description"
-                    rows="3"
-                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]"
-                />
+                <Textarea v-model="form.description" rows="3" autoResize fluid class="mt-1" :class="inputFocusClass" />
                 <div v-if="form.errors.description" class="mt-1 text-sm text-red-600">
                     {{ form.errors.description }}
                 </div>
             </div>
 
-            <!-- Category + Compensation type -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
                         {{ ctrans('Category') }}
                     </label>
-                    <select
+                    <Select
                         v-model="form.category"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white focus:border-[--app-accent] focus:ring-[--app-accent]"
-                    >
-                        <option value="">
-                            {{ ctrans('Select category') }}
-                        </option>
-                        <option
-                            v-for="option in props.categoryOptions"
-                            :key="option.value"
-                            :value="option.value"
-                        >
-                            {{ option.label }}
-                        </option>
-                    </select>
+                        :options="categoryOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :placeholder="ctrans('Select category')"
+                        :invalid="!!form.errors.category"
+                        fluid
+                        class="mt-1"
+                        :class="fieldFocusClass"
+                    />
                     <div v-if="form.errors.category" class="mt-1 text-sm text-red-600">
                         {{ form.errors.category }}
                     </div>
@@ -270,39 +301,37 @@ const modalTitle = computed(() =>
                     <label class="block text-sm font-medium text-gray-700">
                         {{ ctrans('Compensation type') }}
                     </label>
-                    <select
+                    <Select
                         v-model="form.compensation_type"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white focus:border-[--app-accent] focus:ring-[--app-accent]"
-                    >
-                        <option value="">
-                            {{ ctrans('Select compensation type') }}
-                        </option>
-                        <option
-                            v-for="option in props.compensationTypeOptions"
-                            :key="option.value"
-                            :value="option.value"
-                        >
-                            {{ option.label }}
-                        </option>
-                    </select>
+                        :options="compensationTypeOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :placeholder="ctrans('Select compensation type')"
+                        :invalid="!!form.errors.compensation_type"
+                        fluid
+                        class="mt-1"
+                        :class="fieldFocusClass"
+                    />
                     <div v-if="form.errors.compensation_type" class="mt-1 text-sm text-red-600">
                         {{ form.errors.compensation_type }}
                     </div>
                 </div>
             </div>
 
-            <!-- Multiplier + Active -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
                         {{ ctrans('Multiplier') }}
                     </label>
-                    <input
-                        v-model.number="form.multiplier"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]"
+                    <InputNumber
+                        v-model="form.multiplier"
+                        :min="0"
+                        :minFractionDigits="0"
+                        :maxFractionDigits="2"
+                        :invalid="!!form.errors.multiplier"
+                        fluid
+                        class="mt-1"
+                        :class="fieldFocusClass"
                     />
                     <div v-if="form.errors.multiplier" class="mt-1 text-sm text-red-600">
                         {{ form.errors.multiplier }}
@@ -310,27 +339,27 @@ const modalTitle = computed(() =>
                 </div>
 
                 <div class="flex items-center mt-6">
-                    <input
-                        id="is_active"
-                        v-model="form.is_active"
-                        type="checkbox"
-                        class="h-4 w-4 rounded border-gray-300 text-[--app-accent] focus:ring-[--app-accent]"
-                    />
+                    <Checkbox v-model="form.is_active" inputId="is_active" binary :class="checkboxAccentClass" />
                     <label for="is_active" class="ml-2 block text-sm text-gray-700">
                         {{ ctrans('Active') }}
                     </label>
                 </div>
             </div>
 
-            <!-- Buttons -->
             <div class="mt-6 flex justify-end gap-2">
-                <Button type="tertiary" @click="closeModal">
-                    {{ ctrans('Cancel') }}
+                <Button type="tertiary" :label="ctrans('Cancel')" @click="closeModal">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                    </template>
                 </Button>
-                <Button type="save" :loading="form.processing" @click="submit">
-                    {{ ctrans('Save') }}
+                <Button type="tertiary" nativeType="submit" :label="ctrans('Save')" :loading="form.processing">
+                    <template #icon>
+                        <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
                 </Button>
             </div>
         </form>
     </Modal>
+
+    <HrConfirmDialog :group="confirmGroup" />
 </template>

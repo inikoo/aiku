@@ -52,7 +52,7 @@ class CreateWorkplace extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('work place'),
+                            'title'  => __('Workplace'),
                             'fields' => [
                                 'name' => [
                                     'type'        => 'input',
@@ -71,7 +71,7 @@ class CreateWorkplace extends OrgAction
                                 ],
                                 'timezone_id' => [
                                     'type'        => 'select',
-                                    'label'       => __('timezone'),
+                                    'label'       => __('Timezone'),
                                     'placeholder' => __('Select a timezone'),
                                     'options'     => GetTimeZonesOptions::run(),
                                     'value'       => null,
