@@ -259,6 +259,7 @@ const props = defineProps<{
             slug: string
             reference: string
             type: string
+            is_shipping_by_external: boolean
             parcels: string
             state: string
             state_icon: IconTS
@@ -2390,7 +2391,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
                             <!-- Button: Get shipment from Faire/Tiktok -->
                             <div
-                                v-if="note.shipments_routes?.can_work !== false && getShipmentFromPlatform(note) && ['packed', 'finalised', 'dispatched'].includes(note.state) && props.delivery_address_management.addresses.is_shipping_by_external && !note?.shipments?.length"
+                                v-if="note.shipments_routes?.can_work !== false && getShipmentFromPlatform(note) && ['packed', 'finalised', 'dispatched'].includes(note.state) && note.is_shipping_by_external && !note?.shipments?.length"
                                 class="flex items-center gap-2 text-sm mb-1"
                             >
 
@@ -2433,7 +2434,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                 </div>
                             </div>
 
-                            <dl v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !props.delivery_address_management.addresses.is_shipping_by_external && note.shipments"
+                            <dl v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !note.is_shipping_by_external && note.shipments"
                                 class="flex items-xcenter w-full pr-3 flex-none gap-x-1.5">
                                 <dt class="flex-none mt-1">
                                     <FontAwesomeIcon v-tooltip="ctrans('Shipment')" icon="fal fa-shipping-fast" fixed-width aria-hidden="true" class="text-gray-500" />

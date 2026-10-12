@@ -75,6 +75,7 @@ use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
 use App\Actions\Retina\Ecom\Basket\UI\IndexBasketTransactions;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\ResetOrderTaxCategory;
 use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
@@ -3325,6 +3326,31 @@ test('UI show order flags unpaid API orders as auto-held', function () {
             ->where('pageHead.api_order.held_unpaid', false)
             ->etc()
     );
+});
+
+test('UI show order tells per delivery note whether the sales channel ships it', function () {
+    $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+
+    $noteData = fn (string $reference): array => [
+        'reference'        => $reference,
+        'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id,
+    ];
+
+    $orderNote   = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id));
+    $replacement = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id.'-r1'));
+    $order->update(['is_shipping_by_external' => true]);
+    $orderNote->update(['is_shipping_by_external' => true]);
+    $replacement->update(['is_shipping_by_external' => false]);
+
+    $notes = collect(ShowOrder::make()->getOrderBoxStats($order->refresh())['delivery_notes'])->keyBy('id');
+
+    expect($notes[$orderNote->id]['is_shipping_by_external'])->toBeTrue()
+        ->and($notes[$replacement->id]['is_shipping_by_external'])->toBeFalse();
 });
 
 test('UI order channels report groups by platform and sales channel', function () {
