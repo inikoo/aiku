@@ -19,6 +19,8 @@ use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Http\Resources\Procurement\ProcurementNoteResource;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
@@ -54,6 +56,7 @@ use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Ordering\Order;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -129,6 +132,10 @@ class ShowPurchaseOrder extends OrgAction
         $showProductsTab = $purchaseOrder->state == PurchaseOrderStateEnum::IN_PROCESS
             && $purchaseOrder->parent instanceof OrgSupplier;
         $uploadExcel = $this->canEdit && $this->acceptsSpreadsheet($purchaseOrder);
+        $draftOrgAgent = $this->draftOrgAgent($purchaseOrder);
+        $items = fn () => $draftOrgAgent
+            ? JsonResource::collection(IndexAgentCoverBucketItems::make()->onSupplierDrafts($draftOrgAgent, $purchaseOrder->supplier_id, PurchaseOrderTabsEnum::ITEMS->value))
+            : PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder, PurchaseOrderTabsEnum::ITEMS->value));
 
         $orderer = [];
         $productListRoute = [];
@@ -334,9 +341,20 @@ class ShowPurchaseOrder extends OrgAction
                     ],
                 ],
 
-                PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
-                    fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder, PurchaseOrderTabsEnum::ITEMS->value))
-                    : Inertia::optional(fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder, PurchaseOrderTabsEnum::ITEMS->value))),
+                PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ? $items : Inertia::optional($items),
+
+                'agent_ordering' => $draftOrgAgent ? [
+                    'orgAgent'     => [
+                        'id'       => $draftOrgAgent->id,
+                        'slug'     => $draftOrgAgent->slug,
+                        'currency' => $purchaseOrder->organisation->currency->code,
+                    ],
+                    'addRoute'     => [
+                        'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.line',
+                        'parameters' => [$purchaseOrder->organisation->slug, $draftOrgAgent->slug],
+                    ],
+                    'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
+                ] : null,
 
                 PurchaseOrderTabsEnum::PRODUCTS->value => $showProductsTab && $this->tab == PurchaseOrderTabsEnum::PRODUCTS->value ?
                     fn () => PurchaseOrderOrgSupplierProductsResource::collection(IndexPurchaseOrderOrgSupplierProducts::run($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value))
@@ -378,12 +396,28 @@ class ShowPurchaseOrder extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder, PurchaseOrderTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder, PurchaseOrderTabsEnum::HISTORY->value))),
             ]
-        )->table(IndexPurchaseOrderTransactions::make()->tableStructure($purchaseOrder, prefix: PurchaseOrderTabsEnum::ITEMS->value))
+        )->table(
+            $draftOrgAgent
+                ? IndexAgentCoverBucketItems::make()->tableStructure(PurchaseOrderTabsEnum::ITEMS->value)
+                : IndexPurchaseOrderTransactions::make()->tableStructure($purchaseOrder, prefix: PurchaseOrderTabsEnum::ITEMS->value)
+        )
             ->table(IndexPurchaseOrderOrgSupplierProducts::make()->tableStructure(prefix: PurchaseOrderTabsEnum::PRODUCTS->value))
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: PurchaseOrderTabsEnum::NOTES->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexDispatchedEmailsInOrder::make()->tableStructure(prefix: PurchaseOrderTabsEnum::DISPATCHED_EMAILS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
+    }
+
+    /**
+     * A draft through an agent is built on the agent's Ordering page, so its items are shown as they are there.
+     */
+    private function draftOrgAgent(PurchaseOrder $purchaseOrder): ?OrgAgent
+    {
+        if ($purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS || $purchaseOrder->parent_type !== 'OrgSupplier' || !$purchaseOrder->agent_id) {
+            return null;
+        }
+
+        return OrgAgent::where('organisation_id', $purchaseOrder->organisation_id)->where('agent_id', $purchaseOrder->agent_id)->first();
     }
 
     public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource
