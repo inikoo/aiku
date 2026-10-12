@@ -6,16 +6,17 @@ import { notify } from "@kyvg/vue3-notification"
 import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import PaymentDialog, { PaymentPayload } from "@/Components/Procurement/PaymentDialog.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faFileInvoice, faFilePdf, faPlus, faTrashAlt } from "@fal"
+import { faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-library.add(faFileInvoice, faFilePdf, faPlus, faTrashAlt)
+library.add(faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip)
 
 interface Charge {
 	description: string
@@ -36,6 +37,9 @@ interface Payment {
 	amount: number
 	reference: string | null
 	notes: string | null
+	method: string | null
+	bank_statement: string | null
+	delete_route: routeType | null
 }
 
 const props = defineProps<{
@@ -57,6 +61,8 @@ const props = defineProps<{
 			pdf_route: routeType
 		} | null
 		payments: Payment[]
+		methods: { name: string; code: string }[]
+		payment_store_route: routeType | null
 		is_open: boolean
 		store_route: routeType
 		charges_update_route: routeType | null
@@ -71,6 +77,30 @@ const page = usePage()
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] [&_textarea:focus]:!border-[--app-accent]"
 
 const money = (amount: number) => locale.currencyFormat(props.data.invoice?.currency_code ?? props.currencyCode, amount)
+
+const isPaymentDialogOpen = ref(false)
+const paymentLoading = ref(false)
+
+const storePayment = (payload: PaymentPayload) => {
+	const storeRoute = props.data.payment_store_route
+	if (!storeRoute) return
+	router.post(route(storeRoute.name, storeRoute.parameters), payload, {
+		preserveScroll: true,
+		forceFormData: true,
+		onStart: () => (paymentLoading.value = true),
+		onFinish: () => (paymentLoading.value = false),
+		onSuccess: () => {
+			isPaymentDialogOpen.value = false
+			notify({ title: ctrans("Payment recorded"), type: "success" })
+		},
+		onError: (errors: Record<string, string>) => notify({ title: ctrans("Something went wrong"), text: Object.values(errors)[0], type: "error" }),
+	})
+}
+
+const deletePayment = (row: Payment) => {
+	if (!row.delete_route) return
+	router.delete(route(row.delete_route.name, row.delete_route.parameters), { preserveScroll: true })
+}
 
 const errorMessage = computed(() => {
 	const errors = (page.props.errors ?? {}) as Record<string, string>
@@ -215,7 +245,22 @@ const deposits = computed(() => props.data.invoice?.advance_payments.filter(paym
 			<div class="px-4 py-4">
 				<div class="flex items-center justify-between">
 					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("Paid in advance") }}</h3>
+					<Button v-if="data.payment_store_route" type="tertiary" size="xs" :label="ctrans('Add payment')" @click="isPaymentDialogOpen = true">
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
 				</div>
+				<PaymentDialog
+					v-if="data.payment_store_route"
+					v-model:visible="isPaymentDialogOpen"
+					:title="ctrans('Add payment')"
+					:currency="data.invoice?.currency_code ?? currencyCode"
+					:methods="data.methods"
+					:defaultAmount="data.invoice?.balance_due"
+					:loading="paymentLoading"
+					@submit="storePayment"
+				/>
 				<p v-if="!deposits.length && !data.payments.length" class="mt-2 text-sm text-gray-500">{{ ctrans("No deposits applied and no payments recorded yet.") }}</p>
 				<ul v-else class="mt-2 space-y-1.5 text-sm">
 					<li v-for="(deposit, index) in deposits" :key="`deposit-${index}`" class="flex items-center justify-between gap-4">
@@ -228,11 +273,20 @@ const deposits = computed(() => props.data.invoice?.advance_payments.filter(paym
 					</li>
 					<li v-for="row in data.payments" :key="`payment-${row.id}`" class="flex items-center justify-between gap-4">
 						<span class="min-w-0 truncate text-gray-700" :title="row.notes ?? undefined">
-							<span class="mr-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ ctrans("Payment") }}</span>
+							<span class="mr-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.method ?? ctrans("Payment") }}</span>
 							{{ row.reference ?? "—" }}
 							<span class="text-gray-400"> · {{ useFormatTime(row.date) }}</span>
+							<a v-if="row.bank_statement" :href="route('grp.media.download', { id: row.bank_statement })" target="_blank" class="ml-2 text-gray-500 underline decoration-gray-300 hover:text-gray-800">
+								<FontAwesomeIcon icon="fal fa-paperclip" aria-hidden="true" />
+								{{ ctrans("Bank statement") }}
+							</a>
 						</span>
-						<span class="tabular-nums text-gray-800">{{ money(row.amount) }}</span>
+						<span class="flex items-center gap-2">
+							<span class="tabular-nums text-gray-800">{{ money(row.amount) }}</span>
+							<button v-if="row.delete_route" type="button" class="text-gray-400 hover:text-red-600" :title="ctrans('Remove')" :aria-label="ctrans('Remove')" @click="deletePayment(row)">
+								<FontAwesomeIcon icon="fal fa-trash-alt" fixed-width aria-hidden="true" />
+							</button>
+						</span>
 					</li>
 				</ul>
 			</div>

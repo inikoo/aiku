@@ -2766,24 +2766,17 @@ test('UI Index org suppliers', function () {
     });
 });
 
-test('procurement navigation leaves the shopping list to each agent and separates agent suppliers', function () {
+test('procurement navigation keeps agents and free suppliers and drops the lists reached through them', function () {
     $navigation = GetOrganisationNavigation::run($this->adminGuest->getUser(), $this->organisation);
 
     expect(collect(data_get($navigation, 'procurement.topMenu.subSections'))->pluck('route.name'))
-        ->not->toContain('grp.org.procurement.shopping_list.index')
-        ->and(data_get($navigation, 'procurement.topMenu.subSections.2.route'))->toBe([
-            'name'       => 'grp.org.procurement.org_agent_suppliers.index',
-            'parameters' => [$this->organisation->slug],
-        ])
-        ->and(data_get($navigation, 'procurement.topMenu.subSections.3.route'))->toBe([
-            'name'       => 'grp.org.procurement.org_suppliers.index',
-            'parameters' => [
-                'organisation' => $this->organisation->slug,
-                '_query'       => [
-                    'sort' => 'code',
-                ],
-            ],
-        ]);
+        ->toContain('grp.org.procurement.org_agents.index', 'grp.org.procurement.org_suppliers.index')
+        ->not->toContain(
+            'grp.org.procurement.shopping_list.index',
+            'grp.org.procurement.org_agent_suppliers.index',
+            'grp.org.procurement.org_supplier_products.index',
+            'grp.org.procurement.purchase_orders.index'
+        );
 });
 
 test('UI show org supplier', function () {
@@ -3908,30 +3901,58 @@ test('UI show stock delivery', function () {
     });
 });
 
+function allowGoodsInOn(\App\Models\Inventory\Warehouse $warehouse, User $user): void
+{
+    setPermissionsTeamId($warehouse->group_id);
+    \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
+    $user->assignRole(RolesEnum::getRoleName(RolesEnum::GOODS_IN_CLERK->value, $warehouse));
+}
+
 test('UI show stock delivery pending and done item tabs', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'PENDING-DONE-TABS', [10, 10]);
     $items         = $stockDelivery->items()->orderBy('id')->get();
 
     UpdateStateToConfirmedStockDeliveryItem::make()->action($items[0]);
 
-    $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]));
+    $warehouse      = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    allowGoodsInOn($warehouse, $this->adminGuest->getUser());
+    $procurementUrl = route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]);
+    $goodsInUrl     = route('grp.org.warehouses.show.incoming.stock_deliveries.show', [$this->organisation->slug, $warehouse->slug, $stockDelivery->slug]);
 
-    $response->assertInertia(function (AssertableInertia $page) {
+    $this->withoutExceptionHandling();
+    $this->withoutVite();
+
+    $this->get($procurementUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
-            ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
-            ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value);
+            ->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value);
     });
 
-    $pendingResponse = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::PENDING_ITEMS->value);
-    $pendingResponse->assertInertia(function (AssertableInertia $page) {
+    $this->get($procurementUrl.'?tab='.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value));
+
+    $this->get($goodsInUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
+            ->where('tabs.current', StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->where('pageHead.edit', false)
+            ->where('costing.can_edit', false)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::SHOWCASE->value)
+            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
             ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2);
     });
 
-    $doneResponse = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::DONE_ITEMS->value);
+    $this->withExceptionHandling();
+    $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::ITEMS->value)->assertNotFound();
+    $this->withoutExceptionHandling();
+
+    $doneResponse = $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::DONE_ITEMS->value);
     $doneResponse->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
@@ -4087,6 +4108,86 @@ function createStockDeliveryWithItems($test, string $code, array $unitQuantities
     return $stockDelivery->refresh();
 }
 
+function agentPaymentsClerk(Organisation $agentOrganisation): User
+{
+    $existing = User::where('username', 'agent-pay-clerk')->first();
+    if ($existing) {
+        return $existing;
+    }
+
+    $orgAdmin = JobPosition::where('organisation_id', $agentOrganisation->id)->where('code', 'org-admin')->firstOrFail();
+    $employee = StoreEmployee::make()->action($agentOrganisation, [
+        'worker_number'   => 'agent-pay-clerk',
+        'alias'           => 'agent-pay-clerk',
+        'contact_name'    => 'Agent Payments Clerk',
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $orgAdmin->slug, 'scopes' => []]],
+    ]);
+
+    return StoreUser::make()->action($employee, [
+        'username'       => 'agent-pay-clerk',
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+}
+
+test('payments to an agent carry their method and bank statement, and the agent staff record theirs and pay deposits too (HELP-3872)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-PAY-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    $statement  = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+    $storeRoute = route('grp.models.stock-delivery.agent_payment.store', $stockDelivery->id);
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'method' => 'bank_transfer'])->assertSessionHasErrors('bank_statement');
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'bank_statement' => $statement('a.pdf')])->assertSessionHasErrors('method');
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 80, 'method' => 'bank_transfer', 'reference' => 'TT-80', 'bank_statement' => $statement('a.pdf')])
+        ->assertRedirect()->assertSessionHasNoErrors();
+
+    $organisationPayment = $stockDelivery->agentPayments()->latest('id')->firstOrFail();
+    expect($organisationPayment->method->value)->toBe('bank_transfer')
+        ->and($organisationPayment->media_id)->not->toBeNull()
+        ->and($stockDelivery->attachments()->wherePivot('scope', 'Bank statement')->count())->toBe(1);
+
+    setPermissionsTeamId($this->group->id);
+    $agentClerk = agentPaymentsClerk($this->agent->organisation);
+    expect($agentClerk->authTo("procurement.{$this->organisation->id}.edit"))->toBeFalse();
+    actingAs($agentClerk);
+
+    $this->post($storeRoute, ['date' => date('Y-m-d'), 'amount' => 20, 'method' => 'cash'])->assertRedirect()->assertSessionHasNoErrors();
+    $agentPayment = $stockDelivery->agentPayments()->latest('id')->firstOrFail();
+    expect($agentPayment->created_by)->toBe($agentClerk->id);
+
+    $panel = \App\Actions\SupplyChain\AgentInvoice\UI\GetAgentContainerInvoiceData::run($this->agent->organisation, $stockDelivery->refresh());
+    $rows  = collect($panel['payments'])->keyBy('id');
+    expect($panel['payment_store_route'])->not->toBeNull()
+        ->and($rows[$organisationPayment->id]['method'])->toBe('Bank transfer')
+        ->and($rows[$organisationPayment->id]['bank_statement'])->not->toBeNull()
+        ->and($rows[$organisationPayment->id]['delete_route'])->toBeNull()
+        ->and($rows[$agentPayment->id]['delete_route'])->not->toBeNull();
+
+    $this->delete(route('grp.models.agent_payment.delete', $organisationPayment->id))->assertForbidden();
+    $this->delete(route('grp.models.agent_payment.delete', $agentPayment->id))->assertRedirect();
+    expect($stockDelivery->agentPayments()->pluck('id')->all())->toBe([$organisationPayment->id]);
+
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action(
+        $orgSupplier,
+        array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'AGENT-DEP-'.uniqid()]),
+        strict: false
+    );
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'cost_total' => 500]);
+    expect($purchaseOrder->isAgentOrder())->toBeTrue();
+
+    $this->patch(route('grp.models.purchase-order.payment.deposit', $purchaseOrder->id), ['amount' => 150])->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->deposit_paid_by_id)->toBe($agentClerk->id);
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('an agent invoices a container from its lines, adds its charges, takes off what was paid in advance and can not dispatch it without the invoice', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-INV-'.Str::random(6), [10, 4]);
     $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
@@ -4238,7 +4339,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
     $this->get($url)->assertInertia(function (AssertableInertia $page) {
         $page
             ->where('queryBuilderProps.items.elementGroups.state.elements.placed.1', 0)
-            ->has('tabs.navigation', 8)
+            ->has('tabs.navigation', 6)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
     });
 
@@ -4256,7 +4357,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
 
     $response->assertOk()
         ->assertJsonPath('props.queryBuilderProps.items.elementGroups.state.elements.placed.1', 1)
-        ->assertJsonCount(9, 'props.tabs.navigation')
+        ->assertJsonCount(7, 'props.tabs.navigation')
         ->assertJsonPath(
             'props.tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.title',
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->blueprint()['title']
@@ -4470,20 +4571,30 @@ test('UI show stock delivery items exposes the placement and sowings data', func
         'location_org_stock_id' => $locationOrgStock->id,
     ]);
 
+    allowGoodsInOn($locationOrgStock->warehouse, $this->adminGuest->getUser());
+
     $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('queryBuilderProps.items.columns.3.key', 'quantity')
+            ->where('queryBuilderProps.items.columns.4.key', 'checked_quantity')
+            ->where('queryBuilderProps.items.columns.5.key', 'placed_quantity')
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains('key', 'book_in_link')));
+
+    $response = $this->get(route('grp.org.warehouses.show.incoming.stock_deliveries.show', [
         $this->organisation->slug,
+        $locationOrgStock->warehouse->slug,
         $stockDelivery->slug,
     ]));
 
     $response->assertInertia(function (AssertableInertia $page) use ($locationOrgStock) {
         $page
             ->component('Procurement/StockDelivery')
-            ->where('queryBuilderProps.items.columns.4.key', 'sowings')
-            ->where('queryBuilderProps.items.columns.5.key', 'checked_unit')
-            ->where('queryBuilderProps.items.columns.6.key', 'placement')
+            ->where('queryBuilderProps.pending_items.columns.4.key', 'sowings')
+            ->where('queryBuilderProps.pending_items.columns.5.key', 'checked_unit')
+            ->where('queryBuilderProps.pending_items.columns.6.key', 'placement')
             ->has(
-                StockDeliveryTabsEnum::ITEMS->value.'.data',
+                StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data',
                 1,
                 fn (AssertableInertia $page) => $page
                     ->where('placement_remaining', 6)

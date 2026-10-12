@@ -4,20 +4,17 @@ import { router } from "@inertiajs/vue3"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
 import Dialog from "primevue/dialog"
-import DatePicker from "primevue/datepicker"
-import InputText from "primevue/inputtext"
-import InputNumber from "primevue/inputnumber"
-import Textarea from "primevue/textarea"
+import PaymentDialog, { PaymentPayload } from "@/Components/Procurement/PaymentDialog.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd } from "@fal"
+import { faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd, faPaperclip } from "@fal"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
-library.add(faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd)
+library.add(faPlus, faTrashAlt, faTimes, faCheck, faExclamationTriangle, faHandHoldingUsd, faPaperclip)
 
 interface Payment {
 	id: number
@@ -25,6 +22,8 @@ interface Payment {
 	amount: number
 	reference: string | null
 	notes: string | null
+	method: string | null
+	bank_statement: string | null
 	delete_route: routeType
 }
 
@@ -38,14 +37,13 @@ const props = defineProps<{
 		approve_route: routeType
 		deposits: { type: string; reference: string | null; date: string | null; amount: number }[]
 		payments: Payment[]
+		methods: { name: string; code: string }[]
 		payment_store_route: routeType
 	}
 }>()
 
 const locale = useLocaleStore()
 const confirm = useConfirm()
-
-const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] [&_textarea:focus]:!border-[--app-accent]"
 
 const money = (amount: number) => locale.currencyFormat(props.currency, amount)
 
@@ -74,32 +72,19 @@ const confirmApproveCharges = () =>
 
 const isPaymentDialogOpen = ref(false)
 const paymentLoading = ref(false)
-const payment = ref<{ date: Date | null; amount: number | null; reference: string; notes: string }>({ date: new Date(), amount: null, reference: "", notes: "" })
 
-const openPaymentDialog = () => {
-	payment.value = { date: new Date(), amount: null, reference: "", notes: "" }
-	isPaymentDialogOpen.value = true
-}
-
-const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
-
-const storePayment = () => {
-	if (!payment.value.date || !payment.value.amount) return
-	router.post(
-		route(props.agent.payment_store_route.name, props.agent.payment_store_route.parameters),
-		{ date: toIsoDate(payment.value.date), amount: payment.value.amount, reference: payment.value.reference || null, notes: payment.value.notes || null },
-		{
-			preserveScroll: true,
-			onStart: () => (paymentLoading.value = true),
-			onFinish: () => (paymentLoading.value = false),
-			onSuccess: () => {
-				isPaymentDialogOpen.value = false
-				notify({ title: ctrans("Payment recorded"), type: "success" })
-			},
-			onError,
-		}
-	)
-}
+const storePayment = (payload: PaymentPayload) =>
+	router.post(route(props.agent.payment_store_route.name, props.agent.payment_store_route.parameters), payload, {
+		preserveScroll: true,
+		forceFormData: true,
+		onStart: () => (paymentLoading.value = true),
+		onFinish: () => (paymentLoading.value = false),
+		onSuccess: () => {
+			isPaymentDialogOpen.value = false
+			notify({ title: ctrans("Payment recorded"), type: "success" })
+		},
+		onError,
+	})
 
 const confirmDeletePayment = (row: Payment) =>
 	confirm.require({
@@ -158,7 +143,11 @@ const confirmDeletePayment = (row: Payment) =>
 		<div>
 			<div class="flex items-center justify-between">
 				<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("Payments to the agent") }}</h3>
-				<Button v-if="agent.can_edit" type="transparent" size="xs" icon="fal fa-plus" :label="ctrans('Add payment')" @click="openPaymentDialog" />
+				<Button v-if="agent.can_edit" type="tertiary" size="xs" :label="ctrans('Add payment')" @click="isPaymentDialogOpen = true">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 			<p v-if="!agent.deposits.length && !agent.payments.length" class="mt-2 text-gray-500">{{ ctrans("No deposits applied and no payments recorded yet.") }}</p>
 			<ul v-else class="mt-2 space-y-1.5">
@@ -172,9 +161,13 @@ const confirmDeletePayment = (row: Payment) =>
 				</li>
 				<li v-for="row in agent.payments" :key="`payment-${row.id}`" class="flex items-center justify-between gap-4">
 					<span class="min-w-0 text-gray-700">
-						<span class="mr-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ ctrans("Payment") }}</span>
+						<span class="mr-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.method ?? ctrans("Payment") }}</span>
 						{{ row.reference ?? "—" }}
 						<span class="text-gray-400"> · {{ useFormatTime(row.date) }}</span>
+						<a v-if="row.bank_statement" :href="route('grp.media.download', { id: row.bank_statement })" target="_blank" class="ml-2 text-gray-500 underline decoration-gray-300 hover:text-gray-800">
+							<FontAwesomeIcon icon="fal fa-paperclip" aria-hidden="true" />
+							{{ ctrans("Bank statement") }}
+						</a>
 						<span v-if="row.notes" class="block truncate text-xs text-gray-500">{{ row.notes }}</span>
 					</span>
 					<span class="flex items-center gap-2">
@@ -187,38 +180,15 @@ const confirmDeletePayment = (row: Payment) =>
 			</ul>
 		</div>
 
-		<Dialog v-model:visible="isPaymentDialogOpen" modal :header="ctrans('Add payment')" class="w-full max-w-md">
-			<div class="space-y-3">
-				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Date") }}</span>
-					<DatePicker v-model="payment.date" dateFormat="dd/mm/yy" :manualInput="false" showIcon iconDisplay="input" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
-				</label>
-				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Amount") }}</span>
-					<InputNumber v-model="payment.amount" mode="currency" :currency="currency" :min="0" class="mt-1 w-full" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-full' } } }" />
-				</label>
-				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Reference") }}</span>
-					<InputText v-model="payment.reference" class="mt-1 w-full" :class="fieldFocusClass" />
-				</label>
-				<label class="block text-sm">
-					<span class="text-gray-600">{{ ctrans("Notes") }}</span>
-					<Textarea v-model="payment.notes" rows="2" class="mt-1 w-full" :class="fieldFocusClass" autoResize />
-				</label>
-			</div>
-			<template #footer>
-				<Button type="tertiary" :label="ctrans('Cancel')" @click="isPaymentDialogOpen = false">
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-				<Button type="tertiary" :label="ctrans('Record payment')" :disabled="!payment.date || !payment.amount" :loading="paymentLoading" @click="storePayment">
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-			</template>
-		</Dialog>
+		<PaymentDialog
+			v-model:visible="isPaymentDialogOpen"
+			:title="ctrans('Add payment')"
+			:currency="currency"
+			:methods="agent.methods"
+			:loading="paymentLoading"
+			withNotes
+			@submit="storePayment"
+		/>
 	</div>
 		</Dialog>
 	</div>
