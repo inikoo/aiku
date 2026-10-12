@@ -10,6 +10,9 @@ namespace App\Actions\SupplyChain\AgentInvoice\UI;
 
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
+use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
+use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\AgentPayment;
@@ -28,16 +31,26 @@ class GetAgentContainerInvoiceData
     public function handle(Organisation $organisation, StockDelivery $stockDelivery): array
     {
         $invoice = $stockDelivery->agentInvoice()->with('currency:id,code')->first();
+        $user    = request()->user();
 
         return [
             'invoice'              => $invoice ? $this->invoiceData($organisation, $invoice) : null,
-            'payments'             => $stockDelivery->agentPayments()->orderBy('date')->get()->map(fn (AgentPayment $payment) => [
-                'id'            => $payment->id,
-                'date'          => $payment->date->toDateString(),
-                'amount'        => (float) $payment->amount,
-                'reference'     => $payment->reference,
-                'notes'         => $payment->notes,
+            'payments'             => $stockDelivery->agentPayments()->with('bankStatement:id,ulid')->orderBy('date')->get()->map(fn (AgentPayment $payment) => [
+                'id'             => $payment->id,
+                'date'           => $payment->date->toDateString(),
+                'amount'         => (float) $payment->amount,
+                'reference'      => $payment->reference,
+                'notes'          => $payment->notes,
+                'method'         => $payment->method?->labels()[$payment->method->value],
+                'bank_statement' => $payment->bankStatement?->ulid,
+                'delete_route'   => $user && DeleteAgentPayment::canDelete($payment, $user)
+                    ? ['name' => 'grp.models.agent_payment.delete', 'parameters' => ['agentPayment' => $payment->id]]
+                    : null,
             ])->values()->all(),
+            'methods'              => PurchaseOrderPaymentMethodEnum::options(),
+            'payment_store_route'  => $user && StoreAgentPayment::canRecord($stockDelivery, $user)
+                ? ['name' => 'grp.models.stock-delivery.agent_payment.store', 'parameters' => ['stockDelivery' => $stockDelivery->id]]
+                : null,
             'is_open'              => in_array($stockDelivery->state, StoreAgentInvoice::OPEN_STATES, true),
             'store_route'          => [
                 'name'       => 'grp.org.agent.agent_invoices.store',
