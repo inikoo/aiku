@@ -7,6 +7,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTimes, faPlus } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
+import SelectQuery from "@/Components/SelectQuery.vue"
 import type { WebsiteDialogData } from "@/types/WebsiteDialog"
 
 library.add(faTimes, faPlus)
@@ -57,13 +58,34 @@ const buttonLink = computed(() => `#website-dialog-${dialogData.ulid}`)
 
 const newPageRule = ref({ will: "show" as "show" | "hide", when: "contain" as const, url: "" })
 
+const pushPageRule = (url: string) => {
+    const rules = settings.value.target_pages?.specific ?? []
+
+    if (!rules.some(rule => rule.will === newPageRule.value.will && rule.url === url)) {
+        rules.push(cloneDeep({ ...newPageRule.value, url }))
+    }
+}
+
 const addPageRule = () => {
     if (!newPageRule.value.url.trim()) {
         return
     }
 
-    settings.value.target_pages?.specific.push(cloneDeep({ ...newPageRule.value, url: newPageRule.value.url.trim() }))
+    pushPageRule(newPageRule.value.url.trim())
     newPageRule.value.url = ""
+}
+
+const websiteParam = route().params?.["website"]
+const webpagesRoute = websiteParam ? route("grp.json.webpages_for_workshop_select", { website: websiteParam }) : null
+const webpagePickerRevision = ref(0)
+
+const addWebpageRule = (webpage: { url?: string | null } | null) => {
+    if (!webpage) {
+        return
+    }
+
+    pushPageRule(webpage.url?.trim() || "/")
+    webpagePickerRevision.value += 1
 }
 
 const removePageRule = (index: number) => {
@@ -124,10 +146,32 @@ const visitorOptions = [
                         <option value="show">{{ ctrans("Show") }}</option>
                         <option value="hide">{{ ctrans("Hide") }}</option>
                     </select>
+                    <SelectQuery
+                        v-if="webpagesRoute"
+                        :key="webpagePickerRevision"
+                        class="min-w-0 flex-1"
+                        :urlRoute="webpagesRoute"
+                        :value="null"
+                        :object="true"
+                        label="path"
+                        :placeholder="ctrans('Pick a page')"
+                        :closeOnSelect="true"
+                        :onChange="addWebpageRule"
+                    >
+                        <template #option="{ option }">
+                            <div class="flex w-full items-center truncate px-2 text-xs text-gray-800">
+                                {{ option?.path }}
+                                <span class="ml-1 truncate text-gray-500">– /{{ option?.url }}</span>
+                            </div>
+                        </template>
+                    </SelectQuery>
+                </div>
+
+                <div class="flex gap-1">
                     <input
                         v-model="newPageRule.url"
                         type="text"
-                        :placeholder="ctrans('URL contains, e.g. blog')"
+                        :placeholder="ctrans('Or URL contains, e.g. blog')"
                         :aria-label="ctrans('URL contains')"
                         class="min-w-0 flex-1 rounded border-slate-300 px-2 py-1 text-xs placeholder:text-slate-400"
                         @keydown.enter.prevent="addPageRule"
