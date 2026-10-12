@@ -12,12 +12,14 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import Icon from "@/Components/Icon.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
-import { asProcurementRouteName } from "@/Composables/useAgentRoutes"
+import { asProcurementRouteName, isAgentOrganisation } from "@/Composables/useAgentRoutes"
 
 defineProps<{
 	data: {}
 	tab?: string
 }>()
+
+const isInAgentOrganisation = isAgentOrganisation(route().params.organisation as string | undefined)
 
 function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 	if (!purchaseOrder?.slug) {
@@ -176,7 +178,7 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 				{{ purchaseOrder.parent_name }}
 			</Link>
 			<span v-else>{{ purchaseOrder.parent_name }}</span>
-			<div v-if="purchaseOrder.agent_name" class="text-xs text-gray-500">
+			<div v-if="purchaseOrder.agent_name && !isInAgentOrganisation" class="text-xs text-gray-500">
 				{{ ctrans("via agent") }}
 				<Link v-if="AgentRoute(purchaseOrder)" :href="AgentRoute(purchaseOrder)" class="secondaryLink">
 					{{ purchaseOrder.agent_name }}
