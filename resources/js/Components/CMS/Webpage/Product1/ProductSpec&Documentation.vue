@@ -4,6 +4,7 @@ import { computed, inject } from 'vue'
 import { faFileCheck, faFileWord } from "@fal"
 import { faFilePdf } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import ProductComponentsList from "@/Components/CMS/Webpage/Product1/ProductComponentsList.vue"
 const props = defineProps<{
     product: {
         slug?: string
@@ -18,6 +19,7 @@ const props = defineProps<{
             ingredients?: Array<string>
             countries_of_origin?: Array<{ code: string; name: string }>
         }
+        components?: Array<{ code: string; name: string; quantity: number; url: string | null; ingredients: string | null }>
         attachments?: Array<{ label: string; caption: string; url: string; mime_type: string }>
     }
 }>()
@@ -119,6 +121,11 @@ const groupedAttachments = computed(() => {
                     {{ ctrans('Download') }} PDF
                 </a>
             </div>
+        </div>
+
+        <div v-if="product?.components?.length" class="border-b border-gray-300">
+            <div class="p-2 font-medium text-sm bg-gray-50">{{ ctrans('Contents') }}</div>
+            <ProductComponentsList :components="product.components" class="p-2 text-sm" />
         </div>
 
         <div v-if="product?.specifications?.barcode" class="grid grid-cols-2 border-b border-gray-300">

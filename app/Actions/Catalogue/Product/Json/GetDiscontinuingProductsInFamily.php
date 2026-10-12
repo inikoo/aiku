@@ -47,6 +47,33 @@ class GetDiscontinuingProductsInFamily extends OrgAction
             ->get();
     }
 
+    /**
+     * What a clearance gift of $quantity hands out: cheapest first, spilling to the next product when one runs short.
+     * Also says whether that takes the last of the stock, so the offer can finish (HELP-3794).
+     *
+     * @return array{0: array<int, array{0: Product, 1: int}>, 1: bool}
+     */
+    public function getGiftLines(?ProductCategory $family, ?int $productId, int $quantity): array
+    {
+        $candidates = $family ? $this->handle($family) : collect();
+        if ($productId) {
+            $candidates = $candidates->where('id', $productId);
+        }
+
+        $giftLines = [];
+        $remaining = $quantity;
+        foreach ($candidates as $product) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $giftQuantity = min($remaining, (int)$product->available_quantity);
+            $giftLines[]  = [$product, $giftQuantity];
+            $remaining    -= $giftQuantity;
+        }
+
+        return [$giftLines, $candidates->sum('available_quantity') <= $quantity - $remaining];
+    }
+
     public function jsonResponse(Collection $products): array
     {
         return $products->map(fn (Product $product) => [

@@ -47,6 +47,7 @@ class SeoRankingResource extends JsonResource
             'frequency'               => $this->frequency->value,
             'last_checked_at'         => $this->last_checked_at?->toDateString(),
             'is_pending'              => $this->pending_task_id !== null,
+            'can_check_now'           => $this->pending_task_id === null && !$this->last_checked_at?->isToday(),
             'position'                => $this->position,
             'previous_position'       => $this->previous_position,
             'has_previous_check'      => $this->previous_checked_at !== null,

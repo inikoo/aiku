@@ -40,6 +40,7 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { UploadPallet } from '@/types/Pallet'
 import WhatsAppNewsletterOptIn from "@/Components/Retina/Ecom/WhatsAppNewsletterOptIn.vue"
 import { pushGtmEvent, buildGtmProductPayload } from '@/Composables/useGtm'
+import { BasketBonusStock } from '@/types/Iris/BasketBonusStock'
 library.add(faTag, faCheck, faExclamationTriangle)
 
 interface ChargeResource {
@@ -73,6 +74,7 @@ const props = defineProps<{
         has_gift_message_pdf?: boolean
         gift_message_pdf_name?: string | null
     }
+    bonus_stock?: BasketBonusStock[]
     upcoming_transactions: {
         data: {
             id: number
@@ -740,6 +742,7 @@ const onChangeInsurance = async (val: boolean) => {
         :updateRoute="routes.update_route"
         :missed_offers
         :upcoming_transactions
+        :bonus_stock
         :isShowAllOffersMeter="true"
     />
     
@@ -749,6 +752,7 @@ const onChangeInsurance = async (val: boolean) => {
                 :data="transactions"
                 :updateRoute="routes.update_route"
                 :preOrderLines="pre_orders?.lines"
+                :bonusStock="bonus_stock"
             >
                 <template #gridHeaderActions>
                     <Button

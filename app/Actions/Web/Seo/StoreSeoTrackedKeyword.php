@@ -46,6 +46,10 @@ class StoreSeoTrackedKeyword extends OrgAction
         if ($this->has('language_code')) {
             $this->set('language_code', strtolower((string) $this->get('language_code')));
         }
+
+        if (!$this->has('frequency')) {
+            $this->set('frequency', SeoKeywordFrequencyEnum::ON_REQUEST->value);
+        }
     }
 
     public function rules(): array

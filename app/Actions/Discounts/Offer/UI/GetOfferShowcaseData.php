@@ -107,7 +107,7 @@ class GetOfferShowcaseData extends GetOffersInsightsData
         return (object) ['total' => 1, 'active' => 0, 'in_process' => 0, 'finished' => 0, 'suspended' => 0];
     }
 
-    protected function buildRedemptionOrdersQuery(Shop $shop, ?OfferCampaign $offerCampaign, ?string $offerType, ?string $fromDate, ?string $toDate): Builder
+    public function buildRedemptionOrdersQuery(Shop $shop, ?OfferCampaign $offerCampaign, ?string $offerType, ?string $fromDate, ?string $toDate): Builder
     {
         return parent::buildRedemptionOrdersQuery($shop, $offerCampaign, $offerType, $fromDate, $toDate)
             ->when($this->offer, fn (Builder $query) => $query->where('toa.offer_id', $this->offer->id));

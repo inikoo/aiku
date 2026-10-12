@@ -34,6 +34,7 @@ import { Navigation } from "swiper/modules"
 
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import LinkIris from "@/Iris/Components/LinkIris.vue"
+import ProductComponentsList from "@/Components/CMS/Webpage/Product1/ProductComponentsList.vue"
 import EcomAddToBasketv2 from "@/Components/Iris/Products/EcomAddToBasketv2.vue"
 import Product2Image from "@/Components/CMS/Webpage/Product2/Product2Image.vue"
 import GoldenProductBadge from "@/Components/CMS/Webpage/Products/GoldenProductBadge.vue"
@@ -651,6 +652,11 @@ onMounted(async () => {
                                 <div class="spec-cell">{{ product.specifications.ingredients }}</div>
                             </div>
 
+                            <div v-if="product?.components?.length" class="py-2">
+                                <div class="spec-cell mb-1">{{ ctrans("Contents") }}</div>
+                                <ProductComponentsList :components="product.components" class="px-2 text-xs" />
+                            </div>
+
                             <!-- Barcode -->
                             <div v-if="product?.specifications?.barcode" class="spec-row">
                                 <div class="spec-cell">{{ ctrans('Barcode') }}</div>
@@ -940,6 +946,11 @@ onMounted(async () => {
                             <div v-if="product?.specifications?.ingredients" class="spec-row">
                                 <div class="spec-cell">{{ ctrans('Materials/Ingredients') }}</div>
                                 <div class="spec-cell">{{ product.specifications.ingredients }}</div>
+                            </div>
+
+                            <div v-if="product?.components?.length" class="py-2">
+                                <div class="spec-cell mb-1">{{ ctrans("Contents") }}</div>
+                                <ProductComponentsList :components="product.components" class="px-2 text-xs" />
                             </div>
 
                             <!-- Barcode -->

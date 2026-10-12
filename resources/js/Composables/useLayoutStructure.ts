@@ -13,7 +13,7 @@ import { Bookmark } from '@/types/Bookmark'
 export const layoutStructure = {
     agents: {
         // currentOrganisations: '',
-        data: {} as OrganisationsData[]
+        data: [] as OrganisationsData[]
     },
     agentsState: {} as {[key: string]: OrganisationState},
     app: {
@@ -50,7 +50,7 @@ export const layoutStructure = {
         org: {} as { [key: string]: orgNavigation } | { [key: string]: Navigation } | Navigation
     },
     organisations: {
-        data: {} as OrganisationsData[]
+        data: [] as OrganisationsData[]
     },
     organisationsState: {} as {[key: string]: OrganisationState},
     shopState: {} as Shop,
