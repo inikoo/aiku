@@ -99,7 +99,7 @@ class ShowRetinaDropshippingOrder extends RetinaAction
                 'type'    => 'button',
                 'style'   => '',
                 'tooltip' => __('Review your order and let us know how we can improve our service'),
-                'label'   => __('Review'),
+                'label'   => __('Review order'),
                 'icon'    => 'fal fa-stars',
                 'route'   => [
                     'name'       => 'retina.dropshipping.customer_sales_channels.orders.review',

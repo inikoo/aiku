@@ -59,7 +59,7 @@ const organisation = computed(() => props.organisation ?? call.value?.organisati
             class="rounded bg-green-600 px-3 py-1 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             @click="answer(organisation)"
         >
-            {{ ctrans("Answer") }}
+            {{ ctrans("Answer call") }}
         </button>
 
         <button

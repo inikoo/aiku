@@ -1958,14 +1958,15 @@ test('retired product edit form hides the for sale toggle', function (Shop $shop
         ->and($fields->has('is_for_sale'))->toBeFalse();
 })->depends('create shop');
 
-test('retired product off sale hides create webpage while the replacement holds its url', function (Shop $shop) {
+test('retired product off sale offers its webpage back and hides create webpage while the replacement holds its url', function (Shop $shop) {
     [$retired] = createRetiredProductSharingReplacementWebpage($shop, [['id' => $this->tradeUnit1->id, 'quantity' => 1]]);
     $retired = RetireProductIntoReplacement::make()->action($retired);
 
     get(route('grp.org.shops.show.catalogue.products.all_products.show', [$shop->organisation->slug, $shop->slug, $retired->slug]))
         ->assertInertia(
             fn (AssertableInertia $page) => $page
-                ->where('retirement_decision', null)
+                ->where('retirement_decision.retire_route', null)
+                ->where('retirement_decision.keep_route.name', 'grp.models.product.keep_as_separate')
                 ->where('pageHead.actions', fn ($actions) => collect($actions)->doesntContain('label', 'Create Webpage'))
                 ->etc()
         );
@@ -1981,6 +1982,17 @@ test('keep retired product as separate reactivates a discontinued product', func
         ->and($retired->status)->not->toBe(ProductStatusEnum::DISCONTINUED)
         ->and($retired->webpage_id)->toBe($sharedPage->id)
         ->and($sharedPage->refresh()->state)->toBe(WebpageStateEnum::LIVE);
+})->depends('create shop');
+
+test('keep retired product as separate refuses a product exclusive to a customer', function (Shop $shop) {
+    [$retired, $replacement, $sharedPage] = createRetiredProductSharingReplacementWebpage($shop, [['id' => $this->tradeUnit1->id, 'quantity' => 1]]);
+    $owner = \App\Actions\CRM\Customer\StoreCustomer::make()->action($shop, \App\Models\CRM\Customer::factory()->definition());
+    $retired->exclusiveCustomers()->attach($owner->id);
+    $retired->update(['is_for_sale' => false]);
+
+    expect(fn () => KeepRetiredProductAsSeparate::make()->action($retired))->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and($retired->refresh()->is_for_sale)->toBeFalse()
+        ->and($sharedPage->refresh()->model_id)->toBe($replacement->id);
 })->depends('create shop');
 
 test('product webpage replaces characters not allowed in webpage urls', function (Shop $shop) {

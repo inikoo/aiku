@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage;
 use App\Models\Procurement\OrgAgent;
 
 trait WithAgentShoppingSubNavigation
@@ -29,14 +30,14 @@ trait WithAgentShoppingSubNavigation
                 "isAnchor" => true,
             ],
             [
-                "label"    => __("Browse"),
+                "label"    => __("Ordering"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.browse.index",
                     "parameters" => [$this->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-store"],
-                    "tooltip" => __("Browse"),
+                    "tooltip" => __("Ordering"),
                 ],
             ],
             [
@@ -49,8 +50,20 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", "fa-paper-plane"],
                     "tooltip" => __("Drafts to send"),
                 ],
-                "number"   => ShowAgentDraftsToSend::drafts($parent)->distinct()->count('po.supplier_id'),
+                "number"   => ShowAgentDraftsToSend::drafts($parent)->where('po.organisation_id', $parent->organisation_id)->distinct()->count('po.supplier_id'),
             ],
+            ...array_map(fn (string $stage, array $meta) => [
+                "label"    => $meta['label'],
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.stage",
+                    "parameters" => [$this->organisation->slug, $parent->slug, $stage],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", $meta['icon']],
+                    "tooltip" => $meta['title'],
+                ],
+                "number"   => $stage === ShowAgentOrderStage::DELIVERED ? null : ShowAgentOrderStage::countOurs($parent, $stage),
+            ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
             [
                 "label"    => __("Suppliers"),
                 "route"    => [

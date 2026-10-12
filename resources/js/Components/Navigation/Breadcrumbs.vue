@@ -381,7 +381,7 @@ const removeBookmark = (bookmarkToRemove: Bookmark) => {
                     :href="isLoading === 'bcUp' ? '' : props.navigation?.up?.url ? props.navigation?.up?.url : props.navigation?.up?.route?.name ? route(props.navigation.up?.route.name, props.navigation.up?.route.parameters) + urlParameter : '#'"
                     class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:bg-gray-100 cursor-pointer hover:text-indigo-500"
                     v-tooltip="props.navigation.up?.label"
-                    :aria-label="ctrans('Up')"
+                    :aria-label="ctrans('Go up a level')"
                 >
                     <LoadingIcon v-if="isLoading === 'bcUp'" />
                     <FontAwesomeIcon v-else icon="fas fa-arrow-up" class="" fixed-width aria-hidden="true" />
