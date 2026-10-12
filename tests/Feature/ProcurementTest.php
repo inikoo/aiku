@@ -2766,24 +2766,17 @@ test('UI Index org suppliers', function () {
     });
 });
 
-test('procurement navigation leaves the shopping list to each agent and separates agent suppliers', function () {
+test('procurement navigation keeps agents and free suppliers and drops the lists reached through them', function () {
     $navigation = GetOrganisationNavigation::run($this->adminGuest->getUser(), $this->organisation);
 
     expect(collect(data_get($navigation, 'procurement.topMenu.subSections'))->pluck('route.name'))
-        ->not->toContain('grp.org.procurement.shopping_list.index')
-        ->and(data_get($navigation, 'procurement.topMenu.subSections.2.route'))->toBe([
-            'name'       => 'grp.org.procurement.org_agent_suppliers.index',
-            'parameters' => [$this->organisation->slug],
-        ])
-        ->and(data_get($navigation, 'procurement.topMenu.subSections.3.route'))->toBe([
-            'name'       => 'grp.org.procurement.org_suppliers.index',
-            'parameters' => [
-                'organisation' => $this->organisation->slug,
-                '_query'       => [
-                    'sort' => 'code',
-                ],
-            ],
-        ]);
+        ->toContain('grp.org.procurement.org_agents.index', 'grp.org.procurement.org_suppliers.index')
+        ->not->toContain(
+            'grp.org.procurement.shopping_list.index',
+            'grp.org.procurement.org_agent_suppliers.index',
+            'grp.org.procurement.org_supplier_products.index',
+            'grp.org.procurement.purchase_orders.index'
+        );
 });
 
 test('UI show org supplier', function () {
