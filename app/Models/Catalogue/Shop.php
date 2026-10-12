@@ -544,6 +544,24 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopifyUser::class, 'external_shop_id');
     }
 
+    /**
+     * Where goods out lists the shop's delivery notes. A Shopify external shop ships single parcels to end
+     * customers like dropshipping does, so the warehouse finds its notes with the dropshipping ones; how a note is
+     * picked and packed still follows the shop's own type.
+     */
+    public function dispatchingChannel(): ShopTypeEnum
+    {
+        return $this->type === ShopTypeEnum::EXTERNAL && $this->engine === ShopEngineEnum::SHOPIFY
+            ? ShopTypeEnum::DROPSHIPPING
+            : $this->type;
+    }
+
+    public static function dispatchingChannelSql(string $table = 'shops'): string
+    {
+        return "(case when $table.type = '".ShopTypeEnum::EXTERNAL->value."' and $table.engine = '".ShopEngineEnum::SHOPIFY->value."' then '"
+            .ShopTypeEnum::DROPSHIPPING->value."' else $table.type end)";
+    }
+
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
