@@ -62,7 +62,8 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", $meta['icon']],
                     "tooltip" => $meta['title'],
                 ],
-                "number"   => $stage === ShowAgentOrderStage::DELIVERED ? null : ShowAgentOrderStage::countOurs($parent, $stage),
+                "number"   => ShowAgentOrderStage::countOurs($parent, $stage),
+                "active"   => request()->route('stage') === $stage,
             ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
             [
                 "label"    => __("Suppliers"),
