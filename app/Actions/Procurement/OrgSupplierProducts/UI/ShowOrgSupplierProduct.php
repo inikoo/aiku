@@ -90,6 +90,20 @@ class ShowOrgSupplierProduct extends OrgAction
                         'icon'  => ['fal', 'box-usd'],
                         'title' => __('Supplier Product'),
                     ],
+                    'actions' => [
+                        $this->organisationAgentSupplies($orgSupplierProduct) && $request->user()->authTo("procurement.{$this->organisation->id}.edit") ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'label' => __('Edit'),
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_supplier_products.edit',
+                                'parameters' => [
+                                    'organisation'       => $this->organisation->slug,
+                                    'orgSupplierProduct' => $orgSupplierProduct->slug,
+                                ],
+                            ],
+                        ] : false,
+                    ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
