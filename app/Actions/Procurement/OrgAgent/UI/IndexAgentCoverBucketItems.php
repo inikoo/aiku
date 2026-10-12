@@ -265,7 +265,7 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private function bucketLabel(): string
     {
-        return $this->bucket === null ? __('Browse') : GetAgentStockCoverBuckets::make()->bucketLabel($this->bucket);
+        return $this->bucket === null ? __('Ordering') : GetAgentStockCoverBuckets::make()->bucketLabel($this->bucket);
     }
 
     private function onDraftSql(): string

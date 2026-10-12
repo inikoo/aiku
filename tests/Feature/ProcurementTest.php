@@ -9278,7 +9278,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Browse', 'Drafts to send', 'Suppliers'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9602,7 +9602,7 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
     $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Procurement/AgentCoverBucketItems')
         ->where('bucket', null)
-        ->where('bucketLabel', 'Browse')
+        ->where('bucketLabel', 'Ordering')
         ->has('filterOptions.cover', 9)
         ->has('filterOptions.rank', 5)
         ->where('filterOptions.supplier', fn ($suppliers) => collect($suppliers)->contains('value', $supplierId))

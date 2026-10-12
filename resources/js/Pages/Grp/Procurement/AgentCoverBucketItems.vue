@@ -84,7 +84,9 @@ const readStoredView = (): ItemsView => {
     }
 }
 
-const view = ref<ItemsView>(readStoredView())
+const askedView = new URLSearchParams(window.location.search).get("view")
+
+const view = ref<ItemsView>(askedView === "list" || askedView === "cards" ? askedView : readStoredView())
 const viewOptions = [
     { label: ctrans("Cards"), value: "cards" as ItemsView, icon: faThLarge },
     { label: ctrans("List"), value: "list" as ItemsView, icon: faList },
@@ -96,7 +98,7 @@ watch(view, (value) => {
     } catch {
         return
     }
-})
+}, { immediate: true })
 
 const bucketChip: Record<string, string> = {
     "red-deep": "bg-red-100 text-red-800",

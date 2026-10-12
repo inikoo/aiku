@@ -33,7 +33,8 @@ import {
     faBan,
     faCheckSquare,
     faSquare,
-    faStore,
+    faThLarge,
+    faList,
     faArrowRight,
 } from "@fal"
 import ModalAutoFillAgentShoppingList from "@/Components/Procurement/ModalAutoFillAgentShoppingList.vue"
@@ -53,7 +54,8 @@ library.add(
     faBan,
     faCheckSquare,
     faSquare,
-    faStore,
+    faThLarge,
+    faList,
     faArrowRight
 )
 
@@ -255,6 +257,11 @@ const warehouseLegend = computed(() => [
 
 const browseRoute = computed(() => route("grp.org.procurement.org_agents.show.shopping.browse.index", [route().params.organisation, props.orgAgent.slug]))
 
+const orderingViews = computed(() => [
+    { value: "cards", label: ctrans("Cards"), icon: faThLarge, href: `${browseRoute.value}?view=cards` },
+    { value: "list", label: ctrans("Table"), icon: faList, href: `${browseRoute.value}?view=list` },
+])
+
 const bucketItemsRoute = (bucket: string, rank?: string) =>
     `${route("grp.org.procurement.org_agents.show.shopping.items.index", [route().params.organisation, props.orgAgent.slug])}?cover=${bucket}${rank ? `&rank=${rank}` : ""}`
 
@@ -355,10 +362,13 @@ const openAutoFill = (bucket: CoverBucket) => {
                         <p class="mt-1 text-xs leading-5 text-gray-500">
                             {{ ctrans(":total products in their catalogue, grouped by how long our stock lasts against a :days day lead time", { total: locale.number(coverTotal), days: leadTime.days }) }}
                         </p>
-                        <Link :href="browseRoute" class="group mt-1 inline-flex items-start gap-1.5 text-xs font-medium text-gray-700">
-                            <FontAwesomeIcon :icon="faStore" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
-                            <span class="underline decoration-dotted underline-offset-2 group-hover:decoration-solid">{{ ctrans("Browse or search the whole catalogue") }}</span>
-                        </Link>
+                        <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-gray-700">
+                            <span class="font-normal text-gray-500">{{ ctrans("Order from the whole catalogue") }}:</span>
+                            <Link v-for="orderingView in orderingViews" :key="orderingView.value" :href="orderingView.href" class="group inline-flex items-center gap-1.5">
+                                <FontAwesomeIcon :icon="orderingView.icon" class="text-gray-400" fixed-width aria-hidden="true" />
+                                <span class="underline decoration-dotted underline-offset-2 group-hover:decoration-solid">{{ orderingView.label }}</span>
+                            </Link>
+                        </div>
                     </div>
 
                     <div v-if="coverTotal" v-show="stockCoverOpen" class="flex min-w-0 grow flex-wrap items-center gap-x-8 gap-y-4 2xl:flex-nowrap">
