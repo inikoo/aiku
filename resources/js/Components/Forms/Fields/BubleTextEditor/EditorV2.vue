@@ -413,12 +413,53 @@ function updateLink(value?: string) {
         return
     }
 
-    editorInstance.value
-        ?.chain()
+    const editor = editorInstance.value
+    if (!editor) {
+        return
+    }
+
+    if (!editor.state.selection.empty || editor.isActive("link")) {
+        editor.chain().focus().extendMarkRange("link").setLink({ href: value }).run()
+        return
+    }
+
+    const wordRange = getWordRangeAtCursor()
+    if (wordRange) {
+        editor.chain().focus().setTextSelection(wordRange).setLink({ href: value }).run()
+        return
+    }
+
+    editor
+        .chain()
         .focus()
-        .extendMarkRange("link")
-        .setLink({ href: value })
+        .insertContent({ type: "text", text: value, marks: [{ type: "link", attrs: { href: value } }] })
         .run()
+}
+
+function getWordRangeAtCursor(): { from: number, to: number } | null {
+    const selectionStart = editorInstance.value?.state.selection.$from
+    if (!selectionStart || !selectionStart.parent.isTextblock) {
+        return null
+    }
+
+    const leafPlaceholder = " "
+    const blockText = selectionStart.parent.textBetween(0, selectionStart.parent.content.size, undefined, leafPlaceholder)
+    const isWordCharacter = (index: number): boolean => index >= 0 && index < blockText.length && /\S/.test(blockText[index])
+
+    let wordStart = selectionStart.parentOffset
+    let wordEnd = selectionStart.parentOffset
+    while (isWordCharacter(wordStart - 1)) {
+        wordStart -= 1
+    }
+    while (isWordCharacter(wordEnd)) {
+        wordEnd += 1
+    }
+
+    if (wordStart === wordEnd) {
+        return null
+    }
+
+    return { from: selectionStart.start() + wordStart, to: selectionStart.start() + wordEnd }
 }
 
 
