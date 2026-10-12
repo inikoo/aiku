@@ -11,6 +11,10 @@ import { ctrans } from '@/Composables/useTrans'
 import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
 import { QrcodeStream } from 'vue-qrcode-reader'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faPause, faShare, faCheck, faTimes, faExclamationTriangle } from '@fal'
+library.add(faPause, faShare, faCheck, faTimes, faExclamationTriangle)
 
 const props = defineProps<{
     session: {
@@ -25,7 +29,9 @@ const props = defineProps<{
             job_order_reference: string | null
             quantity_made: number
             quantity_required: number
+            continued_from?: string | null
         }
+        carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
         break_minutes: number
         band_feedback: null | {
@@ -97,6 +103,10 @@ const nextBand = computed(() => {
 })
 
 const askOutcome = ref(false)
+const confirmingMove = ref(false)
+const closedAt = computed(() => props.session.carry ? Math.floor((props.session.task.quantity_made + (quantityMade.value ?? 0)) / props.session.carry.units_per_artefact) : 0)
+const movedOn = computed(() => props.session.carry ? Math.max(0, props.session.carry.quantity - closedAt.value) : 0)
+const canMove = computed(() => !props.session.carry || (closedAt.value >= 1 && movedOn.value > 0))
 const confirming = ref(false)
 const isShort = computed(() => quantityMade.value !== null && quantityMade.value < remaining.value)
 const surplus = computed(() => quantityMade.value === null ? 0 : Math.max(0, quantityMade.value - remaining.value))
@@ -158,6 +168,7 @@ function finishActivity() {
 function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager: { manager_code: string, manager_method: 'qr' | 'pin' } | null = null) {
     if (quantityMade.value === null) return
     askOutcome.value = false
+    confirmingMove.value = false
     processing.value = true
     router.patch(
         route(props.session.close_route.name, props.session.close_route.parameters),
@@ -238,6 +249,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 </div>
                 <div class="text-lg text-gray-500 mt-1">
                     {{ ctrans('Job order') }} {{ session.task.job_order_reference }}
+                    <span v-if="session.task.continued_from"> · {{ ctrans('Continued from :reference', { reference: session.task.continued_from }) }}</span>
                 </div>
                 <button
                     type="button"
@@ -349,19 +361,50 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 <div><span class="text-4xl font-semibold tabular-nums text-green-700">{{ quantityMade }}</span> <span class="text-lg text-gray-600">{{ ctrans('done') }}</span></div>
                 <div><span class="text-4xl font-semibold tabular-nums text-amber-700">{{ Math.max(0, remaining - (quantityMade ?? 0)) }}</span> <span class="text-lg text-gray-600">{{ ctrans('to do') }}</span></div>
             </div>
-            <div class="mt-3 grid gap-3 sm:grid-cols-3">
-                <button type="button" class="rounded-lg bg-[--app-accent] text-[--app-accent-text] text-xl font-semibold py-4 disabled:opacity-40"
-                    :disabled="processing" @click="closeSession('carry_over')">
-                    {{ ctrans('Continue later') }}
-                    <div class="text-xs font-normal opacity-80">{{ ctrans('The rest keeps this job number') }}</div>
+            <div v-if="confirmingMove" class="mt-3">
+                <div class="text-2xl font-semibold">
+                    {{ session.carry
+                        ? ctrans('Close job :reference at :made and move the remaining :left to new job :new?', { reference: session.task.job_order_reference, made: closedAt, left: movedOn, new: session.carry.reference })
+                        : ctrans('Close these jobs at what was made and move what is left of each to a new job?') }}
+                </div>
+                <div class="mt-1 text-lg text-gray-700">{{ ctrans('This job is closed and cannot be continued. The new job gets its own batch code. If it is the same mix, go back and pause instead.') }}</div>
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                    <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
+                        @click="confirmingMove = false">
+                        <FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" />
+                        {{ ctrans('Back') }}
+                    </button>
+                    <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 disabled:opacity-40"
+                        :disabled="processing" @click="closeSession('carry_over')">
+                        <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width class="text-amber-500" aria-hidden="true" />
+                        {{ ctrans('Yes, close and move') }}
+                    </button>
+                </div>
+            </div>
+            <div v-else class="mt-3 grid gap-3 sm:grid-cols-2">
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
+                    :disabled="processing" @click="closeSession()">
+                    <FontAwesomeIcon :icon="['fal', 'pause']" fixed-width class="text-amber-500" aria-hidden="true" />
+                    {{ ctrans('Pause') }}
+                    <div class="text-sm font-normal text-gray-500">{{ ctrans('Same mix: carry on later with job :reference, same batch code', { reference: session.task.job_order_reference }) }}</div>
                 </button>
-                <button type="button" class="rounded-lg bg-green-600 text-white text-xl font-semibold py-4 disabled:opacity-40"
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
+                    :disabled="processing || !canMove" @click="confirmingMove = true">
+                    <FontAwesomeIcon :icon="['fal', 'share']" fixed-width class="text-[--app-accent]" aria-hidden="true" />
+                    {{ session.carry
+                        ? ctrans('Close at :made and move remaining :left to new job :new', { made: closedAt, left: movedOn, new: session.carry.reference })
+                        : ctrans('Close and move what is left to new jobs') }}
+                    <div class="text-sm font-normal text-gray-500">{{ canMove ? ctrans('New mix: the rest gets a new batch code') : ctrans('Nothing finished yet to close this job with, pause instead') }}</div>
+                </button>
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
                     :disabled="processing" @click="closeSession('complete')">
+                    <FontAwesomeIcon :icon="['fal', 'check']" fixed-width class="text-green-600" aria-hidden="true" />
                     {{ ctrans('Job finished') }}
-                    <div class="text-xs font-normal opacity-80">{{ ctrans('Close with what was made') }}</div>
+                    <div class="text-sm font-normal text-gray-500">{{ ctrans('Close with what was made, nothing more to make') }}</div>
                 </button>
-                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3"
                     @click="askOutcome = false">
+                    <FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" />
                     {{ ctrans('Back') }}
                 </button>
             </div>

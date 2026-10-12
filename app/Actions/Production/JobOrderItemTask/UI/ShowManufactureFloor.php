@@ -9,6 +9,7 @@
 namespace App\Actions\Production\JobOrderItemTask\UI;
 
 use App\Actions\Production\JobOrderItem\GetJobOrderItemMissingMixes;
+use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Actions\OrgAction;
 use App\Actions\Production\Production\UI\ShowProduction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
@@ -43,6 +44,9 @@ class ShowManufactureFloor extends OrgAction
     private array $combinedGroups = [];
 
     private bool $canCombine = false;
+
+    /** @var array<int, string|null> reference of the job order a job's remainder was carried to, by its id */
+    private array $carriedToReferences = [];
 
     public function handle(Production $production): Production
     {
@@ -245,6 +249,7 @@ class ShowManufactureFloor extends OrgAction
                     ],
                     'band_feedback' => $this->bandFeedback($openSession),
                     'break_minutes' => (int) $openSession->break_minutes,
+                    'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,
                 'can_pick_open_jobs' => $canPickOpenJobs,
@@ -410,6 +415,8 @@ class ShowManufactureFloor extends OrgAction
             'artefact_code'       => $members->map(fn (JobOrderItemTask $member) => $member->jobOrderItem->artefact->code)->unique()->implode(' + '),
             'artefact_name'       => $isCombined ? __('Combined batch') : $task->jobOrderItem->artefact->name,
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),
+            'continued_from'      => Arr::has($task->jobOrder->data, 'carried_from') ? SettleShortJobOrderItemTask::baseReference($task->jobOrder) : null,
+            'continued_in'        => $this->continuedIn($task),
             'artisan'             => $task->jobOrderItem->artisan()?->contact_name,
             'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->jobOrderItem->artisanId() == $this->employee->id),
             'waiting_for'         => $members->flatMap(fn (JobOrderItemTask $member) => $this->missingMixes[$member->job_order_item_id] ??= array_column(GetJobOrderItemMissingMixes::run($member->jobOrderItem), 'code'))->unique()->values()->all(),
@@ -434,6 +441,13 @@ class ShowManufactureFloor extends OrgAction
                 'method'     => 'post',
             ],
         ];
+    }
+
+    private function continuedIn(JobOrderItemTask $task): ?string
+    {
+        $carriedToId = Arr::get($task->jobOrderItem->data, 'carried_to');
+
+        return $carriedToId ? $this->carriedToReferences[$carriedToId] ??= JobOrder::withTrashed()->whereKey($carriedToId)->value('reference') : null;
     }
 
     /**
