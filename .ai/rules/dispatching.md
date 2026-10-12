@@ -13,3 +13,6 @@ Decided 10 Oct 2026 (INI-073), not open to exceptions per person or per shop typ
 - Undoing a dispatch is `canBeUndispatchedBy()` (dispatching supervisor or organisation admin) from the delivery note and from the order page (`Order::canBeUndispatchedBy()`, every note of the order). Accounting edit does not grant it.
 - Trolley and picked bay pages open with a permission on that warehouse (dispatching, fulfilment or locations view) through `WithDispatchingEquipmentAuthorisation`; creating and editing them stays with locations edit. Organisation-wide inventory permissions do not open them.
 - A button must not be shown to someone the action will refuse: pages send `can_work` / `is_editable` computed from the same rule as the action.
+
+## Staff notes on a delivery note stay editable by customer service
+HELP-3879 (12 Oct 2026). The warehouse note and shipping label note (`DeliveryNote::STAFF_NOTE_FIELDS`) are how customer service tell the warehouse what to check, e.g. on a replacement. Rule: `DeliveryNote::canBeNotedBy()` (warehouse rule or `orders.{shop}.edit`). `UpdateDeliveryNote` lets a non-warehouse user through only when the request carries nothing but those fields; any other field, or an empty request, still needs `canBeWorkedOnBy()`. The note boxes' `editable` flag uses the same rule.
