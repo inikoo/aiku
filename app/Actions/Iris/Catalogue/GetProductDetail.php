@@ -13,7 +13,9 @@ use App\Actions\Catalogue\Product\GetProductIncomingStock;
 use App\Actions\IrisAction;
 use App\Actions\Web\WebBlock\Concerns\HasWebBlockProductAttachments;
 use App\Enums\Discounts\Offer\OfferStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Discounts\Offer\OfferTypeEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Http\Resources\Traits\HasPriceMetrics;
 use App\Models\Catalogue\Product;
 use App\Models\Discounts\Offer;
@@ -96,10 +98,14 @@ class GetProductDetail extends IrisAction
 
         $ingredients = $product->marketing_ingredients;
         $dimensions  = $this->dimensions($product->marketing_dimensions);
+        $cpnp        = $product->cpnp_number;
+        $components  = [];
 
         if ($tradeUnits->count() > 1) {
-            $ingredients = $this->perTradeUnit($tradeUnits, fn ($tradeUnit) => $tradeUnit->marketing_ingredients);
-            $dimensions  = $this->perTradeUnit($tradeUnits, fn ($tradeUnit) => $this->dimensions($tradeUnit->marketing_dimensions));
+            $ingredients = null;
+            $dimensions  = null;
+            $cpnp        = null;
+            $components  = $this->components($product, $tradeUnits);
         }
 
         $specifications = [
@@ -108,7 +114,7 @@ class GetProductDetail extends IrisAction
             'gross_weight'        => $product->gross_weight,
             'barcode'             => $product->barcode,
             'dimensions'          => $dimensions,
-            'cpnp'                => $product->cpnp_number,
+            'cpnp'                => $cpnp,
             'marketing_weight'    => $product->marketing_weight,
             'unit'                => $product->unit,
         ];
@@ -130,6 +136,7 @@ class GetProductDetail extends IrisAction
             'step_discount'              => $this->getStepDiscount($product),
             'tags'                       => TagResource::collection($product->tags)->toArray($request),
             'specifications'             => $specifications,
+            'components'                 => $components,
             'attachments'                => $this->getProductAttachments($product->id),
             'allow_stocks_to_be_shown_on_iris'          => $isStockShown,
             'allow_incoming_stocks_to_be_shown_on_iris' => $isIncomingStockShown,
@@ -144,23 +151,46 @@ class GetProductDetail extends IrisAction
     }
 
     /**
-     * A product made of several trade units, a bundle or a starter, says which of its
-     * components each value belongs to, so one component's ingredients or measurements
-     * are never read as the whole product's.
+     * A product made of several trade units, a bundle or a starter, lists its components
+     * instead of merging their ingredients, sizes and CPNP numbers into one unreadable
+     * value. Each component links to the page of the product sold on its own in the same
+     * shop, where its full specification is; one without such a page keeps its ingredients.
+     *
+     * @return array<int, array{code: string, name: string, quantity: float, url: ?string, ingredients: ?string}>
      */
-    private function perTradeUnit(Collection $tradeUnits, callable $value): ?string
+    private function components(Product $product, Collection $tradeUnits): array
     {
-        $parts = [];
+        $componentProducts = Product::where('shop_id', $product->shop_id)
+            ->where('is_single_trade_unit', true)
+            ->whereIn('state', [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING])
+            ->whereHas('webpage', fn ($query) => $query->where('state', WebpageStateEnum::LIVE))
+            ->whereHas('tradeUnits', fn ($query) => $query->whereIn('trade_units.id', $tradeUnits->pluck('id')))
+            ->with(['webpage', 'tradeUnits'])
+            ->orderBy('id')
+            ->get();
 
-        foreach ($tradeUnits->sortBy('id') as $tradeUnit) {
-            $tradeUnitValue = $value($tradeUnit);
-
-            if (filled($tradeUnitValue)) {
-                $parts[] = $tradeUnit->code.' ('.$tradeUnitValue.')';
+        $productByTradeUnit = [];
+        foreach ($componentProducts as $componentProduct) {
+            foreach ($componentProduct->tradeUnits as $tradeUnit) {
+                $productByTradeUnit[$tradeUnit->id] ??= $componentProduct;
             }
         }
 
-        return $parts ? implode(', ', $parts) : null;
+        $components = [];
+        foreach ($tradeUnits->sortBy('code', SORT_NATURAL | SORT_FLAG_CASE) as $tradeUnit) {
+            /** @var Product|null $componentProduct */
+            $componentProduct = $productByTradeUnit[$tradeUnit->id] ?? null;
+
+            $components[] = [
+                'code'        => $componentProduct?->code ?? $tradeUnit->code,
+                'name'        => $componentProduct?->name ?? $tradeUnit->name,
+                'quantity'    => (float)$tradeUnit->pivot->quantity,
+                'url'         => $componentProduct?->webpage->getCanonicalUrl(),
+                'ingredients' => $componentProduct || blank($tradeUnit->marketing_ingredients) ? null : $tradeUnit->marketing_ingredients,
+            ];
+        }
+
+        return $components;
     }
 
     public function asController(Product $product, ActionRequest $request): Product
