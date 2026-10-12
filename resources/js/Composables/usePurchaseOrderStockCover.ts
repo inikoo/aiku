@@ -113,6 +113,7 @@ export function usePurchaseOrderStockCover(getItem: () => any, getIsPartner: () 
 		coverDays,
 		hasHistory,
 		targetDays,
+		cartonSkos,
 		suggestion,
 		weeksLabel,
 	}

@@ -21,12 +21,13 @@ const props = defineProps<{
 	isOrderClosed?: boolean
 	isOrderLocked?: boolean
 	hideComing?: boolean
+	inCartons?: boolean
 }>()
 
 const locale = useLocaleStore()
 const routeParams = route().params
 
-const { pack, cover, dailyUsage, leadDays, overstockDays, stock, comingDeliveries, otherOrders, incoming, coverDays, hasHistory, suggestion, weeksLabel } =
+const { pack, cover, dailyUsage, leadDays, overstockDays, stock, comingDeliveries, otherOrders, incoming, coverDays, hasHistory, cartonSkos, suggestion, weeksLabel } =
 	usePurchaseOrderStockCover(
 		() => props.item,
 		() => props.isPartner
@@ -197,6 +198,17 @@ const overstockMarkerTooltip = computed(() =>
 
 const formatNumber = (value: number) => locale.number(Math.round(value))
 
+const salesFactor = computed(() => (props.inCartons ? cartonSkos.value : 1))
+const formatSales = (skos: number) => {
+	if (!props.inCartons) {
+		return formatNumber(skos)
+	}
+	const cartons = (Number(skos) || 0) / salesFactor.value
+
+	return locale.number(Math.round(cartons * (cartons < 1 ? 100 : 10)) / (cartons < 1 ? 100 : 10))
+}
+const formatSkos = (skos: number) => ctrans(":quantity SKOs", { quantity: formatNumber(skos) })
+
 const currentQuarter = (() => {
 	const now = new Date()
 	return `${now.getFullYear()}Q${Math.floor(now.getMonth() / 3) + 1}`
@@ -342,7 +354,7 @@ function purchaseOrderRoute(slug: string) {
 				@mouseenter="showQuarterChart"
 				@mouseleave="hideQuarterChart">
 				<div v-for="record in quarters" :key="record.period" class="flex w-4 flex-col items-center">
-					<span class="text-[8px] leading-none text-gray-500">{{ formatCompact(record.sales) }}</span>
+					<span class="text-[8px] leading-none text-gray-500">{{ inCartons ? formatSales(record.sales) : formatCompact(record.sales) }}</span>
 					<div class="relative mt-0.5 flex h-5 w-2.5 items-end">
 						<div
 							class="flex w-full flex-col overflow-hidden rounded-sm"
@@ -357,15 +369,20 @@ function purchaseOrderRoute(slug: string) {
 			<Popover v-if="isQuarterChartMounted" ref="quarterChartPopover" class="pointer-events-none">
 				<div class="w-96 p-1 text-xs text-gray-600">
 					<div class="mb-3 flex items-baseline justify-between">
-						<span class="text-sm font-semibold text-gray-800">{{ ctrans("Sales per quarter") }}</span>
+						<span class="text-sm font-semibold text-gray-800">{{ inCartons ? ctrans("Sales per quarter, in cartons") : ctrans("Sales per quarter") }}</span>
 						<span v-if="salesPerQuarter !== null" class="text-gray-500">
-							{{ ctrans("avg :quantity SKOs", { quantity: formatNumber(salesPerQuarter) }) }}
+							<template v-if="inCartons">
+								{{ ctrans("avg :quantity cartons", { quantity: formatSales(salesPerQuarter) }) }}
+								<span class="text-[10px] text-gray-400">· {{ formatSkos(salesPerQuarter) }}</span>
+							</template>
+							<template v-else>{{ ctrans("avg :quantity SKOs", { quantity: formatNumber(salesPerQuarter) }) }}</template>
 						</span>
 					</div>
 
 					<div class="flex h-36 items-end gap-3 border-b border-gray-200 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex h-full flex-1 flex-col items-center justify-end">
-							<span class="mb-1 font-semibold tabular-nums text-gray-700">{{ formatNumber(record.sales) }}</span>
+							<span class="font-semibold tabular-nums text-gray-700" :class="inCartons ? '' : 'mb-1'">{{ formatSales(record.sales) }}</span>
+							<span v-if="inCartons" class="mb-1 text-[10px] tabular-nums leading-none text-gray-400">{{ formatSkos(record.sales) }}</span>
 							<div
 								class="relative flex w-full max-w-[2.75rem] flex-col rounded-t-md"
 								:class="isCurrentQuarter(record) ? 'bg-gray-200' : 'bg-gray-400'"
@@ -399,7 +416,8 @@ function purchaseOrderRoute(slug: string) {
 									:class="isSingleCustomerQuarter(record) ? 'bg-amber-500' : 'bg-gray-300'" />
 								<span class="truncate" :class="isSingleCustomerQuarter(record) ? 'font-medium text-gray-800' : ''">{{ record.top_customer.name }}</span>
 								<span class="ml-auto shrink-0 tabular-nums text-gray-500">
-									{{ formatNumber(record.top_customer.sales) }}
+									{{ formatSales(record.top_customer.sales) }}
+									<span v-if="inCartons" class="text-[10px] text-gray-400">({{ formatSkos(record.top_customer.sales) }})</span>
 									<span :class="isSingleCustomerQuarter(record) ? 'font-semibold text-amber-700' : ''">· {{ customerShare(record) }}%</span>
 								</span>
 							</div>
