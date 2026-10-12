@@ -170,6 +170,8 @@ export const useStaffMessaging = defineStore("staff-messaging", {
     actions: {
         async fetchConversations() {
             const { data } = await axios.get(route("grp.chat.staff.conversations.index"))
+            if (!Array.isArray(data?.data)) return
+
             this.conversations = data.data
             this.fetched = true
 
