@@ -1809,8 +1809,8 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 <Button v-if="routes.redispatch" @click="onRedispatch"
                     type="save"
                     :loading="isLoadingButton === 'redispatch'"
-                    :tooltip="ctrans('Dispatch the order')"
-                    :label="ctrans('Dispatch')"
+                    :tooltip="isCollection ? ctrans('Set the order as collected') : ctrans('Dispatch the order')"
+                    :label="isCollection ? ctrans('Set as collected') : ctrans('Dispatch')"
                     icon="fal fa-truck"
                     full />
 
