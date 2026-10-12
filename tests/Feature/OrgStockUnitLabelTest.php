@@ -30,6 +30,7 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Models\Helpers\Country;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use ReflectionClass;
 
 use function Pest\Laravel\actingAs;
@@ -333,4 +334,20 @@ test('a single trade unit SKO without a unit EAN takes the next free one from th
     UpdateOrgStockUnitBarcode::make()->handle($orgStock, ['from_pool' => true]);
 
     expect($orgStock->tradeUnits->first()->refresh()->barcode)->toBe($expected->number);
+});
+
+test('a unit EAN held by another trade unit is refused naming that item by code and name', function () {
+    $number = '50'.substr((string) hrtime(true), -11);
+
+    $holderOrgStock = ($this->makeOrgStock)([['name' => 'Loose Massage Soap']], null);
+    UpdateOrgStockUnitBarcode::make()->handle($holderOrgStock, ['unit_barcode' => $number]);
+    $holder = $holderOrgStock->tradeUnits->first()->refresh();
+
+    $orgStock = ($this->makeOrgStock)([['barcode' => null, 'barcode_id' => null]], null);
+
+    expect(fn () => UpdateOrgStockUnitBarcode::make()->handle($orgStock, ['unit_barcode' => $number]))
+        ->toThrow(ValidationException::class, $holder->code.' (Loose Massage Soap)');
+
+    expect($orgStock->tradeUnits->first()->refresh()->barcode)->toBeNull()
+        ->and($holder->refresh()->barcode)->toBe($number);
 });

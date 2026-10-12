@@ -2273,7 +2273,7 @@
     "Banners": "Bannery",
     "Barcode": "Čiarový kód",
     "Barcode / EAN": "Čiarový kód / EAN",
-    "Barcode :number is already assigned to trade unit :code.": "Čiarový kód :number je už priradený obchodnej jednotke :code.",
+    "Barcode :number already belongs to a different item, :item. Each item needs its own barcode.": "Čiarový kód :number už patrí inej položke, :item. Každá položka potrebuje vlastný čiarový kód.",
     "Barcode Number": "Číslo čiarového kódu",
     "Barcode Scanner": "Skener čiarových kódov",
     "Barcode Scanner Configuration": "Konfigurácia čítačky čiarových kódov",
