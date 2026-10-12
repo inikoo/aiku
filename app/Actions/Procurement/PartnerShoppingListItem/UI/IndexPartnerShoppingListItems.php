@@ -340,7 +340,7 @@ class IndexPartnerShoppingListItems extends OrgAction
                 'orders.reference as order_reference',
                 'orders.state as order_state',
                 DB::raw("(select coalesce(sum(location_org_stocks.quantity), 0) from location_org_stocks
-                    where location_org_stocks.location_id = ".OrgPartner::bayIdSql('seller_partner', '(select stocks.is_cosmetic from stocks where stocks.id = partner_shopping_list_items.stock_id)')."
+                    where location_org_stocks.location_id = ".OrgPartner::bayIdSql('seller_partner', 'partner_shopping_list_items.stock_id')."
                         and location_org_stocks.org_stock_id = partner_org_stocks.id) as quantity_staged"),
                 DB::raw("(select delivery_notes.reference from delivery_notes
                     join delivery_note_order on delivery_note_order.delivery_note_id = delivery_notes.id
@@ -591,9 +591,11 @@ class IndexPartnerShoppingListItems extends OrgAction
             ->selectRaw('sum(job_order_item_tasks.quantity_made) as made, sum(job_order_item_tasks.quantity_required) as required, min(job_order_item_tasks.position) as position')
             ->selectRaw("(select string_agg(distinct employees.alias, ', ') from manufacture_task_sessions
                 join employees on employees.id = manufacture_task_sessions.employee_id
-                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))) as who")
+                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))
+                   or manufacture_task_sessions.id in (select manufacture_task_session_id from manufacture_task_session_shares where job_order_item_task_id = any(array_agg(job_order_item_tasks.id)))) as who")
             ->selectRaw('(select max(coalesce(manufacture_task_sessions.ended_at, manufacture_task_sessions.started_at)) from manufacture_task_sessions
-                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))) as last_at')
+                where manufacture_task_sessions.job_order_item_task_id = any(array_agg(job_order_item_tasks.id))
+                   or manufacture_task_sessions.id in (select manufacture_task_session_id from manufacture_task_session_shares where job_order_item_task_id = any(array_agg(job_order_item_tasks.id)))) as last_at')
             ->orderBy('position')
             ->get()
             ->groupBy('item_id')

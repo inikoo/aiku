@@ -59,6 +59,7 @@ use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\RecipeStepRawMaterial;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
+use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -2477,13 +2478,13 @@ describe('production reward pay bands', function () {
         expect(
             fn () => \App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession::make()->action($session, [
                 'quantity_made' => 0,
-                'activity_type' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::CLEANING->value,
+                'activity_type' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::MAINTENANCE->value,
             ])
         )->toThrow(\Illuminate\Validation\ValidationException::class);
 
         $closed = \App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession::make()->action($session, [
             'quantity_made'         => 0,
-            'activity_type'         => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::CLEANING->value,
+            'activity_type'         => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::MAINTENANCE->value,
             'non_productive_reason' => 'End of shift line clean',
         ]);
 
@@ -2533,6 +2534,24 @@ describe('production reward pay bands', function () {
             ->and($closed->is_under_target)->toBeFalse();
     });
 
+    test('a short session well above a low step target is not flagged', function () {
+        AttachManufactureTaskToArtefact::make()->action($this->artefact, [
+            'manufacture_task_id' => $this->manufactureTask->id,
+            'position'            => 1,
+            'units_per_artefact'  => 1,
+            'standard_rate'       => 1,
+        ]);
+
+        $openSession = makePayBandSession($this->payBandJobOrderItemTask, 0, 1);
+        $openSession->update(['state' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN, 'started_at' => now()->subMinute(), 'ended_at' => null, 'break_minutes' => 0]);
+
+        $closed = CloseManufactureTaskSession::make()->action($openSession, ['quantity_made' => 1])->refresh();
+
+        expect((float) $closed->standard_rate)->toBe(1.0)
+            ->and($closed->paidHours())->toBeLessThan(0.1)
+            ->and($closed->is_under_target)->toBeFalse();
+    });
+
     test('a session closed below its step target is flagged and a manager logs the reason', function () {
         AttachManufactureTaskToArtefact::make()->action($this->artefact, [
             'manufacture_task_id' => $this->manufactureTask->id,
@@ -2564,6 +2583,83 @@ describe('production reward pay bands', function () {
         expect(fn () => \App\Actions\Production\ManufactureTaskSession\ReviewUnderTargetManufactureTaskSession::make()->action($onTarget, auth()->user(), [
             'under_target_reason' => 'other',
         ]))->toThrow(\Illuminate\Validation\ValidationException::class);
+    });
+
+    test('job lines that share a step are made as one combined batch and the quantity and time are shared back to each line', function () {
+        $suffix    = rand(10000, 99999);
+        $artefacts = collect(['CMB-A', 'CMB-B'])->map(function (string $code) use ($suffix) {
+            $artefact = StoreArtefact::make()->action($this->production, ['code' => $code.$suffix, 'name' => 'Combined '.$code]);
+            $artefact->manufactureTasks()->sync([]);
+            AttachManufactureTaskToArtefact::make()->action($artefact, [
+                'manufacture_task_id' => $this->manufactureTask->id,
+                'position'            => 1,
+                'units_per_artefact'  => 1,
+                'standard_rate'       => 21,
+            ]);
+
+            return $artefact->refresh();
+        });
+
+        $tasks = $artefacts->map(function (Artefact $artefact) {
+            $jobOrder = StoreJobOrder::make()->action($this->production, []);
+            $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 100]);
+            ConfirmJobOrder::make()->action($jobOrder);
+
+            return $item->tasks()->first();
+        });
+        [$taskA, $taskB] = $tasks->all();
+
+        $combineUrl = route('grp.models.production.combined_task.store', ['production' => $this->production->id]);
+        \Pest\Laravel\post($combineUrl, ['job_order_item_task_ids' => [$taskA->id]])->assertSessionHasErrors('job_order_item_task_ids');
+        \Pest\Laravel\post($combineUrl, ['job_order_item_task_ids' => [$taskA->id, $taskB->id]])->assertSessionHasNoErrors();
+        \Pest\Laravel\post($combineUrl, ['job_order_item_task_ids' => [$taskA->id, $taskB->id]])->assertSessionHasErrors('job_order_item_task_ids');
+
+        expect($taskA->refresh()->combined_task_id)->toBe($taskA->id)
+            ->and($taskB->refresh()->combined_task_id)->toBe($taskA->id);
+
+        $floorTasks = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+            ->viewData('page')['props']['tasks'])->whereIn('id', [$taskA->id, $taskB->id]);
+        expect($floorTasks)->toHaveCount(1)
+            ->and($floorTasks->first()['quantity_required'])->toBe(200.0)
+            ->and(collect($floorTasks->first()['combined'])->pluck('id')->all())->toBe([$taskA->id, $taskB->id])
+            ->and($floorTasks->first()['separate_route'])->not->toBeNull();
+
+        $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $taskB);
+        expect($session->job_order_item_task_id)->toBe($taskA->id)
+            ->and($session->is_combined)->toBeTrue()
+            ->and($taskB->refresh()->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS);
+
+        expect(fn () => \App\Actions\Production\JobOrderItemTask\SeparateJobOrderItemTasks::make()->action($taskA))
+            ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+        $session->update(['started_at' => now()->subHours(8)]);
+        $closed = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 200])->refresh();
+
+        expect((float) $closed->quantity_made)->toBe(200.0)
+            ->and((float) $closed->standard_rate)->toBe(21.0)
+            ->and($closed->is_under_target)->toBeFalse()
+            ->and($closed->band_code)->toBe('3')
+            ->and((float) $closed->pay)->toBe(120.0)
+            ->and($closed->shares->pluck('quantity_made', 'job_order_item_task_id')->map(fn ($quantity) => (float) $quantity)->all())->toBe([$taskA->id => 100.0, $taskB->id => 100.0])
+            ->and((float) $taskA->refresh()->quantity_made)->toBe(100.0)
+            ->and((float) $taskB->refresh()->quantity_made)->toBe(100.0)
+            ->and($taskA->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+            ->and($taskB->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+
+        $item = collect(get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $taskB->jobOrder->slug]))
+            ->viewData('page')['props']['items'])->first();
+        expect($item['tasks'][0]['combined_with'])->toBe($artefacts[0]->code.' ('.$taskA->jobOrder->reference.')');
+
+        \App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession::make()->action($closed);
+        expect((float) $taskA->refresh()->quantity_made)->toBe(0.0)
+            ->and((float) $taskB->refresh()->quantity_made)->toBe(0.0);
+
+        \App\Actions\Production\JobOrderItemTask\SeparateJobOrderItemTasks::make()->action($taskA);
+        expect($taskA->refresh()->combined_task_id)->toBeNull()
+            ->and($taskB->refresh()->combined_task_id)->toBeNull();
+
+        expect(CloseManufactureTaskSession::apportion(201, collect([$taskA->id => 0.5, $taskB->id => 0.5])))->toBe([$taskA->id => 101.0, $taskB->id => 100.0])
+            ->and(CloseManufactureTaskSession::apportion(10.5, collect([$taskA->id => 0.5, $taskB->id => 0.5])))->toBe([$taskA->id => 5.25, $taskB->id => 5.25]);
     });
 
     test('changing a recipe step position keeps its target', function () {
@@ -3633,7 +3729,7 @@ test('to restock leaves out stocks whose only products are exclusive to a privat
     $product->update(['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE, 'exclusive_for_customer_id' => $customer->id]);
 
     actingAs($this->guest->getUser());
-    $url   = route('grp.org.productions.show.to_restock.index', [$this->organisation->slug, $this->production->slug]);
+    $url   = route('grp.org.productions.show.to_restock.index', [$this->organisation->slug, $this->production->slug, 'perPage' => 1000]);
     $codes = fn () => collect(get($url)->assertOk()->viewData('page')['props']['data']['data'])->pluck('stock_code');
 
     expect($codes())->not->toContain($orgStocks[0]->code);
@@ -3649,13 +3745,10 @@ test('to restock leaves out stocks whose only products are exclusive to a privat
 });
 
 test('to restock hides stocks one private customer took almost all of, once hydrated', function () {
-    $stocks    = createStocks($this->group);
-    $orgStocks = createOrgStocks($this->organisation, [$stocks[0], $stocks[1]]);
-
-    \App\Models\Production\Artefact::where('production_id', $this->production->id)
-        ->whereIn('org_stock_id', [$orgStocks[0]->id, $orgStocks[1]->id])
-        ->update(['org_stock_id' => null]);
-    \App\Models\Procurement\PartnerShoppingListItem::whereIn('stock_id', collect($orgStocks)->pluck('stock_id'))->forceDelete();
+    $orgStocks = collect([0, 1])->map(fn () => \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action(
+        $this->organisation,
+        \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, array_merge(\App\Models\Goods\Stock::factory()->definition(), ['state' => \App\Enums\Goods\Stock\StockStateEnum::ACTIVE]))
+    ))->all();
 
     foreach ([0, 1] as $index) {
         $artefact = StoreArtefact::make()->action($this->production, ['code' => 'RES-TOP'.$index, 'name' => 'Top customer '.$index]);
@@ -3688,7 +3781,7 @@ test('to restock hides stocks one private customer took almost all of, once hydr
     $dispatch($orgStocks[1]->id, $small->id, 40);
 
     actingAs($this->guest->getUser());
-    $url   = route('grp.org.productions.show.to_restock.index', [$this->organisation->slug, $this->production->slug]);
+    $url   = route('grp.org.productions.show.to_restock.index', [$this->organisation->slug, $this->production->slug, 'perPage' => 1000]);
     $codes = fn () => collect(get($url)->assertOk()->viewData('page')['props']['data']['data'])->pluck('stock_code');
 
     \App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateTopCustomerShare::run($this->organisation);
@@ -5310,6 +5403,14 @@ test('a job order planned by hand is one job with its lines on the board, even f
     ]);
     expect($reversed->employee_id)->toBe($second->artisans()->first()->id);
 
+    $second->update(['state' => \App\Enums\Production\Artefact\ArtefactStateEnum::DORMANT]);
+    $woken = \App\Actions\Production\JobOrder\StoreManualJobOrder::make()->action($this->production, [
+        'reason' => 'stock',
+        'lines'  => [['artefact_id' => $second->id, 'quantity' => 1]],
+    ]);
+    expect($woken->jobOrderItems()->count())->toBe(1)
+        ->and($second->refresh()->state)->toBe(\App\Enums\Production\Artefact\ArtefactStateEnum::ACTIVE);
+
     expect(fn () => \App\Actions\Production\JobOrder\StoreManualJobOrder::make()->action($this->production, [
         'reason' => 'stock',
         'lines'  => [],
@@ -5534,4 +5635,187 @@ test('a custom product is made for one customer from an artefact waiting for its
 
     get(route('grp.org.productions.show.crafts.artefacts.show', [$organisation->slug, $production->slug, $artefact->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('customer_product', null));
+});
+
+test('preparation and cleaning are timed at the base rate, never overlap production and stay out of performance figures', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+    \App\Models\Production\ManufactureBreak::where('user_id', $user->id)->where(fn ($query) => $query->whereNull('ended_at')->orWhere('ended_at', '>', now()->subMinute()))->delete();
+    $bandAttributes = ['group_id' => $this->production->group_id, 'organisation_id' => $this->production->organisation_id, 'effective_from' => now()->subYear()];
+    $band0 = \App\Models\Production\ManufacturePayBand::query()->firstOrCreate(['production_id' => $this->production->id, 'code' => '0'], ['name' => 'Band 0', 'hourly_rate' => 12.71] + $bandAttributes);
+    \App\Models\Production\ManufacturePayBand::query()->firstOrCreate(['production_id' => $this->production->id, 'code' => '1'], ['name' => 'Band 1', 'hourly_rate' => 13, 'target_multiplier' => 0.0001] + $bandAttributes);
+
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    expect(fn () => StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'production']))
+        ->toThrow(ValidationException::class);
+
+    $this->freezeSecond();
+    $preparation = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'preparation', 'job_order_id' => $jobOrder->id]);
+
+    expect(fn () => StartManufactureTaskSession::make()->action($user, $task))->toThrow(ValidationException::class)
+        ->and(fn () => StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'cleaning']))->toThrow(ValidationException::class);
+
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('open_session.activity.type', 'preparation')
+            ->where('open_session.task.job_order_reference', $jobOrder->reference)
+            ->has('non_productive.activities', 2)
+            ->where('non_productive.job_orders', fn ($jobOrders) => collect($jobOrders)->contains('id', $jobOrder->id))
+            ->etc());
+
+    $this->travel(20)->minutes();
+    $break = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 20]);
+    $this->travel(10)->minutes();
+    \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($break);
+    $this->travel(10)->minutes();
+    $preparation = CloseManufactureTaskSession::make()->action($preparation, []);
+
+    expect($preparation->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED)
+        ->and($preparation->break_minutes)->toBe(10)
+        ->and((float) $preparation->hours)->toBe(0.5)
+        ->and($preparation->band_code)->toBe('0')
+        ->and((float) $preparation->pay)->toBe(round(0.5 * (float) $band0->hourly_rate, 2))
+        ->and((float) $preparation->bonus)->toBe(0.0)
+        ->and($preparation->units_per_hour)->toBeNull()
+        ->and($preparation->is_under_target)->toBeFalse();
+
+    $production = CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $task), ['quantity_made' => 10]);
+    $cleaning   = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'cleaning']);
+    $this->travel(15)->minutes();
+    $cleaning = CloseManufactureTaskSession::make()->action($cleaning, []);
+
+    $artisan = collect(get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString()]))
+        ->viewData('page')['props']['artisans'])->firstWhere('user_id', $user->id);
+    $sessionIdsInJobs = collect($artisan['jobs'])->flatMap(fn ($job) => collect($job['steps'])->flatMap(fn ($step) => collect($step['sessions'])->pluck('id')));
+    $preparationRow   = collect($artisan['non_productive']['job_orders'])->firstWhere('label', $jobOrder->reference);
+    $generalRow       = collect($artisan['non_productive']['job_orders'])->firstWhere('label', null);
+
+    expect($sessionIdsInJobs)->toContain($production->id)
+        ->not->toContain($preparation->id)
+        ->not->toContain($cleaning->id)
+        ->and(collect($artisan['non_productive']['sessions'])->pluck('id')->all())->toContain($preparation->id, $cleaning->id)
+        ->and($preparationRow['hours']['preparation'])->toEqual(0.5)
+        ->and($generalRow['hours']['cleaning'])->toBeGreaterThanOrEqual(0.25)
+        ->and($artisan['non_productive']['days'])->not->toBeEmpty();
+
+    get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $jobOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('job_order.non_productive.0.activity', 'Preparation')
+            ->where('job_order.non_productive.0.hours', 0.5)
+            ->etc());
+
+    get(route('grp.org.productions.show.operations.dashboard', [$this->organisation->slug, $this->production->slug]))->assertOk();
+
+    $export = get(route('grp.org.productions.show.artisans.payroll.export', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString()]));
+    ob_start();
+    $export->sendContent();
+    expect(ob_get_clean())->toContain('Preparation')->toContain('Cleaning');
+
+    VoidManufactureTaskSession::make()->action($cleaning);
+    expect($cleaning->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::VOIDED);
+    $this->travelBack();
+});
+
+test('a job carried at a part pack still walks whole units, and the bays can be served in any order', function () {
+    $this->artefact->manufactureTasks()->detach();
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $user = $this->guest->getUser();
+    \App\Models\Production\ManufactureTaskSession::where('user_id', $user->id)
+        ->where('state', \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN)->delete();
+
+    $stock    = createStocks($this->group)[0];
+    $orgStock = createOrgStocks($this->organisation, [$stock])[0];
+    \App\Models\Procurement\PartnerShoppingListItem::where('org_stock_id', $orgStock->id)->forceDelete();
+    \App\Models\Production\Artefact::where('production_id', $this->production->id)
+        ->where('org_stock_id', $orgStock->id)
+        ->where('id', '!=', $this->artefact->id)
+        ->update(['org_stock_id' => null]);
+    $this->artefact->update(['org_stock_id' => $orgStock->id]);
+    $orgStock->update(['packed_in' => 3]);
+
+    $warehouse = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-THRD', 'name' => 'Thirds warehouse']);
+    $area      = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-THRD', 'name' => 'Thirds area']);
+
+    $buyers = collect(['SKBUY', 'ESBUY'])->map(function (string $code) use ($area) {
+        $buyer = \App\Models\SysAdmin\Organisation::where('code', $code)->first()
+            ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, [
+                'code' => $code,
+                'name' => $code,
+                'type' => \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP,
+            ] + \App\Models\SysAdmin\Organisation::factory()->definition());
+        $bay        = \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => 'THRD-'.$code, 'name' => $code] + \App\Models\Inventory\Location::factory()->definition());
+        $orgPartner = \App\Models\Procurement\OrgPartner::firstOrCreate(
+            ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id, 'partner_id' => $buyer->id],
+            ['status' => true],
+        );
+        $orgPartner->update(['goods_out_location_id' => $bay->id, 'cosmetic_goods_out_location_id' => null, 'gb_goods_out_location_id' => null]);
+
+        return ['organisation' => $buyer, 'bay' => $bay];
+    });
+
+    $lineFor = fn (array $buyer, int $quantity) => \App\Models\Procurement\PartnerShoppingListItem::create([
+        'group_id'                => $this->group->id,
+        'organisation_id'         => $buyer['organisation']->id,
+        'partner_organisation_id' => $this->organisation->id,
+        'stock_id'                => $stock->id,
+        'org_stock_id'            => createOrgStocks($buyer['organisation'], [$stock])[0]->id,
+        'quantity'                => $quantity,
+    ]);
+
+    /* 4 + 2 SKOs of three = 18 units; day one stops at 10, a third of a pack into the SK line. */
+    $skLine = $lineFor($buyers[0], 4);
+    $esLine = $lineFor($buyers[1], 2);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 18]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $skLine->update(['job_order_id' => $jobOrder->id]);
+    $esLine->update(['job_order_id' => $jobOrder->id]);
+
+    CloseManufactureTaskSession::make()->action(
+        StartManufactureTaskSession::make()->action($user, $item->tasks()->first()),
+        ['quantity_made' => 10, 'outcome' => 'carry_over']
+    );
+
+    $carried = \App\Models\Production\JobOrder::where('data->carried_from', $jobOrder->id)->firstOrFail();
+    CloseManufactureTaskSession::make()->action(
+        StartManufactureTaskSession::make()->action($user, $carried->jobOrderItems()->first()->tasks()->first()),
+        ['quantity_made' => 8, 'outcome' => 'complete']
+    );
+
+    $outstanding = fn (\App\Models\Production\JobOrder $order) => collect(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::make()->outstanding($order->refresh()))
+        ->map(fn (array $row) => [$row['location_id'], $row['quantity']])->all();
+
+    /* The SK line was cut at 3.333 SKOs: it still owes ten units, not 9.999 and a crumb for stock. */
+    expect($outstanding($jobOrder))->toBe([[$buyers[0]['bay']->id, 10.0]])
+        ->and($outstanding($carried))->toBe([[$buyers[1]['bay']->id, 6.0], [$buyers[0]['bay']->id, 2.0]]);
+
+    $jobOrderIds = [$jobOrder->id, $carried->id];
+
+    /* The small walk first: it must not be taken off the other bay's share. */
+    \App\Actions\Dispatching\ProductionOutput\PutAwayFinishedJobOrder::make()->action($warehouse, $jobOrderIds, 'THRD-SKBUY');
+
+    expect($outstanding($jobOrder))->toBe([])
+        ->and($outstanding($carried))->toBe([[$buyers[1]['bay']->id, 6.0]])
+        ->and($jobOrder->refresh()->state)->toBe(JobOrderStateEnum::RECEIVED)
+        ->and($carried->refresh()->state)->toBe(JobOrderStateEnum::CONFIRMED);
+
+    \App\Actions\Dispatching\ProductionOutput\PutAwayFinishedJobOrder::make()->action($warehouse, $jobOrderIds, 'THRD-ESBUY');
+
+    $inBay = fn (array $buyer) => (float) \App\Models\Inventory\LocationOrgStock::where('location_id', $buyer['bay']->id)->where('org_stock_id', $orgStock->id)->value('quantity');
+
+    expect($carried->refresh()->state)->toBe(JobOrderStateEnum::RECEIVED)
+        ->and((float) $carried->jobOrderItems()->first()->quantity_received)->toBe(8.0)
+        ->and($inBay($buyers[0]))->toBe(4.0)
+        ->and($inBay($buyers[1]))->toBe(2.0);
 });

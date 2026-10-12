@@ -213,7 +213,14 @@ class ShowPurchaseOrder extends OrgAction
                             'key'    => 'pdf',
                             'route'  => [
                                 'name'       => 'grp.org.procurement.purchase_orders.pdf',
-                                'parameters' => [$this->organisation->slug, $purchaseOrder->slug],
+                                'parameters' => ['organisation' => $this->organisation->slug, 'purchaseOrder' => $purchaseOrder->slug],
+                            ],
+                            'options' => [
+                                [
+                                    'value'      => 'with_images',
+                                    'label'      => __('Product images'),
+                                    'is_checked' => false,
+                                ],
                             ],
                         ],
                         ...($uploadExcel ? [] : [$this->downloadExcelAction($purchaseOrder)]),
@@ -472,7 +479,7 @@ class ShowPurchaseOrder extends OrgAction
 
     public function getActions(PurchaseOrder $purchaseOrder, bool $showProductsTab): array
     {
-        return match ($purchaseOrder->state) {
+        $actions = match ($purchaseOrder->state) {
             PurchaseOrderStateEnum::IN_PROCESS => [
                 $showProductsTab || $purchaseOrder->parent instanceof OrgPartner ? [
                     'label'   => __('Add Product'),
@@ -637,7 +644,7 @@ class ShowPurchaseOrder extends OrgAction
                         ],
                     ],
                 ],
-                $purchaseOrder->stockDeliveries()->exists() ? [] : [
+                $this->hasActiveStockDelivery($purchaseOrder) ? [] : [
                     'label'   => __('Cancel'),
                     'tooltip' => __('Cancel Purchase Order'),
                     'type'    => 'button',
@@ -654,6 +661,20 @@ class ShowPurchaseOrder extends OrgAction
             ],
             default => []
         };
+
+        if ($this->datedByItsStockDeliveries($purchaseOrder)) {
+            $actions = array_values(array_filter($actions, fn (array $action) => Arr::get($action, 'key') !== 'edit_estimated_delivery_date'));
+        }
+
+        return $actions;
+    }
+
+    /**
+     * Once an agent order's items are in stock deliveries, those deliveries carry the delivery dates.
+     */
+    private function datedByItsStockDeliveries(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->isAgentOrder() && $this->hasActiveStockDelivery($purchaseOrder);
     }
 
     public function getTimeline(PurchaseOrder $purchaseOrder): array
@@ -733,7 +754,7 @@ class ShowPurchaseOrder extends OrgAction
             ];
         }
 
-        if (!$hasReceived) {
+        if (!$hasReceived && !$this->datedByItsStockDeliveries($purchaseOrder)) {
             // TODO: Default should come from the Supplier/Agent "Delivery time (days)" (no such field yet).
             // While the purchase order is not confirmed, only a sub label should show
             // (e.g. "Estimated 30 days after confirmation"); once confirmed, the default timestamp is

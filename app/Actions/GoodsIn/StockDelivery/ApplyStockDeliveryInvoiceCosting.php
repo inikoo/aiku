@@ -100,6 +100,7 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
                 'label'       => $modelData['invoice_number'] ? __('Invoice :number', ['number' => $modelData['invoice_number']]) : null,
                 'amount'      => $modelData['invoice_total'],
                 'received_at' => $modelData['invoice_date'],
+                'is_waiting_for_invoice' => false,
             ];
             $invoiceCost = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
 

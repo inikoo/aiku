@@ -445,7 +445,7 @@ resetForm()
                     <button type="button" @click="addStep"
                         class="w-full flex items-center justify-center gap-x-2 rounded-lg border border-dashed border-gray-300 py-2 text-sm text-gray-500 transition-colors hover:border-green-400 hover:text-green-600">
                         <FontAwesomeIcon icon="fas fa-plus" fixed-width />
-                        {{ ctrans('Add step') }}
+                        {{ ctrans('Add discount step') }}
                     </button>
                 </div>
 

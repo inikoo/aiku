@@ -5943,3 +5943,346 @@ test('a pick taken from two batches is cut into one line per batch and a deleted
     \App\Actions\Dispatching\Picking\DeletePicking::make()->action($lines[0]->refresh(), $this->user);
     expect($onShelf())->toEqual([$early->id => 2.0, $late->id => 10.0]);
 });
+
+test('EPR flow lines classify received stock deliveries and dispatched delivery notes by country, per trade unit with its packaging family', function () {
+    $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, \App\Models\Goods\TradeUnit::factory()->definition());
+    $family    = \App\Actions\Goods\Packaging\StorePackagingFamilyFromComponents::run($this->group, 'EPR-'.Str::random(6), null, [
+        ['packaging_level' => 'primary', 'name' => 'Jar '.Str::random(6), 'material' => 'Glass', 'material_id_code' => 'GL 70', 'material_category' => 'glass', 'weight_g' => 120, 'quantity' => 1, 'quantity_per_unit' => 1],
+    ]);
+    $tradeUnit->update(['packaging_family_id' => $family->id]);
+
+    $stock    = StoreStock::make()->action($this->group, Stock::factory()->definition());
+    $orgStock = StoreOrgStock::make()->action($this->organisation, $stock);
+    $orgStock->update(['packed_in' => 6]);
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 6]]);
+
+    $homeCountryId    = $this->organisation->country_id;
+    $foreignCountryId = \App\Models\Helpers\Country::whereKeyNot($homeCountryId)->orderBy('id')->value('id');
+
+    $supplier    = \App\Actions\SupplyChain\Supplier\StoreSupplier::make()->action($this->group, \App\Models\SupplyChain\Supplier::factory()->definition());
+    $supplier->address->update(['country_id' => $foreignCountryId]);
+    $orgSupplier = \App\Models\Procurement\OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+        ?? \App\Actions\Procurement\OrgSupplier\StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $stockDelivery     = \App\Actions\GoodsIn\StockDelivery\StoreStockDelivery::make()->action($orgSupplier, ['reference' => 'EPR-'.uniqid(), 'date' => '2001-03-01'], strict: false);
+    $stockDeliveryItem = \App\Actions\GoodsIn\StockDeliveryItem\StoreStockDeliveryItem::make()->action($stockDelivery, null, $orgStock, ['unit_quantity' => 30], strict: false);
+    $stockDelivery->update(['state' => 'placed', 'received_at' => '2001-03-04 10:00:00']);
+    $stockDeliveryItem->update(['state' => 'placed', 'unit_quantity_checked' => 30, 'unit_quantity_placed' => 30]);
+
+    $deliveryNote = StoreDeliveryNote::make()->action($this->order, [
+        'reference'        => 'EPR'.Str::random(6),
+        'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => '2001-03-05',
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id,
+    ]);
+    $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote, [
+        'delivery_note_id'  => $deliveryNote->id,
+        'org_stock_id'      => $orgStock->id,
+        'transaction_id'    => $this->order->transactions()->first()->id,
+        'quantity_required' => 4,
+    ]);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED, 'dispatched_at' => '2001-03-05 12:00:00', 'delivery_country_id' => $homeCountryId]);
+    $deliveryNoteItem->update(['quantity_dispatched' => 4]);
+
+    $build = fn () => \App\Actions\Goods\Packaging\BuildEprFlowLines::run($this->organisation, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
+    $lines = fn () => \App\Models\Goods\EprFlowLine::where('organisation_id', $this->organisation->id)->whereBetween('date', ['2001-03-01', '2001-03-31'])->get();
+
+    $build();
+    $purchase = $lines()->firstWhere('source_type', 'StockDeliveryItem');
+    $sale     = $lines()->firstWhere('source_type', 'DeliveryNoteItem');
+
+    expect($lines())->toHaveCount(2)
+        ->and($purchase->activity)->toBe(\App\Enums\Goods\Packaging\EprActivityEnum::IMPORTED)
+        ->and($purchase->source_id)->toBe($stockDeliveryItem->id)
+        ->and($purchase->counterparty_country_id)->toBe($foreignCountryId)
+        ->and($purchase->date->toDateString())->toBe('2001-03-04')
+        ->and((float)$purchase->sko_quantity)->toBe(5.0)
+        ->and((float)$purchase->quantity)->toBe(30.0)
+        ->and($purchase->trade_unit_id)->toBe($tradeUnit->id)
+        ->and($purchase->packaging_family_id)->toBe($family->id)
+        ->and($sale->activity)->toBe(\App\Enums\Goods\Packaging\EprActivityEnum::SOLD_DOMESTIC)
+        ->and($sale->source_id)->toBe($deliveryNoteItem->id)
+        ->and((float)$sale->sko_quantity)->toBe(4.0)
+        ->and((float)$sale->quantity)->toBe(24.0);
+
+    $ukReturn = fn (bool $countOwnBrandImports = false) => \App\Actions\Reports\GetUkPackagingReturn::run($this->organisation, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'), $countOwnBrandImports);
+
+    expect($ukReturn()['lines'])->toBe([['activity' => 'IM', 'type' => 'HH', 'class' => 'P1', 'material' => 'GL', 'ram' => 'G', 'kg' => 3.6]])
+        ->and($ukReturn()['submission_period'])->toBeNull()
+        ->and(\App\Actions\Reports\GetUkPackagingReturn::make()->submissionPeriod(\Illuminate\Support\Carbon::parse('2026-07-01'), \Illuminate\Support\Carbon::parse('2026-12-31')))->toBe('2026-P4');
+
+    $slovak = $this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'SK')->firstOrFail());
+    $slovak->id = $this->organisation->id;
+    $euReturn = \App\Actions\Reports\GetEuPackagingReturn::run($slovak, \Illuminate\Support\Carbon::parse('2001-03-01'), \Illuminate\Support\Carbon::parse('2001-03-31'));
+
+    expect($euReturn['scheme'])->toBe('sk')
+        ->and($euReturn['rows'])->toBe([['scheme_material' => 'Sklo', 'scheme_subcategory' => null, 'sales_kg' => 2.9, 'shipment_kg' => 0.0, 'kg' => 2.9, 'previous_kg' => null, 'change' => null]])
+        ->and($euReturn['domestic_parcel_share'])->toEqual(100)
+        ->and(\App\Actions\Reports\ExportEuPackagingReturn::make()->handle($euReturn))->toBe([['2001-03-01', '2001-03-31', 'Sklo', null, 2.9, 0.0, 2.9]])
+        ->and(\App\Actions\Reports\GetEuPackagingReturn::make()->scheme($this->organisation->replicate()->setRelation('country', \App\Models\Helpers\Country::where('code', 'GB')->firstOrFail())))->toBeNull();
+
+    $family->update(['brand_ownership' => \App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::OWN_BRAND]);
+    $ownBrand = $ukReturn();
+
+    expect($ownBrand['lines'])->toBe([['activity' => 'SO', 'type' => 'HH', 'class' => 'P1', 'material' => 'GL', 'ram' => 'G', 'kg' => 2.88]])
+        ->and(collect($ownBrand['form'])->firstWhere('activity', 'SO')['cells']['GL']['kg'])->toEqual(3)
+        ->and(collect($ukReturn(true)['lines'])->pluck('activity')->all())->toBe(['IM', 'SO'])
+        ->and(\App\Actions\Reports\ExportUkPackagingReturn::make()->handle($this->organisation, $ownBrand))->toBe([[null, null, 'L', null, 'SO', 'HH', 'P1', 'GL', null, null, null, 3, null, null, 'G']]);
+
+    expect($this->get(route('grp.org.reports.packaging.uk-return', [$this->organisation->slug, 'from' => '2001-03-01', 'to' => '2001-03-31']))->assertOk()->streamedContent())
+        ->toBe(implode(',', \App\Actions\Reports\ExportUkPackagingReturn::COLUMNS)."\n,,L,,SO,HH,P1,GL,,,,3,,,G\n");
+
+    $family->update(['is_product_itself' => true]);
+    expect($ukReturn()['has_data'])->toBeFalse();
+    $family->update(['is_product_itself' => false, 'brand_ownership' => \App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::UNKNOWN]);
+
+    $deliveryNote->update(['delivery_country_id' => $foreignCountryId]);
+    $supplier->address->update(['country_id' => $homeCountryId]);
+    $build();
+
+    expect($lines())->toHaveCount(2)
+        ->and($lines()->firstWhere('source_type', 'DeliveryNoteItem')->activity)->toBe(\App\Enums\Goods\Packaging\EprActivityEnum::EXPORTED)
+        ->and($lines()->firstWhere('source_type', 'StockDeliveryItem')->activity)->toBe(\App\Enums\Goods\Packaging\EprActivityEnum::BOUGHT_DOMESTIC);
+
+    $report = fn () => $this->get(route('grp.org.reports.packaging', [$this->organisation->slug, 'tab' => 'completeness', 'from' => '2001-03-01', 'to' => '2001-03-31']));
+
+    $tradeUnit->update(['gross_weight' => 300, 'net_weight' => 100]);
+
+    $report()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Org/Reports/PackagingReport')
+        ->where('period', ['from' => '2001-03-01', 'to' => '2001-03-31'])
+        ->where('completeness.has_data', true)
+        ->where('completeness.summary.coverage', 100)
+        ->where('completeness.rows', [])
+        ->where('completeness.checks.0.key', 'legacy_top')
+        ->where('completeness.checks.0.count', 0)
+        ->where('completeness.checks.1.key', 'weight_mismatch')
+        ->where('completeness.checks.1.count', 1)
+        ->where('completeness.checks.1.rows.0.code', $orgStock->code)
+        ->where('completeness.checks.1.rows.0.detail', 'Packaging 120 g, gross less net 200 g')
+        ->where('completeness.checks.2.count', 0)
+        ->where('completeness.checks.3.count', 0));
+
+    $lid = \App\Models\Goods\PackagingComponent::create([
+        'group_id' => $this->group->id, 'name' => 'Lid '.Str::random(6), 'packaging_level' => 'primary', 'material_category' => 'plastic', 'weight_g' => 5, 'signature' => sha1(Str::random()),
+    ]);
+    $family->components()->attach($lid->id, ['quantity' => 1, 'quantity_per_unit' => 1]);
+    $family->update(['is_product_itself' => true]);
+
+    $report()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('completeness.checks.2.key', 'plastic_without_polymer')
+        ->where('completeness.checks.2.rows.0.detail', '5 g of plastic')
+        ->where('completeness.checks.3.key', 'product_itself_not_glass')
+        ->where('completeness.checks.3.rows.0.detail', 'plastic'));
+
+    $family->components()->detach($lid->id);
+    $family->update(['is_product_itself' => false]);
+
+    $tradeUnit->update(['packaging_family_id' => null]);
+
+    $report()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('completeness.summary.coverage', 0)
+        ->where('completeness.summary.skos_by_status.no_packaging', 1)
+        ->where('completeness.rows.0.code', $orgStock->code)
+        ->where('completeness.rows.0.status', 'no_packaging')
+        ->where('completeness.rows.0.trade_unit_slug', $tradeUnit->slug)
+        ->where('completeness.rows.0.units_in', 5)
+        ->where('completeness.rows.0.units_out', 4)
+        ->where('completeness.rows.0.share', 100));
+});
+
+test('the UK packaging workbook loads as legacy packaging per trade unit, own brand by code prefix and glass of the Candles sheet left out', function () {
+    $sko = function (string $code, int $units, ?string $tariff = null) {
+        $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, \App\Models\Goods\TradeUnit::factory()->definition());
+        $orgStock  = StoreOrgStock::make()->action($this->organisation, StoreStock::make()->action($this->group, Stock::factory()->definition()));
+        $orgStock->update(['code' => $code]);
+        $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => $units]]);
+
+        return $tradeUnit;
+    };
+    $prefix  = 'Lg'.Str::random(5);
+    $bowl    = $sko("$prefix-01", 4);
+    $candle  = $sko("X$prefix-02", 1);
+    $nothing = $sko("X$prefix-03", 1);
+
+    $book   = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet  = $book->getActiveSheet()->setTitle('Products');
+    $sheet->fromArray([
+        ['Sku', 'SKO description', 'Tariff code', 'SKO weight (Kg)', 'Units per SKO', 'Weight shown in website (Kg)', 'Locations', 'Plastic (G)', 'Glass (G)', 'Paper (G)', 'aluminium (G)', 'Steel (G)', 'Wood (G)', 'Other (G)'],
+        ["$prefix-01", 'Bowls', '6912', null, 4, null, null, 8, 0, 100, 0, 0, 0, 0],
+        ["X$prefix-02", 'Candle', null, null, 1, null, null, 0, 1000, 112, 0, 0, 0, 0],
+        ["X$prefix-03", 'Nothing', null, null, 1, null, null, 0, 0, 0, 0, 0, 0, 0],
+        ['NOT-IN-AIKU-'.$prefix, 'Missing', null, null, 1, null, null, 5, 0, 0, 0, 0, 0, 0],
+    ]);
+    $book->createSheet()->setTitle('AWA-Family')->fromArray([[$prefix]]);
+    $book->createSheet()->setTitle('Candles')->fromArray([[mb_strtolower("X$prefix-0")]]);
+    $path = tempnam(sys_get_temp_dir(), 'epr').'.xlsx';
+    (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($book))->save($path);
+
+    $stats = \App\Actions\Goods\Packaging\ImportLegacyUkPackaging::run($this->organisation, $path, true);
+    unlink($path);
+
+    $bowlFamily   = $bowl->refresh()->packagingFamily()->with('components')->first();
+    $candleFamily = $candle->refresh()->packagingFamily()->with('components')->first();
+
+    expect($stats['families'])->toBe(2)
+        ->and($stats['no_weights'])->toBe(1)
+        ->and($stats['candle_glass_removed'])->toBe(["X$prefix-02"])
+        ->and($stats['sko_not_in_aiku'])->toBe(['NOT-IN-AIKU-'.$prefix])
+        ->and($nothing->refresh()->packaging_family_id)->toBeNull()
+        ->and($bowlFamily->source)->toBe(\App\Enums\Goods\Packaging\PackagingFamilySourceEnum::LEGACY_UK_2026)
+        ->and($bowlFamily->brand_ownership)->toBe(\App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::OWN_BRAND)
+        ->and($bowlFamily->components->mapWithKeys(fn ($component) => [$component->material_category->value => (float)$component->weight_g])->sortKeys()->all())->toBe(['paper_cardboard' => 25.0, 'plastic' => 2.0])
+        ->and($candleFamily->brand_ownership)->toBe(\App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::UNBRANDED)
+        ->and($candleFamily->components->map(fn ($component) => [$component->material_category->value, (float)$component->weight_g])->all())->toBe([['paper_cardboard', 112.0]]);
+
+    \App\Actions\Goods\Packaging\ImportLegacyUkPackaging::make()->handle($this->organisation, (function () use ($book) {
+        $path = tempnam(sys_get_temp_dir(), 'epr').'.xlsx';
+        (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($book))->save($path);
+
+        return $path;
+    })(), true);
+
+    expect($bowl->refresh()->packaging_family_id)->toBe($bowlFamily->id)
+        ->and($bowlFamily->components()->count())->toBe(2);
+});
+
+test('shipment packaging is reported as used and lines added by hand join the UK return', function () {
+    $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, \App\Models\Goods\TradeUnit::factory()->definition());
+    $orgStock  = StoreOrgStock::make()->action($this->organisation, StoreStock::make()->action($this->group, Stock::factory()->definition()));
+    $orgStock->update(['code' => 'Box'.Str::random(6)]);
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 1]]);
+
+    $this->post(route('grp.models.shipment_packaging.store', $this->organisation->id), ['code' => strtoupper($orgStock->code), 'material_category' => 'paper_cardboard', 'weight_g' => 400])
+        ->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.shipment_packaging.store', $this->organisation->id), ['code' => 'NO-SUCH-'.Str::random(6), 'material_category' => 'paper_cardboard', 'weight_g' => 400])
+        ->assertSessionHasErrors('code');
+
+    $component = $tradeUnit->refresh()->packagingFamily->components()->sole();
+    expect($orgStock->refresh()->is_shipment_packaging)->toBeTrue()
+        ->and($component->packaging_level)->toBe(\App\Enums\Goods\Packaging\PackagingLevelEnum::SERVICE)
+        ->and((float)$component->weight_g)->toBe(400.0);
+
+    foreach ([['consumption', 'out', -50], ['return-consumption', 'in', 5]] as [$type, $flow, $quantity]) {
+        DB::table('org_stock_movements')->insert([
+            'group_id' => $this->group->id, 'organisation_id' => $this->organisation->id, 'warehouse_id' => $this->warehouse->id, 'org_stock_id' => $orgStock->id,
+            'date' => '2001-04-10 10:00:00', 'class' => 'movement', 'type' => $type, 'flow' => $flow, 'quantity' => $quantity, 'org_amount' => 0, 'grp_amount' => 0, 'data' => '{}',
+        ]);
+    }
+
+    $from   = \Illuminate\Support\Carbon::parse('2001-04-01');
+    $to     = \Illuminate\Support\Carbon::parse('2001-04-30');
+    $built  = \App\Actions\Goods\Packaging\BuildEprFlowLines::run($this->organisation, $from, $to);
+    $return = fn () => \App\Actions\Reports\GetUkPackagingReturn::run($this->organisation, $from, $to);
+
+    expect($built['shipment_packaging'])->toBe(2)
+        ->and($return()['lines'])->toBe([['activity' => 'PF', 'type' => 'HH', 'class' => 'P3', 'material' => 'PC', 'ram' => 'G', 'kg' => 18.0]])
+        ->and(\App\Actions\Reports\GetEprShipmentPackaging::run($this->organisation, $from, $to))->toMatchArray([['id' => $orgStock->id, 'code' => $orgStock->code, 'name' => $orgStock->name, 'material_category' => 'paper_cardboard', 'weight_g' => 400.0, 'used' => 45.0, 'kg' => 18.0]]);
+
+    $this->post(route('grp.models.epr_manual_line.store', $this->organisation->id), [
+        'date_from' => '2001-04-01', 'date_to' => '2001-04-30', 'activity' => 'IM', 'packaging_type' => 'NH', 'packaging_class' => 'P2',
+        'material_category' => 'paper_cardboard', 'kg' => 100, 'notes' => '2 x 40HC',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+    $this->post(route('grp.models.epr_manual_line.store', $this->organisation->id), ['date_from' => '2001-04-30', 'date_to' => '2001-04-01', 'activity' => 'XX', 'packaging_type' => 'HH', 'packaging_class' => 'P1', 'material_category' => 'glass', 'kg' => -1])
+        ->assertSessionHasErrors(['date_to', 'activity', 'kg']);
+
+    $withManual = $return();
+    expect(collect($withManual['lines'])->firstWhere('activity', 'IM'))->toMatchArray(['type' => 'NH', 'class' => 'P2', 'material' => 'PC', 'ram' => null, 'kg' => 100.0])
+        ->and($withManual['manual_lines'])->toHaveCount(1)
+        ->and($withManual['manual_lines'][0]['notes'])->toBe('2 x 40HC');
+
+    $this->delete(route('grp.models.epr_manual_line.delete', [$this->organisation->id, $withManual['manual_lines'][0]['id']]))->assertRedirect();
+    $this->delete(route('grp.models.shipment_packaging.delete', [$this->organisation->id, $orgStock->id]))->assertRedirect();
+
+    expect($return()['manual_lines'])->toBe([])
+        ->and($orgStock->refresh()->is_shipment_packaging)->toBeFalse()
+        ->and($return()['lines'])->toBe([]);
+});
+
+test('a picking session is closed to staff without dispatching or fulfilment in its warehouse', function () {
+    [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::UNASSIGNED]);
+    $pickingSession = StorePickingSession::make()->handle($this->warehouse, [
+        'delivery_notes' => [$deliveryNote->id],
+        'user_id'        => $this->user->id,
+    ]);
+    $url = route('grp.org.warehouses.show.dispatching.picking_sessions.show', [$this->organisation->slug, $this->warehouse->slug, $pickingSession->slug]);
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.{$this->shop->id}.view", "orders.{$this->shop->id}.edit"]);
+        get($url)->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        get($url)->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('picking and packing are warehouse work, the order page shipment and dispatch buttons stay with the shop orders permission, INI-073', function () {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.') && is_string($route->getAction('uses')) && !in_array('GET', $route->methods()))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => \Illuminate\Support\Str::startsWith($action, [
+            'App\\Actions\\Dispatching\\Picking\\',
+            'App\\Actions\\Dispatching\\DeliveryNoteItem\\',
+            'App\\Actions\\Dispatching\\PickingSession\\',
+            'App\\Actions\\Dispatching\\Shipment\\DeleteShipment',
+            'App\\Actions\\Dispatching\\Printer\\PrintShipmentLabel',
+            'App\\Actions\\Dispatching\\DeliveryNote\\SetTempPickerToDeliveryNote',
+            'App\\Actions\\Ordering\\WaitingCrmItem\\ReplaceWaitingCrmItemProduct',
+        ]) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $picking               = $item->pickings()->firstOrFail();
+
+    $packing     = fn () => $this->patch(route('grp.models.delivery_note_item.packing.store', $item->id), []);
+    $unlock      = fn () => $this->patch(route('grp.org.shops.show.ordering.orders.show.delivery-note.temp-picker', [$this->organisation->slug, $this->shop->slug, $deliveryNote->slug]));
+    $unpick      = fn () => $this->delete(route('grp.models.picking.delete', $picking->id));
+    $doNotPick   = fn () => $this->post(route('grp.models.delivery_note_item.not_picking_from_waiting_crm.store', $item->id), []);
+    $tariffCodes = fn () => $this->get(route('grp.models.delivery_note.tariff_codes.export', $deliveryNote->id));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["crm.{$this->shop->id}.view", "orders.{$this->shop->id}.edit"]);
+        $packing()->assertForbidden();
+        $unlock()->assertForbidden();
+        $unpick()->assertForbidden();
+        $this->patch(route('grp.models.delivery_note.state.packing', $deliveryNote->id))->assertForbidden();
+        expect($picking->fresh())->not->toBeNull()
+            ->and($deliveryNote->canBeWorkedOnBy($this->user))->toBeFalse()
+            ->and($deliveryNote->canBeShippedBy($this->user))->toBeTrue()
+            ->and($this->patch(route('grp.models.delivery_note.state.dispatched', $deliveryNote->id))->status())->not->toBe(403)
+            ->and($doNotPick()->status())->not->toBe(403)
+            ->and($tariffCodes()->status())->not->toBe(403);
+
+        actingAsUserWithOnlyPermissions($this->user, ["crm.{$this->shop->id}.view"]);
+        $this->patch(route('grp.models.delivery_note.state.dispatched', $deliveryNote->id))->assertForbidden();
+        $doNotPick()->assertForbidden();
+        $tariffCodes()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
+        $packing()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.edit"]);
+        expect($unlock()->status())->not->toBe(403)
+            ->and($packing()->status())->not->toBe(403)
+            ->and($doNotPick()->status())->not->toBe(403);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});

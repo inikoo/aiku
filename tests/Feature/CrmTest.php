@@ -18,6 +18,7 @@ use App\Actions\Comms\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\Outbox\DueToReorder\ProcessDueToReorderPerOutbox;
+use App\Actions\Comms\Outbox\GoldRewardReminder\ProcessGoldRewardReminderPerOutbox;
 use App\Actions\Comms\Outbox\DueToReorder\ProcessDueToReorderRecipients;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\AnonymiseCustomer;
@@ -1771,6 +1772,32 @@ test('web registration files the tax number under the contact address country, n
         ->and($customer->taxNumber->number)->toBe('04851400400');
 });
 
+test('web registration rejects a bare dial code when the shop requires a phone number', function () {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
+    }
+    DetectWebsiteFromDomain::mock()->shouldReceive('handle')->andReturn($this->website);
+    $originalSettings = $this->shop->settings;
+    $this->shop->update(['settings' => data_set($originalSettings, 'registration.require_phone_number', true)]);
+
+    try {
+        auth()->logout();
+        post(route('retina.register_from_standalone.store'), [
+            'contact_name'                  => 'Dial Code Only',
+            'email'                         => 'registration-dial-code@example.com',
+            'password'                      => 'password',
+            'phone'                         => '+46',
+            'is_opt_in'                     => true,
+            'is_whatsapp_newsletter_opt_in' => false,
+            'contact_address'               => Address::factory()->definition(),
+        ])->assertSessionHasErrors('phone');
+
+        expect(Customer::where('email', 'registration-dial-code@example.com')->exists())->toBeFalse();
+    } finally {
+        $this->shop->update(['settings' => $originalSettings]);
+    }
+});
+
 test('a picked tax number country wins over the customer address country', function () {
     $customer = StoreCustomer::make()->action($this->shop, array_merge(Customer::factory()->definition(), [
         'contact_address' => array_merge(Address::factory()->definition(), ['country_id' => Country::where('code', 'IT')->first()->id, 'country_code' => 'IT']),
@@ -2095,4 +2122,121 @@ test('customer page opens for normal and dropshipping customers, reorders tab on
     get(route('grp.org.shops.show.crm.customers.show', [$this->organisation->slug, $dropshippingShop->slug, $dropshippingCustomer->slug]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.reorders')->etc());
+});
+
+test('gold reward reminder skips a customer who already submitted an order since the last invoice', function () {
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    DB::table('customers')->where('id', $customer->id)->update(['last_invoiced_at' => now()->subDays(27)]);
+    DB::table('customer_comms')->where('customer_id', $customer->id)->update(['is_subscribed_to_gold_reward_reminder' => true]);
+
+    $outbox = Outbox::where('shop_id', $this->shop->id)->where('code', OutboxCodeEnum::GOLD_REWARD_REMINDER_1)->firstOrFail();
+    $originalDaysAfter = $outbox->days_after;
+    $outbox->update(['days_after' => 27]);
+
+    $isRecipient = fn () => ProcessGoldRewardReminderPerOutbox::make()->recipientsQuery($outbox->fresh())->pluck('customers.id')->contains($customer->id);
+
+    expect($isRecipient())->toBeTrue();
+
+    $order = StoreOrder::make()->action($customer, []);
+    DB::table('orders')->where('id', $order->id)->update(['state' => OrderStateEnum::SUBMITTED->value, 'submitted_at' => now()->subDays(2)]);
+
+    expect($isRecipient())->toBeFalse();
+
+    DB::table('orders')->where('id', $order->id)->update(['state' => OrderStateEnum::CREATING->value]);
+
+    expect($isRecipient())->toBeTrue();
+
+    DB::table('orders')->where('id', $order->id)->update(['state' => OrderStateEnum::CANCELLED->value]);
+
+    expect($isRecipient())->toBeTrue();
+
+    $outbox->update(['days_after' => $originalDaysAfter]);
+});
+
+test('a crm viewer reads customers, polls and prospects and opens an invoice in accounting but changes nothing, and does not see the accounting lists', function () {
+    $shop         = $this->shop;
+    $organisation = $this->organisation;
+    $customer     = StoreCustomer::make()->action($shop, Customer::factory()->definition());
+    $webUser      = StoreWebUser::make()->action($customer, [
+        'email'    => fake()->unique()->safeEmail(),
+        'username' => fake()->unique()->userName(),
+        'password' => 'password',
+    ]);
+    $poll         = StorePoll::make()->action($shop, [
+        'name'                     => 'viewer poll '.fake()->unique()->numberBetween(1000, 999999),
+        'label'                    => 'viewer poll',
+        'in_registration'          => false,
+        'in_registration_required' => false,
+        'in_iris'                  => false,
+        'in_iris_required'         => false,
+        'type'                     => ['type' => PollTypeEnum::OPEN_QUESTION],
+    ]);
+    $invoice      = StoreInvoice::make()->action($customer, array_merge(Invoice::factory()->definition(), ['in_process' => false]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->all();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+    $actingWithOnly      = function (array $permissions) {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncRoles([]);
+        $this->user->syncPermissions($permissions);
+        \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        actingAs($this->user->refresh());
+    };
+
+    try {
+        $actingWithOnly(["crm.$shop->id.view", "crm.$shop->id.prospects.view"]);
+
+        $page = get(route('grp.org.shops.show.crm.customers.show', [$organisation->slug, $shop->slug, $customer->slug, 'tab' => 'showcase']))
+            ->assertOk()->viewData('page')['props'];
+        expect($page['permissions'])->each->toBeFalse()
+            ->and($page['can_add_order'])->toBeFalse()
+            ->and(collect($page['pageHead']['actions'])->pluck('key'))->not->toContain('edit_customer')
+            ->and(collect($page['notes']['note_list'])->pluck('editable')->unique()->all())->toBe([false])
+            ->and($page['showcase']['store_note_route'])->toBeNull()
+            ->and($page['showcase']['editWebUser'])->toBeNull()
+            ->and($page['showcase']['address_management']['can_open_address_management'])->toBeFalse();
+
+        post(route('grp.models.customer.note.store', ['customer' => $customer->id]), ['note' => 'viewer note'])->assertForbidden();
+        patch(route('grp.models.customer.update', ['customer' => $customer->id]), ['is_gift_opted_out' => true])->assertForbidden();
+        patch(route('grp.models.customer.approve', ['customer' => $customer->id]))->assertForbidden();
+        patch(route('grp.models.customer.address.update', ['customer' => $customer->id]), [])->assertForbidden();
+        patch(route('grp.models.customer.credit-transaction.store', ['customer' => $customer->id]), [])->assertForbidden();
+        get(route('grp.org.shops.show.crm.customers.show.web_users.edit', [$organisation->slug, $shop->slug, $customer->slug, $webUser->slug]))->assertForbidden();
+
+        $pollPage = get(route('grp.org.shops.show.crm.polls.show', [$organisation->slug, $shop->slug, $poll->slug]))->assertOk()->viewData('page')['props'];
+        expect($pollPage['can_edit'])->toBeFalse()
+            ->and($pollPage['pageHead']['actions'])->toBeEmpty();
+        $this->delete(route('grp.models.poll.delete', ['poll' => $poll->id]))->assertForbidden();
+
+        get(route('grp.org.shops.show.crm.prospects.mailshots.index', [$organisation->slug, $shop->slug]))->assertOk();
+        post(route('grp.models.shop.prospect.mailshot.store', ['shop' => $shop->id]), [])->assertForbidden();
+        get(route('grp.org.shops.show.crm.internal_tags.create', [$organisation->slug, $shop->slug]))->assertForbidden();
+
+        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertOk();
+        get(route('grp.majordomo.redirect_invoice_in_accounting', ['invoice' => $invoice->id]))->assertRedirect();
+        get(route('grp.org.accounting.invoices.index', [$organisation->slug]))->assertForbidden();
+        get(route('grp.org.accounting.refunds.index', [$organisation->slug]))->assertForbidden();
+        post(route('grp.models.refund.create', ['invoice' => $invoice->id]))->assertForbidden();
+
+        $actingWithOnly(["crm.$shop->id.view", "orders.$shop->id.edit"]);
+        patch(route('grp.models.customer.update', ['customer' => $customer->id]), ['internal_notes' => 'orders note'])->assertForbidden();
+        patch(route('grp.models.customer.update', ['customer' => $customer->id]), ['is_gift_opted_out' => true])->assertSessionHasNoErrors();
+        expect(Arr::get($customer->refresh()->settings, 'is_gift_opted_out'))->toBeTrue();
+
+        $actingWithOnly(["crm.$shop->id.view", "crm.$shop->id.edit"]);
+        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertOk();
+        expect(post(route('grp.models.refund.create', ['invoice' => $invoice->id]))->status())->not->toBe(403);
+
+        $actingWithOnly(["accounting.$organisation->id.view"]);
+        get(route('grp.org.accounting.invoices.index', [$organisation->slug]))->assertOk();
+        $invoicePage = get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertOk()->viewData('page')['props'];
+        expect($invoicePage['invoice_pay']['can_pay'])->toBeFalse()
+            ->and($invoicePage['pageHead']['wrapped_actions'])->toBeEmpty();
+        post(route('grp.models.refund.create', ['invoice' => $invoice->id]))->assertForbidden();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
 });

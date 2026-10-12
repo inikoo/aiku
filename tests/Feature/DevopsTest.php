@@ -534,6 +534,7 @@ it('records server usage samples, rolls them into hours and shows them on the de
             ->component('Devops/Dashboard', false)
             ->where('servers', fn ($servers) => collect($servers)->contains(fn ($row) => $row['slug'] === 'metrics-box' && (float) $row['cpu_percent'] === 90.0 && (float) $row['cpu_24h_max'] === 90.0))
             ->has('liveReadings.metrics-box', 2)
+            ->where('databaseReplicas', [])
             ->where('servers', fn ($servers) => collect($servers)->firstWhere('slug', 'metrics-box')['swap_total_mb'] === 4096)
             ->where('servers', fn ($servers) => collect($servers)->firstWhere('slug', 'metrics-box')['tcp_connections'] === 2300 && collect($servers)->firstWhere('slug', 'metrics-box')['group'] === 'Other')
             ->where('servers', fn ($servers) => json_decode(collect($servers)->firstWhere('slug', 'metrics-box')['top_processes'], true)[0]['processes'] === 14));
@@ -602,6 +603,9 @@ it('records github workflow runs, jobs and deploy task progress and shows them o
     $progress(['task' => 'deploy:migrate', 'state' => 'sideways'])->assertUnprocessable();
 
     Event::assertDispatchedTimes(App\Events\BroadcastCiRunUpdated::class, 8);
+    Event::assertDispatched(App\Events\BroadcastCiRunUpdated::class, fn (App\Events\BroadcastCiRunUpdated $event) => $event->broadcastWith()['deploy'] === [
+        'status' => 'in_progress', 'conclusion' => null, 'head_message' => '📈 Server metrics', 'deploy_done' => 1, 'deploy_total' => 30,
+    ]);
 
     $this->actingAs(createAdminGuest(createGroup())->getUser())
         ->get(route('grp.devops.dashboard'))

@@ -19,15 +19,20 @@ are suggestions; rename them freely, but keep the boundaries.
   and a log row per request in `seo_api_requests` (provider, endpoint, rows, duration, error, cost
   if the provider reports it). Phase 2 and 3 costs are only visible this way.
   `App\Services\SearchConsole\SearchConsoleClient` is the first one.
-- **One monthly budget for all paid SEO APIs**, not one per provider or feature: DataForSEO, Apify
-  and the AI gateway calls for AI visibility count against the same cap (default 250 USD,
-  `SEO_API_MONTHLY_BUDGET` until the [API usage page](#api-usage) makes it a setting).
+- **One monthly budget for all paid SEO APIs**, not one per provider or feature: DataForSEO and the
+  AI gateway calls of content help count against the same cap (default 250 USD,
+  set on the [API usage page](#api-usage), `SEO_API_MONTHLY_BUDGET` as the default).
   `App\Services\SeoApi\SeoApiBudget` adds up the month's cost in `seo_api_requests`; every client
   checks it before a billable call. Reading results already paid for is never blocked. Feature
   screens do not show the spend; the API usage page does.
-- **The SEO dashboard stays the entry point.** Each phase adds sections or tabs to
-  `ShowSeoDashboard` (`app/Actions/Web/Website/UI/ShowSeoDashboard.php`), filtered by the dashboard
-  interval like the existing performance card.
+- **The SEO dashboard stays the entry point.** Its tabs, at the top like those of a website: Overview
+  (the cards filtered by the dashboard interval and the table tabs Top pages, Conversions, Search
+  queries, Low CTR queries and Page speed, switched with the `table` query parameter), Visitors,
+  Page views and Missing pages. Only the open table is built. The SEO menu holds the tools with tabs
+  of their own: Site audit, Keywords, Backlinks and Competitors; the old Visitors, Page views and
+  Missing pages addresses open their tab. What covers all shops lives at group level, in the
+  Website menu: SEO portfolio and API usage, linked from the heading of every SEO dashboard for
+  users with group access.
 
 ## Phase 0: fix the data we already show
 
@@ -170,7 +175,7 @@ Done on 7 October 2026.
 - `maintenance:prune_website_not_found_paths` deletes paths not seen for 90 days, daily at 03:50 UTC.
 - Hits are a floor, not a count: when Varnish caches a 404, repeat visits never reach Laravel.
 
-**Screen.** SEO > Missing pages lists paths by hits with last seen, first seen and where the last
+**Screen.** The Missing pages tab of the SEO dashboard lists paths by hits with last seen, first seen and where the last
 visit came from, filtered to Open by default (Open, Fixed, Ignored).
 
 - "Create redirect" opens a modal to pick a live page and posts to the existing
@@ -345,7 +350,7 @@ row returned).
   without our own websites.
 - Backlink gap: pick competitors or type domains; referring domains that link to them and not to
   us, filtered to those linking to two or more by default.
-- SEO > Missing pages gets a Backlinks column: links pointing at each 404 path, sortable, so the
+- The Missing pages tab gets a Backlinks column: links pointing at each 404 path, sortable, so the
   redirects that win back the most links come first.
 - Locally only, a Fetch now button runs the fetch for the shop at once.
 
@@ -382,35 +387,64 @@ Built on 9 October 2026 on DataForSEO Labs, in the shop's own market (its countr
 
 ### 3.3 AI visibility
 
-**Today.** `app/Actions/Helpers/AI/` already sends prompts through an AI gateway (OpenRouter) for
-product titles and descriptions.
+Built on 9 October 2026 on DataForSEO only (AI Optimization API): no prompts through the AI gateway
+and no second model reading the answers. SEO > AI visibility, after Competitors.
+
+**Sources, with the prices the first requests logged.**
+
+- LLM Scraper (ChatGPT): what a ChatGPT user sees for a prompt in a chosen country (192 countries),
+  with web search on: the answer in markdown, the sources it cites and the searches behind it.
+  $0.004 per prompt live, answered in about 30 seconds. The standard queue costs $0.0012 but our
+  first queued prompt was still not answered after 50 minutes, so on 9 October 2026 the team chose
+  live.
+- LLM Mentions: DataForSEO's database of AI answers to real searches, searched by domain: how often
+  each domain is mentioned and the AI search volume behind those answers. $0.10 per request, and one
+  request covers our domain and up to nine competitors. Its `chat_gpt` data is United States and
+  English only; the `google` platform (AI Overviews) has 94 markets.
+- AI Overviews of tracked keywords still come from the SERP checks of 2.2.
+
+**What the answers taught us.** The scraper's `brand_entities` carry descriptions ("UK wholesale
+gifts and incense supplier"), not names, and no URLs. So:
+
+- An answer names a brand when it links to the brand's domain or writes one of its names, with or
+  without spaces, hyphens and dots between the words. Image captions do not count. Our names are
+  set per shop on the Prompts tab (default: the shop and website names); a competitor's are its
+  domain and its name on the Competitors page.
+- The place of a brand is its entry in the list the answer is built on: the heading level, numbered
+  items, bold bullets or bold lines it uses most (at least twice). ChatGPT changes its answer
+  between runs: asked twice the same day where to buy wholesale incense sticks in the UK, it put
+  Ancient Wisdom second (citing thewholesaler.co.uk, not us) and then first (citing
+  ancientwisdom.biz).
 
 **Build.**
 
-- `seo_ai_prompts`: shop_id, prompt, language, is_active. Prompts are the questions a customer would
-  ask, written by the team per shop.
-- Weekly, send each prompt to the models the team cares about through the gateway: at least
-  ChatGPT (OpenAI), Gemini, Claude and Perplexity.
-- Use each model with web search on (OpenRouter's `:online` variants, Perplexity Sonar). Without it
-  the model answers from training data, cites nothing, and does not behave like the ChatGPT or
-  Gemini apps customers use. Even with search on, API answers differ from the apps, so treat the
-  result as a sample, not what every customer sees.
-- `seo_ai_answers`: prompt_id, model, run_at, answer, brand_mentioned, brand_position (the order in
-  which our brand appears among the brands named), competitor_mentions (json).
-- `seo_ai_citations`: answer_id, url, domain, position, competitor_id (nullable), website_id and
-  webpage_id when the URL is ours, matched like Search Console pages.
-- AI Overviews come from the SERP results already fetched in 2.2, not from the gateway.
-- Check whether the SEO provider offers AI mention data (DataForSEO has an AI optimisation API)
-  before building the sending side ourselves, and compare its price with the gateway's.
-- Models change answers between runs. Show mention rate over several runs, not one answer.
+- `seo_ai_prompts`: shop_id, prompt (up to 500 characters), country, language, is_active,
+  queued_at and last_run_at. Written by the team per shop; ten to twenty per brand is enough.
+- `AskSeoAiPrompts` (Wednesdays 01:00 UTC) queues one `AskSeoAiPrompt` job for every active prompt
+  not answered in the last 7 days, so the live calls run side by side on the workers; each job asks
+  the scraper's live endpoint and stores the answer.
+- `seo_ai_answers`: prompt_id, platform, date, model, answer (markdown), is_mentioned,
+  brand_position, is_cited, brands (the answer's list, in order), competitors (json: named, cited
+  and place per competitor), fan_out_queries.
+- `seo_ai_citations`: answer_id, position, url, domain, title, competitor_id, and website_id and
+  webpage_id when the URL is one of our live websites, matched by path like Search Console pages.
+- `FetchSeoAiMentions` (1st of the month, 03:30 UTC): `google` in the shop's market when LLM Mentions
+  has it, and `chat_gpt` (United States) for shops in English, stored per date in `seo_ai_mentions`.
+  About $0.15 per shop a month.
+- Locally, Run now asks up to five of the prompts that are due and fetches LLM Mentions if the
+  month has none.
 
-**Screens.** An AI visibility tab:
+**Screens.** SEO > AI visibility:
 
-- Mention rate and citation rate per model, ours next to each competitor (share of voice), with the
-  trend over the weekly runs.
-- Prompts: per prompt, which models mention us, which cite us and with which page, and which
-  competitors they name instead.
-- Cited pages: our webpages by the number of prompts and models that cite them.
+- Share of voice: the share of answers of the last 28 days that name us and cite our website, next
+  to each competitor, with the average place in the list; the weekly trend of the last 12 weeks;
+  the LLM Mentions figures per platform with their change since the fetch before.
+- Prompts: add, switch off and delete prompts; edit our brand names; per prompt the last answer
+  (named, place, cited and with which pages, competitors named), the share of the last 28 days, and
+  the full answer with its list and sources.
+- Cited pages: our webpages by the number of prompts citing them, and the websites ChatGPT cites
+  most, competitors and directories included: places worth being listed on.
+- Top pages has an AI prompts column (3.6), the weekly SEO report an AI visibility section.
 
 ### 3.4 Content help
 
@@ -444,53 +478,45 @@ page). `WithPromptAI::promptSeo()` is still unused; the prompt lives in the new 
 - SEO > Site audit, Suggested fixes: every suggestion of the website, waiting, used or dismissed,
   with the same actions.
 
-### 3.5 Apify for competitor traffic and non-Google search demand
+### 3.5 Competitor traffic and non-Google search demand
 
-Neither gap can be measured by us, and the SEO providers in 3.1 and 3.2 only estimate organic
-search traffic. [Apify](https://apify.com) runs third-party scrapers ("actors") on demand and
-returns JSON, which can cover both, with the limits below.
+Decided on 9 October 2026: DataForSEO only, no Apify and no Similarweb.
 
-**Total traffic of a competitor's domain.** Several actors read Similarweb's public data for a
-domain, for example [fetch_cat/similarweb-traffic-scraper](https://apify.com/fetch_cat/similarweb-traffic-scraper)
-and [bovi/similarweb-scraper](https://apify.com/bovi/similarweb-scraper). They return monthly
-visits, global and category rank, bounce rate, pages per visit, traffic channel mix and top
-countries.
+**Competitor traffic.** DataForSEO Labs `bulk_traffic_estimation` returns the estimated monthly
+traffic of up to 1,000 domains in one request, split into organic, paid, featured snippet and
+local pack, and `historical_bulk_traffic_estimation` returns it per month back to October 2020, so
+the trend of a competitor is there from the first fetch. It is estimated from rankings and
+volumes, the same kind of figure as 3.2. Labs also offers clickstream-based traffic
+(`clickstream_etv`) as a second estimate.
 
-- What we get is Similarweb's model, not a measurement. It is the same kind of figure Semrush Traffic
-  Analytics shows, from a different panel, so the two will not match.
-- Small domains often have no figure at all. Expect gaps for niche competitors.
-- These actors read Similarweb pages or an undocumented endpoint without a Similarweb account, which
-  is against Similarweb's terms and breaks whenever Similarweb changes its site. The Similarweb API
-  is the licensed way to get the same data, at a subscription price.
-- Monthly granularity is enough. Run once a month per competitor domain.
+- What it cannot give is traffic from other channels (direct, referral, social, email). Only
+  Similarweb has that: its API is licensed and priced through sales, far above the SEO budget, and
+  the Apify actors that read it break Similarweb's terms. Not built unless the team uses Semrush
+  Traffic Analytics today and needs it.
+- Built on 9 October 2026 with `historical_bulk_traffic_estimation`: the first request (two UK
+  domains) cost $0.1224, the same for the whole history since October 2020 as for the last 12
+  months, so every fetch reads it all. `bulk_traffic_estimation` is not needed: the history ends
+  with the latest month.
+- `FetchDomainTraffic` stores per domain, market and month the organic, paid, featured snippet and
+  local pack visits and the organic and paid keyword counts in `seo_domain_traffic`, from the first
+  month the domain is seen. A domain fetched in the last 25 days is not fetched again; one with no
+  traffic at all gets an empty row so it is not asked for again until then.
+- `FetchCompetitorTraffic` (2nd of the month, 02:30 UTC): one request per market (country and
+  language) for the live websites in it and all their competitors.
+- Domain comparison: a Search traffic section (organic visits of the latest month, change against
+  the same month a year before, paid visits, when fetched) and a chart of organic visits per month
+  over the last three years. Compare fetches a typed-in domain's history with the rest; a failed
+  traffic fetch leaves the rest of the comparison.
+- Competitors tab: the latest organic visits of our domain and each competitor.
+- In the first fetch, ancientwisdom.biz had about 2,600 organic visits in September 2026 against
+  8,200 a year before, and somethingdifferentwholesale.com about 5,700 against 31.
 
-**Search demand outside Google.**
+**Search demand outside Google.** Only when the team sells or advertises on another platform:
 
-- Bing has an official source and it is free: the Bing Webmaster Tools API (`GetKeywordStats`,
-  `GetRelatedKeywords`) returns Bing impressions per keyword, country and language. Use it before
-  Apify for Bing.
-- For Amazon, YouTube, TikTok and similar platforms, no platform publishes search volume. Actors
-  such as [Answer The Public](https://apify.com/deadlyaccurate/answer-the-public) collect what those
-  platforms suggest as people type. That tells us which searches exist and which are popular enough
-  to be suggested, not how many searches each one gets.
-- Show these keywords as demand signals (suggested, rising, related) next to Google volumes, never in
-  the same volume column.
-
-**Build.**
-
-- One `ApifyClient` that starts an actor run, waits for it or receives the webhook, and reads the
-  dataset. API token in `config/services.php`.
-- Pin each actor to a version and check its output shape before storing, so a changed actor fails
-  loudly instead of writing empty rows.
-- `seo_domain_traffic_estimates`: domain, month, source (`similarweb_via_apify` or
-  `similarweb_api`), visits, channel_mix (json), top_countries (json), rank, fetched_at.
-- `seo_platform_keyword_signals`: shop_id, platform, keyword, signal (suggested, related, rising),
-  country, language, fetched_at.
-- Apify charges per run or per result, depending on the actor. Log it in `seo_api_requests` with
-  its cost, so it counts against the shared SEO API budget.
-
-**Decision.** Choose between an Apify actor (cheap, against Similarweb's terms, may break) and the
-Similarweb API (licensed, priced) for competitor traffic before building it.
+- Bing: the Bing Webmaster Tools API (`GetKeywordStats`, `GetRelatedKeywords`) is free and needs
+  each website verified in Bing Webmaster Tools; DataForSEO also has Bing keyword data.
+- Amazon: DataForSEO Labs has Amazon keyword data.
+- Platforms that publish no search volume (TikTok, Pinterest, Etsy): not covered.
 
 ### 3.6 Top pages
 
@@ -511,7 +537,8 @@ Built on 9 October 2026. The Webpages tab of the SEO dashboard is now Top pages
 - New columns: Queries (different Google searches the page appeared for) and Referring domains
   (from `seo_backlinks` of 3.1, our own websites left out; that list holds one link per linking
   domain plus the new, lost and broken ones, so it counts domains better than links).
-- Waits for 3.3: the AI prompts that cite each page.
+- AI prompts: the prompts whose ChatGPT answer cited the page in the last 28 days, whatever the
+  interval (3.3).
 
 ### Phase 3 is done when
 
@@ -520,34 +547,87 @@ Built on 9 October 2026. The Webpages tab of the SEO dashboard is now Top pages
 - Domain comparison, keyword gap and AI visibility are on the dashboard.
 - Top pages shows the change against the previous period, referring domains and the AI prompts that
   cite each page.
-- Competitor domain traffic is fetched monthly, and Bing and non-Google search signals are shown
-  beside Google volumes.
+- Competitor search traffic, with its history, is fetched monthly and shown in the domain comparison.
 
 ## API usage
 
-Built last, once every paid provider of Phase 2 and 3 is in place. One page for the cost of all of
-them, so the monthly budget is watched and changed in Aiku instead of in each provider's dashboard.
+Built on 9 October 2026, once the providers were settled (DataForSEO and the AI gateway). Website >
+API usage at group level (`ShowSeoApiUsage`, `GetSeoApiUsage`), next to the SEO portfolio, and
+linked from every SEO dashboard: the figures and the budget are the group's.
 
 - **Budget setting.** The monthly cap for all SEO APIs together, default 250 USD, set on the page by
-  someone with web edit permission and stored as a group setting. It replaces
-  `SEO_API_MONTHLY_BUDGET`, which stays only as the default.
-- **This month.** Spend against the budget, what is left, and the projected month end at the
-  current daily rate. A warning at 80%, and a clear notice when the cap is reached and calls stop.
-- **Breakdown.** Spend, requests and errors per provider and per feature (keyword research, rank
-  tracking, volume refresh, backlinks, competitor research, AI visibility, Apify), from the
-  `provider` and `endpoint` of `seo_api_requests`; daily spend over the month; the previous months.
-- **Errors.** The latest failed requests with their message, so an expired key or an empty balance
-  shows up here before anyone notices missing data.
+  someone with `group-webmaster.edit` or `sysadmin.edit` (`UpdateSeoApiBudget`) and kept in the
+  group settings (`seo.api_monthly_budget`). `SEO_API_MONTHLY_BUDGET` is only the default.
+- **This month.** Spend against the budget with a bar, what is left, the month end at the current
+  daily pace, requests and failed requests. A warning at 80% or when the pace would pass the budget,
+  and a notice once it is spent and paid calls stop.
+- **Breakdown.** Spend, requests and failures per feature and provider, the feature read from the
+  endpoint logged in `seo_api_requests` (Labs `ranked_keywords` counts as competitor research even
+  when keyword research asked for a URL); spend per day; the previous six months, each opening its
+  own month.
+- **Errors.** The latest twenty failed requests with their message, website and endpoint, so an
+  expired key, an empty balance or a paused account shows up here first.
 - Feature screens show no spend of their own.
+
+## Not planned yet
+
+Found on 9 October 2026 by comparing this plan with the marketing team's research ("AIKU SEO
+Strategy (Research)", 8 October 2026). None is built; each needs the team's go-ahead.
+
+- **Position history and alerts.** Built on 9 October 2026. In the Rankings tab a keyword opens its
+  position chart (`GetSeoKeywordHistory`): every check, the competitors from the same checks and the
+  Search Console average of the same query per day, position 1 at the top and a gap where the
+  website was not in the results read. Anyone can watch a keyword (the bell, `seo_keyword_watchers`).
+  After each check `StoreSerpResult` writes a `seo_ranking_alerts` row when the keyword left the top
+  10, dropped out of the results read, or fell 5 places or more (`SeoRankingAlert::DROP_PLACES`);
+  the row shows as a tag in the table, and once the checks are collected `NotifySeoRankingAlerts`
+  sends each watcher one notification per shop, in the bell and by email. No API cost.
+- **Tracking depth per keyword.** Checks read the top 30 weekly or the top 20 daily. The research
+  recommends daily top 100, about $486 a month for 2,700 keywords, against about $65 for top 100
+  weekly. Let the team choose the depth per keyword (20, 30 or 100), so positions 31 to 100 are
+  seen where they matter; the cost shows on the API usage page.
+- **Export and scheduled reports.** Built on 9 October 2026.
+  - An Excel button on every SEO table (Rankings, Tracked keywords, Top pages, Missing pages,
+    Referring domains, Backlinks, Keyword gap, SEO portfolio) downloads it with the filters and sort
+    it has on screen, up to 20,000 rows (`ExportSeoTable`, `ExportSeoPortfolio`, `SeoTableExport`).
+    The same index actions are read in pages of 2,000 for the request.
+  - Weekly report by email: anyone can turn it on per shop (SEO dashboard) or for every website (SEO
+    portfolio), kept in `seo_report_subscriptions`. `SendSeoWeeklyReports` (Mondays 07:00 UTC, after
+    the weekly checks) sends each subscriber the shop's week against the week before: visitors,
+    Google clicks, impressions and position, tracked keywords in the top 10 with the five biggest
+    winners and losers, site health, referring domains with new and lost, new 404 paths and the
+    suggested fixes waiting; the portfolio report lists every website.
+- **Portfolio view.** Built on 9 October 2026: Website (group menu) > SEO portfolio (`ShowSeoPortfolio`, `GetSeoPortfolio`), linked from every SEO dashboard,
+  one row per live website: site health of the latest audit and its change, visitors and Google
+  clicks of the last 28 days against the 28 before (Search Console ending on its own last day),
+  average position, tracked keywords in the top 10, referring domains with the week's new and lost,
+  and DataForSEO rank, and the answers of the last 28 days that name the shop in ChatGPT (3.3);
+  totals above, each website opening its shop's SEO dashboard. From stored data only.
+- **Content briefs.** 3.4 only writes meta titles and descriptions. A brief for a keyword (the
+  headings, length, questions and terms of the pages ranking in the top 10, read by our crawler from
+  the SERP results of 2.2, written up through the AI gateway) is the part of Semrush's content tools
+  the research asks for. Optional.
+- **Competitor page changes.** The research proposes Apify to watch competitor pages. Our crawler
+  can fetch a short list of competitor URLs weekly and report title, content and price changes,
+  without Apify. Optional.
 
 ## Cancelling Semrush
 
-1. Run Aiku and Semrush side by side for at least one full Semrush billing cycle after Phase 3.
-2. Compare, for the same sites: audit issue counts, positions for a sample of tracked keywords,
-   referring domain counts. Write down where they differ and why.
-3. Export from Semrush whatever history the team wants to keep (position history, backlink history),
-   because Aiku's own history only starts on the day each fetch was switched on.
-4. Cancel when the team agrees the Aiku figures answer the same questions.
+Run as the pilot the marketing research proposes, with its owners:
+
+1. **Billing and usage audit** (account owner): the Semrush invoice broken down into plan, seats and
+   add-ons, and the tracked keywords with their devices and locations.
+2. **Pilot scope** (Aldo and Gita): two or three websites, their tracked keywords and competitors
+   set in Aiku, and which Semrush features the team uses each week.
+3. **Pilot on those websites** (Aldo and the SEO team), for at least one full Semrush billing cycle,
+   both tools side by side. Compare audit issue counts, positions for a sample of tracked keywords,
+   referring domain counts and keyword gap results; write down where they differ and why. Record the
+   actual API spend from the API usage page.
+4. **Build-or-buy decision** (Tomas): keep, reduce or cancel the paid Semrush features, against the
+   pilot criteria of the research: useful data coverage, reliable runs, team adoption, total monthly
+   cost and payback period.
+5. Before cancelling, export from Semrush whatever history the team wants to keep (position history,
+   backlink history), because Aiku's own history only starts on the day each fetch was switched on.
 
 ## Decisions needed
 
@@ -557,7 +637,7 @@ them, so the monthly budget is watched and changed in Aiku instead of in each pr
 | SERP provider and monthly budget (proposal in [budget.md](budget.md)) | Phase 2 |
 | Tracked keyword list, locations and devices per shop, and check frequency (set in SEO > Keywords) | Phase 2 |
 | Competitor domains per shop (set in SEO > Competitors) | Phase 2 (positions) and Phase 3 (backlinks) |
-| Models and prompts for AI visibility, and whether to buy AI mention data from the SEO provider | Phase 3 |
-| Competitor domain traffic: Apify actor or the Similarweb API | Phase 3 |
-| Which non-Google platforms to collect search signals from | Phase 3 |
-| How long to run side by side before cancelling | After Phase 3 |
+| Prompts for AI visibility and our brand names, per shop (set in SEO > AI visibility > Prompts) | Phase 3 |
+| Which non-Google platforms to collect search signals from, if any | Phase 3 |
+| Which two or three websites to pilot on, and how long to run side by side before cancelling | Pilot |
+| Whether to build the parts in [Not planned yet](#not-planned-yet) | Pilot |

@@ -22,6 +22,7 @@ use App\Actions\UI\WithInertia;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Dispatching\Shipper;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryServiceInvoice;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -148,6 +149,16 @@ class ShowProcurementDashboard extends OrgAction
                 'amber',
                 'grp.org.procurement.pre_orders.index'
             ) : null,
+            $this->dashboardCard(
+                __('Unpaid service invoices'),
+                __('Freight, customs and other local bills for the containers'),
+                'fal fa-file-invoice-dollar',
+                StockDeliveryServiceInvoice::where('organisation_id', $organisation->id)->whereNull('paid_at')->count(),
+                'amber',
+                'grp.org.procurement.service_invoices.index',
+                [],
+                ['paid' => 'unpaid']
+            ),
         ]);
     }
 
@@ -252,6 +263,13 @@ class ShowProcurementDashboard extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
+        $organisation = Arr::get($routeParameters, 'organisation');
+        $organisation = $organisation instanceof Organisation ? $organisation : Organisation::where('slug', $organisation)->first();
+
+        if ($organisation?->type === OrganisationTypeEnum::AGENT) {
+            return ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation'));
+        }
+
         return
             array_merge(
                 ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),

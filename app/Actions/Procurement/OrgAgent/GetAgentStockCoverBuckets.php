@@ -8,9 +8,12 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
+use App\Actions\Procurement\ProjectOrganisationStockOuts;
 use App\Enums\Catalogue\HealthRankEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\OrgAgent;
 use Illuminate\Database\Query\Builder;
@@ -29,7 +32,7 @@ class GetAgentStockCoverBuckets
         'w4'     => ['label' => 'Watch: out within 4 lead times', 'tone' => 'yellow'],
         'ok'     => ['label' => 'Covered', 'tone' => 'green'],
         'dead'   => ['label' => 'Dead stock', 'tone' => 'gray'],
-        'gone'   => ['label' => 'We stocked it, we stopped', 'tone' => 'slate'],
+        'gone'   => ['label' => 'Discontinued: we stocked it, we stopped', 'tone' => 'slate'],
         'never'  => ['label' => 'We never stocked', 'tone' => 'violet'],
     ];
 
@@ -48,6 +51,11 @@ class GetAgentStockCoverBuckets
      * Per-row lead time: the supplier product's own measured or estimated days, agent roll-up as
      * the last resort. Sea freight makes the agent windows wide, so a product with real history
      * must never be judged against the agent average.
+     *
+     * Two edges are held to what the stock-out projection sees, so a product it expects to lose
+     * sales on is never called covered: less than one SKO left is out of stock, there is nothing to
+     * sell, and with a lead time of a few days the watch window still reaches as far as the
+     * projection looks ahead.
      */
     private function bucketExpression(int $leadDays): string
     {
@@ -57,11 +65,11 @@ class GetAgentStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.state <> '".OrgStockStateEnum::ACTIVE->value."' then 'gone'
-            when os.quantity_available <= 0 then 'out'
+            when os.quantity_available < 1 then 'out'
             when s.days_of_cover <= $lead then 'w1'
             when s.days_of_cover <= $understock then 'w2'
             when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
+            when s.days_of_cover <= greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS.")) then 'w4'
             when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
             else 'ok' end";
     }
@@ -89,7 +97,21 @@ class GetAgentStockCoverBuckets
 
     public function scopedQuery(OrgAgent $orgAgent): Builder
     {
-        return DB::table('org_supplier_products as osp')
+        return $this->scope(DB::table('org_supplier_products as osp'), $orgAgent);
+    }
+
+    /**
+     * The catalogue scope on any query whose table is aliased osp, so a listing built with the
+     * standard query builder judges the same products as the tiles do.
+     *
+     * @template TQuery of Builder|\Illuminate\Database\Eloquent\Builder
+     *
+     * @param  TQuery  $query
+     * @return TQuery
+     */
+    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent $orgAgent): Builder|\Illuminate\Database\Eloquent\Builder
+    {
+        return $query
             ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
             ->leftJoinLateral(self::bestOrgStock(), 'os')
             ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
@@ -98,7 +120,43 @@ class GetAgentStockCoverBuckets
             ->where('osp.org_agent_id', $orgAgent->id)
             ->where('osp.state', OrgSupplierProductStateEnum::ACTIVE->value)
             ->where('osp.is_available', true)
-            ->whereNull('sp.deleted_at');
+            ->whereNull('sp.deleted_at')
+            ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))');
+    }
+
+    public function bucketSql(OrgAgent $orgAgent): string
+    {
+        return $this->bucketExpression(GetAgentLeadTimes::run($orgAgent)['agent']['days']);
+    }
+
+    /**
+     * A supplier product we do not stock whose SKOs are all discontinued is not something we never
+     * got round to stocking, it is a dead code: its price and availability have not been looked at
+     * in years. It stays out of the catalogue.
+     */
+    private static function everySkoDiscontinuedExpression(): string
+    {
+        return "(exists (select 1 from stock_has_supplier_products shs where shs.supplier_product_id = sp.id)
+            and not exists (select 1 from stock_has_supplier_products shs
+                join stocks st on st.id = shs.stock_id
+                where shs.supplier_product_id = sp.id and st.state <> '".StockStateEnum::DISCONTINUED->value."'))";
+    }
+
+    /**
+     * An old code for an SKO the organisation already buys from this agent under another supplier
+     * product: the stock is watched there, counting it here as never stocked would be double.
+     */
+    private static function boughtUnderAnotherCodeExpression(): string
+    {
+        return "exists (select 1 from stock_has_supplier_products shs
+            join org_stocks other_os on other_os.stock_id = shs.stock_id
+                and other_os.organisation_id = osp.organisation_id
+                and other_os.state = '".OrgStockStateEnum::ACTIVE->value."'
+            join org_stock_has_org_supplier_products other_link on other_link.org_stock_id = other_os.id and other_link.status
+            join org_supplier_products other_osp on other_osp.id = other_link.org_supplier_product_id
+                and other_osp.org_agent_id = osp.org_agent_id
+                and other_osp.id <> osp.id
+            where shs.supplier_product_id = sp.id)";
     }
 
     private function onShoppingListExpression(): string
@@ -107,6 +165,37 @@ class GetAgentStockCoverBuckets
             where sli.org_supplier_product_id = osp.id
                 and sli.state = '".ShoppingListItemStateEnum::OPEN->value."'
                 and sli.deleted_at is null)";
+    }
+
+    /**
+     * On a purchase order that has not landed yet, a draft included: already dealt with, so it must
+     * not come back as needing action or be ordered a second time.
+     */
+    public static function onOpenPurchaseOrderExpression(): string
+    {
+        return "exists (select 1 from purchase_order_transactions pot
+            join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+            where pot.org_stock_id = os.id and pot.deleted_at is null
+                and po.state in ('".implode("', '", [
+            PurchaseOrderStateEnum::IN_PROCESS->value,
+            PurchaseOrderStateEnum::SUBMITTED->value,
+            PurchaseOrderStateEnum::CONFIRMED->value,
+        ])."'))";
+    }
+
+    /**
+     * What is on those orders for the product, in the organisation's currency.
+     */
+    private static function onOpenPurchaseOrderValueExpression(): string
+    {
+        return "(select sum(pot.net_amount * coalesce(po.org_exchange, 1)) from purchase_order_transactions pot
+            join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+            where pot.org_stock_id = os.id and pot.deleted_at is null
+                and po.state in ('".implode("', '", [
+            PurchaseOrderStateEnum::IN_PROCESS->value,
+            PurchaseOrderStateEnum::SUBMITTED->value,
+            PurchaseOrderStateEnum::CONFIRMED->value,
+        ])."'))";
     }
 
     /**
@@ -123,12 +212,13 @@ class GetAgentStockCoverBuckets
                 os.health_rank,
                 count(*) as total,
                 count(*) filter (where ".$this->onShoppingListExpression().") as on_list,
-                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0) as on_the_way,
-                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".$this->onShoppingListExpression().") as handled,
+                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().") as on_the_way,
+                count(*) filter (where coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().' or '.$this->onShoppingListExpression().") as handled,
+                coalesce(sum(".self::onOpenPurchaseOrderValueExpression()."), 0) as on_order_value,
                 count(distinct sp.supplier_id) as suppliers,
                 coalesce(sum(s.stock_value), 0) as stock_value,
                 coalesce(sum(s.projected_lost_revenue), 0) as lost,
-                coalesce(sum(s.projected_lost_revenue) filter (where not (coalesce(s.on_the_way_po_count, 0) > 0 or ".$this->onShoppingListExpression().")), 0) as lost_untouched")
+                coalesce(sum(s.projected_lost_revenue) filter (where not (coalesce(s.on_the_way_po_count, 0) > 0 or ".self::onOpenPurchaseOrderExpression().' or '.$this->onShoppingListExpression().")), 0) as lost_untouched")
             ->groupByRaw("$expression, os.health_rank")
             ->get()
             ->groupBy('bucket');
@@ -144,6 +234,7 @@ class GetAgentStockCoverBuckets
                 'count'       => (int) $bucketRows->sum('total'),
                 'on_list'     => (int) $bucketRows->sum('on_list'),
                 'on_the_way'  => (int) $bucketRows->sum('on_the_way'),
+                'on_order_value' => round((float) $bucketRows->sum('on_order_value'), 2),
                 'untouched'   => (int) max(0, $bucketRows->sum('total') - $bucketRows->sum('handled')),
                 'suppliers'   => (int) $bucketRows->max('suppliers'),
                 'stock_value' => (float) $bucketRows->sum('stock_value'),
@@ -182,4 +273,5 @@ class GetAgentStockCoverBuckets
             ->pluck('osp.id')
             ->all();
     }
+
 }

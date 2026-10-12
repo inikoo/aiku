@@ -60,7 +60,7 @@ class SuppliersResource extends JsonResource
         return [
             'icon'    => 'fal fa-person-dolly',
             'class'   => 'text-green-500',
-            'tooltip' => __('Free'),
+            'tooltip' => __('No agent'),
         ];
     }
 }

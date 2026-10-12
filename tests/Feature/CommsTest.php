@@ -871,6 +871,8 @@ test('UI show mailshot in workshop', function (Mailshot $mailShot) {
             ->has('builder')
             ->has('imagesUploadRoute')
             ->has('socialIcons')
+            ->where('can_edit', true)
+            ->has('openTemplateSelector')
             ->has('updateRoute')
             ->has('loadRoute')
             ->has('publishRoute')
@@ -2254,6 +2256,10 @@ test('store mailshot template uses default template data', function (Shop $shop)
         ->where('slug', 'mailshot')
         ->first();
 
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
+
+    request()->setUserResolver(fn () => $this->user);
     $storeAction = StoreMailshotTemplate::make();
     $storeAction->initialisationFromShop($shop, ['name' => 'My new template']);
     $emailTemplate = $storeAction->handle(['name' => 'My new template']);
@@ -2261,6 +2267,8 @@ test('store mailshot template uses default template data', function (Shop $shop)
     expect($emailTemplate->name)->toBe('My new template')
         ->and($emailTemplate->layout)->toBe($defaultTemplate->layout)
         ->and($emailTemplate->shop_id)->toBe($shop->id);
+
+    actingAsUserWithRoles($this->user, $originalRoles);
 
     return $emailTemplate;
 })->depends('outbox seeded when shop created');
@@ -2278,6 +2286,10 @@ test('update mailshot template', function (EmailTemplate $emailTemplate) {
 
 test('store mailshot as new template from existing template', function (EmailTemplate $emailTemplate) {
     $shop = $emailTemplate->shop;
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
+
+    request()->setUserResolver(fn () => $this->user);
     $action = StoreMailshotAsNewTemplate::make();
     $action->initialisationFromShop($shop, [
         'name'   => 'Cloned template',
@@ -2290,6 +2302,8 @@ test('store mailshot as new template from existing template', function (EmailTem
 
     expect($newTemplate->name)->toBe('Cloned template')
         ->and($newTemplate->id)->not->toBe($emailTemplate->id);
+
+    actingAsUserWithRoles($this->user, $originalRoles);
 
     return $newTemplate;
 })->depends('update mailshot template');
@@ -2308,6 +2322,10 @@ test('store mailshot as new template from mailshot', function (Mailshot $mailsho
         'active_at'  => now(),
     ]);
 
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
+
+    request()->setUserResolver(fn () => $this->user);
     $action = StoreMailshotAsNewTemplate::make();
     $action->initialisationFromShop($shop, [
         'name'   => 'From mailshot',
@@ -2321,7 +2339,98 @@ test('store mailshot as new template from mailshot', function (Mailshot $mailsho
     expect($newTemplate->name)->toBe('From mailshot')
         ->and($newTemplate->shop_id)->toBe($shop->id)
         ->and($newTemplate->language_id)->toBe($shop->language_id);
+
+    actingAsUserWithRoles($this->user, $originalRoles);
 })->depends('create mailshot with recipe for filters');
+
+test('marketing staff of another shop read newsletters, mailshots and templates but change nothing, and other staff do not', function (Mailshot $mailshot) {
+    $shop          = $mailshot->shop;
+    $parameters    = [$shop->organisation->slug, $shop->slug];
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    setPermissionsTeamId($this->user->group_id);
+    $permissionClass = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionClass();
+    if (!$permissionClass::where('name', 'marketing.999999999.view')->exists()) {
+        $permissionClass::where('name', "marketing.$shop->id.view")->firstOrFail()->replicate()->fill(['name' => 'marketing.999999999.view'])->save();
+    }
+
+    $actingWithOnly = function (array $permissions) {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncRoles([]);
+        $this->user->syncPermissions($permissions);
+        \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        actingAs($this->user->refresh());
+    };
+
+    try {
+        $actingWithOnly(['marketing.999999999.view']);
+
+        $index = $this->get(route('grp.org.shops.show.marketing.mailshots.index', $parameters))->assertOk()->viewData('page')['props'];
+        expect($index['can_edit'])->toBeFalse();
+        $this->get(route('grp.org.shops.show.marketing.newsletters.index', $parameters))->assertOk();
+        $this->get(route('grp.org.shops.show.marketing.templates.index', $parameters))->assertOk();
+        $workshop = $this->get(route('grp.org.shops.show.marketing.mailshots.workshop', [...$parameters, $mailshot->slug]))->assertOk()->viewData('page')['props'];
+        expect($workshop['can_edit'])->toBeFalse();
+
+        $this->get(route('grp.org.shops.show.marketing.traffic_sources.index', $parameters))->assertForbidden();
+        $this->post(route('grp.models.shop.mailshot.publish', ['shop' => $shop->id, 'mailshot' => $mailshot->id]), [])->assertForbidden();
+
+        $actingWithOnly(["orders.$shop->id.view"]);
+        $this->get(route('grp.org.shops.show.marketing.mailshots.index', $parameters))->assertForbidden();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+    }
+})->depends('create mailshot with recipe for filters');
+
+test('a marketing viewer can open mailshots and the workshop but cannot change or send them', function (Mailshot $mailshot) {
+    $shop          = $mailshot->shop;
+    $parameters    = [$shop->organisation->slug, $shop->slug];
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $shop)]);
+
+    $index = $this->get(route('grp.org.shops.show.marketing.mailshots.index', $parameters))->assertOk()->viewData('page')['props'];
+    expect($index['can_edit'])->toBeFalse()
+        ->and($index['pageHead']['actions'] ?? [])->toBeEmpty();
+
+    $workshop = $this->get(route('grp.org.shops.show.marketing.mailshots.workshop', [...$parameters, $mailshot->slug]))->assertOk()->viewData('page')['props'];
+    expect($workshop['can_edit'])->toBeFalse()
+        ->and($workshop['pageHead']['actions'])->toBeEmpty();
+
+    $dashboard = $this->get(route('grp.org.shops.show.marketing.dashboard', $parameters))->assertOk()->viewData('page')['props'];
+    expect($dashboard['pageHead']['actions'])->toBeEmpty();
+
+    $this->get(route('grp.org.shops.show.marketing.mailshot_settings', $parameters))->assertForbidden();
+    $this->post(route('grp.models.shop.mailshot.publish', ['shop' => $shop->id, 'mailshot' => $mailshot->id]), [])->assertForbidden();
+    $this->post(route('grp.models.shop.outboxes.mailshot.send', ['shop' => $shop->id, 'outbox' => $mailshot->outbox_id, 'mailshot' => $mailshot->id]))->assertForbidden();
+    $this->delete(route('grp.models.shop.mailshot.delete', ['shop' => $shop->id, 'mailshot' => $mailshot->id]))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+})->depends('create mailshot with recipe for filters');
+
+test('shop ppc edits google ads and seo but only views the rest of marketing', function () {
+    $shop          = $this->shop;
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    $permissions   = new class () {
+        use \App\Actions\Traits\Authorisations\WithShopPpcPermissions;
+    };
+
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::SHOP_PPC->value, $shop)]);
+    expect($permissions->isShopPpc($this->user, $shop))->toBeTrue()
+        ->and($permissions->canEditGoogleAds($this->user, $shop))->toBeTrue()
+        ->and($permissions->canEditSeo($this->user, $shop))->toBeTrue()
+        ->and($this->user->authTo("marketing.{$shop->id}.edit"))->toBeFalse();
+    $this->get(route('grp.org.shops.show.marketing.mailshot_settings', [$shop->organisation->slug, $shop->slug]))->assertForbidden();
+
+    actingAsUserWithRoles($this->user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $shop)]);
+    expect($permissions->isShopPpc($this->user, $shop))->toBeFalse()
+        ->and($permissions->canEditGoogleAds($this->user, $shop))->toBeFalse();
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+});
 
 test('delete mailshot template', function (EmailTemplate $emailTemplate) {
     $result = DeleteMailshotTemplate::make()->handle($emailTemplate);
@@ -3539,21 +3648,6 @@ test('update email bulk run', function () {
     return $emailBulkRun;
 });
 
-test('show email bulk run', function (EmailBulkRun $emailBulkRun) {
-    $outbox = $emailBulkRun->outbox;
-
-    $response = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show', [
-        $this->organisation->slug,
-        $this->shop->slug,
-        $outbox->slug,
-        $emailBulkRun->id,
-    ]));
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Comms/EmailBulkRun')->has('pageHead');
-    });
-})->depends('update email bulk run');
-
 test('update email bulk run sent state reports processing when recipients not stored', function (EmailBulkRun $emailBulkRun) {
     $emailBulkRun->update(['recipients_stored_at' => null]);
 
@@ -4708,4 +4802,47 @@ test('a campaign whose channels all stopped does not stay in sending', function 
 
     expect($campaign->refresh()->state)->toBe(WhatsappCampaignStateEnum::STOPPED)
         ->and($campaign->stopped_at)->not->toBeNull();
+});
+
+test('comms pages need a permission for the shop, marketing staff of other shops read them and cannot open the workshop', function () {
+    $shop       = $this->shop;
+    $parameters = [$this->organisation->slug, $shop->slug];
+    $outbox     = $shop->outboxes()->where('model_type', '!=', 'Mailshot')->whereNotNull('code')->firstOrFail();
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ['group-reports']);
+        $this->get(route('grp.org.shops.show.dashboard.comms.dashboard', $parameters))->assertForbidden();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [...$parameters, $outbox->slug]))->assertForbidden();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.workshop', [...$parameters, $outbox->slug]))->assertForbidden();
+
+        $permissionClass = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionClass();
+        if (!$permissionClass::where('name', 'marketing.999999999.view')->exists()) {
+            $permissionClass::where('name', "marketing.$shop->id.view")->firstOrFail()->replicate()->fill(['name' => 'marketing.999999999.view'])->save();
+        }
+        actingAsUserWithOnlyPermissions($this->user, ['marketing.999999999.view']);
+        $this->get(route('grp.org.shops.show.dashboard.comms.dashboard', $parameters))->assertOk();
+        $otherShopOutbox = $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [...$parameters, $outbox->slug]))->assertOk()->viewData('page')['props'];
+        expect($otherShopOutbox['pageHead']['actions'])->toBeEmpty();
+        $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.workshop', [...$parameters, $outbox->slug]))->assertForbidden();
+
+        foreach (["crm.$shop->id.view", "orders.$shop->id.view", "web.$shop->id.view", "marketing.$shop->id.view"] as $permission) {
+            actingAsUserWithOnlyPermissions($this->user, [$permission]);
+            $this->get(route('grp.org.shops.show.dashboard.comms.dashboard', $parameters))->assertOk();
+            $this->get(route('grp.org.shops.show.dashboard.comms.outboxes.show', [...$parameters, $outbox->slug]))->assertOk();
+        }
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('comms has no email bulk run page', function () {
+    expect(\Illuminate\Support\Facades\Route::has('grp.org.fulfilments.show.operations.comms.outboxes.show.email-bulk-runs.show'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.org.shops.show.dashboard.comms.outboxes.show.email-bulk-runs.show'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.org.fulfilments.show.operations.comms.outboxes.show'))->toBeTrue()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.org.shops.show.dashboard.comms.outboxes.show'))->toBeTrue();
 });

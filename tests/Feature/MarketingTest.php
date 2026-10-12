@@ -2141,6 +2141,7 @@ describe('traffic source costs', function () {
         $testRequest->setRouteResolver(fn () => $route);
         $actionRequest = \Lorisleiva\Actions\ActionRequest::createFrom($testRequest);
         request()->setUserResolver(fn () => $adminUser);
+        $actionRequest->setUserResolver(fn () => $adminUser);
 
         $action          = ShowGoogleAdsCampaign::make();
         $model           = $action->asController($this->organisation, $this->shop, $campaign, $actionRequest);
@@ -2691,6 +2692,19 @@ describe('fetching google ads campaigns', function () {
 
         expect($exit)->toBe(1);
         expect(TrafficSourceCampaign::where('traffic_source_id', $this->googleAds->id)->get())->toHaveCount(0);
+    });
+
+    it('leaves a shop without a customer match list out of the nightly google ads customer sync', function () {
+        Http::fake();
+        \Illuminate\Support\Facades\Exceptions::fake();
+
+        expect(data_get($this->shop->refresh()->settings, 'google_ads.user_list_id'))->toBeNull();
+
+        Artisan::call('sync:customers-to-google-ads', ['--all' => true]);
+
+        \Illuminate\Support\Facades\Exceptions::assertNotReported(
+            fn (Exception $exception) => str_contains($exception->getMessage(), 'not configured for shop '.$this->shop->slug)
+        );
     });
 });
 

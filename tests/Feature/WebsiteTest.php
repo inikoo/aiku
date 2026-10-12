@@ -16,6 +16,8 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Ordering\CheckoutAbandonment\RunCheckoutAbandonmentScan;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\SysAdmin\GetSectionRoute;
+use App\Actions\SysAdmin\User\SetUserAuthorisedModels;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Actions\Web\Announcement\DeleteAnnouncement;
 use App\Actions\Web\Announcement\PublishAnnouncement;
 use App\Actions\Web\Announcement\StoreAnnouncement;
@@ -683,6 +685,40 @@ test('store redirect', function (Webpage $webpage) {
 
     return $redirect;
 })->depends('create webpage');
+
+test('a shop viewer sees the webpage but none of the controls to change it', function (Webpage $webpage, Redirect $redirect) {
+    $originalRoles = $this->user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($this->user, [RolesEnum::getRoleName(RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+    SetUserAuthorisedModels::run($this->user);
+    \Illuminate\Support\Facades\Cache::tags('auth-user:'.$this->user->id)->flush();
+
+    expect($this->user->refresh()->authTo('websites-view.'.$this->organisation->id))->toBeTrue();
+
+    $response = get(route('grp.org.shops.show.web.webpages.show', [
+        $this->organisation->slug,
+        $this->shop->slug,
+        $webpage->website->slug,
+        $webpage->slug
+    ]));
+
+    $props          = $response->viewData('page')['props'];
+    $actionRoutes   = collect($props['pageHead']['actions'])->pluck('route.name')->filter();
+
+    expect($props['can_edit'])->toBeFalse()
+        ->and($actionRoutes->contains(fn (string $name) => str_ends_with($name, '.workshop') || str_ends_with($name, '.edit')))->toBeFalse();
+
+    delete(route('grp.models.redirect.delete', ['redirect' => $redirect->id]))->assertForbidden();
+    post(route('grp.models.website.break_cache', ['website' => $webpage->website_id]))->assertForbidden();
+    expect(Redirect::find($redirect->id))->not->toBeNull();
+
+    $productCategory = \App\Models\Catalogue\ProductCategory::where('shop_id', $this->shop->id)->first();
+    if ($productCategory) {
+        post(route('grp.models.webpages.product_category.store', ['productCategory' => $productCategory->id]))->assertForbidden();
+    }
+
+    actingAsUserWithRoles($this->user, $originalRoles);
+    SetUserAuthorisedModels::run($this->user);
+})->depends('create webpage', 'store redirect');
 
 
 test('web sitemap creation', function () {
@@ -3419,3 +3455,37 @@ function blogWebpageAuthor(Webpage $webpage): ?array
 {
     return json_decode(json_encode(data_get($webpage->webBlocks()->first()->layout, 'data.fieldValue.author')), true);
 }
+
+test('website write routes need the web edit permission of the shop, INI-073', function (Website $website) {
+    $unguarded = collect(app('router')->getRoutes()->getRoutes())
+        ->filter(fn ($route) => str_starts_with((string) $route->getName(), 'grp.models.') && is_string($route->getAction('uses')))
+        ->map(fn ($route) => \Illuminate\Support\Str::before($route->getAction('uses'), '@'))
+        ->filter(fn (string $action) => (str_starts_with($action, 'App\\Actions\\Web\\') || str_starts_with($action, 'App\\Actions\\Helpers\\Snapshot\\')) && !method_exists($action, 'authorize'))
+        ->unique()->values()->all();
+    expect($unguarded)->toBe([]);
+
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $title   = $webpage->title;
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view", "products.{$shop->id}.edit"]);
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\post(route('grp.models.website.publish.header', $website->id), ['layout' => ['blocks' => []]])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.update', $webpage->id), ['title' => 'Changed without permission'])->assertForbidden();
+        Pest\Laravel\patch(route('grp.models.webpage.delete', $webpage->id))->assertForbidden();
+        expect($webpage->refresh()->title)->toBe($title)
+            ->and($webpage->trashed())->toBeFalse();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertRedirect()->assertSessionHasNoErrors();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('launch website');

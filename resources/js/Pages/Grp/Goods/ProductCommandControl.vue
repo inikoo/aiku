@@ -122,7 +122,7 @@ const conditions: Record<Condition, { label: string; tooltip: string; class: str
     ns: { label: ctrans("NS"), tooltip: ctrans("Not stocked here: no stock, no sales in 180 days, nothing on order"), class: "bg-gray-100 text-gray-500" },
     over: { label: ctrans("OVER"), tooltip: ctrans("More than 120 days of stock"), class: "bg-purple-50 text-purple-700" },
     dead: { label: ctrans("DEAD"), tooltip: ctrans("Stock held, no sales"), class: "bg-gray-100 text-gray-600" },
-    off: { label: ctrans("OFF"), tooltip: ctrans("Stock held but no shop sells it"), class: "bg-pink-50 text-pink-700" },
+    off: { label: ctrans("OFF SALE"), tooltip: ctrans("Stock held but no shop sells it"), class: "bg-pink-50 text-pink-700" },
     sell: { label: ctrans("SELL"), tooltip: ctrans("Sell through: no more purchasing"), class: "bg-blue-50 text-blue-700" },
     hold: { label: ctrans("HOLD"), tooltip: ctrans("On hold: no purchasing"), class: "bg-orange-50 text-orange-700" },
     ret: { label: ctrans("RET"), tooltip: ctrans("Retired in this organisation"), class: "bg-gray-100 text-gray-400" },

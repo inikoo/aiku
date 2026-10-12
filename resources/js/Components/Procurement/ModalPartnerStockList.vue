@@ -20,7 +20,7 @@ import { debounce } from "lodash-es"
 import { faSearch, faSpinner } from "@fal"
 import { faExclamationTriangle, faMinus, faPlus } from "@fas"
 import { notify } from "@kyvg/vue3-notification"
-import { ctrans as trans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import Image from "@common/Components/Image.vue"
 import NumberWithButtonSave from "@/Components/NumberWithButtonSave.vue"
@@ -110,8 +110,8 @@ const onSubmitRow = async (row: any) => {
         }
     } catch (error: any) {
         notify({
-            title: trans("Something went wrong"),
-            text: error?.response?.data?.message || trans("Failed to add or update the quantity"),
+            title: ctrans("Something went wrong"),
+            text: error?.response?.data?.message || ctrans("Failed to add or update the quantity"),
             type: "error",
         })
     } finally {
@@ -216,7 +216,7 @@ watch(() => model.value, async (newValue) => {
         v-model:visible="model"
         modal
         dismissableMask
-        :header="trans('Partner stocks')"
+        :header="ctrans('Partner stocks')"
         :style="{ width: '90vw', maxWidth: '1024px' }"
         :breakpoints="{ '768px': '95vw' }"
         @show="onDialogShow"
@@ -226,7 +226,7 @@ watch(() => model.value, async (newValue) => {
                 <div v-if="overBudgetMessage" class="mb-3 flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800">
                     <FontAwesomeIcon icon="fas fa-exclamation-triangle" class="mt-0.5 text-red-600" fixed-width aria-hidden="true" />
                     <div>
-                        <span class="font-semibold">{{ trans("Over the recommended budget.") }}</span>
+                        <span class="font-semibold">{{ ctrans("Over the recommended budget.") }}</span>
                         {{ overBudgetMessage }}
                     </div>
                 </div>
@@ -240,7 +240,7 @@ watch(() => model.value, async (newValue) => {
                             <div class="flex items-center justify-end gap-3">
                                 <span v-if="isLoading" class="flex items-center gap-2 text-sm text-gray-500">
                                     <LoadingIcon />
-                                    {{ rows.length ? trans("Refreshing") : trans("Loading stocks") }}
+                                    {{ rows.length ? ctrans("Refreshing") : ctrans("Loading stocks") }}
                                 </span>
                                 <IconField>
                                     <InputIcon>
@@ -248,7 +248,7 @@ watch(() => model.value, async (newValue) => {
                                     </InputIcon>
                                     <InputText
                                         v-model="searchQuery"
-                                        :placeholder="trans('Search stocks')"
+                                        :placeholder="ctrans('Search stocks')"
                                         class="border border-gray-300 rounded-lg px-4 py-2 text-sm" />
                                 </IconField>
                             </div>
@@ -258,7 +258,7 @@ watch(() => model.value, async (newValue) => {
                             <div v-if="isLoading" class="flex justify-center py-8 text-3xl text-gray-400">
                                 <LoadingIcon />
                             </div>
-                            <template v-else>{{ trans("No stocks found") }}.</template>
+                            <template v-else>{{ ctrans("No stocks found") }}.</template>
                         </template>
 
                         <Column header="Image">
@@ -274,38 +274,38 @@ watch(() => model.value, async (newValue) => {
                                 <div>
                                     <div>{{ slotProps.data.name }}</div>
                                     <div class="opacity-60 text-sm italic" :class="Number(slotProps.data.available_quantity) > 0 ? '' : 'text-red-500'">
-                                        {{ trans("Available at partner") }}: {{ slotProps.data.available_quantity ?? 0 }} {{ trans("SKO") }}
-                                        <span v-if="slotProps.data.packed_in">({{ trans("packed in") }} {{ slotProps.data.packed_in }}s)</span>
+                                        {{ ctrans("Available at partner") }}: {{ slotProps.data.available_quantity ?? 0 }} {{ ctrans("SKO") }}
+                                        <span v-if="slotProps.data.packed_in">({{ ctrans("packed in") }} {{ slotProps.data.packed_in }}s)</span>
                                     </div>
                                     <div class="text-xs text-teal-600">
-                                        {{ trans("Your stock") }}: {{ slotProps.data.buyer_quantity_available ?? 0 }} {{ trans("SKO") }}
+                                        {{ ctrans("Your stock") }}: {{ slotProps.data.buyer_quantity_available ?? 0 }} {{ ctrans("SKO") }}
                                         <template v-if="slotProps.data.buyer_days_of_cover !== null && slotProps.data.buyer_days_of_cover !== undefined">
                                             &middot;
                                             <StockCoverLabel
                                                 :days="slotProps.data.buyer_days_of_cover"
                                                 v-tooltip="slotProps.data.buyer_out_of_stock_at
-                                                    ? `${trans('At the current rate, empty on')} ${slotProps.data.buyer_out_of_stock_at}`
+                                                    ? `${ctrans('At the current rate, empty on')} ${slotProps.data.buyer_out_of_stock_at}`
                                                     : undefined" />
                                         </template>
                                     </div>
                                     <div v-if="Number(slotProps.data.batch_size) > 1" class="text-xs text-gray-500">
-                                        {{ trans("Made in batches of") }} <span class="font-medium">{{ slotProps.data.batch_size }}</span> {{ trans("units") }}
+                                        {{ ctransChoice("Made in batches of :count unit|Made in batches of :count units", slotProps.data.batch_size) }}
                                         <template v-if="Number(slotProps.data.order_quantum) > 1">
-                                            &middot; {{ trans("full batches every") }} <span class="font-medium">{{ slotProps.data.order_quantum }}</span> {{ trans("SKO") }}
+                                            &middot; {{ ctrans("full batches every") }} <span class="font-medium">{{ slotProps.data.order_quantum }}</span> {{ ctrans("SKO") }}
                                         </template>
                                         <button
                                             v-if="nextBatchMultiple(slotProps.data)"
                                             type="button"
                                             class="ml-1 rounded bg-indigo-50 px-1.5 py-px text-indigo-700 hover:bg-indigo-100"
                                             @click="onUseBatchMultiple(slotProps.data)">
-                                            {{ trans("order") }} {{ nextBatchMultiple(slotProps.data) }}
+                                            {{ ctrans("order") }} {{ nextBatchMultiple(slotProps.data) }}
                                         </button>
                                     </div>
                                     <div v-if="leavesPartBatch(slotProps.data)" class="text-xs text-amber-600">
-                                        {{ trans("A full batch is made either way, so this order may be delayed or the quantity adjusted") }}
+                                        {{ ctrans("A full batch is made either way, so this order may be delayed or the quantity adjusted") }}
                                     </div>
                                     <div v-if="slotProps.data.buyer_quarterly_usage?.length" class="text-xs text-gray-500">
-                                        {{ trans("Your usage") }}:
+                                        {{ ctrans("Your usage") }}:
                                         <span v-for="record in slotProps.data.buyer_quarterly_usage" :key="record.period" class="mr-2">
                                             {{ record.period }}: <span class="font-medium">{{ record.sales }}</span>
                                         </span>
@@ -313,7 +313,7 @@ watch(() => model.value, async (newValue) => {
                                 </div>
                             </template>
                         </Column>
-                        <Column :header="trans('SKOs')" style="width: 10%">
+                        <Column :header="ctrans('SKOs')" style="width: 10%">
                             <template #body="slotProps">
                                 <NumberWithButtonSave
                                     :key="slotProps.data.id"
@@ -326,21 +326,21 @@ watch(() => model.value, async (newValue) => {
                                     noSaveButton
                                 />
                                 <div v-if="lineValue(slotProps.data) !== null" class="mt-1 text-right text-sm font-medium tabular-nums"
-                                    :title="`${locale.currencyFormat(currency, slotProps.data.price_per_sko)} / ${trans('SKO')}`">
+                                    :title="`${locale.currencyFormat(currency, slotProps.data.price_per_sko)} / ${ctrans('SKO')}`">
                                     {{ locale.currencyFormat(currency, lineValue(slotProps.data)) }}
                                 </div>
                                 <div v-else-if="slotProps.data.price_per_sko" class="mt-1 text-right text-xs text-gray-400 tabular-nums">
-                                    {{ locale.currencyFormat(currency, slotProps.data.price_per_sko) }} / {{ trans("SKO") }}
+                                    {{ locale.currencyFormat(currency, slotProps.data.price_per_sko) }} / {{ ctrans("SKO") }}
                                 </div>
                             </template>
                         </Column>
 
                         <template #footer>
                             <div class="flex items-center justify-center gap-2">
-                                {{ trans("Showing") }} {{ rows.length }} {{ trans("stocks") }}.
+                                {{ ctrans("Showing") }} {{ rows.length }} {{ ctrans("stocks") }}.
                                 <span v-if="isLoadingMore" class="flex items-center gap-1 text-sm text-gray-500">
                                     <LoadingIcon />
-                                    {{ trans("Loading more") }}
+                                    {{ ctrans("Loading more") }}
                                 </span>
                             </div>
                         </template>

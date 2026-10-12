@@ -12,6 +12,7 @@ use App\Actions\SupplyChain\Agent\UI\WithAgentEditFields;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithProcurementSerialReferences;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -78,6 +79,29 @@ class EditOrgAgent extends OrgAction
                 'name'       => 'grp.models.org_agent.update',
                 'parameters' => $orgAgent->id,
             ];
+
+        $blueprint[] = [
+            'label'  => __('Ordering'),
+            'title'  => __('Ordering'),
+            'icon'   => 'fal fa-shopping-basket',
+            'fields' => [
+                'order_container' => [
+                    'type'        => 'select',
+                    'label'       => __('Container'),
+                    'information' => __('The container an order to this agent is measured against, to say how full it is by volume.'),
+                    'required'    => true,
+                    'options'     => collect(OrgAgentOrderContainerEnum::labels())->map(fn (string $label, string $value) => [
+                        'label' => $label.' ('.OrgAgentOrderContainerEnum::from($value)->cbm().' m³)',
+                        'value' => $value,
+                    ])->values()->all(),
+                    'value'       => $orgAgent->order_container->value,
+                    'updateRoute' => [
+                        'name'       => 'grp.models.org_agent.update',
+                        'parameters' => $orgAgent->id,
+                    ],
+                ],
+            ],
+        ];
 
         $blueprint = array_merge($blueprint, $this->procurementSerialReferenceSections($orgAgent, [
             'name'       => 'grp.models.org_agent.update',

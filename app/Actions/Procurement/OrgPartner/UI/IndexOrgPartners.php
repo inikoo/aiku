@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\OrgPartner\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgPartner\GetPartnerBuyingPriceFactor;
+use App\Actions\Procurement\OrgPartner\GetPartnerProductionLanes;
 use App\Actions\Procurement\OrgPartner\GetPartnerSellingShopIds;
 use App\Actions\Procurement\OrgPartner\GetPartnerStockCoverBuckets;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
@@ -75,6 +76,7 @@ class IndexOrgPartners extends OrgAction
                     'open_shopping_list_items_value' => round((float) $stats?->open_shopping_list_items_value * $orgPartner->exchangeToOrgCurrency() * GetPartnerBuyingPriceFactor::run($orgPartner), 2),
                     'rescuable'                      => $topLimit === null ? null : GetPartnerStockCoverBuckets::make()->rescuable($orgPartner, $topLimit),
                     'current'                        => $this->shoppingListRows($orgPartner)->concat($this->stockDeliveryRows($orgPartner))->values()->all(),
+                    'production'                     => GetPartnerProductionLanes::run($orgPartner),
                 ]
                 : $this->sisterStats($orgPartner, $topLimit),
         ];
@@ -184,6 +186,9 @@ class IndexOrgPartners extends OrgAction
                 'currency_code' => $this->organisation->currency->code,
                 'can_create_purchase_orders' => $this->canEdit,
                 'partners'      => $orgPartners->map(fn (OrgPartner $orgPartner) => $this->partnerCard($orgPartner, topLimit: null))->all(),
+                'live_channel'  => $orgPartners->contains(fn (OrgPartner $orgPartner) => $orgPartner->partner->is_manufacturing_hub)
+                    ? 'grp.org.'.$this->organisation->id.'.partner-production'
+                    : null,
                 'rescuable'     => Inertia::defer(fn () => $orgPartners->mapWithKeys(fn (OrgPartner $orgPartner) => [$orgPartner->id => GetPartnerStockCoverBuckets::make()->rescuable($orgPartner)])->all()),
             ]
         );

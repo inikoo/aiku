@@ -15,10 +15,16 @@ use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\UI\IndexStockDeliveryServiceInvoices;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
+use App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders;
+use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
+use App\Actions\Procurement\OrgAgent\SetAgentDraftLine;
+use App\Actions\Procurement\OrgAgent\TellOrganisationsAboutSupplierDraft;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
 use App\Actions\Procurement\OrgAgent\RemoveMisplacedAgentShoppingListItems;
 use App\Actions\Procurement\OrgAgent\StoreAgentShoppingListItems;
 use App\Actions\Procurement\OrgAgent\SuggestAgentShoppingList;
@@ -106,6 +112,7 @@ Route::get('/', ShowProcurementDashboard::class)->name('dashboard');
 Route::get('/stock-cover', IndexOrganisationStockCoverItems::class)->name('stock_cover.index');
 Route::get('/stock-cover/export', ExportOrganisationStockCoverItems::class)->name('stock_cover.export');
 Route::get('/pre-orders', IndexPreOrdersBySupplier::class)->name('pre_orders.index');
+Route::get('/service-invoices', IndexStockDeliveryServiceInvoices::class)->name('service_invoices.index');
 Route::patch('/pre-orders', UpdatePreOrdersForSupplier::class)->name('pre_orders.update');
 
 Route::prefix('settings')->as('settings.')->group(function () {
@@ -151,8 +158,14 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::prefix('shopping')->as('.shopping.')->group(function () {
             Route::get('', ShowAgentShoppingDashboard::class)->name('dashboard');
             Route::get('items', IndexAgentCoverBucketItems::class)->name('items.index');
+            Route::get('browse', IndexAgentCoverBucketItems::class)->name('browse.index');
             Route::post('suggest', SuggestAgentShoppingList::class)->name('suggest');
             Route::post('bulk', StoreAgentShoppingListItems::class)->name('bulk_store');
+            Route::post('prepare', PrepareAgentPurchaseOrders::class)->name('prepare');
+            Route::get('drafts', ShowAgentDraftsToSend::class)->name('drafts.index');
+            Route::post('drafts/send', SendAgentDraftsToAgent::class)->name('drafts.send');
+            Route::post('drafts/tell', TellOrganisationsAboutSupplierDraft::class)->name('drafts.tell');
+            Route::post('drafts/line/{orgSupplierProduct:id}', SetAgentDraftLine::class)->name('drafts.line')->withoutScopedBindings();
             Route::delete('misplaced', RemoveMisplacedAgentShoppingListItems::class)->name('misplaced.destroy');
         });
     });

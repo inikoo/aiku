@@ -13,7 +13,7 @@ import Table from "@/Components/Table/Table.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
@@ -134,7 +134,7 @@ function release(item: { id: number }) {
         v-if="can_create_job_orders && (currentTab === 'shortfall' || currentTab === 'make') && Object.keys(selectedShortfall).length"
         class="sticky top-0 z-10 mx-4 mt-2 flex items-center justify-between rounded-lg bg-indigo-600 px-4 py-2 text-white"
     >
-        <span>{{ Object.keys(selectedShortfall).length }} {{ ctrans("stocks selected") }}</span>
+        <span>{{ ctransChoice(":count stock selected|:count stocks selected", Object.keys(selectedShortfall).length) }}</span>
         <Button
             type="tertiary"
             icon="fal fa-hammer"

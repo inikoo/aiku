@@ -12,6 +12,7 @@ use App\Actions\Traits\Authorisations\WithGoodsInBookInAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\GoodsIn\StockDeliveryItem;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class SetStockDeliveryItemAsPlaced extends OrgAction
@@ -38,6 +39,12 @@ class SetStockDeliveryItemAsPlaced extends OrgAction
     public function asController(StockDeliveryItem $stockDeliveryItem, ActionRequest $request): void
     {
         $this->initialisation($stockDeliveryItem->organisation, $request);
+
+        if ($missing = $stockDeliveryItem->stockDelivery->costsMissingForPutAway()) {
+            throw ValidationException::withMessages([
+                'costs' => __('Put-away is blocked until procurement enters the costs of this delivery (amount, estimate or not applicable): :costs', ['costs' => implode(', ', $missing)]),
+            ]);
+        }
 
         $this->handle($stockDeliveryItem, $this->validatedData);
     }

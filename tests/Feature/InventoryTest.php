@@ -14,6 +14,8 @@ use App\Actions\Catalogue\SalesAnalysis\GetSalesAnalysis;
 use App\Actions\Catalogue\SalesAnalysis\SalesAnalysisScope;
 use App\Enums\UI\Inventory\OrgStockFamilyTabsEnum;
 use App\Enums\UI\Procurement\OrgStockTabsEnum;
+use App\Actions\Goods\Stock\Hydrators\StockHydrateStateFromOrgStocks;
+use App\Actions\Goods\Stock\RepairStocksStateFromOrgStocks;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
@@ -107,6 +109,7 @@ use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementClassEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
@@ -157,6 +160,7 @@ use App\Actions\Inventory\OrgStock\ApplyScheduledOrgStockStateChanges;
 use App\Actions\Inventory\OrgStock\DiscontinueGroupOrgStocks;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\GetOrgStockDiscontinuePreview;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
@@ -4061,6 +4065,23 @@ describe('discontinue preview', function () {
             ->and($preview[0]['is_exclusive'])->toBeFalse();
     });
 
+    test('preview lists the product web page with its state and public link', function () {
+        if (!$this->shop->website) {
+            createWebsite($this->shop);
+            $this->shop->refresh();
+        }
+        $this->product->refresh();
+        $webpage = $this->product->webpage ?? StoreProductWebpage::make()->action($this->product);
+        $orgStock = $this->product->orgStocks()->first();
+
+        $pages = collect(GetOrgStockDiscontinuePreview::make()->action($this->organisation, [$orgStock->id])[0]['webpages']['pages']);
+        $page  = $pages->firstWhere('url', $webpage->url);
+
+        expect($page)->not->toBeNull()
+            ->and($page['state'])->toBe($webpage->state->value)
+            ->and($page['canonical_url'])->toBe($webpage->getCanonicalUrl());
+    });
+
     test('preview route answers for the warehouse', function () {
         $warehouse = $this->organisation->warehouses()->first() ?? createWarehouse();
 
@@ -4156,6 +4177,52 @@ describe('discontinue confirm', function () {
             ->and($audit->new_values['source'])->toBe('mcp')
             ->and($audit->new_values['request_text'])->toBe('discontinue this one please')
             ->and($audit->new_values['overrides'])->toBe(['other' => 'active']);
+    });
+
+    test('changing every sko of a stock carries the state up to the stock', function () {
+        $orgStock = $this->orgStocks[2];
+        $stock    = $orgStock->stock;
+        $change   = fn (OrgStockStateEnum $state) => DiscontinueOrgStocks::make()->action($this->organisation, [
+            'org_stock_ids' => [$orgStock->id],
+            'state'         => $state->value,
+            'scope'         => 'group',
+            'reason'        => 'Stock follows its skos',
+        ]);
+
+        $change(OrgStockStateEnum::DISCONTINUED);
+        expect($stock->refresh()->state)->toBe(StockStateEnum::DISCONTINUED);
+
+        $this->otherOrgStocks[2]->update(['state' => OrgStockStateEnum::DISCONTINUING]);
+        expect(StockHydrateStateFromOrgStocks::make()->getStockStateFromOrgStocks($stock->refresh()))->toBe(StockStateEnum::DISCONTINUING);
+
+        $change(OrgStockStateEnum::ACTIVE);
+        expect($stock->refresh()->state)->toBe(StockStateEnum::ACTIVE);
+    });
+
+    test('state repair derives every stock from its skos, whatever state it was left in', function () {
+        [$retired, $stillSold, $sellingOff] = array_map(fn (OrgStock $orgStock) => $orgStock->stock, $this->orgStocks);
+
+        OrgStock::where('stock_id', $retired->id)->update(['state' => OrgStockStateEnum::DISCONTINUED]);
+        OrgStock::where('stock_id', $sellingOff->id)->update(['state' => OrgStockStateEnum::DISCONTINUING]);
+        $this->otherOrgStocks[2]->update(['state' => OrgStockStateEnum::DISCONTINUED]);
+        $retired->update(['state' => StockStateEnum::ACTIVE]);
+        $stillSold->update(['state' => StockStateEnum::DISCONTINUED]);
+        $sellingOff->update(['state' => StockStateEnum::DISCONTINUED]);
+
+        expect(RepairStocksStateFromOrgStocks::run($retired->refresh(), false))->toBe([StockStateEnum::ACTIVE, StockStateEnum::DISCONTINUED])
+            ->and($retired->refresh()->state)->toBe(StockStateEnum::ACTIVE)
+            ->and(RepairStocksStateFromOrgStocks::run($retired, true))->toBe([StockStateEnum::ACTIVE, StockStateEnum::DISCONTINUED])
+            ->and($retired->refresh()->state)->toBe(StockStateEnum::DISCONTINUED)
+            ->and(RepairStocksStateFromOrgStocks::run($stillSold->refresh(), true))->toBe([StockStateEnum::DISCONTINUED, StockStateEnum::ACTIVE])
+            ->and(RepairStocksStateFromOrgStocks::run($sellingOff->refresh(), true))->toBe([StockStateEnum::DISCONTINUED, StockStateEnum::DISCONTINUING])
+            ->and(RepairStocksStateFromOrgStocks::run($sellingOff->refresh(), true))->toBeNull();
+    });
+
+    test('a stock without skos keeps its state', function () {
+        $stock = StoreStock::make()->action($this->group, Stock::factory()->definition());
+        $stock->update(['state' => StockStateEnum::DISCONTINUED]);
+
+        expect(StockHydrateStateFromOrgStocks::make()->getStockStateFromOrgStocks($stock->refresh()))->toBe(StockStateEnum::DISCONTINUED);
     });
 
     test('group routes preview and change org stocks picked across organisations in one request', function () {
@@ -4603,6 +4670,40 @@ describe('out of stock forecast', function () {
         OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
         expect($orgStock->stats->refresh()->forecast_source)->not->toBe('timesfm');
         $orgStock->update(['quantity_available' => 100]);
+
+        $partPackMovementId = DB::table('org_stock_movements')->insertGetId([
+            'group_id'                   => $orgStock->group_id,
+            'organisation_id'            => $orgStock->organisation_id,
+            'warehouse_id'               => $this->warehouse->id,
+            'org_stock_id'               => $orgStock->id,
+            'date'                       => now()->subDays(100),
+            'class'                      => OrgStockMovementClassEnum::MOVEMENT->value,
+            'type'                       => OrgStockMovementTypeEnum::PURCHASE->value,
+            'flow'                       => OrgStockMovementFlowEnum::IN->value,
+            'quantity'                   => 0.667,
+            'running_quantity_org_stock' => 0.667,
+            'org_amount'                 => 0,
+            'grp_amount'                 => 0,
+            'data'                       => '{}',
+        ]);
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        expect($orgStock->stats->refresh()->forecast_source)->not->toBe('timesfm');
+
+        $productLinks = DB::table('product_has_org_stocks')->where('org_stock_id', $orgStock->id)->pluck('quantity', 'product_id');
+        $productState = DB::table('products')->where('id', $this->product->id)->value('state');
+        DB::table('products')->where('id', $this->product->id)->update(['state' => ProductStateEnum::ACTIVE->value]);
+        DB::table('product_has_org_stocks')->where('org_stock_id', $orgStock->id)->update(['quantity' => 0.5]);
+        $this->product->orgStocks()->syncWithoutDetaching([$orgStock->id => ['quantity' => 0.5]]);
+        OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());
+        expect($orgStock->stats->refresh()->forecast_source)->toBe('timesfm');
+        if (!$productLinks->has($this->product->id)) {
+            $this->product->orgStocks()->detach($orgStock->id);
+        }
+        foreach ($productLinks as $productId => $quantity) {
+            DB::table('product_has_org_stocks')->where('org_stock_id', $orgStock->id)->where('product_id', $productId)->update(['quantity' => $quantity]);
+        }
+        DB::table('products')->where('id', $this->product->id)->update(['state' => $productState]);
+        DB::table('org_stock_movements')->where('id', $partPackMovementId)->delete();
 
         $orgStock->stats->update(['demand_forecast' => [...$forecast, 'from' => now()->subDays(3)->toDateString()]]);
         OrgStockHydrateOutOfStockForecast::run($orgStock->fresh());

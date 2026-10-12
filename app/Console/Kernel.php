@@ -52,6 +52,7 @@ use App\Actions\CRM\Prospect\Mailshots\RunProspectMailshotScheduled;
 use App\Actions\CRM\Prospect\Mailshots\RunProspectMailshotSecondWave;
 use App\Actions\CRM\WebUserPasswordReset\PurgeWebUserPasswordReset;
 use App\Actions\DevOps\MonitorAICredit;
+use App\Actions\DevOps\MonitorDatabaseReplicas;
 use App\Actions\DevOps\MonitorNightowlIngest;
 use App\Actions\DevOps\WarmNightOwlTelemetry;
 use App\Actions\Comms\Email\RemindChannelOrdersOnHold;
@@ -84,11 +85,15 @@ use App\Actions\Web\Website\FetchCruxRecords;
 use App\Actions\Web\Website\PruneWebsitePageViews;
 use App\Actions\Web\WebVital\PruneWebVitalSamples;
 use App\Actions\Web\ExternalLink\RecheckExternalLinkStatuses;
+use App\Actions\Web\Seo\AskSeoAiPrompts;
 use App\Actions\Web\Seo\CollectSerpTasks;
 use App\Actions\Web\Seo\FetchBacklinks;
 use App\Actions\Web\Seo\FetchCompetitorResearch;
+use App\Actions\Web\Seo\FetchCompetitorTraffic;
+use App\Actions\Web\Seo\FetchSeoAiMentions;
 use App\Actions\Web\Seo\PostSerpTasks;
 use App\Actions\Web\Seo\RefreshTrackedKeywordVolumes;
+use App\Actions\Web\Seo\SendSeoWeeklyReports;
 use App\Actions\Web\Seo\SuggestSeoContent;
 use App\Actions\Web\Website\PruneWebsiteVisitors;
 use App\Actions\Web\WebsiteNotFoundPath\PruneWebsiteNotFoundPaths;
@@ -112,6 +117,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hr:add-leave-cover-collaborators')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('cloudflare:reload')->daily()->onOneServer();
         $schedule->command('sales-analysis:warm')->dailyAt('01:30')->onOneServer()->withoutOverlapping();
+        $schedule->command('epr:build-flow-lines')->dailyAt('03:15')->timezone('UTC')->onOneServer()->withoutOverlapping();
         $schedule->command('mailbox:fetch')->everyMinute()->onOneServer()->withoutOverlapping();
         $schedule->command('procurement-mailbox:fetch')->everyMinute()->onOneServer()->withoutOverlapping();
         /* Every five minutes: the run reads a counter per shop channel and writes only the ones that
@@ -321,6 +327,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'MonitorNightowlIngest',
                 ),
                 name: 'MonitorNightowlIngest',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(MonitorDatabaseReplicas::makeJob())->everyFiveMinutes()->withoutOverlapping()->onOneServer()->sentryMonitor(
+                    monitorSlug: 'MonitorDatabaseReplicas',
+                ),
+                name: 'MonitorDatabaseReplicas',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );
@@ -718,7 +733,7 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
-                $schedule->command('shopify-app:refresh-expiring-offline-tokens')->daily()->withoutOverlapping()->onOneServer()->sentryMonitor(),
+                $schedule->command('shopify:refresh-offline-tokens')->daily()->withoutOverlapping()->onOneServer()->sentryMonitor(),
                 name: 'UpdateShopifyAccessTokens',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
@@ -1383,6 +1398,17 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->job(SendSeoWeeklyReports::makeJob())
+                    ->weeklyOn(1, '07:00')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'SendSeoWeeklyReports',
+                    ),
+                name: 'SendSeoWeeklyReports',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->job(FetchCompetitorResearch::makeJob())
                     ->weeklyOn(1, '02:00')
                     ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
@@ -1433,6 +1459,39 @@ class Kernel extends ConsoleKernel
                         monitorSlug: 'CollectSerpTasks',
                     ),
                 name: 'CollectSerpTasks',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(AskSeoAiPrompts::makeJob())
+                    ->weeklyOn(3, '01:00')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'AskSeoAiPrompts',
+                    ),
+                name: 'AskSeoAiPrompts',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(FetchSeoAiMentions::makeJob())
+                    ->monthlyOn(1, '03:30')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'FetchSeoAiMentions',
+                    ),
+                name: 'FetchSeoAiMentions',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(FetchCompetitorTraffic::makeJob())
+                    ->monthlyOn(2, '02:30')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'FetchCompetitorTraffic',
+                    ),
+                name: 'FetchCompetitorTraffic',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );

@@ -8,9 +8,8 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
-use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
 use App\Models\Procurement\OrgAgent;
-use App\Models\Procurement\ShoppingListItem;
 
 trait WithAgentShoppingSubNavigation
 {
@@ -18,16 +17,39 @@ trait WithAgentShoppingSubNavigation
     {
         return [
             [
-                "label"    => __("Shopping"),
+                "label"    => __("What to order"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.dashboard",
                     "parameters" => [$this->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-shopping-basket"],
-                    "tooltip" => __("Shopping"),
+                    "tooltip" => __("What to order"),
                 ],
                 "isAnchor" => true,
+            ],
+            [
+                "label"    => __("Browse"),
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.browse.index",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-store"],
+                    "tooltip" => __("Browse"),
+                ],
+            ],
+            [
+                "label"    => __("Drafts to send"),
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.drafts.index",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-paper-plane"],
+                    "tooltip" => __("Drafts to send"),
+                ],
+                "number"   => ShowAgentDraftsToSend::drafts($parent)->distinct()->count('po.supplier_id'),
             ],
             [
                 "label"    => __("Suppliers"),
@@ -40,21 +62,7 @@ trait WithAgentShoppingSubNavigation
                     "tooltip" => __("Suppliers"),
                 ],
                 "number"   => $parent->stats->number_org_suppliers,
-            ],
-            [
-                "label"    => __("Shopping List"),
-                "route"    => [
-                    "name"       => "grp.org.procurement.shopping_list.index",
-                    "parameters" => [$this->organisation->slug],
-                ],
-                "leftIcon" => [
-                    "icon"    => ["fal", "fa-list"],
-                    "tooltip" => __("Shopping List"),
-                ],
-                "number"   => ShoppingListItem::where('organisation_id', $parent->organisation_id)
-                    ->where('agent_id', $parent->agent_id)
-                    ->where('state', ShoppingListItemStateEnum::OPEN)
-                    ->count(),
+                "align"    => "right",
             ],
         ];
     }

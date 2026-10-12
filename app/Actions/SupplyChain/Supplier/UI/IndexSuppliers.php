@@ -66,7 +66,7 @@ class IndexSuppliers extends OrgAction
         } else {
             $elements = [
                 'free'          => [
-                    __('Free'),
+                    __('No agent'),
                     $parent->supplyChainStats->number_active_independent_suppliers,
                     null,
                     [

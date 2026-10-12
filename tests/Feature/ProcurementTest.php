@@ -8,6 +8,10 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\SupplyChain\StockDeliveryInvoice\EstimateStockDeliveryInvoice;
+use App\Models\SupplyChain\SupplierInvoice;
+use App\Models\SupplyChain\AgentInvoice;
+use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Actions\Procurement\AgentOrder\SendAgentOrderToAgent;
 use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
@@ -24,6 +28,11 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgSupplierProducts\UI\GetOrgSupplierProductShowcase;
 use App\Actions\Maintenance\Procurement\SplitAgentPurchaseOrders;
 use App\Actions\SupplyChain\AspoDeposit\StoreAspoDeposit;
+use App\Actions\SupplyChain\AgentInvoice\ApplyAgentInvoiceCosting;
+use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
+use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
+use App\Actions\SupplyChain\AgentInvoice\UpdateAgentInvoiceCharges;
+use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
 use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderDeliveryStateEnum;
 use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrderStateEnum;
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
@@ -46,6 +55,8 @@ use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\RepairStockDeliveryCostings;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
+use App\Actions\GoodsIn\StockDelivery\ReportStockDeliveryReceivedWithoutCosts;
+use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryStateToReceived;
@@ -98,6 +109,7 @@ use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToInProcess;
 use App\Actions\Procurement\PurchaseOrder\SendPartnerPurchaseOrderToSeller;
@@ -191,6 +203,7 @@ use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -203,6 +216,11 @@ use App\Models\SysAdmin\Organisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryCost;
+use App\Models\GoodsIn\StockDeliveryServiceInvoice;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\UpdateStockDeliveryServiceInvoice;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\StoreStockDeliveryServiceInvoice;
+use App\Actions\GoodsIn\StockDeliveryServiceInvoice\DeleteStockDeliveryServiceInvoice;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
@@ -251,6 +269,16 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemDiscrepancyEnum;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemDiscrepancyOutcomeEnum;
+use App\Enums\GoodsIn\StockDeliveryClaimStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierUnitEnum;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
+use App\Models\Tasks\StaffTask;
+use App\Actions\GoodsIn\StockDeliveryItem\ResolveStockDeliveryItemDiscrepancy;
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCustomsLine;
+use App\Actions\GoodsIn\StockDeliveryClaim\UpdateStockDeliveryClaim;
+use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCustoms;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -619,42 +647,36 @@ test('agent manager only sees their own agent organisation', function () {
         ->and($agentUser->worksOnlyForAgents())->toBeTrue()
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($agentUser)))->toBe(['tickets'])
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)))->toBe([$organisation->slug])
-        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['procurement', 'hr'])
-        ->and(collect(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]['procurement']['topMenu']['subSections'])->pluck('root')->all())->toBe([
-            'grp.org.procurement.dashboard',
-            'grp.org.procurement.purchase_orders.',
-            'grp.org.procurement.stock_deliveries.',
-            'grp.org.procurement.org_suppliers.',
-            'grp.org.procurement.org_supplier_products.',
-            'grp.org.procurement.supplier_messages.',
-            'grp.org.procurement.settings.',
+        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(collect(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]['agent_suppliers']['topMenu']['subSections'])->pluck('root')->all())->toBe([
+            'grp.org.agent.org_suppliers.',
         ]);
 
     actingAs($agentUser);
 
-    $this->get(route('grp.org.procurement.purchase_orders.index', $organisation->slug))->assertOk();
-    $this->get(route('grp.org.procurement.org_suppliers.index', $organisation->slug))
+    $this->get(route('grp.org.agent.purchase_orders.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
         ->assertInertia(fn ($page) => $page->where('data.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));
 
     $orgSupplierOfAnotherOrganisation = OrgSupplier::where('organisation_id', '!=', $organisation->id)
         ->whereHas('supplier', fn ($query) => $query->where('agent_id', $this->agent->id))
         ->firstOrFail();
-    $this->get(route('grp.org.procurement.org_suppliers.show.supplier_products.index', [$organisation->slug, $orgSupplierOfAnotherOrganisation->slug]))->assertOk();
+    $this->get(route('grp.org.agent.org_suppliers.show.supplier_products.index', [$organisation->slug, $orgSupplierOfAnotherOrganisation->slug]))->assertOk();
     expect(collect(\App\Actions\Procurement\OrgSupplier\UI\GetOrgSupplierShowcase::run($orgSupplierOfAnotherOrganisation, $organisation)['stats'])->pluck('route.parameters.0')->unique()->all())
         ->toBe([$organisation->slug]);
 
     $ownOrgAgent      = OrgAgent::where('agent_id', $this->agent->id)->where('organisation_id', '!=', $organisation->id)->firstOrFail();
     [$ownOrgSupplier] = createAgentOrgSupplierWithProduct($this, $ownOrgAgent);
     $ownPurchaseOrder = StorePurchaseOrder::make()->action($ownOrgSupplier, PurchaseOrder::factory()->definition());
-    $this->get(route('grp.org.procurement.org_agents.show', [$organisation->slug, $ownOrgAgent->slug]))
+    $this->get(route('grp.org.agent.org_agents.show', [$organisation->slug, $ownOrgAgent->slug]))
         ->assertInertia(fn ($page) => $page->where('pageHead.subNavigation', fn ($items) => collect($items)->pluck('route.parameters.0')->unique()->values()->all() === [$organisation->slug]));
-    $this->get(route('grp.org.procurement.purchase_orders.pdf', [$organisation->slug, $ownPurchaseOrder->slug]))->assertOk();
+    $this->get(route('grp.org.agent.purchase_orders.pdf', [$organisation->slug, $ownPurchaseOrder->slug]))->assertOk();
     $ownPurchaseOrder->delete();
 
     $foreignAgent    = StoreAgent::make()->action($this->group, Agent::factory()->definition());
     $foreignOrgAgent = StoreOrgAgent::make()->action($ownOrgAgent->organisation, $foreignAgent, []);
-    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.index', [$organisation->slug, $foreignOrgAgent->slug]))->assertNotFound();
-    $this->get(route('grp.org.procurement.org_agents.show.suppliers.index', [$organisation->slug, $foreignOrgAgent->slug]))->assertNotFound();
+    $this->get(route('grp.org.agent.org_agents.show.purchase-orders.index', [$organisation->slug, $foreignOrgAgent->slug]))->assertNotFound();
+    $this->get(route('grp.org.agent.org_agents.show.suppliers.index', [$organisation->slug, $foreignOrgAgent->slug]))->assertNotFound();
 
     $this->get(route('grp.org.hr.employees.index', $organisation->slug))->assertOk();
     $this->get(route('grp.org.hr.employees.show.users.show', [$organisation->slug, $employee->slug, $agentUser->slug]))
@@ -703,7 +725,7 @@ test('agent manager only sees their own agent organisation', function () {
     actingAs($this->adminGuest->getUser());
     expect(json_encode($this->get(route('grp.org.hr.employees.create', $organisation->slug))->viewData('page')['props']))->toContain('"code":"org-admin"');
     $this->get(route('grp.overview.crm.customers.index'))->assertOk();
-    $this->get(route('grp.org.procurement.purchase_orders.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.agent.purchase_orders.index', $organisation->slug))->assertOk();
 });
 
 test('PO journey board marks stages on an agent purchase order and keeps handover for management', function (PurchaseOrder $purchaseOrder) {
@@ -865,12 +887,27 @@ test('UI agent organisation dashboard shows clean handover score', function () {
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Dashboard/OrganisationDashboard')
             ->has('cleanHandover.quarters')
-            ->has('cleanHandover.hygiene'));
+            ->has('cleanHandover.hygiene')
+            ->where('isAgentOrganisation', true)
+            ->missing('agentPurchaseOrders')
+            ->loadDeferredProps('default', fn (AssertableInertia $reload) => $reload
+                ->has('agentPurchaseOrders.currency')
+                ->has('agentPurchaseOrders.summary.unconfirmed')
+                ->has('agentPurchaseOrders.summary.overdue')
+                ->has('agentPurchaseOrders.summary.confirmed_without_container')
+                ->has('agentPurchaseOrders.summary.routes.unconfirmed.name')
+                ->has('agentPurchaseOrders.attention')
+                ->has('agentPurchaseOrders.suppliers')
+                ->has('agentPurchaseOrders.agent_orders')
+                ->has('agentPurchaseOrders.organisations')
+                ->has('agentPurchaseOrders.containers', 4)));
 
     $this->get(route('grp.org.dashboard.show', [$this->organisation->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Dashboard/OrganisationDashboard')
-            ->where('cleanHandover', null));
+            ->where('cleanHandover', null)
+            ->where('isAgentOrganisation', false)
+            ->where('agentPurchaseOrders', null));
 });
 
 test('add item to purchase order', function (PurchaseOrder $purchaseOrder, OrgSupplierProduct $orgSupplierProduct) {
@@ -1625,6 +1662,17 @@ test('change purchase order state to cancelled', function ($purchaseOrder) {
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED)
         ->and(collect(ShowPurchaseOrder::make()->getActions($purchaseOrder, false))->pluck('key'))->toContain('cancel_purchase_order');
 
+    $stockDelivery = StoreStockDeliveryFromPurchaseOrder::make()->action($purchaseOrder->refresh());
+
+    expect(collect(ShowPurchaseOrder::make()->getActions($purchaseOrder->refresh(), false))->pluck('key'))->not->toContain('cancel_purchase_order')
+        ->and(fn () => UpdatePurchaseOrderStateToCancelled::make()->action($purchaseOrder->refresh()))->toThrow(HttpException::class);
+
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::RECEIVED]);
+    CancelStockDelivery::make()->action($stockDelivery->refresh());
+
+    expect($purchaseOrder->refresh()->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED)
+        ->and(collect(ShowPurchaseOrder::make()->getActions($purchaseOrder, false))->pluck('key'))->toContain('cancel_purchase_order');
+
     $this->patch(route('grp.models.purchase-order.cancel', $purchaseOrder->id), ['counterparty_informed' => 'no'])
         ->assertSessionHasErrors('counterparty_informed');
     expect($purchaseOrder->refresh()->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
@@ -1671,6 +1719,32 @@ test('update supplier delivery', function (StockDelivery $stockDelivery) {
     return $stockDelivery;
 })->depends('create supplier delivery');
 
+
+test('a stock delivery has a delivery date button that changes only its own date', function (StockDelivery $stockDelivery) {
+    expect(collect(ShowStockDelivery::make()->getActions($stockDelivery->refresh()))->pluck('key'))->toContain('edit_estimated_delivery_date');
+
+    $stockDelivery = UpdateStockDelivery::make()->action($stockDelivery, ['estimated_receiving_date' => '2027-04-20']);
+
+    expect($stockDelivery->refresh()->data['estimated_receiving_date'])->toBe('2027-04-20');
+
+    $agentPurchaseOrder = PurchaseOrder::whereNotNull('agent_id')->where('parent_type', 'OrgSupplier')
+        ->whereDoesntHave('stockDeliveries')
+        ->latest('id')
+        ->firstOrFail();
+    $originalState = $agentPurchaseOrder->state;
+    $agentPurchaseOrder->update(['state' => PurchaseOrderStateEnum::CONFIRMED]);
+
+    expect(collect(ShowPurchaseOrder::make()->getActions($agentPurchaseOrder, false))->pluck('key'))->toContain('edit_estimated_delivery_date')
+        ->and(ShowPurchaseOrder::make()->getTimeline($agentPurchaseOrder))->toHaveKey('estimated_delivery');
+
+    $stockDelivery->purchaseOrders()->attach($agentPurchaseOrder);
+
+    expect(collect(ShowPurchaseOrder::make()->getActions($agentPurchaseOrder, false))->pluck('key'))->not->toContain('edit_estimated_delivery_date')
+        ->and(ShowPurchaseOrder::make()->getTimeline($agentPurchaseOrder))->not->toHaveKey('estimated_delivery');
+
+    $stockDelivery->purchaseOrders()->detach($agentPurchaseOrder);
+    $agentPurchaseOrder->update(['state' => $originalState]);
+})->depends('update supplier delivery');
 
 test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     $supplier            = StoreSupplier::make()->action(
@@ -2010,6 +2084,51 @@ test('purchase order delivered in two parts stays open for the remaining items',
 
     expect($thirdLine->refresh()->state)->toBe(PurchaseOrderTransactionStateEnum::CANCELLED)
         ->and($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SETTLED);
+});
+
+test('a settled purchase order reopens only when a delivery takes back lines it had settled', function () {
+    $supplier    = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+
+    $historicSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, StoreSupplierProduct::make()->action($supplier, [
+        'code'             => 'REOPEN-PO',
+        'name'             => 'Reopen check',
+        'cost'             => 10,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 1,
+        'units_per_carton' => 10,
+    ]))->supplierProduct->historicSupplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $historicSupplierProduct, $this->orgStocks[0], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 10]));
+    $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder->refresh());
+    $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder->refresh());
+
+    $delivery = StoreStockDeliveryFromPurchaseOrder::make()->action($purchaseOrder->refresh());
+    $delivery->items()->update(['state' => StockDeliveryItemStateEnum::PLACED]);
+    $delivery->update(['state' => StockDeliveryStateEnum::PLACED]);
+    UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($delivery->refresh());
+
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SETTLED)
+        ->and($line->refresh()->state)->toBe(PurchaseOrderTransactionStateEnum::SETTLED);
+
+    $line->update(['state' => PurchaseOrderTransactionStateEnum::CONFIRMED]);
+    $leftover = StoreStockDelivery::make()->action($orgSupplier, ['reference' => 'REOPEN-LEFTOVER', 'date' => date('Y-m-d')]);
+    $leftover->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
+    $leftover->update(['state' => StockDeliveryStateEnum::IN_PROCESS]);
+    UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($leftover->refresh());
+
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SETTLED)
+        ->and($purchaseOrder->delivery_state)->toBe(PurchaseOrderDeliveryStateEnum::PLACED);
+
+    $line->update(['state' => PurchaseOrderTransactionStateEnum::SETTLED]);
+    $delivery->items()->update(['state' => StockDeliveryItemStateEnum::DISPATCHED]);
+    $delivery->update(['state' => StockDeliveryStateEnum::DISPATCHED]);
+    UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($delivery->refresh());
+
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED)
+        ->and($purchaseOrder->delivery_state)->toBe(PurchaseOrderDeliveryStateEnum::DISPATCHED)
+        ->and($line->refresh()->state)->toBe(PurchaseOrderTransactionStateEnum::CONFIRMED);
 });
 
 test('purchase order with an open aurora stock delivery refuses a second one', function (StockDelivery $stockDelivery) {
@@ -2938,8 +3057,41 @@ test('UI Index purchase orders', function () {
         $page
             ->component('Procurement/PurchaseOrders')
             ->has('title')
-            ->has('breadcrumbs', 3);
+            ->has('breadcrumbs', 3)
+            ->has('queryBuilderProps.default.elementGroups.attention.elements.unconfirmed_over_7_days')
+            ->has('queryBuilderProps.default.elementGroups.attention.elements.unconfirmed_over_30_days')
+            ->has('queryBuilderProps.default.elementGroups.attention.elements.past_expected_date');
     });
+
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $overdue       = StorePurchaseOrder::make()->action($orgSupplier, array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'Overdue attention PO']), strict: false);
+    $overdue->forceFill([
+        'agent_id'              => $this->agent->id,
+        'date'                  => now()->addYear(),
+        'state'                 => PurchaseOrderStateEnum::SUBMITTED,
+        'submitted_at'          => now()->subDays(10),
+        'estimated_received_at' => now()->subDay(),
+    ])->saveQuietly();
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, array_merge(PurchaseOrder::factory()->definition(), ['reference' => 'Client draft PO']), strict: false);
+    $draft->forceFill(['agent_id' => $this->agent->id, 'date' => now()->addYear()])->saveQuietly();
+
+    $references = fn ($rows) => collect($rows)->pluck('reference');
+
+    $this->get(route('grp.org.procurement.purchase_orders.index', [
+        $this->organisation->slug,
+        'elements' => ['attention' => 'unconfirmed_over_7_days,unconfirmed_over_30_days,past_expected_date'],
+    ]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/PurchaseOrders')
+        ->where('data.data', fn ($rows) => $references($rows)->contains('Overdue attention PO')
+            && !$references($rows)->contains('Client draft PO')
+            && collect($rows)->every(fn ($row) => in_array($row['state'], ['submitted', 'confirmed'], true))));
+
+    $this->get(route('grp.org.agent.purchase_orders.index', [$this->agent->organisation->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/PurchaseOrders')
+            ->where('data.data', fn ($rows) => $references($rows)->contains('Overdue attention PO')
+                && !$references($rows)->contains('Client draft PO')));
 });
 
 test('UI index purchase orders for supplier shows supplier-specific columns and row details', function () {
@@ -3090,6 +3242,14 @@ test('new purchase orders use the default warehouse address and show empty physi
             ->missing('tabs.navigation.showcase')
             ->has('showcase.blueprint')
             ->etc());
+});
+
+test('an address without a country formats its lines instead of failing', function () {
+    $address = new Address(['address_line_1' => '1 Example Road', 'locality' => 'Trnava', 'postal_code' => '917 01']);
+
+    expect($address->formatted_address)->toBe("1 Example Road\nTrnava\n917 01")
+        ->and($address->getHtml())->toBe("1 Example Road<br />\nTrnava<br />\n917 01")
+        ->and((new Address())->formatted_address)->toBe('');
 });
 
 test('purchase order submit availability follows its submittable items', function () {
@@ -3305,8 +3465,9 @@ test('ordering from the manufacturing hub fills the shopping list, never a rescu
         expect((new ReflectionMethod($buckets, 'spareExpression'))->invoke($buckets, $orgPartner, 14))->toBe('null::numeric')
             ->and($buckets->orderBuckets($orgPartner))->toBe(['out', 'w1', 'w2', 'w3'])
             ->and((int) DB::selectOne('select '.(new ReflectionMethod($buckets, 'rescueQuantity'))->invoke($buckets, 'null::numeric', 14, $orgPartner).' as quantity
-                from (select 0.5 as predicted_daily_usage) s, (select 3 as quantity_available) os, (select null::jsonb as data) stock_families,
-                    (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, 0 as id, 6 as packed_in) p')->quantity)
+                from (select 0.5 as predicted_daily_usage) s, (select 3 as quantity_available) os, (select null::int as stock_family_id) stocks,
+                    (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, 0 as id, 6 as packed_in) p,
+                    lateral ('.(new ReflectionMethod($buckets, 'rowFacts'))->invoke($buckets, $orgPartner, 14)->toRawSql().') rf')->quantity)
             ->toBe((int) ceil(0.5 * GetPartnerStockCoverBuckets::MINIMUM_COVER_DAYS))
             ->and(collect($buckets->rescuable($orgPartner, 0)['buckets'])->pluck('bucket')->all())->toBe(['out', 'w1', 'w2', 'w3'])
             ->and($buckets->rescuable($orgPartner, 0)['buckets'][0])->toHaveKeys(['cheapest', 'order_cheapest'])
@@ -3326,7 +3487,8 @@ test('a rescue line orders at least a month of sales, never more than the partne
     $quantity = fn (string $spare) => DB::selectOne(
         'select '.(new ReflectionMethod($buckets, 'rescueQuantity'))->invoke($buckets, $spare, 14, $this->orgPartner).' as quantity
         from (select 0.5 as predicted_daily_usage) s, (select 3 as quantity_available, 1 as packed_in) os,
-            (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, 0 as id, 1 as packed_in) p, (select null::jsonb as data) stock_families'
+            (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, 0 as id, 1 as packed_in) p, (select null::int as stock_family_id) stocks,
+            lateral ('.(new ReflectionMethod($buckets, 'rowFacts'))->invoke($buckets, $this->orgPartner, 14)->toRawSql().') rf'
     )->quantity;
 
     expect((int) $quantity('500'))->toBe((int) ceil(0.5 * GetPartnerStockCoverBuckets::MINIMUM_COVER_DAYS))
@@ -3353,7 +3515,8 @@ test('a rescue line to a sister company is rounded up to the partner\'s carton w
     $quantity = fn (string $spare, float $usage) => (int) DB::selectOne(
         'select '.(new ReflectionMethod($buckets, 'rescueQuantity'))->invoke($buckets, $spare, 14, $this->orgPartner).' as quantity
         from (select '.$usage.' as predicted_daily_usage) s, (select 3 as quantity_available, 2 as packed_in) os,
-            (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, '.$sellerStock->id.' as id, 1 as packed_in) p, (select null::jsonb as data) stock_families'
+            (select null::int as measured_lead_time_days, null::int as estimated_lead_time_days, '.$sellerStock->id.' as id, 1 as packed_in) p, (select null::int as stock_family_id) stocks,
+            lateral ('.(new ReflectionMethod($buckets, 'rowFacts'))->invoke($buckets, $this->orgPartner, 14)->toRawSql().') rf'
     )->quantity;
 
     $partner = $this->orgPartner->partner;
@@ -3879,6 +4042,13 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
     actingAs($this->adminGuest->getUser());
 });
 
+function createUnlinkedOrgStock($test): OrgStock
+{
+    $stock = StoreStock::make()->action($test->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    return \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($test->organisation, $stock);
+}
+
 function createStockDeliveryWithItems($test, string $code, array $unitQuantities): StockDelivery
 {
     $supplier    = StoreSupplier::make()->action(parent: $test->group, modelData: Supplier::factory()->definition());
@@ -3911,6 +4081,51 @@ function createStockDeliveryWithItems($test, string $code, array $unitQuantities
 
     return $stockDelivery->refresh();
 }
+
+test('an agent invoices a container from its lines, adds its charges, takes off what was paid in advance and can not dispatch it without the invoice', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-INV-'.Str::random(6), [10, 4]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    [$first, $second] = $stockDelivery->items()->orderBy('id')->get()->all();
+    $first->updateQuietly(['net_amount' => 100]);
+    $second->updateQuietly(['net_amount' => 40]);
+
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
+
+    $invoice = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+
+    expect($invoice->number_lines)->toBe(2)
+        ->and((float) $invoice->goods_amount)->toBe(140.0)
+        ->and($invoice->lines[0]['unit_price'])->toEqual(10)
+        ->and($stockDelivery->refresh()->data['invoice_number'])->toBe($invoice->reference);
+
+    $invoice = UpdateAgentInvoiceCharges::make()->handle($invoice, ['charges' => [
+        ['description' => 'Commission', 'amount' => 12.5],
+        ['description' => 'Packing', 'amount' => 3],
+    ]]);
+    StoreAgentPayment::make()->handle($stockDelivery, ['date' => now()->toDateString(), 'amount' => 50, 'reference' => 'TT-1']);
+
+    $again = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+
+    expect($again->id)->toBe($invoice->id)
+        ->and($again->number)->toBe($invoice->number)
+        ->and((float) $again->total_amount)->toBe(155.5)
+        ->and($again->paidAmount())->toBe(50.0)
+        ->and($again->balanceDue())->toBe(105.5);
+
+    $summary = ShowStockDelivery::make()->getInvoiceSummary($stockDelivery->refresh());
+
+    expect($summary)->toMatchArray(['kind' => 'agent', 'source' => 'agent', 'reference' => $again->reference, 'goods' => 140.0, 'charges' => 15.5, 'total' => 155.5, 'paid' => 50.0, 'balance_due' => 105.5])
+        ->and($summary['org_currency'])->toBe($stockDelivery->organisation->currency->code);
+
+    $second->updateQuietly(['unit_quantity' => 5]);
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
+    $second->updateQuietly(['unit_quantity' => 4]);
+
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasNoErrors();
+
+    expect(fn () => StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh()))->toThrow(ValidationException::class)
+        ->and(fn () => UpdateAgentInvoiceCharges::make()->handle($again->refresh(), ['charges' => []]))->toThrow(ValidationException::class);
+});
 
 test('stock delivery counts under and over delivered items', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'UNDER-OVER', [10, 10, 10]);
@@ -4018,7 +4233,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
     $this->get($url)->assertInertia(function (AssertableInertia $page) {
         $page
             ->where('queryBuilderProps.items.elementGroups.state.elements.placed.1', 0)
-            ->has('tabs.navigation', 7)
+            ->has('tabs.navigation', 8)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
     });
 
@@ -4036,7 +4251,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
 
     $response->assertOk()
         ->assertJsonPath('props.queryBuilderProps.items.elementGroups.state.elements.placed.1', 1)
-        ->assertJsonCount(8, 'props.tabs.navigation')
+        ->assertJsonCount(9, 'props.tabs.navigation')
         ->assertJsonPath(
             'props.tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.title',
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->blueprint()['title']
@@ -4342,7 +4557,7 @@ test('agent organisation manages its own supplier identity', function () {
         ->firstOrFail();
 
     $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.org_suppliers.edit', [$ownAgent->organisation->slug, $orgSupplier->slug]));
+    $response = $this->get(route('grp.org.agent.org_suppliers.edit', [$ownAgent->organisation->slug, $orgSupplier->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -4481,7 +4696,7 @@ test('an agent sees and prints only the published labels of the SKOs it buys for
     $agentOrganisation = $this->agent->organisation;
     actingAs($this->adminGuest->getUser());
 
-    get(route('grp.org.procurement.agent_labels.index', $agentOrganisation->slug))
+    get(route('grp.org.agent.agent_labels.index', $agentOrganisation->slug))
         ->assertOk()
         ->assertInertia(function (AssertableInertia $page) use ($orgStock, $published) {
             $page->component('Org/Procurement/AgentLabels')
@@ -4490,11 +4705,11 @@ test('an agent sees and prints only the published labels of the SKOs it buys for
                     && collect($orgStocks)->firstWhere('id', $orgStock->id)['labels'][0]['run_sources'] === ['batch_code', 'expiry_date']);
         });
 
-    get(route('grp.org.procurement.agent_labels.pdf', [$agentOrganisation->slug, $orgStock->id, $published->id, 'batch_code' => 'B-7', 'expiry_date' => '2027-09-24']))
+    get(route('grp.org.agent.agent_labels.pdf', [$agentOrganisation->slug, $orgStock->id, $published->id, 'batch_code' => 'B-7', 'expiry_date' => '2027-09-24']))
         ->assertOk();
-    get(route('grp.org.procurement.agent_labels.pdf', [$agentOrganisation->slug, $orgStock->id, $published->id, 'batch_code' => 'B-7']))
+    get(route('grp.org.agent.agent_labels.pdf', [$agentOrganisation->slug, $orgStock->id, $published->id, 'batch_code' => 'B-7']))
         ->assertStatus(422);
-    get(route('grp.org.procurement.agent_labels.pdf', [$agentOrganisation->slug, $foreignOrgStock->id, $foreign->id]))
+    get(route('grp.org.agent.agent_labels.pdf', [$agentOrganisation->slug, $foreignOrgStock->id, $foreign->id]))
         ->assertNotFound();
     get(route('grp.org.procurement.agent_labels.index', $this->organisation->slug))
         ->assertNotFound();
@@ -4504,7 +4719,7 @@ test('agent organisation creates a supplier under its own agent', function () {
     $ownAgent = StoreAgent::make()->action($this->group, Agent::factory()->definition());
 
     $this->withoutExceptionHandling();
-    $this->get(route('grp.org.procurement.org_suppliers.create_new', [$ownAgent->organisation->slug]))
+    $this->get(route('grp.org.agent.org_suppliers.create_new', [$ownAgent->organisation->slug]))
         ->assertOk();
 
     $storeData = Supplier::factory()->definition();
@@ -4654,7 +4869,11 @@ describe('shopping list', function () {
 
     test('cherry pick puts agent lines on the org supplier in process purchase order and reuses it', function () {
         $item1 = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 30]);
-        $item2 = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 20]);
+        $again = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 20]);
+
+        expect($again->id)->toBe($item1->id)
+            ->and((float) $again->quantity_units)->toBe(20.0)
+            ->and(ShoppingListItem::where('org_supplier_product_id', $this->orgSupplierProduct->id)->where('state', ShoppingListItemStateEnum::OPEN)->count())->toBe(1);
 
         $result = CherryPickShoppingListItems::make()->action($this->agent, [
             ['id' => $item1->id],
@@ -4667,17 +4886,36 @@ describe('shopping list', function () {
             ->and($purchaseOrder->parent_type)->toBe('OrgSupplier')
             ->and($purchaseOrder->supplier_id)->toBe($this->supplierProduct->supplier_id);
 
+        $linesBefore = $purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count();
+        $item2       = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 15]);
+
         $result2 = CherryPickShoppingListItems::make()->action($this->agent, [
             ['id' => $item2->id],
         ]);
 
-        expect($result2['purchase_orders'])->toHaveCount(1)
+        expect($item2->id)->not->toBe($item1->id)
+            ->and($result2['purchase_orders'])->toHaveCount(1)
             ->and($result2['purchase_orders'][0]->id)->toBe($purchaseOrder->id);
 
         $transaction1 = \App\Models\Procurement\PurchaseOrderTransaction::find($item1->fresh()->purchase_order_transaction_id);
         $transaction2 = \App\Models\Procurement\PurchaseOrderTransaction::find($item2->fresh()->purchase_order_transaction_id);
         expect($transaction1->purchase_order_id)->toBe($purchaseOrder->id)
-            ->and($transaction2->purchase_order_id)->toBe($purchaseOrder->id);
+            ->and($transaction2->id)->toBe($transaction1->id)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count())->toBe($linesBefore);
+
+        $transaction1->replicate()->fill(['quantity_ordered' => 7])->save();
+
+        $dryRun = collect(App\Actions\Procurement\PurchaseOrder\MergeDuplicateDraftPurchaseOrderLines::make()->handle(dryRun: true))->firstWhere('purchase_order', $purchaseOrder->reference);
+        expect($dryRun['kept'])->toBe(7.0)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->count())->toBe($linesBefore + 1);
+
+        App\Actions\Procurement\PurchaseOrder\MergeDuplicateDraftPurchaseOrderLines::make()->handle();
+
+        $joined = $purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $this->supplierProduct->id)->get();
+        expect($joined)->toHaveCount(1)
+            ->and($joined->first()->id)->toBe($transaction1->id)
+            ->and((float) $joined->first()->quantity_ordered)->toBe(7.0)
+            ->and($item2->fresh()->purchase_order_transaction_id)->toBe($transaction1->id);
     });
 
     test('shopping list board exposes the open agent purchase orders for a supplier', function () {
@@ -4689,7 +4927,7 @@ describe('shopping list', function () {
 
         $secondItem = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 15]);
 
-        $response = $this->get(route('grp.org.procurement.shopping_list.board', [$this->agent->organisation->slug]));
+        $response = $this->get(route('grp.org.agent.shopping_list.board', [$this->agent->organisation->slug]));
 
         $response->assertInertia(function (AssertableInertia $page) use ($secondItem, $result) {
             $agents = $page->toArray()['props']['agents'];
@@ -4707,7 +4945,7 @@ describe('shopping list', function () {
                 $page->component('SupplyChain/ShoppingListBoard');
             });
 
-        $this->get(route('grp.org.procurement.shopping_list.board', [$this->agent->organisation->slug]))
+        $this->get(route('grp.org.agent.shopping_list.board', [$this->agent->organisation->slug]))
             ->assertInertia(function (AssertableInertia $page) {
                 $page->component('Procurement/ShoppingListBoard');
             });
@@ -4918,6 +5156,210 @@ describe('stock delivery costing checklist', function () {
             ->and($stockDelivery->is_costed)->toBeFalse()
             ->and($stockDelivery->placed_at)->toBeNull()
             ->and($stockDelivery->booked_in_at)->toBeNull();
+    });
+});
+
+describe('stock delivery service invoices', function () {
+    beforeEach(function () {
+        $orgSupplier = OrgSupplier::first();
+        $this->serviceInvoiceStockDeliveries = collect(['A', 'B'])->map(fn (string $suffix) => StoreStockDelivery::make()->action($orgSupplier, [
+            'reference' => 'SVC-'.$suffix.'-'.StockDelivery::withTrashed()->max('id'),
+            'date'      => date('Y-m-d'),
+        ], strict: false));
+        $this->serviceInvoiceOrganisation = $this->serviceInvoiceStockDeliveries->first()->organisation;
+    });
+
+    test('a freight bill split over two containers fills both shipping rows and completes costing once duty is in', function () {
+        [$first, $second] = $this->serviceInvoiceStockDeliveries->all();
+        $organisation     = $this->serviceInvoiceOrganisation;
+
+        foreach ([$first, $second] as $stockDelivery) {
+            StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'amount' => 1000, 'received_at' => now()]);
+        }
+
+        StoreStockDeliveryServiceInvoice::make()->action($organisation, [
+            'type'         => StockDeliveryServiceInvoiceTypeEnum::FREIGHT->value,
+            'issuer'       => 'Sea Forwarder',
+            'reference'    => 'SF-1',
+            'date'         => '2026-10-01',
+            'currency_id'  => $organisation->currency_id,
+            'total_amount' => 300,
+            'allocations'  => [
+                ['stock_delivery_id' => $first->id, 'amount' => 100],
+                ['stock_delivery_id' => $second->id, 'amount' => 200],
+            ],
+        ]);
+
+        $firstShipping  = $first->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+        $secondShipping = $second->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+
+        expect((float) $firstShipping->amount)->toBe(100.0)
+            ->and((float) $secondShipping->amount)->toBe(200.0)
+            ->and($firstShipping->received_at)->not->toBeNull()
+            ->and($firstShipping->from_service_invoices)->toBeTrue()
+            ->and($firstShipping->label)->toBe('Sea Forwarder SF-1')
+            ->and($first->refresh()->is_costed)->toBeFalse()
+            ->and($second->refresh()->is_costed)->toBeFalse();
+
+        $costsBeforeTax = StockDeliveryCost::whereIn('stock_delivery_id', [$first->id, $second->id])->count();
+        StoreStockDeliveryServiceInvoice::make()->action($organisation, [
+            'type'         => StockDeliveryServiceInvoiceTypeEnum::TAX->value,
+            'issuer'       => 'Customs Broker',
+            'date'         => '2026-10-02',
+            'currency_id'  => $organisation->currency_id,
+            'total_amount' => 500,
+            'allocations'  => [['stock_delivery_id' => $first->id], ['stock_delivery_id' => $second->id]],
+        ]);
+        expect(StockDeliveryCost::whereIn('stock_delivery_id', [$first->id, $second->id])->count())->toBe($costsBeforeTax);
+
+        $duty = StoreStockDeliveryServiceInvoice::make()->action($organisation, [
+            'type'         => StockDeliveryServiceInvoiceTypeEnum::DUTY->value,
+            'issuer'       => 'Customs Broker',
+            'date'         => '2026-10-02',
+            'currency_id'  => $organisation->currency_id,
+            'total_amount' => 90.01,
+            'allocations'  => [['stock_delivery_id' => $first->id], ['stock_delivery_id' => $second->id]],
+        ]);
+
+        $dutyRows = StockDeliveryCost::whereIn('stock_delivery_id', [$first->id, $second->id])->where('type', StockDeliveryCostTypeEnum::DUTY)->get();
+        expect($dutyRows)->toHaveCount(2)
+            ->and(round($dutyRows->sum(fn (StockDeliveryCost $cost) => (float) $cost->amount), 2))->toBe(90.01)
+            ->and(round($duty->stockDeliveries->sum('pivot.amount'), 2))->toBe(90.01)
+            ->and($first->refresh()->is_costed)->toBeTrue()
+            ->and($second->refresh()->is_costed)->toBeTrue();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $firstShipping->id), ['amount' => 1])
+            ->assertSessionHasErrors('type');
+        expect((float) $firstShipping->refresh()->amount)->toBe(100.0);
+
+        $this->get(route('grp.org.procurement.service_invoices.index', [$organisation->slug, 'search' => 'Sea Forwarder']))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Procurement/StockDeliveryServiceInvoices')
+                ->where('data.data.0.issuer', 'Sea Forwarder')
+                ->where('data.data.0.allocations.1.amount', 200));
+    });
+
+    test('service invoices of every type fill the row of their kind and deleting them puts those rows back to pending', function () {
+        $stockDelivery = $this->serviceInvoiceStockDeliveries->first();
+        $organisation  = $this->serviceInvoiceOrganisation;
+
+        StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, 'amount' => 50, 'received_at' => now()]);
+        $handDuty = StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'amount' => 40, 'received_at' => now()]);
+
+        $billData = fn (StockDeliveryServiceInvoiceTypeEnum $type, float $total) => [
+            'type'         => $type->value,
+            'issuer'       => 'Port Agent',
+            'date'         => '2026-10-03',
+            'currency_id'  => $organisation->currency_id,
+            'total_amount' => $total,
+            'allocations'  => [['stock_delivery_id' => $stockDelivery->id]],
+        ];
+        $freight  = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::FREIGHT, 120));
+        $haulage  = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::LOCAL_TRANSPORT, 20));
+        $handling = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::PORT_CHARGES, 30));
+        $levy     = StoreStockDeliveryServiceInvoice::make()->action($organisation, $billData(StockDeliveryServiceInvoiceTypeEnum::ANTI_DUMPING, 15));
+
+        $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+        $extra    = $stockDelivery->costs()->where('stock_delivery_service_invoice_id', $handling->id)->sole();
+        expect((float) $shipping->amount)->toBe(140.0)
+            ->and((float) $handDuty->refresh()->amount)->toBe(15.0)
+            ->and($handDuty->from_service_invoices)->toBeTrue()
+            ->and($shipping->from_service_invoices)->toBeTrue()
+            ->and($extra->type)->toBe(StockDeliveryCostTypeEnum::EXTRA)
+            ->and((float) $extra->amount)->toBe(30.0);
+
+        UpdateStockDeliveryServiceInvoice::make()->action($handling, ['total_amount' => 35]);
+        UpdateStockDeliveryServiceInvoice::make()->action($handling->refresh(), ['reference' => 'PA-9']);
+        expect((float) $extra->refresh()->amount)->toBe(35.0)
+            ->and($extra->label)->toBe('Port Agent PA-9')
+            ->and(array_column(StoreStockDeliveryServiceInvoice::largestRemainderSplit([1, 2, 3], [1 => 1, 2 => 1, 3 => 0], 0.05), 'amount'))->toBe([0.03, 0.02, 0.0]);
+
+        DeleteStockDeliveryServiceInvoice::make()->action($freight);
+        DeleteStockDeliveryServiceInvoice::make()->action($haulage);
+        DeleteStockDeliveryServiceInvoice::make()->action($handling);
+        DeleteStockDeliveryServiceInvoice::make()->action($levy);
+
+        $shipping->refresh();
+        expect($shipping->amount)->toBeNull()
+            ->and($shipping->received_at)->toBeNull()
+            ->and($shipping->from_service_invoices)->toBeFalse()
+            ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->exists())->toBeFalse()
+            ->and($handDuty->refresh()->amount)->toBeNull()
+            ->and(StockDeliveryServiceInvoice::withTrashed()->find($freight->id)->trashed())->toBeTrue();
+    });
+    test('the invoice of a checklist row is uploaded onto the row, or onto the delivery for the agent invoice, without touching amounts', function () {
+        $stockDelivery = $this->serviceInvoiceStockDeliveries->first();
+        $attach        = fn (array $data) => $this->post(route('grp.models.stock-delivery.cost.invoice.attach', $stockDelivery->id), $data);
+        $pdf           = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+
+        $attach(['type' => StockDeliveryCostTypeEnum::DUTY->value, 'attachments' => [$pdf('duty-bill.pdf')]])->assertSessionHasNoErrors();
+        $attach(['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'attachments' => [$pdf('agent-invoice.pdf')]])->assertSessionHasNoErrors();
+        $attach(['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'attachments' => [$pdf('extra.pdf')]])->assertSessionHasErrors('cost');
+
+        $stockDelivery->created_at = '2026-10-01';
+        expect($stockDelivery->costsMissingForPutAway())->toBe([]);
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+        expect($stockDelivery->costsMissingForPutAway())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty'])
+            ->and(StockDelivery::whereKey($stockDelivery->id)->withCostsMissingForPutAway()->exists())->toBeTrue();
+
+        $receive = fn (array $data) => $this->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), $data);
+        $receive([])->assertSessionHasErrors('reason');
+        expect($stockDelivery->refresh()->state)->not->toBe(StockDeliveryStateEnum::RECEIVED);
+        $receive(['reason' => 'Lorry at the door'])->assertSessionDoesntHaveErrors(['reason']);
+        ReportStockDeliveryReceivedWithoutCosts::run($stockDelivery, User::first(), $stockDelivery->costsMissingForPutAway(), 'Lorry at the door');
+        expect($stockDelivery->audits()->where('event', 'received_without_costs')->exists())->toBeTrue();
+        $stockDelivery->update(['created_at' => '2026-10-01']);
+
+        $storeCost = fn (array $data) => $this->post(route('grp.models.stock-delivery.cost.store', $stockDelivery->id), ['type' => StockDeliveryCostTypeEnum::EXTRA->value] + $data);
+        $storeCost(['label' => 'Anything'])->assertSessionHasErrors('category');
+        $storeCost(['category' => StockDeliveryServiceInvoiceTypeEnum::FREIGHT->value])->assertSessionHasErrors('category');
+        $storeCost(['category' => StockDeliveryServiceInvoiceTypeEnum::FINE->value])->assertSessionHasNoErrors();
+        expect($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->sole()->category)->toBe(StockDeliveryServiceInvoiceTypeEnum::FINE);
+
+        $duty = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::DUTY)->sole();
+
+        expect($duty->amount)->toBeNull()
+            ->and($duty->received_at)->toBeNull()
+            ->and($duty->attachments()->count())->toBe(1)
+            ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->exists())->toBeFalse()
+            ->and($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->count())->toBe(1)
+            ->and($stockDelivery->refresh()->is_costed)->toBeFalse();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => true])->assertSessionHasNoErrors();
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['invoice_expected_in_days' => 3])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_waiting_for_invoice)->toBeTrue()
+            ->and($duty->invoice_expected_at->toDateString())->toBe(now()->addDays(3)->toDateString())
+            ->and($duty->waitingLabel())->toBe('Invoice expected in 3 days')
+            ->and($duty->is_estimate)->toBeFalse();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['amount' => 55])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_estimate)->toBeTrue()
+            ->and($duty->is_waiting_for_invoice)->toBeTrue()
+            ->and($duty->received_at)->not->toBeNull();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => false, 'amount' => 58])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_estimate)->toBeFalse()
+            ->and((float) $duty->amount)->toBe(58.0);
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_waiting_for_invoice' => true, 'invoice_expected_in_days' => 3])->assertSessionHasNoErrors();
+
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['label' => 'Broker says zero rated'])->assertSessionHasNoErrors();
+        $this->patch(route('grp.models.stock-delivery-cost.update', $duty->id), ['is_na' => true])->assertSessionHasNoErrors();
+        expect($duty->refresh()->is_waiting_for_invoice)->toBeFalse()
+            ->and($duty->invoice_expected_at)->toBeNull()
+            ->and($duty->is_na)->toBeTrue()
+            ->and($stockDelivery->refresh()->is_costed)->toBeFalse();
+
+        $this->get(route('grp.org.procurement.stock_deliveries.show', [$stockDelivery->organisation->slug, $stockDelivery->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('costing.checklist.0.type', 'agent_invoice')
+                ->where('costing.checklist.0.attachments.0.name', fn (string $name) => str_contains($name, 'agent-invoice'))
+                ->where('costing.checklist.2.attachments.0.name', fn (string $name) => str_contains($name, 'duty-bill'))
+                ->where('costing.checklist.2.uploadRoute.parameters.cost', $duty->id)
+                ->where('costing.checklist.3.label', 'Fines')
+                ->where('costing.checklist.2.category_label', 'Duty')
+                ->where('costing.checklist.2.note', 'Broker says zero rated')
+                ->where('costing.checklist.2.history', fn ($history) => collect($history)->contains(fn (array $entry) => collect($entry['changes'])->contains(fn (array $change) => $change['field'] === 'Note' && $change['new'] === 'Broker says zero rated')))
+                ->etc());
     });
 });
 
@@ -5642,6 +6084,19 @@ describe('partner shopping list', function () {
             ->and($line['quantity'])->toBe(3.0);
     });
 
+    test('a website shows quantity and date only of a partner purchase order on its way', function () {
+        $this->orgPartner->partner->update(['is_manufacturing_hub' => false]);
+        $purchaseOrder = $this->orgPartner->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->latest()->first()
+            ?? StorePurchaseOrder::make()->action($this->orgPartner->refresh(), PurchaseOrder::factory()->definition());
+        StorePurchaseOrderTransaction::make()->action($purchaseOrder, null, $this->buyerOrgStock, ['quantity_ordered' => 5]);
+        $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'delivery_state' => PurchaseOrderDeliveryStateEnum::CONFIRMED]);
+
+        $product = (new \App\Models\Catalogue\Product())->setRelation('orgStocks', collect([$this->buyerOrgStock]));
+        $line    = collect(GetProductIncomingStock::run($product, true))->firstWhere('quantity', 5.0);
+
+        expect($line)->toBe(['quantity' => 5.0, 'eta' => null, 'is_estimate' => false]);
+    });
+
     test('a partner request in production shows its job order and who is making it', function () {
         $seller         = $this->orgPartner->partner;
         $sellerOrgStock = $this->sellerProduct->orgStocks()->first();
@@ -5713,7 +6168,6 @@ describe('partner shopping list', function () {
             StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
         }
         $this->orgPartner->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->delete();
-        $this->orgPartner->organisation->warehouses()->with('address')->get()->each(fn ($warehouse) => $warehouse->address?->update(['country_code' => $warehouse->address->country_code ?? 'GB']));
 
         $sellerOrgStock = $this->sellerProduct->orgStocks()->first();
         $this->buyerOrgStock->update(['packed_in' => $sellerOrgStock->packed_in]);
@@ -6058,6 +6512,156 @@ describe('partner shopping list', function () {
         }
     });
 
+    test('a partner can split GB-origin goods onto their own pallet, family by family', function () {
+        $seller = $this->orgPartner->partner;
+        if (!$seller->warehouses()->exists()) {
+            StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
+        }
+        $warehouse = $seller->warehouses()->first();
+        $mainBay   = \App\Actions\Inventory\Location\StoreLocation::make()->action($warehouse, \App\Models\Inventory\Location::factory()->definition());
+        $gbBay     = \App\Actions\Inventory\Location\StoreLocation::make()->action($warehouse, \App\Models\Inventory\Location::factory()->definition());
+        $mainBay->update(['is_goods_out' => true]);
+        $gbBay->update(['is_goods_out' => true]);
+
+        $stockFamily = \App\Actions\Goods\StockFamily\StoreStockFamily::make()->action($seller->group, \App\Models\Goods\StockFamily::factory()->definition());
+        $family      = \App\Models\Inventory\OrgStockFamily::where('organisation_id', $seller->id)->where('stock_family_id', $stockFamily->id)->first()
+            ?? \App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily::make()->action($seller, $stockFamily, []);
+
+        $sellerPartner = \App\Models\Procurement\OrgPartner::where('organisation_id', $seller->id)
+            ->where('partner_id', $this->orgPartner->organisation_id)
+            ->first()
+            ?? StoreOrgPartner::make()->action($seller, $this->orgPartner->organisation);
+        $originalSettings = $sellerPartner->only(['goods_out_location_id', 'split_cosmetics', 'cosmetic_goods_out_location_id', 'split_gb_origin', 'gb_goods_out_location_id']);
+
+        $listedLine = function (bool $isGbOrigin) use ($seller, $family) {
+            $stock = StoreStock::make()->action($seller->group, Stock::factory()->definition());
+            $stock->update(['is_cosmetic' => false, 'is_gb_origin' => $isGbOrigin]);
+            createOrgStocks($seller, [$stock])[0]->update(['org_stock_family_id' => $family->id]);
+            \App\Actions\Catalogue\Product\StoreProduct::make()->action($this->sellerShop, array_merge(
+                \App\Models\Catalogue\Product::factory()->definition(),
+                [
+                    'state'       => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE,
+                    'trade_units' => [['id' => $stock->tradeUnits()->firstOrFail()->id, 'quantity' => 1]],
+                ]
+            ));
+
+            return submittedPartnerShoppingListItem($this->orgPartner, createOrgStocks($this->orgPartner->organisation, [$stock])[0], ['quantity' => 2]);
+        };
+
+        try {
+            $sellerPartner->update(['goods_out_location_id' => $mainBay->id, 'split_cosmetics' => false, 'cosmetic_goods_out_location_id' => null, 'split_gb_origin' => false, 'gb_goods_out_location_id' => $gbBay->id]);
+            $family->update(['gb_separate_pallet' => true]);
+
+            $gbLine = $listedLine(true);
+            expect($sellerPartner->refresh()->bayIdFor(false, true))->toBe($mainBay->id)
+                ->and($sellerPartner->isGbPallet($gbLine->stock_id))->toBeTrue();
+
+            $result = CherryPickPartnerShoppingListItems::make()->action($seller->refresh(), [['id' => $gbLine->id], ['id' => $listedLine(false)->id]]);
+            expect($result['orders'])->toHaveCount(1);
+
+            $sellerPartner->update(['split_gb_origin' => true]);
+            expect($sellerPartner->refresh()->bayIdFor(false, true))->toBe($gbBay->id)
+                ->and($sellerPartner->bayIdFor(false, false))->toBe($mainBay->id)
+                ->and($sellerPartner->bayFor(false, true)->id)->toBe($gbBay->id)
+                ->and($sellerPartner->splitFor(true, true))->toBe('gb')
+                ->and($sellerPartner->bayIds())->toBe([$mainBay->id, $gbBay->id]);
+
+            $gbLine     = $listedLine(true);
+            $sqlBay     = \Illuminate\Support\Facades\DB::selectOne('select '.\App\Models\Procurement\OrgPartner::bayIdSql('org_partners', (string) $gbLine->stock_id).' as bay from org_partners where id = ?', [$sellerPartner->id])->bay;
+            expect((int) $sqlBay)->toBe($gbBay->id);
+
+            $result = CherryPickPartnerShoppingListItems::make()->action($seller->refresh(), [['id' => $gbLine->id], ['id' => $listedLine(false)->id], ['id' => $listedLine(true)->id]]);
+            $orders = collect($result['orders']);
+            expect($result['picked'])->toBe(3)
+                ->and($orders)->toHaveCount(2)
+                ->and($orders->map(fn ($order) => (bool) data_get($order->refresh()->data, 'partner_gb'))->sort()->values()->all())->toBe([false, true])
+                ->and($orders->firstWhere(fn ($order) => data_get($order->data, 'partner_gb'))->transactions()->count())->toBe(2);
+
+            $family->update(['gb_separate_pallet' => false]);
+            $offLine = $listedLine(true);
+            expect($sellerPartner->isGbPallet($offLine->stock_id))->toBeFalse();
+            $result = CherryPickPartnerShoppingListItems::make()->action($seller->refresh(), [['id' => $offLine->id]]);
+            expect((bool) data_get($result['orders'][0]->refresh()->data, 'partner_gb'))->toBeFalse()
+                ->and($result['orders'][0]->id)->not->toBe($orders->firstWhere(fn ($order) => data_get($order->data, 'partner_gb'))->id);
+        } finally {
+            $family->update(['gb_separate_pallet' => true]);
+            $sellerPartner->update($originalSettings);
+        }
+    });
+
+    test('the GB bay of a partner must be a free goods out bay, apart from its cosmetic bay', function () {
+        $seller = $this->orgPartner->partner;
+        if (!$seller->warehouses()->exists()) {
+            StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
+        }
+        $bay         = \App\Actions\Inventory\Location\StoreLocation::make()->action($seller->warehouses()->first(), \App\Models\Inventory\Location::factory()->definition());
+        $mainBay     = \App\Actions\Inventory\Location\StoreLocation::make()->action($seller->warehouses()->first(), \App\Models\Inventory\Location::factory()->definition());
+        $cosmeticBay = \App\Actions\Inventory\Location\StoreLocation::make()->action($seller->warehouses()->first(), \App\Models\Inventory\Location::factory()->definition());
+        $mainBay->update(['is_goods_out' => true]);
+        $cosmeticBay->update(['is_goods_out' => true]);
+
+        $sellerPartner = \App\Models\Procurement\OrgPartner::where('organisation_id', $seller->id)
+            ->where('partner_id', $this->orgPartner->organisation_id)
+            ->first()
+            ?? StoreOrgPartner::make()->action($seller, $this->orgPartner->organisation);
+        $originalSettings = $sellerPartner->only(['goods_out_location_id', 'split_cosmetics', 'cosmetic_goods_out_location_id', 'split_gb_origin', 'gb_goods_out_location_id']);
+        $update           = fn (array $data) => \App\Actions\Procurement\OrgPartner\UpdateOrgPartnerCosmeticSettings::make()->action($sellerPartner->refresh(), $data);
+
+        try {
+            $sellerPartner->update(['goods_out_location_id' => $mainBay->id, 'cosmetic_goods_out_location_id' => $cosmeticBay->id, 'gb_goods_out_location_id' => null]);
+            expect(fn () => $update(['gb_goods_out_location_id' => $bay->id]))->toThrow(ValidationException::class, 'goods out gathering location')
+                ->and(fn () => $update(['gb_goods_out_location_id' => $mainBay->id]))->toThrow(ValidationException::class, 'The GB bay must be different from the partner goods out bay')
+                ->and(fn () => $update(['gb_goods_out_location_id' => $cosmeticBay->id]))->toThrow(ValidationException::class, 'The GB bay must be different from the cosmetic bay');
+
+            $bay->update(['is_goods_out' => true]);
+            $update(['split_gb_origin' => true, 'gb_goods_out_location_id' => $bay->id]);
+            expect($sellerPartner->refresh()->split_gb_origin)->toBeTrue()
+                ->and($sellerPartner->gb_goods_out_location_id)->toBe($bay->id)
+                ->and(\App\Models\Procurement\OrgPartner::withBay($bay->id)->value('id'))->toBe($sellerPartner->id)
+                ->and(fn () => \App\Actions\Procurement\OrgPartner\SetPartnerGoodsOutLocation::run($sellerPartner->refresh(), $bay))->toThrow(ValidationException::class);
+        } finally {
+            $sellerPartner->update($originalSettings);
+        }
+    });
+
+    test('a hub lists its families with GB-origin SKOs and switches their GB pallet', function () {
+        $seller = $this->orgPartner->partner;
+        if (!$seller->warehouses()->exists()) {
+            StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
+        }
+        $warehouse   = $seller->warehouses()->first();
+        $stockFamily = \App\Actions\Goods\StockFamily\StoreStockFamily::make()->action($seller->group, \App\Models\Goods\StockFamily::factory()->definition());
+        $family      = \App\Models\Inventory\OrgStockFamily::where('organisation_id', $seller->id)->where('stock_family_id', $stockFamily->id)->first()
+            ?? \App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily::make()->action($seller, $stockFamily, []);
+        $stock = StoreStock::make()->action($seller->group, Stock::factory()->definition());
+        $stock->update(['is_gb_origin' => true]);
+        createOrgStocks($seller, [$stock])[0]->update(['org_stock_family_id' => $family->id, 'state' => \App\Enums\Inventory\OrgStock\OrgStockStateEnum::ACTIVE]);
+
+        $listUrl = route('grp.org.warehouses.show.inventory.org_stock_families.gb_pallet.index', [$seller->slug, $warehouse->slug]);
+        $props   = $this->get($listUrl.'?index_filter[global]='.$family->code)->assertOk()->viewData('page')['props'];
+        $row     = collect($props['index']['data'])->firstWhere('slug', $family->slug);
+        expect($row['gb_separate_pallet'])->toBeTrue()
+            ->and($row['number_gb_org_stocks'])->toBe(1)
+            ->and($props['gb_pallet_can_edit'])->toBeTrue();
+
+        $this->patch(route('grp.org.warehouses.show.inventory.org_stock_families.gb_pallet.update', [$seller->slug, $warehouse->slug, $family->slug]), ['gb_separate_pallet' => false])
+            ->assertRedirect();
+        expect($family->refresh()->gb_separate_pallet)->toBeFalse();
+
+        $offSlugs = collect($this->get($listUrl.'?index_elements[gb_pallet]=off')->viewData('page')['props']['index']['data'])->pluck('slug');
+        $onSlugs  = collect($this->get($listUrl.'?index_elements[gb_pallet]=on')->viewData('page')['props']['index']['data'])->pluck('slug');
+        expect($offSlugs)->toContain($family->slug)
+            ->and($onSlugs)->not->toContain($family->slug);
+
+        $this->get(route('grp.org.warehouses.show.inventory.org_stock_families.show', [$seller->slug, $warehouse->slug, $family->slug]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('gb_pallet.value', false)
+                ->where('gb_pallet.gb_org_stocks', 1));
+
+        $family->update(['gb_separate_pallet' => true]);
+    });
+
     test('send partner order to warehouse creates DN and mirror stock delivery in buyer org', function () {
         $seller = $this->orgPartner->partner;
         if (!$seller->warehouses()->exists()) {
@@ -6170,6 +6774,43 @@ describe('partner shopping list', function () {
 
         DB::table('delivery_note_items')->where('delivery_note_id', $deliveryNote->id)->update(['quantity_dispatched' => 0]);
         $sellerOrgStock->update(['packed_in' => $packedIn]);
+    });
+
+    test('a manufacturing hub takes its partners orders only from their shopping list', function () {
+        $seller = $this->orgPartner->partner;
+        $item   = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 6]);
+        $order  = CherryPickPartnerShoppingListItems::make()->action($seller, [['id' => $item->id]])['orders'][0];
+        $transaction = $item->refresh()->transaction;
+
+        $middleware = new \App\Http\Middleware\EnsureHubPartnerOrderFromShoppingList();
+        $through    = function (string $routeName, array $parameters, array $input = []) use ($middleware) {
+            $request = \Illuminate\Http\Request::create('/hub-partner-order', 'PATCH', $input);
+            $route   = (new \Illuminate\Routing\Route('PATCH', '/hub-partner-order', []))->name($routeName)->bind($request);
+            foreach ($parameters as $name => $value) {
+                $route->setParameter($name, $value);
+            }
+            $request->setRouteResolver(fn () => $route);
+
+            return $middleware->handle($request, fn () => 'passed');
+        };
+
+        $quantity = (float) $transaction->quantity_ordered;
+
+        expect(fn () => $through('grp.models.customer.submitted_order.store', ['customer' => $order->customer]))->toThrow(ValidationException::class)
+            ->and(fn () => $through('grp.models.customer.order.store', ['customer' => $order->customer]))->toThrow(ValidationException::class)
+            ->and(fn () => $through('grp.models.order.transaction.store', ['order' => $order]))->toThrow(ValidationException::class)
+            ->and(fn () => $through('grp.models.order.follow_up.store', ['order' => $order]))->toThrow(ValidationException::class)
+            ->and($through('grp.models.transaction.update_quantity_ordered', ['transaction' => $transaction], ['quantity_ordered' => $quantity]))->toBe('passed')
+            ->and(fn () => $through('grp.models.transaction.update_quantity_ordered', ['transaction' => $transaction], ['quantity_ordered' => $quantity + 1]))->toThrow(ValidationException::class)
+            ->and(fn () => $through('grp.models.order.modification.save', ['order' => $order], ['transactions' => [$transaction->id => ['newQty' => $quantity + 1]]]))->toThrow(ValidationException::class)
+            ->and($through('grp.models.transaction.update_quantity_ordered', ['transaction' => $transaction], ['quantity_ordered' => $quantity - 1]))->toBe('passed')
+            ->and($through('grp.models.order.modification.save', ['order' => $order], ['transactions' => [$transaction->id => ['newQty' => 0]]]))->toBe('passed')
+            ->and($through('grp.models.transaction.delete', ['transaction' => $transaction]))->toBe('passed')
+            ->and($through('grp.models.order.update', ['order' => $order], ['internal_notes' => 'fragile']))->toBe('passed');
+
+        $seller->update(['is_manufacturing_hub' => false]);
+        expect($through('grp.models.order.transaction.store', ['order' => $order->refresh()]))->toBe('passed');
+        $seller->update(['is_manufacturing_hub' => true]);
     });
 
     test('send partner order to warehouse rejects non-creating order', function () {
@@ -6824,6 +7465,52 @@ describe('partner shopping list', function () {
             ->and((float) $lines->whereNull('pre_picked_at')->sum('quantity'))->toBe($toMove - 2);
     });
 
+    test('released pre-picks go back into the line already waiting for the partner instead of splitting into new ones', function () {
+        $seller = $this->orgPartner->partner;
+
+        [, $product]    = createProduct(StoreShop::run($seller, Shop::factory()->definition()));
+        $sellerOrgStock = $product->orgStocks()->first();
+        $buyerOrgStock  = createOrgStocks($this->orgPartner->organisation, [$sellerOrgStock->stock])[0];
+
+        $prePicked = submittedPartnerShoppingListItem($this->orgPartner, $buyerOrgStock, ['quantity' => 5]);
+
+        $warehouse = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($seller, \App\Models\Inventory\Warehouse::factory()->definition());
+        $source    = \App\Actions\Inventory\Location\StoreLocation::make()->action($warehouse, \App\Models\Inventory\Location::factory()->definition());
+
+        $sellerPartner = \App\Models\Procurement\OrgPartner::where('organisation_id', $seller->id)
+            ->where('partner_id', $this->orgPartner->organisation_id)
+            ->first()
+            ?? StoreOrgPartner::make()->action($seller, $this->orgPartner->organisation);
+
+        $sourceSlot = \App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock::make()->action($sellerOrgStock, $source, [
+            'type' => \App\Enums\Inventory\LocationStock\LocationStockTypeEnum::PICKING,
+        ]);
+        \App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock::make()->action($sourceSlot, ['quantity' => 500]);
+
+        \App\Actions\Production\PartnerShippingList\PrePickPartnerShoppingListItems::make()
+            ->action($seller, [['id' => $prePicked->id]]);
+        $prePicked->refresh();
+        $prePickedQuantity = (float) $prePicked->quantity;
+
+        $waiting = submittedPartnerShoppingListItem($this->orgPartner, $buyerOrgStock, ['quantity' => 3]);
+
+        $release = \App\Actions\Dispatching\PartnerStaging\ReleasePartnerStagingTask::make();
+        $release->releaseUnstaged($sellerPartner, $sellerOrgStock, 1);
+        $release->releaseUnstaged($sellerPartner, $sellerOrgStock, 1);
+
+        $waitingLines = fn () => \App\Models\Procurement\PartnerShoppingListItem::openPartnerLineFor($this->orgPartner->id, $buyerOrgStock->id)->get();
+
+        expect($waitingLines()->pluck('id')->all())->toBe([$waiting->id])
+            ->and((float) $waiting->refresh()->quantity)->toBe(5.0)
+            ->and((float) $prePicked->refresh()->quantity)->toBe($prePickedQuantity - 2);
+
+        $release->releaseUnstaged($sellerPartner, $sellerOrgStock);
+
+        expect($waitingLines()->pluck('id')->all())->toBe([$waiting->id])
+            ->and((float) $waiting->refresh()->quantity)->toBe(3 + $prePickedQuantity)
+            ->and(\App\Models\Procurement\PartnerShoppingListItem::find($prePicked->id))->toBeNull();
+    });
+
     test('an audit that finds the hub shelf short sends the uncovered pre-pick to be produced', function () {
         $seller        = $this->orgPartner->partner;
         $wasHub        = $seller->is_manufacturing_hub;
@@ -7057,7 +7744,7 @@ describe('partner shopping list', function () {
         expect($orderedIds)->toContain($item->id);
 
         $sentCount = fn () => collect(get(route('grp.org.procurement.org_partners.show.shopping_list.sent', [$this->organisation->slug, $this->orgPartner->id]))
-            ->viewData('page')['props']['pageHead']['subNavigation'])->firstWhere('label', 'Sent')['number'];
+            ->viewData('page')['props']['pageHead']['subNavigation'])->firstWhere('label', 'Orders')['number'];
         $withPiece = $sentCount();
         $rest->forceDelete();
 
@@ -7164,6 +7851,94 @@ describe('partner shopping list', function () {
             ->assertHasErrors(['NOPE-999']);
     });
 
+    test('only users enrolled to place orders let the ai assistant submit the hub basket and change sent lines', function () {
+        $user         = $this->adminGuest->getUser();
+        $organisation = $this->orgPartner->organisation;
+        $this->orgPartner->partner->update(['is_manufacturing_hub' => true]);
+        $user->update(['can_use_mcp' => true, 'can_use_mcp_procurement' => true, 'can_use_mcp_place_orders' => false]);
+        $tool      = fn (array $arguments) => App\Mcp\Servers\AikuServer::actingAs($user)->tool(App\Mcp\Tools\HubShoppingListTool::class, ['organisation' => $organisation->slug, 'request_text' => 'add it and submit', ...$arguments]);
+        $line      = fn (ShoppingListItemStateEnum $state) => PartnerShoppingListItem::where('org_partner_id', $this->orgPartner->id)->where('org_stock_id', $this->buyerOrgStock->id)->where('state', $state)->first();
+        $addAndSubmit = ['lines' => [['sko' => $this->buyerOrgStock->code, 'quantity' => 4]], 'submit' => true];
+
+        $tool($addAndSubmit)->assertHasErrors(['Placing orders is not enabled']);
+        expect($line(ShoppingListItemStateEnum::DRAFT))->toBeNull();
+
+        $user->update(['can_use_mcp_place_orders' => true]);
+        $tool($addAndSubmit)->assertOk()->assertSee(['"submitted":1', 'order_log_id']);
+
+        $placed = App\Models\SysAdmin\McpChange::latest('id')->first();
+        expect($line(ShoppingListItemStateEnum::DRAFT))->toBeNull()
+            ->and((float) $line(ShoppingListItemStateEnum::OPEN)->quantity)->toBe(4.0)
+            ->and($placed->type)->toBe(App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::PLACED_ORDER)
+            ->and($placed->canBeRevertedBy($user))->toBeFalse()
+            ->and(fn () => App\Actions\SysAdmin\McpChange\RevertMcpChange::run($placed, $user))->toThrow(ValidationException::class);
+
+        $changeSent = ['sent_lines' => [['sko' => $this->buyerOrgStock->code, 'quantity' => 6]]];
+        $tool($changeSent)->assertHasErrors(['Dangerous']);
+        expect((float) $line(ShoppingListItemStateEnum::OPEN)->quantity)->toBe(4.0);
+
+        $tool([...$changeSent, 'accept' => ['change_submitted']])->assertOk()->assertSee('"sent_lines_changed":1');
+        expect((float) $line(ShoppingListItemStateEnum::OPEN)->refresh()->quantity)->toBe(6.0);
+
+        $line(ShoppingListItemStateEnum::OPEN)->update(['preparing_at' => now()]);
+        $tool([...$changeSent, 'accept' => ['change_submitted']])->assertOk()->assertSee('No sent line the hub has not started yet');
+
+
+        $this->orgPartner->partner->update(['is_manufacturing_hub' => false]);
+        $user->update(['can_use_mcp_place_orders' => false]);
+        App\Mcp\Servers\AikuServer::actingAs($user)->tool(App\Mcp\Tools\PartnerRescueOrderTool::class, ['organisation' => $organisation->slug])
+            ->assertOk()->assertSee('"partner":"'.$this->orgPartner->partner->code);
+        App\Mcp\Servers\AikuServer::actingAs($user)->tool(App\Mcp\Tools\PartnerRescueOrderTool::class, ['organisation' => $organisation->slug, 'partner' => $this->orgPartner->partner->code, 'place' => true, 'request_text' => 'place the rescue order'])
+            ->assertHasErrors(['Placing orders is not enabled']);
+    });
+
+    test('an ai assistant previews and places a supplier purchase order in whole cartons', function () {
+        $user        = $this->adminGuest->getUser();
+        $orgSupplier = $this->orgSupplier;
+        $orgSupplier->update(['status' => true]);
+        $this->orgSupplierProduct->update(['state' => 'active']);
+        $this->supplierProduct->update(['units_per_carton' => 12, 'minimum_carton_order' => 2, 'cost' => 5, 'is_available' => true]);
+        $this->orgSupplierProduct->update(['is_available' => true]);
+        $orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->update(['state' => PurchaseOrderStateEnum::CANCELLED]);
+        if (OrgStockHasOrgSupplierProduct::where('org_supplier_product_id', $this->orgSupplierProduct->id)->doesntExist()) {
+            AttachOrgSupplierProductToOrgStock::make()->action(OrgStock::where('organisation_id', $orgSupplier->organisation_id)->where('state', OrgStockStateEnum::ACTIVE)->orderBy('id')->firstOrFail(), $this->orgSupplierProduct);
+        }
+        $user->update(['can_use_mcp' => true, 'can_use_mcp_place_orders' => false]);
+        $arguments = ['organisation' => $orgSupplier->organisation->slug, 'supplier' => $orgSupplier->supplier->code, 'lines' => [['code' => $this->supplierProduct->code, 'quantity' => 30]]];
+        $tool      = fn (array $extra = []) => App\Mcp\Servers\AikuServer::actingAs($user)->tool(App\Mcp\Tools\SupplierPurchaseOrderTool::class, [...$arguments, ...$extra]);
+
+        $tool()->assertOk()->assertSee(['"units":36', '"cartons":3', '"new_lines_total":180', '"supplier":"'.$orgSupplier->supplier->code.' (']);
+
+        $otherSupplier = Supplier::where('id', '!=', $orgSupplier->supplier_id)->orderBy('id')->first() ?? StoreSupplier::make()->action($this->agent, Supplier::factory()->definition());
+        $tool(['supplier' => $otherSupplier->slug])->assertDontSee('"supplier":"'.$orgSupplier->supplier->code.' (');
+
+        $currencyId = $this->supplierProduct->currency_id;
+        $this->supplierProduct->update(['currency_id' => Currency::where('id', '!=', $orgSupplier->supplier->currency_id)->orderBy('id')->value('id')]);
+        $tool()->assertHasErrors(['priced in another currency']);
+        $this->supplierProduct->update(['currency_id' => $currencyId]);
+        $tool(['lines' => [['code' => $this->supplierProduct->code, 'quantity' => 5]]])->assertOk()->assertSee('"units":24');
+        $tool(['lines' => [['code' => $this->supplierProduct->code, 'quantity' => 20], ['code' => $this->supplierProduct->code, 'quantity' => 20]]])->assertOk()->assertSee(['"units_asked":40', '"units":48']);
+        $tool(['lines' => [['code' => 'NOPE-999', 'quantity' => 1]]])->assertHasErrors(['NOPE-999']);
+        $this->orgSupplierProduct->update(['is_available' => false]);
+        $tool()->assertHasErrors(['not an available product']);
+        $this->orgSupplierProduct->update(['is_available' => true]);
+
+        $place = ['place' => true, 'request_text' => 'order 30 from the supplier'];
+        $tool($place)->assertHasErrors(['Placing orders is not enabled']);
+        expect($orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->exists())->toBeFalse();
+
+        $user->update(['can_use_mcp_place_orders' => true]);
+        $tool($place)->assertOk()->assertSee('"state":"submitted"');
+
+        $purchaseOrder = $orgSupplier->purchaseOrders()->latest('id')->first();
+        $placed        = App\Models\SysAdmin\McpChange::latest('id')->first();
+        expect($purchaseOrder->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+            ->and($purchaseOrder->buyer_id)->toBe($user->id)
+            ->and((float) $purchaseOrder->purchaseOrderTransactions()->sole()->quantity_ordered)->toBe(36.0)
+            ->and($placed->type)->toBe(App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::PLACED_ORDER)
+            ->and($placed->data['after_text'])->toContain($purchaseOrder->reference.': submitted 1 lines');
+    });
+
     test('the ai planning rows cap the order at what sells before it expires, one year when shelf life is not recorded', function () {
         $user = $this->adminGuest->getUser();
         $this->buyerOrgStock->update(['quantity_available' => 10]);
@@ -7238,14 +8013,15 @@ describe('partner shopping list', function () {
         PartnerShoppingListItem::where('org_partner_id', $this->orgPartner->id)->where('state', ShoppingListItemStateEnum::DRAFT)->delete();
         $draft = StorePartnerShoppingListItem::make()->action($this->orgPartner, $this->buyerOrgStock, ['quantity' => 4]);
 
-        $this->travel(2)->hours();
+        $submittedAt = now()->addHours(2)->startOfSecond();
+        $this->travelTo($submittedAt);
         $submitted = SubmitPartnerShoppingList::make()->action($this->orgPartner);
         $draft->refresh();
         $this->travelBack();
 
         expect($submitted)->toBe(1)
             ->and($draft->state)->toBe(ShoppingListItemStateEnum::OPEN)
-            ->and($draft->created_at->toDateTimeString())->toBe(now()->addHours(2)->toDateTimeString());
+            ->and($draft->created_at->toDateTimeString())->toBe($submittedAt->toDateTimeString());
     });
 
     test('one draft line can be submitted on its own, the rest stay on the ongoing PO', function () {
@@ -7363,7 +8139,8 @@ describe('partner shopping list', function () {
         $seller->update(['is_manufacturing_hub' => true]);
         $production = Production::where('organisation_id', $seller->id)->first()
             ?? StoreProduction::make()->action($seller, ['code' => 'TPRD', 'name' => 'To produce factory']);
-        $buyer        = $this->agent->organisation;
+        $buyer        = Organisation::where('code', 'prc2')->first()
+            ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
         $buyerPartner = OrgPartner::where('organisation_id', $buyer->id)->where('partner_id', $seller->id)->first()
             ?? StoreOrgPartner::make()->action($buyer, $seller);
         $buyerOrgStock = createOrgStocks($buyer, [$this->buyerOrgStock->stock])[0];
@@ -8327,12 +9104,125 @@ test('agent cover buckets count each supplier product exactly once', function ()
         ->and($cover['total'])->toBe($distinct);
 });
 
+test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO is already bought under another code', function () {
+    $buckets = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+    $inNever = fn (OrgSupplierProduct $orgSupplierProduct) => in_array($orgSupplierProduct->id, $buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'never'), true);
+
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $oldCode] = createAgentOrgSupplierWithProduct($this);
+    $oldCode->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $oldCode->id)->delete();
+    DB::table('stock_has_supplier_products')->where('supplier_product_id', $oldCode->supplier_product_id)->delete();
+    $oldCodeStockLink = StockHasSupplierProduct::create(['stock_id' => $stock->id, 'supplier_product_id' => $oldCode->supplier_product_id, 'available' => true]);
+
+    expect($inNever($oldCode))->toBeTrue();
+
+    $stock->update(['state' => StockStateEnum::DISCONTINUED]);
+    expect($inNever($oldCode))->toBeFalse();
+
+    $stock->update(['state' => StockStateEnum::ACTIVE]);
+    expect($inNever($oldCode))->toBeTrue();
+
+    [, $newCode] = createAgentOrgSupplierWithProduct($this);
+    $newCode->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $newCode->id)->delete();
+    $newCodeStockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $newCode->supplier_product_id], ['available' => true]);
+    OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $orgStock->id,
+        'org_supplier_product_id'       => $newCode->id,
+        'stock_has_supplier_product_id' => $newCodeStockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+
+    expect($inNever($oldCode))->toBeFalse()
+        ->and($inNever($newCode))->toBeFalse()
+        ->and($oldCodeStockLink->exists)->toBeTrue();
+
+    $discontinue = App\Actions\Procurement\OrgSupplierProducts\DiscontinueDeadOrgSupplierProducts::make();
+    $isDead      = fn (OrgSupplierProduct $orgSupplierProduct) => $discontinue->dead($this->organisation->slug)->where('osp.id', $orgSupplierProduct->id)->exists();
+
+    expect($isDead($oldCode))->toBeFalse();
+
+    $stock->update(['state' => StockStateEnum::DISCONTINUED]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and($isDead($newCode))->toBeFalse()
+        ->and(collect($discontinue->preview($this->organisation->slug))->sum('products'))->toBeGreaterThanOrEqual(1);
+
+    $recentOrder = StorePurchaseOrder::make()->action($oldCode->orgSupplier, [], strict: false);
+    $lineId      = DB::table('purchase_order_transactions')->insertGetId([
+        'group_id'            => $recentOrder->group_id,
+        'organisation_id'     => $recentOrder->organisation_id,
+        'purchase_order_id'   => $recentOrder->id,
+        'supplier_product_id' => $oldCode->supplier_product_id,
+        'org_stock_id'        => $orgStock->id,
+        'state'               => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 1,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+
+    expect($isDead($oldCode))->toBeFalse();
+
+    DB::table('purchase_order_transactions')->where('id', $lineId)->update(['deleted_at' => now()]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
+
+    $discontinue->handle($this->organisation->slug);
+
+    expect($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
+        ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($oldCode->supplierProduct->fresh()->state)->not->toBe(SupplierProductStateEnum::DISCONTINUED);
+});
+
+test('agent round budget is a usual month of orders plus restocking, in the organisation currency', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
+
+    DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update([
+        'state'          => PurchaseOrderStateEnum::SUBMITTED->value,
+        'delivery_state' => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS->value,
+        'submitted_at'   => now(),
+        'cost_total'     => 1200000000,
+        'org_exchange'   => 0.001,
+    ]);
+    Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
+
+    try {
+        $capacity = App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent);
+        $budget   = $capacity['agent_capacity'];
+
+        expect($budget['source'])->toBe('measured')
+            ->and($budget['usual_month_orders'])->toBeGreaterThanOrEqual(1200000 / 12)
+            ->and($budget['usual_month_orders'])->toBeLessThan(1200000000 / 12)
+            ->and($budget['lands_for_us_per_30d'])->toBe(round($budget['usual_month_orders'] + $budget['restock_out_of_stock'], 2))
+            ->and($capacity['pipeline']['waiting'])->toBeGreaterThanOrEqual(1200000.0)
+            ->and($capacity['pipeline']['waiting'])->toBeLessThan(1200000000.0)
+            ->and($capacity['pipeline']['total'])->toBe(round($capacity['pipeline']['waiting'] + $capacity['pipeline']['being_made'] + $capacity['pipeline']['on_the_way'], 2));
+    } finally {
+        DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update(['cost_total' => 0, 'deleted_at' => now()]);
+        Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
+    }
+});
+
 test('agent order capacity is deterministic and reported in the organisation currency', function () {
     Cache::forget("agent-order-capacity:{$this->orgAgent->id}");
 
     $capacity = App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent);
 
-    expect($capacity['agent_capacity'])->toHaveKeys(['lands_for_us_per_30d', 'source', 'samples'])
+    expect($capacity['agent_capacity'])->toHaveKeys(['lands_for_us_per_30d', 'source', 'samples', 'usual_month_orders', 'restock_out_of_stock', 'container_value'])
+        ->and($capacity['pipeline'])->toHaveKeys(['waiting', 'being_made', 'on_the_way', 'total'])
+        ->and($capacity['container'])->toBe(['label' => '40 ft container', 'cbm' => 67.7])
+        ->and(App\Actions\Procurement\OrgAgent\UpdateOrgAgent::make()->action($this->orgAgent, ['order_container' => '20ft'])->order_container)->toBe(App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum::TWENTY_FOOT)
+        ->and(App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity::run($this->orgAgent->fresh())['container']['cbm'])->toBe(33.2)
+        ->and(App\Actions\Procurement\OrgAgent\UpdateOrgAgent::make()->action($this->orgAgent->fresh(), ['order_container' => '40ft'])->order_container)->toBe(App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum::FORTY_FOOT)
         ->and($capacity['currency'])->toBe($this->organisation->currency->code)
         ->and($capacity['warehouse'])->toHaveKeys([
             'total_locations',
@@ -8388,17 +9278,278 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Browse', 'Drafts to send', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
             ->where('coverBuckets.0.bucket', 'out')
             ->where('coverBuckets.8.bucket', 'never')
+            ->has('coverBuckets.0.on_order_value')
             ->where('coverTotal', fn ($total) => $total === collect($page->toArray()['props']['coverBuckets'])->sum('count'))
             ->has('leadTime.days')
             ->has('orderCapacity.warehouse')
+            ->where('canPrepareOrder', true)
+            ->missing('prepareOrder')
+            ->loadDeferredProps(fn (AssertableInertia $deferred) => $deferred
+                ->has('prepareOrder.buckets', 4)
+                ->has('prepareOrder.url'))
             ->missing('openAgentPurchaseOrders')
             ->missing('suppliers');
     });
+});
+
+test('agent prepare order estimate comes from the same lines it would order', function () {
+    $prepare = App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::make();
+    $lines   = $prepare->linesByBucket($this->orgAgent);
+    $summary = collect($prepare->summary($this->orgAgent))->keyBy('bucket');
+
+    expect(array_keys($lines))->toBe(App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::ORDER_BUCKETS);
+
+    foreach ($lines as $bucket => $bucketLines) {
+        expect($summary[$bucket]['count'])->toBe(count($bucketLines))
+            ->and($summary[$bucket]['order_lines'])->toBe(collect($bucketLines)->where('in_order', true)->count())
+            ->and($summary[$bucket]['order_lines'])->toBeLessThanOrEqual($summary[$bucket]['count']);
+
+        foreach ($bucketLines as $line) {
+            expect($line['quantity_units'])->toBe($line['cartons'] * $line['units_per_carton']);
+        }
+    }
+
+    expect(collect($lines['out'])->every(fn (array $line) => $line['in_order']))->toBeTrue();
+});
+
+test('agent prepare order puts the lines on draft purchase orders per supplier and does not order them twice', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+
+    $orgStock = OrgStock::where('organisation_id', $this->organisation->id)
+        ->whereNotExists(fn ($query) => $query->selectRaw('1')
+            ->from('purchase_order_transactions')
+            ->whereColumn('purchase_order_transactions.org_stock_id', 'org_stocks.id'))
+        ->firstOrFail();
+    $orgStockBefore = $orgStock->only(['state', 'quantity_available', 'is_excluded_from_auto_ordering']);
+
+    try {
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0.5, 'is_excluded_from_auto_ordering' => false]);
+        $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['currency_id' => $this->organisation->currency_id]);
+
+        $stockHasSupplierProduct = StockHasSupplierProduct::firstOrCreate(
+            ['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id],
+            ['available' => true]
+        );
+        OrgStockHasOrgSupplierProduct::updateOrCreate(
+            ['org_stock_id' => $orgStock->id, 'org_supplier_product_id' => $orgSupplierProduct->id],
+            ['stock_has_supplier_product_id' => $stockHasSupplierProduct->id, 'status' => true, 'local_priority' => 1000]
+        );
+
+        $prepare = App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders::make();
+        $line    = collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+
+        expect($line)->not->toBeNull()
+            ->and($line['in_order'])->toBeTrue()
+            ->and($line['cartons'])->toBe(1)
+            ->and($line['quantity_units'])->toBe(100)
+            ->and($line)->toHaveKeys(['cbm', 'cbm_estimated'])
+            ->and($line['cbm_estimated'])->toBeTrue()
+            ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out'))->toHaveKeys(['cbm', 'order_cbm', 'cbm_estimated_lines', 'order_cbm_estimated_lines'])
+            ->and(collect($prepare->summary($this->orgAgent))->firstWhere('bucket', 'out')['order_lines'])->toBeGreaterThanOrEqual(1);
+
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['cbm' => 0.25]);
+        $measured = collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+        expect($measured['cbm'])->toBe(0.25)
+            ->and($measured['cbm_estimated'])->toBeFalse();
+
+        $shippedBefore = (int) $orgStock->stats->on_the_way_po_count;
+        $orgStock->stats->update(['on_the_way_po_count' => 1]);
+        expect(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+        $orgStock->stats->update(['on_the_way_po_count' => $shippedBefore]);
+
+        expect(fn () => $prepare->handle($this->orgAgent, 1.0, ['out']))->toThrow(ValidationException::class);
+
+        $result = $prepare->handle($this->orgAgent, null, ['out']);
+
+        $line          = App\Models\Procurement\PurchaseOrderTransaction::where('org_supplier_product_id', $orgSupplierProduct->id)->latest('id')->firstOrFail();
+        $purchaseOrder = $line->purchaseOrder;
+
+        expect($result['added'])->toBeGreaterThanOrEqual(1)
+            ->and($result['purchase_orders'])->toBeGreaterThanOrEqual(1)
+            ->and((float) $line->quantity_ordered)->toBe(100.0)
+            ->and(ShoppingListItem::where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
+            ->and($purchaseOrder->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS)
+            ->and($purchaseOrder->parent_type)->toBe('OrgSupplier')
+            ->and($purchaseOrder->parent_id)->toBe($orgSupplier->id)
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+
+        $setLine = App\Actions\Procurement\OrgAgent\SetAgentDraftLine::make();
+        App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend::make()->handle($purchaseOrder, true, 'tester');
+
+        $this->post(route('grp.org.procurement.org_agents.show.shopping.drafts.line', [$this->organisation->slug, $this->orgAgent->slug, $orgSupplierProduct->id]), ['quantity_units' => 300])
+            ->assertSessionHasNoErrors();
+
+        expect((float) $line->fresh()->quantity_ordered)->toBe(300.0)
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->count())->toBe(1)
+            ->and($purchaseOrder->fresh()->data)->not->toHaveKey('ready_to_send');
+
+        $secondDraft  = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+        $onEveryDraft = fn () => App\Models\Procurement\PurchaseOrderTransaction::whereIn('purchase_order_id', [$purchaseOrder->id, $secondDraft->id])
+            ->where('org_supplier_product_id', $orgSupplierProduct->id)
+            ->pluck('quantity_ordered')
+            ->map(fn ($quantity) => (float) $quantity)
+            ->all();
+
+        $line->fresh()->replicate()->fill(['quantity_ordered' => 500])->save();
+        $line->fresh()->replicate()->fill(['quantity_ordered' => 700, 'purchase_order_id' => $secondDraft->id])->save();
+        expect($onEveryDraft())->toHaveCount(3);
+
+        $setLine->handle($this->orgAgent, $orgSupplierProduct, 400);
+
+        expect($onEveryDraft())->toBe([400.0])
+            ->and($line->fresh()->purchase_order_id)->toBe($purchaseOrder->id);
+
+        DeletePurchaseOrder::make()->action($secondDraft->fresh());
+
+        expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
+            ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
+
+        $item = StoreShoppingListItem::make()->action($orgSupplierProduct, ['quantity_units' => 200]);
+
+        expect(App\Actions\Procurement\OrgAgent\MoveAgentShoppingListsToDrafts::make()->handle($this->orgAgent->agent, dryRun: true)['picked'])->toBeGreaterThanOrEqual(1)
+            ->and($item->fresh()->state)->toBe(ShoppingListItemStateEnum::OPEN);
+
+        App\Actions\Procurement\OrgAgent\MoveAgentShoppingListsToDrafts::make()->handle($this->orgAgent->agent);
+
+        expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
+            ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
+
+        $statsBefore = $orgStock->stats->only(['days_of_cover', 'predicted_daily_usage']);
+        $buckets     = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+
+        $orgStock->update(['quantity_available' => 100]);
+        $orgStock->stats->update(['days_of_cover' => 20, 'predicted_daily_usage' => 5]);
+        DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['measured_lead_time_days' => 2]);
+
+        expect($buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'w4'))->toContain($orgSupplierProduct->id)
+            ->and($buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'ok'))->not->toContain($orgSupplierProduct->id);
+
+        $orgStock->stats->update($statsBefore);
+    } finally {
+        $orgStock->update($orgStockBefore);
+    }
+});
+
+test('agent drafts are sent once every organisation is ready, or early with a reason and without the others', function () {
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    $theirOrgAgent    = OrgAgent::where('organisation_id', $otherOrganisation->id)->where('agent_id', $this->orgAgent->agent_id)->first()
+        ?? StoreOrgAgent::make()->action($otherOrganisation, $this->orgAgent->agent, []);
+
+    $supplier         = StoreSupplier::make()->action($this->orgAgent->agent, Supplier::factory()->definition());
+    $ourOrgSupplier   = OrgSupplier::where('supplier_id', $supplier->id)->where('org_agent_id', $this->orgAgent->id)->firstOrFail();
+    $theirOrgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $otherOrganisation->id)->firstOrFail();
+
+    $draftWithLine = function (OrgSupplier $orgSupplier) {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+        DB::table('purchase_order_transactions')->insert([
+            'group_id'          => $purchaseOrder->group_id,
+            'organisation_id'   => $purchaseOrder->organisation_id,
+            'purchase_order_id' => $purchaseOrder->id,
+            'org_stock_id'      => $this->orgStocks[0]->id,
+            'state'             => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+            'delivery_state'    => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+            'quantity_ordered'  => 100,
+            'net_amount'        => 250,
+            'data'              => '{}',
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ]);
+
+        return $purchaseOrder;
+    };
+
+    $ours   = $draftWithLine($ourOrgSupplier);
+    $theirs = $draftWithLine($theirOrgSupplier);
+
+    $send = App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::make();
+
+    $drafts = App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::drafts($this->orgAgent)->where('po.supplier_id', $supplier->id)->pluck('po.id');
+    expect($drafts->sort()->values()->all())->toBe(collect([$ours->id, $theirs->id])->sort()->values()->all());
+
+    expect(fn () => $send->handle($this->orgAgent, [$supplier->id]))->toThrow(ValidationException::class)
+        ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($ours))->toBe([$otherOrganisation->code]);
+
+    $this->patch(route('grp.models.purchase-order.submit', $ours->id))->assertSessionHasErrors('purchase_order');
+    expect($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $tell = App\Actions\Procurement\OrgAgent\TellOrganisationsAboutSupplierDraft::make();
+    expect($tell->handle($this->orgAgent, $supplier, request()->user() ?? auth()->user()))->toBeInt()
+        ->and($ours->fresh()->data['others_asked']['at'])->not->toBeNull()
+        ->and(fn () => $tell->handle($this->orgAgent, $supplier, auth()->user()))->toThrow(ValidationException::class);
+
+    $result = $send->handle($this->orgAgent, [$supplier->id], 'Supplier closes for the holidays', 'tester');
+
+    expect($result)->toBe(['sent' => 1, 'held_back' => 1])
+        ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($ours->fresh()->data['sent_without_waiting']['reason'])->toBe('Supplier closes for the holidays')
+        ->and($ours->fresh()->data['sent_without_waiting']['waiting'])->toBe([$theirs->reference])
+        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $oursAgain = $draftWithLine($ourOrgSupplier);
+    App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend::make()->handle($theirs->fresh(), true, 'their buyer');
+
+    expect($theirs->fresh()->data['ready_to_send']['by'])->toBe('their buyer');
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($oursAgain))->toBe([]);
+
+    $result = $send->handle($this->orgAgent, [$supplier->id]);
+
+    expect($result)->toBe(['sent' => 2, 'held_back' => 0])
+        ->and($oursAgain->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($theirs->fresh()->data)->not->toHaveKey('ready_to_send')
+        ->and($theirs->fresh()->data)->not->toHaveKey('sent_without_waiting');
+
+    expect(fn () => $send->handle($theirOrgAgent, [$supplier->id]))->toThrow(ValidationException::class);
+});
+
+test('agent purchase orders board starts at submitted so the agent never sees a draft', function () {
+    $board = App\Actions\Procurement\PurchaseOrder\UI\ShowAgentPurchaseOrdersBoard::make()->handle($this->orgAgent->agent);
+
+    expect(array_column($board['columns'], 'key'))->toBe(['submitted', 'confirmed', 'settled']);
+});
+
+test('UI agent drafts to send', function () {
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]));
+    $response->assertOk();
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/AgentDraftsToSend')
+            ->has('cards')
+            ->has('agentName')
+            ->where('sendRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.send')
+            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1));
+    });
+});
+
+test('UI agent drafts to send remembers the view the user picked', function () {
+    $url = route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]);
+
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards')->where('lines', []));
+
+    $this->get($url.'?view=items')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('tabs.current', 'items')
+        ->has('tabs.navigation', 3)
+        ->has('lines'));
+
+    expect(auth()->user()->fresh()->settings['views']['agent_drafts_to_send'])->toBe('items');
+
+    $this->get($url)->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
+    $this->get($url.'?view=nonsense')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'items'));
+
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards'));
 });
 
 test('UI agent order pipeline renders', function () {
@@ -8429,8 +9580,58 @@ test('UI agent cover bucket items index', function () {
             ->where('bucket', 'out')
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
+            ->has('items.meta.total')
+            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered'])->every(fn (string $key) => array_key_exists($key, $item))))
+            ->has('miniCart.count')
+            ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
+            ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
             ->has('addRoute.name');
     });
+});
+
+test('UI agent browse lists the whole catalogue as a standard table and searches, filters and sorts it', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $code       = $orgSupplierProduct->supplierProduct->code;
+    $supplierId = $orgSupplierProduct->supplierProduct->supplier_id;
+    $url        = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]);
+
+    $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/AgentCoverBucketItems')
+        ->where('bucket', null)
+        ->where('bucketLabel', 'Browse')
+        ->has('filterOptions.cover', 9)
+        ->has('filterOptions.rank', 5)
+        ->where('filterOptions.supplier', fn ($suppliers) => collect($suppliers)->contains('value', $supplierId))
+        ->where('filterOptions.cover', fn ($groups) => collect($groups)->sum('count') === $page->toArray()['props']['items']['meta']['total'])
+        ->where('active.cover', null)
+        ->where('active.drafts', false)
+        ->has('bucketLabels.out.label')
+        ->has('items.data')
+        ->where('items.meta.total', fn ($total) => $total >= 1));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => strtolower(substr($code, 2, 8))]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code) && collect($items)->every(fn (array $item) => array_key_exists('bucket', $item))));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
+    $this->get($url.'?drafts=1&'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.drafts', true)
+        ->where('active.supplier', $supplierId)
+        ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
+
+    foreach (['code', '-code', 'name', '-supplier_code'] as $sort) {
+        $this->get($url.'?sort='.$sort)->assertOk();
+    }
+
+    $ascending  = collect($this->get($url.'?sort=code&perPage=100')->viewData('page')['props']['items']['data'])->pluck('code');
+    $descending = collect($this->get($url.'?sort=-code&perPage=100')->viewData('page')['props']['items']['data'])->pluck('code');
+
+    expect($ascending->first())->not->toBe($descending->first())
+        ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
@@ -8840,6 +10041,7 @@ test('agent order budget does not block adds to the shopping list', function () 
 
     $this->supplierProduct->update(['cost' => 10, 'currency_id' => $this->organisation->currency_id]);
     ShoppingListItem::where('organisation_id', $this->organisation->id)->where('agent_id', $this->orgAgent->agent_id)->forceDelete();
+    ShoppingListItem::where('org_supplier_product_id', $this->orgSupplierProduct->id)->forceDelete();
 
     Cache::put("agent-order-capacity:{$this->orgAgent->id}", [
         ['lands_for_us_per_30d' => 5, 'source' => 'sales', 'samples' => 0],
@@ -8988,14 +10190,14 @@ test('storing an org supplier product twice for the same org supplier returns th
 });
 
 test('attach a supplier product to an org stock that has none, first one becomes preferred', function () {
-    $orgStock = $this->orgStocks[1];
+    $orgStock = createUnlinkedOrgStock($this);
     expect(OrgStockHasOrgSupplierProduct::where('org_stock_id', $orgStock->id)->count())->toBe(0);
 
     $supplierProduct    = StoreSupplierProduct::make()->action($this->orgSupplier->supplier, [
         'code'             => 'attach-me',
         'name'             => 'Attach me',
         'cost'             => 12,
-        'stock_id'         => $this->stocks[1]->id,
+        'stock_id'         => $orgStock->stock_id,
         'units_per_pack'   => 10,
         'units_per_carton' => 100,
     ]);
@@ -9015,7 +10217,7 @@ test('attach a supplier product to an org stock that has none, first one becomes
         'code'             => 'attach-me-2',
         'name'             => 'Attach me 2',
         'cost'             => 15,
-        'stock_id'         => $this->stocks[1]->id,
+        'stock_id'         => $orgStock->stock_id,
         'units_per_pack'   => 10,
         'units_per_carton' => 100,
     ]);
@@ -9193,8 +10395,8 @@ test('incoming stock tells the customer when an out of stock product is expected
 });
 
 test('a partly delivered purchase order still shows the lines that are not in the delivery', function () {
-    $orderedOrgStock   = $this->orgStocks[1];
-    $deliveredOrgStock = $this->orgStocks[2];
+    $orderedOrgStock   = createUnlinkedOrgStock($this);
+    $deliveredOrgStock = createUnlinkedOrgStock($this);
 
     $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
     $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
@@ -9347,7 +10549,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
         'reference' => 'PO-USAGE-'.PurchaseOrder::max('id'),
     ], strict: false);
 
-    foreach ([now()->firstOfQuarter(), now()->firstOfQuarter()->addDay()] as $outOfStockDay) {
+    foreach ([[now()->firstOfQuarter(), 0], [now()->firstOfQuarter()->addDay(), 0.667]] as [$outOfStockDay, $leftInLocations]) {
         $organisationStockHistoryId = DB::table('organisation_stock_histories')
             ->where('organisation_id', $orgStock->organisation_id)->where('date', $outOfStockDay->toDateString())->value('id')
             ?? DB::table('organisation_stock_histories')->insertGetId([
@@ -9363,7 +10565,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
             'organisation_id'               => $orgStock->organisation_id,
             'org_stock_id'                  => $orgStock->id,
             'date'                          => $outOfStockDay->toDateString(),
-            'quantity_in_locations'         => 0,
+            'quantity_in_locations'         => $leftInLocations,
         ]);
     }
 
@@ -9494,6 +10696,78 @@ test('stock put away from a delivery is valued at the line price, then at the la
         ->and((float) $movements[1]->running_lpp_value)->toEqualWithDelta($runningValueAtDeliveryCost / $deliveryCost * $landedCost, 0.02);
 
     $stockDeliveryItem->orgStock->update(['packed_in' => $packedIn]);
+});
+
+test('a placed agent container is costed from its agent invoice and completes itself once our organisation adds the customs', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-COST-'.Str::random(6), [10, 20]);
+    $stockDelivery->updateQuietly(['agent_id' => $this->agent->id]);
+    $items = $stockDelivery->items()->orderBy('id')->get();
+    $items[0]->updateQuietly(['net_amount' => 100]);
+    $items[1]->updateQuietly(['net_amount' => 300]);
+
+    $invoice = StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh());
+    UpdateAgentInvoiceCharges::make()->handle($invoice, ['charges' => [
+        ['description' => 'Sea freight', 'type' => 'freight', 'amount' => 50],
+        ['description' => 'Commission', 'type' => 'other', 'amount' => 40],
+    ]]);
+
+    $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery->refresh());
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    foreach ($stockDelivery->items()->orderBy('id')->get() as $index => $item) {
+        $item = SetStockDeliveryItemCheckedQuantity::make()->action($item->fresh(), ['unit_quantity_checked' => $index === 0 ? 12 : 15]);
+        SetStockDeliveryItemAsPlaced::make()->action($item, ['location_org_stock_id' => createLocationOrgStockFor($this, $item)->id]);
+    }
+
+    $stockDelivery = StartStockDeliveryCosting::make()->action($stockDelivery->fresh());
+
+    expect($stockDelivery->costs()->count())->toBe(0);
+
+    ApproveAgentInvoiceCharges::make()->handle($stockDelivery);
+    $stockDelivery = $stockDelivery->fresh();
+    $items         = $stockDelivery->items()->orderBy('id')->get();
+    $costs         = $stockDelivery->costs()->get();
+
+    expect((float) $items[0]->cost_items)->toBe(100.0)
+        ->and((float) $items[1]->cost_items)->toBe(225.0)
+        ->and((float) $costs->firstWhere('type', StockDeliveryCostTypeEnum::SHIPPING)->amount)->toBe(50.0)
+        ->and((float) $costs->where('type', StockDeliveryCostTypeEnum::EXTRA)->sum('amount'))->toBe(40.0)
+        ->and((float) $costs->firstWhere('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->amount)->toBe(490.0)
+        ->and($stockDelivery->is_costed)->toBeFalse();
+
+    $orgExchange  = (float) ($stockDelivery->org_exchange ?: 1);
+    $localFreight = StoreStockDeliveryServiceInvoice::make()->action($stockDelivery->organisation, [
+        'type'         => StockDeliveryServiceInvoiceTypeEnum::FREIGHT->value,
+        'issuer'       => 'Local Haulier',
+        'date'         => '2026-10-04',
+        'currency_id'  => $stockDelivery->organisation->currency_id,
+        'total_amount' => 30,
+        'allocations'  => [['stock_delivery_id' => $stockDelivery->id]],
+    ]);
+    $shipping = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::SHIPPING)->sole();
+
+    expect($shipping->amountInDeliveryCurrency())->toEqualWithDelta(50 + 30 / $orgExchange, 0.02 / $orgExchange)
+        ->and($shipping->label)->toBe('Sea freight, Local Haulier')
+        ->and((float) $stockDelivery->items()->sum('cost_shipping'))->toEqualWithDelta(50 + 30 / $orgExchange, 0.02 / $orgExchange);
+
+    DeleteStockDeliveryServiceInvoice::make()->action($localFreight);
+    $shipping->refresh();
+
+    expect((float) $shipping->amount)->toBe(50.0)
+        ->and($shipping->currency_id)->toBeNull()
+        ->and($shipping->from_service_invoices)->toBeFalse()
+        ->and($shipping->received_at)->not->toBeNull();
+
+    StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'amount' => 65, 'received_at' => now()]);
+
+    $stockDelivery = $stockDelivery->fresh();
+    $items         = $stockDelivery->items()->orderBy('id')->get();
+
+    expect($stockDelivery->is_costed)->toBeTrue()
+        ->and((float) $items->sum('cost_extra'))->toEqualWithDelta(40, 0.001)
+        ->and((float) $items->sum('cost_shipping'))->toEqualWithDelta(50, 0.001)
+        ->and((float) $items->sum('cost_duties'))->toEqualWithDelta(65 / (float) ($stockDelivery->org_exchange ?: 1), 0.02)
+        ->and((float) $items[1]->cost_extra)->toBeGreaterThan((float) $items[0]->cost_extra)
+        ->and(ApplyAgentInvoiceCosting::run($stockDelivery))->toBeNull();
 });
 
 function placedStockDeliveryWithTwoLines($test, string $code): StockDelivery
@@ -9822,6 +11096,8 @@ test('rebuilding stock histories since a day writes each past day and today', fu
 });
 
 test('undoing a put away from a delivery takes the stock out at the value it went in at', function () {
+    $this->orgStocks[0]->update(['packed_in' => 1]);
+
     $placeFromDelivery = function (string $code, float $netAmount) {
         $stockDelivery = createStockDeliveryWithItems($this, $code, [10]);
         $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
@@ -9869,6 +11145,7 @@ test('a cancelled stock delivery item can not be put away', function () {
 })->throws(ValidationException::class);
 
 test('a stock delivery with stock already in locations can not be cancelled', function () {
+    $this->orgStocks[0]->update(['packed_in' => 1]);
     $stockDelivery = createStockDeliveryWithItems($this, 'CANCEL-PLACED', [10, 10]);
     $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
     $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
@@ -9914,6 +11191,7 @@ test('a put away can not be undone once the delivery is booked in', function () 
 })->throws(ValidationException::class);
 
 test('undoing a put away needs procurement permission', function () {
+    $this->orgStocks[0]->update(['packed_in' => 1]);
     $stockDelivery = createStockDeliveryWithItems($this, 'UNDO-FORBIDDEN', [10]);
     $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
     $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
@@ -10427,7 +11705,7 @@ test('supplier documents in the procurement inbox go on the purchase order and i
         ->assertInertia(fn (AssertableInertia $page) => $page->has('messages.0.attachments.0.attached_to', 2));
 
     $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug, 'tab' => 'attachments']))
-        ->assertInertia(fn (AssertableInertia $page) => $page->has('attachments.data', 2)->has('attachmentScopes', 4));
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('attachments.data', 2)->has('attachmentScopes', count(\App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum::cases())));
 
     $this->organisation->update(['settings' => $originalSettings]);
 });
@@ -10839,7 +12117,7 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
 
     expect($card['metrics'][0]['value'])->toBe(($before['metrics'][0]['value'] ?? 0) + 1)
         ->and($card['metrics'][1]['value'])->toBe(($before['metrics'][1]['value'] ?? 0) + 1)
-        ->and($card['value'])->toBe($card['metrics'][0]['value'] + $card['metrics'][1]['value'])
+        ->and($card['value'])->toBe(array_sum(array_column($card['metrics'], 'value')))
         ->and($card['metrics'][0]['route']['parameters']['_query']['between[booked_in_at]'])->toEndWith('-'.now()->subDays(4)->format('Ymd'));
 
     $this->get(route('grp.org.procurement.dashboard', [$this->organisation->slug]))
@@ -11095,7 +12373,7 @@ test('an org stock linked to several supplier products answers with its preferre
 
     $buckets       = GetPartnerStockCoverBuckets::make();
     $partnerCarton = (int) DB::selectOne(
-        'select '.(new ReflectionMethod($buckets, 'partnerCartonSkos'))->invoke($buckets).' as carton from org_stocks p, (select 1 as packed_in) os where p.id = ?',
+        'select '.(new ReflectionMethod($buckets, 'partnerCartonSkosSql'))->invoke($buckets).' as carton from org_stocks p, (select 1 as packed_in) os where p.id = ?',
         [$sellerStock->id]
     )->carton;
     $action        = IndexPurchaseOrderTransactions::make();
@@ -11192,4 +12470,313 @@ test('purchase order edit form takes the deposit amount as a number in the order
         ->assertSessionHasErrors('deposit_amount');
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['deposit_amount' => -5])
         ->assertSessionHasErrors('deposit_amount');
+});
+
+test('UI show stock delivery lists its purchase orders in a tab', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'PO-TAB-'.Str::random(6), [10]);
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.'.StockDeliveryTabsEnum::PURCHASE_ORDERS->value));
+
+    $stockDelivery->purchaseOrders()->syncWithoutDetaching([$this->purchaseOrder->id]);
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::PURCHASE_ORDERS->value)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/StockDelivery')
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::PURCHASE_ORDERS->value)
+            ->has(StockDeliveryTabsEnum::PURCHASE_ORDERS->value.'.data', 1)
+            ->where(StockDeliveryTabsEnum::PURCHASE_ORDERS->value.'.data.0.reference', $this->purchaseOrder->reference));
+});
+
+test('an Aurora stock delivery gets an estimated supplier or agent invoice from what it recorded, once, and estimates never cost the container', function () {
+    $supplierDelivery = createStockDeliveryWithItems($this, 'EST-SUP-'.Str::random(6), [10, 4]);
+    $supplierDelivery->items()->orderBy('id')->get()->each(fn ($item, $index) => $item->updateQuietly(['net_amount' => [100, 40][$index]]));
+    $supplierDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null, 'cost_items' => 0, 'cost_shipping' => 20, 'cost_extra' => 5]);
+
+    $invoice = EstimateStockDeliveryInvoice::run($supplierDelivery->refresh());
+
+    expect($invoice)->toBeInstanceOf(SupplierInvoice::class)
+        ->and($invoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ESTIMATED)
+        ->and((float) $invoice->goods_amount)->toBe(140.0)
+        ->and((float) $invoice->charges_amount)->toBe(0.0)
+        ->and((float) $invoice->total_amount)->toBe(140.0)
+        ->and(EstimateStockDeliveryInvoice::run($supplierDelivery))->toBeNull()
+        ->and(ShowStockDelivery::make()->getInvoiceSummary($supplierDelivery))->toMatchArray(['kind' => 'supplier', 'source' => 'estimated', 'total' => 140.0, 'paid' => null]);
+
+    $costedDelivery = createStockDeliveryWithItems($this, 'EST-COST-'.Str::random(6), [10, 4]);
+    $costedDelivery->items()->orderBy('id')->get()->each(fn ($item, $index) => $item->updateQuietly(['net_amount' => [100, 40][$index]]));
+    $costedDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null, 'cost_items' => 70, 'cost_extra' => 9]);
+
+    $costedInvoice = EstimateStockDeliveryInvoice::run($costedDelivery->refresh());
+
+    expect((float) $costedInvoice->goods_amount)->toBe(70.0)
+        ->and($costedInvoice->charges)->toBe([])
+        ->and(array_column($costedInvoice->lines, 'amount'))->toEqual([50, 20]);
+
+    $agentDelivery = createStockDeliveryWithItems($this, 'EST-AGT-'.Str::random(6), [10]);
+    $agentDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => $this->agent->id, 'state' => StockDeliveryStateEnum::PLACED, 'is_costed' => false]);
+
+    $agentInvoice = EstimateStockDeliveryInvoice::run($agentDelivery->refresh());
+
+    expect($agentInvoice)->toBeInstanceOf(AgentInvoice::class)
+        ->and($agentInvoice->number)->toBeNull()
+        ->and($agentInvoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ESTIMATED)
+        ->and(ApplyAgentInvoiceCosting::run($agentDelivery->refresh()))->toBeNull();
+});
+
+test('staff enter the real invoice of a delivery in place of its estimate, keeping the estimate, but never over the agent own invoice', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'REAL-INV-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null, 'cost_shipping' => 20, 'cost_extra' => 0]);
+    $estimate = EstimateStockDeliveryInvoice::run($stockDelivery->refresh());
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
+        'reference'    => 'SUP-778',
+        'date'         => '2026-03-02',
+        'goods_amount' => 130,
+        'charges'      => [['description' => 'Sea freight', 'type' => 'freight', 'amount' => 35.5]],
+    ])->assertSessionHasNoErrors();
+
+    $invoice = $stockDelivery->supplierInvoice()->first();
+
+    expect($invoice->id)->toBe($estimate->id)
+        ->and($invoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ACTUAL)
+        ->and($invoice->reference)->toBe('SUP-778')
+        ->and((float) $invoice->total_amount)->toBe(165.5)
+        ->and((float) $invoice->data['estimate']['total_amount'])->toBe((float) $estimate->total_amount)
+        ->and($stockDelivery->refresh()->data['invoice_number'])->toBe('SUP-778');
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), ['reference' => '', 'date' => 'x', 'goods_amount' => -1, 'charges' => [['description' => '']]])
+        ->assertSessionHasErrors(['reference', 'date', 'goods_amount', 'charges.0.description', 'charges.0.amount']);
+
+    $agentContainer = createStockDeliveryWithItems($this, 'REAL-AGT-'.Str::random(6), [4]);
+    $agentContainer->updateQuietly(['agent_id' => $this->agent->id]);
+    StoreAgentInvoice::make()->handle($this->agent, $agentContainer->refresh());
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $agentContainer->id), ['reference' => 'X', 'date' => '2026-03-02', 'goods_amount' => 1, 'charges' => []])
+        ->assertSessionHasErrors('invoice');
+});
+
+test('a count that is a clean multiple of what was expected is a possible unit mismatch, and the tolerance hides small differences (HELP-3863)', function () {
+    expect(StockDeliveryItemDiscrepancyEnum::classify(80, 160, 100))->toBe(StockDeliveryItemDiscrepancyEnum::POSSIBLE_UNIT_MISMATCH)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(120, 24, 100))->toBe(StockDeliveryItemDiscrepancyEnum::POSSIBLE_UNIT_MISMATCH)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(80, 120, 100))->toBe(StockDeliveryItemDiscrepancyEnum::OVER)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(160, 120, 100))->toBe(StockDeliveryItemDiscrepancyEnum::UNDER)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(10, 0, 100))->toBe(StockDeliveryItemDiscrepancyEnum::UNDER)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(200, 202, 27000))->toBe(StockDeliveryItemDiscrepancyEnum::OVER)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(200, 202, 27000, tolerancePercentage: 2))->toBe(StockDeliveryItemDiscrepancyEnum::WITHIN_TOLERANCE)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(200, 202, 27000, tolerancePercentage: 2, toleranceAmount: 100))->toBe(StockDeliveryItemDiscrepancyEnum::OVER)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(200, 202, 27000, toleranceAmount: 300))->toBe(StockDeliveryItemDiscrepancyEnum::WITHIN_TOLERANCE)
+        ->and(StockDeliveryItemDiscrepancyEnum::classify(10, 10, 100))->toBeNull();
+
+    $stockDelivery = createStockDeliveryWithItems($this, 'UNIT-MISMATCH-'.Str::random(6), [80, 80, 150]);
+    $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    $items         = $stockDelivery->items()->orderBy('id')->get();
+
+    foreach ([160, 120, 102] as $index => $checked) {
+        SetStockDeliveryItemCheckedQuantity::make()->action($items[$index], ['unit_quantity_checked' => $checked]);
+    }
+
+    $stockDelivery->refresh();
+
+    expect($stockDelivery->number_stock_delivery_items_possible_unit_mismatch)->toBe(1)
+        ->and($stockDelivery->number_stock_delivery_items_over_delivered)->toBe(1)
+        ->and($stockDelivery->number_stock_delivery_items_under_delivered)->toBe(1);
+});
+
+test('a supplier that sells by the kg converts on the supplier product, the purchase order line and the invoice review (HELP-3863)', function () {
+    $tradeUnit = new TradeUnit(['net_weight' => 500, 'gross_weight' => 510]);
+    $tradeUnit->setRelation('pivot', new \Illuminate\Database\Eloquent\Relations\Pivot(['quantity' => 1]));
+
+    $byWeight = new SupplierProduct(['supplier_unit' => SupplierUnitEnum::KG->value, 'units_per_supplier_unit' => 1]);
+    $byWeight->setRelation('tradeUnits', collect([$tradeUnit]));
+
+    expect($byWeight->unitsPerSupplierUnitByWeight())->toBe(2.0)
+        ->and($byWeight->supplierUnitWarning())->not->toBeNull()
+        ->and((new SupplierProduct())->unitsPerSupplierUnit())->toBe(1.0);
+
+    $stockDelivery = createStockDeliveryWithItems($this, 'BincS-'.Str::random(6), [160]);
+    $item          = $stockDelivery->items()->first();
+    $item->update(['net_amount' => 20240]);
+    $supplierProduct = $item->supplierProduct;
+
+    UpdateSupplierProduct::make()->action($supplierProduct, ['supplier_unit' => 'kg', 'units_per_supplier_unit' => 2]);
+
+    expect($supplierProduct->refresh()->supplier_unit)->toBe(SupplierUnitEnum::KG)
+        ->and($supplierProduct->unitsPerSupplierUnit())->toBe(2.0);
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.0.supplier_unit', 'kg')
+            ->where('items.data.0.units_per_supplier_unit', 2)
+            ->etc());
+
+    $review = GetStockDeliveryInvoiceCosting::make()->review($stockDelivery, [
+        'state'    => 'read',
+        'currency' => $stockDelivery->currency->code,
+        'total'    => 20240,
+        'charges'  => [],
+        'lines'    => [['code' => $supplierProduct->code, 'quantity' => 80, 'unit_price' => 253, 'amount' => 20240]],
+    ]);
+
+    expect($review['items'][0]['invoice_quantity'])->toEqual(160)
+        ->and($review['items'][0]['quantity_differs'])->toBeFalse()
+        ->and($review['items'][0]['proposed_cost'])->toEqual(20240);
+
+    UpdateSupplierProduct::make()->action($supplierProduct, ['supplier_unit' => null]);
+
+    expect($supplierProduct->refresh()->units_per_supplier_unit)->toBeNull();
+});
+
+test('a flagged line is closed by a recount, a unit correction that uncovers a shortage, a tracked supplier claim or an accepted surplus (HELP-3863)', function () {
+    $user          = $this->adminGuest->getUser();
+    $stockDelivery = createStockDeliveryWithItems($this, 'RESOLVE-'.Str::random(6), [80, 80, 200]);
+    $items         = $stockDelivery->items()->orderBy('id')->get();
+    foreach ($items as $index => $item) {
+        $item->update(['net_amount' => [10120, 10120, 27000][$index]]);
+    }
+    $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery->refresh());
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    foreach ([160, 120, 202] as $index => $checked) {
+        SetStockDeliveryItemCheckedQuantity::make()->action($items[$index]->refresh(), ['unit_quantity_checked' => $checked]);
+    }
+    [$mismatch, $hiddenShortage, $surplus] = $stockDelivery->items()->orderBy('id')->get()->all();
+
+    $tasksBefore = StaffTask::count();
+    $hiddenShortage = ResolveStockDeliveryItemDiscrepancy::make()->action($hiddenShortage, $user, ['outcome' => 'recount_requested']);
+    $task           = StaffTask::find($hiddenShortage->data['recount_staff_task_id']);
+
+    expect(StaffTask::count())->toBe($tasksBefore + 1)
+        ->and($task->department)->toBe('warehouse')
+        ->and($task->model_id)->toBe($hiddenShortage->org_stock_id)
+        ->and($hiddenShortage->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::RECOUNT_REQUESTED)
+        ->and($hiddenShortage->discrepancy_resolved_at)->toBeNull();
+
+    $mismatch = ResolveStockDeliveryItemDiscrepancy::make()->action($mismatch, $user, ['outcome' => 'unit_error_corrected', 'unit_quantity' => 160, 'net_amount' => 20240]);
+
+    expect((float) $mismatch->unit_quantity)->toBe(160.0)
+        ->and((float) $mismatch->unit_quantity_checked)->toBe(160.0)
+        ->and((float) $mismatch->net_amount)->toBe(20240.0)
+        ->and($mismatch->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::UNIT_ERROR_CORRECTED)
+        ->and($mismatch->discrepancy_resolved_by_id)->toBe($user->id)
+        ->and($mismatch->data['unit_corrections'][0]['unit_quantity'])->toEqual(80);
+
+    $hiddenShortage = ResolveStockDeliveryItemDiscrepancy::make()->action($hiddenShortage, $user, ['outcome' => 'unit_error_corrected', 'unit_quantity' => 160, 'net_amount' => 20240]);
+
+    expect($hiddenShortage->discrepancy())->toBe(StockDeliveryItemDiscrepancyEnum::UNDER)
+        ->and($hiddenShortage->discrepancy_outcome)->toBeNull();
+
+    expect(fn () => ResolveStockDeliveryItemDiscrepancy::make()->action($hiddenShortage, $user, ['outcome' => 'surplus_accepted']))->toThrow(ValidationException::class);
+
+    $hiddenShortage = ResolveStockDeliveryItemDiscrepancy::make()->action($hiddenShortage, $user, ['outcome' => 'supplier_claim', 'notes' => 'Short 20 kg']);
+    $claim          = $hiddenShortage->claim;
+
+    expect($hiddenShortage->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::SUPPLIER_CLAIM)
+        ->and($claim->state)->toBe(StockDeliveryClaimStateEnum::OPEN)
+        ->and((float) $claim->quantity)->toBe(40.0)
+        ->and((float) $claim->amount)->toBe(5060.0)
+        ->and($claim->currency_id)->toBe($stockDelivery->currency_id);
+
+    expect(fn () => UpdateStockDeliveryClaim::make()->action($claim, ['state' => 'credit_received']))->toThrow(ValidationException::class);
+
+    $claim = UpdateStockDeliveryClaim::make()->action($claim, ['state' => 'sent']);
+    expect($claim->sent_at)->not->toBeNull()
+        ->and($claim->closed_at)->toBeNull();
+
+    expect(fn () => ResolveStockDeliveryItemDiscrepancy::make()->action($hiddenShortage->refresh(), $user, ['outcome' => 'recount_requested']))->toThrow(ValidationException::class);
+
+    $claim = UpdateStockDeliveryClaim::make()->action($claim, ['state' => 'credit_received', 'credit_note_reference' => 'CN-26-002', 'credit_note_amount' => 5060, 'credit_note_date' => '2026-10-20']);
+    expect($claim->closed_at)->not->toBeNull()
+        ->and($claim->credit_note_reference)->toBe('CN-26-002')
+        ->and((float) $hiddenShortage->refresh()->cost_items)->toBe(20240.0);
+
+    $surplus = ResolveStockDeliveryItemDiscrepancy::make()->action($surplus, $user, ['outcome' => 'surplus_accepted']);
+    expect($surplus->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::SURPLUS_ACCEPTED)
+        ->and($surplus->discrepancy_resolved_at)->not->toBeNull();
+
+    $stockDelivery->refresh();
+    expect($stockDelivery->number_stock_delivery_items_under_delivered)->toBe(1)
+        ->and($stockDelivery->number_stock_delivery_items_over_delivered)->toBe(1)
+        ->and($stockDelivery->number_stock_delivery_items_possible_unit_mismatch)->toBe(0);
+
+    $stockDelivery->updateQuietly(['state' => StockDeliveryStateEnum::BOOKED_IN]);
+    $this->withoutExceptionHandling();
+    $rows = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
+        ->viewData('page')['props'][StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value]['data'];
+    $row = collect($rows)->firstWhere('id', $hiddenShortage->id);
+
+    expect($row['discrepancy'])->toBe('under')
+        ->and($row['outcome'])->toBe('supplier_claim')
+        ->and($row['claim']['state'])->toBe('credit_received')
+        ->and($row['claim']['credit_note_amount'])->toEqual(5060);
+});
+
+test('duty is shared by customs line: a duty-free line takes none, items on no line share what the lines leave (HELP-3863)', function () {
+    $declare = function (string $code, array $assignTo, float $duty): StockDelivery {
+        $stockDelivery = placedStockDeliveryWithTwoLines($this, $code);
+        $stockDelivery->update(['org_exchange' => 1]);
+
+        UpdateStockDeliveryCustoms::make()->action($stockDelivery, [
+            'customs_mrn'         => '26SK586480626590R2',
+            'customs_released_at' => '2026-09-17',
+            'lines'               => [
+                ['tariff_code' => '3307 41 00 00', 'duty_rate' => 0, 'customs_value' => 100],
+                ['tariff_code' => '6302 21 00 89', 'duty_rate' => 9.6, 'customs_value' => 312.5],
+            ],
+        ]);
+        $lines = $stockDelivery->customsLines()->orderBy('id')->get()->values();
+        foreach ($stockDelivery->items()->orderBy('id')->get()->values() as $index => $item) {
+            SetStockDeliveryItemCustomsLine::make()->action($item, ['stock_delivery_customs_line_id' => $assignTo[$index] === null ? null : $lines[$assignTo[$index]]->id]);
+        }
+        setShippingAndDuty($stockDelivery->refresh(), 0, $duty);
+
+        return $stockDelivery->refresh();
+    };
+
+    $stockDelivery = $declare('CUSTOMS-'.Str::random(6), [0, 1], 30);
+    [$first, $second] = $stockDelivery->items()->orderBy('id')->get()->all();
+    [$dutyFree, $textiles] = $stockDelivery->customsLines()->orderBy('id')->get()->all();
+
+    expect($stockDelivery->customs_mrn)->toBe('26SK586480626590R2')
+        ->and($dutyFree->tariff_code)->toBe('3307410000')
+        ->and((float) $textiles->duty_amount)->toBe(30.0)
+        ->and((float) $first->cost_duties)->toBe(0.0)
+        ->and((float) $second->cost_duties)->toBe(30.0);
+
+    expect(fn () => SetStockDeliveryItemCustomsLine::make()->action($first, ['stock_delivery_customs_line_id' => null]))->toThrow(ValidationException::class);
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]).'?tab='.StockDeliveryTabsEnum::CUSTOMS->value)
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/StockDelivery')
+            ->where('customs.customs_mrn', '26SK586480626590R2')
+            ->has('customs.lines', 2)
+            ->where('customs.lines.1.allocated', 30)
+            ->etc());
+
+    $partlyDeclared = $declare('CUSTOMS-PART-'.Str::random(6), [null, 1], 40);
+    [$first, $second] = $partlyDeclared->items()->orderBy('id')->get()->all();
+
+    expect((float) $first->cost_duties)->toBe(10.0)
+        ->and((float) $second->cost_duties)->toBe(30.0);
+});
+
+test('correcting a unit error reprices only the put-away of that line (HELP-3863)', function () {
+    $stockDelivery = placedStockDeliveryWithTwoLines($this, 'REPRICE-ONE-'.Str::random(6));
+    [$corrected, $untouched] = $stockDelivery->items()->orderBy('id')->get()->all();
+
+    $corrected->updateQuietly(['unit_quantity' => 50]);
+    $untouchedMovement = OrgStockMovement::whereIn('id', $untouched->sowings()->select('org_stock_movement_id'))->first();
+    $untouchedMovement->updateQuietly(['org_amount' => 123.456]);
+
+    ResolveStockDeliveryItemDiscrepancy::make()->action($corrected->refresh(), $this->adminGuest->getUser(), ['outcome' => 'unit_error_corrected', 'unit_quantity' => 10]);
+
+    $correctedMovement = OrgStockMovement::whereIn('id', $corrected->sowings()->select('org_stock_movement_id'))->first();
+    $expectedCost      = $corrected->refresh()->orgStockMovementCost()['cost_per_sku'];
+
+    expect($corrected->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::UNIT_ERROR_CORRECTED)
+        ->and((float) $correctedMovement->org_amount)->toEqual(round($expectedCost * (float) $correctedMovement->quantity, 3))
+        ->and((float) $untouchedMovement->refresh()->org_amount)->toBe(123.456);
 });

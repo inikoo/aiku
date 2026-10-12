@@ -37,6 +37,7 @@ library.add(faUserCog, faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faC
 const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes
+    can_edit?: boolean
     builder: string
     imagesUploadRoute: routeType
     videoThumbnailRoute?: routeType
@@ -125,6 +126,15 @@ const emailSizeWarningTooltip = computed(() => {
 
 
 const onSendPublish = async (data: any) => {
+    if (!props.can_edit) {
+        notify({
+            title: ctrans("View only"),
+            text: ctrans("You can view this email but not change it."),
+            type: "info",
+        })
+        return
+    }
+
     compiledLayout.value = data?.htmlFile
 
     try {
@@ -166,6 +176,10 @@ const onSendPublish = async (data: any) => {
 
 
 const openSendTest = (data) => {
+    if (!props.can_edit) {
+        return
+    }
+
     visibleEmailTestModal.value = true
     temporaryData.value = {
         compiled_layout: data?.htmlFile
@@ -173,6 +187,10 @@ const openSendTest = (data) => {
 }
 
 const onSaveTemplate = (data: any) => {
+    if (!props.can_edit) {
+        return
+    }
+
     visibleSAveEmailTemplateModal.value = true
     temporaryData.value = {
         layout: data?.jsonFile
@@ -268,6 +286,10 @@ const updateActiveValue = async (action) => {
 }
 
 const autoSave = async (jsonFile) => {
+    if (!props.can_edit) {
+        return
+    }
+
     axios
         .patch(
             route(props.updateRoute.name, props.updateRoute.parameters),
@@ -360,14 +382,14 @@ onMounted(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHeadData">
         <template #afterTitle>
-            <MailshotSubjectEdit :mailshot="mailshotData" :updateMailshotRoute="updateMailshotRoute"
+            <MailshotSubjectEdit v-if="can_edit" :mailshot="mailshotData" :updateMailshotRoute="updateMailshotRoute"
                 :suggestCopyRoute="suggestCopyRoute" @saved="(subject, savedMailshot) => onMailshotSaved(savedMailshot)" />
         </template>
         <template #afterTitle2>
             <MailshotJourney :steps="journey" class="ml-4" />
         </template>
         <template v-if="builder == 'beefree' && emailEditor === 'beefree'" #otherBefore>
-            <Button @click="() => isModalCloneTemplateEmail = true" :label="ctrans('Choose Template')"
+            <Button v-if="can_edit" @click="() => isModalCloneTemplateEmail = true" :label="ctrans('Choose Template')"
                 class="flex flex-wrap border border-gray-300 rounded-md overflow-hidden h-fit" type="secondary"
                 :icon="faThLarge" :disabled="!isBeefreeReady" />
         </template>
@@ -418,10 +440,10 @@ onMounted(() => {
             :snapshot="activeSnapshot" :unpublished_layout="unpublished_layout" :mergeTags="mergeTags" :socialIcons="socialIcons"
             :mergeContents="mergeContents" :organisationSlug="organisationSlug" :shopSlug="shopSlug" :shopId="shopId"
             @onSave="onSendPublish" @sendTest="openSendTest" :autoSaveRoute="updateRoute" @saveTemplate="onSaveTemplate"
-            :mailshot="mailshotData" :updateMailshotRoute="updateMailshotRoute" @mailshotSaved="onMailshotSaved"
+            :mailshot="mailshotData" :updateMailshotRoute="can_edit ? updateMailshotRoute : undefined" @mailshotSaved="onMailshotSaved"
             ref="_emailWorkshop">
             <template #toolbar>
-                <button type="button" class="flex h-8 items-center gap-x-1.5 rounded px-3 text-[13px] text-gray-700 hover:bg-gray-100"
+                <button v-if="can_edit" type="button" class="flex h-8 items-center gap-x-1.5 rounded px-3 text-[13px] text-gray-700 hover:bg-gray-100"
                     @click="isModalCloneTemplateEmail = true">
                     <FontAwesomeIcon :icon="faThLarge" fixed-width aria-hidden="true" />
                     {{ ctrans('Choose template') }}

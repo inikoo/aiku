@@ -11,6 +11,7 @@ import { route } from "ziggy-js"
 import Table from "@/Components/Table/Table.vue"
 import Icon from "@/Components/Icon.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
@@ -39,6 +40,7 @@ type WebpagePerformanceRow = {
     search_queries: number
     backlinks: number
     referring_domains: number
+    ai_prompts: number
     previous: {
         visitors: number | null
         page_views: number | null
@@ -183,8 +185,12 @@ const formatDuration = (totalSeconds: number) => {
         <span class="text-xs text-gray-500">
             {{ ctrans("Visitors against :from to :to", { from: useFormatTime(periods.traffic.previous_from), to: useFormatTime(periods.traffic.previous_to) }) }}
         </span>
+        <SeoExportButton class="ml-auto" table="top_pages" />
     </div>
-    <p v-else class="px-4 pb-3 pt-1 text-xs text-gray-500">{{ ctrans("Pick an interval above to compare each page with the period before.") }}</p>
+    <div v-else class="flex flex-wrap items-center gap-3 px-4 pb-3 pt-1">
+        <p class="text-xs text-gray-500">{{ ctrans("Pick an interval above to compare each page with the period before.") }}</p>
+        <SeoExportButton class="ml-auto" table="top_pages" />
+    </div>
 
     <Table :resource="data" :name="tab">
         <template #cell(type)="{ item: webpage }: { item: WebpagePerformanceRow }">
@@ -256,6 +262,10 @@ const formatDuration = (totalSeconds: number) => {
 
         <template #cell(referring_domains)="{ item: webpage }: { item: WebpagePerformanceRow }">
             <span class="tabular-nums" :class="webpage.referring_domains ? '' : 'text-gray-400'" v-tooltip="webpage.backlinks ? ctrans(':count links in our list', { count: locale.number(webpage.backlinks) }) : undefined">{{ locale.number(webpage.referring_domains) }}</span>
+        </template>
+
+        <template #cell(ai_prompts)="{ item: webpage }: { item: WebpagePerformanceRow }">
+            <span class="tabular-nums" :class="webpage.ai_prompts ? '' : 'text-gray-400'">{{ locale.number(webpage.ai_prompts) }}</span>
         </template>
     </Table>
 

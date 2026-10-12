@@ -458,8 +458,6 @@ const progressToUploadToShopify = ref<{ [key: number]: string }>({})
 const selectedProducts = ref<number[]>([])
 
 const loadingAction = ref([])
-const modalAddproductBluk = ref(false)
-const modalMatchproductBluk = ref(false)
 const modalBulkEditPrice = ref(false)
 const selectedEditProduct = ref([])
 
@@ -482,9 +480,7 @@ const debReloadPage = () => {
 	})
 }
 
-const onSuccessEditCheckmark = (key) => {
-	if (key == "Match With Existing Product") modalMatchproductBluk.value = true
-	else modalAddproductBluk.value = true
+const onSuccessEditCheckmark = () => {
 	selectedProducts.value = []
 
 	progessbar.value = { ...progessbar.value, done: false, total: selectedProducts.value.length }
@@ -492,8 +488,8 @@ const onSuccessEditCheckmark = (key) => {
 
 const onFailedEditCheckmark = (error: any) => {
 	notify({
-		title: "Something went wrong.",
-		text: error?.response?.data?.products || "An error occurred.",
+		title: ctrans("Something went wrong."),
+		text: error?.response?.data?.products || ctrans("An error occurred."),
 		type: "error",
 	})
 }
@@ -591,7 +587,7 @@ const submitPortfolioAction = async (action: any) => {
 		}
 
 		debReloadPage()
-		onSuccessEditCheckmark(action.label)
+		onSuccessEditCheckmark()
 	} catch (error: any) {
 		onFailedEditCheckmark(error)
 	} finally {
@@ -844,7 +840,7 @@ const submitBulkEditPrice = async (type) => {
 		})
 
 		debReloadPage()
-		onSuccessEditCheckmark("bulk-edit")
+		onSuccessEditCheckmark()
 		bulkUpdatePriceData.value = {}
 		modalBulkEditPrice.value = false
 
@@ -1348,6 +1344,14 @@ const layout = inject("layout", layoutStructure)
 
 		<PlatformWarningNotConnected v-else :customer_sales_channel="customer_sales_channel" />
 	</div>
+	<Message v-if="customer_sales_channel.stock_management_off" severity="warn" class="m-4">
+	<div class="ml-2 font-normal text-sm">
+	    <div class="font-bold">{{ ctrans("Your store is ignoring the stock we send") }}</div>
+	    <div class="mt-1">
+	        {{ ctrans("Stock management is switched off in your WooCommerce store, so your products stay in stock there whatever we have. Switch it on in WooCommerce > Settings > Products > Inventory > Enable stock management.") }}
+	    </div>
+	</div>
+	</Message>
 	<div v-if="ebay_warehouse_policy_msg?.show_msg" class="flex justify-between mt-5 m-4">
 		<div class="w-full border-2 border-red-500 rounded-lg p-4 bg-red-50">
 			<div class="flex flex-col sm:flex-row sm:items-start">
@@ -2539,7 +2543,7 @@ const layout = inject("layout", layoutStructure)
 
 		<div class="mt-4 text-center text-sm text-gray-600">
 			{{
-				ctrans(`This will overwrite ${totalProductsForDimensionUpdate} products dimensions, are you sure want to continue ?`)
+				ctrans("This will overwrite :count products dimensions, are you sure want to continue ?", { count: totalProductsForDimensionUpdate })
 			}}
 		</div>
 

@@ -14,6 +14,7 @@ use App\Actions\Comms\Email\GetEmailSocialIcons;
 use App\Actions\Comms\EmailTemplate\UI\IndexEmailTemplates;
 use App\Actions\Comms\EmailTemplate\UI\IndexOtherStoreEmailTemplates;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsAuthorisation;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\UI\Mail\EmailTemplateTabsEnum;
@@ -31,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOutboxWorkshop extends OrgAction
 {
+    use WithCommsAuthorisation;
     use WithActionButtons;
 
 

@@ -10,22 +10,13 @@ namespace App\Actions\Web\WebsiteNotFoundPath\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebAuthorisation;
-use App\Actions\Web\Crawl\AuditWebsite;
-use App\Actions\Web\Website\UI\ShowSeoDashboard;
 use App\Actions\Web\WebsiteNotFoundPath\PruneWebsiteNotFoundPaths;
-use App\Http\Resources\Web\WebsiteNotFoundPathResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use App\Models\Web\WebsiteNotFoundPath;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWebsiteNotFoundPaths extends OrgAction
@@ -134,7 +125,7 @@ class IndexWebsiteNotFoundPaths extends OrgAction
                     'description' => __('Each time someone opens a URL on the website that has no page, the path is listed here. Paths not seen for :days days are removed.', ['days' => PruneWebsiteNotFoundPaths::RETENTION_DAYS]),
                 ])
                 ->column(key: 'path', label: __('Path'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'hits', label: __('Hits'), tooltip: __('Visits to this path that got a 404. Search engine bots are not counted'), canBeHidden: false, sortable: true, align: 'right', tooltipIcon: true)
+                ->column(key: 'hits', label: __('404 visits'), tooltip: __('Visits to this path that got a 404. Search engine bots are not counted'), canBeHidden: false, sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'backlinks', label: __('Backlinks'), tooltip: __('Links from other websites pointing at this path, from the monthly backlink fetch. A redirect wins them back'), sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'last_seen_at', label: __('Last seen'), sortable: true)
                 ->column(key: 'first_seen_at', label: __('First seen'), sortable: true)
@@ -144,62 +135,4 @@ class IndexWebsiteNotFoundPaths extends OrgAction
         };
     }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        abort_unless($shop->website, 404);
-
-        $this->website = $shop->website;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($this->website);
-    }
-
-    public function htmlResponse(LengthAwarePaginator $notFoundPaths, ActionRequest $request): Response
-    {
-        $title = __('Missing pages (404)');
-
-        return Inertia::render(
-            'Org/Web/WebsiteNotFoundPaths',
-            [
-                'breadcrumbs'   => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'         => $title,
-                'pageHead'      => [
-                    'icon'  => [
-                        'icon'  => ['fal', 'fa-unlink'],
-                        'title' => $title,
-                    ],
-                    'title' => $title,
-                ],
-                'canEdit'       => $this->canEdit,
-                'website'       => [
-                    'id'     => $this->website->id,
-                    'domain' => $this->website->domain,
-                    'url'    => AuditWebsite::publicBaseUrl($this->website),
-                ],
-                'retentionDays' => PruneWebsiteNotFoundPaths::RETENTION_DAYS,
-                'data'          => WebsiteNotFoundPathResource::collection($notFoundPaths),
-            ]
-        )->table($this->tableStructure($this->website));
-    }
-
-    public function getBreadcrumbs(array $routeParameters): array
-    {
-        $shopParameters = Arr::only($routeParameters, ['organisation', 'shop']);
-
-        return array_merge(
-            ShowSeoDashboard::make()->getBreadcrumbs($shopParameters),
-            [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.shops.show.seo.not_found.index',
-                            'parameters' => $shopParameters,
-                        ],
-                        'label' => __('Missing pages'),
-                    ],
-                ],
-            ]
-        );
-    }
 }

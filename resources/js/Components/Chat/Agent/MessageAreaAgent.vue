@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, onUnmounted, inject, computed, nextTick, defineAsyncComponent, getCurrentInstance } from "vue"
 import { useElementSize, useMediaQuery } from "@vueuse/core"
 import axios from "axios"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome"
 import { useComposerAttachmentDraft, useComposerDraft } from "@/Composables/useComposerDraft"
 import {
@@ -269,10 +269,7 @@ const openTicketsTooltip = computed(() =>
             blocked: String(blockingTicketsCount.value),
             total: String(openTicketsCount.value),
         })
-        : ctrans(":total open :ticket raised from this chat.", {
-            total: String(openTicketsCount.value),
-            ticket: openTicketsCount.value === 1 ? ctrans("ticket") : ctrans("tickets"),
-        })
+        : ctransChoice(":count open ticket raised from this chat.|:count open tickets raised from this chat.", openTicketsCount.value)
 )
 
 // The count in the header comes with the conversation, so a ticket raised here has to be added
@@ -1522,7 +1519,7 @@ const handleClickOutside = (e: MouseEvent) => {
                             </FontAwesomeLayers>
                             {{ ctrans("Email notification:") }}
                             <span :class="isEmailNotif ? 'font-medium text-green-600' : 'text-gray-500'">
-                                {{ isEmailNotif ? ctrans("On") : ctrans("Off") }}
+                                {{ isEmailNotif ? ctrans("On") : ctrans("Switched off") }}
                             </span>
                         </button>
 

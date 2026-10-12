@@ -206,6 +206,64 @@ test('create offer', function () {
     return $offer;
 });
 
+test('an offer viewer sees offers and campaigns but cannot change them', function (Offer $offer) {
+    $user          = $this->adminGuest->getUser();
+    $originalRoles = $user->roles->pluck('name')->toArray();
+    actingAsUserWithRoles($user, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_VIEWER->value, $this->shop)]);
+
+    $offerPage = get(route('grp.org.shops.show.discounts.campaigns.offer.show', [$this->organisation->slug, $this->shop->slug, $offer->offerCampaign->slug, $offer->slug]))->assertOk();
+    expect($offerPage->viewData('page')['props']['pageHead']['actions'])->toBeEmpty();
+
+    $campaignPage = get(route('grp.org.shops.show.discounts.campaigns.show', [$this->organisation->slug, $this->shop->slug, $offer->offerCampaign->slug]))->assertOk();
+    expect($campaignPage->viewData('page')['props']['can_edit'])->toBeFalse();
+
+    post(route('grp.models.shop_offer.store', ['shop' => $this->shop->id]), [])->assertForbidden();
+    post(route('grp.models.offer.finish', ['offer' => $offer->id]))->assertForbidden();
+    post(route('grp.models.offer.delete', ['offer' => $offer->id]))->assertForbidden();
+
+    actingAsUserWithRoles($user, $originalRoles);
+})->depends('create offer');
+
+test('marketing staff of another shop read offers and campaigns but change nothing, and other staff do not', function (Offer $offer) {
+    $user                = $this->adminGuest->getUser();
+    $originalRoles       = $user->roles->pluck('name')->toArray();
+    $originalPermissions = $user->getDirectPermissions()->pluck('name')->all();
+    $parameters          = [$this->organisation->slug, $this->shop->slug];
+
+    setPermissionsTeamId($user->group_id);
+    $permissionClass = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionClass();
+    if (!$permissionClass::where('name', 'marketing.999999999.view')->exists()) {
+        $permissionClass::where('name', "marketing.{$this->shop->id}.view")->firstOrFail()->replicate()->fill(['name' => 'marketing.999999999.view'])->save();
+    }
+
+    $actingWithOnly = function (array $permissions) use ($user) {
+        setPermissionsTeamId($user->group_id);
+        $user->syncRoles([]);
+        $user->syncPermissions($permissions);
+        \Illuminate\Support\Facades\Cache::tags('auth-user:'.$user->id)->flush();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        actingAs($user->refresh());
+    };
+
+    try {
+        $actingWithOnly(['marketing.999999999.view']);
+
+        $offerPage = get(route('grp.org.shops.show.discounts.campaigns.offer.show', [...$parameters, $offer->offerCampaign->slug, $offer->slug]))->assertOk();
+        expect($offerPage->viewData('page')['props']['pageHead']['actions'])->toBeEmpty();
+        get(route('grp.org.shops.show.discounts.campaigns.show', [...$parameters, $offer->offerCampaign->slug]))->assertOk();
+        get(route('grp.org.shops.show.discounts.campaigns.index', $parameters))->assertOk();
+        get(route('grp.org.shops.show.discounts.offers.index', $parameters))->assertOk();
+        post(route('grp.models.offer.delete', ['offer' => $offer->id]))->assertForbidden();
+
+        $actingWithOnly(["orders.{$this->shop->id}.view"]);
+        get(route('grp.org.shops.show.discounts.campaigns.offer.show', [...$parameters, $offer->offerCampaign->slug, $offer->slug]))->assertForbidden();
+    } finally {
+        setPermissionsTeamId($user->group_id);
+        $user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($user, $originalRoles);
+    }
+})->depends('create offer');
+
 test('offer orders table has a state filter', function (Offer $offer) {
     $tableStructure = new \App\InertiaTable\InertiaTable(request());
     \App\Actions\Ordering\Order\UI\IndexOrders::make()->tableStructure(parent: $offer, prefix: 'orders', bucket: 'offer')($tableStructure);
@@ -1144,6 +1202,8 @@ test('create product category discount', function () {
             'type'                       => 'quantity',
             'trigger_data_item_quantity' => 2,
             'percentage_off'             => .25,
+            'free_quantity'              => null,
+            'free_product_id'            => null,
             'duration'                   => 'interval',
             'start_at'                   => now()->addDays(7)->toDateTimeString(),
             'end_at'                     => now()->addDays(14)->toDateTimeString(),

@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
 import { faArrowRight } from '@fal'
 import MiniBar from './MiniBar.vue'
+import { ctransChoice } from '@/Composables/useTrans'
 
 library.add(faArrowRight)
 
@@ -86,7 +87,7 @@ const maxPairMessages = computed(() => Math.max(0, ...(props.widget?.top_pairs.m
                         >
                             <div class="flex justify-between gap-2">
                                 <span class="text-gray-600 truncate min-w-0">{{ user.username }}</span>
-                                <span class="shrink-0 tabular-nums font-medium">{{ user.messages }}<span class="text-gray-400 font-normal"> / {{ user.conversations }} {{ ctrans("chats") }}</span></span>
+                                <span class="shrink-0 tabular-nums font-medium">{{ user.messages }}<span class="text-gray-400 font-normal"> / {{ ctransChoice(":count chat|:count chats", user.conversations) }}</span></span>
                             </div>
                             <MiniBar :value="user.messages" :max="maxUserMessages" color="bg-[var(--theme-chart-1)]" />
                         </Link>

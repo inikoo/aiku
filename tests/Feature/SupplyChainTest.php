@@ -8,6 +8,8 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\SysAdmin\Organisation;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Helpers\Redirects\RedirectSupplierLink;
 use App\Models\SysAdmin\User;
@@ -139,7 +141,7 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
     expect($user->auth_type)->toBe(UserAuthTypeEnum::DEFAULT)
         ->and($user->legacy_password)->toBeNull()
         ->and(Hash::check('aurora-password', $user->password))->toBeTrue()
-        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toContain('procurement', 'hr')
+        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and($user->hasGroupAccess())->toBeFalse()
         ->and(array_keys(GetGroupNavigation::run($user)))->toBe(['tickets']);
 
@@ -151,6 +153,17 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
             ->where('dashboard.super_blocks', [])
             ->has('cleanHandover.quarters')
             ->missing('cleanHandover.hygiene'));
+
+    $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.agent.purchase_orders.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.agent.stock_deliveries.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.procurement.org_suppliers.index', $organisation->slug).'?sort=code')
+        ->assertRedirect(route('grp.org.agent.org_suppliers.index', $organisation->slug).'?sort=code');
+    $this->get(route('grp.org.procurement.dashboard', $organisation->slug))->assertRedirect(route('grp.org.dashboard.show', $organisation->slug));
+    $this->get(route('grp.org.procurement.org_agents.index', $organisation->slug))->assertNotFound();
+    $this->get(route('grp.org.procurement.org_partners.index', $organisation->slug))->assertNotFound();
+    $this->get(route('grp.org.warehouses.index', $organisation->slug))->assertForbidden();
+    $this->get(route('grp.org.agent.org_suppliers.index', Organisation::where('type', OrganisationTypeEnum::SHOP)->firstOrFail()->slug))->assertForbidden();
 })->depends('create agent');
 
 test('update agent', function (Agent $agent) {
@@ -1875,6 +1888,28 @@ test('the supplier product template has the v7 tabs and reads back without error
         ->and($sheet['declaration'])->toBeNull();
 });
 
+test('EPR material mappings name each packaging material in every scheme, plastics by polymer where the scheme splits them', function () {
+    $resolve = fn (string $scheme, string $category, ?string $polymer = null) => App\Models\Goods\EprMaterialMapping::resolve(
+        App\Enums\Goods\Packaging\EprSchemeEnum::from($scheme),
+        App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::from($category),
+        $polymer ? App\Enums\Goods\Packaging\PackagingPolymerEnum::from($polymer) : null
+    );
+
+    foreach (App\Enums\Goods\Packaging\EprSchemeEnum::cases() as $scheme) {
+        foreach (App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::cases() as $category) {
+            expect($resolve($scheme->value, $category->value))->not->toBeNull();
+        }
+    }
+
+    expect($resolve('uk', 'paper_cardboard')->scheme_material)->toBe('Paper or card')
+        ->and($resolve('uk', 'plastic', 'eps')->scheme_material)->toBe('Plastic')
+        ->and($resolve('sk', 'plastic', 'pet')->scheme_subcategory)->toBe('PET, HDPE, LDPE, PP, PS')
+        ->and($resolve('sk', 'plastic', 'eps')->scheme_subcategory)->toBe('EPS')
+        ->and($resolve('sk', 'plastic')->scheme_subcategory)->toBe('PET, HDPE, LDPE, PP, PS')
+        ->and($resolve('fr', 'plastic', 'hdpe')->scheme_subcategory)->toBe('PEHD')
+        ->and($resolve('de', 'steel')->scheme_material)->toBe('Eisenmetalle');
+});
+
 test('v7 supplier product upload keeps the GPSR and EUDR answers, shares one packaging family and stores the signed declaration', function () {
     GetCurrencyExchange::shouldRun()->andReturn(1.0);
     $supplier = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
@@ -1948,6 +1983,10 @@ test('v7 supplier product upload keeps the GPSR and EUDR answers, shares one pac
         ->and((float)$carton->pivot->quantity_per_unit)->toBe(0.0125)
         ->and($carton->material_category)->toBe(App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::PAPER_CARDBOARD)
         ->and($bag->material_category)->toBe(App\Enums\Goods\Packaging\PackagingMaterialCategoryEnum::PLASTIC)
+        ->and($bag->polymer)->toBe(App\Enums\Goods\Packaging\PackagingPolymerEnum::LDPE)
+        ->and($carton->polymer)->toBeNull()
+        ->and($family->source)->toBe(App\Enums\Goods\Packaging\PackagingFamilySourceEnum::SUPPLIER)
+        ->and($family->brand_ownership)->toBe(App\Enums\Goods\Packaging\PackagingBrandOwnershipEnum::UNKNOWN)
         ->and((float)$bag->recycled_content_pct)->toBe(30.0);
 
     $declaration = $supplier->declarations()->sole();

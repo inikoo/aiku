@@ -346,7 +346,7 @@ class ShowToRestock extends OrgAction
         $sellsExpr   = self::SELLS_RANK.'::text';
         $sellsCounts = $counts($sellsExpr);
         $stateCounts = $counts($this->bucketExpression());
-        $shortLabels = ['out' => __('Out'), 'w1' => __('Doomed'), 'w2' => __('Critical'), 'w3' => __('Danger'), 'w4' => __('Watch'), 'ok' => __('Covered'), 'dead' => __('Dead')];
+        $shortLabels = ['out' => __('Out'), 'w1' => __('Doomed'), 'w2' => __('Critical'), 'w3' => __('Danger'), 'w4' => __('On watch'), 'ok' => __('Covered'), 'dead' => __('Dead')];
 
         return $this->elementGroups = [
             'state'    => $group(__('Stock state'), $this->bucketExpression(), $buckets->map(fn ($meta, string $bucket) => $stateCounts[$bucket] ?? 0)->all(), $shortLabels, implode(',', self::BUCKETS), $buckets->map(fn ($meta) => $meta['tone'])->all(), $this->stateLabels()),

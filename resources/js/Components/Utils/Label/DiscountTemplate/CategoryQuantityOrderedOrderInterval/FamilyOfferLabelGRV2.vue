@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { trans } from 'laravel-vue-i18n'
 import { Popover } from 'primevue'
 import { computed, inject, ref } from 'vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -43,8 +42,7 @@ const amnestyUntil = computed<string>(
         aria-label="Gold Reward Offer Label"
     >
         <div class="gr-title">
-            <span>{{ ctrans('Gold') }}</span>
-            <span>{{ ctrans('Reward') }}</span>
+            <span v-for="word in ctrans('Gold Reward').split(' ')" :key="word">{{ word }}</span>
 
             <img
                 v-if="isActive"
@@ -86,11 +84,11 @@ const amnestyUntil = computed<string>(
         <Popover ref="_popoverInfoCircle" class="gr-popover">
             <div class="gr-popover-content">
                 <p class="gr-popover-title">
-                    {{ trans("Gold Reward Membership") }}
+                    {{ ctrans("Gold Reward Membership") }}
                 </p>
 
                 <p class="gr-popover-text">
-                    {{ trans("Place an order within 30 days of your last invoice and Gold Reward status applies automatically. This unlocks the best pricing across eligible ranges, without needing to bulk up every order") }}.
+                    {{ ctrans("Place an order within 30 days of your last invoice and Gold Reward status applies automatically. This unlocks the best pricing across eligible ranges, without needing to bulk up every order") }}.
                 </p>
             </div>
         </Popover>

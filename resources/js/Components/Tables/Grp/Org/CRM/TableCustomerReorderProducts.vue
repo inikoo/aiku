@@ -36,7 +36,7 @@ function productRoute(product: { slug: string }) {
             <span class="whitespace-nowrap">{{ useFormatTime(product.next_order_on) }}</span>
             <span v-if="product.is_due"
                 class="ml-2 inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                {{ ctrans("Due") }}
+                {{ ctrans("Due now") }}
             </span>
         </template>
     </Table>
