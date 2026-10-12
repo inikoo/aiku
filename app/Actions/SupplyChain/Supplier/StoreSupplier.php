@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromFreeSupplier;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
@@ -29,6 +30,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -41,6 +43,11 @@ class StoreSupplier extends OrgAction
     private ?Agent $agent = null;
 
     private ?Organisation $scopeOrganisation = null;
+
+    private int $numberCopiedSupplierProducts = 0;
+
+    /** @var array<int, int> */
+    private array $copySourceAgentIds = [];
 
     public function authorize(ActionRequest $request): bool
     {
@@ -67,6 +74,8 @@ class StoreSupplier extends OrgAction
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
+        $copiedOrgSupplierProductIds = Arr::pull($modelData, 'org_supplier_products', []);
+
         if (Arr::get($modelData, 'delivery_type') !== 'container') {
             Arr::forget($modelData, self::CONTAINER_ONLY_FIELDS);
         }
@@ -77,7 +86,7 @@ class StoreSupplier extends OrgAction
             data_set($modelData, 'group_id', $parent->group_id);
         }
 
-        $supplier = DB::transaction(function () use ($parent, $modelData, $addressData) {
+        $supplier = DB::transaction(function () use ($parent, $modelData, $addressData, $copiedOrgSupplierProductIds) {
             /** @var Supplier $supplier */
             $supplier = $parent->suppliers()->create($modelData);
             $supplier->stats()->create();
@@ -107,6 +116,10 @@ class StoreSupplier extends OrgAction
                 );
             }
 
+            if ($parent instanceof Agent && $copiedOrgSupplierProductIds && $this->copySourceAgentIds) {
+                $this->copySupplierProducts($supplier, $copiedOrgSupplierProductIds);
+            }
+
             return $supplier;
         });
 
@@ -117,6 +130,30 @@ class StoreSupplier extends OrgAction
         }
 
         return $supplier;
+    }
+
+    /**
+     * The new supplier form has no field for the products it takes over, so a refused copy is reported on the code.
+     *
+     * @param  array<int, int>  $orgSupplierProductIds
+     *
+     * @throws \Throwable
+     */
+    private function copySupplierProducts(Supplier $supplier, array $orgSupplierProductIds): void
+    {
+        $copySupplierProducts = CopySupplierProductsToSupplier::make();
+
+        try {
+            $this->numberCopiedSupplierProducts = $copySupplierProducts->action(
+                $supplier,
+                $copySupplierProducts->getAgentsSupplierProducts($this->copySourceAgentIds, $orgSupplierProductIds),
+                $this->hydratorsDelay
+            );
+        } catch (ValidationException $exception) {
+            throw ValidationException::withMessages([
+                'code' => collect($exception->errors())->flatten()->first(),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -143,6 +180,8 @@ class StoreSupplier extends OrgAction
             'status'          => ['sometimes', 'required', 'boolean'],
             'scope_type'      => ['string', Rule::in(['Group', 'Organisation'])],
             'scope_id'        => ['integer'],
+            'org_supplier_products'   => ['sometimes', 'array'],
+            'org_supplier_products.*' => ['integer'],
         ];
 
         $rules = array_merge($rules, $this->supplierJsonFieldRules());
@@ -212,6 +251,8 @@ class StoreSupplier extends OrgAction
         $this->agent = $agent;
         $this->initialisationFromGroup($agent->group, $request);
 
+        $this->copySourceAgentIds = CopySupplierProductsToSupplier::make()->getAccessibleAgents($request->user())->pluck('id')->all();
+
         return $this->handle($agent, $this->validatedData);
     }
 
@@ -232,6 +273,13 @@ class StoreSupplier extends OrgAction
             return Redirect::route('grp.org.procurement.org_suppliers.show', [
                 $this->scopeOrganisation->slug,
                 $supplier->orgSuppliers()->where('organisation_id', $this->scopeOrganisation->id)->value('slug'),
+            ]);
+        }
+
+        if ($this->numberCopiedSupplierProducts && $supplier->agent_id) {
+            return Redirect::route('grp.org.procurement.org_suppliers.show.supplier_products.index', [
+                $supplier->agent->organisation->slug,
+                $supplier->orgSuppliers()->orderBy('id')->value('slug'),
             ]);
         }
 
