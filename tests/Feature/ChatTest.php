@@ -7330,6 +7330,18 @@ test('a whatsapp thanks after we answered gets a thumbs up and closes, but never
             'sender_type'     => ChatSenderTypeEnum::AGENT,
             'message_text'    => 'I will arrange for the replacement to be sent out as soon as possible',
         ])),
+        'bear with me' => tap($answered('+447500000309', 'thank you'), fn (MetaChatSession $session) => $session->messages()->create([
+            'meta_channel_id' => $session->meta_channel_id,
+            'message_type'    => ChatMessageTypeEnum::TEXT,
+            'sender_type'     => ChatSenderTypeEnum::AGENT,
+            'message_text'    => 'the system will not give me the amount to charge you , please bear with me , i have reported this to IT',
+        ])),
+        'looking into it' => tap($answered('+447500000310', 'thank you'), fn (MetaChatSession $session) => $session->messages()->create([
+            'meta_channel_id' => $session->meta_channel_id,
+            'message_type'    => ChatMessageTypeEnum::TEXT,
+            'sender_type'     => ChatSenderTypeEnum::AGENT,
+            'message_text'    => 'Please give me few moments, we are looking in to it',
+        ])),
     ];
     foreach ($notClosed as $case => $session) {
         \App\Actions\Chat\ChatSession\FlagUrgentChatRequest::run($session);
