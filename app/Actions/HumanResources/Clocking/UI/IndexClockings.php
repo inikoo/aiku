@@ -8,6 +8,7 @@
 
 namespace App\Actions\HumanResources\Clocking\UI;
 
+use Illuminate\Support\Arr;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
@@ -150,6 +151,8 @@ class IndexClockings extends OrgAction
 
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $workplace;
         $this->initialisation($organisation, $request);
 
@@ -158,6 +161,8 @@ class IndexClockings extends OrgAction
 
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
@@ -168,6 +173,8 @@ class IndexClockings extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
@@ -236,8 +243,8 @@ class IndexClockings extends OrgAction
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name' => 'grp.org.hr.clockings.index',
-                        null
+                        'name'       => 'grp.org.hr.clockings.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation']),
                     ]
                 )
             ),

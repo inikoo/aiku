@@ -36,6 +36,8 @@ class ShowJobPosition extends OrgAction
 
     public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
+        abort_unless($jobPosition->group_id === $organisation->group_id && in_array($jobPosition->organisation_id, [null, $organisation->id], true), 404);
+
         $this->initialisation($organisation, $request)->withTab(JobPositionTabsEnum::values());
         return $this->handle($jobPosition);
     }

@@ -42,6 +42,8 @@ class ShowTimesheet extends OrgAction
 
     public function asController(Organisation $organisation, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        abort_unless($timesheet->organisation_id === $organisation->id, 404);
+
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
         $this->ensureTimesheetIsVisible($timesheet);
@@ -51,6 +53,8 @@ class ShowTimesheet extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        abort_unless($employee->organisation_id === $organisation->id && $timesheet->subject_type === 'Employee' && (int) $timesheet->subject_id === $employee->id, 404);
+
         $this->parent = $employee;
         $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
         abort_unless($this->canSeeEmployee($employee->id), 403);

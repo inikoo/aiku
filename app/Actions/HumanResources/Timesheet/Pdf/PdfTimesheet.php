@@ -62,6 +62,8 @@ class PdfTimesheet extends OrgAction
      */
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): Response
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
         return $this->handle($employee);
     }

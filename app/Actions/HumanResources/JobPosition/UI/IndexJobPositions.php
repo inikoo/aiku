@@ -204,6 +204,8 @@ class IndexJobPositions extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->parent = $employee;
         $this->initialisation($organisation, $request);
 

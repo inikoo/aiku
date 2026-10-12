@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class ApproveLeave extends OrgAction
@@ -28,6 +29,8 @@ class ApproveLeave extends OrgAction
      */
     public function handle(Leave $leave, array $modelData = []): Leave
     {
+        self::ensurePending($leave);
+
         $user = Auth::user();
 
         if (!$user) {
@@ -79,6 +82,19 @@ class ApproveLeave extends OrgAction
         }
 
         return $leave;
+    }
+
+    public static function ensurePending(Leave $leave): void
+    {
+        $message = match ($leave->status) {
+            LeaveStatusEnum::APPROVED => __('This leave request has already been approved.'),
+            LeaveStatusEnum::REJECTED => __('This leave request has already been rejected.'),
+            default                   => null,
+        };
+
+        if ($message) {
+            throw ValidationException::withMessages(['status' => $message]);
+        }
     }
 
     public function applyBalanceDeduction(Leave $leave): EmployeeLeaveBalance
@@ -144,6 +160,7 @@ class ApproveLeave extends OrgAction
     public function asController(Organisation $organisation, Leave $leave, ActionRequest $request): Leave
     {
         abort_unless($leave->organisation_id === $organisation->id, 404);
+        self::ensurePending($leave);
         $this->leave = $leave;
         $this->initialisation($organisation, $request);
 

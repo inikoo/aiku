@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\EmployeeContract;
 
 use App\Actions\HumanResources\Leave\GenerateEmployeeLeaveBalance;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\EmployeeContract;
 use App\Models\HumanResources\EmployeeLeaveBalance;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class StoreEmployeeContract extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
+
     public function handle(Employee $employee, array $data): EmployeeContract
     {
         $contract = $employee->contracts()->create([

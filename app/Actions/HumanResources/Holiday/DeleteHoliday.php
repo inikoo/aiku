@@ -32,6 +32,8 @@ class DeleteHoliday extends OrgAction
 
     public function asController(Organisation $organisation, Holiday $holiday, ActionRequest $request): bool
     {
+        abort_unless($holiday->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($holiday);

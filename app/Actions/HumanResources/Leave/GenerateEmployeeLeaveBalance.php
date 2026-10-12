@@ -12,10 +12,12 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\EmployeeContract;
 use App\Models\HumanResources\EmployeeLeaveBalance;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GenerateEmployeeLeaveBalance
@@ -25,7 +27,7 @@ class GenerateEmployeeLeaveBalance
     public function handle(EmployeeContract $contract, ?Carbon $periodStart = null): EmployeeLeaveBalance
     {
         $start = $periodStart ?? $contract->start_date;
-        $end   = $this->resolvePeriodEnd($contract, $start);
+        $end   = $this->periodEnd($contract, $start);
 
         return EmployeeLeaveBalance::firstOrCreate(
             [
@@ -42,7 +44,23 @@ class GenerateEmployeeLeaveBalance
         );
     }
 
-    private function resolvePeriodEnd(EmployeeContract $contract, Carbon $start): ?Carbon
+    public function periodStartFor(EmployeeContract $contract, CarbonInterface $date): Carbon
+    {
+        $start = Carbon::parse($contract->start_date->toDateString());
+
+        while ($start->copy()->addYear()->subDay()->lt($date)) {
+            $start->addYear();
+        }
+
+        return $start;
+    }
+
+    public function periodStartOfYear(EmployeeContract $contract, int $yearIndex): Carbon
+    {
+        return Carbon::parse($contract->start_date->toDateString())->addYears($yearIndex);
+    }
+
+    public function periodEnd(EmployeeContract $contract, Carbon $start): ?Carbon
     {
         if ($contract->end_date === null) {
             return $start->copy()->addYear()->subDay();
@@ -51,6 +69,18 @@ class GenerateEmployeeLeaveBalance
         $oneYearOut = $start->copy()->addYear()->subDay();
 
         return $contract->end_date->lt($oneYearOut) ? $contract->end_date : $oneYearOut;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $contract       = $request->route('contract');
+        $organisationId = $contract instanceof EmployeeContract ? $contract->employee?->organisation_id : null;
+
+        if (!$organisationId || !$request->user()) {
+            return false;
+        }
+
+        return $request->user()->authTo(["human-resources.$organisationId.edit", "org-supervisor.$organisationId.human-resources"]);
     }
 
     public function asController(EmployeeContract $contract): EmployeeLeaveBalance
@@ -99,7 +129,7 @@ class GenerateEmployeeLeaveBalance
             })
             ->with('leaveBalances')
             ->each(function (EmployeeContract $contract) use ($today, &$generated) {
-                $periodStart = $this->currentPeriodStart($contract, $today);
+                $periodStart = $this->periodStartFor($contract, $today);
 
                 $exists = $contract->leaveBalances
                     ->where('period_start', $periodStart->toDateString())
@@ -114,16 +144,5 @@ class GenerateEmployeeLeaveBalance
         $command->info("Generated {$generated} leave balance(s).");
 
         return 0;
-    }
-
-    private function currentPeriodStart(EmployeeContract $contract, Carbon $today): \Carbon\Carbon
-    {
-        $start = $contract->start_date->copy();
-
-        while ($start->copy()->addYear()->subDay()->lt($today)) {
-            $start->addYear();
-        }
-
-        return $start;
     }
 }
