@@ -59,6 +59,13 @@ class UpdateJobOrderItem extends OrgAction
             return;
         }
 
+        $carriedTo = $this->jobOrderItem->carriedTo();
+        if ($carriedTo) {
+            $validator->errors()->add('quantity', __('The rest of this job was carried to :reference, change the quantity there.', ['reference' => $carriedTo->reference]));
+
+            return;
+        }
+
         $unitsPerArtefact = $this->jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
         foreach ($this->jobOrderItem->tasks as $task) {
             if ($this->get('quantity') * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {

@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use Illuminate\Support\Arr;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -102,6 +104,13 @@ class JobOrderItem extends Model
     public function jobOrder(): BelongsTo
     {
         return $this->belongsTo(JobOrder::class);
+    }
+
+    public function carriedTo(): ?JobOrder
+    {
+        $carriedToId = Arr::get($this->data, 'carried_to');
+
+        return $carriedToId ? JobOrder::whereIn('state', JobOrderStateEnum::open())->find($carriedToId) : null;
     }
 
     public function artefact(): BelongsTo
