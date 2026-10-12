@@ -563,7 +563,7 @@ class ShowPurchaseOrder extends OrgAction
                     'style'   => 'save',
                     'icon'    => 'fal fa-paper-plane',
                     'key'     => 'submit_purchase_order',
-                    'send_channels' => SendPurchaseOrderToSupplier::channels($purchaseOrder),
+                    'send_channels' => SendPartnerPurchaseOrderToSeller::appliesTo($purchaseOrder) ? [] : SendPurchaseOrderToSupplier::channels($purchaseOrder),
                     'route'   => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.purchase-order.submit',

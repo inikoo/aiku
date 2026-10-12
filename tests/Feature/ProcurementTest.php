@@ -6509,6 +6509,12 @@ describe('partner shopping list', function () {
         $this->patch(route('grp.models.purchase-order.submit', $blockedPurchaseOrder->id))->assertSessionHasErrors('purchase_order');
         expect($blockedPurchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
 
+        $pageHeadActions = $this->withoutVite()
+            ->get(route('grp.org.procurement.org_partners.show.purchase-orders.show', [$blockedPurchaseOrder->organisation->slug, $this->orgPartner->id, $blockedPurchaseOrder->slug]))
+            ->assertOk()
+            ->viewData('page')['props']['pageHead']['actions'];
+        expect(collect($pageHeadActions)->firstWhere('key', 'submit_purchase_order')['send_channels'])->toBe([]);
+
         $repackedTwin->forceDelete();
         $blockedPurchaseOrder->delete();
 
