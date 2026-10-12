@@ -82,6 +82,7 @@ use App\Actions\Comms\Mailshot\StoreMailshotRecipient;
 use App\Actions\Comms\Mailshot\StoreMailshotTemplate;
 use App\Actions\Comms\Mailshot\UI\GetMailshotPreview;
 use App\Actions\Comms\Mailshot\UI\GetMailshotShowcase;
+use App\Actions\Comms\Mailshot\UI\ShowMailshot;
 use App\Actions\Comms\Mailshot\UI\IndexMailshotFromOtherStoreTemplates;
 use App\Actions\Comms\Mailshot\UI\IndexPreviousMailshotTemplates;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
@@ -2390,6 +2391,20 @@ test('ab test lets each version edit its own subject and sender from the compari
         ->and($versions[1]['sender_name'])->toBe('Anna at the shop')
         ->and($versions[0]['subject'])->toBe('Winter offers')
         ->and($versions[0]['sender_name'])->toBe($shop->name);
+})->depends('outbox seeded when shop created');
+
+test('ab test review and send from version B goes to version A', function (Shop $shop) {
+    $mailshot = createMarketingMailshotWithAbTest($shop);
+    $variant  = $mailshot->abTestVariant;
+
+    $reviewsVersionA = fn ($parameters) => collect($parameters)->last() === $mailshot->slug;
+
+    $this->get(route('grp.org.shops.show.marketing.mailshots.workshop', [$shop->organisation->slug, $shop->slug, $variant->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.actions', fn ($actions) => $reviewsVersionA(collect($actions)->firstWhere('key', 'review')['route']['parameters']))
+            ->where('journey', fn ($journey) => $reviewsVersionA(collect($journey)->firstWhere('key', 'review')['route']['parameters'])));
+
+    expect(collect(ShowMailshot::make()->getMailshotJourney($mailshot, 'review'))->firstWhere('key', 'review')['route']['parameters'][2])->toBe($mailshot->slug);
 })->depends('outbox seeded when shop created');
 
 test('ab test showcase previews version A and B separately, from either page', function (Shop $shop) {
