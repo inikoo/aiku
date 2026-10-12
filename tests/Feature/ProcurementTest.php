@@ -9623,6 +9623,34 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
         ->where('active.supplier', $supplierId)
         ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
 
+    $hidden = $url.'?hide_ordered=1&'.http_build_query(['filter' => ['global' => $code]]);
+    $this->get($hidden)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.hide_ordered', true)
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
+    $submittedOrder = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'            => $submittedOrder->group_id,
+        'organisation_id'     => $submittedOrder->organisation_id,
+        'purchase_order_id'   => $submittedOrder->id,
+        'supplier_product_id' => $orgSupplierProduct->supplier_product_id,
+        'org_stock_id'        => $this->orgStocks[0]->id,
+        'state'               => PurchaseOrderTransactionStateEnum::SUBMITTED->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 100,
+        'net_amount'          => 250,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+    $submittedOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    $this->get($hidden)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => $code]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.hide_ordered', false)
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
     foreach (['code', '-code', 'name', '-supplier_code'] as $sort) {
         $this->get($url.'?sort='.$sort)->assertOk();
     }
@@ -9632,6 +9660,46 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
 
     expect($ascending->first())->not->toBe($descending->first())
         ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
+});
+
+test('UI agent browse shows what the other organisations hold on their drafts for a product', function () {
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    OrgAgent::where('organisation_id', $otherOrganisation->id)->where('agent_id', $this->orgAgent->agent_id)->first()
+        ?? StoreOrgAgent::make()->action($otherOrganisation, $this->orgAgent->agent, []);
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct  = $orgSupplierProduct->supplierProduct;
+    $theirOrgSupplier = OrgSupplier::where('supplier_id', $supplierProduct->supplier_id)->where('organisation_id', $otherOrganisation->id)->firstOrFail();
+
+    $url      = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]).'?'.http_build_query(['filter' => ['global' => $supplierProduct->code]]);
+    $ourItem  = fn () => collect($this->get($url)->viewData('page')['props']['items']['data'])->firstWhere('code', $supplierProduct->code);
+
+    expect($ourItem()['other_organisations_drafts'])->toBe([]);
+
+    $theirDraft = StorePurchaseOrder::make()->action($theirOrgSupplier, [], strict: false);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'            => $theirDraft->group_id,
+        'organisation_id'     => $theirDraft->organisation_id,
+        'purchase_order_id'   => $theirDraft->id,
+        'supplier_product_id' => $supplierProduct->id,
+        'org_stock_id'        => $this->orgStocks[0]->id,
+        'state'               => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 300,
+        'net_amount'          => 750,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+
+    $item = $ourItem();
+
+    expect($item['other_organisations_drafts'])->toBe([
+        ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'units' => 300],
+    ])->and($item['ordered_quantity'])->toBe(0);
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {

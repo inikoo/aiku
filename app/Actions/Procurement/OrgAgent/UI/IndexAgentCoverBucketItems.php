@@ -19,6 +19,7 @@ use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Helpers\Currency;
@@ -52,6 +53,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private bool $onDraftsOnly = false;
 
+    private bool $hideOnOrder = false;
+
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
         $buckets   = GetAgentStockCoverBuckets::make();
@@ -75,6 +78,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->when($rank, fn ($query) => $query->where('os.health_rank', $rank))
             ->when($supplierId, fn ($query) => $query->where('sp.supplier_id', $supplierId))
             ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
+            ->when($this->hideOnOrder, fn ($query) => $query->whereRaw('not '.$this->onOrderSql()))
             ->select([
                 'osp.id',
                 'osp.slug',
@@ -142,6 +146,17 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->selectRaw('pot.org_supplier_product_id, sum(pot.quantity_ordered) as quantity')
             ->pluck('quantity', 'org_supplier_product_id');
 
+        $otherOrganisationsDrafts = ShowAgentDraftsToSend::drafts($this->orgAgent)
+            ->where('po.organisation_id', '!=', $this->orgAgent->organisation_id)
+            ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->whereIn('pot.supplier_product_id', $rows->pluck('supplier_product_id'))
+            ->groupBy('pot.supplier_product_id', 'o.id', 'o.code', 'o.name')
+            ->orderBy('o.code')
+            ->selectRaw('pot.supplier_product_id, o.code, o.name, sum(pot.quantity_ordered) as units')
+            ->get()
+            ->groupBy('supplier_product_id');
+
         $orgStockIds      = $rows->pluck('org_stock_id')->filter()->unique()->values();
         $orgStocks        = OrgStock::with('stats', 'stock.stockFamily')->whereIn('id', $orgStockIds)->get()->keyBy('id');
         $supplierProducts = SupplierProduct::whereIn('id', $rows->pluck('supplier_product_id')->unique())->get()->keyBy('id');
@@ -155,7 +170,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             $currencyId => GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
         ]);
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $exchanges) {
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $otherOrganisationsDrafts, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $exchanges) {
             $images   = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
             $orgStock = $orgStocks->get($row->org_stock_id);
 
@@ -187,6 +202,11 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
                 'stock_deliveries'     => $stockDeliveries->get($row->org_stock_id),
                 'other_open_purchase_orders' => $row->other_open_purchase_orders ?? [],
+                'other_organisations_drafts' => ($otherOrganisationsDrafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [
+                    'organisation_code' => $draft->code,
+                    'organisation_name' => $draft->name,
+                    'units'             => (float) $draft->units,
+                ])->values()->all(),
             ];
         });
 
@@ -257,6 +277,34 @@ class IndexAgentCoverBucketItems extends OrgAction
     }
 
     /**
+     * A product the organisation already has on a submitted or confirmed purchase order, or on a
+     * stock delivery that is not booked in yet. It is wider than the rows shown under the stepper,
+     * which drop a purchase order line once its delivery exists and a delivery once it is all placed.
+     */
+    private function onOrderSql(): string
+    {
+        $openOrders       = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
+        $finishedDelivery = "'".implode("', '", [
+            StockDeliveryStateEnum::BOOKED_IN->value,
+            StockDeliveryStateEnum::PLACED->value,
+            StockDeliveryStateEnum::CANCELLED->value,
+            StockDeliveryStateEnum::NOT_RECEIVED->value,
+        ])."'";
+
+        return "(exists (select 1 from purchase_order_transactions pot
+                join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+                where pot.supplier_product_id = osp.supplier_product_id and pot.deleted_at is null
+                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+            or exists (select 1 from purchase_order_transactions pot
+                join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
+                where pot.org_stock_id = os.id and pot.deleted_at is null
+                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+            or exists (select 1 from stock_delivery_items sdi
+                join stock_deliveries sd on sd.id = sdi.stock_delivery_id and sd.deleted_at is null
+                where sdi.org_stock_id = os.id and sdi.deleted_at is null and sd.state not in ($finishedDelivery)))";
+    }
+
+    /**
      * What each filter offers, with how many products sit behind every choice. The stock group and
      * rank counts follow the supplier, the search and the drafts tick, so they say what picking one
      * would show.
@@ -273,6 +321,7 @@ class IndexAgentCoverBucketItems extends OrgAction
         $counts = $buckets->scopedQuery($this->orgAgent)
             ->when($this->supplierId, fn ($query) => $query->where('sp.supplier_id', $this->supplierId))
             ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
+            ->when($this->hideOnOrder, fn ($query) => $query->whereRaw('not '.$this->onOrderSql()))
             ->when($search !== '', fn ($query) => $query->whereRaw('(sp.code collate "C" ilike ? or sp.name ilike ?)', [$like, $like]))
             ->groupByRaw($buckets->bucketSql($this->orgAgent).', os.health_rank')
             ->selectRaw($buckets->bucketSql($this->orgAgent).' as bucket, os.health_rank, count(*) as products')
@@ -311,6 +360,7 @@ class IndexAgentCoverBucketItems extends OrgAction
         $this->rank       = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
         $this->supplierId   = ((int) ($request->input('filter.supplier') ?: $request->input('supplier'))) ?: null;
         $this->onDraftsOnly = $request->boolean('drafts');
+        $this->hideOnOrder  = $request->boolean('hide_ordered');
 
         $this->initialisation($organisation, $request);
 
@@ -353,6 +403,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                     'rank'     => $this->rank,
                     'supplier' => $this->supplierId,
                     'drafts'   => $this->onDraftsOnly,
+                    'hide_ordered' => $this->hideOnOrder,
                     'search'   => (string) $request->input('filter.global', ''),
                 ],
                 'rank'        => $this->rank,
