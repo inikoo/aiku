@@ -121,6 +121,7 @@ test('create shop', function () {
     $shopPermissions = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
 
     expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->is_aiku)->toBeTrue()
         ->and($organisation->group->catalogueStats->number_shops)->toBe(1)
         ->and($organisation->group->catalogueStats->number_shops_type_b2b)->toBe(1)
         ->and($organisation->catalogueStats->number_shops)->toBe(1)
