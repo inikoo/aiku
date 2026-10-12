@@ -382,7 +382,7 @@ function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?:
 
 
 function orgStockRoute(item: { org_stock_id?: number }) {
-    if (!item.org_stock_id) {
+    if (!item.org_stock_id || isAgentOrganisation(route().params.organisation as string | undefined)) {
         return ''
     }
 
