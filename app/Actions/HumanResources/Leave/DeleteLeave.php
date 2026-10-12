@@ -7,6 +7,7 @@ use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Models\HumanResources\Leave;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -16,13 +17,19 @@ class DeleteLeave extends OrgAction
 
     public function handle(Leave $leave): bool
     {
-        $deleted = (bool) $leave->delete();
+        return DB::transaction(function () use ($leave) {
+            if ($leave->trashed()) {
+                return false;
+            }
 
-        if ($leave->coverEmployee) {
-            SyncLeaveCoverRoles::run($leave->coverEmployee);
-        }
+            $deleted = (bool) $leave->delete();
 
-        return $deleted;
+            if ($leave->coverEmployee) {
+                SyncLeaveCoverRoles::run($leave->coverEmployee);
+            }
+
+            return $deleted;
+        });
     }
 
     public function action(Leave $leave): bool
@@ -32,6 +39,7 @@ class DeleteLeave extends OrgAction
 
     public function asController(Organisation $organisation, Leave $leave, ActionRequest $request): bool
     {
+        abort_unless($leave->organisation_id === $organisation->id, 404);
         $this->initialisation($organisation, $request);
 
         return $this->handle($leave);

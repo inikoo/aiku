@@ -48,6 +48,8 @@ class ShowEmployeeAnalytics extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Response
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         if (!config('employee-analytics.enabled', false)) {
             abort(404, 'Employee Analytics feature is not enabled.');
         }

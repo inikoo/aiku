@@ -90,6 +90,8 @@ class CreateClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($request);

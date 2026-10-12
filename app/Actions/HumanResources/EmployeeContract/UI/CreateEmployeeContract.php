@@ -30,6 +30,8 @@ class CreateEmployeeContract extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($employee);

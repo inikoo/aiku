@@ -30,6 +30,8 @@ class EditEmployeeContract extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, EmployeeContract $contract, ActionRequest $request): EmployeeContract
     {
+        abort_unless($employee->organisation_id === $organisation->id && $contract->employee_id === $employee->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($contract);

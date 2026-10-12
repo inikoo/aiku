@@ -568,8 +568,10 @@ class IndexTimesheets extends OrgAction
     public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
         $overtimeByTimesheetId = CalculateTimesheetOvertime::make()->handleMany($timesheets->getCollection());
+        $avatarByEmployee = $this->avatarsByEmployee($timesheets->getCollection());
 
-        $timesheets->through(function ($timesheet) use ($overtimeByTimesheetId) {
+        $timesheets->through(function ($timesheet) use ($overtimeByTimesheetId, $avatarByEmployee) {
+            $timesheet->setAttribute('avatar', $timesheet->subject_type === 'Employee' ? $avatarByEmployee->get($timesheet->subject_id) : null);
 
             $jobPositions = '-';
             $employeeSlug = null;
@@ -611,9 +613,11 @@ class IndexTimesheets extends OrgAction
         $overtimeByEmployee = $needsScheduleCalculation
             ? $this->calculateOvertimeByEmployee($timesheets->getCollection(), $employeeView, $sourceColumn)
             : collect();
+        $avatarByEmployee = $this->avatarsByEmployee($timesheets->getCollection());
 
-        $timesheets->through(function ($timesheet) use ($overtimeByEmployee, $employeeView, $sourceColumn) {
+        $timesheets->through(function ($timesheet) use ($overtimeByEmployee, $employeeView, $sourceColumn, $avatarByEmployee) {
             $timesheet->setAttribute('worked', $timesheet->working_duration);
+            $timesheet->setAttribute('avatar', $timesheet->subject_type === 'Employee' ? $avatarByEmployee->get($timesheet->subject_id) : null);
 
             $overtime = $overtimeByEmployee->get($timesheet->subject_id);
 
@@ -631,6 +635,14 @@ class IndexTimesheets extends OrgAction
         });
 
         return TimesheetEmployeeSummaryResource::collection($timesheets);
+    }
+
+    /**
+     * @return Collection<int, string|null>
+     */
+    protected function avatarsByEmployee(Collection $rows): Collection
+    {
+        return Employee::avatarUrlsFor($rows->where('subject_type', 'Employee')->pluck('subject_id'));
     }
 
     /**
@@ -816,6 +828,8 @@ class IndexTimesheets extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->parent = $employee;
         $this->initialisation($organisation, $request)->withTab(TimesheetsTabsEnum::values());
         abort_unless($this->canSeeEmployee($employee->id), 403);
