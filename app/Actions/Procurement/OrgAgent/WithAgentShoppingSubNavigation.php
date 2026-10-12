@@ -18,6 +18,18 @@ trait WithAgentShoppingSubNavigation
     {
         return [
             [
+                "label"    => $parent->slug,
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show",
+                    "parameters" => [$this->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-people-arrows"],
+                    "tooltip" => __("Agent"),
+                ],
+                "isAnchor" => true,
+            ],
+            [
                 "label"    => __("What to order"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.dashboard",
@@ -27,7 +39,6 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", "fa-shopping-basket"],
                     "tooltip" => __("What to order"),
                 ],
-                "isAnchor" => true,
             ],
             [
                 "label"    => __("Ordering"),
@@ -65,32 +76,6 @@ trait WithAgentShoppingSubNavigation
                 "number"   => ShowAgentOrderStage::countOurs($parent, $stage),
                 "active"   => request()->route('stage') === $stage,
             ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
-            [
-                "label"    => __("Suppliers"),
-                "route"    => [
-                    "name"       => "grp.org.procurement.org_agents.show.suppliers.index",
-                    "parameters" => [$this->organisation->slug, $parent->slug],
-                ],
-                "leftIcon" => [
-                    "icon"    => ["fal", "fa-person-dolly"],
-                    "tooltip" => __("Suppliers"),
-                ],
-                "number"   => $parent->stats->number_org_suppliers,
-                "align"    => "right",
-            ],
-            [
-                "label"    => __("Products"),
-                "route"    => [
-                    "name"       => "grp.org.procurement.org_agents.show.supplier_products.index",
-                    "parameters" => [$this->organisation->slug, $parent->slug],
-                ],
-                "leftIcon" => [
-                    "icon"    => ["fal", "fa-box-usd"],
-                    "tooltip" => __("Products"),
-                ],
-                "number"   => $parent->stats->number_org_supplier_products,
-                "align"    => "right",
-            ],
         ];
     }
 }
