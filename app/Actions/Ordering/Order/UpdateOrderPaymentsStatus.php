@@ -57,9 +57,11 @@ class UpdateOrderPaymentsStatus extends OrgAction
         $paidAmount            = round($paidAmount, 2);
         $refundedAmount        = round($refundedAmount, 2);
         $totalAmount           = $order->total_amount;
+        $hasRefundInvoice      = false;
         /** @var Invoice $refund */
         foreach (Invoice::where('order_id', $order->id)->where('type', InvoiceTypeEnum::REFUND)->where('in_process', false)->get() as $refund) {
             $totalAmount += $refund->total_amount;
+            $hasRefundInvoice = true;
         }
 
         /**
@@ -70,7 +72,9 @@ class UpdateOrderPaymentsStatus extends OrgAction
         $totalAmount = round($totalAmount, 2);
 
 
-        if ($totalAmount != 0) {
+        $holdsPaymentWithNoRefundInvoice = $runningPaymentsAmount > 0 && !$hasRefundInvoice;
+
+        if ($totalAmount != 0 || $holdsPaymentWithNoRefundInvoice) {
             if ($runningPaymentsAmount >= $totalAmount) {
                 $payStatus = OrderPayStatusEnum::PAID;
             }
