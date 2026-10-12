@@ -2703,6 +2703,45 @@ test('publish website dialog shows it on the storefront', function (Website $web
         ->and($shown['show_pages'])->toBe(['all']);
 })->depends('create b2b website');
 
+test('website dialog keeps its specific page rules', function (Website $website) {
+    turnOffWebsiteDialogs($website);
+    $websiteDialog = draftWebsiteDialog($website, 'specific pages');
+
+    $pageRules = [
+        ['will' => 'show', 'when' => 'contain', 'url' => 'new-arrivals'],
+        ['will' => 'hide', 'when' => 'contain', 'url' => 'checkout'],
+    ];
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, [
+        'settings' => [
+            'target_pages'      => ['type' => 'specific', 'specific' => $pageRules],
+            'target_users'      => ['auth_state' => 'all'],
+            'display_frequency' => 'once',
+            'delay_seconds'     => 0,
+        ],
+    ]);
+    $websiteDialog->refresh();
+
+    expect($websiteDialog->settings['target_pages']['specific'])->toBe($pageRules)
+        ->and($websiteDialog->unpublishedSnapshot->layout['settings']['target_pages']['specific'])->toBe($pageRules);
+
+    $websiteDialog = publishWebsiteDialog($websiteDialog, $this->user);
+    $shown         = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid);
+
+    expect($shown['show_pages'])->toBe(['new-arrivals'])
+        ->and($shown['hide_pages'])->toBe(['checkout']);
+})->depends('create b2b website');
+
+test('website dialog rejects a page rule without url', function (Website $website) {
+    $websiteDialog = draftWebsiteDialog($website, 'broken page rule');
+
+    UpdateWebsiteDialog::make()->action($websiteDialog, [
+        'settings' => [
+            'target_pages' => ['type' => 'specific', 'specific' => [['will' => 'show', 'when' => 'contain', 'url' => '']]],
+        ],
+    ]);
+})->depends('create b2b website')->throws(ValidationException::class);
+
 test('a website dialog without template cannot be published', function (Website $website) {
     $websiteDialog = StoreWebsiteDialog::make()->action($website, ['name' => 'empty']);
     request()->setUserResolver(fn () => $this->user);
