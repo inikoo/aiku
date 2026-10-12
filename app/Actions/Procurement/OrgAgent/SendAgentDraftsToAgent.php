@@ -53,12 +53,12 @@ class SendAgentDraftsToAgent extends OrgAction
                 $isGoing        = fn (PurchaseOrder $draft) => $draft->organisation_id === $orgAgent->organisation_id || isset($draft->data['ready_to_send']);
 
                 if (!$supplierDrafts->contains('organisation_id', $orgAgent->organisation_id)) {
-                    throw ValidationException::withMessages(['drafts' => __('Your organisation has no draft for this supplier, so it is not yours to send')]);
+                    throw ValidationException::withMessages(['drafts' => __('Your organisation has no draft for this supplier, so it is not yours to submit')]);
                 }
 
                 $waiting = $supplierDrafts->reject($isGoing);
                 if ($waiting->isNotEmpty() && !$overrideReason) {
-                    throw ValidationException::withMessages(['override_reason' => __('Not every organisation has marked its draft ready, write why you are sending without them')]);
+                    throw ValidationException::withMessages(['override_reason' => __('Not every organisation has marked its draft ready, write why you are submitting without them')]);
                 }
 
                 foreach ($supplierDrafts->filter($isGoing) as $draft) {
@@ -87,7 +87,7 @@ class SendAgentDraftsToAgent extends OrgAction
 
     /**
      * The organisations still stacking on the same supplier that have not marked their draft ready.
-     * An order sent any other way than from Drafts to send must not go past them unnoticed.
+     * An order sent any other way than from POs to submit must not go past them unnoticed.
      *
      * @return array<int, string> organisation codes
      */

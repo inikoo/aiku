@@ -29,7 +29,7 @@ class ShowAgentDraftsToSend extends OrgAction
     use WithAgentShoppingSubNavigation;
     use WithProcurementAuthorisation;
 
-    public const array VIEWS = ['cards', 'orders', 'items'];
+    public const array VIEWS = ['cards', 'orders'];
 
     private OrgAgent $orgAgent;
 
@@ -126,7 +126,7 @@ class ShowAgentDraftsToSend extends OrgAction
     }
 
     /**
-     * Every product on the drafts, keyed by purchase order, for the view that lists them one by one.
+     * Every product on the drafts, keyed by purchase order, shown when a purchase order is opened in the list.
      *
      * @return array<int, array<int, array<string, mixed>>>
      */
@@ -187,7 +187,7 @@ class ShowAgentDraftsToSend extends OrgAction
 
     public function htmlResponse(array $cards, ActionRequest $request): Response
     {
-        $title = __('Drafts to send');
+        $title = __('Purchase orders to submit');
 
         return Inertia::render(
             'Procurement/AgentDraftsToSend',
@@ -221,10 +221,9 @@ class ShowAgentDraftsToSend extends OrgAction
                     'navigation' => [
                         'cards'  => ['title' => __('Cards'), 'icon' => 'fal fa-th-large'],
                         'orders' => ['title' => __('By purchase order'), 'icon' => 'fal fa-th-list'],
-                        'items'  => ['title' => __('Every product'), 'icon' => 'fal fa-list-ul'],
                     ],
                 ],
-                'lines'       => fn () => $this->view === 'items' ? $this->lines($this->orgAgent) : [],
+                'lines'       => fn () => $this->view === 'orders' ? $this->lines($this->orgAgent) : [],
                 'cards'       => $cards,
             ]
         );
@@ -242,7 +241,7 @@ class ShowAgentDraftsToSend extends OrgAction
                             'name'       => 'grp.org.procurement.org_agents.show.shopping.drafts.index',
                             'parameters' => $routeParameters,
                         ],
-                        'label' => __('Drafts to send'),
+                        'label' => __('POs to submit'),
                         'icon'  => 'fal fa-paper-plane',
                     ],
                 ],

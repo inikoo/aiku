@@ -52,14 +52,14 @@ trait WithAgentShoppingSubNavigation
                 ],
             ],
             [
-                "label"    => __("Drafts to send"),
+                "label"    => __("POs to submit"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.drafts.index",
                     "parameters" => [$this->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-paper-plane"],
-                    "tooltip" => __("Drafts to send"),
+                    "tooltip" => __("Purchase orders to submit"),
                 ],
                 "number"   => ShowAgentDraftsToSend::drafts($parent)->where('po.organisation_id', $parent->organisation_id)->distinct()->count('po.supplier_id'),
             ],

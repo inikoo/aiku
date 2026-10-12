@@ -48,7 +48,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
         }
 
         if (!$this->asAction && $waiting = SendAgentDraftsToAgent::organisationsNotReady($this->purchaseOrder)) {
-            $validator->errors()->add('purchase_order', __(':organisations are also ordering from this supplier and have not said they are ready. Send it from Drafts to send.', ['organisations' => implode(', ', $waiting)]));
+            $validator->errors()->add('purchase_order', __(':organisations are also ordering from this supplier and have not said they are ready. Submit it from POs to submit.', ['organisations' => implode(', ', $waiting)]));
         }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {
