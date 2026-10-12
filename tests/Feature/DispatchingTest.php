@@ -5117,6 +5117,22 @@ test('a packed note shipped by the sales channel waits for the carrier label, th
     expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.dispatched');
 });
 
+test('a packed collection is finalised first and set as collected in a second step, a replacement stays one step (HELP-3886)', function () {
+    $deliveryNote = new DeliveryNote(['collection_address_id' => 1, 'parcels' => [['weight' => 1]], 'type' => DeliveryNoteTypeEnum::ORDER]);
+    $deliveryNote->id = 1;
+
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalised');
+
+    $deliveryNote->type = DeliveryNoteTypeEnum::REPLACEMENT;
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalise_and_dispatch');
+
+    $deliveryNote->type = DeliveryNoteTypeEnum::ORDER;
+    $deliveryNote->collection_address_id = null;
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote))
+        ->key->toBe('finalise-and-dispatch')
+        ->and(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalise_and_dispatch');
+});
+
 test('returned delivery notes are listed first whatever the sort asked for (HELP-2763)', function () {
     $this->shop->update(['is_aiku' => true]);
 
