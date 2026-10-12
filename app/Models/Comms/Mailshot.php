@@ -84,6 +84,7 @@ use App\Models\Web\Webpage;
  * @property int $ab_test_variant_delay_seconds
  * @property int $ab_test_tracking_hours
  * @property MailshotAbTestWinningMetricEnum $ab_test_winning_metric
+ * @property bool $ab_test_auto_send_winner
  * @property string|null $sender_name
  * @property-read Mailshot|null $abTestVariant
  * @property-read Mailshot|null $abTestOriginal
@@ -136,6 +137,7 @@ class Mailshot extends Model implements Auditable
         'stopped_at'             => 'datetime',
         'ab_test_winner_sent_at' => 'datetime',
         'ab_test_winning_metric' => MailshotAbTestWinningMetricEnum::class,
+        'ab_test_auto_send_winner' => 'boolean',
     ];
 
     protected $attributes = [
@@ -162,6 +164,7 @@ class Mailshot extends Model implements Auditable
         'ab_test_variant_delay_seconds',
         'ab_test_tracking_hours',
         'ab_test_winning_metric',
+        'ab_test_auto_send_winner',
         'sender_name',
     ];
 

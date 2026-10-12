@@ -38,6 +38,7 @@ export interface AbTest {
     size_percentage: number
     winner_mailshot_id: number | null
     winner_sent_at: string | null
+    auto_send_winner: boolean
     can_send_winner: boolean
     variant_delay_seconds: number
     variant_sends_at: string | null
@@ -81,12 +82,14 @@ const variantDelay = ref(splitDuration(props.abTest.variant_delay_seconds))
 const trackingDays = ref(Math.floor(props.abTest.tracking_hours / 24))
 const trackingHoursOfDay = ref(props.abTest.tracking_hours % 24)
 const winningMetric = ref(props.abTest.winning_metric)
+const autoSendWinner = ref(props.abTest.auto_send_winner)
 watch(() => props.abTest, abTest => {
     sizePercentage.value = abTest.size_percentage
     variantDelay.value = splitDuration(abTest.variant_delay_seconds)
     trackingDays.value = Math.floor(abTest.tracking_hours / 24)
     trackingHoursOfDay.value = abTest.tracking_hours % 24
     winningMetric.value = abTest.winning_metric
+    autoSendWinner.value = abTest.auto_send_winner
 })
 
 const variantDelaySeconds = computed(() =>
@@ -111,6 +114,7 @@ const isSettingsChanged = computed(() =>
     || variantDelaySeconds.value !== props.abTest.variant_delay_seconds
     || trackingHours.value !== props.abTest.tracking_hours
     || winningMetric.value !== props.abTest.winning_metric
+    || autoSendWinner.value !== props.abTest.auto_send_winner
 )
 
 const saveAllSettings = () => saveSettings({
@@ -118,6 +122,7 @@ const saveAllSettings = () => saveSettings({
     variant_delay_seconds: variantDelaySeconds.value,
     tracking_hours: trackingHours.value,
     winning_metric: winningMetric.value,
+    auto_send_winner: autoSendWinner.value,
 })
 
 const isTrackingResults = computed(() =>
@@ -152,7 +157,7 @@ const errorMessage = (exception: any, fallback: string): string => {
     return (Object.values(errors)[0] as string[] | undefined)?.[0] ?? fallback
 }
 
-const saveSettings = async (payload: { enabled?: boolean, size_percentage?: number, variant_delay_seconds?: number, tracking_hours?: number, winning_metric?: string }) => {
+const saveSettings = async (payload: { enabled?: boolean, size_percentage?: number, variant_delay_seconds?: number, tracking_hours?: number, winning_metric?: string, auto_send_winner?: boolean }) => {
     isSaving.value = true
     try {
         await axios.post(route(props.abTest.update_route.name, props.abTest.update_route.parameters), payload)
@@ -300,6 +305,14 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                 </div>
             </div>
 
+            <label v-if="winnerPercentage > 0" class="flex w-fit cursor-pointer items-center gap-3">
+                <ToggleSwitch v-model="autoSendWinner" :disabled="isSaving" />
+                <span>
+                    <span class="block text-sm font-semibold text-gray-800">{{ ctrans('Send the winner automatically') }}</span>
+                    <span class="block text-xs text-gray-500">{{ ctrans('When the test duration ends, the version leading on the winning metric is sent to the rest of the list. Version A is sent on a tie.') }}</span>
+                </span>
+            </label>
+
             <div v-if="isSettingsChanged" class="flex justify-end">
                 <Button type="tertiary" :label="ctrans('Save A/B test settings')" :loading="isSaving"
                     :disabled="trackingHours < 1 || !sizePercentage || variantDelaySeconds > 604800" @click="saveAllSettings">
@@ -313,7 +326,9 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
             {{ ctrans('Version B sends on :date', { date: formatDate(abTest.variant_sends_at) }) }}
         </p>
         <p v-if="isTrackingResults" class="text-sm text-gray-700">
-            {{ ctrans('Tracking results until :date, then the winner can be sent.', { date: formatDate(abTest.tracking_ends_at!) }) }}
+            {{ abTest.auto_send_winner && abTest.size_percentage < 100
+                ? ctrans('Tracking results until :date, then the winner is sent automatically.', { date: formatDate(abTest.tracking_ends_at!) })
+                : ctrans('Tracking results until :date, then the winner can be sent.', { date: formatDate(abTest.tracking_ends_at!) }) }}
         </p>
 
         <div v-if="abTest.enabled" class="overflow-x-auto">

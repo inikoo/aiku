@@ -52,6 +52,7 @@ class GetMailshotAbTest
             'size_percentage'           => $original->ab_test_size_percentage,
             'winner_mailshot_id'        => $original->ab_test_winner_mailshot_id,
             'winner_sent_at'            => $original->ab_test_winner_sent_at,
+            'auto_send_winner'          => $original->ab_test_auto_send_winner,
             'can_send_winner'           => $canEdit && $isTrackingOver && $hasRemainingList && !$original->ab_test_winner_sent_at,
             'variant_delay_seconds'     => $original->ab_test_variant_delay_seconds,
             'variant_sends_at'          => $variant && !$variant->start_sending_at ? $original->abTestVariantSendsAt() : null,

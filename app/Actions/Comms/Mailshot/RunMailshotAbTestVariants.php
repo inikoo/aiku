@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Mailshot;
 
+use App\Actions\Comms\Mailshot\UI\GetMailshotAbTest;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Models\Comms\Mailshot;
 use Illuminate\Support\Carbon;
@@ -44,6 +45,35 @@ class RunMailshotAbTestVariants
 
             try {
                 PrepareMailshotAbTestRecipients::make()->sendDelayedVariant($mailshot);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        $this->sendDueWinners();
+    }
+
+    /**
+     * Tests set to send the winner automatically get the suggested winner once tracking is over, version A on a tie.
+     */
+    private function sendDueWinners(): void
+    {
+        $finishedTests = Mailshot::query()
+            ->where('ab_test_auto_send_winner', true)
+            ->whereNull('ab_test_winner_sent_at')
+            ->where('ab_test_size_percentage', '<', 100)
+            ->where('state', MailshotStateEnum::SENT)
+            ->whereHas('abTestVariant', fn ($query) => $query->where('state', MailshotStateEnum::SENT));
+
+        foreach ($finishedTests->cursor() as $mailshot) {
+            if ($mailshot->abTestTrackingEndsAt()?->isFuture() !== false) {
+                continue;
+            }
+
+            try {
+                SendMailshotAbTestWinner::make()->action($mailshot, [
+                    'winner_mailshot_id' => GetMailshotAbTest::run($mailshot, false)['suggested_winner_id'] ?? $mailshot->id,
+                ]);
             } catch (Throwable $exception) {
                 report($exception);
             }

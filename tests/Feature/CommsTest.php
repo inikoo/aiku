@@ -2213,12 +2213,14 @@ test('ab test route needs the mailshot of the route shop and saves the test size
     $this->post($route($shop), ['size_percentage' => 30])->assertRedirect();
     $this->post($route($shop), ['variant_delay_seconds' => 604801, 'tracking_hours' => 0, 'winning_metric' => 'revenue'])->assertSessionHasErrors(['variant_delay_seconds', 'tracking_hours', 'winning_metric']);
     $this->post($route($shop), ['winning_metric' => MailshotAbTestWinningMetricEnum::PLACED_ORDER_RATE->value])->assertSessionHasErrors('winning_metric');
-    $this->post($route($shop), ['variant_delay_seconds' => 4 * 3600 + 30 * 60 + 15, 'tracking_hours' => 48, 'winning_metric' => 'open_rate'])->assertRedirect();
+    $this->post($route($shop), ['variant_delay_seconds' => 4 * 3600 + 30 * 60 + 15, 'tracking_hours' => 48, 'winning_metric' => 'open_rate', 'auto_send_winner' => true])->assertRedirect();
 
     expect($mailshot->refresh()->ab_test_size_percentage)->toBe(30)
         ->and($mailshot->ab_test_variant_delay_seconds)->toBe(4 * 3600 + 30 * 60 + 15)
         ->and($mailshot->ab_test_tracking_hours)->toBe(48)
         ->and($mailshot->ab_test_winning_metric)->toBe(MailshotAbTestWinningMetricEnum::OPEN_RATE)
+        ->and($mailshot->ab_test_auto_send_winner)->toBeTrue()
+        ->and(GetMailshotAbTest::run($mailshot, true)['auto_send_winner'])->toBeTrue()
         ->and(GetMailshotAbTest::run($mailshot, true)['estimated_recipients'])->toBeInt()
         ->and($mailshot->abTestVariant)->not->toBeNull();
 })->depends('outbox seeded when shop created');
@@ -2339,6 +2341,33 @@ test('ab test winner is sent once, after both versions are sent, to everyone who
     expect($winnerCustomerIds)->toContain($untested)
         ->and($winnerCustomerIds)->not->toContain($testedWithA)
         ->and($winnerCustomerIds)->not->toContain($testedWithB);
+})->depends('outbox seeded when shop created');
+
+test('ab test set to send the winner automatically sends the suggested winner once tracking is over', function (Shop $shop) {
+    Queue::fake();
+
+    $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop, 20), ['auto_send_winner' => true]);
+    $variant  = $mailshot->abTestVariant;
+
+    $trackingHours = $mailshot->ab_test_tracking_hours;
+    $mailshot->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()->subHours($trackingHours - 1), 'start_sending_at' => now()->subHours($trackingHours)]);
+    $variant->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()->subHours($trackingHours - 1), 'start_sending_at' => now()->subHours($trackingHours)]);
+    $mailshot->stats->update(['number_deliveries_success' => 10, 'number_opened_interact_success' => 1]);
+    $variant->stats->update(['number_deliveries_success' => 10, 'number_opened_interact_success' => 3]);
+
+    RunMailshotAbTestVariants::run();
+    expect($mailshot->refresh()->ab_test_winner_sent_at)->toBeNull();
+
+    $mailshot->update(['sent_at' => now()->subHours($trackingHours + 1)]);
+    $variant->update(['sent_at' => now()->subHours($trackingHours + 1)]);
+
+    RunMailshotAbTestVariants::run();
+    RunMailshotAbTestVariants::run();
+
+    expect(Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === PrepareMailshotAbTestWinnerRecipients::class))->toHaveCount(1)
+        ->and($mailshot->refresh()->ab_test_winner_mailshot_id)->toBe($variant->id)
+        ->and($mailshot->ab_test_winner_sent_at)->not->toBeNull()
+        ->and($variant->refresh()->state)->toBe(MailshotStateEnum::SENDING);
 })->depends('outbox seeded when shop created');
 
 test('ab test version B must be published before sending and cannot be sent on its own', function (Shop $shop) {
