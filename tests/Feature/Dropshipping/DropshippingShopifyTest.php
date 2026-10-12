@@ -1006,6 +1006,38 @@ test('a linked variant whose stock could not be activated is not shown as connec
         ->and($portfolio->errors_response['message'])->toContain('Location can not stock this item');
 });
 
+test('a linked variant the merchant already stocked at our location is connected, not shown as failed', function () {
+    Queue::fake();
+    $shopifyUser = shopifyVariantLinkingChannel($this, 'product-adopt-already-stocked');
+    $portfolio   = StorePortfolio::make()->action($shopifyUser->customerSalesChannel, $this->product, []);
+    $portfolio->update(['sku' => 'our-sku', 'customer_price' => 12]);
+
+    ShopifyFake::fake([
+        'getVariantStockLocations'     => shopifyVariantStockLocations(),
+        'getProductVariantsToAdopt'     => ShopifyFake::graphql(['product' => ['variants' => ['edges' => [
+            ['node' => ['id' => 'gid://shopify/ProductVariant/8701', 'sku' => 'our-sku']],
+        ]]]]),
+        'ProductVariantAdopt'           => ShopifyFake::graphql(['productVariantsBulkUpdate' => ['productVariants' => [['id' => 'gid://shopify/ProductVariant/8701']], 'userErrors' => []]]),
+        'GetVariantInventoryItem'       => ShopifyFake::graphql(['productVariant' => ['inventoryItem' => ['id' => 'gid://shopify/InventoryItem/8701']]]),
+        'InventoryActivate'             => ShopifyFake::graphql(['inventoryActivate' => ['inventoryLevel' => null, 'userErrors' => [['field' => ['available'], 'message' => 'Not allowed to set available quantity when the item is already active at the location.']]]]),
+        'getProduct'                    => ShopifyFake::graphql(['product' => shopifyProductNode('gid://shopify/Product/7700', 'gid://shopify/ProductVariant/8701', 'our-sku', '9.00')]),
+        'GET shop.json'                 => ['shop' => ['id' => 1]],
+        'getProductExistence'           => ShopifyFake::graphql(['product' => ['id' => 'gid://shopify/Product/7700', 'title' => 'Merchant Listing', 'status' => 'ACTIVE']]),
+        'getProductInventoryAtLocation' => ShopifyFake::graphql(['product' => ['variants' => ['edges' => [
+            ['node' => ['id' => 'gid://shopify/ProductVariant/8701', 'inventoryItem' => ['inventoryLevel' => ['id' => 'gid://shopify/InventoryLevel/7']]]],
+        ]]]]),
+    ]);
+
+    MatchPortfolioToCurrentShopifyProduct::run($portfolio->refresh(), ['shopify_product_id' => 'gid://shopify/Product/7700']);
+    $portfolio->refresh();
+
+    expect($portfolio->platform_product_variant_id)->toBe('gid://shopify/ProductVariant/8701')
+        ->and($portfolio->platform_status)->toBeTrue()
+        ->and($portfolio->errors_response)->toBeEmpty();
+
+    BulkUpdateShopifyPortfolio::assertPushed(fn ($action, array $arguments) => $arguments[0] === $shopifyUser->customerSalesChannel->id);
+});
+
 test('a channel that was not switched on keeps creating its own variant even on a product sold as several variants', function () {
     Queue::fake();
     $shopifyUser = shopifyProductChannel($this, 'product-adopt-switched-off');
