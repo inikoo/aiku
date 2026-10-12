@@ -74,6 +74,8 @@ const shownDialog = ref<IrisWebsiteDialog | null>(null)
 const isOpen = ref(false)
 const isOpenedByTrigger = ref(false)
 let delayTimer: ReturnType<typeof setTimeout> | null = null
+let isFollowingClosedDialog = false
+const NEXT_DIALOG_DELAY_MS = 350
 
 const clearDelayTimer = () => {
     if (delayTimer) {
@@ -91,6 +93,9 @@ watch(
 
         clearDelayTimer()
 
+        const isNextInQueue = isFollowingClosedDialog
+        isFollowingClosedDialog = false
+
         if (!candidateKey) {
             isOpen.value = false
             return
@@ -101,7 +106,9 @@ watch(
         }
 
         const dialog = candidate.value
-        const delayMs = Math.max(0, Number(dialog?.settings?.delay_seconds ?? 0)) * 1000
+        const delayMs = isNextInQueue
+            ? NEXT_DIALOG_DELAY_MS
+            : Math.max(0, Number(dialog?.settings?.delay_seconds ?? 0)) * 1000
 
         delayTimer = setTimeout(() => {
             shownDialog.value = dialog
@@ -153,6 +160,7 @@ const closeDialog = () => {
     if (isLoggedIn.value && isOncePerCustomer(dialog)) {
         saveCustomerDismissal(dialog)
     }
+    isFollowingClosedDialog = true
     closedOnThisPage.value = new Set(closedOnThisPage.value).add(`${dialog.ulid}|${currentPath.value}`)
 }
 

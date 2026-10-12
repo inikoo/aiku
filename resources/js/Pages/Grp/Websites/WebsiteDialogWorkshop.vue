@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from "@inertiajs/vue3"
+import { Head } from "@inertiajs/vue3"
 import { computed, onBeforeUnmount, provide, reactive, ref, watch } from "vue"
 import axios from "axios"
 import { debounce, pick } from "lodash-es"
@@ -14,7 +14,6 @@ import { faTimes } from "@fas"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import Modal from "@/Components/Utils/Modal.vue"
 import Publish from "@/Components/Publish.vue"
 import ScreenView from "@/Components/ScreenView.vue"
 import SideEditor from "@/Components/Workshop/SideEditor/SideEditor.vue"
@@ -47,7 +46,6 @@ const props = defineProps<{
         reset_route: routeType
         toggle_route: routeType
         upload_image_route: routeType
-        fetch_clashing_dialogs_route: routeType
     }
 }>()
 
@@ -143,32 +141,9 @@ onBeforeUnmount(() => {
     debouncedSave.flush()
 })
 
-// Section: publish, checking first whether another dialog is live at the same time
+// Section: publish
 const publishComment = ref("")
 const isLoadingPublish = ref(false)
-const clashingDialogs = ref<{ ulid: string, name: string }[]>([])
-const isClashModalOpen = ref(false)
-
-const sendPublish = async (supersede: boolean) => {
-    isLoadingPublish.value = true
-
-    try {
-        const response = await axios.patch(routeUrl(props.routes_list.publish_route), {
-            schedule_at: schedule.schedule_at || null,
-            schedule_finish_at: schedule.schedule_finish_at || null,
-            published_message: publishComment.value || null,
-            supersede,
-        })
-        applyServerState(response.data.data)
-        publishComment.value = ""
-        isClashModalOpen.value = false
-        notify({ title: ctrans("Success"), text: ctrans("The dialog is published"), type: "success" })
-    } catch (error: any) {
-        notifyRequestError(error, ctrans("Failed to publish the dialog"))
-    } finally {
-        isLoadingPublish.value = false
-    }
-}
 
 const onPublish = async (popover?: { close: Function }) => {
     debouncedSave.cancel()
@@ -176,38 +151,25 @@ const onPublish = async (popover?: { close: Function }) => {
 
     try {
         if (!await onSave()) {
-            isLoadingPublish.value = false
             return
         }
 
-        const response = await axios.get(routeUrl(props.routes_list.fetch_clashing_dialogs_route), {
-            params: {
-                schedule_at: schedule.schedule_at || undefined,
-                schedule_finish_at: schedule.schedule_finish_at || undefined,
-            }
+        popover?.close?.()
+
+        const response = await axios.patch(routeUrl(props.routes_list.publish_route), {
+            schedule_at: schedule.schedule_at || null,
+            schedule_finish_at: schedule.schedule_finish_at || null,
+            published_message: publishComment.value || null,
         })
-        clashingDialogs.value = response.data.data || []
+        applyServerState(response.data.data)
+        publishComment.value = ""
+        notify({ title: ctrans("Success"), text: ctrans("The dialog is published"), type: "success" })
     } catch (error: any) {
         notifyRequestError(error, ctrans("Failed to publish the dialog"))
+    } finally {
         isLoadingPublish.value = false
-        return
     }
-
-    popover?.close?.()
-
-    if (clashingDialogs.value.length) {
-        isLoadingPublish.value = false
-        isClashModalOpen.value = true
-        return
-    }
-
-    await sendPublish(false)
 }
-
-const dialogShowRoute = (ulid: string) => route("grp.org.shops.show.web.website_dialogs.show", {
-    ...route().params,
-    websiteDialog: ulid,
-})
 
 // Section: reset draft to the published version
 const isLoadingReset = ref(false)
@@ -459,29 +421,6 @@ const openTemplateTab = () => {
             </div>
         </div>
     </div>
-
-    <Modal :isOpen="isClashModalOpen" width="w-full max-w-lg" @onClose="isClashModalOpen = false">
-        <div class="space-y-3">
-            <div class="flex items-center gap-x-2 text-lg font-semibold text-amber-700">
-                <FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" />
-                {{ ctrans("Another dialog is live at that time") }}
-            </div>
-            <ul class="list-inside list-disc text-sm">
-                <li v-for="clash in clashingDialogs" :key="clash.ulid">
-                    <Link :href="dialogShowRoute(clash.ulid)" class="underline">{{ clash.name }}</Link>
-                </li>
-            </ul>
-            <p class="text-sm text-slate-600">
-                {{ schedule.schedule_finish_at
-                    ? ctrans("It will be paused and come back by itself on :date.", { date: useFormatTime(schedule.schedule_finish_at, { formatTime: 'hm' }) })
-                    : ctrans("Your dialog has no finish date, so you will have to turn the other one back on yourself.") }}
-            </p>
-            <div class="flex justify-end gap-x-2 pt-2">
-                <Button :style="'tertiary'" :label="ctrans('Cancel')" @click="isClashModalOpen = false" />
-                <Button :label="ctrans('Pause it and publish mine')" icon="far fa-rocket-launch" :loading="isLoadingPublish" @click="sendPublish(true)" />
-            </div>
-        </div>
-    </Modal>
 </template>
 
 <style lang="scss" scoped>
