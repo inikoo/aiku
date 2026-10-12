@@ -20,24 +20,26 @@ class StoreJobOrdersGroupedByArtisan
 
     /**
      * @param  array<int, array{artefact: Artefact, quantity: float|int, batch_code?: string|null, expiry_date?: string|null, after?: callable(JobOrder): void}>  $lines  quantity in SKOs, as the boards ask for it
+     * @param  string|null  $plannedFor  Y-m-d: each line becomes its own job order on that day's plan, with no operator named
      * @return array<int, JobOrder>
      */
-    public function handle(Production $production, array $lines, ?int $employeeId = null): array
+    public function handle(Production $production, array $lines, ?int $employeeId = null, ?string $plannedFor = null): array
     {
         $byArtisan = [];
-        foreach ($lines as $line) {
+        foreach ($lines as $index => $line) {
             $artefact  = $line['artefact'];
-            $artisanId = $employeeId ?? $artefact->artisans()->first()?->id ?? $artefact->artefactDepartment?->artisans()->first()?->id ?? 0;
+            $artisanId = $plannedFor
+                ? "planned-$index"
+                : ($employeeId ?? $artefact->artisans()->first()?->id ?? $artefact->artefactDepartment?->artisans()->first()?->id ?? 0);
 
             $byArtisan[$artisanId][] = $line;
         }
 
         $jobOrders = [];
         foreach ($byArtisan as $artisanId => $artisanLines) {
-            $jobOrder = StoreJobOrder::make()->action($production, [
-                'date'        => now(),
-                'employee_id' => $artisanId ?: null,
-            ]);
+            $jobOrder = StoreJobOrder::make()->action($production, $plannedFor
+                ? ['date' => now(), 'planned_for' => $plannedFor]
+                : ['date' => now(), 'employee_id' => $artisanId ?: null]);
 
             foreach ($artisanLines as $line) {
                 StoreJobOrderItem::make()->action($jobOrder, [

@@ -6049,3 +6049,120 @@ test('a recipe change does not ask again for a step whose replaced step is alrea
 
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
+
+function dayPlanOperator(\App\Models\SysAdmin\Organisation $organisation): Employee
+{
+    $modelData = Employee::factory()->make(['organisation_id' => $organisation->id])->toArray();
+    $modelData['worker_number']   = 'W'.rand(10000, 99999);
+    $modelData['alias']           = 'Alias '.rand(10000, 99999);
+    $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+    $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+    $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+
+    return StoreEmployee::make()->action($organisation, $modelData);
+}
+
+test('jobs planned for a day name no operator, and a step given to an operator is theirs alone on the floor', function () {
+    $packingTask = stepTestManufactureTask($this->production);
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+        $packingTask->id           => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $maker  = dayPlanOperator($this->organisation);
+    $packer = dayPlanOperator($this->organisation);
+    $today  = now()->toDateString();
+
+    $nextPosition       = JobOrder::nextPlanPosition($this->production->id, $today);
+    [$planned, $second] = \App\Actions\Production\JobOrder\StoreJobOrdersGroupedByArtisan::run($this->production, [
+        ['artefact' => $this->artefact, 'quantity' => 2],
+        ['artefact' => $this->artefact, 'quantity' => 3],
+    ], null, $today);
+
+    expect($planned->employee_id)->toBeNull()
+        ->and($planned->planned_for->toDateString())->toBe($today)
+        ->and([$planned->plan_position, $second->plan_position])->toBe([$nextPosition, $nextPosition + 1]);
+
+    [$making, $packing] = $planned->jobOrderItems()->first()->tasks;
+
+    patch(route('grp.models.job-order-item-task.assign', ['jobOrderItemTask' => $making->id]), ['employee_id' => $maker->id])->assertRedirect();
+    patch(route('grp.models.job-order-item-task.assign', ['jobOrderItemTask' => $packing->id]), ['employee_id' => $packer->id])->assertRedirect();
+
+    $operator = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id]);
+    $operator->employees()->attach($maker->id, ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id]);
+    $operator->givePermissionTo("productions_operations.{$this->production->id}.view");
+
+    actingAs($operator);
+    $operatorFloor = get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props'];
+    actingAs($this->guest->getUser());
+
+    expect(collect($operatorFloor['tasks'])->pluck('id')->all())->toBe([$making->id])
+        ->and($operatorFloor['tasks'][0]['is_mine'])->toBeTrue();
+
+    expect(fn () => StartManufactureTaskSession::make()->action($operator, $packing->refresh()))
+        ->toThrow(ValidationException::class, 'This job is not addressed to you');
+
+    $session = StartManufactureTaskSession::make()->action($operator, $making->refresh());
+    expect($planned->refresh()->state)->toBe(JobOrderStateEnum::CONFIRMED);
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => (float) $making->quantity_required]);
+
+    $floor = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks']);
+    expect($floor->firstWhere('id', $packing->id)['artisan'])->toBe($packer->contact_name);
+
+    $plan = get(route('grp.org.productions.show.operations.day_plan', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props'];
+    $rows = collect($plan['data']['data']);
+    $row  = $rows->firstWhere('job_order_id', $planned->id);
+
+    expect(array_column($row['steps'], 'operator'))->toBe([$maker->contact_name, $packer->contact_name])
+        ->and($row['steps'][0]['state'])->toBe(JobOrderItemTaskStateEnum::DONE->value)
+        ->and($row['is_carried_over'])->toBeFalse()
+        ->and(array_column($rows->firstWhere('job_order_id', $second->id)['steps'], 'operator'))->toBe([null, null])
+        ->and($plan['summary']['steps_unassigned'])->toBeGreaterThanOrEqual(2)
+        ->and($plan['summary']['steps_done'])->toBeGreaterThanOrEqual(1);
+
+    patch(route('grp.models.job-order-item-task.assign', ['jobOrderItemTask' => $packing->id]), ['employee_id' => null])->assertRedirect();
+    expect($packing->refresh()->employee_id)->toBeNull();
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
+test('a planned job not finished on its day stays on the plan until it is confirmed onto a day, and a carried job keeps its plan and operators', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+    $maker     = dayPlanOperator($this->organisation);
+    $today     = now()->toDateString();
+    $yesterday = now()->subDay()->toDateString();
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, ['planned_for' => $yesterday]);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    $task     = $item->tasks()->first();
+    \App\Actions\Production\JobOrderItemTask\AssignJobOrderItemTask::make()->action($task, $maker->id);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $planRow = fn (string $date, int $jobOrderId) => collect(
+        get(route('grp.org.productions.show.operations.day_plan', [$this->organisation->slug, $this->production->slug, 'date' => $date]))->viewData('page')['props']['data']['data']
+    )->firstWhere('job_order_id', $jobOrderId);
+
+    expect($planRow($today, $jobOrder->id)['is_carried_over'])->toBeTrue()
+        ->and($planRow($yesterday, $jobOrder->id))->not->toBeNull();
+
+    $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $task->refresh());
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 4, 'outcome' => 'carry_over']);
+
+    $carried = JobOrder::find($item->refresh()->data['carried_to']);
+    expect($carried->planned_for->toDateString())->toBe($yesterday)
+        ->and($carried->plan_position)->toBe($jobOrder->plan_position)
+        ->and($carried->jobOrderItems()->first()->tasks()->first()->employee_id)->toBe($maker->id)
+        ->and($planRow($today, $jobOrder->id))->toBeNull()
+        ->and($planRow($today, $carried->id)['is_carried_over'])->toBeTrue();
+
+    patch(route('grp.models.job-order.update', ['jobOrder' => $carried->id]), ['planned_for' => $today])->assertRedirect();
+    expect($carried->refresh()->planned_for->toDateString())->toBe($today)
+        ->and($carried->plan_position)->toBeGreaterThanOrEqual(1)
+        ->and($planRow($today, $carried->id)['is_carried_over'])->toBeFalse();
+
+    patch(route('grp.models.job-order.update', ['jobOrder' => $carried->id]), ['planned_for' => null])->assertRedirect();
+    expect($carried->refresh()->planned_for)->toBeNull()
+        ->and($carried->plan_position)->toBeNull()
+        ->and($planRow($today, $carried->id))->toBeNull();
+});

@@ -27,7 +27,7 @@ class StoreJobOrdersFromToProduceItems extends OrgAction
      * @param  array<int, int>  $ids
      * @return array{job_orders: array<int, JobOrder>, skipped: array<int, array{id: int, reason: string}>}
      */
-    public function handle(Production $production, array $ids, ?int $employeeId = null, float|int|null $quantity = null): array
+    public function handle(Production $production, array $ids, ?int $employeeId = null, float|int|null $quantity = null, ?string $plannedFor = null): array
     {
         $seller = $production->organisation;
 
@@ -63,7 +63,7 @@ class StoreJobOrdersFromToProduceItems extends OrgAction
             ];
         }
 
-        $jobOrders = StoreJobOrdersGroupedByArtisan::run($production, $lines, $employeeId);
+        $jobOrders = StoreJobOrdersGroupedByArtisan::run($production, $lines, $employeeId, $plannedFor);
 
         return ['job_orders' => $jobOrders, 'skipped' => $skipped];
     }
@@ -89,6 +89,7 @@ class StoreJobOrdersFromToProduceItems extends OrgAction
             'ids.*' => ['integer'],
             'employee_id' => ['sometimes', 'nullable', 'integer', 'exists:employees,id'],
             'quantity'    => ['sometimes', 'nullable', 'numeric', 'min:1'],
+            'planned_for' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
         ];
     }
 
@@ -116,7 +117,7 @@ class StoreJobOrdersFromToProduceItems extends OrgAction
     {
         $this->initialisationFromProduction($production, $request);
 
-        return $this->handle($production, $this->validatedData['ids'], $this->validatedData['employee_id'] ?? null, $this->validatedData['quantity'] ?? null);
+        return $this->handle($production, $this->validatedData['ids'], $this->validatedData['employee_id'] ?? null, $this->validatedData['quantity'] ?? null, $this->validatedData['planned_for'] ?? null);
     }
 
     public function htmlResponse(array $result): RedirectResponse

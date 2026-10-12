@@ -108,7 +108,7 @@ class ShowManufactureFloor extends OrgAction
 
         $openTasks = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
             ->where('job_order_item_tasks.state', '!=', JobOrderItemTaskStateEnum::DONE)
-            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask'])
+            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask', 'employee'])
             ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->live()
@@ -116,13 +116,15 @@ class ShowManufactureFloor extends OrgAction
                 $query->where('job_orders.state', JobOrderStateEnum::CONFIRMED)
                     ->orWhere(function ($query) {
                         $query->where('job_orders.state', JobOrderStateEnum::IN_PROCESS)
-                            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$this->employee?->id ?? 0]);
+                            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0]);
                     });
             })
             ->when(!$canPickOpenJobs, fn ($query) => $query->where(function ($query) {
-                $query->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$this->employee?->id ?? 0])
+                $query->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0])
                     ->orWhereIn('job_order_item_tasks.combined_task_id', $this->combinedTaskIdsOf($this->employee));
             }))
+            ->orderByRaw('job_orders.planned_for nulls last')
+            ->orderByRaw('job_orders.plan_position nulls last')
             ->orderBy('job_orders.date')
             ->orderBy('job_order_item_tasks.position')
             ->orderBy('job_order_item_tasks.id')
@@ -417,8 +419,8 @@ class ShowManufactureFloor extends OrgAction
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),
             'continued_from'      => Arr::has($task->jobOrder->data, 'carried_from') ? SettleShortJobOrderItemTask::baseReference($task->jobOrder) : null,
             'continued_in'        => $this->continuedIn($task),
-            'artisan'             => $task->jobOrderItem->artisan()?->contact_name,
-            'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->jobOrderItem->artisanId() == $this->employee->id),
+            'artisan'             => $task->assignee()?->contact_name,
+            'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->assigneeId() == $this->employee->id),
             'waiting_for'         => $members->flatMap(fn (JobOrderItemTask $member) => $this->missingMixes[$member->job_order_item_id] ??= array_column(GetJobOrderItemMissingMixes::run($member->jobOrderItem), 'code'))->unique()->values()->all(),
             'quantity_required'   => (float)$members->sum('quantity_required'),
             'quantity_made'       => (float)$members->sum('quantity_made'),
@@ -493,7 +495,7 @@ class ShowManufactureFloor extends OrgAction
             ->whereNotNull('job_order_item_tasks.combined_task_id')
             ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
-            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$employee->id])
+            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$employee->id])
             ->distinct()
             ->pluck('job_order_item_tasks.combined_task_id')
             ->all();

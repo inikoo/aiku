@@ -1,8 +1,8 @@
 ---
 title: Práce s obrazovkou dílny
 summary: Průvodce pro řemeslníka - obrazovka Moje úkoly, seznam úkolů, který se sám aktualizuje, START a DONE, a co dělat, když vyrobíte míň, než bylo požadováno.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-12
+source_date: 2026-10-12
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Pro ty, kdo vyrábějí. <b>Factory → Jobs</b> (Továrna → Úkoly) je celý váš den na jedné obrazovce: vlevo úkoly určené vám, uprostřed ten, na kterém právě pracujete. Stiskněte <b>START</b>, vyrobte to, zadejte kolik kusů, stiskněte <b>DONE</b> (Hotovo). Pokud jste vyrobili míň, než bylo požadováno, obrazovka se zeptá jen na jednu věc: dokončit úkol takto, nebo zbytek přenést do nového úkolu. Nic dalšího se nevyplňuje.
+Pro ty, kdo vyrábějí. <b>Factory → Jobs</b> (Továrna → Úkoly) je celý váš den na jedné obrazovce: vlevo úkoly určené vám, uprostřed ten, na kterém právě pracujete. Stiskněte <b>START</b>, vyrobte to, zadejte kolik kusů, stiskněte <b>DONE</b> (Hotovo). Pokud jste vyrobili míň, než bylo požadováno, obrazovka se zeptá jen na jednu věc: pozastavit a pokračovat později, úkol uzavřít a zbytek přenést do nového, nebo ho dokončit tady. Nic dalšího se nevyplňuje.
 </aside>
 
 ## Obrazovka
 
 Stránka je uspořádaná jako doručená pošta.
 
-**Vlevo, vždy vidět:** seznam. Nahoře dva počítadla - kolik kusů jste dnes vyrobili a kolik úkolů jste dnes dokončili. Pod nimi **Your jobs** (Vaše úkoly), práce určená vám. Pokud vám to vaše pozice umožňuje vybírat i z volných úkolů, následuje sekce **Open jobs** (Volné úkoly). Dole **Finished today** (Dnes dokončeno), co jste už uzavřeli.
+**Vlevo, vždy vidět:** seznam. Nahoře dva počítadla - kolik kusů jste dnes vyrobili a kolik úkolů jste dnes dokončili. Pod nimi **Your jobs** (Vaše úkoly), práce určená vám: celé úkoly s vaším jménem a jednotlivé kroky, které vám vedoucí výroby přidělil v denním plánu (viz [Plánování výrobního dne](/docs/planning-the-production-day-cs)). Úkol může mít výrobu u jednoho člověka a balení u jiného; každý vidí jen svůj krok. Pokud vám to vaše pozice umožňuje vybírat i z volných úkolů, následuje sekce **Open jobs** (Volné úkoly). Dole **Finished today** (Dnes dokončeno), co jste už uzavřeli.
 
 **Vpravo:** to, co máte právě vybráno. Než začnete, jsou to detaily úkolu s velkým tlačítkem **START**. Jakmile začnete, je to pracovní karta s hodinami.
 
@@ -48,13 +48,14 @@ Vyrobili jste přesně tolik, kolik bylo požadováno? Tím je hotovo. Úkol se 
 
 ## Když vyrobíte míň, než bylo požadováno
 
-Zadejte skutečný počet a stiskněte **DONE**. Vstupní řádek se nahradí krátkým panelem: *19 hotovo · 6 zbývá* a třemi tlačítky.
+Zadejte skutečný počet a stiskněte **DONE**. Vstupní řádek se nahradí krátkým panelem: *19 hotovo · 6 zbývá* a čtyřmi tlačítky.
 
-- **Continue later** (Pokračovat později) - úkol se uzavře na 19 a v seznamu se vám objeví nový výrobní příkaz na zbývajících 6, určený vám. Vyzvedněte si ho zítra, nebo kdykoli dorazí materiál.
+- **Pause** (Pozastavit) - stejná směs, pokračujete později. Úkol zůstává otevřený se stejným označením a stejným kódem šarže a počet pokračuje od 19. Použijte, když den skončí dřív než směs.
+- **Close at 19 and move remaining 6 to new job …** (Uzavřít na 19 a zbývajících 6 přesunout do nového úkolu …) - úkol se uzavře na 19 a zbývajících 6 přejde do nového výrobního příkazu s dalším písmenem (z 0127 se stane 0127a) a vlastním kódem šarže. Použijte, když zbytek bude nová směs. Obrazovka chce potvrzení tlačítkem **Yes, close and move** (Ano, uzavřít a přesunout), protože uzavřený úkol už nelze znovu otevřít.
 - **Job finished** (Úkol dokončen) - úkol se uzavře na 19 a tím to končí. Plánovač uvidí výrobní příkaz, který žádal 25 a dostal 19.
 - **Back** (Zpět) - změnit číslo.
 
-V obou případech se úkol, na kterém jste pracovali, uzavře a proplatí podle toho, co jste skutečně vyrobili. Nic vám v seznamu nezůstane napůl otevřené.
+Úkol přesunutý do nového ukazuje na své kartě **Continued from 0127** (Pokračování z 0127) a ten, ze kterého vzešel, ukazuje **Continued in 0127a** (Pokračuje v 0127a). Nový úkol zůstává u stejných lidí a ve stejném denním plánu.
 
 ## Když vyrobíte víc, než bylo požadováno
 
@@ -85,14 +86,14 @@ Vyrobit víc, než chtěly všechny řádky dohromady, vyžaduje kód nebo PIN v
 
 - **Jeden úkol najednou.** Dokud máte otevřený úkol, tlačítka START jsou vypnutá. Nejdřív ho uzavřete.
 - **Vaše odměna za úkol** se řídí číslem v Quantity made, jak je vysvětleno v [Pozice v továrně](/docs/factory-positions-cs). Zmetky se neplatí.
-- **Open jobs** jsou úkoly bez přiřazeného řemeslníka, nebo přiřazené někomu jinému. Vzít si takový úkol je v pořádku, pokud to vaše pozice dovoluje; pak je váš, dokud ho neuzavřete.
+- **Open jobs** jsou úkoly a kroky bez přiřazeného řemeslníka, nebo přiřazené někomu jinému. Vzít si takový úkol je v pořádku, pokud to vaše pozice dovoluje; pak je váš, dokud ho neuzavřete.
 
 <aside class="wayfinder"><strong>Kam kliknout v aiku</strong>
 <ul>
 <li><b>Vaše obrazovka:</b> vaše organizace → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Začít:</b> klepněte na řádek → <b>START</b>.</li>
 <li><b>Dokončit:</b> zadejte <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Míň, než bylo požadováno:</b> <b>DONE</b> → <b>Continue later</b> nebo <b>Job finished</b>.</li>
+<li><b>Míň, než bylo požadováno:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> nebo <b>Job finished</b>.</li>
 <li><b>Jedna dávka pro několik řádků:</b> klepněte na řádek → <b>Combine … with other lines into one batch</b> → zaškrtněte řádky → <b>Combine</b>. Zrušení: klepněte na spojený řádek → <b>Separate</b>.</li>
 </ul>
 </aside>
