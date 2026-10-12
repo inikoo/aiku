@@ -201,8 +201,13 @@ const typedSkos = computed<Record<number, number>>(() =>
     Object.fromEntries(props.items.data.map((item) => [item.id, (cartonsFor(item) * unitsPerCarton(item)) / packOf(item)]))
 )
 
+const suggestedCartons = (item: BucketItem, skos: number) => Math.max(item.minimum_carton_order ?? 1, Math.ceil((skos * packOf(item)) / unitsPerCarton(item)))
+
+const suggestionLabel = (item: BucketItem, skos: number) =>
+    ctransChoice(":number carton|:number cartons", suggestedCartons(item, skos), { number: locale.number(suggestedCartons(item, skos)) })
+
 const applySuggestion = (item: BucketItem, skos: number) => {
-    setCartons(item, Math.max(item.minimum_carton_order ?? 1, Math.ceil((skos * packOf(item)) / unitsPerCarton(item))))
+    setCartons(item, suggestedCartons(item, skos))
 }
 
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
@@ -312,7 +317,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                                     noSaveButton
                                     @update:modelValue="(value: number) => setCartons(item, value)"
                                 />
-                                <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" @suggest="(skos: number) => applySuggestion(item, skos)" />
+                                <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />
                             </div>
                         </div>
                     </div>
@@ -375,7 +380,7 @@ const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) *
                             noSaveButton
                             @update:modelValue="(value: number) => setCartons(item, value)"
                         />
-                        <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" @suggest="(skos: number) => applySuggestion(item, skos)" />
+                        <PurchaseOrderSuggestButton :item="item" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos: number) => applySuggestion(item, skos)" />
                     </div>
                 </template>
             </Table>
