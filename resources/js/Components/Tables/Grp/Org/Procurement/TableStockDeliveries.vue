@@ -42,6 +42,10 @@ function stockDeliveryRoute(stockDelivery: { slug: string, organisation_slug?: s
         return null
     }
 
+    if (route().current('grp.org.warehouses.show.incoming.*')) {
+        return route('grp.org.warehouses.show.incoming.stock_deliveries.show', [organisation, route().params['warehouse'], stockDelivery.slug])
+    }
+
     return route(
         'grp.org.procurement.stock_deliveries.show',
         [organisation, stockDelivery.slug])
