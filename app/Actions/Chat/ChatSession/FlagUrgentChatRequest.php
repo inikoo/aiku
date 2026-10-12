@@ -57,7 +57,7 @@ class FlagUrgentChatRequest
 
     private const string ADDRESS_WORDS = '/(\b(change|update|wrong|new|different|correct)\b.{0,40}\baddress|\baddress\b.{0,40}\b(change|wrong|incorrect|update)|adresse\b.{0,40}\b(ändern|änderung|falsch|changer|modifier)|(ändern|changer|modifier)\b.{0,40}\badresse|direcci[oó]n|indirizzo|adres[ay]?\b.{0,40}\b(zmen|změn|zmian|wijzig)|(zmen|změn|zmian|wijzig)\w*\b.{0,40}\badres|c[ií]mv[aá]ltoz)/iu';
 
-    private const string OPEN_PROMISE_WORDS = "/\\b(i|we)(['’]ll| will| am going| are going| have asked)\\b|one moment|few minutes|\\barrange|\\bwaiting for\\b/iu";
+    private const string OPEN_PROMISE_WORDS = "/\\b(i|we)(['’]ll| will| am going| are going)\\b|\\b(i|we)(['’]ve| have) (asked|reported|raised|passed|escalated|forwarded)\\b|one moment|few (minutes|moments)|bear with|looking in ?to|\\b(get|come) back to you|let you know|\\barrange|\\bwaiting for\\b/iu";
 
     public function handle(ChatSession|MetaChatSession $chatSession): ?string
     {
