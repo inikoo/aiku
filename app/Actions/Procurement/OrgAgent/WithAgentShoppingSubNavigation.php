@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage;
 use App\Models\Procurement\OrgAgent;
 
 trait WithAgentShoppingSubNavigation
@@ -51,6 +52,18 @@ trait WithAgentShoppingSubNavigation
                 ],
                 "number"   => ShowAgentDraftsToSend::drafts($parent)->where('po.organisation_id', $parent->organisation_id)->distinct()->count('po.supplier_id'),
             ],
+            ...array_map(fn (string $stage, array $meta) => [
+                "label"    => $meta['label'],
+                "route"    => [
+                    "name"       => "grp.org.procurement.org_agents.show.shopping.stage",
+                    "parameters" => [$this->organisation->slug, $parent->slug, $stage],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", $meta['icon']],
+                    "tooltip" => $meta['title'],
+                ],
+                "number"   => $stage === ShowAgentOrderStage::DELIVERED ? null : ShowAgentOrderStage::countOurs($parent, $stage),
+            ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
             [
                 "label"    => __("Suppliers"),
                 "route"    => [

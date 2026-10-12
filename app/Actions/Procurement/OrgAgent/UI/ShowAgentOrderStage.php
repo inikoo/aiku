@@ -1,0 +1,352 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 12 Oct 2026 Malaga, Spain
+ * Copyright (c) 2026, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Procurement\OrgAgent\UI;
+
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
+use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Models\Helpers\Currency;
+use App\Models\Procurement\OrgAgent;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
+
+class ShowAgentOrderStage extends OrgAction
+{
+    use WithAgentShoppingSubNavigation;
+    use WithProcurementAuthorisation;
+
+    public const string ORDERED    = 'ordered';
+    public const string PREPARING  = 'preparing';
+    public const string ON_THE_WAY = 'on-the-way';
+    public const string DELIVERED  = 'delivered';
+
+    public const array STAGES = [self::ORDERED, self::PREPARING, self::ON_THE_WAY, self::DELIVERED];
+
+    private const array STOCK_DELIVERY_STATES = [
+        self::PREPARING  => [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP],
+        self::ON_THE_WAY => [StockDeliveryStateEnum::DISPATCHED],
+        self::DELIVERED  => [StockDeliveryStateEnum::RECEIVED, StockDeliveryStateEnum::CHECKED, StockDeliveryStateEnum::BOOKING_IN, StockDeliveryStateEnum::BOOKED_IN, StockDeliveryStateEnum::PLACED],
+    ];
+
+    private const array STOCK_DELIVERY_DATE_COLUMNS = [
+        self::PREPARING  => 'sd.date',
+        self::ON_THE_WAY => 'sd.dispatched_at',
+        self::DELIVERED  => 'sd.received_at',
+    ];
+
+    private const int PER_PAGE = 25;
+
+    private OrgAgent $orgAgent;
+
+    private string $stage;
+
+    private bool $onlyOurs;
+
+    /**
+     * What the stage lists, every organisation of the group included: purchase orders the agent is working on
+     * and has not put on a stock delivery yet, or its stock deliveries by how far they have travelled.
+     */
+    public static function documents(OrgAgent $orgAgent, string $stage): Builder
+    {
+        if ($stage === self::ORDERED) {
+            return DB::table('purchase_orders as po')
+                ->where('po.group_id', $orgAgent->group_id)
+                ->where('po.agent_id', $orgAgent->agent_id)
+                ->where('po.parent_type', 'OrgSupplier')
+                ->whereIn('po.state', [PurchaseOrderStateEnum::SUBMITTED->value, PurchaseOrderStateEnum::CONFIRMED->value])
+                ->whereNull('po.deleted_at')
+                ->whereNotExists(fn (Builder $query) => $query->selectRaw('1')
+                    ->from('purchase_order_stock_delivery as posd')
+                    ->whereColumn('posd.purchase_order_id', 'po.id'));
+        }
+
+        return DB::table('stock_deliveries as sd')
+            ->where('sd.group_id', $orgAgent->group_id)
+            ->where('sd.agent_id', $orgAgent->agent_id)
+            ->whereIn('sd.state', array_column(self::STOCK_DELIVERY_STATES[$stage], 'value'))
+            ->whereNull('sd.deleted_at');
+    }
+
+    public static function countOurs(OrgAgent $orgAgent, string $stage): int
+    {
+        return self::documents($orgAgent, $stage)
+            ->where(($stage === self::ORDERED ? 'po' : 'sd').'.organisation_id', $orgAgent->organisation_id)
+            ->count();
+    }
+
+    public function handle(OrgAgent $orgAgent, string $stage, bool $onlyOurs = true): LengthAwarePaginator
+    {
+        $query = $stage === self::ORDERED ? $this->purchaseOrderRows($orgAgent) : $this->stockDeliveryRows($orgAgent, $stage);
+
+        if ($onlyOurs) {
+            $query->where('o.id', $orgAgent->organisation_id);
+        }
+
+        $rows = $query->paginate(self::PER_PAGE)->withQueryString();
+
+        $organisationCurrency = $orgAgent->organisation->currency;
+        $exchanges            = collect($rows->items())->pluck('currency_id')->filter()->unique()->mapWithKeys(fn (int $currencyId) => [
+            $currencyId => $currencyId === $organisationCurrency->id ? null : GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
+        ]);
+
+        $totals      = $this->totals($stage, collect($rows->items())->pluck('id')->all());
+        $stateLabels = $stage === self::ORDERED ? PurchaseOrderStateEnum::labels() : StockDeliveryStateEnum::labels();
+        $today       = Carbon::today();
+
+        return $rows->through(function ($row) use ($orgAgent, $stage, $exchanges, $totals, $stateLabels, $today) {
+            $total  = $totals->get($row->id);
+            $cbm    = $row->cbm_recorded ?? $total?->cbm;
+            $isOurs = $row->organisation_id === $orgAgent->organisation_id;
+            $eta    = ($row->eta ?? null) ? Carbon::parse($row->eta) : null;
+
+            return [
+                'id'                => $row->id,
+                'reference'         => $row->reference,
+                'organisation_code' => $row->organisation_code,
+                'organisation_name' => $row->organisation_name,
+                'is_ours'           => $isOurs,
+                'url'               => match (true) {
+                    !$isOurs                 => null,
+                    $stage === self::ORDERED => route('grp.org.procurement.org_agents.show.purchase-orders.show', [$row->organisation_slug, $orgAgent->slug, $row->slug]),
+                    default                  => route('grp.org.procurement.stock_deliveries.show', [$row->organisation_slug, $row->slug]),
+                },
+                'supplier_code'     => $row->supplier_code ?? null,
+                'supplier_name'     => $row->supplier_name ?? null,
+                'purchase_orders'   => isset($row->number_purchase_orders) ? (int) $row->number_purchase_orders : null,
+                'state_label'       => $stateLabels[$row->state] ?? $row->state,
+                'lines'             => (int) ($total->lines ?? 0),
+                'cartons'           => ($total->cartons ?? null) !== null ? round((float) $total->cartons, 2) : null,
+                'amount'            => (float) ($total->amount ?? 0),
+                'currency'          => $row->currency,
+                'org_exchange'      => $exchanges->get($row->currency_id),
+                'cbm'               => $cbm !== null ? round((float) $cbm, 2) : null,
+                'date'              => $row->date,
+                'eta'               => $eta?->toDateString(),
+                'days_late'         => $stage === self::ON_THE_WAY && $eta?->lt($today) ? (int) $eta->diffInDays($today) : null,
+            ];
+        });
+    }
+
+    private function purchaseOrderRows(OrgAgent $orgAgent): Builder
+    {
+        return self::documents($orgAgent, self::ORDERED)
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->join('suppliers as sup', 'sup.id', 'po.supplier_id')
+            ->leftJoin('currencies as cur', 'cur.id', 'po.currency_id')
+            ->orderBy('sup.code')
+            ->orderBy('o.code')
+            ->orderBy('po.id')
+            ->selectRaw('po.id, po.slug, po.reference, po.state, po.organisation_id, po.submitted_at as date, null as cbm_recorded,
+                o.code as organisation_code, o.name as organisation_name, o.slug as organisation_slug,
+                sup.code as supplier_code, sup.name as supplier_name, cur.code as currency, cur.id as currency_id');
+    }
+
+    private function stockDeliveryRows(OrgAgent $orgAgent, string $stage): Builder
+    {
+        $dateColumn = self::STOCK_DELIVERY_DATE_COLUMNS[$stage];
+
+        return self::documents($orgAgent, $stage)
+            ->join('organisations as o', 'o.id', 'sd.organisation_id')
+            ->leftJoin('currencies as cur', 'cur.id', 'sd.currency_id')
+            ->orderByRaw("$dateColumn desc nulls last")
+            ->orderByDesc('sd.id')
+            ->selectRaw("sd.id, sd.slug, sd.reference, sd.state, sd.organisation_id, sd.number_purchase_orders, $dateColumn as date, sd.cbm as cbm_recorded,
+                sd.data->>'estimated_receiving_date' as eta,
+                o.code as organisation_code, o.name as organisation_name, o.slug as organisation_slug,
+                cur.code as currency, cur.id as currency_id");
+    }
+
+    /**
+     * Products, cartons, amount and volume of the documents on the page, keyed by document.
+     *
+     * @param  array<int, int>  $ids
+     */
+    private function totals(string $stage, array $ids): Collection
+    {
+        [$table, $key, $units, $cancelled] = $stage === self::ORDERED
+            ? ['purchase_order_transactions', 'purchase_order_id', 'quantity_ordered', PurchaseOrderTransactionStateEnum::CANCELLED->value]
+            : ['stock_delivery_items', 'stock_delivery_id', 'unit_quantity', StockDeliveryItemStateEnum::CANCELLED->value];
+
+        return DB::table("$table as line")
+            ->leftJoin('supplier_products as sp', 'sp.id', 'line.supplier_product_id')
+            ->whereIn("line.$key", $ids)
+            ->whereNull('line.deleted_at')
+            ->where('line.state', '!=', $cancelled)
+            ->groupBy("line.$key")
+            ->selectRaw("line.$key as document_id,
+                count(*) as lines,
+                sum(line.$units / nullif(sp.units_per_carton, 0)) as cartons,
+                coalesce(sum(line.net_amount), 0) as amount,
+                sum(line.$units / nullif(sp.units_per_carton, 0) * sp.cbm) as cbm")
+            ->get()
+            ->keyBy('document_id');
+    }
+
+    /**
+     * The products of the documents the user has opened, keyed by document.
+     *
+     * @param  array<int, int>  $ids
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    public function lines(OrgAgent $orgAgent, string $stage, array $ids): array
+    {
+        if (!$ids) {
+            return [];
+        }
+
+        $query = $stage === self::ORDERED
+            ? self::documents($orgAgent, $stage)
+                ->whereIn('po.id', $ids)
+                ->join('purchase_order_transactions as line', fn ($join) => $join->on('line.purchase_order_id', 'po.id')
+                    ->whereNull('line.deleted_at')
+                    ->where('line.state', '!=', PurchaseOrderTransactionStateEnum::CANCELLED->value))
+                ->selectRaw('line.id, po.id as document_id, line.quantity_ordered as units, line.net_amount as amount')
+            : self::documents($orgAgent, $stage)
+                ->whereIn('sd.id', $ids)
+                ->join('stock_delivery_items as line', fn ($join) => $join->on('line.stock_delivery_id', 'sd.id')
+                    ->whereNull('line.deleted_at')
+                    ->where('line.state', '!=', StockDeliveryItemStateEnum::CANCELLED->value))
+                ->selectRaw('line.id, sd.id as document_id, line.unit_quantity as units, line.net_amount as amount');
+
+        return $query
+            ->leftJoin('supplier_products as sp', 'sp.id', 'line.supplier_product_id')
+            ->addSelect(['sp.code', 'sp.name', 'sp.units_per_carton', 'sp.cbm as carton_cbm'])
+            ->orderBy('sp.code')
+            ->get()
+            ->groupBy('document_id')
+            ->map(fn ($lines) => $lines->map(function ($line) {
+                $cartons = $line->units_per_carton ? (float) $line->units / (int) $line->units_per_carton : null;
+
+                return [
+                    'id'        => $line->id,
+                    'code'      => $line->code,
+                    'name'      => $line->name,
+                    'cartons'   => $cartons !== null ? round($cartons, 2) : null,
+                    'unit_cost' => (float) $line->units ? round((float) $line->amount / (float) $line->units, 4) : null,
+                    'amount'    => (float) $line->amount,
+                    'cbm'       => $cartons !== null && $line->carton_cbm !== null ? round($cartons * (float) $line->carton_cbm, 3) : null,
+                ];
+            })->all())
+            ->all();
+    }
+
+    /**
+     * @return array<string, array{label: string, title: string, icon: string, date: string, note: string}>
+     */
+    public static function stages(): array
+    {
+        return [
+            self::ORDERED    => [
+                'label' => __('Ordered'),
+                'title' => __('Purchase orders the agent is working on'),
+                'icon'  => 'fa-clipboard-list-check',
+                'date'  => __('Submitted'),
+                'note'  => __('Purchase orders submitted to :agent or confirmed by it that are not on a stock delivery yet, every organisation included. A purchase order leaves this list when :agent puts it on a stock delivery.'),
+            ],
+            self::PREPARING  => [
+                'label' => __('Preparing'),
+                'title' => __('Stock deliveries in preparation'),
+                'icon'  => 'fa-box-open',
+                'date'  => __('Created'),
+                'note'  => __('Stock deliveries :agent is putting together and has not dispatched yet, every organisation included.'),
+            ],
+            self::ON_THE_WAY => [
+                'label' => __('On the way'),
+                'title' => __('Stock deliveries on the way'),
+                'icon'  => 'fa-ship',
+                'date'  => __('Dispatched'),
+                'note'  => __('Stock deliveries :agent has dispatched and that have not been received yet, every organisation included.'),
+            ],
+            self::DELIVERED  => [
+                'label' => __('Delivered'),
+                'title' => __('Stock deliveries delivered'),
+                'icon'  => 'fa-warehouse-alt',
+                'date'  => __('Received'),
+                'note'  => __('Every stock delivery through :agent that has been received, newest first, every organisation included.'),
+            ],
+        ];
+    }
+
+    public function asController(Organisation $organisation, OrgAgent $orgAgent, string $stage, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->orgAgent = $orgAgent;
+        $this->stage    = $stage;
+        $this->initialisation($organisation, $request);
+        $this->onlyOurs = $request->input('scope') !== 'all';
+
+        return $this->handle($orgAgent, $stage, $this->onlyOurs);
+    }
+
+    public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response
+    {
+        $stage = self::stages()[$this->stage];
+        $open  = array_filter(array_map('intval', explode(',', (string) $request->input('open'))));
+
+        return Inertia::render(
+            'Procurement/AgentOrderStage',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs($this->orgAgent, $this->stage, $request->route()->originalParameters()),
+                'title'       => $stage['title'],
+                'pageHead'    => [
+                    'icon'          => ['icon' => ['fal', $stage['icon']], 'title' => $stage['title']],
+                    'model'         => $this->orgAgent->agent->name,
+                    'title'         => $stage['title'],
+                    'subNavigation' => $this->getAgentShoppingNavigation($this->orgAgent),
+                ],
+                'stage'       => $this->stage,
+                'isOrdered'   => $this->stage === self::ORDERED,
+                'dateLabel'   => $stage['date'],
+                'note'        => __($stage['note'], ['agent' => $this->orgAgent->agent->name]),
+                'agentName'   => $this->orgAgent->agent->name,
+                'orgCurrency' => $this->organisation->currency->code,
+                'container'   => [
+                    'label' => OrgAgentOrderContainerEnum::labels()[$this->orgAgent->order_container->value],
+                    'cbm'   => $this->orgAgent->order_container->cbm(),
+                ],
+                'scope'       => $this->onlyOurs ? 'ours' : 'all',
+                'oursCount'   => self::countOurs($this->orgAgent, $this->stage),
+                'lines'       => fn () => $this->lines($this->orgAgent, $this->stage, $open),
+                'rows'        => $rows,
+            ]
+        );
+    }
+
+    public function getBreadcrumbs(OrgAgent $orgAgent, string $stage, array $routeParameters): array
+    {
+        return array_merge(
+            ShowAgentShoppingDashboard::make()->getBreadcrumbs($orgAgent, array_slice($routeParameters, 0, 2)),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.shopping.stage',
+                            'parameters' => $routeParameters,
+                        ],
+                        'label' => self::stages()[$stage]['label'],
+                        'icon'  => 'fal '.self::stages()[$stage]['icon'],
+                    ],
+                ],
+            ]
+        );
+    }
+}

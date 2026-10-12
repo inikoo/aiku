@@ -9278,7 +9278,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Suppliers'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Ordered', 'Preparing', 'On the way', 'Delivered', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -12863,4 +12863,98 @@ test('correcting a unit error reprices only the put-away of that line (HELP-3863
     expect($corrected->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::UNIT_ERROR_CORRECTED)
         ->and((float) $correctedMovement->org_amount)->toEqual(round($expectedCost * (float) $correctedMovement->quantity, 3))
         ->and((float) $untouchedMovement->refresh()->org_amount)->toBe(123.456);
+});
+
+test('agent order stages follow purchase orders and stock deliveries to arrival', function () {
+    $stages = App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::class;
+
+    $supplier      = StoreSupplier::make()->action($this->orgAgent->agent, Supplier::factory()->definition());
+    $orgSupplier   = OrgSupplier::where('supplier_id', $supplier->id)->where('org_agent_id', $this->orgAgent->id)->firstOrFail();
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'          => $purchaseOrder->group_id,
+        'organisation_id'   => $purchaseOrder->organisation_id,
+        'purchase_order_id' => $purchaseOrder->id,
+        'org_stock_id'      => $this->orgStocks[0]->id,
+        'state'             => PurchaseOrderTransactionStateEnum::SUBMITTED->value,
+        'delivery_state'    => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'  => 100,
+        'net_amount'        => 250,
+        'data'              => '{}',
+        'created_at'        => now(),
+        'updated_at'        => now(),
+    ]);
+
+    $isOrdered = fn () => $stages::documents($this->orgAgent, $stages::ORDERED)->where('po.id', $purchaseOrder->id)->exists();
+    $ordered   = $stages::countOurs($this->orgAgent, $stages::ORDERED);
+
+    expect($isOrdered())->toBeFalse();
+
+    $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()]);
+
+    $lines = $stages::make()->lines($this->orgAgent, $stages::ORDERED, [$purchaseOrder->id]);
+
+    expect($isOrdered())->toBeTrue()
+        ->and($stages::countOurs($this->orgAgent, $stages::ORDERED))->toBe($ordered + 1)
+        ->and($lines[$purchaseOrder->id])->toHaveCount(1)
+        ->and($lines[$purchaseOrder->id][0]['amount'])->toBe(250.0)
+        ->and($lines[$purchaseOrder->id][0]['unit_cost'])->toBe(2.5);
+
+    $stockDelivery = StoreStockDelivery::make()->action($this->orgAgent, ['reference' => 'stage-'.$purchaseOrder->id, 'date' => date('Y-m-d')], strict: false);
+    DB::table('purchase_order_stock_delivery')->insert(['purchase_order_id' => $purchaseOrder->id, 'stock_delivery_id' => $stockDelivery->id, 'created_at' => now(), 'updated_at' => now()]);
+
+    expect($isOrdered())->toBeFalse()
+        ->and($stages::countOurs($this->orgAgent, $stages::ORDERED))->toBe($ordered);
+
+    $stageOf = fn () => collect($stages::STAGES)->reject(fn (string $stage) => $stage === $stages::ORDERED)
+        ->filter(fn (string $stage) => $stages::documents($this->orgAgent, $stage)->where('sd.id', $stockDelivery->id)->exists())
+        ->values()->all();
+
+    foreach ([
+        'in_process'    => [$stages::PREPARING],
+        'ready_to_ship' => [$stages::PREPARING],
+        'dispatched'    => [$stages::ON_THE_WAY],
+        'received'      => [$stages::DELIVERED],
+        'placed'        => [$stages::DELIVERED],
+        'cancelled'     => [],
+        'not_received'  => [],
+    ] as $state => $expected) {
+        DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update(['state' => $state]);
+        expect($stageOf())->toBe($expected);
+    }
+
+    DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update([
+        'state'         => StockDeliveryStateEnum::DISPATCHED->value,
+        'dispatched_at' => now(),
+        'data'          => json_encode(['estimated_receiving_date' => now()->subDays(3)->toDateString()]),
+    ]);
+
+    $row = collect($stages::make()->handle($this->orgAgent, $stages::ON_THE_WAY)->items())->firstWhere('id', $stockDelivery->id);
+
+    expect($row['days_late'])->toBe(3)
+        ->and($row['is_ours'])->toBeTrue()
+        ->and($row['url'])->toContain($stockDelivery->slug);
+});
+
+test('UI agent order stages', function (string $stage) {
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage]));
+    $response->assertOk();
+
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/AgentOrderStage')
+        ->where('stage', $stage)
+        ->where('scope', 'ours')
+        ->where('orgCurrency', $this->organisation->currency->code)
+        ->where('oursCount', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
+        ->has('rows.data')
+        ->has('pageHead.subNavigation', 8)
+        ->where('rows.data', fn ($rows) => collect($rows)->every(fn (array $row) => $row['is_ours'])));
+
+    $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'all']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('scope', 'all'));
+})->with(App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::STAGES);
+
+test('agent order stage rejects an unknown stage', function () {
+    $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]).'/nowhere')->assertNotFound();
 });
