@@ -11,6 +11,7 @@ namespace App\Actions\Dispatching\PickingSession\UI;
 
 use App\Actions\Dispatching\PickingSession\Traits\WithPickingSessionsSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\Dispatching\PickingSession\PickingSessionStateEnum;
 use App\Enums\Dispatching\PickingSession\PickingSessionTypeEnum;
@@ -29,6 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPickingSessions extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     use WithPickingSessionsSubNavigation;
 
     private ?PickingSessionStateEnum $restriction = null;

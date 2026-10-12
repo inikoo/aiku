@@ -581,14 +581,15 @@ class DeliveryNote extends Model implements Auditable
     }
 
     /**
-     * Picking, packing, shipping, finalising and dispatching: warehouse dispatch staff, plus the
-     * shop's customer service, who book shipments and dispatch collections themselves.
+     * Picking, packing, finalising and dispatching from the warehouse screens: warehouse dispatch,
+     * fulfilment and returns staff. Customer service book shipments through canBeShippedBy().
      */
     public function canBeWorkedOnBy(User $user): bool
     {
         return $user->authTo([
             "dispatching.$this->warehouse_id.edit",
             "supervisor-dispatching.$this->warehouse_id",
+            "fulfilment.$this->warehouse_id.edit",
             "returns.$this->warehouse_id",
             "org-admin.$this->organisation_id",
         ]);

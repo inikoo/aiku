@@ -12,7 +12,7 @@ namespace App\Actions\Masters\MasterProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategoryImages;
 use App\Actions\Catalogue\WithUpdateWebImages;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithMastersMediaEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Helpers\CanUpdateImages;
 use App\Models\Masters\MasterProductCategory;
@@ -21,7 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMasterProductCategoryImages extends OrgAction
 {
-    use WithMastersEditAuthorisation;
+    use WithMastersMediaEditAuthorisation;
     use WithActionUpdate;
     use WithUpdateWebImages;
     use CanUpdateImages;

@@ -4732,7 +4732,18 @@ test('masters write routes need the masters edit permission, INI-073', function 
         Pest\Laravel\delete(route('grp.models.master_collection.delete', $masterCollection->id))->assertForbidden();
         expect(MasterCollection::find($masterCollection->id))->not->toBeNull();
 
+        $uploads = fn () => [
+            Pest\Laravel\post(route('grp.models.master_product_category.upload_images', $masterDepartment->id), [])->status(),
+            Pest\Laravel\post(route('grp.models.master_collection.upload_images', $masterCollection->id), [])->status(),
+        ];
+        expect($uploads())->each->toBe(403);
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
+        expect($uploads())->each->not->toBe(403);
+        Pest\Laravel\post(route('grp.models.master_shops.master_department.store', $masterShop->id), $departmentData())->assertForbidden();
+
         actingAsUserWithOnlyPermissions($this->user, ['masters.edit']);
+        expect($uploads())->each->not->toBe(403);
         $data = $departmentData();
         Pest\Laravel\post(route('grp.models.master_shops.master_department.store', $masterShop->id), $data)->assertSessionHasNoErrors();
         expect($masterShop->masterProductCategories()->where('code', $data['code'])->exists())->toBeTrue();

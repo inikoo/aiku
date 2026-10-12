@@ -3486,7 +3486,14 @@ test('website write routes need the web edit permission of the shop, INI-073', f
         expect($webpage->refresh()->title)->toBe($title)
             ->and($webpage->trashed())->toBeFalse();
 
+        $workshopButtons = fn () => collect(
+            Pest\Laravel\get(route('grp.org.shops.show.web.websites.workshop', [$shop->organisation->slug, $shop->slug, $website->slug]))
+                ->assertOk()->viewData('page')['props']['pageHead']['actions']
+        )->filter()->pluck('label')->all();
+        expect($workshopButtons())->not->toContain(__('Publish'));
+
         actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        expect($workshopButtons())->toContain(__('Publish'));
         Pest\Laravel\patch(route('grp.models.website.autosave.header', $website->id), ['layout' => ['blocks' => []]])->assertRedirect()->assertSessionHasNoErrors();
     } finally {
         setPermissionsTeamId($this->user->group_id);

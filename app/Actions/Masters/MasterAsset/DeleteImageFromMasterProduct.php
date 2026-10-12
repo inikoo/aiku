@@ -9,7 +9,7 @@
 namespace App\Actions\Masters\MasterAsset;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithMastersMediaEditAuthorisation;
 use App\Actions\Traits\WithImageColumns;
 use App\Models\Helpers\Media;
 use App\Models\Masters\MasterAsset;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteImageFromMasterProduct extends OrgAction
 {
-    use WithMastersEditAuthorisation;
+    use WithMastersMediaEditAuthorisation;
     use WithImageColumns;
 
     public function handle(MasterAsset $masterAsset, Media $media, bool $updateDependants = false): MasterAsset

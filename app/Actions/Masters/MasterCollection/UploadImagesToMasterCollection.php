@@ -9,7 +9,7 @@
 namespace App\Actions\Masters\MasterCollection;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithMastersMediaEditAuthorisation;
 use App\Models\Masters\MasterCollection;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Traits\WithAttachMediaToModel;
@@ -17,7 +17,7 @@ use App\Actions\Traits\WithUploadModelImages;
 
 class UploadImagesToMasterCollection extends OrgAction
 {
-    use WithMastersEditAuthorisation;
+    use WithMastersMediaEditAuthorisation;
     use WithAttachMediaToModel;
     use WithUploadModelImages;
 
