@@ -35,6 +35,7 @@ use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -295,10 +296,23 @@ class IndexOrders extends OrgAction
             $this->bucket = $bucket;
         }
 
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
+        $searchesProducts = $parent instanceof Customer || $parent instanceof CustomerClient;
+        $globalSearch     = AllowedFilter::callback('global', function ($query, $value) use ($searchesProducts) {
+            $query->where(function ($query) use ($value, $searchesProducts) {
                 $query->whereWith('orders.reference', $value)
                     ->orWhereWith('orders.tracking_number', $value);
+                if ($searchesProducts) {
+                    $query->orWhereExists(
+                        Transaction::query()
+                            ->selectRaw('1')
+                            ->join('historic_assets', 'historic_assets.id', '=', 'transactions.historic_asset_id')
+                            ->whereColumn('transactions.order_id', 'orders.id')
+                            ->where(function ($query) use ($value) {
+                                $query->whereWith('historic_assets.code', $value)
+                                    ->orWhereWith('historic_assets.name', $value);
+                            })
+                    );
+                }
             });
         });
 
@@ -666,7 +680,7 @@ class IndexOrders extends OrgAction
             $table->betweenDates([$this->getBucketDateColumn($bucket)]);
 
             $table
-                ->withGlobalSearch()
+                ->withGlobalSearch($parent instanceof Customer || $parent instanceof CustomerClient ? __('Search by order number, tracking number or product...') : null)
                 ->withLabelRecord([__('order'), __('orders')])
                 ->withEmptyState(
                     [
