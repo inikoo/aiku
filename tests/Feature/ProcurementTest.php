@@ -227,6 +227,7 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Models\Helpers\CurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\FetchCurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Actions\Helpers\CurrencyExchange\WarmCurrencyExchanges;
 use Illuminate\Support\Carbon;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -3654,6 +3655,24 @@ test('without a live exchange rate the latest stored one is used, never a rate o
         ->and(GetCurrencyExchange::run($pound, $euro))->not->toBe(1.0);
 
     Cache::forget('current-currency-exchange:GBP-EUR');
+});
+
+test('a currency pair once asked for is kept warm, so pages stop waiting for the provider', function () {
+    $pound = Currency::where('code', 'GBP')->firstOrFail();
+    $euro  = Currency::where('code', 'EUR')->firstOrFail();
+    Cache::forget('current-currency-exchange:GBP-EUR');
+    FetchCurrencyExchange::shouldRun()->times(2)->andReturn(['status' => 'success', 'exchange' => 1.15, 'source' => 'CB'], ['status' => 'success', 'exchange' => 1.17, 'source' => 'CB']);
+
+    expect(GetCurrencyExchange::run($pound, $euro))->toBe(1.15)
+        ->and(Cache::get(WarmCurrencyExchanges::PAIRS_KEY))->toContain('GBP-EUR');
+
+    Cache::forever(WarmCurrencyExchanges::PAIRS_KEY, ['GBP-EUR']);
+
+    expect(WarmCurrencyExchanges::run())->toBe(['GBP-EUR' => 1.17])
+        ->and(GetCurrencyExchange::run($pound, $euro))->toBe(1.17);
+
+    Cache::forget('current-currency-exchange:GBP-EUR');
+    Cache::forget(WarmCurrencyExchanges::PAIRS_KEY);
 });
 
 test('rescue order creates nothing when a sister company has nothing to rescue', function () {
