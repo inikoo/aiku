@@ -49,7 +49,7 @@ trait WithAgentShoppingSubNavigation
                     "icon"    => ["fal", "fa-paper-plane"],
                     "tooltip" => __("Drafts to send"),
                 ],
-                "number"   => ShowAgentDraftsToSend::drafts($parent)->distinct()->count('po.supplier_id'),
+                "number"   => ShowAgentDraftsToSend::drafts($parent)->where('po.organisation_id', $parent->organisation_id)->distinct()->count('po.supplier_id'),
             ],
             [
                 "label"    => __("Suppliers"),
