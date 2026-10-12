@@ -23,7 +23,6 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreAttendanceAdjustment extends OrgAction
 {
     private ?Employee $employee = null;
-    private ?Timesheet $timesheet = null;
 
     private function resolveEmployee(Request $request): ?Employee
     {
@@ -32,36 +31,21 @@ class StoreAttendanceAdjustment extends OrgAction
 
     public function handle(Employee $employee, array $modelData): AttendanceAdjustment
     {
-        $date = Carbon::parse($modelData['date']);
-        $timezone = $employee->organisation->timezone->name ?? 'UTC';
-
-        $originalStartAt = null;
-        $originalEndAt = null;
-
-        if (isset($modelData['timesheet_id'])) {
-            $this->timesheet = Timesheet::find($modelData['timesheet_id']);
-            if ($this->timesheet) {
-                $originalStartAt = $this->timesheet->start_at;
-                $originalEndAt = $this->timesheet->end_at;
-            }
-        }
-
-        if (!$originalStartAt || !$originalEndAt) {
-            $originalStartAt = $date->copy()->setTime(8, 0, 0);
-            $originalEndAt = $date->copy()->setTime(17, 0, 0);
-        }
+        $timezone  = $employee->organisation->timezone->name ?? 'UTC';
+        $timesheet = isset($modelData['timesheet_id']) ? Timesheet::find($modelData['timesheet_id']) : null;
+        $date      = $timesheet ? $timesheet->date->copy() : Carbon::parse($modelData['date']);
 
         $adjustment = AttendanceAdjustment::create([
             'group_id'            => $employee->group_id,
             'organisation_id'     => $employee->organisation_id,
             'employee_id'         => $employee->id,
             'employee_name'       => $employee->contact_name,
-            'timesheet_id'        => $modelData['timesheet_id'] ?? null,
-            'date'                => $date,
-            'original_start_at'   => $originalStartAt,
-            'original_end_at'     => $originalEndAt,
-            'requested_start_at'  => $modelData['requested_start_at'] ?? null,
-            'requested_end_at'    => $modelData['requested_end_at'] ?? null,
+            'timesheet_id'        => $timesheet?->id,
+            'date'                => $date->toDateString(),
+            'original_start_at'   => $timesheet?->start_at,
+            'original_end_at'     => $timesheet?->end_at,
+            'requested_start_at'  => $this->momentOnDate($date, $modelData['requested_start_at'] ?? null, $timezone),
+            'requested_end_at'    => $this->momentOnDate($date, $modelData['requested_end_at'] ?? null, $timezone),
             'reason'              => $modelData['reason'],
             'status'              => AttendanceAdjustmentStatusEnum::PENDING,
         ]);
@@ -81,16 +65,25 @@ class StoreAttendanceAdjustment extends OrgAction
         return $adjustment;
     }
 
+    private function momentOnDate(Carbon $date, ?string $time, string $timezone): ?Carbon
+    {
+        if (!$time) {
+            return null;
+        }
+
+        return Carbon::parse($date->toDateString().' '.$time, $timezone)->utc();
+    }
+
     public function rules(): array
     {
-        $this->employee = $this->resolveEmployee(request());
+        $this->employee ??= $this->resolveEmployee(request());
 
         return [
             'organisation'        => ['nullable', 'string'],
-            'timesheet_id'        => ['nullable', 'exists:timesheets,id'],
+            'timesheet_id'        => ['nullable', 'integer', 'exists:timesheets,id'],
             'date'                => ['required', 'date'],
-            'requested_start_at'  => ['nullable', 'date_format:H:i'],
-            'requested_end_at'    => ['nullable', 'date_format:H:i', 'after:requested_start_at'],
+            'requested_start_at'  => ['nullable', 'required_without:requested_end_at', 'date_format:H:i'],
+            'requested_end_at'    => ['nullable', 'required_without:requested_start_at', 'date_format:H:i'],
             'reason'              => ['required', 'string', 'max:1000'],
             'attachments'         => ['nullable', 'array', 'max:3'],
             'attachments.*'       => ['nullable', File::types(['pdf', 'jpg', 'jpeg', 'png'])->max(5 * 1024)],
@@ -99,11 +92,39 @@ class StoreAttendanceAdjustment extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (!$this->employee) {
+        $startAt = $this->get('requested_start_at');
+        $endAt   = $this->get('requested_end_at');
+        if ($startAt && $endAt && $endAt <= $startAt) {
+            $validator->errors()->add('requested_end_at', __('The check-out time must be after the check-in time.'));
+        }
+
+        if ($this->asAction || !$this->employee || !$this->get('date')) {
             return;
         }
 
-        $date = Carbon::parse(request()->input('date'));
+        $timezone  = $this->employee->organisation->timezone->name ?? 'UTC';
+        $timesheet = $this->get('timesheet_id') ? Timesheet::find($this->get('timesheet_id')) : null;
+
+        if ($timesheet && ($timesheet->subject_type !== 'Employee' || $timesheet->subject_id !== $this->employee->id)) {
+            $validator->errors()->add('date', __('You can only request a correction on your own timesheet.'));
+
+            return;
+        }
+
+        $date  = ($timesheet ? $timesheet->date : Carbon::parse($this->get('date')))->toDateString();
+        $today = now($timezone);
+
+        if ($date > $today->toDateString()) {
+            $validator->errors()->add('date', __('The date cannot be in the future.'));
+        }
+
+        if ($date < $today->copy()->subMonthNoOverflow()->toDateString()) {
+            $validator->errors()->add('date', __('Requests can only go back one month.'));
+        }
+
+        if (!$timesheet && $this->employee->timesheets()->whereDate('date', $date)->exists()) {
+            $validator->errors()->add('date', __('You already have clockings on this date. Request the correction from the Timesheets tab.'));
+        }
 
         $existingLeave = Leave::where('employee_id', $this->employee->id)
             ->where('status', LeaveStatusEnum::APPROVED->value)
@@ -116,7 +137,7 @@ class StoreAttendanceAdjustment extends OrgAction
         }
 
         $existingAdjustment = AttendanceAdjustment::where('employee_id', $this->employee->id)
-            ->where('date', $date)
+            ->whereDate('date', $date)
             ->where('status', AttendanceAdjustmentStatusEnum::PENDING->value)
             ->exists();
 
@@ -135,23 +156,7 @@ class StoreAttendanceAdjustment extends OrgAction
 
         $this->initialisation($this->employee->organisation, $request);
 
-        $validated = $this->validatedData;
-
-        if (isset($validated['requested_start_at'])) {
-            $date = Carbon::parse($validated['date']);
-            $validated['requested_start_at'] = $date->copy()
-                ->setTimeFromTimeString($validated['requested_start_at'])
-                ->setTimezone('UTC');
-        }
-
-        if (isset($validated['requested_end_at'])) {
-            $date = Carbon::parse($validated['date']);
-            $validated['requested_end_at'] = $date->copy()
-                ->setTimeFromTimeString($validated['requested_end_at'])
-                ->setTimezone('UTC');
-        }
-
-        return $this->handle($this->employee, $validated);
+        return $this->handle($this->employee, $this->validatedData);
     }
 
     public function action(Employee $employee, array $modelData): AttendanceAdjustment
@@ -165,11 +170,11 @@ class StoreAttendanceAdjustment extends OrgAction
 
     public function htmlResponse(AttendanceAdjustment $adjustment, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.clocking_employees.index', ['tab' => 'adjustments'])
+        return Redirect::back()
             ->with('notification', [
                 'status'      => 'success',
                 'title'       => __('Success!'),
-                'description' => __('Adjustment request submitted successfully.'),
+                'description' => __('Request submitted. It will apply once it is approved.'),
             ]);
     }
 

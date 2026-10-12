@@ -9,7 +9,8 @@
 -->
 <script setup lang="ts">
 import { inject, ref, watch } from "vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome"
+import { faClock as falClock, faPencil as falPencil } from "@fal"
 import { faInfoCircle, faPallet, faCircle, faUndo } from "@fas"
 import { faSpinnerThird } from "@fad"
 import Icon from "@/Components/Icon.vue"
@@ -47,7 +48,7 @@ import type { Navigation } from "@/types/Tabs"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
 import { ctrans } from "@/Composables/useTrans"
-library.add(
+library.add(falClock, falPencil, 
 	faListUl,
 	faShapes,
 	faRepeat,
@@ -285,6 +286,13 @@ const placeMobileTabOptions = () => {
 									)
 								"
 								fixed-width aria-hidden="true" />
+							<FontAwesomeLayers
+								v-else-if="tab.icon_layers"
+								class="inline-block shrink-0 mr-2 h-5 w-5 text-base"
+								aria-hidden="true">
+								<FontAwesomeIcon :icon="tab.icon_layers[0]" transform="shrink-2 left-2 up-1" />
+								<FontAwesomeIcon :icon="tab.icon_layers[1]" transform="shrink-8 right-5 down-5" />
+							</FontAwesomeLayers>
 							<FontAwesomeIcon
 								v-else-if="tab.icon"
 								:icon="tab.icon"

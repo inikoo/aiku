@@ -16,6 +16,7 @@ use App\Models\HumanResources\Timesheet;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Http\Resources\HumanResources\LeaveResource;
 use App\Http\Resources\HumanResources\LeaveBalanceResource;
+use App\Enums\HumanResources\Attendance\AttendanceAdjustmentStatusEnum;
 use App\Http\Resources\HumanResources\AttendanceAdjustmentResource;
 use App\Models\HumanResources\QrScanLog;
 use App\Models\HumanResources\TimeTracker;
@@ -150,7 +151,7 @@ class IndexClockingEmployees extends OrgAction
             $query = QueryBuilder::for(Timesheet::class)
                 ->where('subject_type', 'Employee')
                 ->where('subject_id', $this->employee->id)
-                ->with(['subject.jobPositions', 'organisation']);
+                ->with(['subject.jobPositions', 'organisation.timezone']);
 
             $timezone = $this->employee->organisation->timezone->name ?? 'UTC';
 
@@ -167,6 +168,7 @@ class IndexClockingEmployees extends OrgAction
             $this->applyStatusFilter($query, $this->employee, $timezone);
 
             $timesheets = $query
+                ->withExists(['attendanceAdjustments as has_pending_adjustment' => fn ($adjustments) => $adjustments->where('status', AttendanceAdjustmentStatusEnum::PENDING->value)])
                 ->defaultSort('date')
                 ->allowedSorts(['date', 'working_duration', 'breaks_duration'])
                 ->paginate(request()->input('per_page', 15))
@@ -335,6 +337,14 @@ class IndexClockingEmployees extends OrgAction
 
             if ($year) {
                 $queryBuilder->whereYear('overtime_requests.requested_date', (int) $year);
+            }
+
+            $overtimePeriod = $request->input(ClockingEmployeesTabsEnum::OVERTIME->value.'_period');
+            if ($overtimePeriod && is_array($overtimePeriod)) {
+                [$overtimeFrom, $overtimeTo] = PeriodEnum::toDateRange($overtimePeriod) ?? [null, null];
+                if ($overtimeFrom && $overtimeTo) {
+                    $queryBuilder->whereBetween('overtime_requests.requested_date', [$overtimeFrom, $overtimeTo]);
+                }
             }
 
             $overtimeData = $queryBuilder
@@ -518,10 +528,9 @@ class IndexClockingEmployees extends OrgAction
                 ->column(key: 'end_at', label: __('End At'))
                 ->column(key: 'working_duration', label: __('Working'), sortable: true)
                 ->column(key: 'breaks_duration', label: __('Breaks'), sortable: true)
-                ->column(key: 'clock_in_count', label: __('Clock In Count'))
-                ->column(key: 'clock_out_count', label: __('Clock Out Count'))
-                ->column(key: 'number_time_trackers', label: __('Time Trackers'))
-                ->column(key: 'number_open_time_trackers', label: __('Open Trackers'));
+                ->column(key: 'clockings', label: __('Clock in / out'))
+                ->column(key: 'trackers', label: __('Trackers (open / all)'))
+                ->column(key: 'actions', label: '');
             $table->defaultSort('-date');
         };
     }
@@ -561,14 +570,15 @@ class IndexClockingEmployees extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withEmptyState([
-                    'title' => __('No adjustment requests'),
+                    'title' => __('No requests yet'),
                     'count' => 0
                 ])
                 ->column(key: 'date', label: __('Date'), sortable: true)
-                ->column(key: 'original_times', label: __('Original Times'))
-                ->column(key: 'requested_times', label: __('Requested Times'))
+                ->column(key: 'original_times', label: __('Recorded'))
+                ->column(key: 'requested_times', label: __('Requested'))
                 ->column(key: 'status_label', label: __('Status'))
-                ->column(key: 'reason', label: __('Reason'));
+                ->column(key: 'reason', label: __('Reason'))
+                ->column(key: 'actions', label: '');
             $table->defaultSort('-date');
         };
     }
@@ -578,6 +588,10 @@ class IndexClockingEmployees extends OrgAction
         return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
                 $table->name($prefix)->pageName($prefix . 'Page');
+            }
+
+            foreach ($this->getPeriodFilters() as $periodFilter) {
+                $table->periodFilters($periodFilter['elements']);
             }
 
             $table
@@ -720,10 +734,12 @@ class IndexClockingEmployees extends OrgAction
                     ? fn () => [
                         'data' => TimesheetsResource::collection($data['timesheets']),
                         'statistics' => $data['statistics'],
+                        'organisation' => $data['organisation'],
                     ]
                     : Inertia::optional(fn () => [
                         'data' => TimesheetsResource::collection($data['timesheets']),
                         'statistics' => $data['statistics'],
+                        'organisation' => $data['organisation'],
                     ]),
 
                 ClockingEmployeesTabsEnum::LEAVES->value =>

@@ -652,6 +652,151 @@ test('an adjustment that ends before it starts never reaches the paid hours', fu
     expect($timesheet->working_duration)->toBe(28800);
 });
 
+function makeAdjustmentTimesheet(mixed $context, Employee $employee, string $date): \App\Models\HumanResources\Timesheet
+{
+    $timesheet = \App\Models\HumanResources\Timesheet::create([
+        'group_id'                  => $context->group->id,
+        'organisation_id'           => $context->organisation->id,
+        'date'                      => $date,
+        'subject_type'              => 'Employee',
+        'subject_id'                => $employee->id,
+        'subject_name'              => $employee->contact_name,
+        'start_at'                  => $date.' 08:00:00',
+        'working_duration'          => 0,
+        'breaks_duration'           => 0,
+        'total_duration'            => 0,
+        'number_time_trackers'      => 1,
+        'number_open_time_trackers' => 1,
+    ]);
+
+    \App\Models\HumanResources\TimeTracker::create([
+        'timesheet_id' => $timesheet->id,
+        'subject_type' => 'Employee',
+        'subject_id'   => $employee->id,
+        'status'       => \App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum::OPEN,
+        'starts_at'    => $date.' 08:00:00',
+    ]);
+
+    return $timesheet;
+}
+
+test('a correction requested from a timesheet keeps what was recorded and reads the time in the organisation timezone', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+    $timesheet = makeAdjustmentTimesheet($this, $employee, '2026-06-29');
+    $timezone  = $this->organisation->timezone->name ?? 'UTC';
+
+    $adjustment = StoreAttendanceAdjustment::make()->action($employee, [
+        'timesheet_id'     => $timesheet->id,
+        'date'             => '2026-06-29',
+        'reason'           => 'Forgot to clock out',
+        'requested_end_at' => '17:00',
+    ]);
+
+    expect($adjustment->timesheet_id)->toBe($timesheet->id)
+        ->and($adjustment->original_start_at->equalTo($timesheet->start_at))->toBeTrue()
+        ->and($adjustment->original_end_at)->toBeNull()
+        ->and($adjustment->requested_start_at)->toBeNull()
+        ->and($adjustment->requested_end_at->equalTo(\Illuminate\Support\Carbon::parse('2026-06-29 17:00', $timezone)))->toBeTrue();
+});
+
+test('approving a check-out only correction closes the day and leaves the recorded check-in alone', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+    $timesheet = makeAdjustmentTimesheet($this, $employee, '2026-06-26');
+
+    $adjustment = AttendanceAdjustment::create([
+        'group_id'         => $this->group->id,
+        'organisation_id'  => $this->organisation->id,
+        'employee_id'      => $employee->id,
+        'employee_name'    => $employee->contact_name,
+        'timesheet_id'     => $timesheet->id,
+        'date'             => '2026-06-26',
+        'reason'           => 'Forgot to clock out',
+        'requested_end_at' => '2026-06-26 16:00:00',
+        'status'           => \App\Enums\HumanResources\Attendance\AttendanceAdjustmentStatusEnum::PENDING,
+    ]);
+
+    ApproveAttendanceAdjustment::make()->handle($adjustment);
+
+    $timesheet->refresh();
+
+    expect($timesheet->start_at->format('H:i'))->toBe('08:00')
+        ->and($timesheet->end_at->format('H:i'))->toBe('16:00')
+        ->and($timesheet->working_duration)->toBe(8 * 3600)
+        ->and($timesheet->number_open_time_trackers)->toBe(0);
+});
+
+test('approving a request for a day with no clockings creates the clockings and the timesheet', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+
+    $adjustment = StoreAttendanceAdjustment::make()->action($employee, [
+        'date'               => '2026-06-25',
+        'reason'             => 'Clocking machine was down',
+        'requested_start_at' => '08:00',
+        'requested_end_at'   => '17:00',
+    ]);
+
+    expect($adjustment->timesheet_id)->toBeNull()
+        ->and($adjustment->original_start_at)->toBeNull();
+
+    ApproveAttendanceAdjustment::make()->handle($adjustment);
+
+    $adjustment->refresh();
+    $clockings = \App\Models\HumanResources\Clocking::where('timesheet_id', $adjustment->timesheet_id)->get();
+
+    expect($adjustment->timesheet_id)->not->toBeNull()
+        ->and($clockings)->toHaveCount(2)
+        ->and($clockings->every(fn ($clocking) => $clocking->type === \App\Enums\HumanResources\Clocking\ClockingTypeEnum::MANUAL))->toBeTrue()
+        ->and($adjustment->timesheet->working_duration)->toBe(9 * 3600);
+});
+
+test('a request needs a check-in or a check-out, and the check-out must come after the check-in', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+
+    expect(fn () => StoreAttendanceAdjustment::make()->action($employee, [
+        'date'   => '2026-06-24',
+        'reason' => 'Nothing to change',
+    ]))->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    expect(fn () => StoreAttendanceAdjustment::make()->action($employee, [
+        'date'               => '2026-06-24',
+        'reason'             => 'Typo',
+        'requested_start_at' => '17:00',
+        'requested_end_at'   => '08:00',
+    ]))->toThrow(\Illuminate\Validation\ValidationException::class);
+});
+
+test('staff without the human resources position cannot approve or reject a request', function () {
+    $employee = Employee::factory()->create([
+        'organisation_id' => $this->organisation->id,
+        'group_id'        => $this->group->id,
+    ]);
+
+    $adjustment = StoreAttendanceAdjustment::make()->action($employee, [
+        'date'               => '2026-06-23',
+        'reason'             => 'Forgot to clock in',
+        'requested_start_at' => '08:00',
+    ]);
+
+    actingAs(User::factory()->create(['group_id' => $this->group->id]));
+
+    $this->post(route('grp.org.hr.adjustments.approve', [$this->organisation->slug, $adjustment->id]))->assertForbidden();
+    $this->post(route('grp.org.hr.adjustments.reject', [$this->organisation->slug, $adjustment->id]), ['approval_comment' => 'No'])->assertForbidden();
+
+    expect($adjustment->refresh()->status)->toBe(\App\Enums\HumanResources\Attendance\AttendanceAdjustmentStatusEnum::PENDING);
+});
+
 function makeOvertimeDay(mixed $context, string $compensationType, string $multiplier): array
 {
     $employee = Employee::factory()->create([

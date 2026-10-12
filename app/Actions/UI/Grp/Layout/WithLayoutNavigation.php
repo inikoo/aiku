@@ -297,9 +297,10 @@ trait WithLayoutNavigation
                             ],
                         ],
                         [
-                            'label'   => __('Adjustments'),
-                            'tooltip' => __('Adjustments'),
+                            'label'   => __('Clocking adjustment'),
+                            'tooltip' => __('Clocking adjustment'),
                             'icon'    => ['fal', 'fa-clock'],
+                            'icon_layers' => [['fal', 'fa-clock'], ['fal', 'fa-pencil']],
                             'root'    => 'grp.org.hr.adjustments.',
                             'route'   => [
                                 'name'       => 'grp.org.hr.adjustments.index',

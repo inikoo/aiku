@@ -69,6 +69,11 @@ class Timesheet extends Model
         return $this->hasMany(TimeTracker::class);
     }
 
+    public function attendanceAdjustments(): HasMany
+    {
+        return $this->hasMany(AttendanceAdjustment::class);
+    }
+
     public function clockedAtOnTimesheetDate(string $clockedAt): Carbon
     {
         $timezone = $this->organisation->timezone->name ?? 'UTC';

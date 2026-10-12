@@ -88,17 +88,14 @@ class DashboardAdjustments extends OrgAction
                 $request->route()->getName(),
                 $request->route()->originalParameters()
             ),
-            'title' => __('Attendance Adjustments Dashboard'),
+            'title' => __('Clocking adjustment dashboard'),
             'pageHead' => [
                 'icon' => [
-                    'icon' => ['fal', 'fa-user-hard-hat'],
-                    'title' => __('Human resources')
+                    'icon'        => ['fal', 'fa-clock'],
+                    'icon_layers' => [['fal', 'fa-clock'], ['fal', 'fa-pencil']],
+                    'title'       => __('Clocking adjustment')
                 ],
-                'iconRight' => [
-                    'icon' => ['fal', 'fa-clock'],
-                    'title' => __('Adjustments')
-                ],
-                'title' => __('Attendance Adjustments Dashboard'),
+                'title' => __('Clocking adjustment dashboard'),
                 'subNavigation' => $this->getAdjustmentSubNavigation($request),
             ],
             'filters' => [
