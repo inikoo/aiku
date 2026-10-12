@@ -3,6 +3,7 @@
 namespace App\Actions\Catalogue\Shop\External\Shopify;
 
 use App\Actions\Catalogue\Shop\Traits\WithShopifyExternalShopApi;
+use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
@@ -158,6 +159,8 @@ class StoreOrderFromShopifyExternalShop extends OrgAction
                 strict: false
             );
         }
+
+        CalculateOrderTotalAmounts::run($order);
 
         $order = SubmitOrder::make()->action($order->refresh());
 
