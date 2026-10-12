@@ -31,6 +31,8 @@ class GetCurrencyExchange
 
         $currencyExchange = (float)Cache::get($key);
         if (!$currencyExchange) {
+            $this->rememberPair($baseCurrency->code.'-'.$targetCurrency->code);
+
             try {
 
                 $exchangeData          = FetchCurrencyExchange::run($baseCurrency, $targetCurrency);
@@ -51,6 +53,14 @@ class GetCurrencyExchange
         return $currencyExchange;
     }
 
+
+    private function rememberPair(string $pair): void
+    {
+        $pairs = Cache::get(WarmCurrencyExchanges::PAIRS_KEY, []);
+        if (!in_array($pair, $pairs, true)) {
+            Cache::forever(WarmCurrencyExchanges::PAIRS_KEY, [...$pairs, $pair]);
+        }
+    }
 
     private function latestStoredExchange(Currency $baseCurrency, Currency $targetCurrency): ?float
     {
