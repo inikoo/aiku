@@ -13953,6 +13953,7 @@
     "Set as audited with same stock (:xstock stocks)": "Tandai sudah diaudit dengan stok yang sama (:xstock stok)",
     "Set as collected": "Tandai sebagai diambil",
     "Set as confirmed by the supplier.": "Ditandai sebagai dikonfirmasi oleh pemasok.",
+    "Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.": "Klik setelah pemasok menyatakan sanggup menyediakan produk ini. Ini hanya mencatat jawaban mereka di sini, tidak ada yang dikirim ke pemasok.",
     "Set as default": "Tetapkan sebagai default",
     "Set as default packaging": "Tetapkan sebagai kemasan default",
     "Set as dispatched": "Tandai sebagai terkirim",
