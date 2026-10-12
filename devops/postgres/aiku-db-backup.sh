@@ -134,17 +134,21 @@ copy_to_r2() {
 }
 
 run_secrets() {
-    local file
+    local file encrypted
     mountpoint -q "$MOUNT" || fail "The storage box is not mounted on ${MOUNT}, so .env and the OAuth keys were not backed up."
     [ -r "$SECRETS_KEY" ] || fail "The public key ${SECRETS_KEY} is missing, so .env and the OAuth keys were not backed up."
     mkdir -p "$SECRETS_DIR" || fail "Cannot create ${SECRETS_DIR}."
 
     file="$SECRETS_DIR/aiku-secrets-$(date +%F).tar.gpg"
+    encrypted=$(mktemp) || fail 'Cannot create a temporary file for the encrypted .env.'
     tar -C "$SECRETS_SOURCE" -cf - .env storage/oauth-private.key storage/oauth-public.key \
-        | gpg --batch --yes --encrypt --recipient-file "$SECRETS_KEY" --output "$file.partial" \
-        && [ -s "$file.partial" ] \
-        && mv "$file.partial" "$file" \
-        || fail "Encrypting .env and the OAuth keys to ${SECRETS_DIR} failed."
+        | gpg --batch --yes --encrypt --recipient-file "$SECRETS_KEY" --output "$encrypted" \
+        && [ -s "$encrypted" ] \
+        && copy_verified "$encrypted" "$file.partial" "$(checksum "$encrypted")" \
+        && mv "$file.partial" "$file"
+    local result=$?
+    rm -f "$encrypted"
+    [ "$result" = 0 ] || fail "Encrypting .env and the OAuth keys to ${SECRETS_DIR} failed."
 
     prune "$SECRETS_DIR" "$SECRETS" "$KEEP_SECRETS"
 }
@@ -315,7 +319,8 @@ self_test() {
         : > "$dir/src/storage/oauth-public.key"
         gpg --homedir "$dir/gnupg" --batch --quiet --passphrase '' --quick-generate-key aiku-backup-self-test default default never 2> /dev/null
         gpg --homedir "$dir/gnupg" --batch --quiet --export aiku-backup-self-test > "$dir/key.pub"
-        (mountpoint() { return 0; }; SECRETS_DIR="$dir/out" SECRETS_SOURCE="$dir/src" SECRETS_KEY="$dir/key.pub"; run_secrets)
+        (mountpoint() { return 0; }; SECRETS_DIR="$dir/out" SECRETS_SOURCE="$dir/src" SECRETS_KEY="$dir/key.pub" DD_OUT='' DD_IN='' COPY_RETRY_SECONDS=0; run_secrets)
+        check "$(ls "$dir/out" | grep -c partial)" 0 'no half-written secrets file is left behind'
         check "$(gpg --homedir "$dir/gnupg" --batch --quiet --decrypt "$dir/out"/aiku-secrets-*.tar.gpg 2> /dev/null | tar -xOf - .env)" \
             'APP_KEY=base64:test' 'secrets encrypted with only the public key open with the private key'
         check "$(grep -c APP_KEY "$dir/out"/aiku-secrets-*.tar.gpg)" 0 'the encrypted file does not show the key in clear'
