@@ -29,14 +29,14 @@ trait WithAgentShoppingSubNavigation
                 "isAnchor" => true,
             ],
             [
-                "label"    => __("Browse"),
+                "label"    => __("Ordering"),
                 "route"    => [
                     "name"       => "grp.org.procurement.org_agents.show.shopping.browse.index",
                     "parameters" => [$this->organisation->slug, $parent->slug],
                 ],
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-store"],
-                    "tooltip" => __("Browse"),
+                    "tooltip" => __("Ordering"),
                 ],
             ],
             [
