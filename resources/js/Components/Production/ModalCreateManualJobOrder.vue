@@ -155,7 +155,7 @@ function save() {
                                 <div v-if="line.artefact.on_board" class="text-xs text-amber-700">{{ line.artefact.on_board === 1 ? ctrans("Already on the board once") : ctrans("Already on the board :count times", { count: String(line.artefact.on_board) }) }}</div>
                                 <div v-if="line.artefact.stock_available" class="text-xs text-amber-700">{{ ctrans(":count SKOs in stock now", { count: useLocaleStore().number(line.artefact.stock_available) }) }}</div>
                             </td>
-                            <td class="py-1.5"><input v-model.number="line.quantity" type="number" min="0.001" step="any" class="w-20 rounded border-gray-300 py-0.5" /></td>
+                            <td class="py-1.5"><input v-model.number="line.quantity" type="number" min="1" step="1" class="w-20 rounded border-gray-300 py-0.5" /></td>
                             <td class="py-1.5 text-right tabular-nums text-gray-600">{{ units(line) !== null ? useLocaleStore().number(units(line) as number) : "—" }}</td>
                             <td class="py-1.5 text-right"><button type="button" class="text-gray-400 hover:text-red-600" @click="form.lines.splice(index, 1)">×</button></td>
                         </tr>

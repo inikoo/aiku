@@ -1502,6 +1502,9 @@ test('a job order line is split between artisans who each work, and are paid for
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
     ]);
 
+    $packedIn = $this->artefact->orgStock?->packed_in;
+    $this->artefact->orgStock?->update(['packed_in' => 100]);
+
     $jobOrder = StoreJobOrder::make()->action($this->production, []);
     $line     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 1000, 'data' => ['demand_skos' => 1000, 'batch_code' => 'B-1']]);
     $splitUrl = route('grp.models.job-order-item.split', ['jobOrderItem' => $line->id]);
@@ -1516,6 +1519,7 @@ test('a job order line is split between artisans who each work, and are paid for
         ['employee_id' => $artisanB->id, 'quantity' => 300],
         ['employee_id' => $artisanC->id, 'quantity' => 300],
     ]])->assertSessionHasNoErrors();
+    $this->artefact->orgStock?->update(['packed_in' => $packedIn]);
 
     $subJobs = JobOrderItem::where('id', $line->id)->orWhere('split_from_id', $line->id)->orderBy('id')->get();
     expect($subJobs->pluck('employee_id')->all())->toBe([$artisanA->id, $artisanB->id, $artisanC->id])
@@ -3260,6 +3264,8 @@ test('to produce board lists each artisan and their share of a split job order',
     \App\Models\Production\Artefact::where('production_id', $this->production->id)->where('org_stock_id', $orgStock->id)->update(['org_stock_id' => null]);
     $artefact = StoreArtefact::make()->action($this->production, ['code' => 'SPLIT-01', 'name' => 'Shared between artisans']);
     $artefact->update(['org_stock_id' => $orgStock->id]);
+    $packedIn = $orgStock->packed_in;
+    $orgStock->update(['packed_in' => 100]);
 
     [$artisanA, $artisanB] = collect(range(1, 2))->map(function () {
         $modelData = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
@@ -3277,9 +3283,15 @@ test('to produce board lists each artisan and their share of a split job order',
 
     actingAs($this->guest->getUser());
     patch(route('grp.models.job-order-item.split', ['jobOrderItem' => $line->id]), ['assignments' => [
+        ['id' => $line->id, 'employee_id' => $artisanA->id, 'quantity' => 650],
+        ['employee_id' => $artisanB->id, 'quantity' => 350],
+    ]])->assertSessionHasErrors('assignments');
+
+    patch(route('grp.models.job-order-item.split', ['jobOrderItem' => $line->id]), ['assignments' => [
         ['id' => $line->id, 'employee_id' => $artisanA->id, 'quantity' => 600],
         ['employee_id' => $artisanB->id, 'quantity' => 400],
     ]])->assertSessionHasNoErrors();
+    $orgStock->update(['packed_in' => $packedIn]);
 
     $boardLine = \App\Models\Procurement\PartnerShoppingListItem::create([
         'group_id'        => $this->group->id,
@@ -4597,6 +4609,19 @@ test('a job order is raised in whole batches of units for the SKOs asked for', f
         ->and(\App\Actions\Production\JobOrder\BatchedUnitsForDemand::run(0, null, null))->toBe(1);
 });
 
+test('a job order is raised in whole outers, unless the batch itself is not whole outers', function () {
+    $batched = \App\Actions\Production\JobOrder\BatchedUnitsForDemand::make();
+
+    expect($batched->handle(62.5, 8, null))->toBe(504)
+        ->and($batched->handle(21.813, 16, 352))->toBe(352)
+        ->and($batched->handle(0, 8, null))->toBe(8)
+        ->and($batched->wholeOuters(500, 8, null))->toBe(504)
+        ->and($batched->wholeOuters(496, 8, null))->toBe(496)
+        ->and($batched->wholeOuters(349, 16, 352))->toBe(352)
+        ->and($batched->wholeOuters(430, 24, 215))->toBe(430)
+        ->and($batched->wholeOuters(7, null, null))->toBe(7);
+});
+
 test('the partner order quantum is the smallest whole SKO order that whole batches fill', function () {
     $quantum = fn (?int $packedIn, ?int $batchSize) => \App\Actions\Production\JobOrder\BatchedUnitsForDemand::make()->quantumInSkos($packedIn, $batchSize);
 
@@ -5177,6 +5202,14 @@ test('a batch size change flags open jobs raised with the old one and their quan
     $this->patch(route('grp.models.job-order-item.update', [$item->id]), ['quantity' => 50])->assertSessionHasErrors('quantity');
 
     expect($item->refresh()->quantity)->toBe(480);
+
+    $this->patch(route('grp.models.job-order-item.update', [$item->id]), ['quantity' => 485])->assertSessionHasNoErrors();
+
+    expect($item->refresh()->quantity)->toBe(492);
+
+    $this->post(route('grp.models.job-order.item.store', [$item->job_order_id]), ['artefact_id' => $artefact->id, 'quantity' => 13])->assertSessionHasNoErrors();
+
+    expect(JobOrderItem::where('job_order_id', $item->job_order_id)->where('id', '!=', $item->id)->value('quantity'))->toBe(24);
 });
 
 test('a discontinued SKO leaves the to produce board unless a job order already carries it', function () {
