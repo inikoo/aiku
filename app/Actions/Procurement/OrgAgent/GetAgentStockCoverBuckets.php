@@ -109,18 +109,24 @@ class GetAgentStockCoverBuckets
      * @param  TQuery  $query
      * @return TQuery
      */
-    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent $orgAgent): Builder|\Illuminate\Database\Eloquent\Builder
+    public function scope(Builder|\Illuminate\Database\Eloquent\Builder $query, OrgAgent $orgAgent, bool $orderableOnly = true): Builder|\Illuminate\Database\Eloquent\Builder
     {
-        return $query
+        $query
             ->join('supplier_products as sp', 'sp.id', 'osp.supplier_product_id')
             ->leftJoinLateral(self::bestOrgStock(), 'os')
             ->leftJoin('org_stock_stats as s', 's.org_stock_id', 'os.id')
             ->leftJoin('stocks', 'stocks.id', 'os.stock_id')
             ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
             ->where('osp.org_agent_id', $orgAgent->id)
+            ->whereNull('sp.deleted_at');
+
+        if (!$orderableOnly) {
+            return $query;
+        }
+
+        return $query
             ->where('osp.state', OrgSupplierProductStateEnum::ACTIVE->value)
             ->where('osp.is_available', true)
-            ->whereNull('sp.deleted_at')
             ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))');
     }
 

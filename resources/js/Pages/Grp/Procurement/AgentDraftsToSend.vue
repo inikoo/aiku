@@ -117,6 +117,8 @@ const agreedCards = computed(() => props.cards.filter(isAgreed))
 
 const containerShare = (cbm: number) => `${locale.number(Math.round((cbm / props.container.cbm) * 1000) / 10)}%`
 const openOrders = ref<Set<number>>(new Set())
+const ownOrder = (card: { parts: { url: string | null; reference: string }[] }) => card.parts.find((part) => part.url)
+
 const shownOrderIds = computed(() => shownCards.value.flatMap((card) => card.parts.map((part) => part.purchase_order_id)))
 const isEveryOrderOpen = computed(() => shownOrderIds.value.length > 0 && shownOrderIds.value.every((id) => openOrders.value.has(id)))
 const toggleOrder = (id: number) => {
@@ -220,6 +222,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                     <div class="min-w-0">
                         <div class="text-base font-semibold text-gray-900">{{ card.supplier_code }}</div>
                         <div class="truncate text-xs text-gray-500" :title="card.supplier_name">{{ card.supplier_name }}</div>
+                        <Link v-if="ownOrder(card)" :href="ownOrder(card).url" class="block truncate text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ ownOrder(card).reference }}</Link>
                     </div>
                     <span
                         class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums"
@@ -327,6 +330,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                         <td class="px-4 py-2" colspan="4">
                             <span class="font-semibold text-gray-900">{{ card.supplier_code }}</span>
                             <span class="ml-2 text-xs text-gray-500">{{ card.supplier_name }}</span>
+                            <Link v-if="ownOrder(card)" :href="ownOrder(card).url" class="ml-2 text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ ownOrder(card).reference }}</Link>
                             <span class="ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums" :class="card.all_ready ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
                                 {{ ctrans(":ready of :total ready", { ready: card.ready_count, total: card.parts.length }) }}
                             </span>

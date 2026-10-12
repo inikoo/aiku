@@ -224,7 +224,7 @@ class ShowMasterProduct extends OrgAction
                             'class'   => 'text-red-400'
                         ],
                     'actions'   => [
-                        $masterAsset->mismatch_detected ? [
+                        $this->canEdit && $masterAsset->mismatch_detected ? [
                             'key'   => 'repair-mismatch',
                             'type'  => 'button',
                             'style' => 'delete',
@@ -233,7 +233,7 @@ class ShowMasterProduct extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        [
+                        $this->canEdit ? [
                             'key'   => 'edit',
                             'type'  => 'button',
                             'style' => 'edit',
@@ -241,7 +241,7 @@ class ShowMasterProduct extends OrgAction
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
-                        ],
+                        ] : false,
                         $this->canDelete ? [
                             'key'   => 'delete',
                             'type'  => 'button',
@@ -251,12 +251,12 @@ class ShowMasterProduct extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        [
+                        $this->canEdit ? [
                             'key'       => 'assign',
                             'type'      => 'button',
                             'style'     => 'create',
                             'label'     => __('Add to Other Shop'),
-                        ],
+                        ] : false,
                     ],
                     'subNavigation'        => $this->getMasterProductsSubNavigation($masterAsset),
                 ],

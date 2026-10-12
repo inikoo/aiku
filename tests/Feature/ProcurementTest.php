@@ -227,6 +227,7 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Models\Helpers\CurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\FetchCurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
+use App\Actions\Helpers\CurrencyExchange\WarmCurrencyExchanges;
 use Illuminate\Support\Carbon;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -3654,6 +3655,24 @@ test('without a live exchange rate the latest stored one is used, never a rate o
         ->and(GetCurrencyExchange::run($pound, $euro))->not->toBe(1.0);
 
     Cache::forget('current-currency-exchange:GBP-EUR');
+});
+
+test('a currency pair once asked for is kept warm, so pages stop waiting for the provider', function () {
+    $pound = Currency::where('code', 'GBP')->firstOrFail();
+    $euro  = Currency::where('code', 'EUR')->firstOrFail();
+    Cache::forget('current-currency-exchange:GBP-EUR');
+    FetchCurrencyExchange::shouldRun()->times(2)->andReturn(['status' => 'success', 'exchange' => 1.15, 'source' => 'CB'], ['status' => 'success', 'exchange' => 1.17, 'source' => 'CB']);
+
+    expect(GetCurrencyExchange::run($pound, $euro))->toBe(1.15)
+        ->and(Cache::get(WarmCurrencyExchanges::PAIRS_KEY))->toContain('GBP-EUR');
+
+    Cache::forever(WarmCurrencyExchanges::PAIRS_KEY, ['GBP-EUR']);
+
+    expect(WarmCurrencyExchanges::run())->toBe(['GBP-EUR' => 1.17])
+        ->and(GetCurrencyExchange::run($pound, $euro))->toBe(1.17);
+
+    Cache::forget('current-currency-exchange:GBP-EUR');
+    Cache::forget(WarmCurrencyExchanges::PAIRS_KEY);
 });
 
 test('rescue order creates nothing when a sister company has nothing to rescue', function () {
@@ -9860,6 +9879,46 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
         ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
 });
 
+test('UI agent browse pictures a product with its own photo, not the one of a bundle that contains it', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $code = $orgSupplierProduct->supplierProduct->code;
+
+    $orgStockId = $this->orgStocks[0]->id;
+    DB::table('org_stock_has_org_supplier_products')->insert([
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $this->orgStocks[0]->stock_id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id]),
+        'org_stock_id'                  => $orgStockId,
+        'org_supplier_product_id'       => $orgSupplierProduct->id,
+        'status'                        => true,
+        'local_priority'                => 1,
+        'created_at'                    => now(),
+        'updated_at'                    => now(),
+    ]);
+
+    [, , $shop] = createShop();
+    [, $base]   = createProduct($shop);
+
+    $ownProduct = $base->replicate();
+    $ownProduct->fill(['code' => 'OWN-'.$code, 'slug' => Str::lower('own-'.$code), 'web_images' => ['main' => ['gallery' => 'own-photo']]])->save();
+    $bundle = $base->replicate();
+    $bundle->fill(['code' => 'KIT-'.$code, 'slug' => Str::lower('kit-'.$code), 'web_images' => ['main' => ['gallery' => 'bundle-photo']]])->save();
+
+    DB::table('product_has_org_stocks')->insert([
+        ['product_id' => $ownProduct->id, 'org_stock_id' => $orgStockId, 'quantity' => 1],
+        ['product_id' => $bundle->id, 'org_stock_id' => $orgStockId, 'quantity' => 1],
+        ['product_id' => $bundle->id, 'org_stock_id' => $this->orgStocks[1]->id, 'quantity' => 1],
+    ]);
+
+    $url  = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]).'?'.http_build_query(['filter' => ['global' => $code]]);
+    $item = collect($this->get($url)->viewData('page')['props']['items']['data'])->firstWhere('code', $code);
+
+    DB::table('product_has_org_stocks')->whereIn('product_id', [$ownProduct->id, $bundle->id])->delete();
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+
+    expect($bundle->id)->toBeGreaterThan($ownProduct->id)
+        ->and($item['image'])->toBe('own-photo');
+});
+
 test('UI agent browse shows what the other organisations hold on their drafts for a product', function () {
     $otherOrganisation = Organisation::where('code', 'prc2')->first()
         ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
@@ -9898,6 +9957,15 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
     expect($item['other_organisations_drafts'])->toBe([
         ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'units' => 300],
     ])->and($item['ordered_quantity'])->toBe(0);
+
+    $ourDraft = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=items')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('agent_ordering.addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
+            ->where('items.data', fn ($items) => collect($items)->pluck('code')->all() === [$supplierProduct->code]
+                && $items[0]['other_organisations_drafts'][0]['organisation_code'] === $otherOrganisation->code)
+            ->etc());
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
@@ -10805,9 +10873,13 @@ test('purchase order products and items tabs show stock and quarterly usage of e
         'units_per_carton' => 10,
     ]);
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->orgSupplier, $supplierProduct);
-    StockHasSupplierProduct::firstOrCreate(
+    $stockHasSupplierProduct = StockHasSupplierProduct::firstOrCreate(
         ['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id],
         ['available' => true]
+    );
+    DB::table('org_stock_has_org_supplier_products')->updateOrInsert(
+        ['org_stock_id' => $orgStock->id, 'org_supplier_product_id' => $orgSupplierProduct->id],
+        ['stock_has_supplier_product_id' => $stockHasSupplierProduct->id, 'status' => true, 'local_priority' => 1, 'created_at' => now(), 'updated_at' => now()]
     );
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->orgSupplier, [
@@ -10867,7 +10939,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
 
     $items = $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug, 'tab' => 'items']))
         ->assertOk()->viewData('page')['props']['items']['data'];
-    $item  = collect($items)->firstWhere('id', $transaction->id);
+    $item  = collect($items)->firstWhere('code', $supplierProduct->code);
 
     expect($item['stock_in_locations'])->toBe('17')
         ->and((float) collect($item['quarterly_usage'])->last()['sales'])->toBe(6.0)
@@ -10882,7 +10954,7 @@ test('purchase order products and items tabs show stock and quarterly usage of e
 
     $items = $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug, 'tab' => 'items']))
         ->assertOk()->viewData('page')['props']['items']['data'];
-    $item  = collect($items)->firstWhere('id', $transaction->id);
+    $item  = collect($items)->firstWhere('code', $supplierProduct->code);
 
     expect(collect($item['stock_deliveries']['coming'])->pluck('reference'))->not->toContain($comingStockDelivery->reference)
         ->and($item['stock_deliveries']['last_received']['reference'])->toBe($comingStockDelivery->reference);

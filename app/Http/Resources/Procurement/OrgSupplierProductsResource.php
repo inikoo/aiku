@@ -11,6 +11,7 @@ namespace App\Http\Resources\Procurement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
+ * @property int $id
  * @property string $code
  * @property string $name
  * @property string $slug
@@ -25,6 +26,7 @@ class OrgSupplierProductsResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id'                => $this->id,
             'code'              => $this->code,
             'name'              => $this->name,
             'slug'              => $this->slug,

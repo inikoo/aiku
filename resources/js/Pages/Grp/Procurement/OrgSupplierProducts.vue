@@ -24,6 +24,8 @@ const props = defineProps<{
     }
     index?: object
     history?: object
+    copy_products?: object | null
+    copy_targets?: { id: number, label: string }[]
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -38,5 +40,10 @@ const component = computed(() => ({
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" />
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :tab="currentTab"
+        v-bind="currentTab === 'index' ? { copyProducts: copy_products, copyTargets: copy_targets } : {}"
+    />
 </template>
