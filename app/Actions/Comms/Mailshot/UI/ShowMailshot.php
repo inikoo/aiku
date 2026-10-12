@@ -9,7 +9,6 @@
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
-use App\Actions\Comms\EmailTemplate\GetEmailTemplates;
 use App\Actions\Comms\Mailshot\GetMailshotRecipientsQueryBuilder;
 use App\Actions\Comms\MailshotRecipient\UI\IndexMailshotRecipients;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZoneSelectOptions;
@@ -94,7 +93,6 @@ class ShowMailshot extends OrgAction
             ? $mailshot->sent_at->copy()->addHours($mailshotSecondWave->send_delay_hours)->toIso8601String()
             : null;
 
-        $canLoadTemplates = $this->canEdit && in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS]);
 
         $webpage = $mailshot->webpages()->first();
         /* NOTE:
@@ -333,8 +331,6 @@ class ShowMailshot extends OrgAction
                 'numberSecondWaveRecipients' => $mailshotSecondWave?->recipients?->count() ?? 0,
                 'mailshotId' => $mailshot->id,
                 'groupId' => $mailshot->group_id,
-                'ownShopTemplates' => $canLoadTemplates ? GetEmailTemplates::make()->action($this->shop, 'own') : [],
-                'otherShopTemplates' => $canLoadTemplates ? GetEmailTemplates::make()->action($this->shop, 'other') : [],
                 'workshopRoute' => [
                     'name' => $mailshot->type === MailshotTypeEnum::MARKETING ? "grp.org.shops.show.marketing.mailshots.workshop" : "grp.org.shops.show.marketing.newsletters.workshop",
                     'parameters' => [

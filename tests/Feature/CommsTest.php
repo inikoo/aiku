@@ -2697,7 +2697,9 @@ test('UI show mailshot', function (Mailshot $mailshot) {
             ->has('tabs')
             ->has('status')
             ->has('estimatedRecipients')
-            ->has('breadcrumbs');
+            ->has('breadcrumbs')
+            ->missing('ownShopTemplates')
+            ->missing('otherShopTemplates');
     });
 })->depends('create mailshot with recipe for filters');
 
