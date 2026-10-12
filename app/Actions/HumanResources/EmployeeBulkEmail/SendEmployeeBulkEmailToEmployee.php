@@ -6,7 +6,6 @@ use App\Models\HumanResources\EmployeeBulkEmail;
 use App\Notifications\EmployeeBulkEmailNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
 
@@ -38,20 +37,9 @@ class SendEmployeeBulkEmailToEmployee
 
     public static function markRecipientDone(EmployeeBulkEmail $employeeBulkEmail): void
     {
-        $pending = DB::selectOne(
-            'UPDATE employee_bulk_emails SET number_pending = GREATEST(number_pending - 1, 0) WHERE id = ? RETURNING number_pending',
+        DB::update(
+            'UPDATE employee_bulk_emails SET number_pending = GREATEST(number_pending - 1, 0) WHERE id = ?',
             [$employeeBulkEmail->id]
-        )?->number_pending;
-
-        if ($pending === 0) {
-            self::deleteAttachments($employeeBulkEmail);
-        }
-    }
-
-    public static function deleteAttachments(EmployeeBulkEmail $employeeBulkEmail): void
-    {
-        foreach (collect($employeeBulkEmail->attachments ?? [])->map(fn (array $attachment): string => dirname($attachment['path']))->unique() as $directory) {
-            Storage::disk('local')->deleteDirectory($directory);
-        }
+        );
     }
 }
