@@ -110,13 +110,6 @@ class ShowWebsiteDialogWorkshop extends OrgAction
                         'parameters' => $modelRouteParameters,
                         'method'     => 'post'
                     ],
-                    'fetch_clashing_dialogs_route' => [
-                        'name'       => 'grp.json.website_dialogs.clashing',
-                        'parameters' => [
-                            'website'       => $websiteDialog->website_id,
-                            'websiteDialog' => $websiteDialog->id,
-                        ],
-                    ],
                 ],
             ]
         );

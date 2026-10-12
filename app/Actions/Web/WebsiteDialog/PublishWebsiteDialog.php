@@ -12,14 +12,12 @@ use App\Actions\Web\WebsiteHydrateWebsiteDialogs;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\WebsiteDialog\WebsiteDialogStateEnum;
 use App\Enums\Web\WebsiteDialog\WebsiteDialogStatusEnum;
-use App\Enums\Web\WebsiteDialog\WebsiteDialogTriggerEnum;
 use App\Http\Resources\Web\WebsiteDialogResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\Website;
 use App\Models\Web\WebsiteDialog;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -45,16 +43,6 @@ class PublishWebsiteDialog extends OrgAction
         if ($until && $until->lte($from)) {
             throw ValidationException::withMessages([
                 'schedule_finish_at' => __('The finish date must be after the start date.')
-            ]);
-        }
-
-        $clashes = $this->getClashes($websiteDialog, $from, $until);
-
-        if ($clashes->isNotEmpty() && !Arr::get($modelData, 'supersede')) {
-            throw ValidationException::withMessages([
-                'supersede' => __('The dialog of this website is already taken by :names during those dates. Publish again choosing to replace it, or change your dates.', [
-                    'names' => $clashes->pluck('name')->join(', ')
-                ])
             ]);
         }
 
@@ -107,48 +95,12 @@ class PublishWebsiteDialog extends OrgAction
             ApplyWebsiteDialogSchedule::dispatch($websiteDialog)->delay($until);
         }
 
-        $this->supersedeClashes($websiteDialog, $from, $until);
+        ReleasePausedWebsiteDialogs::run($websiteDialog);
 
         BreakWebsiteIrisCache::run($websiteDialog->website);
         WebsiteHydrateWebsiteDialogs::dispatch($websiteDialog->website_id)->delay(2);
 
         return $websiteDialog;
-    }
-
-    /**
-     * Hands the website dialog over to the one being published: whatever it paused before is let
-     * go first, so the clashes are recomputed from scratch, and each one is then taken off only
-     * when the new window actually starts, not the moment it is published.
-     */
-    private function supersedeClashes(WebsiteDialog $websiteDialog, Carbon $from, ?Carbon $until): void
-    {
-        ReleasePausedWebsiteDialogs::run($websiteDialog);
-
-        foreach ($this->getClashes($websiteDialog, $from, $until) as $clash) {
-            if ($from->isFuture()) {
-                PauseSupersededWebsiteDialog::dispatch($clash, $websiteDialog->id)->delay($from);
-            } else {
-                PauseSupersededWebsiteDialog::run($clash, $websiteDialog->id);
-            }
-
-            if ($until) {
-                ResumeSupersededWebsiteDialog::dispatch($clash, $websiteDialog->id)->delay($until);
-            }
-        }
-    }
-
-    /**
-     * @return Collection<int, WebsiteDialog>
-     */
-    public function getClashes(WebsiteDialog $websiteDialog, Carbon $from, ?Carbon $until): Collection
-    {
-        if ($websiteDialog->getDraftTrigger() !== WebsiteDialogTriggerEnum::AUTOMATIC->value) {
-            return new Collection();
-        }
-
-        return WebsiteDialog::clashingWith($websiteDialog->website_id, $from, $until)
-            ->where('id', '!=', $websiteDialog->id)
-            ->get();
     }
 
     public function rules(): array
@@ -157,7 +109,6 @@ class PublishWebsiteDialog extends OrgAction
             'schedule_at'        => ['sometimes', 'nullable', 'date'],
             'schedule_finish_at' => ['sometimes', 'nullable', 'date'],
             'published_message'  => ['sometimes', 'nullable', 'string', 'max:255'],
-            'supersede'          => ['sometimes', 'boolean'],
         ];
     }
 
