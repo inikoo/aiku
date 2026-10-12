@@ -289,7 +289,8 @@ class ShowPurchaseOrder extends OrgAction
                             'port_of_export'   => Arr::get($purchaseOrder->data, 'port_of_export'),
                             'port_of_import'   => Arr::get($purchaseOrder->data, 'port_of_import'),
                             'delivery_address' => $deliveryAddress,
-                            'is_own_warehouse' => $deliveryAddress === ResolvePurchaseOrderDeliveryAddress::run($purchaseOrder->organisation),
+                            'is_own_warehouse' => $purchaseOrder->organisation_id === $this->organisation->id
+                                && $deliveryAddress === ResolvePurchaseOrderDeliveryAddress::run($purchaseOrder->organisation),
                         ],
                         'seller_order' => $this->sellerOrder($purchaseOrder, $request),
                         'clean_handover' => $purchaseOrder->isAgentOrder() ? [
@@ -774,7 +775,9 @@ class ShowPurchaseOrder extends OrgAction
 
             $timeline['estimated_dispatch'] = [
                 'label'     => __('Estimated dispatch'),
-                'tooltip'   => __('Estimated dispatch'),
+                'tooltip'   => $purchaseOrder->isAgentOrder()
+                    ? __('Estimated date the supplier dispatches the goods to the agent')
+                    : __('Estimated date the supplier dispatches the goods'),
                 'key'       => 'estimated_dispatch',
                 'icon'      => 'fal fa-truck',
                 'sub_label' => $estimatedProductionDate ? null : __('No estimated production date'),
@@ -792,7 +795,7 @@ class ShowPurchaseOrder extends OrgAction
 
             $timeline['estimated_delivery'] = [
                 'label'     => __('Estimated delivery'),
-                'tooltip'   => __('Estimated delivery'),
+                'tooltip'   => __('Estimated date the goods arrive at the delivery address'),
                 'key'       => 'estimated_delivery',
                 'sub_label' => $estimatedReceivingDate ? null : __('No estimated delivery date'),
                 'timestamp' => $estimatedReceivingDate,
