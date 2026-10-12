@@ -16085,7 +16085,8 @@
         "weekly cut off day": "hari batas mingguan",
         "will receive :count unit|will receive :count units": "akan menerima :count unit",
         "working place": "tempat kerja",
-        "workshop": "workshop"
+        "workshop": "workshop",
+        "This will overwrite :count products dimensions, are you sure want to continue ?": "Ini akan menimpa dimensi :count produk, apakah Anda yakin ingin melanjutkan ?"
     },
     "sk": {
         " Products for sale": " Produkty na predaj",
