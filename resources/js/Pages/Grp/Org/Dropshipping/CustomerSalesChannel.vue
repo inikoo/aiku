@@ -16,14 +16,15 @@ import type { Component } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faShopify, faTiktok } from "@fortawesome/free-brands-svg-icons"
-import { faStore, faBookmark, faUndoAlt } from "@fal"
+import { faStore, faBookmark, faUndoAlt, faSlidersH } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import ButtonWithLink from "@/Components/Elements/Buttons/ButtonWithLink.vue"
 import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
 import { data } from "autoprefixer"
 import CustomerSalesChannelShowcase from "@/Pages/Grp/Org/Dropshipping/CustomerSalesChannelShowcase.vue";
+import EditModel from "@/Pages/Grp/EditModel.vue"
 
-library.add(faStore, faBookmark, faUndoAlt)
+library.add(faStore, faBookmark, faUndoAlt, faSlidersH)
 
 const props = defineProps<{
     title: string
@@ -44,6 +45,10 @@ const props = defineProps<{
         platform_user: {}
     }
     history?: {}
+    settings?: {
+        blueprint: {}[]
+        args: {}
+    }
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -75,5 +80,11 @@ const isModalAddress = ref(false)
     </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"/>
+    <template v-if="currentTab === 'settings'">
+        <EditModel v-if="settings" embedded :title="title" :pageHead="pageHead" :formData="settings" />
+        <div v-else class="p-4 space-y-4">
+            <div v-for="row in 4" :key="row" class="h-9 max-w-2xl rounded bg-gray-200 animate-pulse" />
+        </div>
+    </template>
+    <component v-else :is="component" :data="props[currentTab]" :tab="currentTab"/>
 </template>

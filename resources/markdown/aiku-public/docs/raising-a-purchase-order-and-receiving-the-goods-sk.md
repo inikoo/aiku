@@ -1,8 +1,8 @@
 ---
 title: Vystavenie objednávky a prevzatie tovaru
 summary: Nákup od bežného dodávateľa - vystavte objednávku, nechajte si ju potvrdiť, potom premeňte dodávku na tovar, ktorý môžete predávať.
-date: 2026-10-10
-source_date: 2026-10-10
+date: 2026-10-12
+source_date: 2026-10-12
 tags: procurement, purchase orders, stock deliveries, suppliers, supplier claims, customs
 category: procurement
 ---
@@ -72,6 +72,8 @@ Dodávka následne prechádza vlastnými stavmi:
 - **Checked** - ak ešte nič nebolo uložené na sklad, stále tu môžete **Cancel**.
 - **Booking in / Booked in** - skontrolované množstvá sa naskladňujú do skladu.
 - **Booked in** - stlačte **Place**, aby ste prevzatý tovar uložili na miesto. Toto je posledný pracovný stav dodávky.
+
+Pri dodávkach vytvorených od 12. októbra 2026 prichádzajú náklady pred tovarom: ak označíte dodávku ako prijatú, kým jej chýbajú náklady, aiku sa spýta na dôvod, a tovar sa nedá uložiť na regál, kým faktúra, doprava a clo nemajú každé sumu, odhad alebo **N/A**. Viď [oceňovanie dodávky na sklad](/docs/costing-a-stock-delivery-sk).
 
 Kontrola položky znamená potvrdenie, koľko z každého riadku skutočne dorazilo - nie každá objednávka dorazí kompletná, a chýbajúce alebo prebytočné množstvá sa zobrazia na karte **Under/Over delivered items**, takže sa nič nestratí v rozdiele medzi tým, čo ste objednali, a tým, čo prišlo.
 

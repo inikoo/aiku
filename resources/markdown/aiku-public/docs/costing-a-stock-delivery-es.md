@@ -1,0 +1,128 @@
+---
+title: Calcular el coste de una entrega de stock
+summary: Introduce lo que costó realmente una entrega - la factura del agente o del proveedor y las facturas pagadas en destino por transporte, aduanas y portes - para que el stock se valore a su coste puesto en almacén.
+date: 2026-10-12
+source_date: 2026-10-12
+tags: procurement, stock deliveries, costing, landed cost, service invoices, customs
+category: procurement
+---
+
+<aside class="tldr">
+El coste de una entrega tiene dos partes. La primera es la <b>factura del agente o del proveedor</b>: la mercancía y todo lo que cobraron además. La segunda son los <b>landed costs</b> (costes de llegada): todas las facturas que pagas a terceros para traer la mercancía, como el transporte internacional, el despacho de aduanas, los aranceles y el camión hasta el almacén. aiku suma las dos, reparte los costes de llegada entre los artículos y valora el stock por ese total. Introduce los costes antes de que llegue la mercancía: a partir del 12 de octubre de 2026 la mercancía no se puede colocar hasta que estén introducidos.
+</aside>
+
+## Dónde está el cálculo del coste
+
+Abre la entrega en **Procurement → Stock Deliveries**. Cerca de la parte superior de la página hay una tabla con tres filas:
+
+- **Agent invoice** o **Supplier invoice** (factura del agente o del proveedor) - lo que facturó el agente o el proveedor.
+- **Landed costs** (costes de llegada) - lo que se pagó en destino para traer la mercancía.
+- **Landed total** (total puesto en almacén) - las dos juntas.
+
+Cada fila muestra su **Status**, su **Amount** en la moneda de tu organización y su **Balance due**. Cuando la factura está en otra moneda, ese importe aparece pequeño debajo. Las filas llegan cerradas; pulsa una para abrirla y ver sus líneas y sus botones.
+
+Los costes se pueden introducir en cuanto la entrega está confirmada. No hace falta esperar a la mercancía.
+
+## La factura del agente o del proveedor
+
+Abre la fila de la factura y pulsa **Invoice**. Introduce el **Invoice number**, la **Invoice date**, el importe de las **Goods** y cada uno de los cargos propios del agente o del proveedor, marcados como **Freight** u **Other**. Adjunta el PDF en **Invoice file** y pulsa **Save invoice**.
+
+Mientras no haya una factura real, una entrega que viene del sistema antiguo muestra una factura **Estimated** (estimada) construida con lo que se registró allí. Al guardar la factura real, esta sustituye a la estimación, y la estimación se conserva para poder compararlas.
+
+La misma ventana contiene el **Invoice exchange rate**, el **Settlement** con los depósitos aplicados y el saldo pendiente, y los costes leídos de una factura adjunta.
+
+Para una entrega comprada a través de un agente, pulsa **Agent payments** para aprobar los cargos del agente y registrar lo que le has pagado. Los cargos del agente solo cuentan en el coste cuando los apruebas.
+
+## Los costes de llegada: una línea por factura
+
+Abre la fila **Landed costs** y pulsa **Add** junto a **Service invoices**. Introduce una factura de servicio por cada factura que hayas recibido:
+
+- el tipo de factura (mira la lista de abajo),
+- quién la envió y su referencia,
+- la fecha,
+- la **moneda** y el importe - el transporte puede estar en dólares y la factura del agente de aduanas en euros,
+- el PDF de la factura.
+
+Una factura que cubre varias entregas se puede repartir entre ellas, según el valor de su mercancía o según los importes que escribas.
+
+Los tipos de factura son:
+
+| Kind | Cómo se reparte entre los artículos |
+| --- | --- |
+| Freight | por peso |
+| Local transport (port to warehouse) | por peso |
+| Customs duty | por línea de aduana, o por valor cuando no hay declaración |
+| Anti-dumping duty | igual que los aranceles |
+| Other import taxes (plastic, excise) | igual que los aranceles |
+| Import VAT | no se imputa al coste: se recupera en la declaración del IVA |
+| Customs clearance | por valor |
+| Port and terminal charges | por valor |
+| Storage and demurrage | por valor |
+| Inspection and certificates | por valor |
+| Documentation fees | por valor |
+| Insurance | por valor |
+| Fines | por valor |
+| Other | por valor |
+
+El transporte se reparte por valor en vez de por peso cuando algún producto de la entrega no tiene peso registrado; la ventana te dice qué productos son.
+
+Cada factura rellena el coste por sí sola, y un coste rellenado por una factura solo se puede cambiar cambiando la factura. Todas las facturas de tu organización aparecen en **Service invoices**, a la que se llega desde el encabezado de esa lista, donde puedes filtrarlas por tipo, remitente, pagadas o sin pagar, y periodo.
+
+## Escribir un coste sin factura
+
+Pulsa **Edit landed costs** para abrir los costes como una tabla. Cada coste tiene:
+
+- **N/A** - márcalo cuando la entrega no tiene ese coste, por ejemplo sin aranceles en una compra dentro del país.
+- **Amount** y **Currency** - al escribir un importe, el coste queda como recibido. La moneda empieza siendo la de tu organización.
+- **Rate** - solo cuando la moneda no es ni la de la entrega ni la de tu organización.
+- **Waiting for invoice** - mira más abajo.
+- **Invoice** - **Upload** (sube) el PDF que respalda ese coste.
+- **History** - cada cambio de ese coste, con quién lo hizo y cuándo.
+
+Se puede añadir una nota bajo cada coste. **Add extra expense** añade un coste de alguno de los tipos de la lista anterior; para **Other**, indica de qué se trata.
+
+## Cuando una factura todavía no ha llegado
+
+Marca **Waiting for invoice** en ese coste y, si lo sabes, escribe cuántos días esperas que tarde. La página de la entrega mostrará entonces que el total va a aumentar.
+
+Si escribes un importe mientras el coste está en espera, es una **estimación**. Una estimación cuenta en el cálculo, así que la entrega se puede dar por calculada y el stock se puede valorar, y la entrega sigue marcada como **Costed with an estimate** hasta que la factura real la sustituya.
+
+## Cuando el cálculo está terminado
+
+Una entrega está calculada cuando su factura está introducida y su transporte, aranceles y costes extra tienen cada uno un importe, una estimación o **N/A**. En ese momento el stock colocado a partir de la entrega toma su coste puesto en almacén. La fila **Landed total** lista entonces todos los costes con su porcentaje sobre la mercancía, y dice cuánto coste extra hay por cada euro de mercancía.
+
+Después de eso, los costes quedan bloqueados. Para corregirlos, o para sustituir una estimación por la factura real, un responsable de contabilidad pulsa **Update costing**, hace los cambios y pulsa **Finish costing**. El stock se valora de nuevo y el cambio queda registrado con su nombre y el motivo.
+
+## Los costes van antes que la mercancía
+
+Para las entregas creadas a partir del 12 de octubre de 2026:
+
+- **Colocar la mercancía queda bloqueado** hasta que la factura, el transporte y los aranceles tengan cada uno un importe, una estimación o **N/A**. La mercancía se puede recibir y comprobar, pero no se puede poner en una estantería, así que nada se vende con el coste equivocado.
+- **Marcar una entrega como recibida** mientras faltan costes pide un motivo. El motivo se escribe en el historial de la entrega y se avisa a los supervisores de compras.
+
+Las entregas de socios no se ven afectadas: su coste se calcula con los precios del pedido del socio.
+
+## Ver lo que falta por calcular
+
+El dashboard de **Procurement** se abre con una barra que muestra cuántas entregas quedan por calcular y cuántas de ellas están detenidas. Cada cifra abre la lista de entregas de stock con su filtro. En la propia lista, el filtro **Costing** ofrece **To cost**, **Costs missing, put-away blocked** y **Costed with an estimate**.
+
+## Con tu asistente de IA
+
+Las personas que calculan el coste de las entregas pueden pedir a su asistente de IA que les muestre los costes de una entrega o que guarde su transporte, aranceles y costes extra. Primero enseña lo que va a cambiar y solo guarda cuando lo confirmas. Rechaza una entrega que ya está calculada, y un total de costes superior al valor de la mercancía a menos que lo confirmes, lo que normalmente significa un importe en la moneda equivocada. Cada guardado queda en el registro de cambios de IA (AI changes) y se puede revertir ahí. El IVA de importación, la factura del agente o del proveedor y los archivos PDF se introducen en la página, no a través del asistente.
+
+<aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
+<ul>
+<li><b>Abrir el cálculo de coste de una entrega:</b> tu organización → <b>Procurement → Stock Deliveries</b> → la entrega → la tabla con <b>Agent invoice</b>, <b>Landed costs</b> y <b>Landed total</b>.</li>
+<li><b>Introducir la factura:</b> abre la fila de la factura → <b>Invoice</b> → <b>Save invoice</b>.</li>
+<li><b>Aprobar los cargos de un agente o registrar un pago:</b> abre la fila de la factura → <b>Agent payments</b>.</li>
+<li><b>Añadir una factura:</b> abre <b>Landed costs</b> → <b>Add</b> junto a <b>Service invoices</b>.</li>
+<li><b>Escribir un coste, marcarlo como N/A o en espera:</b> abre <b>Landed costs</b> → <b>Edit landed costs</b>.</li>
+<li><b>Corregir una entrega ya calculada (responsables de contabilidad):</b> <b>Update costing</b> en la parte superior de la entrega, y luego <b>Finish costing</b>.</li>
+<li><b>Ver lo que está pendiente:</b> dashboard de <b>Procurement</b>, la barra de arriba; o el filtro <b>Costing</b> de la lista de entregas de stock.</li>
+<li><b>Dejar que alguien guarde costes a través de su asistente de IA (administradores):</b> <b>Sysadmin → Users</b> → abre el usuario → <b>Edit</b> → activa <b>Can save stock delivery costs through their AI assistant</b>.</li>
+</ul>
+</aside>
+
+<aside class="permissions"><strong>Permisos que necesitas</strong>
+Necesitas permiso para ver compras (procurement) o contabilidad de la organización para ver el cálculo del coste, y permiso para editar compras o contabilidad para introducir costes y facturas. Cambiar una entrega que ya está calculada requiere el puesto de responsable de contabilidad. Colocar la mercancía y marcar una entrega como recibida siguen los permisos de entrada de mercancía del almacén.
+</aside>

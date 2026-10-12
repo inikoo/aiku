@@ -8,6 +8,7 @@
 import { computed, ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { ctrans } from '@/Composables/useTrans'
+import { isAgentOrganisation } from '@/Composables/useAgentRoutes'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
 import Table from '@/Components/Table/Table.vue'
@@ -50,6 +51,8 @@ const arrivedDeliveryStates = ['received', 'checked', 'settled', 'not_received',
 
 const isTransactionClosed = (item: { state?: string; delivery_state?: string }) =>
     closedStates.includes(props.state ?? '') || closedStates.includes(item.state ?? '') || arrivedDeliveryStates.includes(item.delivery_state ?? '')
+
+const cancelledRowClass = (item: { state?: string }) => item.state === 'cancelled' ? 'bg-red-100' : ''
 
 const hasSupplierUnits = computed(() => !props.isPartner && ((props.data as any)?.data ?? []).some((item: any) => item.supplier_unit))
 
@@ -365,7 +368,14 @@ function hideImagePreview() {
     imagePreviewPopover.value?.hide()
 }
 
-function supplierProductRoute(item: { slug?: string }) {
+const currentOrganisation = route().params.organisation as string | undefined
+const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
+
+function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
+    if (item.org_supplier_product_slug && isInAgentOrganisation) {
+        return route('grp.org.procurement.org_supplier_products.show', [currentOrganisation, item.org_supplier_product_slug])
+    }
+
     if (!item.slug) {
         return ''
     }
@@ -375,7 +385,7 @@ function supplierProductRoute(item: { slug?: string }) {
 
 
 function orgStockRoute(item: { org_stock_id?: number }) {
-    if (!item.org_stock_id) {
+    if (!item.org_stock_id || isInAgentOrganisation) {
         return ''
     }
 
@@ -384,7 +394,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5" :rowColorFunction="cancelledRowClass">
         <template #before-table>
             <div class="flex items-end justify-between gap-3 border-b border-gray-200 px-3 sm:px-4">
                 <div class="flex items-end gap-1">

@@ -62,6 +62,10 @@ class RevertMcpChange
             throw ValidationException::withMessages(['message' => __('An order already sent cannot be taken back automatically. Cancel it with the partner or supplier.')]);
         }
 
+        if (!$mcpChange->type->canBeReverted()) {
+            throw ValidationException::withMessages(['message' => __('What was done for a customer cannot be taken back automatically. Put it right in the chat or on the order.')]);
+        }
+
         if ($mcpChange->reverted_at) {
             throw ValidationException::withMessages(['message' => __('This change was already reverted')]);
         }
@@ -80,7 +84,7 @@ class RevertMcpChange
                 McpChangeTypeEnum::PARTNER_SHOPPING_LIST => $this->revertPartnerShoppingList($mcpChange->before, $mcpChange->after),
                 McpChangeTypeEnum::PRODUCTION_RECORD => $this->revertProductionRecord($target, $mcpChange->before),
                 McpChangeTypeEnum::PRODUCTION_RECIPE => $this->revertProductionRecipes($mcpChange->before),
-                McpChangeTypeEnum::PLACED_ORDER => null,
+                McpChangeTypeEnum::PLACED_ORDER, McpChangeTypeEnum::CUSTOMER_SERVICE => null,
                 McpChangeTypeEnum::MASTER_PRICES => $this->revertMasterPrices($mcpChange->before),
                 McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->revertStockDeliveryCosts($target, $mcpChange->before),
             };

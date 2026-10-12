@@ -148,6 +148,7 @@ class IndexStockDeliveries extends OrgAction
                 'elements' => [
                     'costed'     => [__('Costed'), $costedCounts[1] ?? 0],
                     'not_costed' => [__('Not costed'), $costedCounts[0] ?? 0],
+                    'to_cost'    => [__('To cost'), $this->applyParentFilter(StockDelivery::query())->toCost()->count()],
                     'costs_missing' => [__('Costs missing, put-away blocked'), $this->applyParentFilter(StockDelivery::query())->withCostsMissingForPutAway()->count()],
                     'estimated'     => [__('Costed with an estimate'), $this->applyParentFilter(StockDelivery::query())->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))->count()],
                 ],
@@ -158,6 +159,9 @@ class IndexStockDeliveries extends OrgAction
                         }
                         if (in_array('not_costed', $elements)) {
                             $query->orWhere('stock_deliveries.is_costed', false);
+                        }
+                        if (in_array('to_cost', $elements)) {
+                            $query->orWhere(fn ($query) => $query->toCost());
                         }
                         if (in_array('estimated', $elements)) {
                             $query->orWhere(fn ($query) => $query->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true)));

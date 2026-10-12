@@ -2259,3 +2259,223 @@ describe('stock delivery costs tool', function () {
         expect($this->stockDelivery->costs()->count())->toBe($baseline);
     });
 });
+
+describe('customer service tools', function () {
+    beforeEach(function () {
+        [, $this->product] = createProduct($this->shop);
+        if (!$this->product->orgStocks()->count()) {
+            $this->product->orgStocks()->attach(App\Models\Inventory\OrgStock::where('organisation_id', $this->organisation->id)->firstOrFail()->id, ['quantity' => 1]);
+        }
+        $this->product->orgStocks()->update(['quantity_available' => 100000]);
+
+        $this->csCustomer = App\Actions\CRM\Customer\StoreCustomer::make()->action($this->shop, array_merge(
+            App\Models\CRM\Customer::factory()->definition(),
+            ['contact_address' => $this->customer->address->only(['address_line_1', 'address_line_2', 'sorting_code', 'postal_code', 'dependent_locality', 'locality', 'administrative_area', 'country_code', 'country_id'])]
+        ));
+        createWebsite($this->shop);
+        $webUser          = App\Actions\CRM\WebUser\StoreWebUser::make()->action($this->csCustomer->refresh(), [
+            'username' => 'cs'.uniqid(),
+            'email'    => 'cs'.uniqid().'@testmail.com',
+            'password' => 'test',
+        ]);
+
+        $this->chat = App\Models\Chat\ChatSession::create([
+            'ulid'             => (string) Illuminate\Support\Str::ulid(),
+            'status'           => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value,
+            'channel'          => App\Enums\CRM\Livechat\ChatChannelEnum::WEBSITE,
+            'shop_id'          => $this->shop->id,
+            'web_user_id'      => $webUser->id,
+            'language_id'      => 68,
+            'ai_model_version' => 'default',
+        ]);
+        App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $this->chat->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER,
+            'message_text'    => 'One of the candle holders arrived broken',
+        ]);
+
+        $this->user->assignRole(App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(App\Enums\SysAdmin\Authorisation\RolesEnum::CUSTOMER_SERVICE_CLERK->value, $this->shop));
+        App\Actions\SysAdmin\CleanUserCaches::make()->clearPermissionsCache($this->user);
+        app(Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        $this->user->update(['can_use_mcp_customer_service' => true]);
+
+        createWarehouse();
+        $this->csTool    = fn (string $tool, array $arguments) => AikuServer::actingAs($this->user)->tool($tool, ['chat_id' => $this->chat->ulid, ...$arguments]);
+        $this->csChanges = fn () => App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::CUSTOMER_SERVICE)->count();
+    });
+
+    test('opens a chat by its id with the conversation, the customer and an order', function () {
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 3]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatTool::class, ['order' => $order->reference])
+            ->assertOk()
+            ->assertSee('One of the candle holders arrived broken')
+            ->assertSee($this->csCustomer->reference)
+            ->assertSee($order->reference)
+            ->assertSee($this->product->code);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatTool::class, ['chat_id' => '01NOTACHATID0000000000000'])
+            ->assertHasErrors(['No chat with that ID']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatTool::class, ['order' => 'NOT-THEIRS'])
+            ->assertHasErrors(['is not an order of']);
+    });
+
+    test('a user not enrolled is refused and nothing is sent', function () {
+        $this->user->update(['can_use_mcp_customer_service' => false]);
+        $baseline = $this->chat->messages()->count();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, [
+            'action'       => 'reply',
+            'message'      => 'Sorry about that',
+            'confirm'      => true,
+            'request_text' => 'reply sorry',
+        ])->assertHasErrors(['not enabled for this user']);
+
+        expect($this->chat->messages()->count())->toBe($baseline);
+    });
+
+    test('a reply is previewed first, then sent as the agent, claims the chat and is logged but cannot be reverted', function () {
+        $baseline = $this->chat->messages()->count();
+        $changes  = ($this->csChanges)();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, [
+            'action'  => 'reply',
+            'message' => 'Sorry about that, a credit is on its way',
+        ])->assertOk()->assertSee('Nothing was changed');
+
+        expect($this->chat->messages()->count())->toBe($baseline)
+            ->and(($this->csChanges)())->toBe($changes);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, [
+            'action'       => 'reply',
+            'message'      => 'Sorry about that, a credit is on its way',
+            'confirm'      => true,
+            'request_text' => 'tell them a credit is coming',
+        ])->assertOk()->assertSee('change_log_id');
+
+        $reply  = $this->chat->messages()->latest('id')->first();
+        $change = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::CUSTOMER_SERVICE)->latest('id')->first();
+
+        expect($this->chat->messages()->count())->toBe($baseline + 1)
+            ->and($reply->message_text)->toBe('Sorry about that, a credit is on its way')
+            ->and($reply->sender_type)->toBe(App\Enums\CRM\Livechat\ChatSenderTypeEnum::AGENT)
+            ->and($this->chat->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::ACTIVE)
+            ->and($this->chat->assignments()->where('status', 'active')->first()->chatAgent->user_id)->toBe($this->user->id)
+            ->and(($this->csChanges)())->toBe($changes + 1)
+            ->and($change->request_text)->toBe('tell them a credit is coming')
+            ->and($change->canBeRevertedBy($this->user))->toBeFalse()
+            ->and(fn () => App\Actions\SysAdmin\McpChange\RevertMcpChange::make()->handle($change, $this->user))->toThrow(Illuminate\Validation\ValidationException::class);
+    });
+
+    test('waits for the customer, then closes the chat', function () {
+        Illuminate\Support\Facades\Queue::fake();
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'assign_to_me', 'confirm' => true, 'request_text' => 'take it'])->assertOk();
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'wait_for_reply', 'hours' => 72, 'confirm' => true, 'request_text' => 'wait 3 days'])->assertOk();
+
+        expect(App\Actions\Chat\ChatSession\WaitForCustomerReply::until($this->chat->refresh()))->not->toBeNull();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'close', 'confirm' => true, 'request_text' => 'close it'])->assertOk();
+
+        expect($this->chat->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::CLOSED);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'close', 'confirm' => true, 'request_text' => 'close it'])
+            ->assertHasErrors(['This chat is closed']);
+    });
+
+    test('changes notes, products and delivery address of a submitted order, and refuses a dispatched one', function () {
+        [, $other] = createProduct($this->shop);
+        $order     = StoreOrder::make()->action($this->csCustomer, []);
+        $line      = App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 10]);
+        $order     = App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $order->update(['internal_notes' => 'Called on Monday']);
+        $changes   = ($this->csChanges)();
+        $address   = [
+            'address_line_1' => '1 Assistant Road',
+            'locality'       => $order->deliveryAddress->locality ?: 'Sheffield',
+            'postal_code'    => $order->deliveryAddress->postal_code ?: 'S1 1AA',
+            'administrative_area' => $order->deliveryAddress->administrative_area,
+            'country_code'   => $order->deliveryAddress->country_code,
+        ];
+        $arguments = [
+            'order'            => $order->reference,
+            'notes'            => ['internal_notes' => 'Customer wants fewer', 'shipping_notes' => 'Leave with the neighbour'],
+            'products'         => [['code' => $this->product->code, 'quantity' => 4]],
+            'delivery_address' => array_filter($address),
+        ];
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceOrderTool::class, $arguments)->assertOk()->assertSee('Nothing was changed')->assertSee('10 to 4');
+
+        expect((float) $line->refresh()->quantity_ordered)->toBe(10.0)
+            ->and(($this->csChanges)())->toBe($changes);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceOrderTool::class, [...$arguments, 'confirm' => true, 'request_text' => 'make it 4, leave with neighbour'])->assertOk();
+
+        $order->refresh();
+        expect((float) $line->refresh()->quantity_ordered)->toBe(4.0)
+            ->and($order->internal_notes)->toBe("Called on Monday\nCustomer wants fewer")
+            ->and($order->shipping_notes)->toBe('Leave with the neighbour')
+            ->and($order->deliveryAddress->address_line_1)->toBe('1 Assistant Road')
+            ->and(($this->csChanges)())->toBe($changes + 1);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceOrderTool::class, ['order' => $order->reference, 'products' => [['code' => 'NOT-A-PRODUCT', 'quantity' => 1]]])
+            ->assertHasErrors(['is not a product of']);
+
+        $order->update(['state' => OrderStateEnum::DISPATCHED]);
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceOrderTool::class, ['order' => $order->reference, 'notes' => ['internal_notes' => 'late'], 'confirm' => true, 'request_text' => 'note'])
+            ->assertHasErrors(['can no longer be changed']);
+    });
+
+    test('a claim is previewed with its amount, then credited to the balance of the customer', function () {
+        $order = StoreOrder::make()->action($this->csCustomer, []);
+        App\Actions\Ordering\Transaction\StoreTransaction::make()->action($order, $this->product->historicAsset, ['quantity_ordered' => 2]);
+        App\Actions\Ordering\Order\UpdateState\SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = App\Actions\Ordering\Order\UpdateState\SendOrderToWarehouse::make()->action($order->refresh(), []);
+        $item         = $deliveryNote->deliveryNoteItems()->firstOrFail();
+        $item->update(['quantity_picked' => $item->quantity_required, 'quantity_dispatched' => $item->quantity_required]);
+        $invoice      = App\Actions\Ordering\Order\GenerateInvoiceFromOrder::make()->action($order->refresh());
+        App\Actions\Accounting\Invoice\PayInvoice::make()->action(
+            $invoice->refresh(),
+            App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount::make()->action(
+                $this->organisation,
+                App\Models\Accounting\PaymentServiceProvider::where('type', App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum::CASH->value)->first(),
+                ['code' => 'MCS'.mt_rand(1000, 9999), 'name' => 'Assistant claim account']
+            ),
+            [
+                'amount' => $invoice->total_amount,
+                'status' => App\Enums\Accounting\Payment\PaymentStatusEnum::SUCCESS->value,
+                'state'  => App\Enums\Accounting\Payment\PaymentStateEnum::COMPLETED->value,
+            ]
+        );
+        $order->update(['state' => OrderStateEnum::DISPATCHED, 'dispatched_at' => now()->subDay()]);
+
+        $balance   = (float) $this->csCustomer->refresh()->balance;
+        $arguments = [
+            'order'      => $order->reference,
+            'resolution' => 'refund_to_balance',
+            'items'      => [['code' => $this->product->code, 'quantity' => 1]],
+        ];
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, $arguments)->assertOk()->assertSee('Nothing was changed')->assertSee('to the balance of');
+
+        expect((float) $this->csCustomer->refresh()->balance)->toBe($balance)
+            ->and($order->invoices()->where('type', App\Enums\Accounting\Invoice\InvoiceTypeEnum::REFUND)->count())->toBe(0);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, [...$arguments, 'confirm' => true, 'request_text' => 'credit one broken'])->assertOk()->assertSee('credited');
+
+        $refund = $order->invoices()->where('type', App\Enums\Accounting\Invoice\InvoiceTypeEnum::REFUND)->sole();
+        expect((float) $this->csCustomer->refresh()->balance)->toBe(round($balance + abs((float) $refund->total_amount), 2))
+            ->and(abs((float) $refund->total_amount))->toBeGreaterThan(0.0);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, [...$arguments, 'items' => [['code' => $this->product->code, 'quantity' => 2]], 'confirm' => true, 'request_text' => 'credit two more'])
+            ->assertHasErrors(['left to claim']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, [...$arguments, 'resolution' => 'replacement', 'items' => [['code' => $this->product->code, 'quantity' => 1], ['code' => $this->product->code, 'quantity' => 1]], 'confirm' => true, 'request_text' => 'send two'])
+            ->assertHasErrors(['left to claim']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceClaimTool::class, [...$arguments, 'items' => [['code' => 'NOT-DELIVERED', 'quantity' => 1]]])
+            ->assertHasErrors(['was not delivered on']);
+    });
+});

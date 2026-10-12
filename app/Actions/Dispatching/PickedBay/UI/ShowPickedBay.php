@@ -10,7 +10,7 @@ namespace App\Actions\Dispatching\PickedBay\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\Authorisations\Inventory\WithWarehouseAuthorisation;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Enums\UI\Inventory\PickedBayTabsEnum;
 use App\Http\Resources\Inventory\PickedBayResource;
 use App\Models\Inventory\PickedBay;
@@ -23,18 +23,11 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPickedBay extends OrgAction
 {
     use WithActionButtons;
-    use WithWarehouseAuthorisation;
+    use WithDispatchingEquipmentAuthorisation;
 
     public function handle(PickedBay $pickedBay): PickedBay
     {
         return $pickedBay;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->authTo("inventory.{$this->warehouse->id}.edit");
-
-        return $request->user()->authTo("inventory.{$this->warehouse->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, PickedBay $pickedBay, ActionRequest $request): PickedBay

@@ -833,7 +833,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                     </div>
                     <div v-if="laneIndex <= LANE_PREPARING" class="text-gray-400">
                         <span :class="freeStock(item) >= Number(item.quantity) ? 'text-emerald-600' : ''">{{ ctrans("In stock") }}: {{ useLocaleStore().number(Number(item.stock_available ?? 0)) }}</span>
-                        <span v-if="Number(item.stock_promised) > 0"> · {{ ctrans("promised to pre-picks") }}: {{ useLocaleStore().number(Number(item.stock_promised)) }} · {{ ctrans("free") }}: {{ useLocaleStore().number(freeStock(item)) }}</span>
+                        <span v-if="Number(item.stock_promised) > 0"> · {{ ctrans("promised to pre-picks") }}: {{ useLocaleStore().number(Number(item.stock_promised)) }} · {{ ctrans("not promised") }}: {{ useLocaleStore().number(freeStock(item)) }}</span>
                     </div>
                     <div
                         v-if="laneIndex === LANE_PREPARING && item.batch_code"

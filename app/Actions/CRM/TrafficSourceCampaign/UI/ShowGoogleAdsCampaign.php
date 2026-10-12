@@ -205,7 +205,7 @@ class ShowGoogleAdsCampaign extends OrgAction
                             'style'     => 'primary',
                             'icon'      => false,
                             'iconRight' => 'fal fa-arrow-right',
-                            'label'     => __('Review'),
+                            'label'     => __('Review campaign'),
                             'route'     => [
                                 'name'       => 'grp.org.shops.show.marketing.google_ads.review',
                                 'parameters' => $parameters,

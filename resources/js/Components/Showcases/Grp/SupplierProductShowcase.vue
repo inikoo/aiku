@@ -41,6 +41,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import JsBarcode from "jsbarcode"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
+import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 
 library.add(
     faBarcode,
@@ -527,9 +528,9 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div v-if="data.internal_images && (data.internal_images.images.length || data.internal_images.upload_route)"
                 class="mt-4 border-t border-gray-100 pt-3">
                 <div class="flex items-center justify-between">
-                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                        v-tooltip="ctrans('Only for internal use, these pictures never reach the websites')">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">
                         {{ ctrans("Internal pictures") }}
+                        <InformationIcon :information="ctrans('Only for internal use, for example printed on the stock label so the warehouse can recognise the goods. These pictures never reach the websites.')" class="text-gray-700" />
                     </div>
                     <label v-if="data.internal_images.upload_route"
                         class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900"

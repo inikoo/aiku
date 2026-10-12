@@ -129,7 +129,8 @@ const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
             <template v-for="(step, stepIndex) in computedXxx" :key="stepIndex">
                 <SwiperSlide>
                     <!-- Section: Title -->
-                    <div class="w-fit mx-auto text-xxs md:text-xs text-center whitespace-nowrap truncate max-w-full px-2"
+                    <div v-tooltip="step.tooltip && step.tooltip !== step.label ? step.tooltip : undefined"
+                        class="w-fit mx-auto text-xxs md:text-xs text-center whitespace-nowrap truncate max-w-full px-2"
                         :class="step.timestamp || state == step.key ? 'text-[#888] ' : 'text-gray-300'">
                         <FontAwesomeIcon v-if="step.icon" :icon='step.icon' class='text-sm' fixed-width aria-hidden='true' />
                         {{ step.label }}
@@ -147,7 +148,7 @@ const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
 
                         <!-- Step: Head -->
                         <div @click="() => emits('updateButton', { step: step, options: computedXxx })"
-                            v-tooltip="step.label"
+                            v-tooltip="step.tooltip || step.label"
                             class="z-20 aspect-square mx-auto rounded-full text-lg flex justify-center items-center"
                             :class="[
                                 setupState(step)

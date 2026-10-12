@@ -272,6 +272,7 @@ class Search extends OrgAction
             'grp.org.accounting.'                     => 'accounting',
             'grp.org.hr.'                             => 'hr',
             'grp.org.procurement.'                    => 'procurement',
+            'grp.org.agent.'                          => 'procurement',
             'grp.org.shops.show.dashboard'            => 'shop_accounting',
             'grp.org.shops.show.catalogue'            => 'catalogue',
             'grp.org.shops.show.crm.prospects'        => 'prospects',

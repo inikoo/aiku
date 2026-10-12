@@ -493,6 +493,15 @@ class Order extends Model implements HasMedia, Auditable
         return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps();
     }
 
+    public function canBeUndispatchedBy(User $user): bool
+    {
+        if ($this->deliveryNotes->isEmpty()) {
+            return $user->authTo("org-admin.$this->organisation_id");
+        }
+
+        return $this->deliveryNotes->every(fn (DeliveryNote $deliveryNote) => $deliveryNote->canBeUndispatchedBy($user));
+    }
+
     public function payments(): MorphToMany
     {
         return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps();

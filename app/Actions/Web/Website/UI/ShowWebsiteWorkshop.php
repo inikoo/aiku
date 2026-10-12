@@ -216,14 +216,14 @@ class ShowWebsiteWorkshop extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
-                        [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'primary',
                             'key'   => 'Publish',
                             'icon'  => ["fas", "fa-save"],
                             'label' => __('Publish'),
                             'route' => $publishRoute
-                        ]
+                        ] : false,
                     ],
                 ],
 

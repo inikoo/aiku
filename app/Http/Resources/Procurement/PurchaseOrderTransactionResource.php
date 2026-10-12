@@ -28,6 +28,7 @@ class PurchaseOrderTransactionResource extends JsonResource
         return [
             'id'                   => $transaction->id,
             'slug'                 => $supplierProduct?->slug,
+            'org_supplier_product_slug' => $transaction->orgSupplierProduct?->slug,
             'code'                 => $supplierProduct?->code ?? $orgStock?->code,
             'name'                 => $supplierProduct?->name ?? $orgStock?->name,
             'supplier_name'        => $supplierProduct?->supplier?->name,

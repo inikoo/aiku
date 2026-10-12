@@ -69,7 +69,7 @@ watch(isLive, (live) => (isCardOpen.value = !live))
                         class="flex flex-1 items-center justify-center gap-x-1 rounded bg-white py-1 font-medium text-green-700 hover:bg-green-50 disabled:opacity-50"
                         @click="answer(organisationFor(ringing.organisation), ringing.id)">
                         <FontAwesomeIcon :icon="faPhone" fixed-width aria-hidden="true" />
-                        {{ ctrans("Answer") }}
+                        {{ ctrans("Answer call") }}
                     </button>
                     <button
                         type="button"

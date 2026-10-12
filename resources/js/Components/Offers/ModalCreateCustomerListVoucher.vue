@@ -30,6 +30,10 @@ const props = defineProps<{
 			start: string
 			end: string
 		}
+		customer_state_days: {
+			losing_after: number
+			lost_after: number
+		}
 	}
 }>()
 
@@ -41,18 +45,23 @@ type PreviewCustomer = { id: number; reference: string; name: string; state: str
 
 const MAX_AMOUNT_OFF_RATIO = 0.3
 
-const stateOptions: { value: CustomerState; label: string; information: string }[] = [
+const stateOptions = computed<{ value: CustomerState; label: string; information: string }[]>(() => [
 	{
 		value: "losing",
 		label: "Potential Comebacks",
-		information: "Customers whose status is Potential Comebacks. Aiku does not calculate this status: each customer keeps the one they had in Aurora (Losing) on the day the shop moved to Aiku, so some of them may have ordered recently.",
+		information: ctrans("Customers whose last invoice was :from to :to days ago. Aiku updates this every day, and a new invoice makes the customer Active again.", {
+			from: props.shop_data.customer_state_days.losing_after + 1,
+			to: props.shop_data.customer_state_days.lost_after,
+		}),
 	},
 	{
 		value: "lost",
 		label: "Dormant",
-		information: "Customers whose status is Dormant. Aiku does not calculate this status: each customer keeps the one they had in Aurora (Lost) on the day the shop moved to Aiku, so some of them may have ordered recently.",
+		information: ctrans("Customers whose last invoice was more than :days days ago. Aiku updates this every day, and a new invoice makes the customer Active again.", {
+			days: props.shop_data.customer_state_days.lost_after,
+		}),
 	},
-]
+])
 
 const orderedOnceInformation = "Customers with exactly one invoice, dated inside the range of months you set. Aiku works this out from their invoices, so it is up to date."
 
@@ -328,7 +337,7 @@ const submit = () => {
 							<Checkbox v-model="states" :value="option.value" :inputId="`voucher-state-${option.value}`" />
 							<span>{{ ctrans(option.label) }}</span>
 							<span class="font-normal text-gray-500" @click.prevent>
-								<InformationIcon :information="ctrans(option.information)" />
+								<InformationIcon :information="option.information" />
 							</span>
 						</label>
 
