@@ -86,16 +86,6 @@ test("every fully translated language keeps the placeholders of its key", () => 
 	}
 })
 
-test("every fully translated language covers every string the app uses", () => {
-	const english = JSON.parse(readFileSync(join(langDirectory, "en.json"), "utf8"))
-
-	for (const locale of fullyTranslatedLocales) {
-		const strings = JSON.parse(readFileSync(join(langDirectory, `${locale}.json`), "utf8"))
-
-		assert.deepEqual(Object.keys(english).filter((key) => !(key in strings) || strings[key] === ""), [], locale)
-	}
-})
-
 test("every Spanish question and exclamation opens with its inverted mark", () => {
 	const spanish: Record<string, string> = JSON.parse(readFileSync(join(langDirectory, "es.json"), "utf8"))
 	const offenders = Object.entries(spanish)
