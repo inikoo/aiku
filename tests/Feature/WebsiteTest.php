@@ -2887,7 +2887,9 @@ test('seed website dialog templates', function (Website $website) {
     expect($templates->pluck('code')->all())->toContain('welcome-centered', 'promo-image-side')
         ->and($templates->pluck('code')->all())->not->toContain('removed-template')
         ->and($templates->firstWhere('code', 'promo-image-side')->component)->toBe('dialog-image-side')
-        ->and($templates->firstWhere('code', 'welcome-centered')->data['fields']['title']['text'])->not->toBeEmpty();
+        ->and($templates->firstWhere('code', 'welcome-centered')->data['fields']['title']['text'])->not->toBeEmpty()
+        ->and($templates->firstWhere('code', 'newsletter-subscribe')->data['fields']['subscribe']['show_phone'])->toBeTrue()
+        ->and($templates->firstWhere('code', 'newsletter-subscribe')->data['fields']['subscribe'])->not->toHaveKey('show_email');
 
     getJson(route('grp.json.website_dialog_templates.index'))
         ->assertOk()

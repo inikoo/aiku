@@ -75,7 +75,6 @@ const subscribeSection = {
     key: ["fields", "subscribe"],
     accordion_key: "subscribe",
     replaceForm: [
-        { key: ["show_email"], label: "Show email field", type: "switch", props_data: {} },
         { key: ["placeholder"], label: "Email placeholder", type: "text" },
         { key: ["show_phone"], label: "Show phone field", type: "switch", props_data: {} },
         { key: ["phone_placeholder"], label: "Phone placeholder", type: "text" },
@@ -114,3 +113,6 @@ export const blueprint = blueprints["dialog-centered"]
 export const getWebsiteDialogBlueprint = (component?: string | null) => blueprints[component ?? ""] ?? blueprint
 
 export const DEFAULT_ACCENT = "rgba(79, 70, 229, 1)"
+
+export const isSubscribePhoneShown = (subscribe?: { show_phone?: boolean } | null): boolean =>
+    subscribe?.show_phone !== false

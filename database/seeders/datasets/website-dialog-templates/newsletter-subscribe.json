@@ -15,7 +15,6 @@
             "text": "<p style=\"text-align: center\">New arrivals, restocks and members-only deals, straight to your inbox.</p>"
         },
         "subscribe": {
-            "show_email": true,
             "placeholder": "Your email address",
             "show_phone": true,
             "phone_placeholder": "Your phone number (optional)",
