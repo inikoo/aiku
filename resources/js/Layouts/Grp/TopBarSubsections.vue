@@ -2,7 +2,8 @@
 import { Link } from "@inertiajs/vue3";
 import { useLayoutStore } from "@/Stores/layout";
 import { capitalize } from "@/Composables/capitalize";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome";
+import { faClock as falClock, faPencil as falPencil } from "@fal";
 import { faDotCircle } from "@fas";
 import { faPallet, faUsers, faMapSigns, faTruckCouch, faSignOut, faSitemap, faUserFriends, faColumns, faChartLine, faBoxOpen, faHistory, faBarcode, faTags, faChartNetwork, faHandHoldingUsd, faMoneyCheckAlt, faFileInvoice, faComments } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -10,7 +11,7 @@ import { SubSection } from "@/types/Navigation";
 import { ref } from "vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 
-library.add(faDotCircle, faPallet, faUsers, faMapSigns, faTruckCouch, faSignOut, faSitemap, faUserFriends, faColumns, faChartLine, faBoxOpen, faHistory, faBarcode, faTags, faChartNetwork, faHandHoldingUsd, faMoneyCheckAlt, faFileInvoice, faComments);
+library.add(falClock, falPencil, faDotCircle, faPallet, faUsers, faMapSigns, faTruckCouch, faSignOut, faSitemap, faUserFriends, faColumns, faChartLine, faBoxOpen, faHistory, faBarcode, faTags, faChartNetwork, faHandHoldingUsd, faMoneyCheckAlt, faFileInvoice, faComments);
 
 const layoutStore = useLayoutStore();
 
@@ -56,6 +57,10 @@ const getTooltip = (subSection: SubSection) => {
             <!-- {{ route(subSection.route.name, subSection.route.parameters) }} -->
             <!-- <FontAwesomeIcon :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out" aria-hidden="true" /> -->
             <LoadingIcon v-if="isLoading === 'subSection' + idxSubSec" class="h-5 lg:h-3.5 w-auto " />
+            <FontAwesomeLayers v-else-if="subSection.icon_layers" class="inline-block shrink-0 h-5 w-5 lg:h-4 lg:w-4 mr-1 text-base lg:text-sm group-hover:opacity-100 opacity-70" aria-hidden="true">
+                <FontAwesomeIcon :icon="subSection.icon_layers[0]" transform="shrink-2 left-2 up-1" />
+                <FontAwesomeIcon :icon="subSection.icon_layers[1]" transform="shrink-8 right-5 down-5" />
+            </FontAwesomeLayers>
             <FontAwesomeIcon v-else-if="subSection.icon" :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70" aria-hidden="true" />
             <FontAwesomeIcon v-else icon="fas fa-dot-circle" fixed-width class="h-5 lg:h-3.5" aria-hidden="true" />
             <span v-if="subSection.label" class="hidden lg:inline whitespace-nowrap">{{ subSection.label }}</span>

@@ -63,6 +63,8 @@ class ShowPurchaseOrder extends OrgAction
     use WithPurchaseOrderWeightAndVolume;
     use WithAgentOrganisation;
 
+    private const array AGENT_ACTION_KEYS = ['confirm_purchase_order', 'edit_estimated_delivery_date', 'cancel_purchase_order'];
+
     private bool $agentCanEdit = false;
 
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
@@ -183,7 +185,7 @@ class ShowPurchaseOrder extends OrgAction
                     'afterTitle' => [
                         'label' => $purchaseOrder->state->labels()[$purchaseOrder->state->value],
                     ],
-                    'actions' => [
+                    'actions' => $this->arrangePageHeadActions([
                         $purchaseOrder->isAgentOrder() && $purchaseOrder->agent_order_reference && $purchaseOrder->organisation_id === $this->organisation->id && ($orgAgent = $purchaseOrder->orgAgentOfOrder()) ? [
                             'type'    => 'button',
                             'style'   => 'tertiary',
@@ -225,8 +227,12 @@ class ShowPurchaseOrder extends OrgAction
                         ],
                         ...($uploadExcel ? [] : [$this->downloadExcelAction($purchaseOrder)]),
                         ...($this->emailToSupplierAction($purchaseOrder) ?? []),
-                        ...($this->canEdit ? $this->getActions($purchaseOrder, $showProductsTab) : []),
-                    ],
+                        ...match (true) {
+                            $this->agentCanEdit => $this->getAgentActions($purchaseOrder),
+                            $this->canEdit      => $this->getActions($purchaseOrder, $showProductsTab),
+                            default             => [],
+                        },
+                    ]),
                 ],
                 'upload_excel'             => $uploadExcel ? $this->uploadExcel($purchaseOrder) : null,
                 'data'                     => PurchaseOrderResource::make($purchaseOrder),
@@ -272,7 +278,7 @@ class ShowPurchaseOrder extends OrgAction
                             'purchaseOrder' => $purchaseOrder->id,
                         ],
                     ],
-                    'products_list' => $productListRoute,
+                    'products_list' => $purchaseOrder->organisation_id === $this->organisation->id ? $productListRoute : [],
                 ],
                 'box_stats'   => [
                     'first_block'   => [
@@ -543,7 +549,7 @@ class ShowPurchaseOrder extends OrgAction
             PurchaseOrderStateEnum::SUBMITTED => [
                 [
                     'label'   => __('Confirm'),
-                    'tooltip' => __('Set as confirmed by the supplier.'),
+                    'tooltip' => __('Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.'),
                     'type'    => 'button',
                     'style'   => 'save',
                     'key'     => 'confirm_purchase_order',
@@ -667,6 +673,28 @@ class ShowPurchaseOrder extends OrgAction
         }
 
         return $actions;
+    }
+
+    private function arrangePageHeadActions(array $actions): array
+    {
+        $actions   = array_values(array_filter($actions));
+        $isCancel  = fn (array $action) => Arr::get($action, 'key') === 'cancel_purchase_order';
+        $isEdit    = fn (array $action) => Arr::get($action, 'style') === 'edit';
+        $hasSubmit = collect($actions)->contains(fn (array $action) => Arr::get($action, 'key') === 'submit_purchase_order');
+
+        return [
+            ...array_filter($actions, $isCancel),
+            ...array_filter($actions, fn (array $action) => !$isCancel($action) && ($hasSubmit || !$isEdit($action))),
+            ...($hasSubmit ? [] : array_filter($actions, $isEdit)),
+        ];
+    }
+
+    public function getAgentActions(PurchaseOrder $purchaseOrder): array
+    {
+        return array_values(array_filter(
+            $this->getActions($purchaseOrder, false),
+            fn (array $action) => in_array(Arr::get($action, 'key'), self::AGENT_ACTION_KEYS, true)
+        ));
     }
 
     /**

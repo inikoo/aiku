@@ -414,6 +414,8 @@ const hasData = computed(() => {
     return compResourceMeta.value.total > 0;
 });
 
+const hasPeriodFilter = computed(() => Object.keys(queryBuilderProps.value.period_filter ?? {}).length > 0);
+
 
 
 function resetQuery() {
@@ -1065,7 +1067,7 @@ const getSeverity = (type?: string) => {
     <Transition>
         <!--suppress JSValidateTypes -->
         <slot name='emptyState' :emptyState="queryBuilderProps.emptyState"
-            v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0 && !queryBuilderProps.globalSearch?.value">
+            v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0 && !queryBuilderProps.globalSearch?.value && !hasPeriodFilter">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
                     <slot name="button-empty-state" :action="queryBuilderProps.emptyState?.action">
