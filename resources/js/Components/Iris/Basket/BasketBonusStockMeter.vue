@@ -115,7 +115,7 @@ const progressHint = computed(() => {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.25rem;
     color: #111827;
