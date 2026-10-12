@@ -496,3 +496,56 @@ test('editing a bundle keeps exactly the pictures chosen, so a replaced componen
     expect($bundleProduct->images()->pluck('media.id')->all())->toBe([$newCandle->id])
         ->and($bundleProduct->image_id)->toBe($newCandle->id);
 });
+
+test('a component swapped for another one moves the bundle portfolio sku to the new component set', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'swapped_component_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $makeComponent = function () use ($family): array {
+        $stock = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+            Product::factory()->definition(),
+            [
+                'trade_units' => [['id' => $stock->tradeUnits()->firstOrFail()->id, 'quantity' => 1]],
+                'price'       => 10,
+                'rrp'         => 20,
+            ]
+        ));
+
+        return [$stock, \App\Actions\Catalogue\Product\UpdateProduct::make()->action($product, ['state' => ProductStateEnum::ACTIVE])];
+    };
+
+    [$oldStock, $oldComponent] = $makeComponent();
+    [$newStock, $newComponent] = $makeComponent();
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Swapped Component Bundle',
+        'products' => [
+            ['product_id' => $this->product->id, 'quantity' => 1],
+            ['product_id' => $oldComponent->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $portfolio = \App\Models\Dropshipping\Portfolio::where('bundle_id', $bundle->id)->firstOrFail();
+
+    expect($portfolio->sku)->toContain($oldStock->slug);
+
+    UpdateBundle::make()->action($bundle, [
+        'rrp'      => 41.45,
+        'products' => [
+            ['product_id' => $this->product->id, 'quantity' => 1],
+            ['product_id' => $newComponent->id, 'quantity' => 1],
+        ],
+    ]);
+
+    expect($bundle->items()->pluck('item_id')->all())->toEqualCanonicalizing([$this->product->id, $newComponent->id])
+        ->and($portfolio->refresh()->sku)->toContain($newStock->slug)
+        ->and($portfolio->sku)->not->toContain($oldStock->slug);
+});
