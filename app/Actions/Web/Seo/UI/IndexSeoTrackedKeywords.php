@@ -83,7 +83,7 @@ class IndexSeoTrackedKeywords extends OrgAction
                 ->column(key: 'country_code', label: __('Country'), sortable: true)
                 ->column(key: 'language_code', label: __('Language'))
                 ->column(key: 'device', label: __('Device'))
-                ->column(key: 'frequency', label: __('Check'), tooltip: __('How often the Google position is checked: weekly to the top 30, daily to the top 20. Results are in the Rankings tab'), tooltipIcon: true)
+                ->column(key: 'frequency', label: __('Check'), tooltip: __('How often the Google position is checked: on request only when someone presses Check now in Rankings, monthly or weekly to the top 30, daily to the top 20. Results are in the Rankings tab'), tooltipIcon: true)
                 ->column(key: 'avg_monthly_searches', label: __('Monthly searches'), tooltip: __('Average monthly Google searches for the country and language, from Google Ads data through DataForSEO. Refreshed monthly; a keyword added by hand gets it the next day'), sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'is_active', label: __('Active'))
                 ->column(key: 'actions', label: '', canBeHidden: false)

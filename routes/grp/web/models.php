@@ -584,6 +584,7 @@ use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Crawl\StartSiteAudit;
 use App\Actions\Web\Seo\AcceptSeoContentSuggestion;
+use App\Actions\Web\Seo\CheckSeoKeywordsNow;
 use App\Actions\Web\Seo\DeleteSeoAiPrompt;
 use App\Actions\Web\Seo\DeleteSeoCompetitor;
 use App\Actions\Web\Seo\DismissSeoContentSuggestion;
@@ -1239,6 +1240,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('seo/tracked-keywords', StoreSeoTrackedKeyword::class)->name('seo.tracked_keyword.store');
     Route::post('seo/competitors', StoreSeoCompetitor::class)->name('seo.competitor.store');
     Route::post('seo/rank-checks', RunSeoRankChecks::class)->name('seo.rank_checks.store');
+    Route::post('seo/keyword-checks', CheckSeoKeywordsNow::class)->name('seo.keyword_checks.store');
     Route::post('seo/backlink-fetch', RunSeoBacklinkFetch::class)->name('seo.backlink_fetch.store');
     Route::post('seo/report-subscription', ToggleSeoReportSubscription::class)->name('seo.report_subscription.toggle');
     Route::post('seo/ai-prompts', StoreSeoAiPrompt::class)->name('seo.ai_prompt.store');

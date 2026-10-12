@@ -276,10 +276,19 @@ that contain the same words (last 90 days). Every result has a Track action.
 
 Built on 9 October 2026 on DataForSEO's SERP API.
 
+- A tracked keyword is checked On request (the default for a new keyword since 12 October 2026, as
+  the marketing team asked: no automatic cost until someone wants the position), Monthly, Weekly or
+  Daily.
+- Check now, in the Rankings tab, queues a check for every active keyword of the shop not checked
+  today and not waiting for a result, or for one keyword from its row, whatever its frequency
+  (`CheckSeoKeywordsNow`, `PostSerpTasks::requested()`). The button shows the number of keywords and
+  the cost, and asks first from 1 USD; pressing twice the same day queues nothing.
 - `PostSerpTasks` (daily 00:30 UTC) queues a Google check for every active tracked keyword that is
-  due: daily ones every day, weekly ones once seven days have passed. It uses the standard queue
-  ($0.0006 per page of 10 results), reading weekly keywords to the top 30 and daily ones to the top
-  20, as in [budget.md](budget.md). Tasks carry a tag with a hash of `APP_URL`, so environments
+  due: daily ones every day, weekly ones once 7 days have passed, monthly ones once 30 days have
+  passed, On request ones never. It
+  uses the standard queue
+  ($0.0006 per page of 10 results), reading daily keywords to the top 20 and the others to the top
+  30, as in [budget.md](budget.md). Tasks carry a tag with a hash of `APP_URL`, so environments
   sharing the DataForSEO account never collect each other's tasks. A task with no result after 72
   hours is posted again.
 - `CollectSerpTasks` (every 15 minutes) reads `tasks_ready` and stores the ready results through
@@ -582,10 +591,9 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   10, dropped out of the results read, or fell 5 places or more (`SeoRankingAlert::DROP_PLACES`);
   the row shows as a tag in the table, and once the checks are collected `NotifySeoRankingAlerts`
   sends each watcher one notification per shop, in the bell and by email. No API cost.
-- **Tracking depth per keyword.** Checks read the top 30 weekly or the top 20 daily. The research
-  recommends daily top 100, about $486 a month for 2,700 keywords, against about $65 for top 100
-  weekly. Let the team choose the depth per keyword (20, 30 or 100), so positions 31 to 100 are
-  seen where they matter; the cost shows on the API usage page.
+- **Tracking depth per keyword.** Not built: on 12 October 2026 the marketing team said the top 30
+  is enough and that checks are mostly wanted on request, weekly or monthly, which 2.2 now does. The
+  research had recommended daily top 100, about $486 a month for 2,700 keywords.
 - **Export and scheduled reports.** Built on 9 October 2026.
   - An Excel button on every SEO table (Rankings, Tracked keywords, Top pages, Missing pages,
     Referring domains, Backlinks, Keyword gap, SEO portfolio) downloads it with the filters and sort

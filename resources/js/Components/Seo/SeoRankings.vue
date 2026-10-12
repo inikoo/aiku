@@ -11,7 +11,7 @@ import Dialog from "primevue/dialog"
 import Tag from "primevue/tag"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBell } from "@fal"
+import { faBell, faSyncAlt } from "@fal"
 import { faBell as fasBell } from "@fas"
 import SeoKeywordHistoryChart from "@/Components/Seo/SeoKeywordHistoryChart.vue"
 import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
@@ -50,6 +50,7 @@ type RankingRow = {
     frequency: string
     last_checked_at: string | null
     is_pending: boolean
+    can_check_now: boolean
     position: number | null
     previous_position: number | null
     has_previous_check: boolean
@@ -73,13 +74,15 @@ type RankingsData = {
     competitors: CompetitorRow[]
     isConfigured: boolean
     depths: { weekly: number, daily: number }
+    costPerPage: number
+    checkNow: { keywords: number, cost: number, route: routeType } | null
     runChecksRoute: routeType | null
     table: object
 }
 
 defineOptions({ inheritAttrs: false })
 
-library.add(faBell, fasBell)
+library.add(faBell, fasBell, faSyncAlt)
 
 const props = defineProps<{
     data?: RankingsData
@@ -111,6 +114,42 @@ const runChecks = () => {
 
 const locale = useLocaleStore()
 const page = usePage()
+
+const CONFIRM_FROM_USD = 1
+
+const usd = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: amount < 1 ? 4 : 2 }).format(amount)
+
+const checking = ref<number | "all" | null>(null)
+
+const checkNow = (ranking?: RankingRow) => {
+    const checkNowData = props.data?.checkNow
+
+    if (!checkNowData) {
+        return
+    }
+
+    if (!ranking && checkNowData.cost >= CONFIRM_FROM_USD && !window.confirm(ctrans("Check :count keywords in Google now? It costs about :cost of DataForSEO credit.", { count: locale.number(checkNowData.keywords), cost: usd(checkNowData.cost) }))) {
+        return
+    }
+
+    router.post(route(checkNowData.route.name, checkNowData.route.parameters), ranking ? { tracked_keyword_ids: [ranking.id] } : {}, {
+        preserveScroll: true,
+        only: [props.tab],
+        onStart: () => {
+            checking.value = ranking ? ranking.id : "all"
+            runError.value = null
+        },
+        onError: (errors) => runError.value = Object.values(errors)[0] ?? null,
+        onFinish: () => checking.value = null,
+    })
+}
+
+const frequencyLabels: Record<string, string> = {
+    on_request: ctrans("On request"),
+    monthly: ctrans("Monthly"),
+    weekly: ctrans("Weekly"),
+    daily: ctrans("Daily"),
+}
 
 const intentLabels: Record<string, string> = {
     informational: ctrans("Informational"),
@@ -238,13 +277,25 @@ const urlPath = (url: string) => {
 
 <template>
     <div v-if="data" class="pb-4">
-        <div v-if="data.runChecksRoute && summary.tracked" class="mx-4 mt-4 flex justify-end">
+        <div v-if="(data.checkNow || data.runChecksRoute) && summary.tracked" class="mx-4 mt-4 flex flex-wrap items-center justify-end gap-2">
             <Button
-                type="secondary"
-                :label="summary.pending ? ctrans('Collect results now') : ctrans('Run checks now')"
+                v-if="data.checkNow"
+                type="tertiary"
+                :label="data.checkNow.keywords ? ctrans('Check :count keywords now', { count: locale.number(data.checkNow.keywords) }) : ctrans('Check now')"
                 icon="fal fa-sync-alt"
+                :loading="checking === 'all'"
+                :disabled="!data.checkNow.keywords"
+                v-tooltip="data.checkNow.keywords
+                    ? ctrans('Reads the Google position of every active keyword not checked today, about :cost of DataForSEO credit. Results arrive within minutes to an hour.', { cost: usd(data.checkNow.cost) })
+                    : ctrans('Every active keyword was checked today or is waiting for its result.')"
+                @click="checkNow()" />
+            <Button
+                v-if="data.runChecksRoute"
+                type="tertiary"
+                :label="summary.pending ? ctrans('Collect results now') : ctrans('Run scheduled jobs now')"
+                icon="fal fa-terminal"
                 :loading="isRunning"
-                v-tooltip="ctrans('Local only. Runs the scheduled jobs for this shop now: volumes, queuing the due Google checks and collecting the finished ones. Google results take a few minutes, so press again to collect them.')"
+                v-tooltip="ctrans('Local only. Runs the scheduled jobs for this shop now: volumes, queuing the monthly, weekly and daily checks that are due and collecting the finished ones. Google results take a few minutes, so press again to collect them.')"
                 @click="runChecks" />
         </div>
 
@@ -259,7 +310,7 @@ const urlPath = (url: string) => {
         <section v-if="!summary.tracked" class="mx-4 mt-4 rounded-xl bg-white px-5 py-6 text-sm text-gray-600 ring-1 ring-gray-200">
             <p class="font-medium text-gray-900">{{ ctrans("No keywords are tracked for this shop yet.") }}</p>
             <p class="mt-1">
-                {{ ctrans("Add keywords in the Tracked keywords tab, or with Track on a Research result, and competitor domains in SEO > Competitors. Each keyword is checked in Google weekly or daily, and its position appears here.") }}
+                {{ ctrans("Add keywords in the Tracked keywords tab, or with Track on a Research result, and competitor domains in SEO > Competitors. A keyword is checked in Google when you press Check now, or monthly, weekly or daily if you set it so, and its position appears here.") }}
             </p>
         </section>
 
@@ -271,7 +322,7 @@ const urlPath = (url: string) => {
                         <p class="mt-1">
                             {{ summary.pending
                                 ? ctrans("Google results are on their way and usually arrive within the hour.")
-                                : ctrans("Keywords are checked every night from 00:30 UTC, and their positions appear here once the results arrive.") }}
+                                : ctrans("Press Check now to read the positions. Keywords set to monthly, weekly or daily are also checked at night from 00:30 UTC.") }}
                         </p>
                     </div>
 
@@ -390,8 +441,20 @@ const urlPath = (url: string) => {
                                 @click="toggleWatch(ranking)">
                                 <FontAwesomeIcon :icon="ranking.is_watched ? fasBell : faBell" fixed-width aria-hidden="true" />
                             </button>
+                            <button
+                                v-if="data.checkNow"
+                                type="button"
+                                :disabled="!ranking.can_check_now || checking !== null"
+                                :aria-label="ctrans('Check :keyword now', { keyword: ranking.keyword })"
+                                v-tooltip="ranking.can_check_now
+                                    ? ctrans('Check now, about :cost of DataForSEO credit', { cost: usd((ranking.frequency === 'daily' ? depths.daily : depths.weekly) / 10 * data.costPerPage) })
+                                    : (ranking.is_pending ? ctrans('Waiting for the Google result') : ctrans('Already checked today'))"
+                                class="shrink-0 rounded text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent] enabled:hover:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                @click="checkNow(ranking)">
+                                <FontAwesomeIcon icon="fal fa-sync-alt" fixed-width aria-hidden="true" :spin="checking === ranking.id" />
+                            </button>
                         </div>
-                        <div class="text-xs text-gray-500">{{ ranking.country_code }} · {{ ranking.device === "mobile" ? ctrans("Mobile") : ctrans("Desktop") }} · {{ ranking.frequency === "daily" ? ctrans("Daily") : ctrans("Weekly") }}</div>
+                        <div class="text-xs text-gray-500">{{ ranking.country_code }} · {{ ranking.device === "mobile" ? ctrans("Mobile") : ctrans("Desktop") }} · {{ frequencyLabels[ranking.frequency] ?? ranking.frequency }}</div>
                     </template>
 
                     <template #cell(position)="{ item: ranking }: { item: RankingRow }">
