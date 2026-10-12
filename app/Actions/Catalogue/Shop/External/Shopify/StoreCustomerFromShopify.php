@@ -65,31 +65,47 @@ class StoreCustomerFromShopify extends OrgAction
             ], $deliveryAddress);
         }
 
-        return $this->ensureCustomerHasAddresses($customer, $deliveryAddress);
+        return $this->syncCustomerAddresses($customer, $shopifyOrder);
     }
 
     /**
-     * An order is born from the customer's own addresses, so a customer imported without one gets the order's.
+     * An order is born from the customer's own addresses, so the customer is given this order's billing and
+     * shipping addresses first and the order is created right, with nothing to correct on it afterwards.
      */
-    private function ensureCustomerHasAddresses(Customer $customer, ?array $shopifyAddress): Customer
+    private function syncCustomerAddresses(Customer $customer, array $shopifyOrder): Customer
     {
-        if ($customer->address_id && $customer->delivery_address_id) {
+        $billingAddress  = $this->getAddressWithCountry(Arr::get($shopifyOrder, 'billingAddress'));
+        $shippingAddress = $this->getAddressWithCountry(Arr::get($shopifyOrder, 'shippingAddress'));
+
+        $contactAddress  = $billingAddress ?? $shippingAddress;
+        $deliveryAddress = $shippingAddress ?? $billingAddress;
+
+        if (!$contactAddress) {
             return $customer;
         }
 
-        if (!$customer->address_id && $shopifyAddress) {
-            $customer = UpdateCustomer::make()->action(
-                customer: $customer,
-                modelData: ['contact_address' => $this->getFormattedAddress($shopifyAddress)],
-                strict: false
-            );
-        }
+        $customer = UpdateCustomer::make()->action(customer: $customer, modelData: ['contact_address' => $contactAddress], strict: false);
 
-        if ($customer->address_id && !$customer->delivery_address_id) {
+        if (!$customer->delivery_address_id) {
             $customer->updateQuietly(['delivery_address_id' => $customer->address_id]);
         }
 
+        if ($deliveryAddress != $contactAddress || $customer->delivery_address_id !== $customer->address_id) {
+            $customer = UpdateCustomer::make()->action(customer: $customer, modelData: ['delivery_address' => $deliveryAddress], strict: false);
+        }
+
         return $customer->refresh();
+    }
+
+    private function getAddressWithCountry(?array $shopifyAddress): ?array
+    {
+        if (!$shopifyAddress) {
+            return null;
+        }
+
+        $address = $this->getFormattedAddress($shopifyAddress);
+
+        return $address['country_id'] ? $address : null;
     }
 
     private function findCustomer(Shop $shop, string $customerId, ?string $email): ?Customer
