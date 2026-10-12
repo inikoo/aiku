@@ -42,6 +42,13 @@ trait WithAgentOrganisation
         $this->canDelete = false;
     }
 
+    protected function organisationAgentSupplies(Model $record): bool
+    {
+        $agent = $this->getOrganisationAgent($this->organisation);
+
+        return $agent !== null && $this->getProcurementRecordAgentId($record) === $agent->id;
+    }
+
     /**
      * An agent organisation records its own side of an order placed through it (production, the
      * ready date it proposes, the deposit it paid) on the order of the organisation that placed it.

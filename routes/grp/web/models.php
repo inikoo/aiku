@@ -471,6 +471,7 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductAgentDetails;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonBarcode;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonWeights;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
@@ -972,6 +973,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('supplier', [StoreSupplier::class, 'inOrganisation'])->name('supplier.store');
     Route::post('org-supplier/from-supplier/{supplier:id}', [StoreOrgSupplier::class, 'inOrganisation'])->name('org_supplier.store')->withoutScopedBindings();
     Route::post('stock-delivery-service-invoice', StoreStockDeliveryServiceInvoice::class)->name('stock_delivery_service_invoice.store');
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/agent-details', UpdateOrgSupplierProductAgentDetails::class)->name('org_supplier_product.agent_details.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/org-stock/{orgStock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
 
