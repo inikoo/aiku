@@ -327,14 +327,14 @@ class ShowAgentOrderStage extends OrgAction
                 'title' => __('Purchase orders the agent is working on'),
                 'icon'  => 'fa-clipboard-list-check',
                 'date'  => __('Submitted'),
-                'note'  => __('Purchase orders submitted to :agent or confirmed by it that are not on a stock delivery yet, every organisation included. A purchase order leaves this list when :agent puts it on a stock delivery.'),
+                'note'  => __('Purchase orders submitted to :agent or confirmed by it that are not on a stock delivery yet. A purchase order leaves this list when :agent puts it on a stock delivery.'),
             ],
             self::PREPARING  => [
                 'label' => __('Preparing'),
                 'title' => __('Stock deliveries in preparation'),
                 'icon'  => 'fa-box-open',
                 'date'  => __('Created'),
-                'note'  => __('Stock deliveries :agent is putting together and has not dispatched yet, every organisation included.'),
+                'note'  => __('Stock deliveries :agent is putting together and has not dispatched yet.'),
             ],
             self::ON_THE_WAY => [
                 'label' => __('On the way'),
@@ -358,7 +358,7 @@ class ShowAgentOrderStage extends OrgAction
         $this->orgAgent = $orgAgent;
         $this->stage    = $stage;
         $this->initialisation($organisation, $request);
-        $this->onlyOurs = in_array($stage, self::OWN_ORGANISATION_ONLY, true) || $request->input('scope') !== 'all';
+        $this->onlyOurs = true;
 
         $this->agentInvoice = in_array($request->input('agent_invoice'), self::AGENT_INVOICE_FILTERS, true) ? $request->input('agent_invoice') : null;
 
@@ -390,7 +390,7 @@ class ShowAgentOrderStage extends OrgAction
                     'cbm'   => $this->orgAgent->order_container->cbm(),
                 ],
                 'scope'       => $this->onlyOurs ? 'ours' : 'all',
-                'canSeeAll'   => !in_array($this->stage, self::OWN_ORGANISATION_ONLY, true),
+                'canSeeAll'   => false,
                 'agentInvoice' => in_array($this->stage, self::OWN_ORGANISATION_ONLY, true) ? [
                     'selected' => $this->agentInvoice,
                     'counts'   => self::agentInvoiceCounts($this->orgAgent, $this->stage),
