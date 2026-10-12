@@ -52,6 +52,8 @@ const arrivedDeliveryStates = ['received', 'checked', 'settled', 'not_received',
 const isTransactionClosed = (item: { state?: string; delivery_state?: string }) =>
     closedStates.includes(props.state ?? '') || closedStates.includes(item.state ?? '') || arrivedDeliveryStates.includes(item.delivery_state ?? '')
 
+const cancelledRowClass = (item: { state?: string }) => item.state === 'cancelled' ? 'bg-red-100' : ''
+
 const hasSupplierUnits = computed(() => !props.isPartner && ((props.data as any)?.data ?? []).some((item: any) => item.supplier_unit))
 
 const supplierLevel = {
@@ -392,7 +394,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5" :rowColorFunction="cancelledRowClass">
         <template #before-table>
             <div class="flex items-end justify-between gap-3 border-b border-gray-200 px-3 sm:px-4">
                 <div class="flex items-end gap-1">
