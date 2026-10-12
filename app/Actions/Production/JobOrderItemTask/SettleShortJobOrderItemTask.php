@@ -73,6 +73,7 @@ class SettleShortJobOrderItemTask
                 'artefact_id' => $item->artefact_id,
                 'quantity'    => $remainingArtefacts,
             ]);
+            $item->update(['data' => array_merge($item->data ?? [], ['carried_to' => $carried->id])]);
             $this->creditWorkAlreadyDone($carriedItem, $excessUnitsByTask);
             ConfirmJobOrder::make()->action($carried);
 

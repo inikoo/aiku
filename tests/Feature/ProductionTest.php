@@ -1115,6 +1115,16 @@ test('closing short can finish the job or carry the shortfall to a new job order
     $carriedAgain = \App\Models\Production\JobOrder::where('production_id', $this->production->id)->orderByDesc('id')->first();
 
     expect($carriedAgain->reference)->toBe($jobOrder->reference.'b');
+
+    actingAs($user);
+    $this->patch(route('grp.models.job-order-item.update', [$item->id]), ['quantity' => 25])->assertSessionHasErrors('quantity');
+    $this->patch(route('grp.models.job-order-item.update', [$item->id]), ['quantity' => 10])->assertSessionHasErrors('quantity');
+    $this->patch(route('grp.models.job-order-item.update', [$carried->jobOrderItems()->first()->id]), ['quantity' => 15])->assertSessionHasErrors('quantity');
+    expect($item->refresh()->quantity)->toBe(10)
+        ->and($item->data['carried_to'])->toBe($carried->id)
+        ->and((float) $task->refresh()->quantity_required)->toBe(10.0);
+
+    $this->patch(route('grp.models.job-order-item.update', [$carriedAgain->jobOrderItems()->first()->id]), ['quantity' => 12])->assertSessionHasNoErrors();
 });
 
 test('making more than the job asked for needs a manager badge or pin and grows the job to what was made', function () {
@@ -1579,6 +1589,18 @@ test('a job order line is split between artisans who each work, and are paid for
     expect($carried->employee_id)->toBe($artisanB->id)
         ->and((int) $carried->jobOrderItems()->first()->quantity)->toBe(500)
         ->and((int) $subJobs[1]->refresh()->quantity)->toBe(100);
+
+    patch($splitUrl, ['assignments' => [
+        ['id' => $subJobs[1]->id, 'employee_id' => $artisanB->id, 'quantity' => 200],
+        ['id' => $subJobs[0]->id, 'employee_id' => $artisanA->id, 'quantity' => 300],
+    ]])->assertSessionHasErrors(['assignments' => 'The rest of this job was carried to '.$carried->reference.', change the quantity there.']);
+
+    patch($splitUrl, ['assignments' => [
+        ['id' => $subJobs[0]->id, 'employee_id' => $artisanA->id, 'quantity' => 400],
+        ['id' => $subJobs[1]->id, 'employee_id' => $artisanB->id, 'quantity' => 100],
+    ]])->assertSessionHasNoErrors();
+    expect($subJobs[1]->refresh()->data['carried_to'])->toBe($carried->id)
+        ->and($subJobs[0]->refresh()->data)->not->toHaveKey('carried_to');
 
     $this->guest->getUser()->employees()->detach($artisanA->id);
 });
