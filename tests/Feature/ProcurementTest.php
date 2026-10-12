@@ -13001,8 +13001,8 @@ test('UI agent order stages', function (string $stage) {
     $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'all']))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('canSeeAll', !in_array($stage, App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::OWN_ORGANISATION_ONLY, true))
-            ->where('scope', in_array($stage, App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::OWN_ORGANISATION_ONLY, true) ? 'ours' : 'all'));
+            ->where('canSeeAll', false)
+            ->where('scope', 'ours'));
 })->with(App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::STAGES);
 
 test('agent order stage rejects an unknown stage', function () {
