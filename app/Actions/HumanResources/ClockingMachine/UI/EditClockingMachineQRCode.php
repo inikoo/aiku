@@ -28,6 +28,8 @@ class EditClockingMachineQRCode extends OrgAction
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ClockingMachineQRCode $clockingMachineQRCode, ActionRequest $request): ClockingMachineQRCode
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($clockingMachineQRCode);
