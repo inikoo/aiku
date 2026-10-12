@@ -74,7 +74,7 @@ trait WithAgentShoppingSubNavigation
                     "tooltip" => $meta['title'],
                 ],
                 "number"   => ShowAgentOrderStage::countOurs($parent, $stage),
-                "active"   => request()->route('stage') === $stage,
+                "active"   => request()->route('stage') === $stage || ($stage === ShowAgentOrderStage::PREPARING && request()->routeIs('*.shopping.container')),
             ], array_keys(ShowAgentOrderStage::stages()), ShowAgentOrderStage::stages()),
         ];
     }

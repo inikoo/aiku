@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilderContract;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -205,6 +206,7 @@ class ShowAgentOrderStage extends OrgAction
                 'url'               => match (true) {
                     !$isOurs                 => null,
                     $stage === self::ORDERED => route('grp.org.procurement.org_agents.show.purchase-orders.show', [$row->organisation_slug, $orgAgent->slug, $row->slug]),
+                    $stage === self::PREPARING => route('grp.org.procurement.org_agents.show.shopping.container', [$row->organisation_slug, $orgAgent->slug, $row->slug]),
                     default                  => route('grp.org.procurement.stock_deliveries.show', [$row->organisation_slug, $row->slug]),
                 },
                 'supplier_code'     => $row->supplier_code ?? null,
@@ -365,8 +367,16 @@ class ShowAgentOrderStage extends OrgAction
         return $this->handle($orgAgent, $stage, $this->onlyOurs, $this->agentInvoice);
     }
 
-    public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response|RedirectResponse
     {
+        if ($this->stage === self::PREPARING && !$request->query()) {
+            $ours = self::documents($this->orgAgent, self::PREPARING)->where('sd.organisation_id', $this->orgAgent->organisation_id)->limit(2)->pluck('sd.slug');
+
+            if ($ours->count() === 1) {
+                return redirect()->route('grp.org.procurement.org_agents.show.shopping.container', [$this->organisation->slug, $this->orgAgent->slug, $ours->first()]);
+            }
+        }
+
         $stage = self::stages()[$this->stage];
 
         return Inertia::render(
