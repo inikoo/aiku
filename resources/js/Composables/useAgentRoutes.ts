@@ -9,6 +9,9 @@ export const setAgentOrganisations = (agents?: { slug: string }[]): void => {
 	}
 }
 
+export const isAgentOrganisation = (organisation?: string): boolean =>
+	!!organisation && agentOrganisations.has(organisation)
+
 const organisationOf = (params: unknown): string | undefined => {
 	if (typeof params === "string") return params
 	if (Array.isArray(params)) return params[0]

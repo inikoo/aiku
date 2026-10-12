@@ -19,6 +19,7 @@ enum SeoKeywordsTabsEnum: string
     case RESEARCH         = 'research';
     case TRACKED_KEYWORDS = 'tracked_keywords';
     case RANKINGS         = 'rankings';
+    case CONTENT_BRIEFS   = 'content_briefs';
 
     public function blueprint(): array
     {
@@ -37,6 +38,11 @@ enum SeoKeywordsTabsEnum: string
                 'title'   => __('Rankings'),
                 'icon'    => 'fal fa-trophy',
                 'tooltip' => __('Google positions of the tracked keywords, with the competitors on the same keywords.'),
+            ],
+            SeoKeywordsTabsEnum::CONTENT_BRIEFS => [
+                'title'   => __('Content briefs'),
+                'icon'    => 'fal fa-file-alt',
+                'tooltip' => __('A writer\'s brief for a keyword, from the pages Google ranks for it: outline, questions to answer, terms to use and length.'),
             ],
         };
     }

@@ -9,7 +9,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Traits\Authorisations\WithPurchaseOrderAgentEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
@@ -23,7 +23,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdatePurchaseOrderStateToConfirmed extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
+    use WithPurchaseOrderAgentEditAuthorisation;
     use AsAction;
     use HasPurchaseOrderHydrators;
     use WithActionUpdate;

@@ -3,6 +3,7 @@
 namespace App\Actions\HumanResources\AttendanceAdjustment\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Attendance\AttendanceAdjustmentStatusEnum;
 use App\Http\Resources\HumanResources\AttendanceAdjustmentResource;
@@ -21,6 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexAttendanceAdjustmentsAdmin extends OrgAction
 {
     use WithAdjustmentSubNavigation;
+    use WithHumanResourcesAuthorisation;
 
     public function handle(Organisation $organisation, ?string $prefix = null): LengthAwarePaginator
     {
@@ -60,21 +62,18 @@ class IndexAttendanceAdjustmentsAdmin extends OrgAction
         return Inertia::render(
             'Org/HumanResources/AttendanceAdjustmentAdmin',
             [
-                'title' => __('Attendance Adjustments'),
+                'title' => __('Clocking adjustment'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'          => [
-                        'icon'  => ['fal', 'fa-clock'],
-                        'title' => __('Human resources')
+                        'icon'        => ['fal', 'fa-clock'],
+                        'icon_layers' => [['fal', 'fa-clock'], ['fal', 'fa-pencil']],
+                        'title'       => __('Clocking adjustment')
                     ],
-                    'iconRight'     => [
-                        'icon'  => ['fal', 'fa-edit'],
-                        'title' => __('Adjustments')
-                    ],
-                    'title'         => __('Attendance Adjustments'),
+                    'title'         => __('Clocking adjustment'),
                     'subNavigation' => $this->getAdjustmentSubNavigation($request),
                 ],
                 'adjustments' => AttendanceAdjustmentResource::collection($adjustments),
@@ -122,8 +121,8 @@ class IndexAttendanceAdjustmentsAdmin extends OrgAction
                             'name'       => $routeName,
                             'parameters' => $routeParameters,
                         ],
-                        'label' => __('Adjustment Requests'),
-                        'icon'  => 'fal fa-edit',
+                        'label' => __('Clocking adjustment'),
+                        'icon'  => 'fal fa-clock',
                     ],
                 ],
             ];

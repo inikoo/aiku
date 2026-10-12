@@ -9,11 +9,14 @@ namespace App\Actions\Discounts\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Discounts\Offer\UI\IndexOffersInsights;
+use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaignsInsights;
 use App\Actions\Helpers\Dashboard\DashboardIntervalFilters;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Dashboards\WithDashboardIntervalOption;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
 use App\Enums\DateIntervals\DateIntervalEnum;
+use App\Enums\UI\Discounts\OffersInsightsTabsEnum;
+use App\Http\Resources\Catalogue\OfferCampaignsInsightsResource;
 use App\Http\Resources\Catalogue\OffersInsightsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
@@ -39,7 +42,7 @@ class ShowOffersInsights extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OffersInsightsTabsEnum::values());
 
         $campaignSlug = $request->input('campaign');
         if ($campaignSlug) {
@@ -59,7 +62,13 @@ class ShowOffersInsights extends OrgAction
 
         $insights = GetOffersInsightsData::run($this->shop, $this->offerCampaign, $this->offerType, $fromDate, $toDate);
 
-        $offers = IndexOffersInsights::make()->handle($this->shop, $this->offerCampaign, $this->offerType, $fromDate, $toDate);
+        $offers = fn () => OffersInsightsResource::collection(
+            IndexOffersInsights::make()->handle($this->shop, $this->offerCampaign, $this->offerType, $fromDate, $toDate, OffersInsightsTabsEnum::OFFERS->value)
+        );
+
+        $campaigns = fn () => OfferCampaignsInsightsResource::collection(
+            IndexOfferCampaignsInsights::make()->handle($this->shop, $this->offerCampaign, $this->offerType, $fromDate, $toDate, OffersInsightsTabsEnum::CAMPAIGNS->value)
+        );
 
         $campaignOptions = OfferCampaign::where('shop_id', $this->shop->id)
             ->where('status', true)
@@ -115,10 +124,17 @@ class ShowOffersInsights extends OrgAction
                     'campaign'  => $this->offerCampaign?->slug,
                     'type'      => $this->offerType,
                 ],
-                'offers'      => OffersInsightsResource::collection($offers),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => OffersInsightsTabsEnum::navigation(),
+                ],
                 'dashboard'   => $dashboard,
+                OffersInsightsTabsEnum::OFFERS->value    => $this->tab == OffersInsightsTabsEnum::OFFERS->value ? $offers : Inertia::optional($offers),
+                OffersInsightsTabsEnum::CAMPAIGNS->value => $this->tab == OffersInsightsTabsEnum::CAMPAIGNS->value ? $campaigns : Inertia::optional($campaigns),
             ]
-        )->table(IndexOffersInsights::make()->tableStructure($this->shop));
+        )
+            ->table(IndexOffersInsights::make()->tableStructure($this->shop, OffersInsightsTabsEnum::OFFERS->value))
+            ->table(IndexOfferCampaignsInsights::make()->tableStructure(OffersInsightsTabsEnum::CAMPAIGNS->value));
     }
 
     public function getBreadcrumbs(array $routeParameters): array

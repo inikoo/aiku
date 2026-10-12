@@ -8,6 +8,7 @@
 import { computed, ref, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { ctrans } from '@/Composables/useTrans'
+import { isAgentOrganisation } from '@/Composables/useAgentRoutes'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
 import Table from '@/Components/Table/Table.vue'
@@ -365,7 +366,14 @@ function hideImagePreview() {
     imagePreviewPopover.value?.hide()
 }
 
-function supplierProductRoute(item: { slug?: string }) {
+const currentOrganisation = route().params.organisation as string | undefined
+const isInAgentOrganisation = isAgentOrganisation(currentOrganisation)
+
+function supplierProductRoute(item: { slug?: string, org_supplier_product_slug?: string }) {
+    if (item.org_supplier_product_slug && isInAgentOrganisation) {
+        return route('grp.org.procurement.org_supplier_products.show', [currentOrganisation, item.org_supplier_product_slug])
+    }
+
     if (!item.slug) {
         return ''
     }
@@ -375,7 +383,7 @@ function supplierProductRoute(item: { slug?: string }) {
 
 
 function orgStockRoute(item: { org_stock_id?: number }) {
-    if (!item.org_stock_id) {
+    if (!item.org_stock_id || isInAgentOrganisation) {
         return ''
     }
 

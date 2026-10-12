@@ -54,7 +54,8 @@ For the 29 live websites.
 | AI visibility, LLM Mentions | $4 | $4 | Monthly, one request per shop and platform: Google AI Overviews where LLM Mentions has the market, ChatGPT (United States) for shops in English |
 | Competitor search traffic | $2 | $3 | Monthly, one request per market (about 15) for our websites and their competitors |
 | Content help | $1 | $4 | Up to 30 pages per website a week through the AI gateway |
-| **Total per month** | **~$69** | **~$272** | |
+| Content briefs | $1 | $2 | On request, about half a cent each (one live SERP check and one AI gateway call): 200 / 400 briefs a month |
+| **Total per month** | **~$70** | **~$274** | |
 
 Plus about $50 once, to backfill volumes and classify intent for keywords that did not come from
 Labs.
@@ -67,7 +68,7 @@ and 5,000 keywords checked that way through DataForSEO cost about $900 a month o
 
 | Part | Settings | Per month |
 | --- | --- | --- |
-| Rank tracking | 5,000 keywords weekly (top 30), plus 500 key keywords daily (top 20) | ~$60 |
+| Rank tracking | At most: 5,000 keywords weekly (top 30), plus 500 key keywords daily (top 20). New keywords are checked on request only ($0.0018 a check), so the real spend follows what the team sets to Monthly, Weekly or Daily | up to ~$60 |
 | Keyword research | | ~$5 |
 | Backlinks | Weekly summaries, our own link lists monthly | ~$50 |
 | Competitor and gap tools | | ~$25 |

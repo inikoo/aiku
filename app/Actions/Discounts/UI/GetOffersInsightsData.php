@@ -124,7 +124,7 @@ class GetOffersInsightsData
         ];
     }
 
-    protected function buildRedemptionOrdersQuery(Shop $shop, ?OfferCampaign $offerCampaign, ?string $offerType, ?string $fromDate, ?string $toDate): Builder
+    public function buildRedemptionOrdersQuery(Shop $shop, ?OfferCampaign $offerCampaign, ?string $offerType, ?string $fromDate, ?string $toDate): Builder
     {
         return DB::table('transaction_has_offer_allowances as toa')
             ->join('orders', 'orders.id', '=', 'toa.order_id')

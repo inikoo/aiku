@@ -6,6 +6,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import LayeredIcon from "@/Components/Utils/LayeredIcon.vue";
 import { faAtomAlt, faDotCircle, faUserFriends, faChessBoard,faStopwatch,faClipboardListCheck, faMedal } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -109,6 +110,8 @@ const isSubNavActive = (subNav: SubNav) => {
                             <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third"
                                 v-tooltip="subNav.leftIcon?.tooltip" fixed-width aria-hidden="true"
                                 class="text-base animate-spin" />
+                            <LayeredIcon v-else-if="subNav.leftIcon?.icon_layers" :layers="subNav.leftIcon.icon_layers"
+                                v-tooltip="subNav.leftIcon?.tooltip" class="text-sm group-hover:opacity-100 opacity-50" />
                             <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon?.icon"
                                 v-tooltip="subNav.leftIcon?.tooltip"
                                 class="text-base group-hover:opacity-100 opacity-50" fixed-width aria-hidden="true" />
@@ -142,6 +145,8 @@ const isSubNavActive = (subNav: SubNav) => {
                             <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third"
                                 v-tooltip="subNav.leftIcon?.tooltip" fixed-width aria-hidden="true"
                                 class="text-sm animate-spin" />
+                            <LayeredIcon v-else-if="subNav.leftIcon?.icon_layers" :layers="subNav.leftIcon.icon_layers"
+                                v-tooltip="subNav.leftIcon?.tooltip" class="text-sm group-hover:opacity-100 opacity-50" />
                             <FontAwesomeIcon v-else-if="subNav.leftIcon" :icon="subNav.leftIcon?.icon"
                                 v-tooltip="subNav.leftIcon?.tooltip"
                                 class="text-sm group-hover:opacity-100 opacity-50" fixed-width aria-hidden="true" />

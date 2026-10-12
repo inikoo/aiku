@@ -3299,7 +3299,7 @@ test('purchase order submit availability follows its submittable items', functio
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('pageHead.actions', fn ($actions) => collect($actions)->contains(
                 fn ($action) => Arr::get($action, 'key') === 'confirm_purchase_order'
-                    && Arr::get($action, 'tooltip') === 'Set as confirmed by the supplier.'
+                    && Arr::get($action, 'tooltip') === 'Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.'
             ))
             ->etc());
 
