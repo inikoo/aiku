@@ -75,6 +75,14 @@ use App\Models\Web\Webpage;
  * @property int|null $recipients_count
  * @property string|null $name
  * @property string|null $preview_text
+ * @property int|null $ab_test_variant_of_id
+ * @property int $ab_test_size_percentage
+ * @property int|null $ab_test_winner_mailshot_id
+ * @property \Illuminate\Support\Carbon|null $ab_test_winner_sent_at
+ * @property string|null $sender_name
+ * @property-read Mailshot|null $abTestVariant
+ * @property-read Mailshot|null $abTestOriginal
+ * @property-read Mailshot|null $abTestWinner
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Comms\EmailDeliveryChannel> $channels
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
@@ -121,6 +129,7 @@ class Mailshot extends Model implements Auditable
         'sent_at'                => 'datetime',
         'cancelled_at'           => 'datetime',
         'stopped_at'             => 'datetime',
+        'ab_test_winner_sent_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -142,6 +151,9 @@ class Mailshot extends Model implements Auditable
         'subject',
         'schedule_at',
         'is_second_wave_enabled',
+        'ab_test_size_percentage',
+        'ab_test_winner_mailshot_id',
+        'sender_name',
     ];
 
     public function getRouteKeyName(): string
@@ -238,7 +250,7 @@ class Mailshot extends Model implements Auditable
 
     public function senderName(): string
     {
-        return $this->shop?->name ?? '';
+        return $this->sender_name ?: ($this->shop?->name ?? '');
     }
 
     public function channels(): MorphMany
@@ -254,6 +266,42 @@ class Mailshot extends Model implements Auditable
     public function parentMailshot(): BelongsTo
     {
         return $this->belongsTo(Mailshot::class, 'parent_mailshot_id');
+    }
+
+    public function abTestVariant(): HasOne
+    {
+        return $this->hasOne(Mailshot::class, 'ab_test_variant_of_id');
+    }
+
+    public function abTestOriginal(): BelongsTo
+    {
+        return $this->belongsTo(Mailshot::class, 'ab_test_variant_of_id');
+    }
+
+    public function abTestWinner(): BelongsTo
+    {
+        return $this->belongsTo(Mailshot::class, 'ab_test_winner_mailshot_id');
+    }
+
+    public function isAbTestVariant(): bool
+    {
+        return $this->ab_test_variant_of_id !== null;
+    }
+
+    public function assertAbTestVariantIsSendable(): void
+    {
+        $variant = $this->abTestVariant;
+        if (!$variant) {
+            return;
+        }
+
+        if ($variant->state !== MailshotStateEnum::READY) {
+            throw ValidationException::withMessages([
+                'ab_test' => __('Version B is not published yet. Publish it in the workshop before sending.'),
+            ]);
+        }
+
+        $variant->assertSubjectIsNotDefault();
     }
 
     public function toSearchableArray(): array

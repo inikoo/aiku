@@ -12,7 +12,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
 
 const props = defineProps<{
-    mailshot: { subject: string, name: string | null, preview_text: string | null }
+    mailshot: { subject: string, name: string | null, preview_text: string | null, sender_name?: string | null }
     updateMailshotRoute: routeType
     suggestCopyRoute: routeType
 }>()
@@ -77,6 +77,10 @@ const suggestCopy = async () => {
                 <div>
                     <label class="text-xs text-gray-500">{{ ctrans('Preview text') }}</label>
                     <PureInput v-model="mailshotForm.preview_text" :placeholder="ctrans('Email preview text')" />
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500">{{ ctrans('Sender name') }}</label>
+                    <PureInput v-model="mailshotForm.sender_name" :placeholder="ctrans('Defaults to the shop name')" />
                 </div>
                 <div>
                     <label class="text-xs text-gray-500">{{ ctrans('Name') }}</label>

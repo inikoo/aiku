@@ -1,0 +1,135 @@
+<?php
+
+/*
+ * Author: eka yudinata (https://github.com/ekayudinata)
+ * Created: Monday, 12 Oct 2026 12:00:00 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2026, eka yudinata
+ */
+
+namespace App\Actions\Comms\Mailshot;
+
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMarketingEditAuthorisation;
+use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Comms\Mailshot;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
+
+class SetMailshotAbTest extends OrgAction
+{
+    use WithActionUpdate;
+    use WithMarketingEditAuthorisation;
+
+    /**
+     * @param  array{enabled?: bool, size_percentage?: int}  $modelData
+     *
+     * @throws \Throwable
+     */
+    public function handle(Mailshot $mailshot, array $modelData): Mailshot
+    {
+        if ($mailshot->isAbTestVariant() || $mailshot->is_second_wave || !in_array($mailshot->type, [MailshotTypeEnum::MARKETING, MailshotTypeEnum::NEWSLETTER])) {
+            throw ValidationException::withMessages([
+                'ab_test' => __('A/B tests can only be set up on a newsletter or marketing mailshot.'),
+            ]);
+        }
+
+        if (!in_array($mailshot->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY])) {
+            throw ValidationException::withMessages([
+                'ab_test' => __('The A/B test can only be changed before the email is scheduled or sent.'),
+            ]);
+        }
+
+        if (Arr::has($modelData, 'size_percentage')) {
+            $this->update($mailshot, ['ab_test_size_percentage' => $modelData['size_percentage']]);
+        }
+
+        if (!Arr::has($modelData, 'enabled')) {
+            return $mailshot->refresh();
+        }
+
+        if (!$modelData['enabled']) {
+            $mailshot->abTestVariant?->delete();
+
+            return $mailshot->refresh();
+        }
+
+        if ($mailshot->is_second_wave_enabled) {
+            throw ValidationException::withMessages([
+                'ab_test' => __('Turn off the 2nd wave before starting an A/B test.'),
+            ]);
+        }
+
+        if (!$mailshot->abTestVariant) {
+            $this->createVariant($mailshot);
+        }
+
+        return $mailshot->refresh();
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    private function createVariant(Mailshot $mailshot): Mailshot
+    {
+        return DB::transaction(function () use ($mailshot) {
+            /** @var Mailshot $variant */
+            $variant = $mailshot->abTestVariant()->create([
+                'date'              => $mailshot->date,
+                'group_id'          => $mailshot->group_id,
+                'organisation_id'   => $mailshot->organisation_id,
+                'shop_id'           => $mailshot->shop_id,
+                'type'              => $mailshot->type,
+                'subject'           => $mailshot->subject,
+                'name'              => $mailshot->name,
+                'preview_text'      => $mailshot->preview_text,
+                'sender_name'       => $mailshot->sender_name,
+                'state'             => $mailshot->state,
+                'ready_at'          => $mailshot->ready_at,
+                'outbox_id'         => $mailshot->outbox_id,
+                'recipients_recipe' => $mailshot->recipients_recipe,
+            ]);
+
+            $variant->stats()->create();
+
+            CloneMailshotForSecondWave::make()->copyEmail($mailshot, $variant);
+
+            return $variant;
+        });
+    }
+
+    public function rules(): array
+    {
+        return [
+            'enabled'         => ['sometimes', 'boolean'],
+            'size_percentage' => ['sometimes', 'integer', 'min:10', 'max:100'],
+        ];
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Mailshot $mailshot, array $modelData): Mailshot
+    {
+        $this->asAction = true;
+        $this->initialisationFromShop($mailshot->shop, $modelData);
+
+        return $this->handle($mailshot, $this->validatedData);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Shop $shop, Mailshot $mailshot, ActionRequest $request): Mailshot
+    {
+        abort_unless($mailshot->shop_id === $shop->id, 404);
+
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($mailshot, $this->validatedData);
+    }
+}
