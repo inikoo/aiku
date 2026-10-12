@@ -76,6 +76,7 @@ const subscribeSection = {
     accordion_key: "subscribe",
     replaceForm: [
         { key: ["placeholder"], label: "Email placeholder", type: "text" },
+        { key: ["phone_placeholder"], label: "Phone placeholder", type: "text" },
         { key: ["success_text"], label: "Message after subscribing", type: "text" },
     ]
 }

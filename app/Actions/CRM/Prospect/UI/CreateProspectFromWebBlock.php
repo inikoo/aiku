@@ -17,6 +17,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,10 +29,16 @@ class CreateProspectFromWebBlock extends IrisAction
      */
     public function handle(array $modelData): Prospect
     {
-        $prospect = StoreProspect::make()->action($this->shop, [
+        $prospectData = [
             'is_opt_in' => true,
             'email'     => Arr::get($modelData, 'email'),
-        ]);
+        ];
+
+        if (filled(Arr::get($modelData, 'phone'))) {
+            $prospectData['phone'] = Arr::get($modelData, 'phone');
+        }
+
+        $prospect = StoreProspect::make()->action($this->shop, $prospectData);
 
         RunProspectConvertionEmailBulkRuns::dispatch($prospect?->id);
 
@@ -51,6 +58,19 @@ class CreateProspectFromWebBlock extends IrisAction
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                     ],
                     message: __('This email is already registered as a prospect in this shop.')
+                )
+            ],
+            'phone' => [
+                'sometimes',
+                'nullable',
+                'max:24',
+                new Phone(),
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ],
+                    message: __('This phone number is already registered as a prospect in this shop.')
                 )
             ],
         ];

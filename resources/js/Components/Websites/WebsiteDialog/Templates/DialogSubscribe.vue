@@ -3,7 +3,7 @@ import { inject, ref } from "vue"
 import axios from "axios"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faEnvelope } from "@fal"
+import { faEnvelope, faPhone } from "@fal"
 import { faCheckCircle } from "@fas"
 import { getStyles } from "@/Composables/styles"
 import { ctrans } from "@/Composables/useTrans"
@@ -12,7 +12,7 @@ import DialogText from "@/Components/Websites/WebsiteDialog/Templates/DialogText
 import { useDialogTemplate } from "@/Components/Websites/WebsiteDialog/Templates/useDialogTemplate"
 import type { WebsiteDialogTemplateData } from "@/types/WebsiteDialog"
 
-library.add(faEnvelope, faCheckCircle)
+library.add(faEnvelope, faPhone, faCheckCircle)
 
 const props = defineProps<{
     dialogData?: WebsiteDialogTemplateData
@@ -24,6 +24,7 @@ const { screenType, fields, accent, accentSoft, editable } = useDialogTemplate(p
 const layout = inject<{ iris?: { website?: { id?: number } } }>("layout", {})
 
 const inputEmail = ref("")
+const inputPhone = ref("")
 const honeypot = ref("")
 const isLoading = ref(false)
 const state = ref<"" | "success" | "error">("")
@@ -41,6 +42,7 @@ const onSubmit = async () => {
     if (!layout?.iris?.website?.id) {
         setTimeout(() => {
             inputEmail.value = ""
+            inputPhone.value = ""
             state.value = "success"
             isLoading.value = false
         }, 600)
@@ -48,13 +50,18 @@ const onSubmit = async () => {
     }
 
     try {
-        await axios.post(window.origin + "/app/webhooks/subscribe-newsletter", { email: inputEmail.value })
+        await axios.post(window.origin + "/app/webhooks/subscribe-newsletter", {
+            email: inputEmail.value,
+            phone: inputPhone.value.trim() || null,
+        })
         inputEmail.value = ""
+        inputPhone.value = ""
         state.value = "success"
     } catch (error: any) {
-        const emailErrors = error?.response?.data?.errors?.email
+        const errors = error?.response?.data?.errors
+        const fieldErrors = errors?.email || errors?.phone
         state.value = "error"
-        errorMessage.value = (Array.isArray(emailErrors) ? emailErrors[0] : emailErrors) || ctrans("An error occurred while subscribing.")
+        errorMessage.value = (Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors) || ctrans("An error occurred while subscribing.")
     } finally {
         isLoading.value = false
     }
@@ -94,8 +101,8 @@ const onSubmit = async () => {
             <form v-else class="mt-3 w-full" v-bind="editable('subscribe')" @submit.prevent="onSubmit">
                 <input v-model="honeypot" type="text" class="sr-only" aria-hidden="true" tabindex="-1" autocomplete="off" />
 
-                <div class="flex w-full flex-col gap-2 sm:flex-row">
-                    <label class="relative min-w-0 flex-1">
+                <div class="flex w-full flex-col gap-2">
+                    <label class="relative w-full">
                         <span class="sr-only">{{ ctrans("Email address") }}</span>
                         <FontAwesomeIcon icon="fal fa-envelope" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
                         <input
@@ -107,6 +114,20 @@ const onSubmit = async () => {
                             :disabled="isLoading || isEditable"
                             class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
                             :style="{ '--tw-ring-color': state === 'error' ? 'rgb(239 68 68)' : undefined }"
+                        />
+                    </label>
+
+                    <label class="relative w-full">
+                        <span class="sr-only">{{ ctrans("Phone number") }}</span>
+                        <FontAwesomeIcon icon="fal fa-phone" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
+                        <input
+                            v-model="inputPhone"
+                            type="tel"
+                            maxlength="24"
+                            autocomplete="tel"
+                            :placeholder="fields.subscribe?.phone_placeholder || ctrans('Your phone number (optional)')"
+                            :disabled="isLoading || isEditable"
+                            class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
                         />
                     </label>
 
