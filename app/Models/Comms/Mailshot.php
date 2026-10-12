@@ -78,16 +78,12 @@ use App\Models\Web\Webpage;
  * @property string|null $name
  * @property string|null $preview_text
  * @property int|null $ab_test_variant_of_id
- * @property int $ab_test_size_percentage
- * @property int|null $ab_test_winner_mailshot_id
- * @property \Illuminate\Support\Carbon|null $ab_test_winner_sent_at
  * @property int $ab_test_variant_delay_hours
  * @property int $ab_test_tracking_hours
  * @property MailshotAbTestWinningMetricEnum $ab_test_winning_metric
  * @property string|null $sender_name
  * @property-read Mailshot|null $abTestVariant
  * @property-read Mailshot|null $abTestOriginal
- * @property-read Mailshot|null $abTestWinner
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Comms\EmailDeliveryChannel> $channels
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
@@ -134,7 +130,6 @@ class Mailshot extends Model implements Auditable
         'sent_at'                => 'datetime',
         'cancelled_at'           => 'datetime',
         'stopped_at'             => 'datetime',
-        'ab_test_winner_sent_at' => 'datetime',
         'ab_test_winning_metric' => MailshotAbTestWinningMetricEnum::class,
     ];
 
@@ -157,8 +152,6 @@ class Mailshot extends Model implements Auditable
         'subject',
         'schedule_at',
         'is_second_wave_enabled',
-        'ab_test_size_percentage',
-        'ab_test_winner_mailshot_id',
         'ab_test_variant_delay_hours',
         'ab_test_tracking_hours',
         'ab_test_winning_metric',
@@ -285,11 +278,6 @@ class Mailshot extends Model implements Auditable
     public function abTestOriginal(): BelongsTo
     {
         return $this->belongsTo(Mailshot::class, 'ab_test_variant_of_id');
-    }
-
-    public function abTestWinner(): BelongsTo
-    {
-        return $this->belongsTo(Mailshot::class, 'ab_test_winner_mailshot_id');
     }
 
     public function isAbTestVariant(): bool

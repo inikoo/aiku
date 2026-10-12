@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faCheck } from '@fal'
 import { ctrans } from '@/Composables/useTrans'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
 import MailshotSubjectEdit from '@/Components/Workshop/Mailshot/MailshotSubjectEdit.vue'
 import { routeType } from '@/types/route'
 
@@ -35,18 +34,13 @@ export interface AbTest {
     winning_metric: string
     winning_metric_options: { value: string, label: string, disabled: boolean }[]
     is_blocked_by_second_wave: boolean
-    size_percentage: number
-    winner_mailshot_id: number | null
-    winner_sent_at: string | null
-    can_send_winner: boolean
     variant_delay_hours: number
     variant_sends_at: string | null
     tracking_hours: number
     tracking_ends_at: string | null
-    suggested_winner_id: number | null
+    winner_id: number | null
     versions: AbTestVersion[]
     update_route: routeType
-    send_winner_route: routeType
 }
 
 const props = defineProps<{
@@ -68,13 +62,11 @@ const metrics: { key: string, label: string, isRate: boolean, isHigherBetter: bo
     { key: 'bounce_rate', label: ctrans('Bounce rate'), isRate: true, isHigherBetter: false },
 ]
 
-const sizePercentage = ref(props.abTest.size_percentage)
 const variantDelayHours = ref(props.abTest.variant_delay_hours)
 const trackingDays = ref(Math.floor(props.abTest.tracking_hours / 24))
 const trackingHoursOfDay = ref(props.abTest.tracking_hours % 24)
 const winningMetric = ref(props.abTest.winning_metric)
 watch(() => props.abTest, abTest => {
-    sizePercentage.value = abTest.size_percentage
     variantDelayHours.value = abTest.variant_delay_hours
     trackingDays.value = Math.floor(abTest.tracking_hours / 24)
     trackingHoursOfDay.value = abTest.tracking_hours % 24
@@ -86,23 +78,13 @@ const trackingHours = computed(() => trackingDays.value * 24 + trackingHoursOfDa
 const hourOptions = Array.from({ length: 24 }, (_, hours) => ({ value: hours, label: ctrans(':count hours', { count: hours }) }))
 const dayOptions = Array.from({ length: 31 }, (_, days) => ({ value: days, label: ctrans(':count days', { count: days }) }))
 
-const versionPercentage = computed(() => Math.round((sizePercentage.value ?? 0) / 2 * 10) / 10)
-const winnerPercentage = computed(() => 100 - (sizePercentage.value ?? 0))
-const estimatedWinnerRecipients = computed(() =>
-    props.abTest.estimated_recipients === null
-        ? null
-        : Math.round(props.abTest.estimated_recipients * winnerPercentage.value / 100)
-)
-
 const isSettingsChanged = computed(() =>
-    sizePercentage.value !== props.abTest.size_percentage
-    || variantDelayHours.value !== props.abTest.variant_delay_hours
+    variantDelayHours.value !== props.abTest.variant_delay_hours
     || trackingHours.value !== props.abTest.tracking_hours
     || winningMetric.value !== props.abTest.winning_metric
 )
 
 const saveAllSettings = () => saveSettings({
-    size_percentage: sizePercentage.value,
     variant_delay_hours: variantDelayHours.value ?? 0,
     tracking_hours: trackingHours.value,
     winning_metric: winningMetric.value,
@@ -140,7 +122,7 @@ const errorMessage = (exception: any, fallback: string): string => {
     return (Object.values(errors)[0] as string[] | undefined)?.[0] ?? fallback
 }
 
-const saveSettings = async (payload: { enabled?: boolean, size_percentage?: number, variant_delay_hours?: number, tracking_hours?: number, winning_metric?: string }) => {
+const saveSettings = async (payload: { enabled?: boolean, variant_delay_hours?: number, tracking_hours?: number, winning_metric?: string }) => {
     isSaving.value = true
     try {
         await axios.post(route(props.abTest.update_route.name, props.abTest.update_route.parameters), payload)
@@ -156,30 +138,9 @@ const saveSettings = async (payload: { enabled?: boolean, size_percentage?: numb
     }
 }
 
-const sendWinner = async (version: AbTestVersion) => {
-    isSaving.value = true
-    try {
-        await axios.post(route(props.abTest.send_winner_route.name, props.abTest.send_winner_route.parameters), {
-            winner_mailshot_id: version.id,
-        })
-        notify({
-            type: 'success',
-            title: ctrans('Success'),
-            text: ctrans('Version :label is being sent to the rest of the list', { label: version.label }),
-        })
-    } catch (exception) {
-        notify({
-            type: 'error',
-            title: ctrans('Error'),
-            text: errorMessage(exception, ctrans('Failed to send the winner')),
-        })
-    } finally {
-        isSaving.value = false
-        router.reload()
-    }
-}
-
-const winner = computed(() => props.abTest.versions.find(version => version.id === props.abTest.winner_mailshot_id))
+const winningMetricLabel = computed(() =>
+    props.abTest.winning_metric_options.find(option => option.value === props.abTest.winning_metric)?.label ?? ''
+)
 </script>
 
 <template>
@@ -219,38 +180,19 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                 </div>
             </fieldset>
 
-            <div class="rounded-md border border-gray-200">
-                <div class="border-b border-gray-200 px-4 py-3">
+            <div class="flex flex-wrap items-center gap-3 rounded-md border border-gray-200 px-4 py-3">
+                <div class="flex-1">
                     <div class="text-sm font-semibold text-gray-800">{{ ctrans('Size distribution') }}</div>
-                    <p class="text-xs text-gray-500">
-                        {{ ctrans('If you choose 100%, everyone on the list randomly gets version A or B at the send time, and there is no winner to send afterwards.') }}
-                    </p>
+                    <p class="text-xs text-gray-500">{{ ctrans('Everyone on the list randomly gets version A or version B.') }}</p>
                 </div>
-                <div class="grid grid-cols-1 items-center gap-x-6 gap-y-4 px-4 py-3 md:grid-cols-[1fr_auto_10rem]">
-                    <div>
-                        <div class="text-sm text-gray-800">{{ ctrans('Test size') }}</div>
-                        <p class="text-xs text-gray-500">{{ ctrans('Percentage of recipients that will randomly receive one of the versions.') }}</p>
-                    </div>
-                    <InputNumber v-model="sizePercentage" :min="10" :max="100" suffix=" %" :disabled="isSaving"
-                        inputClass="!h-8 !py-1 !text-sm w-28" />
-                    <div class="flex gap-2 text-xs">
-                        <span v-for="label in ['A', 'B']" :key="label"
-                            class="rounded-full bg-[--app-accent-soft] px-2 py-0.5 font-medium text-[--app-accent-strong]">
-                            {{ label }} {{ versionPercentage }}%
-                        </span>
-                    </div>
-
-                    <div>
-                        <div class="text-sm text-gray-800">{{ ctrans('Winning version') }}</div>
-                        <p class="text-xs text-gray-500">{{ ctrans('Percentage of recipients that will receive the highest performing version.') }}</p>
-                    </div>
-                    <div class="text-sm text-gray-800">
-                        {{ winnerPercentage }}%
-                        <div v-if="estimatedWinnerRecipients !== null && winnerPercentage > 0" class="text-xs text-gray-500">
-                            {{ ctrans('Est. :count profiles', { count: estimatedWinnerRecipients.toLocaleString() }) }}
-                        </div>
-                    </div>
-                    <div></div>
+                <div class="flex gap-2 text-xs">
+                    <span v-for="label in ['A', 'B']" :key="label"
+                        class="rounded-full bg-[--app-accent-soft] px-2 py-0.5 font-medium text-[--app-accent-strong]">
+                        {{ label }} 50%
+                    </span>
+                </div>
+                <div v-if="abTest.estimated_recipients !== null" class="text-xs text-gray-500">
+                    {{ ctrans('Est. :count profiles each', { count: Math.round(abTest.estimated_recipients / 2).toLocaleString() }) }}
                 </div>
             </div>
 
@@ -265,9 +207,9 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                     <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
                         {{ ctrans('Test duration') }}
                         <FontAwesomeIcon :icon="faInfoCircle" class="text-gray-400" fixed-width
-                            v-tooltip="ctrans('Opens, clicks and orders are counted from each version\'s send until this long after the last version finished sending. Then the winner can be sent.')" />
+                            v-tooltip="ctrans('Opens, clicks and orders are counted from each version\'s send until this long after the last version finished sending. Then the winner is decided.')" />
                     </div>
-                    <p class="text-xs text-gray-500">{{ ctrans('How long results are tracked before you pick the winner.') }}</p>
+                    <p class="text-xs text-gray-500">{{ ctrans('How long results are tracked before the winner is decided.') }}</p>
                     <div class="mt-2 flex gap-2">
                         <Select v-model="trackingHoursOfDay" :options="hourOptions" optionLabel="label" optionValue="value"
                             :disabled="isSaving" class="w-36" size="small" />
@@ -280,7 +222,7 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
 
             <div v-if="isSettingsChanged" class="flex justify-end">
                 <Button type="tertiary" :label="ctrans('Save A/B test settings')" :loading="isSaving"
-                    :disabled="trackingHours < 1 || !sizePercentage" @click="saveAllSettings">
+                    :disabled="trackingHours < 1" @click="saveAllSettings">
                     <template #icon>
                         <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
                     </template>
@@ -291,7 +233,7 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
             {{ ctrans('Version B sends on :date', { date: formatDate(abTest.variant_sends_at) }) }}
         </p>
         <p v-if="isTrackingResults" class="text-sm text-gray-700">
-            {{ ctrans('Tracking results until :date, then the winner can be sent.', { date: formatDate(abTest.tracking_ends_at!) }) }}
+            {{ ctrans('Tracking results until :date, then the winner is decided.', { date: formatDate(abTest.tracking_ends_at!) }) }}
         </p>
 
         <div v-if="abTest.enabled" class="overflow-x-auto">
@@ -304,14 +246,10 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                                 <span class="rounded bg-[--app-accent-soft] px-2 py-0.5 font-semibold text-[--app-accent-strong]">
                                     {{ version.label }}
                                 </span>
-                                <span v-if="winner?.id === version.id"
+                                <span v-if="abTest.winner_id === version.id"
+                                    v-tooltip="ctrans('Higher :metric', { metric: winningMetricLabel.toLowerCase() })"
                                     class="rounded bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
                                     {{ ctrans('Winner') }}
-                                </span>
-                                <span v-else-if="!winner && abTest.suggested_winner_id === version.id"
-                                    v-tooltip="ctrans('Higher :metric', { metric: abTest.winning_metric_options.find(option => option.value === abTest.winning_metric)?.label.toLowerCase() ?? '' })"
-                                    class="rounded bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                                    {{ ctrans('Suggested winner') }}
                                 </span>
                                 <span class="text-xs text-gray-500">{{ version.state_label }}</span>
                             </div>
@@ -348,29 +286,5 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                 </tbody>
             </table>
         </div>
-
-        <div v-if="abTest.can_send_winner" class="flex flex-wrap items-center gap-3">
-            <span class="text-sm text-gray-700">
-                {{ ctrans('Send the winner to the remaining :rest% of the list:', { rest: 100 - abTest.size_percentage }) }}
-            </span>
-            <ModalConfirmation v-for="version in abTest.versions" :key="version.id"
-                :title="ctrans('Send version :label to the rest of the list?', { label: version.label })"
-                :description="ctrans('Everyone on the list who did not receive the test will get version :label. This cannot be undone.', { label: version.label })">
-                <template #default="{ changeModel }">
-                    <Button :label="abTest.suggested_winner_id === version.id ? ctrans('Send :label (suggested)', { label: version.label }) : ctrans('Send :label', { label: version.label })"
-                        icon="fal fa-paper-plane" type="secondary" :disabled="isSaving" @click="changeModel" />
-                </template>
-                <template #btn-yes="{ closeModal }">
-                    <Button :label="ctrans('Yes, send :label', { label: version.label })" :loading="isSaving"
-                        @click="() => { closeModal(); sendWinner(version) }" />
-                </template>
-            </ModalConfirmation>
-        </div>
-        <p v-else-if="abTest.enabled && abTest.size_percentage < 100 && !abTest.winner_sent_at" class="text-sm text-gray-500">
-            {{ ctrans('Once both versions have been sent and the results tracked, you can send the winner to the remaining :rest% of the list.', { rest: 100 - abTest.size_percentage }) }}
-        </p>
-        <p v-if="winner && abTest.winner_sent_at" class="text-sm text-gray-700">
-            {{ ctrans('Version :label was sent to the rest of the list on :date', { label: winner.label, date: new Date(abTest.winner_sent_at).toLocaleString() }) }}
-        </p>
     </div>
 </template>
