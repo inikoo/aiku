@@ -9,6 +9,7 @@ import { getStyles } from "@/Composables/styles"
 import { ctrans } from "@/Composables/useTrans"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import DialogText from "@/Components/Websites/WebsiteDialog/Templates/DialogText.vue"
+import { isSubscribePhoneShown } from "@/Components/Websites/WebsiteDialog/Templates/Blueprint"
 import { useDialogTemplate } from "@/Components/Websites/WebsiteDialog/Templates/useDialogTemplate"
 import type { WebsiteDialogTemplateData } from "@/types/WebsiteDialog"
 
@@ -23,8 +24,7 @@ const { screenType, fields, accent, accentSoft, editable } = useDialogTemplate(p
 
 const layout = inject<{ iris?: { website?: { id?: number } } }>("layout", {})
 
-const isPhoneShown = computed(() => fields.value.subscribe?.show_phone !== false)
-const isEmailShown = computed(() => fields.value.subscribe?.show_email !== false || !isPhoneShown.value)
+const isPhoneShown = computed(() => isSubscribePhoneShown(fields.value.subscribe))
 
 const inputEmail = ref("")
 const inputPhone = ref("")
@@ -54,7 +54,7 @@ const onSubmit = async () => {
 
     try {
         await axios.post(window.origin + "/app/webhooks/subscribe-newsletter", {
-            email: isEmailShown.value ? inputEmail.value : null,
+            email: inputEmail.value,
             phone: isPhoneShown.value ? inputPhone.value.trim() || null : null,
         })
         inputEmail.value = ""
@@ -105,7 +105,7 @@ const onSubmit = async () => {
                 <input v-model="honeypot" type="text" class="sr-only" aria-hidden="true" tabindex="-1" autocomplete="off" />
 
                 <div class="flex w-full flex-col gap-2">
-                    <label v-if="isEmailShown" class="relative w-full">
+                    <label class="relative w-full">
                         <span class="sr-only">{{ ctrans("Email address") }}</span>
                         <FontAwesomeIcon icon="fal fa-envelope" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
                         <input
@@ -127,9 +127,8 @@ const onSubmit = async () => {
                             v-model="inputPhone"
                             type="tel"
                             maxlength="24"
-                            :required="!isEmailShown"
                             autocomplete="tel"
-                            :placeholder="fields.subscribe?.phone_placeholder || (isEmailShown ? ctrans('Your phone number (optional)') : ctrans('Your phone number'))"
+                            :placeholder="fields.subscribe?.phone_placeholder || ctrans('Your phone number (optional)')"
                             :disabled="isLoading || isEditable"
                             class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
                         />
