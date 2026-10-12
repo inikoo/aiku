@@ -13332,3 +13332,215 @@ test('a department task raised for one organisation reaches only that organisati
         ->and($sees($member))->toBeTrue()
         ->and($sees($outsider))->toBeFalse();
 });
+
+test('an agent marks a website conversation as unread again and only the customer messages still waiting come back', function () {
+    $agentUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $chatAgent = ChatAgent::create(['user_id' => $agentUser->id, 'max_concurrent_chats' => 5, 'language_id' => 68, 'is_online' => true, 'is_available' => true, 'current_chat_count' => 0]);
+    makeChatWorker($agentUser, $this->shop);
+
+    $readAt      = now()->subMinutes(2)->startOfSecond();
+    $makeSession = fn () => ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'status'           => ChatSessionStatusEnum::WAITING,
+        'guest_identifier' => 'guest_'.Str::random(5),
+        'language_id'      => 68,
+        'priority'         => ChatPriorityEnum::NORMAL,
+        'shop_id'          => $this->shop->id,
+        'ai_model_version' => 'default',
+    ]);
+    $write = fn (ChatSession $session, ChatSenderTypeEnum $sender, int $minutesAgo) => ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => $sender->value,
+        'message_text'    => 'Message from '.$sender->value,
+        'is_read'         => true,
+        'read_at'         => $readAt,
+        'created_at'      => now()->subMinutes($minutesAgo),
+        'updated_at'      => now()->subMinutes($minutesAgo),
+    ]);
+
+    $waitingOnUs    = $makeSession();
+    $answeredBefore = $write($waitingOnUs, ChatSenderTypeEnum::GUEST, 40);
+    $ourReply       = $write($waitingOnUs, ChatSenderTypeEnum::AGENT, 30);
+    $stillWaiting   = [$write($waitingOnUs, ChatSenderTypeEnum::GUEST, 20), $write($waitingOnUs, ChatSenderTypeEnum::GUEST, 10)];
+    $systemNote     = $write($waitingOnUs, ChatSenderTypeEnum::SYSTEM, 5);
+
+    $answered        = $makeSession();
+    $earlierQuestion = $write($answered, ChatSenderTypeEnum::GUEST, 40);
+    $lastQuestion    = $write($answered, ChatSenderTypeEnum::GUEST, 30);
+    $lastWordIsOurs  = $write($answered, ChatSenderTypeEnum::AGENT, 20);
+
+    $before = GetAgentUnreadMessagesSummary::make()->handle($chatAgent);
+
+    Event::fake([\App\Events\BroadcastChatListEvent::class, \App\Events\BroadcastMessagesRead::class]);
+    actingAs($agentUser);
+
+    $this->patchJson(route('grp.org.chat.agents.sessions.unread', [$this->organisation->slug, $waitingOnUs->ulid]))
+        ->assertOk()
+        ->assertJsonPath('data.unread_count', 2);
+
+    $afterFirst = GetAgentUnreadMessagesSummary::make()->handle($chatAgent);
+
+    expect($afterFirst['unassigned_unread_count'])->toBe($before['unassigned_unread_count'] + 2)
+        ->and($afterFirst['total_unread_count'])->toBe($before['total_unread_count'] + 2)
+        ->and($afterFirst['waiting']['chat']['sessions'])->toBe($before['waiting']['chat']['sessions'] + 1)
+        ->and($stillWaiting[0]->refresh()->is_read)->toBeFalse()
+        ->and($stillWaiting[0]->read_at)->toBeNull()
+        ->and($stillWaiting[1]->refresh()->is_read)->toBeFalse()
+        ->and($answeredBefore->refresh()->is_read)->toBeTrue()
+        ->and($ourReply->refresh()->is_read)->toBeTrue()
+        ->and($ourReply->read_at?->equalTo($readAt))->toBeTrue()
+        ->and($systemNote->refresh()->is_read)->toBeTrue();
+
+    $listed = collect(GetChatSessions::make()->handle(['shop_id' => $this->shop->id, 'limit' => 100])->items())
+        ->firstWhere('id', $waitingOnUs->id);
+    expect((int) $listed?->unread_count)->toBe(2);
+
+    $this->patchJson(route('grp.org.chat.agents.sessions.unread', [$this->organisation->slug, $answered->ulid]))
+        ->assertOk()
+        ->assertJsonPath('data.unread_count', 1);
+
+    expect($lastQuestion->refresh()->is_read)->toBeFalse()
+        ->and($earlierQuestion->refresh()->is_read)->toBeTrue()
+        ->and($lastWordIsOurs->refresh()->is_read)->toBeTrue()
+        ->and(GetAgentUnreadMessagesSummary::make()->handle($chatAgent)['unassigned_unread_count'])->toBe($before['unassigned_unread_count'] + 3);
+
+    Event::assertDispatched(\App\Events\BroadcastChatListEvent::class, 2);
+    Event::assertNotDispatched(\App\Events\BroadcastMessagesRead::class);
+});
+
+test('an agent marks a WhatsApp conversation as unread again', function () {
+    $agentUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    $chatAgent = ChatAgent::create(['user_id' => $agentUser->id, 'max_concurrent_chats' => 5, 'language_id' => 68, 'is_online' => true, 'is_available' => true, 'current_chat_count' => 0]);
+    makeChatWorker($agentUser, $this->shop);
+
+    $channel = MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
+    $session = MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => $channel->id,
+        'shop_id'         => $this->shop->id,
+        'phone_number'    => '+4219'.random_int(10000000, 99999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ]);
+    $write = fn (ChatSenderTypeEnum $sender, int $minutesAgo) => $session->messages()->create([
+        'meta_channel_id' => $channel->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => $sender->value,
+        'message_text'    => 'Message from '.$sender->value,
+        'is_read'         => true,
+        'read_at'         => now()->subMinutes(2),
+        'created_at'      => now()->subMinutes($minutesAgo),
+        'updated_at'      => now()->subMinutes($minutesAgo),
+    ]);
+
+    $answeredBefore = $write(ChatSenderTypeEnum::GUEST, 40);
+    $ourReply       = $write(ChatSenderTypeEnum::AGENT, 30);
+    $stillWaiting   = $write(ChatSenderTypeEnum::GUEST, 20);
+
+    $before = GetAgentUnreadMessagesSummary::make()->handle($chatAgent);
+
+    Http::fake();
+    Event::fake([\App\Events\BroadcastMetaChatListEvent::class]);
+    actingAs($agentUser);
+
+    $this->patchJson(route('grp.org.chat.agents.whatsapp.sessions.unread', [$this->organisation->slug, $session->ulid]))
+        ->assertOk()
+        ->assertJsonPath('data.unread_count', 1);
+
+    $after = GetAgentUnreadMessagesSummary::make()->handle($chatAgent);
+
+    expect($after['by_channel']['whatsapp']['unassigned'])->toBe($before['by_channel']['whatsapp']['unassigned'] + 1)
+        ->and($after['total_unread_count'])->toBe($before['total_unread_count'] + 1)
+        ->and($stillWaiting->refresh()->is_read)->toBeFalse()
+        ->and($stillWaiting->read_at)->toBeNull()
+        ->and($answeredBefore->refresh()->is_read)->toBeTrue()
+        ->and($ourReply->refresh()->is_read)->toBeTrue()
+        ->and($ourReply->read_at)->not->toBeNull();
+
+    Event::assertDispatched(\App\Events\BroadcastMetaChatListEvent::class, 1);
+    Http::assertNothingSent();
+});
+
+test('marking a conversation as unread is refused to staff who do not work chat on its shop', function () {
+    $outsider = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'status'           => ChatSessionStatusEnum::WAITING,
+        'guest_identifier' => 'guest_'.Str::random(5),
+        'language_id'      => 68,
+        'priority'         => ChatPriorityEnum::NORMAL,
+        'shop_id'          => $this->shop->id,
+        'ai_model_version' => 'default',
+    ]);
+    $question = ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => ChatSenderTypeEnum::GUEST->value,
+        'message_text'    => 'Where is my parcel?',
+        'is_read'         => true,
+        'read_at'         => now(),
+    ]);
+
+    $channel         = MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
+    $whatsappSession = MetaChatSession::create([
+        'ulid'            => (string) Str::ulid(),
+        'meta_channel_id' => $channel->id,
+        'shop_id'         => $this->shop->id,
+        'phone_number'    => '+4219'.random_int(10000000, 99999999),
+        'status'          => ChatSessionStatusEnum::ACTIVE,
+        'language_id'     => 68,
+        'priority'        => ChatPriorityEnum::NORMAL,
+    ]);
+    $whatsappQuestion = $whatsappSession->messages()->create([
+        'meta_channel_id' => $channel->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => ChatSenderTypeEnum::GUEST->value,
+        'message_text'    => 'Where is my parcel?',
+        'is_read'         => true,
+        'read_at'         => now(),
+    ]);
+
+    actingAs($outsider);
+
+    $this->patchJson(route('grp.org.chat.agents.sessions.unread', [$this->organisation->slug, $session->ulid]))->assertForbidden();
+    $this->patchJson(route('grp.org.chat.agents.whatsapp.sessions.unread', [$this->organisation->slug, $whatsappSession->ulid]))->assertForbidden();
+
+    expect($question->refresh()->is_read)->toBeTrue()
+        ->and($whatsappQuestion->refresh()->is_read)->toBeTrue();
+});
+
+test('marking as unread a conversation the customer never wrote in changes nothing', function () {
+    $agentUser = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+    makeChatWorker($agentUser, $this->shop);
+
+    $session = ChatSession::create([
+        'ulid'             => (string) Str::ulid(),
+        'status'           => ChatSessionStatusEnum::ACTIVE,
+        'guest_identifier' => 'guest_'.Str::random(5),
+        'language_id'      => 68,
+        'priority'         => ChatPriorityEnum::NORMAL,
+        'shop_id'          => $this->shop->id,
+        'ai_model_version' => 'default',
+    ]);
+    $ourOpening = ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => ChatSenderTypeEnum::AGENT->value,
+        'message_text'    => 'Hello, how can we help?',
+        'is_read'         => true,
+        'read_at'         => now(),
+    ]);
+
+    Event::fake([\App\Events\BroadcastChatListEvent::class]);
+    actingAs($agentUser);
+
+    $this->patchJson(route('grp.org.chat.agents.sessions.unread', [$this->organisation->slug, $session->ulid]))
+        ->assertOk()
+        ->assertJsonPath('data.unread_count', 0);
+
+    expect($ourOpening->refresh()->is_read)->toBeTrue();
+    Event::assertNotDispatched(\App\Events\BroadcastChatListEvent::class);
+});
