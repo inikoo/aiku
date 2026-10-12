@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -42,6 +43,8 @@ class TimesheetsResource extends JsonResource
         $startAt = $this->start_at;
         $endAt = $this->end_at;
 
+        $timezone = $this->resource->relationLoaded('organisation') ? ($this->organisation?->timezone?->name ?? 'UTC') : null;
+
         return [
             'id'                        => $this->id,
             'date'                      => $this->date,
@@ -50,10 +53,14 @@ class TimesheetsResource extends JsonResource
             'subject_has_left'          => $subjectHasLeft,
             'start_at'                  => $startAt,
             'end_at'                    => $endAt,
+            'start_time_local'          => $timezone && $startAt ? Carbon::parse($startAt)->timezone($timezone)->format('H:i') : null,
+            'end_time_local'            => $timezone && $endAt ? Carbon::parse($endAt)->timezone($timezone)->format('H:i') : null,
             'working_duration'          => $this->working_duration,
             'breaks_duration'           => $this->breaks_duration,
             'number_time_trackers'      => $this->number_time_trackers,
             'number_open_time_trackers' => $this->number_open_time_trackers,
+
+            'has_pending_adjustment'    => (bool) ($this->has_pending_adjustment ?? false),
 
             'job_position'              => $jobPosition,
             'clock_in_count'            => $this->clock_in_count ?? $this->number_time_trackers,

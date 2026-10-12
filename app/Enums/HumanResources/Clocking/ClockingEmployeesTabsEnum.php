@@ -25,7 +25,7 @@ enum ClockingEmployeesTabsEnum: string
                 'icon' => 'fal fa-user-clock',
             ],
             ClockingEmployeesTabsEnum::TIMESHEETS => [
-                'icon' => 'fal fa-clock',
+                'icon' => 'fal fa-stopwatch',
                 'title' => __('Timesheets'),
             ],
             ClockingEmployeesTabsEnum::LEAVES => [
@@ -33,8 +33,9 @@ enum ClockingEmployeesTabsEnum: string
                 'title' => __('Leave'),
             ],
             ClockingEmployeesTabsEnum::ADJUSTMENTS => [
-                'icon' => 'fal fa-edit',
-                'title' => __('Adjustments'),
+                'icon' => 'fal fa-clock',
+                'icon_layers' => ['fal fa-clock', 'fal fa-pencil'],
+                'title' => __('Clocking adjustment'),
             ],
             ClockingEmployeesTabsEnum::OVERTIME => [
                 'icon' => 'fal fa-clock',
