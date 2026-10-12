@@ -208,6 +208,26 @@ class ShowProcurementDashboard extends OrgAction
         ];
     }
 
+    private function getDeliveriesToCostCard(): ?array
+    {
+        if ($this->organisation->type !== OrganisationTypeEnum::SHOP) {
+            return null;
+        }
+
+        $toCost = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
+
+        return $toCost ? $this->dashboardCard(
+            __('Deliveries to cost'),
+            __('Stock deliveries whose costing is still open'),
+            'fal fa-box-usd',
+            $toCost,
+            'amber',
+            'grp.org.procurement.stock_deliveries.index',
+            [],
+            ['elements[costing]' => 'to_cost']
+        ) + ['attention' => true] : null;
+    }
+
     private function dashboardRoute(string $routeName, array $query = []): array
     {
         $parameters = ['organisation' => $this->organisation->slug];
@@ -245,7 +265,7 @@ class ShowProcurementDashboard extends OrgAction
                 ],
 
                 'shippers' => Shipper::query()->get(),
-                'dashboardCards' => array_values(array_filter([GetUncostedStockDeliveriesCard::run($this->organisation), ...$this->getDashboardCards($numbers)])),
+                'dashboardCards' => array_values(array_filter([$this->getDeliveriesToCostCard(), GetUncostedStockDeliveriesCard::run($this->organisation), ...$this->getDashboardCards($numbers)])),
                 'stockLevels' => $this->organisation->type === OrganisationTypeEnum::SHOP
                     ? Cache::flexible("procurement-dashboard:stock-levels:{$this->organisation->id}:".($source ?? 'all'), self::STOCK_LEVELS_FRESH_AND_STALE_SECONDS, fn () => $this->getStockLevels($source))
                     : [],

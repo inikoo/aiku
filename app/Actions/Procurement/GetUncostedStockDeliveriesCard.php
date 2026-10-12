@@ -69,6 +69,7 @@ class GetUncostedStockDeliveriesCard
             'icon'        => 'fal fa-exclamation-triangle',
             'value'       => $stale->total + $agentNotCosted + $putAwayBlocked + $estimated,
             'tone'        => 'amber',
+            'attention'   => true,
             'route'       => match (true) {
                 $stale->total + $agentNotCosted + $putAwayBlocked + $estimated > max($stale->total, $agentNotCosted, $putAwayBlocked, $estimated) => null,
                 (bool) $putAwayBlocked           => $this->route($organisation, ['elements[costing]' => 'costs_missing']),

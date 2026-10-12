@@ -135,6 +135,8 @@ class StockDelivery extends Model implements HasMedia, Auditable
 
     public const string COSTS_BEFORE_PUT_AWAY_FROM = '2026-10-12';
 
+    public const int TO_COST_ACTIVITY_DAYS = 120;
+
     public const array STATES_PAST_PUT_AWAY = [
         StockDeliveryStateEnum::BOOKED_IN,
         StockDeliveryStateEnum::PLACED,
@@ -341,6 +343,26 @@ class StockDelivery extends Model implements HasMedia, Auditable
         }
 
         return $missing;
+    }
+
+    /**
+     * The work queue of whoever costs deliveries: not costed, on its way or arrived, with activity in the last
+     * months, so the old deliveries that were never costed stay out. Partner deliveries cost themselves.
+     */
+    public function scopeToCost(Builder $query): Builder
+    {
+        return $query
+            ->where('stock_deliveries.is_costed', false)
+            ->where('stock_deliveries.parent_type', '!=', 'OrgPartner')
+            ->whereIn('stock_deliveries.state', [
+                StockDeliveryStateEnum::DISPATCHED,
+                StockDeliveryStateEnum::RECEIVED,
+                StockDeliveryStateEnum::CHECKED,
+                StockDeliveryStateEnum::BOOKING_IN,
+                StockDeliveryStateEnum::BOOKED_IN,
+                StockDeliveryStateEnum::PLACED,
+            ])
+            ->whereRaw('coalesce(stock_deliveries.placed_at, stock_deliveries.booked_in_at, stock_deliveries.received_at, stock_deliveries.dispatched_at, stock_deliveries.created_at) >= ?', [now()->subDays(self::TO_COST_ACTIVITY_DAYS)->startOfDay()]);
     }
 
     /**
