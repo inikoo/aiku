@@ -22,6 +22,7 @@ enum McpChangeTypeEnum: string
     case PLACED_ORDER = 'placed_order';
     case MASTER_PRICES = 'master_prices';
     case STOCK_DELIVERY_COSTS = 'stock_delivery_costs';
+    case CUSTOMER_SERVICE = 'customer_service';
 
     public static function labels(): array
     {
@@ -34,6 +35,7 @@ enum McpChangeTypeEnum: string
             'placed_order'          => __('Order placed'),
             'master_prices'         => __('Master prices'),
             'stock_delivery_costs'  => __('Stock delivery costs'),
+            'customer_service'      => __('Customer service'),
         ];
     }
 
@@ -50,6 +52,16 @@ enum McpChangeTypeEnum: string
             McpChangeTypeEnum::PLACED_ORDER => 'can_use_mcp_place_orders',
             McpChangeTypeEnum::MASTER_PRICES => 'can_use_mcp_prices',
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => 'can_use_mcp_costing',
+            McpChangeTypeEnum::CUSTOMER_SERVICE => 'can_use_mcp_customer_service',
         };
+    }
+
+    /**
+     * An order sent to a supplier, a reply emailed to a customer or a credit on their balance has
+     * already left the building: it is undone by a person, with the other party, never from the log.
+     */
+    public function canBeReverted(): bool
+    {
+        return !in_array($this, [McpChangeTypeEnum::PLACED_ORDER, McpChangeTypeEnum::CUSTOMER_SERVICE]);
     }
 }

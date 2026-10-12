@@ -8,13 +8,21 @@
 
 namespace App\Actions\SysAdmin\McpChange;
 
+use App\Actions\Chat\ChatSession\WaitForCustomerReply;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Enums\CRM\Livechat\ChatAssignmentStatusEnum;
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
+use App\Models\Chat\ChatSession;
 use App\Models\Inventory\OrgStock;
+use App\Models\Ordering\Order;
+use App\Models\Ordering\UpcomingTransaction;
 use App\Models\Procurement\PartnerShoppingListItem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +59,7 @@ class GetMcpChangeSnapshot
             McpChangeTypeEnum::PLACED_ORDER => $this->placedOrder($target),
             McpChangeTypeEnum::MASTER_PRICES => $this->masterPrices($target),
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->stockDeliveryCosts($target),
+            McpChangeTypeEnum::CUSTOMER_SERVICE => $this->customerService($target),
         };
     }
 
@@ -114,6 +123,19 @@ class GetMcpChangeSnapshot
                     return $name.' '.$value;
                 })
                 ->implode('; ') ?: 'no costs';
+        }
+
+        if ($type === McpChangeTypeEnum::CUSTOMER_SERVICE) {
+            return collect([
+                'chat '.$snapshot['chat']['status'].($snapshot['chat']['held_by'] ? ', held by '.$snapshot['chat']['held_by'] : ', held by nobody'),
+                $snapshot['chat']['agent_messages'].' replies',
+                $snapshot['chat']['waiting_until'] ? 'waiting for the customer until '.$snapshot['chat']['waiting_until'] : null,
+                $snapshot['customer'] ? $snapshot['customer']['name'].' balance '.$snapshot['customer']['balance'] : 'no customer linked',
+                $snapshot['order'] ? $snapshot['order']['reference'].': '.collect($snapshot['order']['lines'])->map(fn ($quantity, $code) => $code.' x'.$quantity)->implode(', ')
+                    .', to '.$snapshot['order']['delivery_address']
+                    .', '.count($snapshot['order']['refunds']).' refunds, '.count($snapshot['order']['replacements']).' replacements, '.$snapshot['order']['follow_ons'].' in next order'
+                    .collect($snapshot['order']['notes'])->filter()->map(fn ($note, $field) => ', '.$field.': '.$note)->implode('') : null,
+            ])->filter()->implode('; ');
         }
 
         if ($type === McpChangeTypeEnum::PRODUCTION_RECORD) {
@@ -331,6 +353,44 @@ class GetMcpChangeSnapshot
                     ],
                 ])
                 ->all(),
+        ];
+    }
+
+    /**
+     * What a customer service tool can move: the conversation, the customer's balance and, when the
+     * change is on an order, its lines, address, notes and what was already given for a claim.
+     */
+    private function customerService(array $target): array
+    {
+        $chatSession = ChatSession::with('webUser.customer')->find($target['chat_session_id']);
+        $customer    = $chatSession?->webUser?->customer;
+        $order       = isset($target['order_id']) ? Order::find($target['order_id']) : null;
+
+        return [
+            'chat'     => [
+                'status'         => $chatSession?->status?->value,
+                'held_by'        => $chatSession?->assignments()->where('status', ChatAssignmentStatusEnum::ACTIVE->value)->latest('id')->first()?->chatAgent?->user?->username,
+                'agent_messages' => $chatSession ? $chatSession->messages()->where('sender_type', ChatSenderTypeEnum::AGENT->value)->count() : 0,
+                'waiting_until'  => $chatSession ? WaitForCustomerReply::until($chatSession) : null,
+            ],
+            'customer' => $customer ? [
+                'id'      => $customer->id,
+                'name'    => $customer->name,
+                'balance' => (float) $customer->balance,
+            ] : null,
+            'order'    => $order ? [
+                'reference'        => $order->reference,
+                'lines'            => $order->transactions()->where('model_type', 'Product')->with('asset:id,code')->orderBy('id')->get()
+                    ->mapWithKeys(fn ($transaction) => [$transaction->asset?->code ?? '#'.$transaction->id => (float) $transaction->quantity_ordered])
+                    ->all(),
+                'delivery_address' => $order->deliveryAddress
+                    ? collect($order->deliveryAddress->only(['address_line_1', 'address_line_2', 'locality', 'administrative_area', 'postal_code', 'country_code']))->filter()->implode(', ')
+                    : null,
+                'notes'            => $order->only(['customer_notes', 'public_notes', 'internal_notes', 'shipping_notes', 'private_warehouse_note']),
+                'refunds'          => $order->invoices()->where('type', InvoiceTypeEnum::REFUND)->orderBy('id')->pluck('reference')->all(),
+                'replacements'     => $order->deliveryNotes()->where('type', DeliveryNoteTypeEnum::REPLACEMENT)->orderBy('delivery_notes.id')->pluck('reference')->all(),
+                'follow_ons'       => UpcomingTransaction::whereIn('source_transaction_id', $order->transactions()->pluck('id'))->count(),
+            ] : null,
         ];
     }
 }
