@@ -22,6 +22,7 @@ Nothing here has been deployed yet.
 | 3.2 Competitor research | Competitor domains and the ones Google results suggest; domain comparison (links, organic keywords, estimated traffic, intent) and keyword gap against up to four domains, in the shop's market | SEO > Competitors |
 | 3.3 AI visibility | The team's prompts sent to ChatGPT weekly per country through DataForSEO: whether the answer names us and the competitors, our place in its list, the sources it cites (our pages matched to webpages); monthly LLM Mentions of our domain and the competitors in Google AI Overviews and ChatGPT | SEO > AI visibility; AI prompts column in Top pages; SEO portfolio; weekly SEO report |
 | 3.5 Competitor traffic | Monthly Google search traffic (organic and paid) of our websites and their competitors, with its history back to October 2020, from DataForSEO Labs | SEO > Competitors: Competitors tab and Domain comparison |
+| Content briefs | A writer's brief per keyword from Google's top 10: intent, kind of page, title, meta description, outline, questions, terms, typical length and our own page for the search; copied as text for the writer | SEO > Keywords: Content briefs tab |
 | 3.4 Content help | AI-written page titles and meta descriptions for the pages the audit flags and the pages with many impressions and few clicks, weekly or on request; never published until someone uses them | Webpage: SEO and sharing panel; SEO > Site audit > Suggested fixes |
 | 3.6 Top pages | Every webpage with visitors, page views and Search Console clicks, impressions and position against the previous period, filters Growing, Dropping, New and Lost, the number of queries, referring domains and AI prompts citing it per page | SEO dashboard: Overview, Top pages |
 | API usage | Spend of all SEO APIs against one monthly budget (set on the page, default 250 USD), per feature and provider, per day and per month, with the latest failed requests and the money left on the DataForSEO account | Website (group) > API usage, linked from every SEO dashboard |
@@ -58,7 +59,6 @@ Found against the marketing team's research of 8 October 2026; see
 
 | Part | What has to happen first |
 | --- | --- |
-| Content briefs | Agreed by the marketing team on 12 October 2026; next to build |
 | Competitor page changes | The marketing team is still discussing it |
 | Research for ChatGPT Ads, Amazon Ads and eBay | The PPC team's markets, whether it needs research before launch or reports after, and who owns the ad accounts |
 
