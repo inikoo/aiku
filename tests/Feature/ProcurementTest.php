@@ -9879,6 +9879,46 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
         ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
 });
 
+test('UI agent browse pictures a product with its own photo, not the one of a bundle that contains it', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $code = $orgSupplierProduct->supplierProduct->code;
+
+    $orgStockId = $this->orgStocks[0]->id;
+    DB::table('org_stock_has_org_supplier_products')->insert([
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $this->orgStocks[0]->stock_id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id]),
+        'org_stock_id'                  => $orgStockId,
+        'org_supplier_product_id'       => $orgSupplierProduct->id,
+        'status'                        => true,
+        'local_priority'                => 1,
+        'created_at'                    => now(),
+        'updated_at'                    => now(),
+    ]);
+
+    [, , $shop] = createShop();
+    [, $base]   = createProduct($shop);
+
+    $ownProduct = $base->replicate();
+    $ownProduct->fill(['code' => 'OWN-'.$code, 'slug' => Str::lower('own-'.$code), 'web_images' => ['main' => ['gallery' => 'own-photo']]])->save();
+    $bundle = $base->replicate();
+    $bundle->fill(['code' => 'KIT-'.$code, 'slug' => Str::lower('kit-'.$code), 'web_images' => ['main' => ['gallery' => 'bundle-photo']]])->save();
+
+    DB::table('product_has_org_stocks')->insert([
+        ['product_id' => $ownProduct->id, 'org_stock_id' => $orgStockId, 'quantity' => 1],
+        ['product_id' => $bundle->id, 'org_stock_id' => $orgStockId, 'quantity' => 1],
+        ['product_id' => $bundle->id, 'org_stock_id' => $this->orgStocks[1]->id, 'quantity' => 1],
+    ]);
+
+    $url  = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]).'?'.http_build_query(['filter' => ['global' => $code]]);
+    $item = collect($this->get($url)->viewData('page')['props']['items']['data'])->firstWhere('code', $code);
+
+    DB::table('product_has_org_stocks')->whereIn('product_id', [$ownProduct->id, $bundle->id])->delete();
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+
+    expect($bundle->id)->toBeGreaterThan($ownProduct->id)
+        ->and($item['image'])->toBe('own-photo');
+});
+
 test('UI agent browse shows what the other organisations hold on their drafts for a product', function () {
     $otherOrganisation = Organisation::where('code', 'prc2')->first()
         ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));

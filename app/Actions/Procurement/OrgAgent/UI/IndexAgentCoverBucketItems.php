@@ -165,6 +165,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->whereIn('product_has_org_stocks.org_stock_id', $rows->pluck('org_stock_id')->filter())
             ->whereNull('products.deleted_at')
             ->whereNotNull('products.web_images->main')
+            ->orderByRaw('(select count(*) from product_has_org_stocks as siblings where siblings.product_id = products.id) desc')
             ->orderBy('products.id')
             ->pluck('products.web_images', 'product_has_org_stocks.org_stock_id');
 
