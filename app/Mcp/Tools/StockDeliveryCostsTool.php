@@ -264,6 +264,8 @@ class StockDeliveryCostsTool extends Tool
         }
         if (array_key_exists('not_applicable', $entry)) {
             $data['is_na'] = (bool) $entry['not_applicable'];
+        } elseif ($row?->is_na && ($entry['amount'] ?? null) !== null) {
+            $data['is_na'] = false;
         }
         if (array_key_exists('waiting_for_invoice', $entry)) {
             $data['is_waiting_for_invoice'] = (bool) $entry['waiting_for_invoice'];
