@@ -1859,8 +1859,8 @@ test('mixed order with service picks and invoices', function () {
     return $order;
 });
 
-/** Undispatching an order and deleting its invoice undo an issued document: accountants and their supervisors only (HELP-3106). */
-test('only accounting staff can undispatch an order or delete its invoice', function (\App\Models\Ordering\Order $order) {
+/** Deleting an invoice is for accountants (HELP-3106); undoing a dispatch from the order page follows the delivery note rule, dispatching supervisor or organisation admin (INI-073). */
+test('only accounting staff can delete an invoice and only a dispatching supervisor can undispatch its order', function (\App\Models\Ordering\Order $order) {
     $invoice = $order->invoices()->first();
     $user    = $this->adminGuest->getUser();
     setPermissionsTeamId($user->group_id);
@@ -1881,7 +1881,13 @@ test('only accounting staff can undispatch an order or delete its invoice', func
         ->and($order->refresh()->state)->toBe(OrderStateEnum::DISPATCHED);
 
     $actAs('accounting-clerk', $this->organisation);
+    patch(route('grp.models.order.rollback_dispatch', $order->id))->assertForbidden();
+    expect($order->refresh()->state)->toBe(OrderStateEnum::DISPATCHED);
+
+    $actAs('dispatch-supervisor', $this->warehouse);
     patch(route('grp.models.order.rollback_dispatch', $order->id))->assertSessionHasNoErrors();
+
+    $actAs('accounting-clerk', $this->organisation);
     post(route('grp.models.invoice.delete', $invoice->id), ['deleted_note' => 'yes'])->assertSessionHasNoErrors();
     expect($order->refresh()->state)->not->toBe(OrderStateEnum::DISPATCHED)
         ->and($invoice->refresh()->trashed())->toBeTrue();
@@ -6267,6 +6273,17 @@ test('picking and packing are warehouse work, the order page shipment and dispat
             ->and($doNotPick()->status())->not->toBe(403)
             ->and($tariffCodes()->status())->not->toBe(403);
 
+        $warehousePage = fn (string $page) => $this->get(route("grp.org.warehouses.show.dispatching.$page.index", [$this->organisation->slug, $this->warehouse->slug]));
+        $warehousePage('picking_sessions')->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["inventory.{$this->organisation->id}.edit", "warehouses-view.{$this->organisation->id}"]);
+        $warehousePage('trolleys')->assertForbidden();
+        $warehousePage('picked_bays')->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["fulfilment.{$this->warehouse->id}.edit"]);
+        expect($deliveryNote->canBeWorkedOnBy($this->user))->toBeTrue()
+            ->and($packing()->status())->not->toBe(403);
+
         actingAsUserWithOnlyPermissions($this->user, ["crm.{$this->shop->id}.view"]);
         $this->patch(route('grp.models.delivery_note.state.dispatched', $deliveryNote->id))->assertForbidden();
         $doNotPick()->assertForbidden();
@@ -6274,6 +6291,9 @@ test('picking and packing are warehouse work, the order page shipment and dispat
 
         actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.view"]);
         $packing()->assertForbidden();
+        $warehousePage('picking_sessions')->assertOk();
+        $warehousePage('trolleys')->assertOk();
+        $warehousePage('picked_bays')->assertOk();
 
         actingAsUserWithOnlyPermissions($this->user, ["dispatching.{$this->warehouse->id}.edit"]);
         expect($unlock()->status())->not->toBe(403)

@@ -9278,7 +9278,7 @@ test('UI agent shopping dashboard renders', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/AgentShoppingDashboard')
-            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Browse', 'Drafts to send', 'Suppliers'])
+            ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->pluck('label')->all() === ['What to order', 'Ordering', 'Drafts to send', 'Suppliers'])
             ->has('title')
             ->has('stats')
             ->has('coverBuckets', 9)
@@ -9529,8 +9529,11 @@ test('UI agent drafts to send', function () {
             ->component('Procurement/AgentDraftsToSend')
             ->has('cards')
             ->has('agentName')
+            ->where('orgCurrency', $this->organisation->currency->code)
+            ->where('pageHead.subNavigation.2.number', collect($page->toArray()['props']['cards'])->where('has_ours', true)->count())
             ->where('sendRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.send')
-            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1));
+            ->where('cards', fn ($cards) => collect($cards)->every(fn (array $card) => count($card['parts']) >= 1 && $card['lines'] >= 1
+                && array_key_exists('org_exchange', $card) && ($card['currency'] !== $this->organisation->currency->code || $card['org_exchange'] === null)));
     });
 });
 
@@ -9581,7 +9584,7 @@ test('UI agent cover bucket items index', function () {
             ->where('bucketLabel', 'Out of stock')
             ->has('items.data')
             ->has('items.meta.total')
-            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered'])->every(fn (string $key) => array_key_exists($key, $item))))
+            ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => collect(['image', 'stock_in_locations', 'quarterly_usage', 'stock_cover', 'stock_deliveries', 'other_open_purchase_orders', 'units_per_pack', 'quantity_ordered', 'org_exchange'])->every(fn (string $key) => array_key_exists($key, $item))))
             ->has('miniCart.count')
             ->where('miniCart.listRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.index')
             ->where('addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
@@ -9599,7 +9602,7 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
     $this->get($url)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Procurement/AgentCoverBucketItems')
         ->where('bucket', null)
-        ->where('bucketLabel', 'Browse')
+        ->where('bucketLabel', 'Ordering')
         ->has('filterOptions.cover', 9)
         ->has('filterOptions.rank', 5)
         ->where('filterOptions.supplier', fn ($suppliers) => collect($suppliers)->contains('value', $supplierId))
@@ -9623,6 +9626,34 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
         ->where('active.supplier', $supplierId)
         ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
 
+    $hidden = $url.'?hide_ordered=1&'.http_build_query(['filter' => ['global' => $code]]);
+    $this->get($hidden)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.hide_ordered', true)
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
+    $submittedOrder = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'            => $submittedOrder->group_id,
+        'organisation_id'     => $submittedOrder->organisation_id,
+        'purchase_order_id'   => $submittedOrder->id,
+        'supplier_product_id' => $orgSupplierProduct->supplier_product_id,
+        'org_stock_id'        => $this->orgStocks[0]->id,
+        'state'               => PurchaseOrderTransactionStateEnum::SUBMITTED->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 100,
+        'net_amount'          => 250,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+    $submittedOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    $this->get($hidden)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => !collect($items)->contains('code', $code)));
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => $code]]))->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('active.hide_ordered', false)
+        ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
+
     foreach (['code', '-code', 'name', '-supplier_code'] as $sort) {
         $this->get($url.'?sort='.$sort)->assertOk();
     }
@@ -9632,6 +9663,46 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
 
     expect($ascending->first())->not->toBe($descending->first())
         ->and($ascending->values()->all())->toBe($ascending->sort(SORT_STRING)->values()->all());
+});
+
+test('UI agent browse shows what the other organisations hold on their drafts for a product', function () {
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    OrgAgent::where('organisation_id', $otherOrganisation->id)->where('agent_id', $this->orgAgent->agent_id)->first()
+        ?? StoreOrgAgent::make()->action($otherOrganisation, $this->orgAgent->agent, []);
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct  = $orgSupplierProduct->supplierProduct;
+    $theirOrgSupplier = OrgSupplier::where('supplier_id', $supplierProduct->supplier_id)->where('organisation_id', $otherOrganisation->id)->firstOrFail();
+
+    $url      = route('grp.org.procurement.org_agents.show.shopping.browse.index', [$this->organisation->slug, $this->orgAgent->slug]).'?'.http_build_query(['filter' => ['global' => $supplierProduct->code]]);
+    $ourItem  = fn () => collect($this->get($url)->viewData('page')['props']['items']['data'])->firstWhere('code', $supplierProduct->code);
+
+    expect($ourItem()['other_organisations_drafts'])->toBe([]);
+
+    $theirDraft = StorePurchaseOrder::make()->action($theirOrgSupplier, [], strict: false);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'            => $theirDraft->group_id,
+        'organisation_id'     => $theirDraft->organisation_id,
+        'purchase_order_id'   => $theirDraft->id,
+        'supplier_product_id' => $supplierProduct->id,
+        'org_stock_id'        => $this->orgStocks[0]->id,
+        'state'               => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 300,
+        'net_amount'          => 750,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+
+    $item = $ourItem();
+
+    expect($item['other_organisations_drafts'])->toBe([
+        ['organisation_code' => $otherOrganisation->code, 'organisation_name' => $otherOrganisation->name, 'units' => 300],
+    ])->and($item['ordered_quantity'])->toBe(0);
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
@@ -12100,6 +12171,7 @@ test('stock deliveries from an agent use the agent organisation currency and its
 test('procurement and accounting dashboards warn about stock deliveries waiting for costing', function () {
     $token  = uniqid();
     $before = \App\Actions\Procurement\GetUncostedStockDeliveriesCard::run($this->organisation);
+    $toCostBefore = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
 
     $staleDelivery       = createStockDeliveryWithItems($this, "UNCOSTED-OLD-$token", [10]);
     $recentDelivery      = createStockDeliveryWithItems($this, "UNCOSTED-NEW-$token", [10]);
@@ -12120,8 +12192,20 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
         ->and($card['value'])->toBe(array_sum(array_column($card['metrics'], 'value')))
         ->and($card['metrics'][0]['route']['parameters']['_query']['between[booked_in_at]'])->toEndWith('-'.now()->subDays(4)->format('Ymd'));
 
+    $toCost = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
+    expect($toCost)->toBe($toCostBefore + 4);
+
     $this->get(route('grp.org.procurement.dashboard', [$this->organisation->slug]))
-        ->assertInertia(fn (AssertableInertia $page) => $page->where('dashboardCards.0.label', 'Not costed')->etc());
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('dashboardCards.0.label', 'Deliveries to cost')
+            ->where('dashboardCards.0.value', $toCost)
+            ->where('dashboardCards.0.route.parameters._query', ['elements[costing]' => 'to_cost'])
+            ->where('dashboardCards.1.label', 'Not costed')
+            ->etc());
+
+    expect(collect($this->get(route('grp.org.procurement.stock_deliveries.index', [$this->organisation->slug, 'elements[costing]' => 'to_cost']))->viewData('page')['props']['data']['data'])->pluck('reference'))
+        ->toContain("UNCOSTED-OLD-$token", "UNCOSTED-AGENT-$token")
+        ->not->toContain("COSTED-AGENT-$token");
 
     $this->get(route('grp.org.accounting.dashboard', [$this->organisation->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page->where('uncostedStockDeliveries.value', $card['value'])->etc());

@@ -11,7 +11,7 @@ namespace App\Actions\Dispatching\Trolley\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\Authorisations\Inventory\WithWarehouseAuthorisation;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Enums\UI\Dispatch\TrolleyTabsEnum;
 use App\Http\Resources\Dispatching\TrolleyResource;
 use App\Http\Resources\History\HistoryResource;
@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowTrolley extends OrgAction
 {
     use WithActionButtons;
-    use WithWarehouseAuthorisation;
+    use WithDispatchingEquipmentAuthorisation;
 
     public function handle(Trolley $trolley): Trolley
     {

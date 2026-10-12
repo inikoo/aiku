@@ -36,6 +36,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
@@ -381,6 +382,31 @@ class SendChatMessage
 
 
     /**
+     * A reply written for the signed in agent outside the composer, by their AI assistant. It goes
+     * through the same door as the composer: the same text rules, and the chat is claimed when
+     * nobody holds it and refused when a colleague does.
+     *
+     * @throws \Throwable
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function replyAsAgent(ChatSession $chatSession, string $text): ChatMessage
+    {
+        $validated = validator([
+            'message_text' => $text,
+            'message_type' => ChatMessageTypeEnum::TEXT->value,
+            'sender_type'  => ChatSenderTypeEnum::AGENT->value,
+        ], Arr::only($this->rules(), ['message_text', 'message_type', 'sender_type']))->validate();
+
+        $sender = $this->determineSenderData($validated, $chatSession);
+
+        if (!$sender['ok']) {
+            throw ValidationException::withMessages(['message_text' => $sender['message']]);
+        }
+
+        return $this->handle($chatSession, array_merge($validated, $sender['data']));
+    }
+
+    /**
      * @throws \Throwable
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -458,7 +484,7 @@ class SendChatMessage
      *
      * @return array{ok: bool, message: string, code: int}|null  a refusal, or null once claimed
      */
-    private function claimUnheldChat(ChatSession $chatSession, User $user, ChatAgent $agent): ?array
+    public function claimUnheldChat(ChatSession $chatSession, User $user, ChatAgent $agent): ?array
     {
         $holderId = $chatSession->assignments()
             ->where('status', ChatAssignmentStatusEnum::ACTIVE->value)

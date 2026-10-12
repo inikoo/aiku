@@ -498,7 +498,7 @@ class ShowOrder extends OrgAction
                             'order' => $order->id,
                         ]
                     ],
-                    'rollback_dispatch'          => $request->user()->authTo("accounting.{$order->organisation_id}.edit") ? [
+                    'rollback_dispatch'          => $order->canBeUndispatchedBy($request->user()) ? [
                         'method'     => 'patch',
                         'name'       => 'grp.models.order.rollback_dispatch',
                         'parameters' => [

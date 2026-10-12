@@ -22,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class RollbackDispatchedOrder extends OrgAction
 {
+    private Order $order;
+
     public function handle(Order $order, $fromDeliveryNote = false): void
     {
         if ($order->deliveryNotes && !$fromDeliveryNote) {
@@ -66,11 +68,12 @@ class RollbackDispatchedOrder extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("accounting.{$this->shop->organisation_id}.edit");
+        return $this->order->canBeUndispatchedBy($request->user());
     }
 
     public function asController(Order $order, ActionRequest $request): void
     {
+        $this->order = $order;
         $this->initialisationFromShop($order->shop, $request);
 
         $this->handle($order);
