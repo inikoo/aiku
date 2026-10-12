@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Shop\UI;
 use App\Actions\Catalogue\Shop\External\Shopify\ConnectShopifyExternalShop;
 use App\Actions\Catalogue\Shop\External\Shopify\GetShopifyOrdersInShop;
 use App\Actions\Catalogue\Shop\External\Wix\AuthenticateWixExternalShop;
+use App\Actions\CRM\Customer\GetCustomerStateByLastInvoice;
 use App\Actions\CRM\Customer\GoogleAds\ConnectShopGoogleAds;
 use App\Actions\CRM\Customer\PdfCustomerLetterOfAuthorisation;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
@@ -458,6 +459,26 @@ class EditShop extends OrgAction
                             'label'       => __('Identity Document Number Alt. Label'),
                             'information' => __('The label would replace all of the Identity Document Number Alt. text under this shop'),
                             'value'       => data_get($shop->settings, 'customer.identity_document_number_alt', ''),
+                        ],
+                        'customer_losing_after_days'         => [
+                            'type'        => 'input_number',
+                            'bind'        => [
+                                'min' => 1,
+                                'max' => 3650,
+                            ],
+                            'label'       => __('Potential Comebacks after (days)'),
+                            'information' => __('A customer whose last invoice is older than this many days becomes Potential Comebacks. A customer who has never been invoiced stays Registered. Applied at the next daily update.'),
+                            'value'       => GetCustomerStateByLastInvoice::make()->losingAfterDays($shop),
+                        ],
+                        'customer_lost_after_days'           => [
+                            'type'        => 'input_number',
+                            'bind'        => [
+                                'min' => 2,
+                                'max' => 3650,
+                            ],
+                            'label'       => __('Dormant after (days)'),
+                            'information' => __('A customer whose last invoice is older than this many days becomes Dormant. Has to be more than the Potential Comebacks days. Applied at the next daily update.'),
+                            'value'       => GetCustomerStateByLastInvoice::make()->lostAfterDays($shop),
                         ],
                     ],
                 ],
