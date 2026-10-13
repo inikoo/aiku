@@ -383,12 +383,12 @@ class UpdateFaireOrder extends OrgAction
     public function syncFaireTax(Order $order): void
     {
         $orderFaireData = $order->shop->getFaireOrder($order->external_id);
-        $taxes          = collect(Arr::get($orderFaireData, 'payout_costs.taxes', []));
+        $this->syncFaireShipping($order, $orderFaireData);
+
+        $taxes = collect(Arr::get($orderFaireData, 'payout_costs.taxes', []));
         if ($taxes->isEmpty()) {
             return;
         }
-
-        $this->syncFaireShipping($order, $orderFaireData);
 
         $itemsTaxData = ['payout_costs' => ['taxes' => $taxes->where('taxable_item_type', 'ORDER_ITEM')->values()->all()]];
         $itemsTax     = $this->getFaireTaxAmount($itemsTaxData, $order->shop);
@@ -440,18 +440,21 @@ class UpdateFaireOrder extends OrgAction
             return;
         }
 
-        $invoiceTax      = (float)$invoice->tax_amount;
-        $shippingAmounts = ['gross_amount' => $faireShipping, 'net_amount' => $faireShipping];
-        $shippingLine    = $invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->first();
-        if ($shippingLine) {
-            $shippingLine->update($shippingAmounts);
-        } else {
-            StoreInvoiceTransactionFromShipping::make()->action($invoice, null, [
-                'tax_category_id' => $order->tax_category_id,
-                'quantity'        => 1,
-                ...$shippingAmounts,
-            ]);
+        $shippingLines = $invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->get();
+        if ($shippingLines->contains(fn (InvoiceTransaction $line) => abs((float)$line->net_amount) >= 0.01)) {
+            return;
         }
+
+        $invoiceTax = (float)$invoice->tax_amount;
+        foreach ($shippingLines as $emptyShippingLine) {
+            DeleteInvoiceTransaction::run($emptyShippingLine);
+        }
+        StoreInvoiceTransactionFromShipping::make()->action($invoice, null, [
+            'tax_category_id' => $order->tax_category_id,
+            'quantity'        => 1,
+            'gross_amount'    => $faireShipping,
+            'net_amount'      => $faireShipping,
+        ]);
 
         CalculateInvoiceTotals::run($invoice);
         $invoice->refresh();

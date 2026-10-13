@@ -525,6 +525,14 @@ test('the shipping faire reimburses is copied onto an order with none and never 
     $invoiceNet = (float)$invoice->refresh()->net_amount;
     $invoiceTax = (float)$invoice->tax_amount;
 
+    $invoice->invoiceTransactions()->create([
+        ...$invoice->invoiceTransactions()->first()->only(['group_id', 'organisation_id', 'shop_id', 'customer_id', 'order_id', 'tax_category_id', 'date']),
+        'model_type'   => 'ShippingZone',
+        'quantity'     => 1,
+        'gross_amount' => 0,
+        'net_amount'   => 0,
+    ]);
+
     $action->syncFaireShipping($order, $faireShipment(1234));
 
     expect((float)$order->refresh()->shipping_amount)->toBe(12.34)
@@ -533,7 +541,8 @@ test('the shipping faire reimburses is copied onto an order with none and never 
         ->and(round((float)$order->total_amount, 2))->toBe(round((float)$order->net_amount + $orderTax, 2))
         ->and(round((float)$invoice->refresh()->net_amount - $invoiceNet, 2))->toBe(12.34)
         ->and((float)$invoice->tax_amount)->toBe($invoiceTax)
-        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->sum('net_amount'))->toBe(12.34);
+        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->sum('net_amount'))->toBe(12.34)
+        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->sum('grp_net_amount'))->toBeGreaterThan(0.0);
 
     $action->syncFaireShipping($order, $faireShipment(2000));
     expect((float)$order->refresh()->shipping_amount)->toBe(12.34)
