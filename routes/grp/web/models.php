@@ -978,7 +978,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('stock-delivery-service-invoice', StoreStockDeliveryServiceInvoice::class)->name('stock_delivery_service_invoice.store');
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/agent-details', UpdateOrgSupplierProductAgentDetails::class)->name('org_supplier_product.agent_details.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
-    Route::patch('org-supplier-product/{orgSupplierProduct:id}/org-stock/{orgStock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/stock/{stock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('shop-external/{engine}', StoreExternalShop::class)->name('shop.external.store');
