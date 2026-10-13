@@ -32,6 +32,7 @@ class GetAgentOrganisationNavigation
                     $this->procurementSubSection(__('Labels'), 'fa-tags', 'grp.org.agent.agent_labels.', 'grp.org.agent.agent_labels.index', $organisation),
                     $this->procurementSubSection(__('Barcodes'), 'fa-barcode', 'grp.org.agent.agent_barcodes.', 'grp.org.agent.agent_barcodes.index', $organisation),
                 ],
+                'agent_sales' => [],
                 'agent_purchase_orders' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.purchase_orders.dashboard', 'grp.org.agent.purchase_orders.dashboard', $organisation),
                     $this->procurementSubSection(__('List'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders.index', 'grp.org.agent.purchase_orders.index', $organisation),
@@ -56,6 +57,7 @@ class GetAgentOrganisationNavigation
                 [
                     'agent_suppliers'       => [__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.org_suppliers'],
                     'agent_products'        => [__('Products'), 'fa-box-usd', 'grp.org.agent.org_supplier_products'],
+                    'agent_sales'           => [__('Sales'), 'fa-chart-line', 'grp.org.agent.sales'],
                     'agent_purchase_orders' => [__('Purchase Orders'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders'],
                     'agent_containers'      => [__('Containers'), 'fa-truck-container', 'grp.org.agent.stock_deliveries'],
                     'agent_accounting'      => [__('Accounting'), 'fa-file-invoice-dollar', 'grp.org.agent.accounting'],
@@ -67,7 +69,7 @@ class GetAgentOrganisationNavigation
                     'icon'    => ['fal', $icon],
                     'route'   => [
                         'name'       => match ($key) {
-                            'agent_purchase_orders', 'agent_accounting' => $root.'.dashboard',
+                            'agent_sales', 'agent_purchase_orders', 'agent_accounting' => $root.'.dashboard',
                             'agent_containers'      => $root.'.current',
                             default                 => $root.'.index',
                         },

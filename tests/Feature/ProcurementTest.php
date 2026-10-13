@@ -651,7 +651,7 @@ test('agent manager only sees their own agent organisation', function () {
         ->and($agentUser->worksOnlyForAgents())->toBeTrue()
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($agentUser)))->toBe(['tickets'])
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)))->toBe([$organisation->slug])
-        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and(collect(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]['agent_suppliers']['topMenu']['subSections'])->pluck('root')->all())->toBe([
             'grp.org.agent.org_suppliers.',
         ]);
@@ -659,6 +659,20 @@ test('agent manager only sees their own agent organisation', function () {
     actingAs($agentUser);
 
     $this->get(route('grp.org.agent.purchase_orders.index', $organisation->slug))->assertOk();
+    $this->get(route('grp.org.agent.sales.dashboard', $organisation->slug))
+        ->assertInertia(fn ($page) => $page
+            ->component('Org/Procurement/AgentSales')
+            ->missing('sales')
+            ->loadDeferredProps(fn ($reload) => $reload
+                ->where('sales.year', now()->year)
+                ->has('sales.organisations.0.this_year', now()->month)
+                ->has('sales.organisations.0.last_year', 12)
+                ->has('sales.organisations', OrgAgent::where('agent_id', $this->agent->id)->count())
+                ->has('sales.organisations.0.problems.out')
+                ->has('sales.top_sellers')
+                ->has('sales.out.rows')
+                ->where('sales.organisations.0.sold', fn ($sold) => $sold >= 0)));
+    $this->get(route('grp.org.agent.sales.dashboard', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
         ->assertInertia(fn ($page) => $page->where('data.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));
 
