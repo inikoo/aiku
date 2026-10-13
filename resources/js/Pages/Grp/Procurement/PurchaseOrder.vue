@@ -1142,7 +1142,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
-		<AgentOrderingItems v-if="agent_ordering && currentTab === 'items' && items" :items="items" v-bind="agent_ordering" tableName="items" />
+		<AgentOrderingItems v-if="agent_ordering && isOrderingLevelTab && props[currentTab as keyof typeof props]" :key="currentTab" :items="props[currentTab as keyof typeof props]" v-bind="agent_ordering" :tableName="currentTab" />
 		<component
 			v-else
 			:is="component"

@@ -10000,6 +10000,13 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->where('items.data', fn ($items) => collect($items)->pluck('code')->all() === [$supplierProduct->code]
                 && $items[0]['other_organisations_drafts'][0]['organisation_code'] === $otherOrganisation->code)
             ->etc());
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=products')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('products.data', fn ($products) => collect($products)->pluck('code')->contains($supplierProduct->code)
+                && array_key_exists('stock_cover', $products[0])
+                && array_key_exists('other_organisations_drafts', $products[0]))
+            ->etc());
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {

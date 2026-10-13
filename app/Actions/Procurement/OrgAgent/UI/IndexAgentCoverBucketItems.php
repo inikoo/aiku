@@ -77,6 +77,22 @@ class IndexAgentCoverBucketItems extends OrgAction
         return $this->handle($orgAgent, null, null, $supplierId);
     }
 
+    /**
+     * Every product of one supplier the organisation can order through the agent, as the Ordering rows.
+     */
+    public function onSupplier(OrgAgent $orgAgent, int $supplierId, string $prefix): LengthAwarePaginator
+    {
+        $this->orgAgent   = $orgAgent;
+        $this->bucket     = null;
+        $this->rank       = null;
+        $this->supplierId = $supplierId;
+        $this->prefix     = $prefix;
+
+        InertiaTable::updateQueryBuilderParameters($prefix);
+
+        return $this->handle($orgAgent, null, null, $supplierId);
+    }
+
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
         $buckets   = GetAgentStockCoverBuckets::make();
@@ -246,7 +262,7 @@ class IndexAgentCoverBucketItems extends OrgAction
     {
         return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
-                $table->name($prefix)->pageName($prefix.'Page');
+                $table->name($prefix)->pageName($prefix.'Page')->withGlobalSearch();
             }
 
             $table
