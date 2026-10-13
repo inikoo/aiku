@@ -413,6 +413,7 @@ const errorPaymentMethod = ref<null | unknown>(null)
 const _refComponents = ref(null)
 
 const isOpenModalAddVoucher = ref(false)
+const isOpenModalFaireShipping = ref(false)
 const isLoadingAddVoucher = ref(false)
 const isLoadingRemoveVoucher = ref(false)
 const addVoucherError = ref("")
@@ -2811,6 +2812,11 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                         v-tooltip="fieldSummary.information_icon"
                                         class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width
                                         aria-hidden='true' />
+                                    <FontAwesomeIcon v-if="is_faire_order" icon='fal fa-question-circle'
+                                        @click="isOpenModalFaireShipping = true"
+                                        v-tooltip="ctrans('How shipping works on a Faire order')"
+                                        class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width
+                                        aria-hidden='true' />
 
                                     <span
                                         v-if="isShippingEditable"
@@ -3001,6 +3007,31 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             :address="box_stats?.customer.addresses.billing" :title="ctrans('Billing address')"
             :updateRoute="billing_address_update_route" @submitted="() => (isModalBillingAddress = false)"
             closeButton />
+    </Modal>
+
+    <Modal :isOpen="isOpenModalFaireShipping" @onClose="isOpenModalFaireShipping = false" width="w-full max-w-xl">
+        <div class="bg-white px-2 text-sm text-gray-700">
+            <h2 class="text-lg font-bold tracking-tight mb-4">
+                {{ ctrans("Shipping on a Faire order") }}
+            </h2>
+            <dl class="space-y-4">
+                <div>
+                    <dt class="font-semibold">{{ ctrans("Sent with our own carrier") }}</dt>
+                    <dd>{{ ctrans("Type the shipping here before the label or tracking is made. When the label is made, Aiku sends that amount to Faire, so it does not have to be entered on Faire.") }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">{{ ctrans("The label or tracking is already made") }}</dt>
+                    <dd>{{ ctrans("The shipping can no longer be typed here. Enter the shipping cost on Faire, then press Refresh Faire data and it is copied to this order.") }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">{{ ctrans("Sent with a Faire label") }}</dt>
+                    <dd>{{ ctrans("Faire pays no shipping for the order, so there is no shipping amount and none can be added.") }}</dd>
+                </div>
+            </dl>
+            <p class="mt-4 text-gray-500">
+                {{ ctrans("Every other amount on the order comes from Faire and can not be changed here.") }}
+            </p>
+        </div>
     </Modal>
 
     <!-- Modal: Add Voucher -->
