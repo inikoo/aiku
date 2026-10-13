@@ -75,7 +75,7 @@ class UpdateOrderExtraPacking extends OrgAction
     public function action(Order $order, array $modelData): Order
     {
         $this->asAction = true;
-        $this->initialisationFromShop($order->shop, []);
+        $this->initialisationFromShop($order->shop, $modelData);
 
         return $this->handle($order, $modelData);
     }
