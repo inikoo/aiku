@@ -638,6 +638,7 @@ class ShowPurchaseOrder extends OrgAction
                     'tooltip' => __('Cancel Purchase Order'),
                     'type'    => 'button',
                     'style'   => 'delete',
+                    'icon'    => 'fal fa-ban',
                     'key'     => 'cancel_purchase_order',
                     'route'   => [
                         'method'     => 'patch',
@@ -697,6 +698,7 @@ class ShowPurchaseOrder extends OrgAction
                     'tooltip' => __('Cancel Purchase Order'),
                     'type'    => 'button',
                     'style'   => 'delete',
+                    'icon'    => 'fal fa-ban',
                     'key'     => 'cancel_purchase_order',
                     'route'   => [
                         'method'     => 'patch',
