@@ -3050,7 +3050,9 @@ test('UI edit org supplier product', function () {
                     ->where('title', $this->orgSupplierProduct->supplierProduct->code)
                     ->etc()
             )
-            ->has('formData.args.updateRoute');
+            ->has('formData.args.updateRoute')
+            ->where('formData.blueprint.0.fields.state.value', $this->orgSupplierProduct->fresh()->state)
+            ->has('formData.blueprint.0.fields.state.options', 3);
     });
 });
 

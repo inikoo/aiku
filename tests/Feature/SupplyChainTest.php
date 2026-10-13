@@ -1547,7 +1547,9 @@ test('UI edit supplier product', function () {
                     ->etc()
             )
             ->has('formData.args.updateRoute')
-            ->has('formData.blueprint.0.fields.code');
+            ->has('formData.blueprint.0.fields.code')
+            ->where('formData.blueprint.0.fields.state.value', $supplierProduct->state->value)
+            ->has('formData.blueprint.0.fields.state.options', 4);
     });
 });
 
