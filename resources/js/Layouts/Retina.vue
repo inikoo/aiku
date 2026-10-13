@@ -18,6 +18,7 @@ const RetinaLayoutDs = defineAsyncComponent(() => import("./RetinaLayoutDs.vue")
 const RetinaLayoutEcom = defineAsyncComponent(() => import("./RetinaLayoutEcom.vue"))
 import { notify } from "@kyvg/vue3-notification"
 import { usePage } from "@inertiajs/vue3"
+import axios from "axios"
 import IrisHeader from "@/Layouts/Iris/Header.vue"
 import IrisFooter from "@/Layouts/Iris/Footer.vue"
 
@@ -35,7 +36,7 @@ import { initialiseIrisVarnish } from "@/Composables/initialiseIrisVarnish"
 import { setColorStyleRoot } from "@/Composables/useApp"
 import { createSidePanel } from '@/Iris/Composables/useSidePanel'
 import SidePanel from '@/Iris/Components/SidePanel.vue'
-import { pushServerGtmEvent, pushServerGtmEventOnce } from "@/Composables/useGtm"
+import { pushServerGtmEventOnce, pushGtmEventOnceConfirmed } from "@/Composables/useGtm"
 import { useColorTheme } from "@/Composables/useStockList"
 import { computed } from 'vue'
 
@@ -134,6 +135,16 @@ watch(() => usePage().props?.flash?.gtm, (newValue) => {
     pushServerGtmEventOnce(newValue.event, newValue.data_to_submit)
 }, {
     deep: true,
+    immediate: true
+})
+
+watch(() => usePage().props?.gtm_purchase, (pendingPurchase) => {
+    if (!pendingPurchase?.event) return
+
+    pushGtmEventOnceConfirmed(pendingPurchase.event, pendingPurchase.data_to_submit, () => {
+        axios.post(route(pendingPurchase.confirm_route.name, pendingPurchase.confirm_route.parameters)).catch(() => {})
+    })
+}, {
     immediate: true
 })
 
