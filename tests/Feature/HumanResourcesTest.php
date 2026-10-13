@@ -4115,8 +4115,8 @@ test('human resources is closed to a section supervisor, who follows the team fr
 
     actingAs($supervisor);
 
-    foreach (['dashboard', 'employees.index', 'timesheets.index', 'clockings.index', 'leaves.index', 'overtime.index', 'workplaces.index', 'job_positions.index'] as $page) {
-        get(route("grp.org.hr.$page", $organisation->slug))->assertForbidden();
+    foreach (['dashboard', 'employees.index', 'timesheets.index', 'timesheets.export', 'clockings.index', 'leaves.index', 'overtime.index', 'workplaces.index', 'job_positions.index'] as $page) {
+        expect(get(route("grp.org.hr.$page", $organisation->slug))->status())->toBe(403, $page);
     }
     get(route('grp.org.hr.employees.show', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();
     get(route('grp.org.hr.employees.edit', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();

@@ -50,7 +50,7 @@ class IndexLeavesAdmin extends OrgAction
     {
         return LeaveApprover::query()
             ->where('organisation_id', $this->organisation->id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $request->user()->permissionsHolder()->id)
             ->where('is_active', true)
             ->exists();
     }

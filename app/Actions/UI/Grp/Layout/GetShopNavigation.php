@@ -892,7 +892,7 @@ class GetShopNavigation
             "icon"    => ["fal", "fa-life-ring"],
             "root"    => "grp.org.shops.show.tickets.",
             "route"   => [
-                "name"       => $user->roles()->where("name", RolesEnum::HELP_DESK_SUPERVISOR->value)->exists() ? "grp.org.shops.show.tickets.board" : "grp.org.shops.show.tickets.index",
+                "name"       => $user->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value) ? "grp.org.shops.show.tickets.board" : "grp.org.shops.show.tickets.index",
                 "parameters" => [$shop->organisation->slug, $shop->slug],
             ],
             "topMenu" => [

@@ -2630,6 +2630,54 @@ test('supervisors borrow another user\'s permissions and give them back', functi
     post(route('grp.models.user.borrow_permissions', ['user' => $groupAdmin->id]))->assertForbidden();
 })->depends('create guest');
 
+test('borrowing shows what the lender gets through job positions and approver lists, not only permissions', function (Guest $guest) {
+    $group        = $guest->group;
+    $organisation = $guest->getUser()->authorisedOrganisations()->first();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $makeUser = function (string $username) use ($group): User {
+        $guestData = Guest::factory()->definition();
+        data_set($guestData, 'user.username', $username);
+
+        return StoreGuest::make()->action($group, $guestData)->getUser();
+    };
+
+    $borrower = $makeUser('borrower-blind-spots');
+    $lender   = $makeUser('lender-blind-spots');
+
+    $supervisorPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->whereNotNull('department')->where('department', '!=', \App\Models\Tasks\StaffTask::EXCLUDED_DEPARTMENT)->firstOrFail();
+    \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $lender->id, 'job_position_id' => $supervisorPosition->id, 'scopes' => '{}']);
+    \App\Models\HumanResources\LeaveApprover::query()->create([
+        'organisation_id' => $organisation->id,
+        'user_id'         => $lender->id,
+        'name'            => 'Lender',
+        'sequence_number' => 1,
+        'is_active'       => true,
+    ]);
+    $lender->assignRole(Role::where('name', RolesEnum::HELP_DESK_SUPERVISOR->value)->firstOrFail());
+    $lender->assignRole(Role::where('name', RolesEnum::PROCUREMENT_VIEWER->value.'-'.$organisation->id)->firstOrFail());
+    SetUserAuthorisedModels::run($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([]);
+
+    $borrower->borrowPermissionsFrom($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::seesEveryTask($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([$supervisorPosition->department])
+        ->and($borrower->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value))->toBeTrue();
+
+    $borrower->borrowPermissionsFrom(null);
+    $borrower->assignRole(RolesEnum::GROUP_ADMIN->value);
+
+    actingAs($borrower);
+    post(route('grp.models.user.borrow_permissions', ['user' => $lender->id]))->assertRedirect();
+    get(route('grp.org.hr.leaves.index', $organisation->slug))->assertOk();
+    get(route('grp.org.hr.employees.index', $organisation->slug))->assertForbidden();
+})->depends('create guest');
+
 test('only users with group access get the devops servers in the footer', function (Guest $guest) {
     $group = $guest->group;
     app()->instance('group', $group);

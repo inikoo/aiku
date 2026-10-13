@@ -95,7 +95,7 @@ class ExportLeaveReport extends OrgAction
             return;
         }
 
-        $user = request()->user();
+        $user = request()->user()->permissionsHolder();
         $userEmployee = $user->employees()
             ->where('organisation_id', $this->organisation->id)
             ->first();

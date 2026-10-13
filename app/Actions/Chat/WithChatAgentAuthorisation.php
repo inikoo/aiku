@@ -200,7 +200,7 @@ trait WithChatAgentAuthorisation
             ->join('role_has_permissions', 'role_has_permissions.role_id', '=', 'model_has_roles.role_id')
             ->join('permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
             ->where('model_has_roles.model_type', 'User')
-            ->where('model_has_roles.model_id', $user->id)
+            ->where('model_has_roles.model_id', $user->permissionsHolder()->id)
             ->where(function ($query) {
                 $query->where('permissions.name', 'like', 'chat.%')
                     ->orWhere('permissions.name', 'like', 'fulfilment-chat.%');

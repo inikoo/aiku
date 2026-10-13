@@ -315,7 +315,7 @@ trait IsDeliveryNotesIndex
     {
         $employee = null;
         if (!request()->user() instanceof WebUser) {
-            $employee = GetUserCurrentEmployee::run(request()->user());
+            $employee = GetUserCurrentEmployee::run(request()->user()->permissionsHolder());
         }
         $pickerEmployee = null;
         if ($employee && (!$parent instanceof Warehouse || $parent->canBeWorkedInBy(request()->user()))) {
