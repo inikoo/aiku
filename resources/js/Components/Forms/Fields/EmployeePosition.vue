@@ -682,7 +682,10 @@ const onClickJobFineTune = (departmentName: string, shopSlug: string, subDepartm
 
     // If 'uk' is exist in mrk-m then delete it
     if (get(newForm[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopSlug)) {
-        if (newForm[props.fieldName][subDepartmentSlug][optionType].length === 1) {
+        const isLastVisibleOption = !newForm[props.fieldName][subDepartmentSlug][optionType].some(
+            (slug: string) => slug !== shopSlug && optionsList[optionType]?.some(option => option.slug === slug)
+        )
+        if (isLastVisibleOption) {
             // if mrk-m.shops: ['uk'] (only 1 length), then delete mrk-m
             delete newForm[props.fieldName][subDepartmentSlug][optionType]
 
