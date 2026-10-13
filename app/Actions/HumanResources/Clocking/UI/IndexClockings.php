@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Models\HumanResources\Clocking;
@@ -31,7 +31,7 @@ use App\Services\QueryBuilder;
 
 class IndexClockings extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     private Organisation|Workplace|ClockingMachine|Timesheet $parent;
 
@@ -58,12 +58,6 @@ class IndexClockings extends OrgAction
             default:
                 abort(404, 'Not Found');
         }
-
-        if ($this->isRestrictedToSection()) {
-            $queryBuilder->where('clockings.subject_type', 'Employee');
-            $this->restrictToSectionEmployees($queryBuilder, 'clockings.subject_id');
-        }
-
         $qrCodeId = request()->input('clocking_machine_qr_code_id');
 
         if ($qrCodeId) {

@@ -4,7 +4,7 @@ namespace App\Actions\HumanResources\Leave\UI;
 
 use App\Actions\HumanResources\Leave\UpdateLeaveCover;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Leave\LeaveStatusEnum;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexLeaveCovers extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     public function handle(Organisation $organisation): LengthAwarePaginator
     {
