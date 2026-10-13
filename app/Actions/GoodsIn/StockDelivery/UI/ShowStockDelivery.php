@@ -101,7 +101,6 @@ class ShowStockDelivery extends OrgAction
         StockDeliveryTabsEnum::UNDER_OVER_DELIVERED,
         StockDeliveryTabsEnum::CUSTOMS,
         StockDeliveryTabsEnum::PURCHASE_ORDERS,
-        StockDeliveryTabsEnum::SHOWCASE,
     ];
 
     public function authorize(ActionRequest $request): bool
@@ -175,6 +174,11 @@ class ShowStockDelivery extends OrgAction
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
+        $editRoute = $this->canEdit && !$this->goodsIn && $stockDelivery->organisation_id === $this->organisation->id && !$stockDelivery->isManagedByPartner() ? [
+            'name'       => 'grp.org.procurement.stock_deliveries.edit',
+            'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+        ] : null;
+
         return Inertia::render(
             'Procurement/StockDelivery',
             [
@@ -193,13 +197,8 @@ class ShowStockDelivery extends OrgAction
                         'label' => $this->getStateLabels($stockDelivery)[$stockDelivery->state->value]
                             .($stockDelivery->isManagedByPartner() && $stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED ? ' · '.__('Managed by :partner until dispatched', ['partner' => $stockDelivery->parent?->partner?->name]) : ''),
                     ],
-                    'edit'       => $this->canEdit && !$stockDelivery->isManagedByPartner() ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($request->route()->originalParameters()),
-                        ],
-                    ] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery)),
+                    'edit'       => $editRoute ? ['route' => $editRoute] : false,
+                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'route' => $editRoute]] : []),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
@@ -230,10 +229,6 @@ class ShowStockDelivery extends OrgAction
                         ],
                     ],
                 ],
-
-                StockDeliveryTabsEnum::SHOWCASE->value => $this->tab == StockDeliveryTabsEnum::SHOWCASE->value ?
-                    fn () => GetStockDeliveryData::run($stockDelivery)
-                    : Inertia::optional(fn () => GetStockDeliveryData::run($stockDelivery)),
 
                 StockDeliveryTabsEnum::ITEMS->value => $this->tab == StockDeliveryTabsEnum::ITEMS->value ?
                     fn () => $this->getItems($stockDelivery)

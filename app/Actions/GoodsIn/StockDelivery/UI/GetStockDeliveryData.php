@@ -71,11 +71,6 @@ class GetStockDeliveryData
             [
                 'title'  => __('Tracking'),
                 'fields' => [
-                    'our_reference'     => [
-                        'type'  => 'readonly',
-                        'label' => __('Our reference'),
-                        'value' => $stockDelivery->reference,
-                    ],
                     'shipper_reference' => [
                         'type'  => 'input',
                         'label' => __('Shipper reference'),

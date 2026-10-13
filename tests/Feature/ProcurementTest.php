@@ -3967,7 +3967,7 @@ test('UI show stock delivery pending and done item tabs', function () {
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
-            ->missing('tabs.navigation.'.StockDeliveryTabsEnum::SHOWCASE->value)
+            ->missing('tabs.navigation.showcase')
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
             ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2);
     });
@@ -4363,7 +4363,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
     $this->get($url)->assertInertia(function (AssertableInertia $page) {
         $page
             ->where('queryBuilderProps.items.elementGroups.state.elements.placed.1', 0)
-            ->has('tabs.navigation', 6)
+            ->has('tabs.navigation', 5)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
     });
 
@@ -4381,7 +4381,7 @@ test('UI stock delivery partial reload refreshes item state filters and tabs', f
 
     $response->assertOk()
         ->assertJsonPath('props.queryBuilderProps.items.elementGroups.state.elements.placed.1', 1)
-        ->assertJsonCount(7, 'props.tabs.navigation')
+        ->assertJsonCount(6, 'props.tabs.navigation')
         ->assertJsonPath(
             'props.tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.title',
             StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->blueprint()['title']
@@ -13387,6 +13387,27 @@ test('UI agent order stages', function (string $stage) {
         ->missing('scope'));
 })->with(App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::STAGES);
 
+test('a note copied onto several purchase orders of a stock delivery is listed once (HELP-3884)', function () {
+    $supplier      = StoreSupplier::make()->action($this->orgAgent->agent, Supplier::factory()->definition());
+    $orgSupplier   = OrgSupplier::where('supplier_id', $supplier->id)->where('org_agent_id', $this->orgAgent->id)->firstOrFail();
+    $stockDelivery = StoreStockDelivery::make()->action($this->orgAgent, ['reference' => 'notes-'.Str::random(6), 'date' => date('Y-m-d')], strict: false);
+    $note          = 'Should be fine '.Str::random(8);
+
+    foreach (range(1, 3) as $ignored) {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+        $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
+        App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['note' => $note, 'author' => 'Buyer', 'created_at' => '2026-09-21 17:58:00'], strict: false);
+    }
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['note' => 'Only on the last one', 'author' => 'Buyer', 'created_at' => '2026-09-22 09:00:00'], strict: false);
+
+    $notes = collect(IndexProcurementNotes::run($stockDelivery)->items());
+
+    expect($notes)->toHaveCount(2)
+        ->and((int) $notes->firstWhere(fn ($row) => $row->new_values['note'] === $note)->number_documents)->toBe(3)
+        ->and((int) $notes->firstWhere(fn ($row) => $row->new_values['note'] === 'Only on the last one')->number_documents)->toBe(1)
+        ->and(IndexProcurementNotes::run($purchaseOrder)->total())->toBe(2);
+});
+
 test('a container on the way shows and is found by its shipper reference and tracking number (HELP-3884)', function () {
     $stages = App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::class;
 
@@ -13410,8 +13431,17 @@ test('a container on the way shows and is found by its shipper reference and tra
 
     $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains(fn ($action) => ($action['label'] ?? null) === 'Settings' && $action['route']['name'] === 'grp.org.procurement.stock_deliveries.edit'))
+            ->missing('tabs.navigation.showcase')
             ->where('box_stats.first_block.delivery.shipper_reference', $shipper)
             ->where('box_stats.first_block.delivery.tracking_number', $tracking)
+            ->etc());
+
+    $this->get(route('grp.org.procurement.stock_deliveries.edit', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('EditModel')
+            ->where('formData.args.updateRoute.name', 'grp.models.stock-delivery.update')
+            ->where('formData.blueprint', fn ($blueprint) => array_keys(collect($blueprint)->firstWhere('title', 'Tracking')['fields']) === ['shipper_reference', 'tracking_number', 'shipping_agent'])
             ->etc());
 
     $stageUrl = route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stages::ON_THE_WAY]);
