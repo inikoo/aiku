@@ -6996,6 +6996,34 @@ describe('partner shopping list', function () {
         $sellerOrgStock->update(['packed_in' => $packedIn]);
     });
 
+    test('mirror stock delivery has one item per stock when the delivery note carries the stock on two lines', function () {
+        $seller = $this->orgPartner->partner;
+        if (!$seller->warehouses()->exists()) {
+            StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
+        }
+
+        $item  = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 12]);
+        $order = CherryPickPartnerShoppingListItems::make()->action($seller, [['id' => $item->id]])['orders'][0];
+
+        SendPartnerOrderToWarehouse::make()->action($order);
+        $deliveryNote     = $order->deliveryNotes()->first();
+        $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->first();
+        $unitsRequired    = (float) $deliveryNoteItem->quantity_required * (float) ($deliveryNoteItem->orgStock->packed_in ?: 1);
+        $netAmount        = (float) $deliveryNoteItem->transaction->net_amount;
+
+        $zeroedLine = $deliveryNoteItem->replicate(['has_waiting_warehouse', 'has_waiting_crm']);
+        $zeroedLine->quantity_required = 0;
+        $zeroedLine->save();
+
+        $stockDelivery = StorePartnerStockDeliveryFromDeliveryNote::run($deliveryNote->refresh());
+
+        expect($stockDelivery->items()->count())->toBe(1)
+            ->and((float) $stockDelivery->items()->first()->unit_quantity)->toBe($unitsRequired)
+            ->and((float) $stockDelivery->items()->first()->net_amount)->toBe($netAmount);
+
+        $zeroedLine->delete();
+    });
+
     test('the batches the seller picked arrive filled in on the buyer goods in, in the buyer SKOs', function () {
         $seller = $this->orgPartner->partner;
         if (!$seller->warehouses()->exists()) {
