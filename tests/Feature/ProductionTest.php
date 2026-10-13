@@ -1234,6 +1234,85 @@ test('making more than the job asked for needs a manager badge or pin and grows 
         ]);
 });
 
+test('a step counted in packs says so on the floor and takes whole packs only', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 0.125],
+    ]);
+    $user = auth()->user();
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 16]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $item->tasks()->first();
+
+    expect((float) $task->quantity_required)->toBe(2.0)
+        ->and($task->packSize())->toBe(8);
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('open_session.task.pack_size', 8)->etc());
+
+    expect(fn () => CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 1.5]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class, 'whole packs of 8');
+
+    CloseManufactureTaskSession::make()->action($session->refresh(), ['quantity_made' => 1]);
+    $item->update(['quantity' => 18]);
+    $task->update(['quantity_required' => 2.25]);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $task->refresh()), ['quantity_made' => 1.25]);
+    expect($task->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($item->refresh()->quantity)->toBe(18);
+
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    expect($task->refresh()->packSize())->toBeNull();
+});
+
+test('a supervisor corrects an entry typed too high and the grown job shrinks back', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 0.125],
+    ]);
+    $user = auth()->user();
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 56]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $item->tasks()->first();
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $session->update(['quantity_made' => 254, 'state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+    $task->update(['quantity_required' => 254]);
+    $item->update(['quantity' => 2032]);
+    $jobOrder->update(['data' => array_merge($jobOrder->data ?? [], ['overproductions' => [['session_id' => $session->id, 'quantity' => 247]]])]);
+    \App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities::run($task);
+
+    $correct = fn (float $quantity) => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($session->refresh(), ['quantity_made' => $quantity], 'Supervisor');
+
+    expect(fn () => $correct(300))->toThrow(\Illuminate\Validation\ValidationException::class, 'only lower')
+        ->and(fn () => $correct(6.5))->toThrow(\Illuminate\Validation\ValidationException::class, 'whole packs of 8');
+
+    $correct(31);
+    expect($item->refresh()->quantity)->toBe(248)
+        ->and((float) $task->refresh()->quantity_required)->toBe(31.0)
+        ->and((float) $task->quantity_made)->toBe(31.0)
+        ->and($task->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($jobOrder->refresh()->data['overproductions'][0]['quantity'])->toEqual(24)
+        ->and($jobOrder->data['corrections'][0])->toMatchArray(['from' => 254.0, 'to' => 31.0, 'by' => 'Supervisor', 'pack_size' => 8]);
+
+    $correct(6);
+    expect($item->refresh()->quantity)->toBe(56)
+        ->and((float) $task->refresh()->quantity_required)->toBe(7.0)
+        ->and($task->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS)
+        ->and($jobOrder->refresh()->data['overproductions'])->toBe([]);
+
+    get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('artisans')->etc());
+
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+});
+
 test('historic job orders do not generate a work queue', function () {
     $jobOrder = StoreJobOrder::make()->action($this->production, [
         'state'       => JobOrderStateEnum::RECEIVED,

@@ -14,6 +14,7 @@ use App\Models\Web\SeoCompetitor;
 use App\Services\DataForSeo\DataForSeoClient;
 use App\Services\DataForSeo\DataForSeoException;
 use App\Services\DataForSeo\DataForSeoLocations;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -50,7 +51,7 @@ class FetchSeoAiMentions
     /**
      * @throws DataForSeoException
      */
-    public function handle(?Shop $shop = null, bool $onlyWhenMissing = false): int
+    public function handle(?Shop $shop = null, ?CarbonInterface $skipWhenFetchedSince = null): int
     {
         $client = DataForSeoClient::make();
 
@@ -68,7 +69,7 @@ class FetchSeoAiMentions
             ->get();
 
         foreach ($shops as $eachShop) {
-            if ($onlyWhenMissing && SeoAiMention::where('shop_id', $eachShop->id)->where('date', '>=', today()->startOfMonth())->exists()) {
+            if ($skipWhenFetchedSince && SeoAiMention::where('shop_id', $eachShop->id)->where('date', '>=', $skipWhenFetchedSince->toDateString())->exists()) {
                 continue;
             }
 

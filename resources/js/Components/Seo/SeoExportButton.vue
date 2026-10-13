@@ -16,6 +16,8 @@ library.add(faFileExport)
 const props = defineProps<{
     table?: string
     routeName?: string
+    routeParameters?: string[]
+    tooltip?: string
     extra?: Record<string, string | number | null | undefined>
 }>()
 
@@ -23,7 +25,7 @@ const href = computed(() => {
     const params = route().params as Record<string, string>
     const base = props.table
         ? route("grp.org.shops.show.seo.export", [params.organisation, params.shop, props.table])
-        : route(props.routeName!)
+        : route(props.routeName!, props.routeParameters)
 
     const query = new URLSearchParams(window.location.search)
 
@@ -45,7 +47,7 @@ const href = computed(() => {
     <a
         :href="href"
         class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]"
-        v-tooltip="ctrans('Download this table as an Excel file, with the filters and the sort it has now (up to 20,000 rows)')">
+        v-tooltip="tooltip ?? ctrans('Download this table as an Excel file, with the filters and the sort it has now (up to 20,000 rows)')">
         <FontAwesomeIcon :icon="faFileExport" fixed-width aria-hidden="true" />
         {{ ctrans("Excel") }}
     </a>

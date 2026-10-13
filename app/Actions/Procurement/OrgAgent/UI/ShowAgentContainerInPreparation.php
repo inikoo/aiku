@@ -155,7 +155,6 @@ class ShowAgentContainerInPreparation extends OrgAction
         abort_unless(
             ShowAgentOrderStage::documents($orgAgent, ShowAgentOrderStage::PREPARING)
                 ->where('sd.id', $stockDelivery->id)
-                ->where('sd.organisation_id', $orgAgent->organisation_id)
                 ->exists(),
             404
         );

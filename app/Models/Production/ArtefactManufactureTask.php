@@ -5,6 +5,7 @@ namespace App\Models\Production;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Collection;
 
 /**
  * App\Models\Production\ArtefactManufactureTask
@@ -33,6 +34,27 @@ class ArtefactManufactureTask extends Pivot
     public $incrementing = true;
 
     protected $guarded = [];
+
+    /**
+     * How many artefacts one unit of the step holds, when the step is counted in packs (a tray of 8
+     * has units_per_artefact 0.125); null when the step is counted in artefacts or parts of one.
+     */
+    public static function packSize(float|string|null $unitsPerArtefact): ?int
+    {
+        $unitsPerArtefact = (float) $unitsPerArtefact;
+
+        return $unitsPerArtefact > 0 && $unitsPerArtefact < 1 ? (int) round(1 / $unitsPerArtefact) : null;
+    }
+
+    /**
+     * @return Collection<string, int> pack size by "artefact id:manufacture task id", only for steps counted in packs
+     */
+    public static function packSizes(): Collection
+    {
+        return self::where('units_per_artefact', '<', 1)
+            ->get(['artefact_id', 'manufacture_task_id', 'units_per_artefact'])
+            ->mapWithKeys(fn (self $step) => [$step->artefact_id.':'.$step->manufacture_task_id => self::packSize($step->units_per_artefact)]);
+    }
 
     public function artefact(): BelongsTo
     {

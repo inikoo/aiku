@@ -134,6 +134,11 @@ class ShowPurchaseOrder extends OrgAction
             && $purchaseOrder->parent instanceof OrgSupplier;
         $uploadExcel = $this->canEdit && $this->acceptsSpreadsheet($purchaseOrder);
         $draftOrgAgent = $this->draftOrgAgent($purchaseOrder);
+        $products = fn () => match (true) {
+            !$showProductsTab        => null,
+            $draftOrgAgent !== null => JsonResource::collection(IndexAgentCoverBucketItems::make()->onSupplier($draftOrgAgent, $purchaseOrder->supplier_id, PurchaseOrderTabsEnum::PRODUCTS->value)),
+            default                  => PurchaseOrderOrgSupplierProductsResource::collection(IndexPurchaseOrderOrgSupplierProducts::run($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value)),
+        };
         $items = fn () => $draftOrgAgent
             ? JsonResource::collection(IndexAgentCoverBucketItems::make()->onSupplierDrafts($draftOrgAgent, $purchaseOrder->supplier_id, PurchaseOrderTabsEnum::ITEMS->value))
             : PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder, PurchaseOrderTabsEnum::ITEMS->value));
@@ -360,9 +365,7 @@ class ShowPurchaseOrder extends OrgAction
                     'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
                 ] : null,
 
-                PurchaseOrderTabsEnum::PRODUCTS->value => $showProductsTab && $this->tab == PurchaseOrderTabsEnum::PRODUCTS->value ?
-                    fn () => PurchaseOrderOrgSupplierProductsResource::collection(IndexPurchaseOrderOrgSupplierProducts::run($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value))
-                    : Inertia::optional(fn () => $showProductsTab ? PurchaseOrderOrgSupplierProductsResource::collection(IndexPurchaseOrderOrgSupplierProducts::run($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value)) : null),
+                PurchaseOrderTabsEnum::PRODUCTS->value => $showProductsTab && $this->tab == PurchaseOrderTabsEnum::PRODUCTS->value ? $products : Inertia::optional($products),
 
                 'showcase' => GetPurchaseOrderData::run($purchaseOrder),
 
@@ -405,7 +408,11 @@ class ShowPurchaseOrder extends OrgAction
                 ? IndexAgentCoverBucketItems::make()->tableStructure(PurchaseOrderTabsEnum::ITEMS->value)
                 : IndexPurchaseOrderTransactions::make()->tableStructure($purchaseOrder, prefix: PurchaseOrderTabsEnum::ITEMS->value)
         )
-            ->table(IndexPurchaseOrderOrgSupplierProducts::make()->tableStructure(prefix: PurchaseOrderTabsEnum::PRODUCTS->value))
+            ->table(
+                $draftOrgAgent
+                    ? IndexAgentCoverBucketItems::make()->tableStructure(PurchaseOrderTabsEnum::PRODUCTS->value)
+                    : IndexPurchaseOrderOrgSupplierProducts::make()->tableStructure(prefix: PurchaseOrderTabsEnum::PRODUCTS->value)
+            )
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: PurchaseOrderTabsEnum::NOTES->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexDispatchedEmailsInOrder::make()->tableStructure(prefix: PurchaseOrderTabsEnum::DISPATCHED_EMAILS->value))
@@ -638,6 +645,7 @@ class ShowPurchaseOrder extends OrgAction
                     'tooltip' => __('Cancel Purchase Order'),
                     'type'    => 'button',
                     'style'   => 'delete',
+                    'icon'    => 'fal fa-ban',
                     'key'     => 'cancel_purchase_order',
                     'route'   => [
                         'method'     => 'patch',
@@ -697,6 +705,7 @@ class ShowPurchaseOrder extends OrgAction
                     'tooltip' => __('Cancel Purchase Order'),
                     'type'    => 'button',
                     'style'   => 'delete',
+                    'icon'    => 'fal fa-ban',
                     'key'     => 'cancel_purchase_order',
                     'route'   => [
                         'method'     => 'patch',

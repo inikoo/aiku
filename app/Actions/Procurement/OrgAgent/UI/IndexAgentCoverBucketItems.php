@@ -22,6 +22,7 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
@@ -71,6 +72,22 @@ class IndexAgentCoverBucketItems extends OrgAction
         $this->supplierId     = $supplierId;
         $this->onAnyDraftOnly = true;
         $this->prefix         = $prefix;
+
+        InertiaTable::updateQueryBuilderParameters($prefix);
+
+        return $this->handle($orgAgent, null, null, $supplierId);
+    }
+
+    /**
+     * Every product of one supplier the organisation can order through the agent, as the Ordering rows.
+     */
+    public function onSupplier(OrgAgent $orgAgent, int $supplierId, string $prefix): LengthAwarePaginator
+    {
+        $this->orgAgent   = $orgAgent;
+        $this->bucket     = null;
+        $this->rank       = null;
+        $this->supplierId = $supplierId;
+        $this->prefix     = $prefix;
 
         InertiaTable::updateQueryBuilderParameters($prefix);
 
@@ -191,6 +208,7 @@ class IndexAgentCoverBucketItems extends OrgAction
         $supplierProducts = SupplierProduct::whereIn('id', $rows->pluck('supplier_product_id')->unique())->get()->keyBy('id');
         $quarterlyUsage   = $orgStockIds->isEmpty() ? collect() : GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries  = $orgStockIds->isEmpty() ? collect() : GetOrgStocksStockDeliveries::run($orgStockIds);
+        $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
         IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $this->orgAgent->organisation_id);
 
@@ -199,7 +217,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             $currencyId => GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
         ]);
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $otherOrganisationsDrafts, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $exchanges) {
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $otherOrganisationsDrafts, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $exchanges) {
             $images   = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
             $orgStock = $orgStocks->get($row->org_stock_id);
 
@@ -226,6 +244,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'quantity_ordered'     => (float) ($draftQuantities[$row->id] ?? 0),
                 'units_per_pack'       => $row->units_per_pack ? (float) $row->units_per_pack : 1,
                 'has_org_stock'        => $row->org_stock_id !== null,
+                'org_stock_id'         => $row->org_stock_id,
+                'discontinue_suggestions' => $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0],
                 'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
                 'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],
                 'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
@@ -246,7 +266,7 @@ class IndexAgentCoverBucketItems extends OrgAction
     {
         return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
-                $table->name($prefix)->pageName($prefix.'Page');
+                $table->name($prefix)->pageName($prefix.'Page')->withGlobalSearch();
             }
 
             $table

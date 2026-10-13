@@ -71,11 +71,11 @@ const fetchNow = () => {
         <template #other>
             <Button
                 v-if="fetchRoute"
-                type="secondary"
-                :label="ctrans('Fetch now')"
+                type="tertiary"
+                :label="ctrans('Fetch data')"
                 icon="fal fa-sync-alt"
                 :loading="isFetching"
-                v-tooltip="ctrans('Local only. Runs the weekly backlink fetch for this website and its competitors now, link lists included. Costs a few cents of DataForSEO credit.')"
+                v-tooltip="ctrans('Fetches the backlinks of this website and of its competitors now instead of waiting for the weekly run. A domain already fetched today is skipped. Costs a few cents of DataForSEO credit.')"
                 @click="fetchNow" />
         </template>
     </PageHeading>

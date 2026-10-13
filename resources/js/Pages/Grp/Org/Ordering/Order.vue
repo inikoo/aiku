@@ -945,7 +945,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value) {
+    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value)) {
         return false
     }
 

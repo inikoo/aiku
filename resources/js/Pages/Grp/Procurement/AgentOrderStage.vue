@@ -23,10 +23,7 @@ library.add(faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt)
 type Row = {
     id: number
     reference: string
-    organisation_code: string
-    organisation_name: string
-    is_ours: boolean
-    url: string | null
+    url: string
     supplier_code: string | null
     supplier_name: string | null
     purchase_orders: number | null
@@ -40,6 +37,9 @@ type Row = {
     date: string | null
     eta: string | null
     days_late: number | null
+    shipper_reference: string | null
+    tracking_number: string | null
+    shipping_agent: string | null
     agent_invoice: "missing" | "unpaid" | "paid" | null
 }
 
@@ -52,9 +52,6 @@ const props = defineProps<{
     agentName: string
     orgCurrency: string
     container: { label: string, cbm: number }
-    scope: "ours" | "all"
-    canSeeAll: boolean
-    oursCount: number
     agentInvoice: { selected: string | null, counts: Record<string, number> } | null
     rows: { data: Row[] }
 }>()
@@ -78,10 +75,6 @@ const selectAgentInvoice = (value: string | null) => {
     router.get(window.location.pathname, value ? { agent_invoice: value } : {}, { preserveScroll: true })
 }
 
-const selectScope = (value: string | null) => {
-    router.get(window.location.pathname, value === "ours" ? {} : { scope: "all" }, { preserveScroll: true })
-}
-
 </script>
 
 <template>
@@ -89,14 +82,6 @@ const selectScope = (value: string | null) => {
     <PageHeading :data="pageHead" />
 
     <div class="mx-4 mt-4 flex flex-col gap-4 pb-8">
-        <div v-if="canSeeAll" class="flex flex-wrap items-center justify-between gap-3">
-            <PillFilterBar
-                :label="isOrdered ? ctrans('Purchase orders') : ctrans('Stock deliveries')"
-                :options="[{ value: 'ours', label: ctrans('Of my organisation'), count: oursCount }]"
-                :selected="scope === 'ours' ? 'ours' : null"
-                @select="selectScope" />
-        </div>
-
         <PillFilterBar
             v-if="agentInvoice"
             :label="ctrans('Agent invoice')"
@@ -106,12 +91,7 @@ const selectScope = (value: string | null) => {
 
         <Table :resource="rows" class="mt-0">
             <template #cell(reference)="{ item }">
-                <Link v-if="!canSeeAll && item.url" :href="item.url" :title="item.reference" class="block max-w-xs truncate font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
-                <template v-else>
-                <div v-tooltip="item.organisation_name" class="font-medium text-gray-800">{{ item.organisation_code }}</div>
-                <Link v-if="item.url" :href="item.url" :title="item.reference" class="block max-w-xs truncate text-xs leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
-                <div v-else :title="item.reference" class="max-w-xs truncate text-xs leading-tight text-gray-400">{{ item.reference }}</div>
-                </template>
+                <Link :href="item.url" :title="item.reference" class="block max-w-xs truncate font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
             </template>
             <template #cell(supplier_code)="{ item }">
                 <div class="font-medium text-gray-800">{{ item.supplier_code }}</div>
@@ -127,6 +107,12 @@ const selectScope = (value: string | null) => {
             <template #cell(eta)="{ item }">
                 <div class="whitespace-nowrap tabular-nums">{{ day(item.eta) }}</div>
                 <div v-if="item.days_late" class="text-xs font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(item.days_late) }) }}</div>
+            </template>
+            <template #cell(tracking_number)="{ item }">
+                <a v-if="item.tracking_number" :href="`https://www.track-trace.com/container?number=${encodeURIComponent(item.tracking_number)}`" target="_blank" rel="noopener" v-tooltip="ctrans('Track the container')" class="whitespace-nowrap font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.tracking_number }}</a>
+                <span v-else class="text-gray-400">—</span>
+                <div v-if="item.shipper_reference" v-tooltip="ctrans('Shipper reference')" class="text-xs leading-tight text-gray-500">{{ item.shipper_reference }}</div>
+                <div v-if="item.shipping_agent" v-tooltip="ctrans('Shipping agent')" class="text-xs leading-tight text-gray-400">{{ item.shipping_agent }}</div>
             </template>
             <template #cell(agent_invoice)="{ item }">
                 <span v-if="item.agent_invoice" class="inline-flex items-center gap-1.5 whitespace-nowrap" :class="agentInvoiceStates[item.agent_invoice].class">

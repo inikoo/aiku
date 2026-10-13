@@ -18,7 +18,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useLocaleStore } from '@/Stores/locale'
 import PurchaseOrderItemStockInfo from '@/Components/Procurement/PurchaseOrderItemStockInfo.vue'
 import PurchaseOrderSuggestButton from '@/Components/Procurement/PurchaseOrderSuggestButton.vue'
-import { getOrderingLevels, unitsPerOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
+import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from '@/Composables/useOrderingLevel'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faBox, faPallet, faStopCircle, faTrashAlt, faPeopleArrows, faBalanceScale } from '@fal'
@@ -192,10 +192,17 @@ function refreshQuantityInput(item: any, quantityOrdered: number) {
     quantityInputVersion.value[item.id] = (quantityInputVersion.value[item.id] ?? 0) + 1
 }
 
+function suggestionLabel(item: any, skos: number) {
+    const quantity = suggestionAtOrderingLevel(item, skos, currentLevel.value)
+
+    return `${locale.number(quantity)} ${quantity === 1 ? level.value.singular : level.value.quantity}`
+}
+
 async function applySuggestion(item: any, skos: number) {
     const previousQuantityOrdered = item.quantity_ordered
-    typedSkos.value[item.id] = skos
-    refreshQuantityInput(item, skos * (Number(item.units_per_pack) || 1))
+    const quantityOrdered = suggestionAtOrderingLevel(item, skos, currentLevel.value) * unitsPerLevel(item)
+    typedSkos.value[item.id] = quantityOrdered / (Number(item.units_per_pack) || 1)
+    refreshQuantityInput(item, quantityOrdered)
 
     const isSaved = await onSaveQuantity(item, { quantity: Number(item.quantity_ordered) / unitsPerLevel(item), defaults: () => {} })
     if (!isSaved) {
@@ -580,7 +587,7 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                     @update:modelValue="(value) => (typedSkos[item.id] = (Number(value) * unitsPerLevel(item)) / (Number(item.units_per_pack) || 1))"
                     @onSave="(form) => onSaveQuantity(item, form)"
                 />
-                <PurchaseOrderSuggestButton :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" @suggest="(skos) => applySuggestion(item, skos)" />
+                <PurchaseOrderSuggestButton :item="item" :isPartner="isPartner" :typedSkosById="typedSkos" :quantityLabel="(skos: number) => suggestionLabel(item, skos)" @suggest="(skos) => applySuggestion(item, skos)" />
             </div>
             <span v-else class="text-gray-500">{{ quantityBreakdown(item) }}</span>
         </template>

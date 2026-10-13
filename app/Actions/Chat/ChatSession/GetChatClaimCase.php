@@ -61,6 +61,7 @@ class GetChatClaimCase
                 return [
                     'id'         => $item->id,
                     'transaction_id' => $item->transaction_id,
+                    'org_stock_id' => $item->org_stock_id,
                     'code'       => $code,
                     'name'       => $item->transaction?->asset?->name ?? $item->orgStock?->name,
                     'ordered'    => (float) $item->quantity_required,

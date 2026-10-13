@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import TableSiteAuditIssuePages from "@/Components/Tables/Grp/Org/Web/TableSiteAuditIssuePages.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeadingTypes } from "@/types/PageHeading"
@@ -23,7 +24,11 @@ defineProps<{
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead">
+        <template #other>
+            <SeoExportButton table="site_audit_issue_pages" :extra="{ issue_type: issueType }" />
+        </template>
+    </PageHeading>
 
     <p class="mx-4 mb-4 mt-4 max-w-3xl text-sm text-gray-600">{{ description }}</p>
 
