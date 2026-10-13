@@ -849,17 +849,18 @@ test('repair email social icons command repairs only the emails of the given sho
         'snapshot_first_commit' => true,
     ], strict: false);
 
-    expect($email->shop_id)->toBe($this->shop->id);
+    $shop = $mailShot->shop;
+    expect($email->shop_id)->toBe($shop->id);
 
     $this->artisan('repair:email-social-icons', ['shop' => 'no-such-shop-slug'])->assertFailed();
     expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($beefreeIcon);
 
     $email->updateQuietly(['shop_id' => null]);
-    $this->artisan('repair:email-social-icons', ['shop' => $this->shop->slug])->assertSuccessful();
+    $this->artisan('repair:email-social-icons', ['shop' => $shop->slug])->assertSuccessful();
     expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($beefreeIcon);
 
-    $email->updateQuietly(['shop_id' => $this->shop->id]);
-    $this->artisan('repair:email-social-icons', ['shop' => $this->shop->slug])->assertSuccessful();
+    $email->updateQuietly(['shop_id' => $shop->id]);
+    $this->artisan('repair:email-social-icons', ['shop' => $shop->slug])->assertSuccessful();
     expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($ownIcon);
 })->depends('update mailshot');
 
