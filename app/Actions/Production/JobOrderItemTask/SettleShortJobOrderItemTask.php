@@ -166,7 +166,7 @@ class SettleShortJobOrderItemTask
             ->get();
 
         foreach ($lines as $line) {
-            $wantedSkos  = (float) ($line->quantity_to_produce ?? $line->quantity);
+            $wantedSkos  = $line->claimedSkos();
             $coveredSkos = round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3);
 
             if ($coveredSkos <= 0) {

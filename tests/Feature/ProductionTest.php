@@ -5018,6 +5018,66 @@ test('a short day splits the made goods into whole destination trips and carries
         ->and((float) \App\Models\Inventory\LocationOrgStock::where('location_id', $buyers[1]['bay']->id)->where('org_stock_id', $orgStock->id)->value('quantity'))->toBe(1.0);
 });
 
+test('a batch rounded up over what the partner asked for sends only the asked quantity to the partner bay', function () {
+    $this->artefact->manufactureTasks()->detach();
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+
+    $stocks   = createStocks($this->group);
+    $stock    = $stocks[0];
+    $orgStock = createOrgStocks($this->organisation, [$stock])[0];
+    \App\Models\Procurement\PartnerShoppingListItem::where('org_stock_id', $orgStock->id)->forceDelete();
+    \App\Models\Production\Artefact::where('production_id', $this->production->id)
+        ->where('org_stock_id', $orgStock->id)
+        ->where('id', '!=', $this->artefact->id)
+        ->update(['org_stock_id' => null]);
+    $this->artefact->update(['org_stock_id' => $orgStock->id]);
+    $orgStock->update(['packed_in' => 1]);
+
+    $warehouse = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-BATCH', 'name' => 'Batch warehouse']);
+    $area      = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-BATCH', 'name' => 'Batch area']);
+    $bay       = \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => 'BAY-BATCH', 'name' => 'BAY-BATCH'] + \App\Models\Inventory\Location::factory()->definition());
+
+    $buyer = \App\Models\SysAdmin\Organisation::where('code', 'ESBUY')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action($this->group, [
+            'code' => 'ESBUY',
+            'name' => 'ESBUY',
+            'type' => \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP,
+        ] + \App\Models\SysAdmin\Organisation::factory()->definition());
+    \App\Models\Procurement\OrgPartner::firstOrCreate(
+        ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id, 'partner_id' => $buyer->id],
+        ['status' => true],
+    )->update(['goods_out_location_id' => $bay->id]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 280]);
+    ConfirmJobOrder::make()->action($jobOrder);
+
+    $line = \App\Models\Procurement\PartnerShoppingListItem::create([
+        'group_id'                => $this->group->id,
+        'organisation_id'         => $buyer->id,
+        'partner_organisation_id' => $this->organisation->id,
+        'stock_id'                => $stock->id,
+        'org_stock_id'            => createOrgStocks($buyer, [$stock])[0]->id,
+        'quantity'                => 50,
+        'quantity_to_produce'     => 280,
+        'job_order_id'            => $jobOrder->id,
+    ]);
+
+    $session = StartManufactureTaskSession::make()->action($this->guest->getUser(), $item->tasks()->first());
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 280]);
+
+    $allocation = collect(\App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation::run($jobOrder->refresh()))
+        ->map(fn (array $row) => [$row['location_id'], $row['quantity']]);
+
+    expect($line->claimedSkos())->toBe(50.0)
+        ->and($allocation->all())->toBe([
+            [$bay->id, 50.0],
+            [null, 230.0],
+        ]);
+});
+
 test('carrying over a job does not ask for, or pay, the earlier steps twice', function () {
     $pack = StoreManufactureTask::make()->action($this->production, [
         'code'                            => 'PACK-CO',
