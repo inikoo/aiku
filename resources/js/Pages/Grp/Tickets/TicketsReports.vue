@@ -184,33 +184,9 @@ const dailyAverages = (keys: HourlySeriesKey[]) => HOURLY_SERIES.filter((series)
     return { ...series, total, average: averagePerDay(total) }
 })
 
-const timeOfDayBoxes = computed(() => {
-    const boxes: { key: string; title: string; note: string; series: HourlySeriesKey[]; storageKey: string }[] = [
-        {
-            key: "created",
-            title: ctrans("Tickets created, by time of day"),
-            note: props.stats.assignee ? ctrans("Created by anyone, whoever the assignee is") : ctrans("Created by anyone"),
-            series: ["created"],
-            storageKey: "tickets_reports_created_by_time_collapsed",
-        },
-        {
-            key: "work",
-            title: ctrans("Work started and resolved, by time of day"),
-            note: props.stats.assignee ? ctrans("Tickets of the chosen assignee") : ctrans("Tickets of every assignee"),
-            series: ["started", "done"],
-            storageKey: "tickets_reports_by_hour_collapsed",
-        },
-        {
-            key: "closed",
-            title: ctrans("Tickets closed, by time of day"),
-            note: props.stats.assignee ? ctrans("Resolved or cancelled, tickets of the chosen assignee") : ctrans("Resolved or cancelled, tickets of every assignee"),
-            series: ["closed"],
-            storageKey: "tickets_reports_closed_by_time_collapsed",
-        },
-    ]
+const timeOfDayKeys = HOURLY_SERIES.map((series) => series.key)
 
-    return boxes.map((box) => ({ ...box, chart: timeOfDayChart(box.series), averages: dailyAverages(box.series) }))
-})
+const timeOfDay = computed(() => ({ chart: timeOfDayChart(timeOfDayKeys), averages: dailyAverages(timeOfDayKeys) }))
 
 const hourlyOptions = computed(() => ({
     ...lineOptions.value,
@@ -718,16 +694,16 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
                 <span class="text-xs text-gray-400">{{ ctrans("Tickets per time slot, averaged over the :days days of this period", { days: stats.days }) }} · {{ stats.timezone }}</span>
                 <SegmentedToggle v-model="slotMinutes" :options="slotOptions" :ariaLabel="ctrans('Time slot')" />
             </div>
-            <DashboardWidgetBox v-for="box in timeOfDayBoxes" :key="box.key" :storageKey="box.storageKey">
+            <DashboardWidgetBox storageKey="tickets_reports_by_hour_collapsed">
                 <template #header>
                     <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
                         <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
-                        {{ box.title }}
+                        {{ ctrans("Tickets by time of day") }}
                     </span>
-                    <span class="text-xs text-gray-400">{{ box.note }}</span>
+                    <span class="text-xs text-gray-400">{{ stats.assignee ? ctrans("Created by anyone; started, resolved and closed are tickets of the chosen assignee") : ctrans("Created by anyone; started, resolved and closed are tickets of every assignee") }}</span>
                 </template>
                 <div class="h-72">
-                    <Chart type="line" :data="box.chart" :options="hourlyOptions" class="h-full" />
+                    <Chart type="line" :data="timeOfDay.chart" :options="hourlyOptions" class="h-full" />
                 </div>
                 <div class="mt-4 border-t border-gray-200 pt-3">
                     <div class="flex flex-wrap items-baseline justify-between gap-2">
@@ -735,7 +711,7 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
                         <div class="text-xs text-gray-400">{{ ctrans("Times shown in :timezone", { timezone: stats.timezone }) }}</div>
                     </div>
                     <dl class="mt-2 flex divide-x divide-gray-200">
-                        <div v-for="stat in box.averages" :key="stat.key" class="px-4 first:pl-0">
+                        <div v-for="stat in timeOfDay.averages" :key="stat.key" class="px-4 first:pl-0">
                             <dt class="flex items-center gap-1.5 text-xs text-gray-500">
                                 <span class="size-2 rounded-sm" :style="{ backgroundColor: stat.color }" aria-hidden="true" />
                                 {{ stat.label }}
