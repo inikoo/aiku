@@ -11,6 +11,7 @@ namespace App\Actions\UI\Grp\Layout;
 use App\Models\Helpers\Ticket;
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\WithChatNavigation;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dashboards\ShopDashboardSectionsEnum;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GetShopNavigation
 {
     use WithChatAgentAuthorisation;
+    use WithShopPpcPermissions;
     use WithChatNavigation;
 
     use AsAction;
@@ -570,7 +572,7 @@ class GetShopNavigation
                 }
             }
 
-            if ($shop->website) {
+            if ($shop->website && $this->canViewSeo($user, $shop)) {
                 $navigation["seo"] = [
                     "root"    => "grp.org.shops.show.seo.",
                     "icon"    => ["fal", "fa-search"],

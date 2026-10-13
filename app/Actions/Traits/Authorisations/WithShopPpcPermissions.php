@@ -28,11 +28,59 @@ trait WithShopPpcPermissions
         ]) || $this->isShopPpc($user, $shop);
     }
 
+    public function isGroupAdmin(User $user): bool
+    {
+        return $user->hasRole([RolesEnum::GROUP_ADMIN->value, RolesEnum::SYSTEM_ADMIN->value]);
+    }
+
+    public function isShopAdmin(User $user, Shop $shop): bool
+    {
+        return $this->isGroupAdmin($user) || $user->authTo([
+            "org-admin.{$shop->organisation_id}",
+            "shop-admin.{$shop->id}",
+        ]);
+    }
+
+    public function canViewSeo(User $user, Shop $shop): bool
+    {
+        return $this->isShopAdmin($user, $shop)
+            || $this->isShopPpc($user, $shop)
+            || $user->authTo([
+                "ppc.{$shop->organisation_id}.view",
+                "seo.{$shop->organisation_id}.view",
+                "org-supervisor.{$shop->organisation_id}.seo",
+            ]);
+    }
+
     public function canEditSeo(User $user, Shop $shop): bool
     {
-        return $user->authTo([
-            "web.{$shop->id}.edit",
-            "group-webmaster.edit",
-        ]) || $this->isShopPpc($user, $shop);
+        return $this->isShopAdmin($user, $shop)
+            || $this->isShopPpc($user, $shop)
+            || $user->authTo([
+                "ppc.{$shop->organisation_id}.edit",
+                "seo.{$shop->organisation_id}.edit",
+                "org-supervisor.{$shop->organisation_id}.seo",
+            ]);
+    }
+
+    public function canViewGroupSeo(User $user): bool
+    {
+        if ($this->isGroupAdmin($user)) {
+            return true;
+        }
+
+        return DB::table('model_has_roles')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_type', 'User')
+            ->where('model_has_roles.model_id', $user->permissionsHolder()->id)
+            ->where(fn ($query) => $query
+                ->where('roles.name', 'like', RolesEnum::SHOP_PPC->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::PPC_CLERK->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::PPC_SUPERVISOR->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::SEO_CLERK->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::SEO_SUPERVISOR->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::ORG_ADMIN->value.'-%')
+                ->orWhere('roles.name', 'like', RolesEnum::SHOP_ADMIN->value.'-%'))
+            ->exists();
     }
 }

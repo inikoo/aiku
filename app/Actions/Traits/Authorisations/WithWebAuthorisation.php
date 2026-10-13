@@ -46,13 +46,18 @@ trait WithWebAuthorisation
             return $user->authTo("group-overview");
         }
 
-        if (str_starts_with($routeName, 'grp.org.shops.show.web.') || str_starts_with($routeName, 'grp.org.shops.show.seo.')) {
-            $this->canEdit = str_starts_with($routeName, 'grp.org.shops.show.seo.')
-                ? $this->canEditSeo($user, $this->shop)
-                : $user->authTo([
-                    "web.{$this->shop->id}.edit",
-                    "group-webmaster.edit"
-                ]);
+        if (str_starts_with($routeName, 'grp.org.shops.show.seo.')) {
+            $this->canEdit      = $this->canEditSeo($user, $this->shop);
+            $this->isSupervisor = $this->canEdit;
+
+            return $this->canViewSeo($user, $this->shop);
+        }
+
+        if (str_starts_with($routeName, 'grp.org.shops.show.web.')) {
+            $this->canEdit = $user->authTo([
+                "web.{$this->shop->id}.edit",
+                "group-webmaster.edit"
+            ]);
             $this->isSupervisor = $user->authTo([
                 "supervisor-web.{$this->shop->id}",
                 "group-webmaster.edit"
