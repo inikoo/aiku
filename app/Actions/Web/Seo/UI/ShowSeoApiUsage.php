@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Actions\UI\Websites\WebsitesDashboard;
 use App\Actions\Web\Seo\GetSeoApiUsage;
 use App\Models\SysAdmin\Group;
@@ -22,9 +23,11 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowSeoApiUsage extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $this->canViewGroupSeo($request->user());
     }
 
     public function asController(ActionRequest $request): Group
@@ -53,7 +56,7 @@ class ShowSeoApiUsage extends OrgAction
                 ],
                 'data'        => [
                     'usage'        => GetSeoApiUsage::run(preg_match('/^\d{4}-\d{2}$/', $month) ? Carbon::createFromFormat('Y-m-d', $month.'-01') : now()),
-                    'can_edit'     => $request->user()->authTo(['group-webmaster.edit', 'sysadmin.edit']),
+                    'can_edit'     => $this->isGroupAdmin($request->user()),
                     'budget_route' => [
                         'name'       => 'grp.models.group.seo_api_budget.update',
                         'parameters' => [],

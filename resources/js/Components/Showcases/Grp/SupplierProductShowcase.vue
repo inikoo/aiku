@@ -39,6 +39,7 @@ import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelMo
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import CopyButton from "@/Components/Utils/CopyButton.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import JsBarcode from "jsbarcode"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
@@ -172,11 +173,13 @@ const props = defineProps<{
         label_org_stocks?: {
             id: number
             code: string
+            organisation_id: number
             organisation_code: string
             barcodes: Barcode[]
             label_options_route: routeType
             carton_barcode_update_route: routeType | null
         }[]
+        selected_label_org_stock_id?: number | null
         carton?: {
             supplier_product_id: number
             net_weight: number | null
@@ -289,7 +292,17 @@ const formatDimensions = (dimensions: { h?: number; l?: number; w?: number; unit
 }
 
 const labelOrgStocks = computed(() => props.data.label_org_stocks ?? [])
-const selectedLabelOrgStockId = ref<number | null>(labelOrgStocks.value[0]?.id ?? null)
+const selectedLabelOrgStockId = ref<number | null>(props.data.selected_label_org_stock_id ?? labelOrgStocks.value[0]?.id ?? null)
+
+const labelOrgStockOptions = computed(() =>
+    labelOrgStocks.value.map((orgStock) => ({ label: orgStock.organisation_code, value: String(orgStock.id) })))
+
+const selectedLabelOrgStockOption = computed<string | undefined>({
+    get: () => (selectedLabelOrgStockId.value === null ? undefined : String(selectedLabelOrgStockId.value)),
+    set: (value) => {
+        selectedLabelOrgStockId.value = value ? Number(value) : null
+    },
+})
 
 const shownBarcodes = computed<Barcode[]>(() =>
     labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value)?.barcodes ?? props.data.barcodes ?? [])
@@ -664,17 +677,11 @@ const availabilityBadge = (isAvailable: boolean) =>
                     <Icon :data="{ icon: 'fal fa-barcode' }" />
                     {{ ctrans("Barcodes") }}
                 </h3>
-                <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-1.5 text-xs">
-                    <span class="text-gray-400">{{ ctrans("SKO of") }}</span>
-                    <button v-for="orgStock in labelOrgStocks" :key="orgStock.id" type="button"
-                        v-tooltip="orgStock.code"
-                        class="rounded-full px-2 py-0.5 font-medium ring-1 ring-inset transition"
-                        :class="selectedLabelOrgStockId === orgStock.id
-                            ? 'bg-[--app-accent] text-[--app-accent-text] ring-[--app-accent]'
-                            : 'bg-white text-gray-600 ring-gray-300 hover:ring-[--app-accent]'"
-                        @click="selectedLabelOrgStockId = orgStock.id">
-                        {{ orgStock.organisation_code }}
-                    </button>
+                <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-2 text-sm">
+                    <span class="text-gray-500" v-tooltip="ctrans('The label prints the name and address of the organisation that owns the SKO')">
+                        {{ ctrans("SKO of") }}
+                    </span>
+                    <SegmentedToggle v-model="selectedLabelOrgStockOption" :options="labelOrgStockOptions" :ariaLabel="ctrans('SKO of')" />
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-3 xl:grid-cols-[auto_auto_auto_1fr] xl:items-center xl:gap-x-4 xl:gap-y-3">

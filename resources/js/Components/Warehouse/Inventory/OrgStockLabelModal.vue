@@ -11,6 +11,8 @@ import { routeType } from "@/types/route"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
+import Checkbox from "primevue/checkbox"
+import Textarea from "primevue/textarea"
 
 type LabelField = {
     key: string
@@ -18,6 +20,7 @@ type LabelField = {
     available: boolean
     checked: boolean
     reason: string | null
+    preview?: string | null
 }
 
 type LabelLevel = {
@@ -113,6 +116,13 @@ const openPdf = () => {
     window.open(pdfUrl.value, "_blank")
 }
 
+const checkboxPt = {
+    box: ({ context }: { context: { checked: boolean } }) => ({
+        class: context.checked ? "!border-[--app-accent] !bg-[--app-accent]" : "",
+    }),
+    icon: { class: "!text-[--app-accent-text]" },
+}
+
 const optionClass = (isActive: boolean) => [
     "rounded border px-2 py-1 text-xs transition",
     isActive
@@ -145,30 +155,37 @@ const optionClass = (isActive: boolean) => [
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label
-                    v-for="field in fields"
-                    :key="field.key"
-                    class="flex w-max items-center gap-2 text-sm"
-                    :class="field.available ? 'text-gray-700' : 'cursor-not-allowed text-gray-400'">
-                    <input
-                        type="checkbox"
-                        v-model="selected[field.key]"
-                        :disabled="!field.available"
-                        class="h-4 w-4 rounded border-gray-300 text-[--app-accent] focus:ring-[--app-accent] disabled:opacity-50" />
-                    <span v-tooltip="field.reason ? { content: field.reason, placement: 'top' } : undefined">
-                        {{ field.label }}
-                    </span>
-                </label>
-            </div>
+                <div v-for="field in fields" :key="field.key" class="flex flex-col gap-1.5">
+                    <label
+                        class="flex w-max items-center gap-2 text-sm"
+                        :class="field.available ? 'text-gray-700' : 'cursor-not-allowed text-gray-400'">
+                        <Checkbox
+                            v-model="selected[field.key]"
+                            :binary="true"
+                            :disabled="!field.available"
+                            :pt="checkboxPt" />
+                        <span v-tooltip="field.reason ? { content: field.reason, placement: 'top' } : undefined">
+                            {{ field.label }}
+                        </span>
+                    </label>
 
-            <textarea
-                v-if="customTextField?.available"
-                v-model="customText"
-                rows="2"
-                :maxlength="options.custom_text_max_length"
-                :disabled="!selected.with_custom_text"
-                :placeholder="ctrans('Custom text')"
-                class="w-full rounded-md border-gray-300 py-1.5 px-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent] disabled:bg-gray-50 disabled:text-gray-400" />
+                    <Textarea
+                        v-if="field.key === 'with_custom_text' && customTextField?.available"
+                        v-model="customText"
+                        rows="2"
+                        :maxlength="options.custom_text_max_length"
+                        :disabled="!selected.with_custom_text"
+                        :placeholder="ctrans('Custom text')"
+                        class="ml-6 !w-[calc(100%-1.5rem)] !text-sm focus:!border-[--app-accent]" />
+
+                    <div
+                        v-if="field.preview"
+                        class="ml-6 whitespace-pre-line rounded-md border border-dashed px-2 py-1.5 text-xs leading-snug transition"
+                        :class="selected[field.key] ? 'border-gray-300 text-gray-600' : 'border-gray-200 text-gray-300'">
+                        {{ field.preview }}
+                    </div>
+                </div>
+            </div>
 
             <div>
                 <div class="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">

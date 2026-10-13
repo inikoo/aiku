@@ -101,7 +101,10 @@ class GetOrgSupplierProductShowcase
      * Each SKO carries its own numbers, so what is shown is what that SKO's label prints. The master
      * stock is only a fallback when no SKO can be printed, and it never knows the unit EAN.
      *
-     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>}
+     * An agent sees the SKOs of every organisation it buys for, and the label carries the signature of
+     * the SKO's organisation, so the page opens on the SKO of the organisation this product belongs to.
+     *
+     * @return array{barcodes: array<int, array<string, mixed>>, label_org_stocks: array<int, array<string, mixed>>, selected_label_org_stock_id: int|null}
      */
     private function getBarcodesData(OrgSupplierProduct $orgSupplierProduct): array
     {
@@ -121,6 +124,7 @@ class GetOrgSupplierProductShowcase
             ->map(fn (OrgStock $orgStock) => [
                 'id'                  => $orgStock->id,
                 'code'                => $orgStock->code,
+                'organisation_id'     => $orgStock->organisation_id,
                 'organisation_code'   => $orgStock->organisation->code,
                 'barcodes'            => GetOrgStockBarcodes::run($orgStock),
                 'carton_barcode_update_route' => $canEditCarton && $orgStock->stock_id ? [
@@ -152,9 +156,14 @@ class GetOrgSupplierProductShowcase
 
         $masterStock = $orgSupplierProduct->supplierProduct->stocks->first();
 
+        $selectedLabelOrgStock = collect($labelOrgStocks)->firstWhere('organisation_id', $orgSupplierProduct->organisation_id)
+            ?? $labelOrgStocks[0]
+            ?? null;
+
         return [
-            'barcodes'         => $labelOrgStocks[0]['barcodes'] ?? ($masterStock ? GetStockBarcodes::run($masterStock) : []),
-            'label_org_stocks' => $labelOrgStocks,
+            'barcodes'                    => $selectedLabelOrgStock['barcodes'] ?? ($masterStock ? GetStockBarcodes::run($masterStock) : []),
+            'label_org_stocks'            => $labelOrgStocks,
+            'selected_label_org_stock_id' => $selectedLabelOrgStock['id'] ?? null,
         ];
     }
 

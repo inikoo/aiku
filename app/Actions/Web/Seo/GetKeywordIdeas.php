@@ -14,6 +14,7 @@ use App\Services\DataForSeo\DataForSeoClient;
 use App\Services\DataForSeo\DataForSeoException;
 use App\Services\DataForSeo\DataForSeoLocations;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -117,6 +118,7 @@ class GetKeywordIdeas
                 ...$location,
                 'keyword'              => $seedKeyword,
                 'include_seed_keyword' => true,
+                'include_serp_info'    => true,
                 'limit'                => intdiv(self::MAX_IDEAS, count($seedKeywords)),
                 'order_by'             => ['keyword_info.search_volume,desc'],
             ], $shop->website)) ?? [];
@@ -129,7 +131,7 @@ class GetKeywordIdeas
         }
 
         if ($url) {
-            $rankedKeywords = Arr::get($client->live('dataforseo_labs/google/ranked_keywords/live', [...$location, 'target' => $url, 'limit' => self::MAX_IDEAS, 'order_by' => ['keyword_data.keyword_info.search_volume,desc']], $shop->website), '0.items') ?? [];
+            $rankedKeywords = Arr::get($client->live('dataforseo_labs/google/ranked_keywords/live', [...$location, 'target' => $url, 'include_serp_info' => true, 'limit' => self::MAX_IDEAS, 'order_by' => ['keyword_data.keyword_info.search_volume,desc']], $shop->website), '0.items') ?? [];
 
             array_push($items, ...array_map(fn (array $item) => Arr::get($item, 'keyword_data', []), $rankedKeywords));
         }
@@ -171,6 +173,8 @@ class GetKeywordIdeas
             'keyword_difficulty'   => Arr::get($item, 'keyword_properties.keyword_difficulty') ?: null,
             'intent'               => Arr::get($item, 'search_intent_info.main_intent'),
             'secondary_intents'    => array_values(array_filter(Arr::wrap(Arr::get($item, 'search_intent_info.foreign_intent')))),
+            'serp_features'        => array_values(array_diff(array_filter(Arr::get($item, 'serp_info.serp_item_types') ?? []), ['organic'])),
+            'serp_updated_at'      => ($serpUpdatedAt = Arr::get($item, 'serp_info.last_updated_time')) ? Carbon::parse($serpUpdatedAt)->toDateString() : null,
         ];
     }
 

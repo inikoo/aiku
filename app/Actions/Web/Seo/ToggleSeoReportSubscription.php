@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use App\Models\Web\SeoReportSubscription;
@@ -20,20 +21,17 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ToggleSeoReportSubscription extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     private bool $isPortfolio = false;
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->isPortfolio) {
-            return $request->user()->hasGroupAccess();
+            return $this->canViewGroupSeo($request->user());
         }
 
-        return $request->user()->authTo([
-            "websites-view.{$this->shop->organisation_id}",
-            "web.{$this->shop->id}",
-            "web.{$this->shop->id}.view",
-            'group-webmaster.view',
-        ]);
+        return $this->canViewSeo($request->user(), $this->shop);
     }
 
     public function handle(User $user, ?Shop $shop): bool

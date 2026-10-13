@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Exports\Web\SeoTableExport;
 use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
@@ -19,9 +20,11 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class ExportSeoPortfolio extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $this->canViewGroupSeo($request->user());
     }
 
     public function handle(): BinaryFileResponse
