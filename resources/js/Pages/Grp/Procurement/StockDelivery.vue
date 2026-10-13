@@ -47,8 +47,9 @@ import { routeType } from "@/types/route"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
@@ -144,6 +145,7 @@ const props = defineProps<{
 			tax: number | string | null
 			total: number | string
 			org_items: number | string
+			remove_unbacked_costs_route: routeType | null
 		}
 		invoice_entry: { route: routeType; is_agent: boolean } | null
 		invoice: {
@@ -413,6 +415,7 @@ const costBlocks = computed(() => {
 				sub: null as string | null,
 				isTotal: false,
 				note: invoiceGoods > 0 ? `${(row.amount * rate / invoiceGoods * 100).toFixed(1)}%` : "",
+				removable: Boolean(props.box_stats.third_block.remove_unbacked_costs_route),
 			})),
 		},
 		{
@@ -450,6 +453,29 @@ const costBlocks = computed(() => {
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const confirm = useConfirm()
+
+const removingUnbackedCosts = ref(false)
+
+const removeUnbackedCosts = () => {
+	const removeRoute = props.box_stats.third_block.remove_unbacked_costs_route
+	if (!removeRoute) {
+		return
+	}
+
+	confirm.require({
+		group: "stock-delivery",
+		message: ctrans("These costs are not from any invoice of this delivery: they were estimated before it had a costing checklist. Removing them leaves the landed costs to the invoices you add."),
+		header: ctrans("Remove the estimated costs"),
+		rejectProps: { label: ctrans("Cancel") },
+		acceptProps: { label: ctrans("Remove"), severity: "danger" },
+		accept: () => router.delete(route(removeRoute.name, removeRoute.parameters), {
+			preserveScroll: true,
+			onStart: () => (removingUnbackedCosts.value = true),
+			onFinish: () => (removingUnbackedCosts.value = false),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: Object.values(errors).join(" "), type: "error" }),
+		}),
+	})
+}
 const deleteLoading = ref(false)
 const dispatchLoading = ref(false)
 const undispatchLoading = ref(false)
@@ -1099,6 +1125,16 @@ const confirmDeleteStockDelivery = (action: any) => {
 								<div class="flex items-center gap-2 font-medium text-gray-800">
 									<FontAwesomeIcon :icon="openCostBlocks[block.key] ? 'fal fa-chevron-down' : 'fal fa-chevron-right'" class="text-xs text-gray-400" fixed-width aria-hidden="true" />
 									{{ block.title }}
+									<button
+										v-if="block.key === 'landed' && isCostingVisible && !costing.viewed_by_agent"
+										type="button"
+										class="text-gray-400 hover:text-gray-700"
+										:title="ctrans('Edit landed costs')"
+										:aria-label="ctrans('Edit landed costs')"
+										@click.stop="costingSection = 'landed'"
+									>
+										<FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
+									</button>
 								</div>
 								<div v-if="'reference' in block && block.reference" class="pl-6 text-xs text-gray-600">{{ block.reference }}</div>
 								<div v-if="block.detail" class="pl-6 text-xs text-gray-500">{{ block.detail }}</div>
@@ -1127,8 +1163,16 @@ const confirmDeleteStockDelivery = (action: any) => {
 						<template v-if="openCostBlocks[block.key]">
 							<tr v-for="(row, rowIndex) in block.rows" :key="rowIndex" class="border-t border-gray-100 text-gray-600">
 								<td class="py-1.5 pl-11 pr-3 align-top" :class="row.isTotal ? 'font-medium text-gray-800' : ''">
-									{{ row.label }}
-									<span v-if="'tag' in row && row.tag" class="ml-1.5 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.tag }}</span>
+									<span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+										{{ row.label }}
+										<span v-if="'tag' in row && row.tag" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{{ row.tag }}</span>
+										<template v-if="'removable' in row && row.removable">
+											<span class="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">{{ ctrans("Estimated, no invoice") }}</span>
+											<button type="button" class="text-red-500 hover:text-red-700" :disabled="removingUnbackedCosts" :title="ctrans('Remove the estimated costs')" :aria-label="ctrans('Remove the estimated costs')" @click="removeUnbackedCosts">
+												<FontAwesomeIcon :icon="removingUnbackedCosts ? faSpinnerThird : faTrashAlt" :spin="removingUnbackedCosts" fixed-width aria-hidden="true" />
+											</button>
+										</template>
+									</span>
 								</td>
 								<td class="px-3 py-1.5 text-right align-top text-xs tabular-nums text-gray-500">{{ 'note' in row ? row.note : '' }}</td>
 								<td class="whitespace-nowrap px-3 py-1 text-right tabular-nums" :class="row.isTotal ? 'font-medium text-gray-800' : ''">
@@ -1157,22 +1201,13 @@ const confirmDeleteStockDelivery = (action: any) => {
 											:orgExchange="box_stats.invoice.org_exchange"
 											:isEstimate="box_stats.invoice.source === 'estimated'"
 										/>
-										<div v-if="isCostingVisible && !costing.viewed_by_agent" class="mt-3">
+										<div v-if="isCostingVisible && !costing.viewed_by_agent && blockIndex === 0" class="mt-3">
 											<Button
-												v-if="blockIndex === 0"
 												type="tertiary"
 												size="xs"
 												:label="ctrans('Invoice')"
 												icon="fal fa-box-usd"
 												@click="() => (costingSection = 'invoice')"
-											/>
-											<Button
-												v-else
-												type="tertiary"
-												size="xs"
-												:label="ctrans('Edit landed costs')"
-												icon="fal fa-box-usd"
-												@click="() => (costingSection = 'landed')"
 											/>
 										</div>
 									</div>
@@ -1240,6 +1275,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 			:invoice="box_stats.invoice"
 			:currencyCode="box_stats.invoice?.currency ?? box_stats.third_block.currency ?? ''"
 		/>
+		<StockDeliveryServiceInvoices v-if="costingSection === 'landed' && service_invoices" :data="service_invoices" uploadable />
 		<StockDeliveryCostingChecklist
 			v-if="costingSection"
 			:section="costingSection"

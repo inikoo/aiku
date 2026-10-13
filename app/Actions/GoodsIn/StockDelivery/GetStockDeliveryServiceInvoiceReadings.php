@@ -17,6 +17,7 @@ use App\Models\GoodsIn\StockDeliveryServiceInvoice;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -28,6 +29,8 @@ class GetStockDeliveryServiceInvoiceReadings
     use AsObject;
 
     private const float TOLERANCE = 0.005;
+
+    private const int DAYS_INVOICED_AFTER_ARRIVAL = 90;
 
     /**
      * @return array<int, array<string, mixed>>
@@ -81,7 +84,6 @@ class GetStockDeliveryServiceInvoiceReadings
             __('This does not look like an invoice for services.') => !$reading['is_invoice'],
             __('The two readers do not agree on: :fields.', ['fields' => implode(', ', array_map(fn (string $field) => self::fieldLabels()[$field], $checks['disagreements']))]) => (bool) $checks['disagreements'],
             __('These amounts are not printed in the document: :amounts.', ['amounts' => implode(', ', array_map(fn ($amount) => number_format((float) $amount, 2), $checks['amounts_missing']))]) => (bool) $checks['amounts_missing'],
-            __('The document does not mention :reference, it may be of another delivery.', ['reference' => $stockDelivery->reference]) => $checks['mentions_delivery'] === false,
             __('The document also mentions :references: enter it by hand to split it between the deliveries.', ['references' => implode(', ', $checks['other_deliveries'])]) => (bool) $checks['other_deliveries'],
             __('The invoice has no lines.') => !$lines,
             __('A line has no amount, or a credit: enter it by hand.') => collect($lines)->contains(fn (array $line) => $line['amount'] === null || $line['amount'] <= 0),
@@ -112,6 +114,7 @@ class GetStockDeliveryServiceInvoiceReadings
             'net_total'          => $net,
             'problems'           => $applied ? [] : $problems,
             'needs_manual_check' => !$checks['text_available'] || $checks['mentions_delivery'] === null,
+            'delivery_confirmation' => $checks['mentions_delivery'] === false && !$applied ? $this->deliveryConfirmation($stockDelivery, $reading) : null,
             'can_apply'          => !$problems && !$applied,
         ];
     }
@@ -130,6 +133,31 @@ class GetStockDeliveryServiceInvoiceReadings
             'vat_total'      => __('the VAT'),
             'total_payable'  => __('the amount to pay'),
             'lines'          => __('the amounts of the lines'),
+        ];
+    }
+
+    /**
+     * What the reviewer is told, and must type, to add an invoice that does not print the delivery's reference:
+     * forwarders write our references their own way. The invoice date fitting the delivery, from the day it left
+     * to some weeks after it arrived, makes it more likely to be the right one, and says so.
+     *
+     * @param  array<string, mixed>  $reading
+     * @return array{phrase: string, reference: string, printed: array<int, string>, dates_fit: ?bool, left_at: ?string, arrived_at: ?string}
+     */
+    private function deliveryConfirmation(StockDelivery $stockDelivery, array $reading): array
+    {
+        $leftAt    = $stockDelivery->dispatched_at ?? $stockDelivery->created_at;
+        $arrivedAt = $stockDelivery->received_at;
+        $from      = $leftAt ? Carbon::parse($leftAt)->startOfDay() : null;
+        $until     = $arrivedAt ? Carbon::parse($arrivedAt)->addDays(self::DAYS_INVOICED_AFTER_ARRIVAL)->endOfDay() : now()->endOfDay();
+
+        return [
+            'phrase'     => __('I confirm this is the correct invoice'),
+            'reference'  => $stockDelivery->reference,
+            'printed'    => array_slice($reading['references'] ?? [], 0, 10),
+            'dates_fit'  => $from && self::isDate($reading['invoice_date']) ? Carbon::parse($reading['invoice_date'])->betweenIncluded($from, $until) : null,
+            'left_at'    => $from?->toDateString(),
+            'arrived_at' => $arrivedAt ? Carbon::parse($arrivedAt)->toDateString() : null,
         ];
     }
 

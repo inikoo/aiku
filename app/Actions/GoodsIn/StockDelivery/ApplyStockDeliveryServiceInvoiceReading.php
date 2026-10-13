@@ -37,8 +37,9 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
         return [
             'read_at' => ['required', 'string'],
             'types'   => ['required', 'array', 'list'],
-            'types.*' => ['required', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)],
+            'types.*' => ['required', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)->except([StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY])],
             'checked' => ['sometimes', 'boolean'],
+            'confirmation' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }
 
@@ -56,7 +57,7 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
             $reading       = ReadStockDeliveryInvoice::reading($stockDelivery, $media);
             $review        = GetStockDeliveryServiceInvoiceReadings::make()->review($stockDelivery, $reading);
 
-            $this->refuseUnlessApplicable($review, $modelData);
+            $this->refuseUnlessApplicable($stockDelivery, $review, $modelData);
 
             $totals = [];
             foreach ($review['lines'] as $index => $line) {
@@ -88,6 +89,7 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
                 ...$reading,
                 'applied_at'          => now()->toIso8601String(),
                 'service_invoice_ids' => $serviceInvoiceIds,
+                ...($review['delivery_confirmation'] ? ['delivery_confirmed' => ['user_id' => auth()->id(), 'dates_fit' => $review['delivery_confirmation']['dates_fit']]] : []),
             ]);
         });
 
@@ -100,7 +102,7 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
      *
      * @throws ValidationException
      */
-    private function refuseUnlessApplicable(?array $review, array $modelData): void
+    private function refuseUnlessApplicable(StockDelivery $stockDelivery, ?array $review, array $modelData): void
     {
         $refusal = match (true) {
             data_get($review, 'state') !== 'read' || !array_key_exists('problems', $review) => ['invoice' => __('This invoice has not been read yet')],
@@ -108,6 +110,7 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
             $review['read_at'] !== $modelData['read_at']                                     => ['invoice' => __('This invoice was read again since you opened it, review it again')],
             (bool) $review['problems']                                                       => ['invoice' => implode(' ', $review['problems'])],
             $review['needs_manual_check'] && empty($modelData['checked'])                    => ['checked' => __('This document has no text to check the reading against: confirm you have checked every amount')],
+            $review['delivery_confirmation'] && self::typed($modelData['confirmation'] ?? null) !== self::typed($review['delivery_confirmation']['phrase']) => ['confirmation' => __('The document does not mention :reference: type ":phrase" to add it', ['reference' => $stockDelivery->reference, 'phrase' => $review['delivery_confirmation']['phrase']])],
             count($modelData['types']) !== count($review['lines'])                           => ['types' => __('Say what every line of the invoice is')],
             default                                                                          => null,
         };
@@ -115,6 +118,11 @@ class ApplyStockDeliveryServiceInvoiceReading extends OrgAction
         if ($refusal) {
             throw ValidationException::withMessages($refusal);
         }
+    }
+
+    private static function typed(?string $text): string
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', (string) $text), " .\t\n"));
     }
 
     private function keepDocument(StockDeliveryServiceInvoice $serviceInvoice, Media $media): void

@@ -8,11 +8,13 @@
 
 namespace App\Actions\GoodsIn\StockDelivery;
 
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryItem;
+use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -104,11 +106,16 @@ class GetStockDeliveryInvoiceCosting
         $linesTotal   = round($linesTotal, 2);
         $chargesTotal = round(array_sum(array_column(Arr::get($reading, 'charges', []), 'amount')), 2);
         $total       = Arr::get($reading, 'total');
+        $mismatch    = $reading['currency'] && $currency && strtoupper($reading['currency']) !== $currency;
+        $invoiceCurrency = $mismatch ? Currency::whereRaw('upper(code) = ?', [strtoupper($reading['currency'])])->first() : null;
 
         return [
             ...Arr::only($reading, ['state', 'read_at', 'applied_at', 'is_invoice', 'invoice_number', 'invoice_date', 'currency', 'charges', 'total']),
             'delivery_currency'  => $currency,
-            'currency_mismatch'  => $reading['currency'] && $currency && strtoupper($reading['currency']) !== $currency,
+            'currency_mismatch'  => $mismatch,
+            'currency_unknown'   => $mismatch && !$invoiceCurrency,
+            'exchange'           => $invoiceCurrency ? GetCurrencyExchange::run($invoiceCurrency, $stockDelivery->currency) : null,
+            'follow_blockers'    => $mismatch ? ChangeStockDeliveryCurrency::blockers($stockDelivery) : [],
             'total_mismatch'     => $total !== null && abs($linesTotal + $chargesTotal - $total) > self::TOLERANCE,
             'lines_total'        => $linesTotal,
             'charges_total'      => $chargesTotal,

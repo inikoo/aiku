@@ -9,6 +9,8 @@
 namespace App\Actions\GoodsIn\StockDelivery;
 
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
+use App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum;
+use App\Models\Helpers\Currency;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithStockDeliveryCostingEditAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
@@ -25,7 +27,11 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * Writes the costs someone checked against the supplier invoice: each line's goods cost, the invoice
  * itself as received, and the extra charges they kept. The numbers come from the reviewer, never
- * straight from the reading.
+ * straight from the reading. What the invoice bills that is not in the delivery is an extra expense of its own.
+ *
+ * An invoice in another currency than the delivery asks the reviewer whether the delivery follows the invoice:
+ * yes moves the delivery to the invoice's currency, no keeps it and converts the invoice at the rate they give,
+ * the lines adding up to the converted total to the cent.
  */
 class ApplyStockDeliveryInvoiceCosting extends OrgAction
 {
@@ -34,6 +40,8 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
     private StockDelivery $stockDelivery;
 
     private Media $media;
+
+    private ?Currency $invoiceCurrency = null;
 
     public function rules(): array
     {
@@ -47,6 +55,11 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
             'charges'          => ['sometimes', 'array'],
             'charges.*.label'  => ['required', 'string', 'max:255'],
             'charges.*.amount' => ['required', 'numeric', 'gte:0'],
+            'not_in_delivery'          => ['sometimes', 'array'],
+            'not_in_delivery.*.label'  => ['required', 'string', 'max:255'],
+            'not_in_delivery.*.amount' => ['required', 'numeric', 'gt:0'],
+            'follow_invoice'   => ['sometimes', 'boolean'],
+            'exchange'         => ['sometimes', 'nullable', 'numeric', 'gt:0'],
         ];
     }
 
@@ -63,10 +76,7 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
         } elseif (Arr::get($reading, 'applied_at')) {
             $validator->errors()->add('invoice', __('This invoice is already in the costing, change the costs in the checklist'));
         } elseif ($reading['currency'] && strtoupper($reading['currency']) !== $this->stockDelivery->currency?->code) {
-            $validator->errors()->add('currency', __('The invoice is in :invoice and the delivery in :delivery, change the currency of the delivery first', [
-                'invoice'  => strtoupper($reading['currency']),
-                'delivery' => $this->stockDelivery->currency?->code,
-            ]));
+            $this->validateOtherCurrency($validator, strtoupper($reading['currency']));
         }
 
         $ids = collect($this->get('items', []))->pluck('id');
@@ -76,15 +86,76 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
         }
     }
 
+    private function validateOtherCurrency(Validator $validator, string $code): void
+    {
+        $this->invoiceCurrency = Currency::whereRaw('upper(code) = ?', [$code])->first();
+
+        if (!$this->invoiceCurrency) {
+            $validator->errors()->add('currency', __('The invoice is in :invoice, a currency we do not know: enter its costs by hand', ['invoice' => $code]));
+
+            return;
+        }
+
+        if (!$this->has('follow_invoice')) {
+            $validator->errors()->add('currency', __('The invoice is in :invoice and the delivery in :delivery, choose whether the delivery follows the invoice', [
+                'invoice'  => $code,
+                'delivery' => $this->stockDelivery->currency?->code,
+            ]));
+        } elseif (filter_var($this->get('follow_invoice'), FILTER_VALIDATE_BOOLEAN)) {
+            if ($blockers = ChangeStockDeliveryCurrency::blockers($this->stockDelivery)) {
+                $validator->errors()->add('currency', __('The delivery cannot follow the invoice:').' '.implode(' ', $blockers));
+            }
+        } elseif (!$this->get('exchange')) {
+            $validator->errors()->add('exchange', __('Enter the exchange rate from :invoice to :delivery', [
+                'invoice'  => $code,
+                'delivery' => $this->stockDelivery->currency?->code,
+            ]));
+        }
+    }
+
+    /**
+     * The goods cost of each line in the delivery's currency. The cents lost to rounding go on the largest line,
+     * so the lines add up to the converted total of what the reviewer entered.
+     *
+     * @param  array<int, array{id: int, cost: float|int|string}>  $lines
+     * @return array<int, float> cost by item id
+     */
+    public static function convertedCosts(array $lines, float $exchange): array
+    {
+        $costs = [];
+        foreach ($lines as $line) {
+            $costs[$line['id']] = round((float) $line['cost'] * $exchange, 2);
+        }
+
+        if ($costs) {
+            $largest          = array_search(max($costs), $costs);
+            $costs[$largest] = round($costs[$largest] + round(array_sum(array_column($lines, 'cost')) * $exchange, 2) - array_sum($costs), 2);
+        }
+
+        return $costs;
+    }
+
     public function handle(StockDelivery $stockDelivery, Media $media, array $modelData): StockDelivery
     {
-        DB::transaction(function () use ($stockDelivery, $modelData) {
-            $items = $stockDelivery->items()->whereIn('id', Arr::pluck($modelData['items'], 'id'))->get()->keyBy('id');
+        $invoiceCurrency = $this->invoiceCurrency;
 
-            foreach ($modelData['items'] as $line) {
+        DB::transaction(function () use ($stockDelivery, $modelData, $invoiceCurrency) {
+            StockDelivery::whereKey($stockDelivery->id)->lockForUpdate()->first();
+
+            if ($invoiceCurrency && Arr::get($modelData, 'follow_invoice')) {
+                ChangeStockDeliveryCurrency::run($stockDelivery, $invoiceCurrency);
+                $invoiceCurrency = null;
+            }
+
+            $exchange          = $invoiceCurrency ? (float) $modelData['exchange'] : 1.0;
+            $inInvoiceCurrency = $invoiceCurrency ? ['currency_id' => $invoiceCurrency->id, 'exchange' => $exchange] : ['currency_id' => null];
+            $costs             = self::convertedCosts($modelData['items'], $exchange);
+            $items             = $stockDelivery->items()->whereIn('id', array_keys($costs))->get()->keyBy('id');
+
+            foreach ($costs as $itemId => $cost) {
                 /** @var StockDeliveryItem $item */
-                $item = $items->get($line['id']);
-                UpdateStockDeliveryItemCost::make()->action($item, ['cost_items' => $line['cost']]);
+                $item = $items->get($itemId);
+                UpdateStockDeliveryItemCost::make()->action($item, ['cost_items' => $cost]);
             }
 
             foreach (Arr::get($modelData, 'charges', []) as $charge) {
@@ -93,6 +164,18 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
                     'label'       => $charge['label'],
                     'amount'      => $charge['amount'],
                     'received_at' => $modelData['invoice_date'],
+                    ...$inInvoiceCurrency,
+                ]);
+            }
+
+            foreach (Arr::get($modelData, 'not_in_delivery', []) as $line) {
+                StoreStockDeliveryCost::make()->action($stockDelivery, [
+                    'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
+                    'category'    => StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY->value,
+                    'label'       => $line['label'],
+                    'amount'      => $line['amount'],
+                    'received_at' => $modelData['invoice_date'],
+                    ...$inInvoiceCurrency,
                 ]);
             }
 
@@ -101,6 +184,7 @@ class ApplyStockDeliveryInvoiceCosting extends OrgAction
                 'amount'      => $modelData['invoice_total'],
                 'received_at' => $modelData['invoice_date'],
                 'is_waiting_for_invoice' => false,
+                ...$inInvoiceCurrency,
             ];
             $invoiceCost = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
 

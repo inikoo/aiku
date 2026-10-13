@@ -31,6 +31,7 @@ enum StockDeliveryServiceInvoiceTypeEnum: string
     case INSURANCE = 'insurance';
     case FINE = 'fine';
     case OTHER = 'other';
+    case NOT_IN_DELIVERY = 'not_in_delivery';
 
     public static function labels(): array
     {
@@ -49,7 +50,19 @@ enum StockDeliveryServiceInvoiceTypeEnum: string
             'insurance'         => __('Insurance'),
             'fine'              => __('Fines'),
             'other'             => __('Other'),
+            'not_in_delivery'   => __('Invoiced but not in the delivery'),
         ];
+    }
+
+    /**
+     * What a forwarder, broker or haulier can bill. Goods a supplier invoiced that are not in the delivery are an
+     * extra expense of their own, never the type of a service invoice.
+     *
+     * @return array<int, self>
+     */
+    public static function billTypes(): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $type) => $type !== self::NOT_IN_DELIVERY));
     }
 
     /**

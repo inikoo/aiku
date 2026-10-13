@@ -20,6 +20,7 @@ const colors: { [type: string]: string } = {
 	insurance: "bg-pink-50 text-pink-700 ring-pink-200",
 	fine: "bg-red-50 text-red-700 ring-red-200",
 	other: "bg-gray-100 text-gray-700 ring-gray-200",
+	not_in_delivery: "bg-orange-50 text-orange-700 ring-orange-200",
 }
 </script>
 

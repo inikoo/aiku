@@ -101,6 +101,7 @@ class IndexStockDeliveryServiceInvoices extends OrgAction
     public static function typeOptions(): array
     {
         return collect(StockDeliveryServiceInvoiceTypeEnum::labels())
+            ->except(StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY->value)
             ->map(fn (string $label, string $value) => ['label' => $label, 'value' => $value])
             ->values()
             ->all();

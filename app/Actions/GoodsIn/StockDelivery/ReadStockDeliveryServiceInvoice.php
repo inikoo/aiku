@@ -155,7 +155,7 @@ class ReadStockDeliveryServiceInvoice extends OrgAction
      */
     private function ask(string $model, Media $media, string $content): array
     {
-        $types = collect(StockDeliveryServiceInvoiceTypeEnum::cases())
+        $types = collect(StockDeliveryServiceInvoiceTypeEnum::billTypes())
             ->map(fn (StockDeliveryServiceInvoiceTypeEnum $type) => $type->value.' ('.self::typeHints()[$type->value].')')
             ->implode('; ');
 
@@ -248,7 +248,7 @@ class ReadStockDeliveryServiceInvoice extends OrgAction
                         'required'             => ['description', 'type', 'amount'],
                         'properties'           => [
                             'description' => $nullableString,
-                            'type'        => ['type' => 'string', 'enum' => array_column(StockDeliveryServiceInvoiceTypeEnum::cases(), 'value')],
+                            'type'        => ['type' => 'string', 'enum' => array_column(StockDeliveryServiceInvoiceTypeEnum::billTypes(), 'value')],
                             'amount'      => $nullableNumber,
                         ],
                     ],

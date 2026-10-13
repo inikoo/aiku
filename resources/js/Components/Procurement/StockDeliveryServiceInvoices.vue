@@ -19,6 +19,7 @@ import { routeType } from "@/types/route"
 library.add(faPlus, faPencil, faTrashAlt, faPaperclip)
 
 const props = defineProps<{
+	uploadable?: boolean
 	data: {
 		list: ServiceInvoiceRow[]
 		can_edit: boolean
@@ -42,6 +43,7 @@ const locale = useLocaleStore()
 const confirm = useConfirm()
 
 const isDialogOpen = ref(false)
+const readings = ref<InstanceType<typeof StockDeliveryServiceInvoiceReadings> | null>(null)
 const editing = ref<ServiceInvoiceRow | null>(null)
 
 const canChange = () => props.data.can_edit && !props.data.is_costed
@@ -76,16 +78,19 @@ const confirmDelete = (row: ServiceInvoiceRow) =>
 </script>
 
 <template>
-	<div class="mt-3 space-y-2 border-t border-gray-200 pt-3 text-sm">
-		<div class="flex items-center justify-between">
+	<div class="space-y-2 text-sm" :class="uploadable ? 'mb-4' : (data.list.length || data.readings.some(row => !row.reading?.applied_at) ? 'mt-3 border-t border-gray-200 pt-3' : '')">
+		<div v-if="data.list.length || data.readings.some(row => !row.reading?.applied_at) || (uploadable && canChange())" class="flex flex-wrap items-center gap-x-3 gap-y-1">
 			<Link :href="route(data.index_route.name, data.index_route.parameters)" class="text-xs font-semibold uppercase tracking-wide text-gray-500 hover:underline">
 				{{ ctrans("Service invoices") }}
 			</Link>
-			<Button v-if="canChange()" type="transparent" size="xs" icon="fal fa-plus" :label="ctrans('Add')" @click="openDialog(null)" />
+			<Button v-if="uploadable && canChange()" type="tertiary" size="xs" class="ml-auto" :label="ctrans('Upload invoice')" @click="readings?.openDialog()">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-plus" class="text-gray-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</div>
 
-		<p v-if="!data.list.length" class="text-gray-500">{{ ctrans("No freight, customs or other local invoices yet.") }}</p>
-		<ul v-else class="space-y-1.5">
+		<ul v-if="data.list.length" class="space-y-1.5">
 			<li v-for="row in data.list" :key="row.id" class="flex items-start justify-between gap-3">
 				<span class="min-w-0 text-gray-700">
 					<ServiceInvoiceTypeChip class="mr-1.5" :type="row.type" :label="row.type_label" />
@@ -128,6 +133,8 @@ const confirmDelete = (row: ServiceInvoiceRow) =>
 
 		<StockDeliveryServiceInvoiceReadings
 			v-if="canChange() || data.readings.length"
+			ref="readings"
+			@manual="openDialog(null)"
 			:readings="data.readings"
 			:readRoute="data.read_route"
 			:types="data.types"

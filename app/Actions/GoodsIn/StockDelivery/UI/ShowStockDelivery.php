@@ -20,6 +20,7 @@ use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RemoveStockDeliveryUnbackedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
@@ -689,6 +690,10 @@ class ShowStockDelivery extends OrgAction
                 'tax'          => $this->viewedByAgent ? null : $stockDelivery->cost_tax,
                 'total'        => $this->viewedByAgent ? null : $stockDelivery->cost_total,
                 'org_items'    => $stockDelivery->items()->sum('org_net_amount'),
+                'remove_unbacked_costs_route' => $this->canEdit && !$this->viewedByAgent && RemoveStockDeliveryUnbackedCosts::hasUnbackedCosts($stockDelivery) ? [
+                    'name'       => 'grp.models.stock-delivery.unbacked-costs.remove',
+                    'parameters' => [$stockDelivery->id],
+                ] : null,
             ],
             'invoice' => $this->getInvoiceSummary($stockDelivery),
             'invoice_entry' => $this->canEdit && $this->canEditPayments && !$stockDelivery->isManagedByPartner() && ($stockDelivery->agent_id ? $stockDelivery->agentInvoice()->first()?->source : null) !== StockDeliveryInvoiceSourceEnum::AGENT ? [

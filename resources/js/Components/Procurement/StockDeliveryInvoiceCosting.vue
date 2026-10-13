@@ -9,7 +9,12 @@ import { computed, reactive, ref, watch } from "vue"
 import { router, usePoll } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faFileInvoiceDollar } from "@fal"
+import Checkbox from "primevue/checkbox"
+import DatePicker from "primevue/datepicker"
+import Dialog from "primevue/dialog"
+import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import { faFileInvoiceDollar, faCheck, faTimes, faExchange } from "@fal"
 import { faSpinnerThird } from "@fad"
 import { faExclamationTriangle, faCheckCircle } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -53,6 +58,9 @@ interface Reading {
     charges?: { label: string; amount: number }[]
     delivery_currency?: string | null
     currency_mismatch?: boolean
+    currency_unknown?: boolean
+    exchange?: number | null
+    follow_blockers?: string[]
     total_mismatch?: boolean
     lines_total?: number
     charges_total?: number
@@ -76,7 +84,7 @@ interface Draft {
     invoice_total: string
     costs: Record<number, string>
     charges: Record<number, boolean>
-    assignments: Record<number, number | null>
+    assignments: Record<number, number | "not_in_delivery" | "leave_out">
 }
 
 const props = defineProps<{
@@ -88,6 +96,8 @@ const locale = useLocaleStore()
 const drafts = reactive<Record<string, Draft>>({})
 const openInvoice = ref<number | null>(null)
 const busy = ref<number | null>(null)
+const choosing = ref<Invoice | null>(null)
+const exchange = ref("")
 
 const draftKey = (invoice: Invoice) => `${invoice.media_id}-${invoice.reading?.read_at}`
 
@@ -109,7 +119,7 @@ watch(
                 invoice_total: reading.total == null ? "" : String(reading.total),
                 costs: Object.fromEntries((reading.items ?? []).map((item) => [item.id, String(item.proposed_cost)])),
                 charges: Object.fromEntries((reading.charges ?? []).map((charge, index) => [index, charge.amount > 0])),
-                assignments: Object.fromEntries((reading.unmatched ?? []).map((_, index) => [index, null])),
+                assignments: Object.fromEntries((reading.unmatched ?? []).map((_, index) => [index, "not_in_delivery"])),
             }
         })
     },
@@ -141,7 +151,36 @@ const read = (invoice: Invoice) => {
     })
 }
 
-const apply = (invoice: Invoice) => {
+const invoiceCurrency = (reading: Reading) => (reading.currency_mismatch ? reading.currency : reading.delivery_currency)
+
+const assignmentOptions = (reading: Reading) => [
+    { label: ctrans("Invoiced but not in the delivery"), value: "not_in_delivery" },
+    ...(reading.items ?? []).map((item) => ({ label: `${ctrans("Add to")} ${item.code}`, value: item.id })),
+    { label: ctrans("Leave out"), value: "leave_out" },
+]
+
+const toDate = (iso: string) => (iso ? new Date(`${iso}T00:00:00`) : null)
+
+const toIso = (date: Date | null) =>
+    date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : ""
+
+const startApply = (invoice: Invoice) => {
+    if (!invoice.reading?.currency_mismatch) {
+        return apply(invoice)
+    }
+
+    exchange.value = invoice.reading.exchange ? String(invoice.reading.exchange) : ""
+    choosing.value = invoice
+}
+
+const choose = (followInvoice: boolean) => {
+    const invoice = choosing.value as Invoice
+
+    choosing.value = null
+    apply(invoice, followInvoice ? { follow_invoice: true } : { follow_invoice: false, exchange: Number(exchange.value) })
+}
+
+const apply = (invoice: Invoice, currencyChoice: { follow_invoice?: boolean; exchange?: number } = {}) => {
     const draft = drafts[draftKey(invoice)]
     const reading = invoice.reading as Reading
 
@@ -151,6 +190,10 @@ const apply = (invoice: Invoice) => {
         invoice_total: Number(draft.invoice_total),
         items: (reading.items ?? []).map((item) => ({ id: item.id, cost: Math.round(proposedCost(invoice, item) * 100) / 100 })),
         charges: (reading.charges ?? []).filter((_, index) => draft.charges[index]),
+        not_in_delivery: (reading.unmatched ?? [])
+            .filter((line, index) => draft.assignments[index] === "not_in_delivery" && Number(line.amount ?? 0) > 0)
+            .map((line) => ({ label: [line.code, line.description].filter(Boolean).join(" ").slice(0, 255) || ctrans("Invoice line"), amount: line.amount })),
+        ...currencyChoice,
     }, {
         preserveScroll: true,
         onStart: () => (busy.value = invoice.media_id),
@@ -197,7 +240,9 @@ const apply = (invoice: Invoice) => {
                     <div v-if="invoice.reading.is_invoice === false"><FontAwesomeIcon :icon="faExclamationTriangle" fixed-width /> {{ ctrans("This does not look like an invoice.") }}</div>
                     <div v-if="invoice.reading.currency_mismatch">
                         <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
-                        {{ ctrans("The invoice is in :invoice and the delivery in :delivery, change the currency of the delivery first.", { invoice: invoice.reading.currency ?? "", delivery: invoice.reading.delivery_currency ?? "" }) }}
+                        {{ invoice.reading.currency_unknown
+                            ? ctrans("The invoice is in :invoice, a currency we do not know: enter its costs by hand.", { invoice: invoice.reading.currency ?? "" })
+                            : ctrans("The invoice is in :invoice and the delivery in :delivery: when you apply it you choose whether the delivery follows the invoice.", { invoice: invoice.reading.currency ?? "", delivery: invoice.reading.delivery_currency ?? "" }) }}
                     </div>
                     <div v-if="invoice.reading.total_mismatch">
                         <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
@@ -212,14 +257,15 @@ const apply = (invoice: Invoice) => {
 
                 <div class="flex flex-wrap gap-3">
                     <label class="flex items-center gap-1">{{ ctrans("Number") }}
-                        <input v-model="drafts[draftKey(invoice)].invoice_number" class="h-7 w-36 rounded border-gray-300 text-sm" />
+                        <InputText v-model="drafts[draftKey(invoice)].invoice_number" size="small" class="w-36" />
                     </label>
                     <label class="flex items-center gap-1">{{ ctrans("Date") }}
-                        <input v-model="drafts[draftKey(invoice)].invoice_date" type="date" class="h-7 rounded border-gray-300 text-sm" />
+                        <DatePicker :modelValue="toDate(drafts[draftKey(invoice)].invoice_date)" dateFormat="dd/mm/yy" size="small" class="w-36"
+                            @update:modelValue="(date) => (drafts[draftKey(invoice)].invoice_date = toIso(date as Date | null))" />
                     </label>
                     <label class="flex items-center gap-1">{{ ctrans("Total") }}
-                        <input v-model="drafts[draftKey(invoice)].invoice_total" type="number" min="0" step="0.01" class="h-7 w-32 rounded border-gray-300 text-sm" />
-                        <span class="text-gray-400">{{ invoice.reading.delivery_currency }}</span>
+                        <InputText v-model="drafts[draftKey(invoice)].invoice_total" type="number" size="small" min="0" step="0.01" class="w-32 tabular-nums" />
+                        <span class="text-gray-400">{{ invoiceCurrency(invoice.reading) }}</span>
                     </label>
                 </div>
 
@@ -242,11 +288,11 @@ const apply = (invoice: Invoice) => {
                                 {{ item.invoice_quantity == null ? ctrans("not on invoice") : locale.number(item.invoice_quantity) }}
                             </td>
                             <td class="py-1 text-right">{{ money(item.expected_amount, invoice.reading.delivery_currency) }}</td>
-                            <td class="py-1 text-right" :class="item.amount_differs ? 'font-medium text-orange-600' : ''">{{ money(item.invoice_amount, invoice.reading.delivery_currency) }}</td>
+                            <td class="py-1 text-right" :class="item.amount_differs ? 'font-medium text-orange-600' : ''">{{ money(item.invoice_amount, invoiceCurrency(invoice.reading)) }}</td>
                             <td class="py-1 text-right">
-                                <input v-model="drafts[draftKey(invoice)].costs[item.id]" type="number" min="0" step="0.01" class="h-7 w-28 rounded border-gray-300 text-right text-xs" />
+                                <InputText v-model="drafts[draftKey(invoice)].costs[item.id]" type="number" size="small" min="0" step="0.01" class="w-28 text-right tabular-nums" />
                                 <div v-if="proposedCost(invoice, item) !== Number(drafts[draftKey(invoice)].costs[item.id] || 0)" class="text-gray-500">
-                                    = {{ money(proposedCost(invoice, item), invoice.reading.delivery_currency) }}
+                                    = {{ money(proposedCost(invoice, item), invoiceCurrency(invoice.reading)) }}
                                 </div>
                             </td>
                         </tr>
@@ -259,32 +305,77 @@ const apply = (invoice: Invoice) => {
                         <span class="font-medium">{{ line.code ?? "—" }}</span>
                         <span>{{ line.description }}</span>
                         <span>{{ line.quantity == null ? "" : "× " + locale.number(line.quantity) }}</span>
-                        <span class="font-medium">{{ money(line.amount, invoice.reading.delivery_currency) }}</span>
-                        <select v-if="line.amount != null" v-model="drafts[draftKey(invoice)].assignments[index]" class="h-7 rounded border-gray-300 py-0 text-xs">
-                            <option :value="null">{{ ctrans("Leave out") }}</option>
-                            <option v-for="item in invoice.reading.items" :key="item.id" :value="item.id">{{ ctrans("Add to") }} {{ item.code }}</option>
-                        </select>
+                        <span class="font-medium">{{ money(line.amount, invoiceCurrency(invoice.reading)) }}</span>
+                        <Select v-if="line.amount != null" v-model="drafts[draftKey(invoice)].assignments[index]" :options="assignmentOptions(invoice.reading)"
+                            optionLabel="label" optionValue="value" size="small" class="w-72" />
                     </div>
                 </div>
 
                 <div v-if="invoice.reading.charges?.length">
                     <div class="mb-1 font-medium">{{ ctrans("Other charges on the invoice") }}</div>
                     <label v-for="(charge, index) in invoice.reading.charges" :key="index" class="flex items-center gap-2 text-xs">
-                        <input v-model="drafts[draftKey(invoice)].charges[index]" type="checkbox" :disabled="charge.amount <= 0" />
+                        <Checkbox v-model="drafts[draftKey(invoice)].charges[index]" binary :disabled="charge.amount <= 0" />
                         <span>{{ charge.label }}</span>
-                        <span class="font-medium">{{ money(charge.amount, invoice.reading.delivery_currency) }}</span>
+                        <span class="font-medium">{{ money(charge.amount, invoiceCurrency(invoice.reading)) }}</span>
                         <span v-if="charge.amount > 0" class="text-gray-400">{{ ctrans("add as extra expense") }}</span>
                         <span v-else class="text-gray-400">{{ ctrans("discounts go into the goods cost of the lines") }}</span>
                     </label>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <Button v-if="canEdit" :label="ctrans('Apply to costing')" type="primary" size="xs"
-                        :disabled="!invoice.reading.can_apply || invoice.reading.currency_mismatch || !drafts[draftKey(invoice)].invoice_date || drafts[draftKey(invoice)].invoice_total === ''"
-                        :loading="busy === invoice.media_id" @click="apply(invoice)" />
+                    <Button v-if="canEdit" :label="ctrans('Apply to costing')" type="tertiary" size="xs"
+                        :disabled="!invoice.reading.can_apply || invoice.reading.currency_unknown || !drafts[draftKey(invoice)].invoice_date || drafts[draftKey(invoice)].invoice_total === ''"
+                        :loading="busy === invoice.media_id" @click="startApply(invoice)">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
                     <span v-if="!invoice.reading.can_apply" class="text-xs text-gray-500">{{ ctrans("Costs can be applied once the costing has started and until it is done.") }}</span>
                 </div>
             </div>
         </div>
+
+        <Dialog :visible="!!choosing" modal :header="ctrans('Should the stock delivery follow the invoice?')" :style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }" @update:visible="choosing = null">
+            <div v-if="choosing?.reading" class="space-y-4 text-sm text-gray-600">
+                <p>{{ ctrans("The invoice is in :invoice and the stock delivery in :delivery.", { invoice: choosing.reading.currency ?? "", delivery: choosing.reading.delivery_currency ?? "" }) }}</p>
+
+                <div>
+                    <div class="font-medium text-gray-800">{{ ctrans("Yes, follow the invoice") }}</div>
+                    <p>{{ ctrans("The stock delivery changes to :invoice and takes the costs exactly as invoiced. Its purchase orders stay in :delivery.", { invoice: choosing.reading.currency ?? "", delivery: choosing.reading.delivery_currency ?? "" }) }}</p>
+                    <p v-if="choosing.reading.follow_blockers?.length" class="mt-1 text-orange-600">
+                        <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width aria-hidden="true" />
+                        {{ ctrans("Not possible on this delivery:") }} {{ choosing.reading.follow_blockers.join(" ") }}
+                    </p>
+                </div>
+
+                <div>
+                    <div class="font-medium text-gray-800">{{ ctrans("No, keep :delivery", { delivery: choosing.reading.delivery_currency ?? "" }) }}</div>
+                    <p>{{ ctrans("The stock delivery stays in :delivery. The invoice is recorded in :invoice and its costs are converted at this rate.", { invoice: choosing.reading.currency ?? "", delivery: choosing.reading.delivery_currency ?? "" }) }}</p>
+                    <label class="mt-2 flex items-center gap-2">
+                        <span>1 {{ choosing.reading.currency }} =</span>
+                        <InputText v-model="exchange" type="number" size="small" min="0" step="0.000001" class="w-32 tabular-nums" />
+                        <span>{{ choosing.reading.delivery_currency }}</span>
+                    </label>
+                </div>
+
+                <div class="flex flex-wrap justify-end gap-2 pt-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" @click="choosing = null">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('No, keep :delivery', { delivery: choosing.reading.delivery_currency ?? '' })" :disabled="!(Number(exchange) > 0)" @click="choose(false)">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faExchange" class="text-amber-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Yes, follow the invoice')" :disabled="!!choosing.reading.follow_blockers?.length" @click="choose(true)">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>

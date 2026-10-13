@@ -12291,6 +12291,142 @@ test('a supplier invoice attached to a delivery is read into proposed costs that
     expect($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->count())->toBe(1);
 });
 
+function stockDeliveryWithInvoiceInAnotherCurrency($test, string $token): array
+{
+    $organisationCurrency = $test->organisation->currency;
+    $deliveryCurrency     = \App\Models\Helpers\Currency::where('id', '!=', $organisationCurrency->id)->where('id', '!=', $test->group->currency_id)->orderBy('id')->firstOrFail();
+
+    $stockDelivery = createStockDeliveryWithItems($test, "INVCUR-$token", [10]);
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::BOOKED_IN]);
+    $stockDelivery = StartStockDeliveryCosting::make()->action($stockDelivery->fresh());
+    $stockDelivery->update(['currency_id' => $deliveryCurrency->id, 'org_exchange' => 0.01, 'grp_exchange' => 0.02]);
+    $stockDelivery->items()->update([
+        'net_amount'     => 9000,
+        'cost_items'     => 9000,
+        'cost_total'     => 9000,
+        'org_exchange'   => 0.01,
+        'grp_exchange'   => 0.02,
+        'org_net_amount' => 90,
+        'grp_net_amount' => 180,
+    ]);
+
+    $path = tempnam(sys_get_temp_dir(), 'invoice');
+    file_put_contents($path, "%PDF-1.4\n% invoice $token\n%%EOF");
+    $media = \App\Actions\Helpers\Media\SaveModelAttachment::make()->action($stockDelivery, [
+        'path'         => $path,
+        'originalName' => "invoice-$token.pdf",
+        'extension'    => 'pdf',
+        'scope'        => 'Invoice',
+    ]);
+    @unlink($path);
+
+    \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::storeReading($stockDelivery, $media, [
+        'state'          => 'read',
+        'read_at'        => now()->toIso8601String(),
+        'is_invoice'     => true,
+        'invoice_number' => "INV-$token",
+        'invoice_date'   => '2026-09-20',
+        'currency'       => $organisationCurrency->code,
+        'lines'          => [
+            ['code' => "invcur $token", 'description' => 'Goods', 'quantity' => 10, 'unit_price' => 9.5, 'amount' => 95],
+            ['code' => 'SAMPLE-1', 'description' => 'Sample', 'quantity' => 1, 'unit_price' => 5, 'amount' => 5],
+        ],
+        'charges'        => [],
+        'total'          => 100,
+    ]);
+
+    return [$stockDelivery->fresh(), $media, $stockDelivery->items()->first(), $deliveryCurrency, $organisationCurrency];
+}
+
+test('a supplier invoice in another currency is converted into the delivery when the delivery does not follow it', function () {
+    \Illuminate\Support\Facades\Http::fake();
+    [$stockDelivery, $media, $item, $deliveryCurrency, $organisationCurrency] = stockDeliveryWithInvoiceInAnotherCurrency($this, Str::upper(Str::random(6)));
+
+    $review = \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($stockDelivery, \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($stockDelivery, $media));
+
+    expect($review['currency_mismatch'])->toBeTrue()
+        ->and($review['currency_unknown'])->toBeFalse()
+        ->and($review['follow_blockers'])->toBe([])
+        ->and($review['unmatched'])->toHaveCount(1);
+
+    $apply = fn (array $choice) => $this->post(route('grp.models.stock-delivery.invoice.apply', [$stockDelivery->id, $media->id]), [
+        'invoice_number'  => 'INV-1',
+        'invoice_date'    => '2026-09-20',
+        'invoice_total'   => 100,
+        'items'           => [['id' => $item->id, 'cost' => 95]],
+        'not_in_delivery' => [['label' => 'SAMPLE-1 Sample', 'amount' => 5]],
+        ...$choice,
+    ]);
+
+    $apply([])->assertSessionHasErrors('currency');
+    $apply(['follow_invoice' => false])->assertSessionHasErrors('exchange');
+
+    expect((float) $item->fresh()->cost_items)->toEqualWithDelta(9000, 0.001)
+        ->and($stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->count())->toBe(0);
+
+    $apply(['follow_invoice' => false, 'exchange' => 100])->assertSessionHasNoErrors();
+
+    $invoice = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
+    $notIn   = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::EXTRA)->first();
+
+    expect($stockDelivery->fresh()->currency_id)->toBe($deliveryCurrency->id)
+        ->and((float) $item->fresh()->cost_items)->toEqualWithDelta(9500, 0.001)
+        ->and((float) $item->fresh()->cost_extra)->toEqualWithDelta(500, 0.001)
+        ->and((float) $invoice->amount)->toEqualWithDelta(100, 0.001)
+        ->and($invoice->currency_id)->toBe($organisationCurrency->id)
+        ->and((float) $invoice->exchange)->toEqualWithDelta(100, 0.001)
+        ->and($notIn->category)->toBe(\App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY)
+        ->and($notIn->label)->toBe('SAMPLE-1 Sample')
+        ->and($notIn->currency_id)->toBe($organisationCurrency->id)
+        ->and(\App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryInvoiceCosting::convertedCosts(
+            [['id' => 1, 'cost' => 10.01], ['id' => 2, 'cost' => 10.01], ['id' => 3, 'cost' => 10.02]],
+            0.333
+        ))->toBe([1 => 3.33, 2 => 3.33, 3 => 3.34])
+        ->and(array_column(\App\Enums\GoodsIn\StockDelivery\StockDeliveryServiceInvoiceTypeEnum::billTypes(), 'value'))->not->toContain('not_in_delivery');
+});
+
+test('a stock delivery that follows a supplier invoice in another currency moves to that currency and keeps its worth', function () {
+    \Illuminate\Support\Facades\Http::fake();
+    [$stockDelivery, $media, $item, $deliveryCurrency, $organisationCurrency] = stockDeliveryWithInvoiceInAnotherCurrency($this, Str::upper(Str::random(6)));
+
+    $typed = \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($stockDelivery, [
+        'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
+        'category'    => 'other',
+        'label'       => 'Typed before the invoice',
+        'amount'      => 300,
+        'received_at' => '2026-09-19',
+    ]);
+
+    $this->post(route('grp.models.stock-delivery.invoice.apply', [$stockDelivery->id, $media->id]), [
+        'invoice_number' => 'INV-2',
+        'invoice_date'   => '2026-09-20',
+        'invoice_total'  => 100,
+        'items'          => [['id' => $item->id, 'cost' => 95]],
+        'follow_invoice' => true,
+    ])->assertSessionHasNoErrors();
+
+    $stockDelivery = $stockDelivery->fresh();
+    $item          = $item->fresh();
+    $typed         = $typed->fresh();
+    $invoice       = $stockDelivery->costs()->where('type', StockDeliveryCostTypeEnum::AGENT_INVOICE)->first();
+
+    expect($stockDelivery->currency_id)->toBe($organisationCurrency->id)
+        ->and((float) $stockDelivery->org_exchange)->toEqualWithDelta(1, 0.000001)
+        ->and((float) $stockDelivery->grp_exchange)->toEqualWithDelta(2, 0.000001)
+        ->and((float) $item->net_amount)->toEqualWithDelta(90, 0.001)
+        ->and((float) $item->org_net_amount)->toEqualWithDelta(90, 0.001)
+        ->and((float) $item->grp_net_amount)->toEqualWithDelta(180, 0.001)
+        ->and((float) $item->org_exchange)->toEqualWithDelta(1, 0.000001)
+        ->and((float) $item->cost_items)->toEqualWithDelta(95, 0.001)
+        ->and((float) $item->cost_extra)->toEqualWithDelta(3, 0.001)
+        ->and($typed->currency_id)->toBe($deliveryCurrency->id)
+        ->and((float) $typed->amount)->toEqualWithDelta(300, 0.001)
+        ->and((float) $typed->exchange)->toEqualWithDelta(0.01, 0.000001)
+        ->and((float) $invoice->amount)->toEqualWithDelta(100, 0.001)
+        ->and($invoice->currency_id)->toBeNull();
+
+});
+
 function readServiceInvoiceDocument($test, StockDelivery $stockDelivery, string $document, array ...$readings): array
 {
     $reply = fn (array $reading) => \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => json_encode([
@@ -12405,6 +12541,70 @@ test('a forwarder invoice is read by two models and enters the service invoices 
         ->and(\App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($stockDelivery, $media)['applied_at'])->not->toBeNull();
 });
 
+test('costs on a stock delivery that no checklist row stands behind can be removed, real ones can not', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'UNBACKED-'.Str::upper(Str::random(6)), [10]);
+    $stockDelivery->update(['cost_extra' => 500, 'cost_total' => (float) $stockDelivery->cost_items + 500]);
+    $remove        = fn () => $this->delete(route('grp.models.stock-delivery.unbacked-costs.remove', [$stockDelivery->id]));
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('box_stats.third_block.remove_unbacked_costs_route.name', 'grp.models.stock-delivery.unbacked-costs.remove'));
+
+    $remove()->assertSessionHasNoErrors();
+
+    expect((float) $stockDelivery->fresh()->cost_extra)->toEqualWithDelta(0, 0.001);
+
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($stockDelivery->fresh(), [
+        'type'        => StockDeliveryCostTypeEnum::EXTRA->value,
+        'category'    => 'other',
+        'amount'      => 40,
+        'received_at' => '2026-09-19',
+    ]);
+
+    $remove()->assertSessionHasErrors('costs');
+
+    expect((float) $stockDelivery->fresh()->cost_extra)->toEqualWithDelta(40, 0.001);
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('box_stats.third_block.remove_unbacked_costs_route', null));
+});
+
+test('a service invoice that does not name the delivery is added only once the reviewer types the confirmation', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'FWD-95-VAL'.random_int(100000, 999999), [200000]);
+    $stockDelivery->update(['dispatched_at' => '2026-08-14']);
+    $number        = 'UNN-'.Str::upper(Str::random(6));
+    $currency      = $stockDelivery->organisation->currency->code;
+    $read          = fn (string $number, string $date) => readServiceInvoiceDocument(
+        $this,
+        $stockDelivery,
+        "Invoice,$number\nShipment,FWD-VAL95-OTHER\nSea freight,39.55\nTotal $currency,39.55\n",
+        ['invoice_number' => $number, 'invoice_date' => $date, 'references' => ['FWD-VAL95-OTHER'], 'lines' => [['description' => 'Sea freight', 'type' => 'freight', 'amount' => 39.55]], 'net_total' => 39.55, 'total_payable' => 39.55]
+    );
+
+    [, $tooEarly] = $read("$number-A", '2026-07-01');
+
+    expect($tooEarly['can_apply'])->toBeTrue()
+        ->and($tooEarly['delivery_confirmation']['dates_fit'])->toBeFalse();
+
+    [$media, $review] = $read($number, '2026-09-18');
+
+    expect($review['problems'])->toBe([])
+        ->and($review['delivery_confirmation']['dates_fit'])->toBeTrue()
+        ->and($review['delivery_confirmation']['reference'])->toBe($stockDelivery->reference)
+        ->and($review['delivery_confirmation']['printed'])->toBe(['FWD-VAL95-OTHER']);
+
+    $apply = fn (array $data) => $this->post(route('grp.models.stock-delivery.service-invoice.apply', [$stockDelivery->id, $media->id]), ['types' => ['freight'], 'read_at' => $review['read_at'], ...$data]);
+
+    $apply([])->assertSessionHasErrors('confirmation');
+    $apply(['confirmation' => 'yes'])->assertSessionHasErrors('confirmation');
+
+    expect($stockDelivery->serviceInvoices()->where('reference', $number)->count())->toBe(0);
+
+    $apply(['confirmation' => '  i confirm this is the correct INVOICE. '])->assertSessionHasNoErrors();
+
+    expect($stockDelivery->serviceInvoices()->where('reference', $number)->count())->toBe(1)
+        ->and(\App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($stockDelivery, $media)['delivery_confirmed']['dates_fit'])->toBeTrue();
+});
+
 test('a service invoice reading that fails a check is refused and never reaches the costing', function () {
     $shipment      = 'VAL'.random_int(100000, 999999);
     $stockDelivery = createStockDeliveryWithItems($this, "FWD-93-$shipment", [200000]);
@@ -12418,7 +12618,6 @@ test('a service invoice reading that fails a check is refused and never reaches 
     $document      = fn (string $number, string $shipments, string $amount = '39.55', ?string $printedCurrency = null) => "Invoice,$number\nShipment,$shipments\nSea freight,$amount\nTotal ".($printedCurrency ?? $currency).",$amount\n";
 
     $refused = [
-        'does not mention'                 => fn (string $number) => [$document($number, $otherShipment.'0'), $reading($number)],
         'also mentions'                    => fn (string $number) => [$document($number, "$shipment and $otherShipment"), $reading($number)],
         'These amounts are not printed'    => fn (string $number) => [$document($number, $shipment, '35.95'), $reading($number)],
         'do not agree on'                  => fn (string $number) => [$document($number, $shipment), $reading($number), $reading($number, ['lines' => $freight(35.95), 'net_total' => 35.95])],
