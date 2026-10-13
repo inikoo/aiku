@@ -72,11 +72,11 @@ const run = () => {
     <PageHeading :data="pageHead">
         <template v-if="runRoute" #other>
             <Button
-                type="secondary"
-                :label="ctrans('Run now')"
+                type="tertiary"
+                :label="ctrans('Fetch data')"
                 icon="fal fa-sync-alt"
                 :loading="isRunning"
-                v-tooltip="ctrans('Local only. Asks ChatGPT up to 5 of the prompts that are due, about 30 seconds each, and fetches LLM Mentions if this month has none.')"
+                v-tooltip="ctrans('Asks ChatGPT the prompts that are due and fetches how often AI answers mention this website and its competitors, now instead of waiting for the schedule. Done once a day at most. Costs about 10 cents of DataForSEO credit and 0.4 cent per prompt.')"
                 @click="run" />
         </template>
     </PageHeading>

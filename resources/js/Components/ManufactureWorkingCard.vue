@@ -29,6 +29,7 @@ const props = defineProps<{
             job_order_reference: string | null
             quantity_made: number
             quantity_required: number
+            pack_size?: number | null
             continued_from?: string | null
         }
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
@@ -55,6 +56,9 @@ const processing = ref(false)
 const quantityMade = ref<number | null>(null)
 const remaining = computed(() => Math.max(0, props.session.task.quantity_required - props.session.task.quantity_made))
 const quantityRejected = ref(0)
+const packSize = computed(() => props.session.task.pack_size ?? null)
+const inPieces = (packs: number) => Math.round(packs * (packSize.value ?? 1)).toLocaleString()
+const notWholePacks = computed(() => packSize.value !== null && quantityMade.value !== null && !Number.isInteger(quantityMade.value) && quantityMade.value !== remaining.value)
 
 const deviceClockOffset = computed(() => props.serverTime ? Date.parse(props.serverTime) - Date.now() : 0)
 const now = ref(Date.now() + deviceClockOffset.value)
@@ -139,7 +143,7 @@ function onCameraError(error: Error) {
 }
 
 function onDone() {
-    if (quantityMade.value === null) return
+    if (quantityMade.value === null || notWholePacks.value) return
     confirming.value = true
 }
 
@@ -260,6 +264,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     <span class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
                     <span class="ml-3 text-xl text-gray-500">{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
                 </button>
+                <div v-if="packSize" class="mt-2 text-2xl font-semibold text-amber-700">
+                    {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}
+                </div>
             </div>
             <div class="text-right">
                 <div class="text-7xl font-mono tabular-nums text-[--app-accent-strong]">{{ elapsed }}</div>
@@ -274,7 +281,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
                 <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></span>
-                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}</b></span>
+                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}</b>
+                    <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
+                </span>
             </div>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
@@ -290,9 +299,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
 
         <div v-else-if="!askOutcome" class="mt-6 flex items-end gap-4">
             <div>
-                <label class="block text-lg text-gray-600 mb-1">{{ ctrans('Quantity made') }}</label>
+                <label class="block text-lg text-gray-600 mb-1">{{ packSize ? ctrans('Packs of :size made', { size: packSize }) : ctrans('Quantity made') }}</label>
                 <input
-                    type="number" min="0" inputmode="numeric"
+                    type="number" min="0" inputmode="numeric" :step="packSize ? 1 : 'any'"
                     v-model.number="quantityMade"
                     class="w-52 rounded-lg border-gray-300 text-5xl text-center py-4 tabular-nums"
                 />
@@ -308,11 +317,17 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <button
                 type="button"
                 class="flex-1 rounded-lg bg-green-600 text-white text-4xl font-semibold py-6 disabled:opacity-40"
-                :disabled="processing || quantityMade === null"
+                :disabled="processing || quantityMade === null || notWholePacks"
                 @click="onDone"
             >
                 {{ ctrans('DONE') }}
             </button>
+        </div>
+
+        <div v-if="packSize && quantityMade !== null && !confirming && !askOutcome" class="mt-4 text-2xl" :class="notWholePacks ? 'text-red-700' : 'text-gray-700'">
+            {{ notWholePacks
+                ? ctrans('Whole packs only: enter how many full packs of :size, not single pieces', { size: packSize })
+                : ctrans(':packs packs of :size = :pieces × :code', { packs: quantityMade, size: packSize, pieces: inPieces(quantityMade), code: session.task.artefact_code ?? '' }) }}
         </div>
 
         <div v-if="surplus > 0 && !askManager" class="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
@@ -322,6 +337,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
         <Dialog v-model:visible="askManager" modal :closable="!processing" :header="ctrans('Manager authorisation required for overproduction')" class="w-[32rem] max-w-[95vw]">
             <div class="text-center text-lg text-gray-600">
                 {{ ctrans('Target') }} <b>{{ remaining }}</b> · {{ ctrans('Made') }} <b>{{ quantityMade }}</b> · {{ ctrans('Surplus') }} <b class="text-amber-600">+{{ surplus }}</b>
+            </div>
+            <div v-if="packSize" class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-xl font-semibold text-amber-800">
+                {{ ctrans('+:surplus packs of :size = :pieces × :code extra, approve?', { surplus, size: packSize, pieces: inPieces(surplus), code: session.task.artefact_code ?? '' }) }}
             </div>
 
             <div v-if="managerError" class="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-red-700">{{ managerError }}</div>

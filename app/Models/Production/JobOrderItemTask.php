@@ -111,6 +111,15 @@ class JobOrderItemTask extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function packSize(): ?int
+    {
+        return ArtefactManufactureTask::packSize(
+            ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
+                ->where('manufacture_task_id', $this->manufacture_task_id)
+                ->value('units_per_artefact')
+        );
+    }
+
     public function assigneeId(): ?int
     {
         return $this->employee_id ?? $this->jobOrderItem->artisanId();

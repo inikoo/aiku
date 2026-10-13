@@ -1,8 +1,8 @@
 ---
 title: Práce s obrazovkou dílny
 summary: Průvodce pro řemeslníka - obrazovka Moje úkoly, seznam úkolů, který se sám aktualizuje, START a DONE, a co dělat, když vyrobíte míň, než bylo požadováno.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -46,6 +46,10 @@ Každý řádek je jeden úkol na jednom výrobním příkazu:
 
 Vyrobili jste přesně tolik, kolik bylo požadováno? Tím je hotovo. Úkol se uzavře, výrobní příkaz je dokončen a sklad dostane informaci, že má co uložit - viz [Ukládání hotové výroby](/docs/putting-away-finished-production-cs).
 
+## Kroky počítané v baleních
+
+Některé kroky, hlavně balení, se počítají v baleních a ne v jednotlivých kusech: tácek s 8 koupelovými bombami se počítá jako 1. Obrazovka pak jantarově ukáže **Counted in PACKS of 8** (Počítá se v BALENÍCH po 8) a pole se jmenuje **Packs of 8 made** (Vyrobená balení po 8). Zadejte, kolik plných balení jste naplnili: u 56 bomb na 7 táccích zadejte 7, ne 56. Pod polem obrazovka ukáže, co vaše číslo znamená, *7 packs of 8 = 56 × ABB-06a*, a potvrzení to ukáže znovu. Přijímají se jen celá balení; jedinou výjimkou je přesný počet, který ještě zbývá, a ten vyplníte ťuknutím na velké číslo. Když musí manažer schválit nadvýrobu, okno před schválením ukáže přebytek v baleních i v kusech.
+
 ## Když vyrobíte míň, než bylo požadováno
 
 Zadejte skutečný počet a stiskněte **DONE**. Vstupní řádek se nahradí krátkým panelem: *19 hotovo · 6 zbývá* a čtyřmi tlačítky.
@@ -67,6 +71,8 @@ Zadejte skutečné číslo a stiskněte **DONE**. Obrazovka upozorní *18 above 
 Schválit může jen někdo, kdo vede tuto výrobní halu, a nikdy pro vlastní práci. Po pěti chybných kódech nebo PINech okno 15 minut odmítá.
 
 Po schválení úkol naroste na to, co se skutečně vyrobilo: sklad naskladní všechno, co žádná objednávka nechtěla, jde na sklad, a suroviny se odečtou za celou dávku. Další kroky téhož úkolu narostou také, aby další člověk mohl dokončit všechno. Stránka výrobní zakázky ukazuje, kdo vyrobil přebytek, kdo ho schválil, jak a kdy.
+
+Zadali jste špatné číslo, například kusy tam, kde se žádala balení? Manažer otevře kartu **Performance** (Výkon), najde záznam pod pracovníkem a stiskne **Correct quantity** (Opravit množství). Záznam lze jen snížit. Úkol se vrátí na to, co se opravdu vyrobilo, schválená nadvýroba se sníží spolu s ním a mzda za tento záznam se přepočítá. Funguje to, dokud sklad nezačne úkol naskladňovat.
 
 ## Jedna dávka pro několik řádků
 

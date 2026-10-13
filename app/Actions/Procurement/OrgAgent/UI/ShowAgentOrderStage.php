@@ -51,7 +51,7 @@ class ShowAgentOrderStage extends OrgAction
 
     public const array STAGES = [self::ORDERED, self::PREPARING, self::ON_THE_WAY, self::DELIVERED];
 
-    public const array OWN_ORGANISATION_ONLY = [self::ON_THE_WAY, self::DELIVERED];
+    public const array AGENT_INVOICE_STAGES = [self::ON_THE_WAY, self::DELIVERED];
 
     public const array AGENT_INVOICE_FILTERS = ['missing', 'unpaid', 'paid'];
 
@@ -77,19 +77,17 @@ class ShowAgentOrderStage extends OrgAction
 
     private string $stage;
 
-    private bool $onlyOurs;
-
     private ?string $agentInvoice;
 
     /**
-     * What the stage lists, every organisation of the group included: purchase orders the agent is working on
-     * and has not put on a stock delivery yet, or its stock deliveries by how far they have travelled.
+     * What the stage lists for the organisation: purchase orders the agent is working on and has not put on
+     * a stock delivery yet, or its stock deliveries by how far they have travelled.
      */
     public static function documents(OrgAgent $orgAgent, string $stage): Builder
     {
         if ($stage === self::ORDERED) {
             return PurchaseOrder::query()->withoutGlobalScopes()->from('purchase_orders as po')
-                ->where('po.group_id', $orgAgent->group_id)
+                ->where('po.organisation_id', $orgAgent->organisation_id)
                 ->where('po.agent_id', $orgAgent->agent_id)
                 ->where('po.parent_type', 'OrgSupplier')
                 ->whereIn('po.state', [PurchaseOrderStateEnum::SUBMITTED->value, PurchaseOrderStateEnum::CONFIRMED->value])
@@ -100,7 +98,7 @@ class ShowAgentOrderStage extends OrgAction
         }
 
         return StockDelivery::query()->withoutGlobalScopes()->from('stock_deliveries as sd')
-            ->where('sd.group_id', $orgAgent->group_id)
+            ->where('sd.organisation_id', $orgAgent->organisation_id)
             ->where('sd.agent_id', $orgAgent->agent_id)
             ->whereIn('sd.state', array_column(self::STOCK_DELIVERY_STATES[$stage], 'value'))
             ->whereNull('sd.deleted_at');
@@ -108,9 +106,7 @@ class ShowAgentOrderStage extends OrgAction
 
     public static function countOurs(OrgAgent $orgAgent, string $stage): int
     {
-        return self::documents($orgAgent, $stage)
-            ->where(($stage === self::ORDERED ? 'po' : 'sd').'.organisation_id', $orgAgent->organisation_id)
-            ->count();
+        return self::documents($orgAgent, $stage)->count();
     }
 
     /**
@@ -131,20 +127,16 @@ class ShowAgentOrderStage extends OrgAction
     public static function agentInvoiceCounts(OrgAgent $orgAgent, string $stage): array
     {
         return collect(self::AGENT_INVOICE_FILTERS)->mapWithKeys(fn (string $filter) => [
-            $filter => self::filterByAgentInvoice(self::documents($orgAgent, $stage)->where('sd.organisation_id', $orgAgent->organisation_id), $filter)->count(),
+            $filter => self::filterByAgentInvoice(self::documents($orgAgent, $stage), $filter)->count(),
         ])->all();
     }
 
-    public function handle(OrgAgent $orgAgent, string $stage, bool $onlyOurs = true, ?string $agentInvoice = null): LengthAwarePaginator
+    public function handle(OrgAgent $orgAgent, string $stage, ?string $agentInvoice = null): LengthAwarePaginator
     {
         $alias = $stage === self::ORDERED ? 'po' : 'sd';
         $query = $stage === self::ORDERED ? $this->purchaseOrderRows($orgAgent) : $this->stockDeliveryRows($orgAgent, $stage);
 
-        if ($onlyOurs) {
-            $query->where('o.id', $orgAgent->organisation_id);
-        }
-
-        if ($agentInvoice && in_array($stage, self::OWN_ORGANISATION_ONLY, true)) {
+        if ($agentInvoice && in_array($stage, self::AGENT_INVOICE_STAGES, true)) {
             self::filterByAgentInvoice($query, $agentInvoice);
         }
 
@@ -152,7 +144,6 @@ class ShowAgentOrderStage extends OrgAction
             $like = '%'.addcslashes((string) $value, '%_\\').'%';
             $query->where(fn ($query) => $query
                 ->whereRaw("$alias.reference ilike ?", [$like])
-                ->orWhereRaw('o.code ilike ?', [$like])
                 ->when($stage === self::ORDERED, fn ($query) => $query->orWhereRaw('sup.code ilike ? or sup.name ilike ?', [$like, $like])));
         });
 
@@ -165,7 +156,7 @@ class ShowAgentOrderStage extends OrgAction
 
         if (!request()->filled('sort')) {
             $stage === self::ORDERED
-                ? $query->orderBy('sup.code')->orderBy('o.code')
+                ? $query->orderBy('sup.code')
                 : $query->orderByRaw("$dateColumn desc nulls last");
         }
 
@@ -191,23 +182,20 @@ class ShowAgentOrderStage extends OrgAction
         $stateLabels = $stage === self::ORDERED ? PurchaseOrderStateEnum::labels() : StockDeliveryStateEnum::labels();
         $today       = Carbon::today();
 
-        $rows->getCollection()->transform(function ($row) use ($orgAgent, $stage, $exchanges, $totals, $stateLabels, $today) {
+        $organisationSlug = $orgAgent->organisation->slug;
+
+        $rows->getCollection()->transform(function ($row) use ($orgAgent, $organisationSlug, $stage, $exchanges, $totals, $stateLabels, $today) {
             $total  = $totals->get($row->id);
             $cbm    = $row->cbm_recorded ?? $total?->cbm;
-            $isOurs = $row->organisation_id === $orgAgent->organisation_id;
             $eta    = ($row->eta ?? null) ? Carbon::parse($row->eta) : null;
 
             return [
                 'id'                => $row->id,
                 'reference'         => $row->reference,
-                'organisation_code' => $row->organisation_code,
-                'organisation_name' => $row->organisation_name,
-                'is_ours'           => $isOurs,
-                'url'               => match (true) {
-                    !$isOurs                 => null,
-                    $stage === self::ORDERED => route('grp.org.procurement.org_agents.show.purchase-orders.show', [$row->organisation_slug, $orgAgent->slug, $row->slug]),
-                    $stage === self::PREPARING => route('grp.org.procurement.org_agents.show.shopping.container', [$row->organisation_slug, $orgAgent->slug, $row->slug]),
-                    default                  => route('grp.org.procurement.stock_deliveries.show', [$row->organisation_slug, $row->slug]),
+                'url'               => match ($stage) {
+                    self::ORDERED   => route('grp.org.procurement.org_agents.show.purchase-orders.show', [$organisationSlug, $orgAgent->slug, $row->slug]),
+                    self::PREPARING => route('grp.org.procurement.org_agents.show.shopping.container', [$organisationSlug, $orgAgent->slug, $row->slug]),
+                    default         => route('grp.org.procurement.stock_deliveries.show', [$organisationSlug, $row->slug]),
                 },
                 'supplier_code'     => $row->supplier_code ?? null,
                 'supplier_name'     => $row->supplier_name ?? null,
@@ -222,7 +210,7 @@ class ShowAgentOrderStage extends OrgAction
                 'date'              => $row->date,
                 'eta'               => $eta?->toDateString(),
                 'agent_invoice'     => match (true) {
-                    !in_array($stage, self::OWN_ORGANISATION_ONLY, true) => null,
+                    !in_array($stage, self::AGENT_INVOICE_STAGES, true) => null,
                     !$row->has_agent_invoice                              => 'missing',
                     (float) $row->agent_invoice_balance > 0               => 'unpaid',
                     default                                               => 'paid',
@@ -255,7 +243,7 @@ class ShowAgentOrderStage extends OrgAction
                 $table->column(key: 'eta', label: __('Expected'), canBeHidden: false, sortable: true);
             }
 
-            if (in_array($stage, self::OWN_ORGANISATION_ONLY, true)) {
+            if (in_array($stage, self::AGENT_INVOICE_STAGES, true)) {
                 $table->column(key: 'agent_invoice', label: __('Agent invoice'), canBeHidden: false);
             }
 
@@ -270,11 +258,9 @@ class ShowAgentOrderStage extends OrgAction
     private function purchaseOrderRows(OrgAgent $orgAgent): Builder
     {
         return self::documents($orgAgent, self::ORDERED)
-            ->join('organisations as o', 'o.id', 'po.organisation_id')
             ->join('suppliers as sup', 'sup.id', 'po.supplier_id')
             ->leftJoin('currencies as cur', 'cur.id', 'po.currency_id')
-            ->selectRaw('po.id, po.slug, po.reference, po.state, po.organisation_id, po.submitted_at as date, null as cbm_recorded,
-                o.code as organisation_code, o.name as organisation_name, o.slug as organisation_slug,
+            ->selectRaw('po.id, po.slug, po.reference, po.state, po.submitted_at as date, null as cbm_recorded,
                 sup.code as supplier_code, sup.name as supplier_name, cur.code as currency, cur.id as currency_id');
     }
 
@@ -283,12 +269,10 @@ class ShowAgentOrderStage extends OrgAction
         $dateColumn = self::STOCK_DELIVERY_DATE_COLUMNS[$stage];
 
         return self::documents($orgAgent, $stage)
-            ->join('organisations as o', 'o.id', 'sd.organisation_id')
             ->leftJoin('currencies as cur', 'cur.id', 'sd.currency_id')
-            ->selectRaw("sd.id, sd.slug, sd.reference, sd.state, sd.organisation_id, sd.number_purchase_orders, $dateColumn as date, sd.cbm as cbm_recorded,
+            ->selectRaw("sd.id, sd.slug, sd.reference, sd.state, sd.number_purchase_orders, $dateColumn as date, sd.cbm as cbm_recorded,
                 sd.data->>'estimated_receiving_date' as eta,
                 ".self::AGENT_INVOICE_EXISTS_SQL.' as has_agent_invoice, '.self::AGENT_INVOICE_BALANCE_SQL." as agent_invoice_balance,
-                o.code as organisation_code, o.name as organisation_name, o.slug as organisation_slug,
                 cur.code as currency, cur.id as currency_id");
     }
 
@@ -360,11 +344,10 @@ class ShowAgentOrderStage extends OrgAction
         $this->orgAgent = $orgAgent;
         $this->stage    = $stage;
         $this->initialisation($organisation, $request);
-        $this->onlyOurs = true;
 
         $this->agentInvoice = in_array($request->input('agent_invoice'), self::AGENT_INVOICE_FILTERS, true) ? $request->input('agent_invoice') : null;
 
-        return $this->handle($orgAgent, $stage, $this->onlyOurs, $this->agentInvoice);
+        return $this->handle($orgAgent, $stage, $this->agentInvoice);
     }
 
     public function htmlResponse(LengthAwarePaginator $rows, ActionRequest $request): Response|RedirectResponse
@@ -399,13 +382,10 @@ class ShowAgentOrderStage extends OrgAction
                     'label' => OrgAgentOrderContainerEnum::labels()[$this->orgAgent->order_container->value],
                     'cbm'   => $this->orgAgent->order_container->cbm(),
                 ],
-                'scope'       => $this->onlyOurs ? 'ours' : 'all',
-                'canSeeAll'   => false,
-                'agentInvoice' => in_array($this->stage, self::OWN_ORGANISATION_ONLY, true) ? [
+                'agentInvoice' => in_array($this->stage, self::AGENT_INVOICE_STAGES, true) ? [
                     'selected' => $this->agentInvoice,
                     'counts'   => self::agentInvoiceCounts($this->orgAgent, $this->stage),
                 ] : null,
-                'oursCount'   => self::countOurs($this->orgAgent, $this->stage),
                 'rows'        => JsonResource::collection($rows),
             ]
         )->table($this->tableStructure($this->stage));

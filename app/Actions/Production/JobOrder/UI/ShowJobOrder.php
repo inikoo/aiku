@@ -140,6 +140,7 @@ class ShowJobOrder extends OrgAction
                     'employee_id'  => $jobOrder->employee_id,
                     'artisan'      => $jobOrder->employee?->contact_name,
                     'overproductions' => $jobOrder->data['overproductions'] ?? [],
+                    'corrections'     => $jobOrder->data['corrections'] ?? [],
                     'non_productive'  => $this->nonProductive($jobOrder, $currencySymbol),
                 ],
                 'artisan_options' => $this->canEdit ? Employee::where('organisation_id', $this->organisation->id)

@@ -10,9 +10,11 @@ namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
@@ -93,6 +95,13 @@ class IndexArtisans extends OrgAction
             ];
         };
 
+        $packSizes = ArtefactManufactureTask::packSizes();
+        $canCorrect = fn (ManufactureTaskSession $session) => $this->canEdit
+            && $session->state == ManufactureTaskSessionStateEnum::CLOSED
+            && !$session->is_combined
+            && in_array($session->jobOrderItemTask->jobOrder->state, JobOrderStateEnum::open())
+            && $session->jobOrderItemTask->jobOrderItem->quantity_received <= 0;
+
         $serializeSession = fn (ManufactureTaskSession $session) => [
             'id'                  => $session->id,
             'state'               => $session->state,
@@ -103,6 +112,11 @@ class IndexArtisans extends OrgAction
             'ended_at'            => $session->ended_at,
             'break_minutes'       => (int)$session->break_minutes,
             'quantity_made'       => (float)$session->quantity_made,
+            'pack_size'           => $packSizes[$session->jobOrderItemTask->jobOrderItem->artefact_id.':'.$session->manufacture_task_id] ?? null,
+            'correct_route'       => $canCorrect($session) ? [
+                'name'       => 'grp.models.manufacture-task-session.correct',
+                'parameters' => ['manufactureTaskSession' => $session->id],
+            ] : null,
             'quantity_rejected'   => (float)$session->quantity_rejected,
             'earned'              => round($session->quantity_made * ($session->task_work_cost ?? 0), 2),
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,

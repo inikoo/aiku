@@ -467,25 +467,6 @@ test('the tax faire charged survives invoicing and later recalculations', functi
     $invoice->delete();
 });
 
-/** HELP-3394: setting shipping manually on a Faire order must re-pull Faire's tax, which by then includes shipping VAT. */
-test('manual shipping on a faire order refreshes the faire tax snapshot', function () {
-    $order = StoreOrder::make()->action($this->customer, []);
-    StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
-    $order->update(['external_id' => 'faire-123']);
-
-    $this->shop->updateQuietly(['type' => ShopTypeEnum::EXTERNAL, 'engine' => ShopEngineEnum::FAIRE]);
-
-    try {
-        UpdateFaireOrder::shouldRun()->once();
-
-        UpdateOrderShippingEngineAsManual::make()->handle($order->refresh(), ['shipping_amount' => 4.95]);
-
-        expect((float)$order->refresh()->shipping_amount)->toBe(4.95);
-    } finally {
-        $this->shop->updateQuietly(['type' => ShopTypeEnum::B2B, 'engine' => ShopEngineEnum::AIKU]);
-    }
-});
-
 /** HELP-3805: Faire re-ordered two backordered lines as a new order with the same item ids, and the import died after storing an empty order. */
 test('a faire line moved to a re-order leaves the original order unless it already reached the warehouse', function () {
     $faireItemId = 'oi_help3805_'.uniqid();
@@ -507,6 +488,67 @@ test('a faire line moved to a re-order leaves the original order unless it alrea
     $movedLine = StoreTransaction::make()->action($reOrder->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1, 'marketplace_id' => $faireItemId]);
 
     expect($movedLine->order_id)->toBe($reOrder->id);
+});
+
+/** HELP-3906: Faire is the source of truth, so nobody sets shipping by hand on a Faire order. */
+test('manual shipping is refused on a faire order', function () {
+    $order = StoreOrder::make()->action($this->customer, []);
+    StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
+
+    $this->shop->updateQuietly(['type' => ShopTypeEnum::EXTERNAL, 'engine' => ShopEngineEnum::FAIRE]);
+
+    try {
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 4.95])
+            ->assertSessionHasErrors('message');
+        expect((float)$order->refresh()->shipping_amount)->toBe(0.0);
+    } finally {
+        $this->shop->updateQuietly(['type' => ShopTypeEnum::B2B, 'engine' => ShopEngineEnum::AIKU]);
+    }
+});
+
+/** HELP-3906: the shipping Faire reimburses when we ship an order ourselves is read from Faire, also after invoicing. */
+test('the shipping faire reimburses is copied onto an order with none and never rewrites one already there', function () {
+    $order = StoreOrder::make()->action($this->customer, []);
+    StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
+
+    $faireShipment = fn (int $amountMinor) => ['shipments' => [['maker_cost' => ['amount_minor' => $amountMinor]]]];
+    $action        = UpdateFaireOrder::make();
+
+    $action->syncFaireShipping($order->refresh(), $faireShipment(0));
+    expect((float)$order->refresh()->shipping_amount)->toBe(0.0);
+
+    $order->updateQuietly(['state' => OrderStateEnum::FINALISED]);
+    $invoice = GenerateInvoiceFromOrder::make()->handle($order->refresh());
+    $order->refresh();
+    $orderNet   = (float)$order->net_amount;
+    $orderTax   = (float)$order->tax_amount;
+    $invoiceNet = (float)$invoice->refresh()->net_amount;
+    $invoiceTax = (float)$invoice->tax_amount;
+
+    $invoice->invoiceTransactions()->create([
+        ...$invoice->invoiceTransactions()->first()->only(['group_id', 'organisation_id', 'shop_id', 'customer_id', 'order_id', 'tax_category_id', 'date']),
+        'model_type'   => 'ShippingZone',
+        'quantity'     => 1,
+        'gross_amount' => 0,
+        'net_amount'   => 0,
+    ]);
+
+    $action->syncFaireShipping($order, $faireShipment(1234));
+
+    expect((float)$order->refresh()->shipping_amount)->toBe(12.34)
+        ->and(round((float)$order->net_amount - $orderNet, 2))->toBe(12.34)
+        ->and((float)$order->tax_amount)->toBe($orderTax)
+        ->and(round((float)$order->total_amount, 2))->toBe(round((float)$order->net_amount + $orderTax, 2))
+        ->and(round((float)$invoice->refresh()->net_amount - $invoiceNet, 2))->toBe(12.34)
+        ->and((float)$invoice->tax_amount)->toBe($invoiceTax)
+        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->sum('net_amount'))->toBe(12.34)
+        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->sum('grp_net_amount'))->toBeGreaterThan(0.0);
+
+    $action->syncFaireShipping($order, $faireShipment(2000));
+    expect((float)$order->refresh()->shipping_amount)->toBe(12.34)
+        ->and($invoice->invoiceTransactions()->where('model_type', 'ShippingZone')->count())->toBe(1);
+
+    $invoice->delete();
 });
 
 test('manual shipping on a non-faire order does not touch faire', function () {
