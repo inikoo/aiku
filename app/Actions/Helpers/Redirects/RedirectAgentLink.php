@@ -11,6 +11,7 @@ namespace App\Actions\Helpers\Redirects;
 use App\Actions\OrgAction;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -20,8 +21,14 @@ class RedirectAgentLink extends OrgAction
 {
     use WithAgentOrganisationRedirect;
 
-    public function handle(Agent $agent, ?User $user = null): RedirectResponse
+    public function handle(Agent $agent, ?User $user = null, ?Organisation $searchedOrganisation = null): RedirectResponse
     {
+        $searchedOrgAgent = $searchedOrganisation ? OrgAgent::where('agent_id', $agent->id)->where('organisation_id', $searchedOrganisation->id)->first() : null;
+
+        if ($searchedOrgAgent) {
+            return Redirect::to(route('grp.org.procurement.org_agents.show', [$searchedOrganisation->slug, $searchedOrgAgent->slug]));
+        }
+
         if ($user && !$user->authTo('supply-chain.view') && $organisation = $this->getAgentOrganisationForUser($user, $agent->id)) {
             $orgAgent = OrgAgent::where('agent_id', $agent->id)->first();
 
@@ -37,6 +44,6 @@ class RedirectAgentLink extends OrgAction
     {
         $this->initialisationFromGroup(group(), $request);
 
-        return $this->handle($agent, $request->user());
+        return $this->handle($agent, $request->user(), $this->getSearchedOrganisationForUser($request->user(), $request->query('organisation')));
     }
 }
