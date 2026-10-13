@@ -19,6 +19,7 @@ use App\Actions\SysAdmin\Group\Seeders\SeedJobPositionsScopeGroup;
 use App\Actions\SysAdmin\Group\Seeders\SeedPlatforms;
 use App\Actions\SysAdmin\Group\Seeders\SeedPostRooms;
 use App\Actions\SysAdmin\Group\Seeders\SeedSalesChannels;
+use App\Actions\SysAdmin\Group\Seeders\SeedEmailSocialIcons;
 use App\Actions\SysAdmin\Group\Seeders\SeedStockImages;
 use App\Actions\SysAdmin\Group\Seeders\SeedWebBlockTypes;
 use App\Actions\SysAdmin\Group\Seeders\SeedWebsiteDialogTemplates;
@@ -76,6 +77,7 @@ class StoreGroup
         SeedJobPositionCategories::run($group);
         SeedJobPositionsScopeGroup::run($group);
         SeedStockImages::run($group);
+        SeedEmailSocialIcons::run($group);
         SeedWebBlockTypes::run($group);
         SeedWebsiteDialogTemplates::run($group);
         SeedPlatforms::run($group);

@@ -14,6 +14,8 @@ trait WithEmailLinkContentLabels
 {
     protected const ANCHOR_PATTERN = '/<a\s[^>]*>.*?<\/a>/is';
 
+    protected const BUTTON_CLASS_PATTERN = '/^<a\s[^>]*\bclass=(["\'])(?:[^"\']*\s)?button(?:\s[^"\']*)?\1/';
+
     protected const TRACKING_REDIRECTS = [
         'awstrack.me',
         'list-manage.com',
@@ -36,9 +38,10 @@ trait WithEmailLinkContentLabels
         $anchor = Str::lower($anchor);
 
         $kind = match (true) {
-            str_contains($anchor, '<img')        => 'image',
-            str_contains($anchor, 'v:roundrect') => 'button',
-            default                              => 'text',
+            str_contains($anchor, '<img')                            => 'image',
+            str_contains($anchor, 'v:roundrect')                     => 'button',
+            preg_match(self::BUTTON_CLASS_PATTERN, $anchor) === 1    => 'button',
+            default                                                  => 'text',
         };
 
         $position = $counters[$kind] = ($counters[$kind] ?? 0) + 1;
