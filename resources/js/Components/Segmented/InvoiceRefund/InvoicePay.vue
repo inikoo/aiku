@@ -326,7 +326,7 @@ const compTooltipTotalToPay = computed(() => {
                 <dd class="text-sm/6 text-gray-700 sm:mt-0 text-right">
                     <button v-if="Number(invoice_pay.total_need_to_pay) > 0 && invoice_pay.can_pay"
                             @click="() => (isOpenModalInvoice = true, fetchPaymentMethod())" size="xxs"
-                            class="secondaryLink text-[--app-accent]">
+                            class="secondaryLink">
                         {{ ctrans("Pay Invoice") }}
                     </button>
 

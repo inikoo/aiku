@@ -2540,7 +2540,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                             />
                         </div>
 
-                        <div v-if="can_edit && props.external_shop?.engine_value === 'faire'">
+                        <div v-if="(can_edit || can_pay) && props.external_shop?.engine_value === 'faire'">
                             <ButtonWithLink
                                 :label="ctrans('Refresh Faire data')"
                                 size="xs"

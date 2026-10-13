@@ -83,7 +83,6 @@ class ShowPlatform extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PlatformTabsEnum::navigation()
                 ],
-                'can_view_invoices' => !$parent instanceof Shop || $request->user()->authTo("accounting.$parent->organisation_id.view"),
                 PlatformTabsEnum::SHOWCASE->value =>
                     $this->tab == PlatformTabsEnum::SHOWCASE->value
                         ? fn () => InvoicesResource::collection(IndexInvoices::run($parent, $platform, prefix: PlatformTabsEnum::SHOWCASE->value))

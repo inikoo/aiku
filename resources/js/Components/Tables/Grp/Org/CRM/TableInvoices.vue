@@ -8,13 +8,10 @@ import { Link } from '@inertiajs/vue3'
 
 library.add(faCircle, faCheckCircle);
 
-withDefaults(defineProps<{
+defineProps<{
     data: {};
     tab?: string;
-    canViewInvoices?: boolean;
-}>(), {
-    canViewInvoices: true,
-});
+}>();
 
 const locale = useLocaleStore();
 
@@ -29,10 +26,9 @@ const redirectInvoiceAccounting = (invoice: any) => {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item }">
-            <Link v-if="canViewInvoices" :href="redirectInvoiceAccounting(item)" class="primaryLink">
+            <Link :href="redirectInvoiceAccounting(item)" class="primaryLink">
                 {{ item.reference }}
             </Link>
-            <span v-else>{{ item.reference }}</span>
         </template>
 
         <template #cell(date)="{ item }">

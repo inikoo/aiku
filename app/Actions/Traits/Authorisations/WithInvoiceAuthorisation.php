@@ -34,15 +34,6 @@ trait WithInvoiceAuthorisation
             return $this->canEdit;
         }
 
-        if (str_starts_with($routeName, 'grp.org.accounting.')) {
-            $permissions = ["accounting.$invoice->organisation_id.view"];
-            if ($buyerOrganisationId = $invoice->customer?->as_organisation_id) {
-                $permissions[] = "procurement.$buyerOrganisationId.view";
-            }
-
-            return $request->user()->authTo($permissions);
-        }
-
         return $request->user()->authTo($this->getInvoiceViewPermissions($invoice));
     }
 

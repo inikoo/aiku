@@ -3099,7 +3099,7 @@ test('gold reward reminder skips a customer who already submitted an order since
     $outbox->update(['days_after' => $originalDaysAfter]);
 });
 
-test('a crm viewer reads customers, polls and prospects but changes nothing, and does not open invoices in accounting', function () {
+test('a crm viewer reads customers, polls and prospects and opens an invoice in accounting but changes nothing, and does not see the accounting lists', function () {
     $shop         = $this->shop;
     $organisation = $this->organisation;
     $customer     = StoreCustomer::make()->action($shop, Customer::factory()->definition());
@@ -3159,8 +3159,8 @@ test('a crm viewer reads customers, polls and prospects but changes nothing, and
         post(route('grp.models.shop.prospect.mailshot.store', ['shop' => $shop->id]), [])->assertForbidden();
         get(route('grp.org.shops.show.crm.internal_tags.create', [$organisation->slug, $shop->slug]))->assertForbidden();
 
-        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertForbidden();
-        get(route('grp.majordomo.redirect_invoice_in_accounting', ['invoice' => $invoice->id]))->assertForbidden();
+        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertOk();
+        get(route('grp.majordomo.redirect_invoice_in_accounting', ['invoice' => $invoice->id]))->assertRedirect();
         get(route('grp.org.accounting.invoices.index', [$organisation->slug]))->assertForbidden();
         get(route('grp.org.accounting.refunds.index', [$organisation->slug]))->assertForbidden();
         post(route('grp.models.refund.create', ['invoice' => $invoice->id]))->assertForbidden();
@@ -3170,8 +3170,8 @@ test('a crm viewer reads customers, polls and prospects but changes nothing, and
         patch(route('grp.models.customer.update', ['customer' => $customer->id]), ['is_gift_opted_out' => true])->assertSessionHasNoErrors();
         expect(Arr::get($customer->refresh()->settings, 'is_gift_opted_out'))->toBeTrue();
 
-        $actingWithOnly(["crm.$shop->id.edit"]);
-        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertForbidden();
+        $actingWithOnly(["crm.$shop->id.view", "crm.$shop->id.edit"]);
+        get(route('grp.org.accounting.invoices.show', [$organisation->slug, $invoice->slug]))->assertOk();
         expect(post(route('grp.models.refund.create', ['invoice' => $invoice->id]))->status())->not->toBe(403);
 
         $actingWithOnly(["accounting.$organisation->id.view"]);

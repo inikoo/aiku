@@ -34,7 +34,6 @@ const props = defineProps<{
   top_listed_families?: {},
   top_listed_products?: {},
   top_sold_products?: {},
-  can_view_invoices: boolean,
   tabs: {
       current: string
       navigation: {}
@@ -63,5 +62,5 @@ const component = computed(() => {
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead" />
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-  <component :is="component" :data="props[currentTab]" :tab="currentTab" v-bind="currentTab === 'showcase' ? { canViewInvoices: can_view_invoices } : {}"></component>
+  <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>

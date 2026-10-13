@@ -22,13 +22,10 @@ import { bucketQuery } from "@/Composables/bucketQuery";
 library.add(faFileInvoiceDollar, faCircle, faCheckCircle, faQuestionCircle);
 
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   data: {}
   tab?: string
-  canViewInvoices?: boolean
-}>(), {
-  canViewInvoices: true,
-});
+}>();
 
 const locale = useLocaleStore();
 
@@ -130,10 +127,9 @@ function customerRoute(invoice: Invoice) {
     </template>
 
     <template #cell(reference)="{ item: invoice }">
-      <Link v-if="canViewInvoices" :href="invoiceHref(invoice)" class="primaryLink py-0.5">
+      <Link :href="invoiceHref(invoice)" class="primaryLink py-0.5">
         {{ invoice.reference }}
       </Link>
-      <span v-else class="py-0.5">{{ invoice.reference }}</span>
       <FontAwesomeIcon v-if="invoice.in_process" v-tooltip="ctrans('In process')" icon="fal fa-seedling" class="text-green-500" fixed-width aria-hidden="true" />
     </template>
 

@@ -78,7 +78,7 @@ class DisableCollection extends OrgAction
         if ($path == '/') {
             $path = '';
         }
-        $webpage = Webpage::where('website_id', $this->shop->website->id)->where('url', $path)->first();
+        $webpage = Webpage::where('website_id', $this->shop->website?->id)->where('url', $path)->first();
         if ($webpage) {
             $this->set('to_webpage_id', $webpage->id);
         }

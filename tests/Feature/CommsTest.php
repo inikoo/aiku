@@ -2160,6 +2160,7 @@ test('store mailshot template uses default template data', function (Shop $shop)
     $originalRoles = $this->user->roles->pluck('name')->toArray();
     actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
 
+    request()->setUserResolver(fn () => $this->user);
     $storeAction = StoreMailshotTemplate::make();
     $storeAction->initialisationFromShop($shop, ['name' => 'My new template']);
     $emailTemplate = $storeAction->handle(['name' => 'My new template']);
@@ -2189,6 +2190,7 @@ test('store mailshot as new template from existing template', function (EmailTem
     $originalRoles = $this->user->roles->pluck('name')->toArray();
     actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
 
+    request()->setUserResolver(fn () => $this->user);
     $action = StoreMailshotAsNewTemplate::make();
     $action->initialisationFromShop($shop, [
         'name'   => 'Cloned template',
@@ -2224,6 +2226,7 @@ test('store mailshot as new template from mailshot', function (Mailshot $mailsho
     $originalRoles = $this->user->roles->pluck('name')->toArray();
     actingAsUserWithRoles($this->user, array_merge($originalRoles, [\App\Enums\SysAdmin\Authorisation\RolesEnum::getRoleName(\App\Enums\SysAdmin\Authorisation\RolesEnum::MARKETING_CLERK->value, $shop)]));
 
+    request()->setUserResolver(fn () => $this->user);
     $action = StoreMailshotAsNewTemplate::make();
     $action->initialisationFromShop($shop, [
         'name'   => 'From mailshot',
@@ -2292,7 +2295,7 @@ test('a marketing viewer can open mailshots and the workshop but cannot change o
 
     $index = $this->get(route('grp.org.shops.show.marketing.mailshots.index', $parameters))->assertOk()->viewData('page')['props'];
     expect($index['can_edit'])->toBeFalse()
-        ->and($index['pageHead']['actions'])->toBeEmpty();
+        ->and($index['pageHead']['actions'] ?? [])->toBeEmpty();
 
     $workshop = $this->get(route('grp.org.shops.show.marketing.mailshots.workshop', [...$parameters, $mailshot->slug]))->assertOk()->viewData('page')['props'];
     expect($workshop['can_edit'])->toBeFalse()

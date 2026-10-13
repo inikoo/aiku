@@ -380,7 +380,6 @@ class IndexInvoices extends OrgAction
 
         if ($this->parent instanceof Customer) {
             $data = [
-                'can_view_invoices' => $request->user()->authTo("accounting.{$this->parent->organisation_id}.view"),
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => InvoicesTabsEnum::navigation(),

@@ -2271,7 +2271,7 @@ test('a shop viewer sees billables but cannot open their create or edit forms', 
     $parameters = [$this->organisation->slug, $this->shop->slug];
 
     expect(get(route('grp.org.shops.show.billables.packagings.index', $parameters))->assertOk()->viewData('page')['props']['can_edit'])->toBeFalse()
-        ->and(get(route('grp.org.shops.show.billables.shipping.index', $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions'])->toBeEmpty();
+        ->and(get(route('grp.org.shops.show.billables.shipping.index', $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions'] ?? [])->toBeEmpty();
 
     get(route('grp.org.shops.show.billables.packagings.create', $parameters))->assertForbidden();
     get(route('grp.org.shops.show.billables.leaflets.create', $parameters))->assertForbidden();

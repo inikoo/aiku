@@ -36,7 +36,6 @@ const props = defineProps<{
   invoices?: object
   refunds?: object
   in_process?: {}
-  can_view_invoices?: boolean
   invoiceExportOptions: {
     type: string
     name: string
@@ -89,7 +88,7 @@ if (props.tabs) {
     </PageHeading>
     <template v-if="props.tabs">
         <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-        <component :is="component" :data="props[currentTab]" :resource="props[currentTab]" :tab="currentTab" :name="currentTab" :canViewInvoices="can_view_invoices ?? true"></component>
+        <component :is="component" :data="props[currentTab]" :resource="props[currentTab]" :tab="currentTab" :name="currentTab"></component>
     </template>
     <template v-else>
         <TableInvoices :data="data" />

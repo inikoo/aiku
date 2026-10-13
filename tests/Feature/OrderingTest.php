@@ -6404,12 +6404,15 @@ test('an orders viewer reads an order but cannot change it, and accounts can sti
         $this->patch(route('grp.models.order.recalculate-vat', ['order' => $order->id]), [])->assertForbidden();
         $this->post(route('grp.models.order.payment.store', ['order' => $order->id, 'paymentAccount' => $paymentAccountId]), ['amount' => 1])->assertForbidden();
         $this->post(route('grp.models.order.write_off_shortfall', ['order' => $order->id]))->assertForbidden();
+        $this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->assertForbidden();
 
         $actingWithOnly(["orders.$shop->id.view", "accounting.{$this->organisation->id}.edit"]);
         $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
         expect($props['can_pay'])->toBeTrue()
             ->and($props['can_edit'])->toBeFalse();
         $this->patch(route('grp.models.order.update', ['order' => $order->id]), ['public_notes' => 'accounts note'])->assertForbidden();
+        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        expect($this->post(route('grp.models.order.update_faire', ['order' => $order->id]))->status())->not->toBe(403);
 
         $actingWithOnly(["orders.$shop->id.view", "orders.$shop->id.edit"]);
         $props = get(route('grp.org.shops.show.ordering.orders.show', $parameters))->assertOk()->viewData('page')['props'];
