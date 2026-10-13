@@ -2970,6 +2970,10 @@ test('UI show org supplier product', function () {
                 'pageHead',
                 fn (AssertableInertia $page) => $page
                     ->where('title', $this->orgSupplierProduct->supplierProduct->name)
+                    ->where('actions', fn ($actions) => collect($actions)->filter()->contains(
+                        fn (array $action) => $action['route']['name'] === 'grp.supply-chain.supplier_products.edit'
+                            && $action['route']['parameters']['supplierProduct'] === $this->orgSupplierProduct->supplierProduct->slug
+                    ))
                     ->etc()
             )
             ->has('tabs');
