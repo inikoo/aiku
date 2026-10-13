@@ -37,6 +37,9 @@ type Row = {
     date: string | null
     eta: string | null
     days_late: number | null
+    shipper_reference: string | null
+    tracking_number: string | null
+    shipping_agent: string | null
     agent_invoice: "missing" | "unpaid" | "paid" | null
 }
 
@@ -104,6 +107,12 @@ const selectAgentInvoice = (value: string | null) => {
             <template #cell(eta)="{ item }">
                 <div class="whitespace-nowrap tabular-nums">{{ day(item.eta) }}</div>
                 <div v-if="item.days_late" class="text-xs font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(item.days_late) }) }}</div>
+            </template>
+            <template #cell(tracking_number)="{ item }">
+                <a v-if="item.tracking_number" :href="`https://www.track-trace.com/container?number=${encodeURIComponent(item.tracking_number)}`" target="_blank" rel="noopener" v-tooltip="ctrans('Track the container')" class="whitespace-nowrap font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.tracking_number }}</a>
+                <span v-else class="text-gray-400">—</span>
+                <div v-if="item.shipper_reference" v-tooltip="ctrans('Shipper reference')" class="text-xs leading-tight text-gray-500">{{ item.shipper_reference }}</div>
+                <div v-if="item.shipping_agent" v-tooltip="ctrans('Shipping agent')" class="text-xs leading-tight text-gray-400">{{ item.shipping_agent }}</div>
             </template>
             <template #cell(agent_invoice)="{ item }">
                 <span v-if="item.agent_invoice" class="inline-flex items-center gap-1.5 whitespace-nowrap" :class="agentInvoiceStates[item.agent_invoice].class">
