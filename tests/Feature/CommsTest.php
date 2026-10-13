@@ -832,6 +832,37 @@ test('repair email social icons swaps only beefree social icons for our seeded i
     $this->artisan('repair:email-social-icons')->assertSuccessful();
 })->depends('update mailshot');
 
+test('repair email social icons command repairs only the emails of the given shop', function (Mailshot $mailShot) {
+    SeedEmailSocialIcons::run($this->group);
+    $beefreeIcon = 'https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/facebook@2x.png';
+    $ownIcon     = GetEmailSocialIcons::run($this->group)['circle-color/facebook'];
+
+    $email = StoreEmail::make()->action($mailShot, null, [
+        'subject'               => 'Social icons repair by shop',
+        'body'                  => 'Social icons repair by shop',
+        'layout'                => ['icons' => [['image' => ['src' => $beefreeIcon]]]],
+        'compiled_layout'       => "<img src=\"$beefreeIcon\">",
+        'state'                 => 'active',
+        'builder'               => EmailBuilderEnum::BEEFREE,
+        'snapshot_state'        => SnapshotStateEnum::LIVE,
+        'snapshot_recyclable'   => true,
+        'snapshot_first_commit' => true,
+    ], strict: false);
+
+    expect($email->shop_id)->toBe($this->shop->id);
+
+    $this->artisan('repair:email-social-icons', ['shop' => 'no-such-shop-slug'])->assertFailed();
+    expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($beefreeIcon);
+
+    $email->updateQuietly(['shop_id' => null]);
+    $this->artisan('repair:email-social-icons', ['shop' => $this->shop->slug])->assertSuccessful();
+    expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($beefreeIcon);
+
+    $email->updateQuietly(['shop_id' => $this->shop->id]);
+    $this->artisan('repair:email-social-icons', ['shop' => $this->shop->slug])->assertSuccessful();
+    expect($email->refresh()->liveSnapshot->layout['icons'][0]['image']['src'])->toBe($ownIcon);
+})->depends('update mailshot');
+
 test('UI show mailshot in workshop', function (Mailshot $mailShot) {
     $this->withoutExceptionHandling();
     UpdateGroupSettings::make()->action($this->group, [
