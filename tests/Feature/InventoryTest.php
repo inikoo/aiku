@@ -154,6 +154,11 @@ use App\Actions\Inventory\OrgStock\ProcessOrgStockTimeSeriesRecords;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Accounting\InvoiceTransaction;
 use Illuminate\Support\Facades\Queue;
+use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Catalogue\CollectionTimeSeries\ProcessCollectionTimeSeriesRecords;
+use App\Actions\Catalogue\Collection\StoreCollection;
+use App\Actions\Catalogue\Collection\AttachModelToCollection;
+use App\Actions\Catalogue\CollectionTimeSeries\RedoCollectionTimeSeries;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\PermissionRegistrar;
@@ -5089,4 +5094,75 @@ test('an invoice line stored with an earlier date reaches the sales history of i
             && $arguments[2] === $lateDate->copy()->startOfMonth()->toDateString()
             && $arguments[3] === $lateDate->toDateString()
     );
+});
+
+test('deleting an invoice line with an earlier date takes it out of the sales history of its sko', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => now()->subDays(10)->toDateTimeString(),
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_org_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'org_stock_id'           => $orgStock->id,
+        'net_amount'             => 12,
+        'org_net_amount'         => 12,
+        'grp_net_amount'         => 12,
+    ]);
+
+    Queue::fake();
+    DeleteInvoiceTransaction::make()->action(InvoiceTransaction::find($invoiceTransactionId));
+
+    expect(DB::table('invoice_transaction_has_org_stocks')->where('invoice_transaction_id', $invoiceTransactionId)->exists())->toBeFalse();
+    ProcessOrgStockTimeSeriesRecords::assertPushed(5, fn ($action, array $arguments) => $arguments[0] === $orgStock->id);
+});
+
+test('the sales history of a collection adds up the invoice lines of its products', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    list(, $product) = createProduct($shop);
+
+    $collection = StoreCollection::make()->action($shop, ['code' => 'TsColl', 'name' => 'Time series collection', 'description' => 'Time series collection']);
+    AttachModelToCollection::make()->action($collection, $product);
+
+    $date = now()->subMonth()->startOfMonth()->addDays(3);
+    DB::table('invoice_transactions')->insert([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'asset_id'        => $product->asset_id,
+        'date'            => $date->toDateTimeString(),
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'org_net_amount'  => 12,
+        'grp_net_amount'  => 12,
+        'data'            => '{}',
+    ]);
+
+    ProcessCollectionTimeSeriesRecords::run($collection->id, TimeSeriesFrequencyEnum::MONTHLY, $date->toDateString(), $date->toDateString());
+
+    $recorded = DB::table('collection_time_series_records')
+        ->join('collection_time_series', 'collection_time_series.id', '=', 'collection_time_series_records.collection_time_series_id')
+        ->where('collection_time_series.collection_id', $collection->id)
+        ->where('collection_time_series_records.period', $date->format('Y-m'))
+        ->value('sales_grp_currency_external');
+
+    expect($product->id)->not->toBe($product->asset_id)
+        ->and((float) $recorded)->toBe(12.0)
+        ->and($collection->source_id)->toBeNull();
+
+    DB::table('collection_time_series_records')->whereIn('collection_time_series_id', $collection->timeSeries()->pluck('id'))->delete();
+    RedoCollectionTimeSeries::run($collection->id);
+
+    expect(DB::table('collection_time_series_records')->whereIn('collection_time_series_id', $collection->timeSeries()->pluck('id'))->where('frequency', 'M')->sum('sales_grp_currency_external'))->toEqual(12);
 });

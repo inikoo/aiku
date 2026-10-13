@@ -50,8 +50,8 @@ class ProcessInvoiceTransactionTimeSeries
 
         $periodDates = $this->resolvePeriodDates($resolvedDate);
 
-        if ($withStocks && $resolvedDate < now()->toDateString()) {
-            $this->dispatchStockBridgeTimeSeries($invoiceTransaction, $periodDates, $resolvedDate, $delay);
+        if ($withStocks) {
+            $this->dispatchStockBridgeTimeSeries($invoiceTransaction, $resolvedDate, $delay);
         }
 
         if ($withAsset && $invoiceTransaction->asset_id) {
@@ -147,11 +147,16 @@ class ProcessInvoiceTransactionTimeSeries
      * The org stock, stock and trade unit histories are otherwise only rebuilt by the nightly run, which
      * looks at the invoice lines dated that same day. A line stored or changed with an earlier date, as
      * the ones fetched from Aurora days later are, would never reach them.
-     *
-     * @param array<string, array{from: string, to: string}> $periodDates
+     * Deleting a line removes its bridges, so that has to call this before it does.
      */
-    protected function dispatchStockBridgeTimeSeries(InvoiceTransaction $invoiceTransaction, array $periodDates, string $resolvedDate, int $delay): void
+    public function dispatchStockBridgeTimeSeries(InvoiceTransaction $invoiceTransaction, string $resolvedDate, int $delay = 1800): void
     {
+        if ($resolvedDate >= now()->toDateString()) {
+            return;
+        }
+
+        $periodDates = $this->resolvePeriodDates($resolvedDate);
+
         $bridges = [
             'invoice_transaction_has_org_stocks'  => [
                 'org_stock_id'        => ProcessOrgStockTimeSeriesRecords::class,
