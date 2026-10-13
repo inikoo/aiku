@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Dropshipping\Orders;
 
+use App\Actions\Ordering\Order\GetOrderPurchaseEcommerceData;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -24,6 +25,14 @@ trait WithRetinaOrderPlacedRedirection
                 'description' => __('Your order has been submitted.'),
             ];
 
+            $gtm = [
+                'key'            => 'retina_dropshipping_order_placed',
+                'event'          => 'purchase',
+                'data_to_submit' => [
+                    'ecommerce' => GetOrderPurchaseEcommerceData::run($arr['order'])
+                ]
+            ];
+
             if ($arr['order']->shop->type == ShopTypeEnum::DROPSHIPPING) {
                 return Redirect::route(
                     'retina.dropshipping.customer_sales_channels.orders.show',
@@ -33,6 +42,7 @@ trait WithRetinaOrderPlacedRedirection
                     ]
                 )
                     ->with('modal', $notification)
+                    ->with('gtm', $gtm)
                     ->with('confetti', [
                         'key' => 'dropshipping_order_placed'.$arr['order']->id,
                     ]);
@@ -43,6 +53,7 @@ trait WithRetinaOrderPlacedRedirection
                         'order' => $arr['order']->slug
                     ]
                 )->with('notification', $notification)
+                    ->with('gtm', $gtm)
                     ->with('confetti', [
                         'key' => 'ecom_order_placed'.$arr['order']->id,
                     ]);

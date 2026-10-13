@@ -38,6 +38,7 @@ import ProductUnitLabel from "@/Components/Utils/Label/ProductUnitLabel.vue"
 import OrgStockLabelModal from "@/Components/Warehouse/Inventory/OrgStockLabelModal.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import CopyButton from "@/Components/Utils/CopyButton.vue"
 import JsBarcode from "jsbarcode"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
@@ -293,6 +294,22 @@ const selectedLabelOrgStockId = ref<number | null>(labelOrgStocks.value[0]?.id ?
 const shownBarcodes = computed<Barcode[]>(() =>
     labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value)?.barcodes ?? props.data.barcodes ?? [])
 
+const ean13CheckDigit = (number: string) => {
+    const weightedSum = number
+        .slice(0, 12)
+        .split("")
+        .reduce((sum, digit, index) => sum + Number(digit) * (index % 2 ? 3 : 1), 0)
+
+    return String((10 - (weightedSum % 10)) % 10)
+}
+
+const isValidEan13 = (number: string) => /^\d{13}$/.test(number) && ean13CheckDigit(number) === number[12]
+
+const invalidEan13Warning = (number: string | null) =>
+    number && /^\d{13}$/.test(number) && !isValidEan13(number)
+        ? ctrans("This is not a valid EAN13: its last digit should be :digit. Check it for a typo.", { digit: ean13CheckDigit(number) })
+        : null
+
 const renderBarcodes = () => {
     shownBarcodes.value.forEach((barcode) => {
         if (!barcode.number) {
@@ -300,11 +317,12 @@ const renderBarcodes = () => {
         }
 
         JsBarcode("#supplier-product-barcode-" + barcode.level, barcode.number, {
-            format: /^\d{13}$/.test(barcode.number) ? "EAN13" : "CODE128",
+            format: isValidEan13(barcode.number) ? "EAN13" : "CODE128",
             lineColor: "#000",
             width: 2,
             height: 50,
             displayValue: true,
+            valid: () => {},
         })
     })
 }
@@ -652,7 +670,7 @@ const availabilityBadge = (isAvailable: boolean) =>
                         v-tooltip="orgStock.code"
                         class="rounded-full px-2 py-0.5 font-medium ring-1 ring-inset transition"
                         :class="selectedLabelOrgStockId === orgStock.id
-                            ? 'bg-[--app-accent] text-white ring-[--app-accent]'
+                            ? 'bg-[--app-accent] text-[--app-accent-text] ring-[--app-accent]'
                             : 'bg-white text-gray-600 ring-gray-300 hover:ring-[--app-accent]'"
                         @click="selectedLabelOrgStockId = orgStock.id">
                         {{ orgStock.organisation_code }}
@@ -667,23 +685,31 @@ const availabilityBadge = (isAvailable: boolean) =>
                             {{ barcodeLevelLabels[barcode.level] }}
                         </div>
 
-                        <button v-if="isPrintable(barcode)"
-                            type="button"
-                            v-tooltip="ctrans('Print PDF label')"
-                            class="min-w-0 max-w-full justify-self-start transition hover:opacity-60 disabled:cursor-wait"
-                            :disabled="isLoadingLabelOptions"
-                            @click="openLabelModal(barcode.level)">
-                            <svg :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full"></svg>
-                        </button>
-                        <svg v-else-if="barcode.number" :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full justify-self-start"></svg>
-                        <button v-else-if="barcode.level === 'carton' && cartonBarcodeUpdateRoute"
-                            type="button"
-                            class="flex h-14 max-w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-2 text-left text-sm text-gray-400 transition hover:border-[--app-accent] hover:text-[--app-accent]"
-                            @click="openCartonBarcodeModal(barcode)">
-                            <Icon :data="{ icon: 'fal fa-plus' }" />
-                            {{ ctrans("Add barcode (type or scan it)") }}
-                        </button>
-                        <div v-else class="flex h-14 items-center text-sm italic text-gray-400">{{ ctrans("No barcode") }}</div>
+                        <div class="flex min-w-0 max-w-full items-center gap-2 justify-self-start">
+                            <button v-if="isPrintable(barcode)"
+                                type="button"
+                                v-tooltip="ctrans('Print PDF label')"
+                                class="min-w-0 max-w-full justify-self-start transition hover:opacity-60 disabled:cursor-wait"
+                                :disabled="isLoadingLabelOptions"
+                                @click="openLabelModal(barcode.level)">
+                                <svg :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full"></svg>
+                            </button>
+                            <svg v-else-if="barcode.number" :id="'supplier-product-barcode-' + barcode.level" class="h-14 max-w-full justify-self-start"></svg>
+                            <button v-else-if="barcode.level === 'carton' && cartonBarcodeUpdateRoute"
+                                type="button"
+                                class="flex h-14 max-w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-2 text-left text-sm text-gray-400 transition hover:border-[--app-accent] hover:text-[--app-accent]"
+                                @click="openCartonBarcodeModal(barcode)">
+                                <Icon :data="{ icon: 'fal fa-plus' }" />
+                                {{ ctrans("Add barcode (type or scan it)") }}
+                            </button>
+                            <div v-else class="flex h-14 items-center text-sm italic text-gray-400">{{ ctrans("No barcode") }}</div>
+                            <span v-if="barcode.number" v-tooltip="ctrans('Copy number')" class="shrink-0">
+                                <CopyButton :text="barcode.number" class="h-4 !text-base text-gray-500" />
+                            </span>
+                            <span v-if="invalidEan13Warning(barcode.number)" v-tooltip="invalidEan13Warning(barcode.number)" class="shrink-0">
+                                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="text-amber-500" />
+                            </span>
+                        </div>
 
                         <div v-if="barcode.level === 'carton' && data.carton"
                             class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 xl:col-span-2">
