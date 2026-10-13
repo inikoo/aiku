@@ -10,6 +10,7 @@ import { route } from "ziggy-js"
 import Chart from "primevue/chart"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime, useRangeFromNow } from "@/Composables/useFormatTime"
@@ -191,6 +192,10 @@ const finishReasonText = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other>
+            <SeoExportButton
+                v-if="audit.latest"
+                routeName="grp.org.shops.show.seo.site_audit.export"
+                :tooltip="ctrans('Download the latest audit as an Excel file: its numbers, the issue types, and every page with every issue found on it')" />
             <Link :href="route(suggestions.route.name, suggestions.route.parameters)">
                 <Button
                     type="tertiary"
