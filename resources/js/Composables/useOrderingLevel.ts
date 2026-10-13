@@ -47,3 +47,9 @@ export const unitsPerOrderingLevel = (item: any, level: OrderingLevel): number =
 
 	return 1
 }
+
+export const suggestionAtOrderingLevel = (item: any, skos: number, level: OrderingLevel): number => {
+	const quantity = (skos * (Number(item?.units_per_pack) || 1)) / unitsPerOrderingLevel(item, level)
+
+	return level === "cartons" ? Math.ceil(quantity) : Math.round(quantity * 1000) / 1000
+}

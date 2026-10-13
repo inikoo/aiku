@@ -23,7 +23,7 @@ import LoadingIcon from "./LoadingIcon.vue"
 import ProductUnitLabel from "./Product/ProductUnitLabel.vue"
 import PurchaseOrderItemStockInfo from "@/Components/Procurement/PurchaseOrderItemStockInfo.vue"
 import PurchaseOrderSuggestButton from "@/Components/Procurement/PurchaseOrderSuggestButton.vue"
-import { getOrderingLevels, unitsPerOrderingLevel, type OrderingLevel } from "@/Composables/useOrderingLevel"
+import { getOrderingLevels, unitsPerOrderingLevel, suggestionAtOrderingLevel, type OrderingLevel } from "@/Composables/useOrderingLevel"
 
 library.add(
 	faSearch,
@@ -595,7 +595,8 @@ watch(() => model.value, async (newValue) => {
 												v-if="typeModel === 'purchase_order' && isOrderingByLevel"
 												:item="slotProps.data"
 												:isPartner="isPartner"
-												@suggest="(skos) => onLevelQuantityChange(slotProps, (skos * (Number(slotProps.data.units_per_pack) || 1)) / unitsPerLevel(slotProps.data))" />
+												:quantityLabel="(skos: number) => `${useLocaleStore().number(suggestionAtOrderingLevel(slotProps.data, skos, activeLevel))} ${suggestionAtOrderingLevel(slotProps.data, skos, activeLevel) === 1 ? level.singular : level.quantity}`"
+												@suggest="(skos) => onLevelQuantityChange(slotProps, suggestionAtOrderingLevel(slotProps.data, skos, activeLevel))" />
 									</template>
 								</Column>
 
