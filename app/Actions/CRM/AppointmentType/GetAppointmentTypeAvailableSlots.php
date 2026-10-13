@@ -34,6 +34,8 @@ class GetAppointmentTypeAvailableSlots
         $buffer   = $appointmentType->buffer_minutes;
         $duration = $appointmentType->duration_minutes;
         $booked   = $this->bookedPeriods($appointmentType, $now, $lastDay->copy()->endOfDay(), $buffer);
+        $staffIds = $appointmentType->attendees()->where('users.status', true)->pluck('users.id');
+        $busy     = $this->staffBusyElsewhere($appointmentType, $staffIds, $now, $lastDay->copy()->endOfDay());
 
         $slots = [];
         for ($day = $now->copy()->startOfDay(); $day->lte($lastDay); $day->addDay()) {
@@ -49,7 +51,10 @@ class GetAppointmentTypeAvailableSlots
                     if ($slot->lt($earliest)) {
                         continue;
                     }
-                    if ($this->countOverlapping($booked, $slot, $slot->copy()->addMinutes($duration + $buffer)) < $appointmentType->capacity_per_slot) {
+                    if ($this->countOverlapping($booked, $slot, $slot->copy()->addMinutes($duration + $buffer)) >= $appointmentType->capacity_per_slot) {
+                        continue;
+                    }
+                    if ($this->hasStaffFree($staffIds, $busy, $slot, $slot->copy()->addMinutes($duration))) {
                         $times[] = $slot->format('H:i');
                     }
                 }
@@ -79,6 +84,45 @@ class GetAppointmentTypeAvailableSlots
             ->where('ends_at', '>', $from->copy()->subMinutes($buffer))
             ->get(['starts_at', 'ends_at'])
             ->map(fn (Appointment $appointment) => [$appointment->starts_at, $appointment->ends_at->copy()->addMinutes($buffer)]);
+    }
+
+    /**
+     * @param Collection<int, int> $staffIds
+     *
+     * @return Collection<int, array{0: Carbon, 1: Carbon, 2: int}> appointments of other types that keep one of this type's staff away
+     */
+    private function staffBusyElsewhere(AppointmentType $appointmentType, Collection $staffIds, Carbon $from, Carbon $to): Collection
+    {
+        if ($staffIds->isEmpty()) {
+            return collect();
+        }
+
+        return Appointment::whereIn('user_id', $staffIds)
+            ->where('appointment_type_id', '!=', $appointmentType->id)
+            ->whereIn('state', AppointmentStateEnum::holdingSlot())
+            ->where('starts_at', '<', $to)
+            ->where('ends_at', '>', $from)
+            ->get(['starts_at', 'ends_at', 'user_id'])
+            ->map(fn (Appointment $appointment) => [$appointment->starts_at, $appointment->ends_at, $appointment->user_id]);
+    }
+
+    /**
+     * A type nobody arranges yet is not held back by staff.
+     *
+     * @param Collection<int, int> $staffIds
+     */
+    private function hasStaffFree(Collection $staffIds, Collection $busy, Carbon $slotStart, Carbon $slotEnd): bool
+    {
+        if ($staffIds->isEmpty() || $busy->isEmpty()) {
+            return true;
+        }
+
+        $busyStaffIds = $busy
+            ->filter(fn (array $period) => $period[0]->lt($slotEnd) && $period[1]->gt($slotStart))
+            ->pluck(2)
+            ->unique();
+
+        return $staffIds->diff($busyStaffIds)->isNotEmpty();
     }
 
     private function countOverlapping(Collection $booked, Carbon $slotStart, Carbon $slotEnd): int

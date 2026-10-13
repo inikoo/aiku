@@ -1346,13 +1346,21 @@ test('an arranged appointment is a task for its staff that follows the appointme
         'state'               => AppointmentStateEnum::REQUESTED->value,
     ]);
 
-    expect($openTask($appointment))->toBeNull();
+    $requestTask = $openTask($appointment);
+
+    expect($requestTask)->not->toBeNull()
+        ->and($requestTask->assignee_id)->toBe($this->user->id)
+        ->and($requestTask->subject)->toStartWith('Appointment request')
+        ->and($requestTask->subject)->toContain($contactName);
+    Notification::assertSentTo($this->user, StaffTaskNotification::class);
 
     $appointment = AcceptAppointment::make()->action($appointment, ['user_id' => $this->user->id]);
     $task        = $openTask($appointment);
 
     expect($task)->not->toBeNull()
+        ->and($task->id)->toBe($requestTask->id)
         ->and($task->assignee_id)->toBe($this->user->id)
+        ->and($task->subject)->not->toStartWith('Appointment request')
         ->and($task->subject)->toContain($contactName)
         ->and($task->description)->toContain(route('grp.org.shops.show.crm.appointments.show', [$this->organisation->slug, $this->shop->slug, $appointment->id]))
         ->and($task->due_at->toDateString())->toBe(now($timezone)->addDays(4)->toDateString());
@@ -1369,6 +1377,112 @@ test('an arranged appointment is a task for its staff that follows the appointme
 
     expect($openTask($appointment))->toBeNull()
         ->and($task->refresh()->status)->toBe(StaffTaskStatusEnum::CANCELLED);
+});
+
+test('a request for a type nobody arranges is no task', function () {
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Nobody '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 30,
+    ]);
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(4)->format('Y-m-d').' 16:00',
+        'contact_name'        => 'Unnoticed visitor',
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+
+    expect(StaffTask::where('data->kind', SyncAppointmentStaffTask::TASK_KIND)->where('data->appointment_id', $appointment->id)->exists())->toBeFalse();
+});
+
+test('staff cannot book a full time, a time that has passed or someone who is at another appointment', function () {
+    $openAllWeek = [
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ];
+    $showroom = StoreAppointmentType::make()->action($this->shop, ['name' => 'Fits showroom '.Str::random(6), ...$openAllWeek]);
+    $workshop = StoreAppointmentType::make()->action($this->shop, ['name' => 'Fits workshop '.Str::random(6), ...$openAllWeek]);
+    $showroom->attendees()->syncWithoutDetaching([$this->user->id]);
+    $workshop->attendees()->syncWithoutDetaching([$this->user->id]);
+
+    $timezone = $this->shop->timezone?->name ?? 'UTC';
+    $slots    = GetAppointmentTypeAvailableSlots::run($showroom);
+    $date     = array_keys($slots)[5];
+    [$firstTime, $secondTime] = $slots[$date];
+
+    $book = fn (AppointmentType $appointmentType, string $startsAt, ?int $userId = null) => fn () => StoreAppointment::make()->action($this->shop, array_filter([
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $startsAt,
+        'contact_name'        => 'Fitting visitor',
+        'user_id'             => $userId,
+    ]));
+
+    $booked = $book($showroom, $date.' '.$firstTime, $this->user->id)();
+
+    expect($book($showroom, $date.' '.$firstTime))->toThrow(ValidationException::class, 'fully booked')
+        ->and($book($showroom, now($timezone)->subDay()->format('Y-m-d').' 10:00'))->toThrow(ValidationException::class, 'not passed')
+        ->and($book($workshop, $date.' '.$firstTime, $this->user->id))->toThrow(ValidationException::class, 'another appointment')
+        ->and(GetAppointmentTypeAvailableSlots::make()->isAvailable($workshop, $date, $firstTime))->toBeFalse()
+        ->and(GetAppointmentTypeAvailableSlots::make()->isAvailable($workshop, $date, $secondTime))->toBeTrue();
+
+    $unassigned = $book($workshop, $date.' '.$firstTime)();
+    $elsewhere  = $book($workshop, $date.' '.$secondTime, $this->user->id)();
+
+    expect(fn () => UpdateAppointment::make()->action($unassigned, ['user_id' => $this->user->id]))->toThrow(ValidationException::class, 'another appointment')
+        ->and(fn () => UpdateAppointment::make()->action($booked, ['starts_at' => $date.' '.$secondTime]))->toThrow(ValidationException::class, 'another appointment')
+        ->and(UpdateAppointment::make()->action($booked, ['notes' => 'Wants to see the new range'])->notes)->toBe('Wants to see the new range');
+
+    UpdateAppointment::make()->action($elsewhere, ['state' => AppointmentStateEnum::CANCELLED->value]);
+
+    expect(UpdateAppointment::make()->action($booked, ['starts_at' => $date.' '.$secondTime])->starts_at->copy()->setTimezone($timezone)->format('H:i'))->toBe($secondTime);
+});
+
+test('an appointment whose time has passed completes itself and closes its task', function () {
+    Notification::fake();
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Passed '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 30,
+        'capacity_per_slot' => 3,
+    ]);
+    $appointmentType->attendees()->syncWithoutDetaching([$this->user->id]);
+
+    $book = fn (array $modelData) => StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(9)->format('Y-m-d').' 12:00',
+        'contact_name'        => 'Passed visitor '.Str::random(6),
+        ...$modelData,
+    ]);
+    $task = fn (Appointment $appointment) => StaffTask::where('data->kind', SyncAppointmentStaffTask::TASK_KIND)
+        ->where('data->appointment_id', $appointment->id)
+        ->first();
+
+    $visited    = $book(['user_id' => $this->user->id]);
+    $unanswered = $book(['state' => AppointmentStateEnum::REQUESTED->value]);
+    $stillAhead = $book(['user_id' => $this->user->id]);
+
+    expect($task($visited)->isOpen())->toBeTrue()
+        ->and($task($unanswered)->isOpen())->toBeTrue();
+
+    Appointment::whereIn('id', [$visited->id, $unanswered->id])->update(['starts_at' => now()->subHours(2), 'ends_at' => now()->subHour()]);
+
+    $this->artisan('appointments:close-past')->assertSuccessful();
+
+    expect($visited->refresh()->state)->toBe(AppointmentStateEnum::COMPLETED)
+        ->and($task($visited)->status)->toBe(StaffTaskStatusEnum::DONE)
+        ->and($unanswered->refresh()->state)->toBe(AppointmentStateEnum::REQUESTED)
+        ->and($task($unanswered)->status)->toBe(StaffTaskStatusEnum::CANCELLED)
+        ->and($stillAhead->refresh()->state)->toBe(AppointmentStateEnum::ACCEPTED)
+        ->and($task($stillAhead)->isOpen())->toBeTrue();
+
+    $noShow = UpdateAppointment::make()->action($visited, ['state' => AppointmentStateEnum::NO_SHOW->value]);
+
+    expect($noShow->state)->toBe(AppointmentStateEnum::NO_SHOW);
 });
 
 test('UI Index appointments', function (Appointment $appointment) {

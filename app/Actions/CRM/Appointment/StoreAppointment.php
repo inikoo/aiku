@@ -31,6 +31,8 @@ class StoreAppointment extends OrgAction
             data_set($modelData, 'state', AppointmentStateEnum::ACCEPTED, overwrite: false);
             data_set($modelData, 'source', AppointmentSourceEnum::STAFF, overwrite: false);
 
+            $this->ensureAppointmentFits($modelData);
+
             /** @var Appointment $appointment */
             $appointment = $shop->appointments()->create($modelData);
 

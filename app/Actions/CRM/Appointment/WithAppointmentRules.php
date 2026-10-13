@@ -9,9 +9,11 @@ use App\Models\CRM\AppointmentType;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 trait WithAppointmentRules
 {
@@ -85,6 +87,66 @@ trait WithAppointmentRules
         }
 
         return $modelData;
+    }
+
+    /**
+     * An appointment that holds its time cannot start in the past, go over what its type takes at
+     * once, or be given to someone who is at an appointment of another type at that time. Several
+     * bookings of one type can share a time and a member of staff, up to the type's capacity.
+     */
+    protected function ensureAppointmentFits(array $modelData, ?Appointment $appointment = null): void
+    {
+        $state = Arr::get($modelData, 'state', $appointment?->state);
+        $state = $state instanceof AppointmentStateEnum ? $state : AppointmentStateEnum::from($state);
+
+        $appointmentTypeId = (int) Arr::get($modelData, 'appointment_type_id', $appointment?->appointment_type_id);
+        $userId            = Arr::has($modelData, 'user_id') ? $modelData['user_id'] : $appointment?->user_id;
+        /** @var Carbon $startsAt */
+        $startsAt          = $modelData['starts_at'] ?? $appointment->starts_at;
+        /** @var Carbon $endsAt */
+        $endsAt            = $modelData['ends_at'] ?? $appointment->ends_at;
+
+        $takesNewTime = !$appointment
+            || !$appointment->state->holdsSlot()
+            || !$startsAt->equalTo($appointment->starts_at)
+            || $appointmentTypeId !== $appointment->appointment_type_id;
+        $changesStaff = $userId && (int) $userId !== $appointment?->user_id;
+
+        if (!$state->holdsSlot() || (!$takesNewTime && !$changesStaff)) {
+            return;
+        }
+
+        $others = fn () => Appointment::whereIn('state', AppointmentStateEnum::holdingSlot())
+            ->when($appointment, fn ($query) => $query->where('id', '!=', $appointment->id));
+
+        if ($takesNewTime) {
+            if ($startsAt->isPast()) {
+                throw ValidationException::withMessages(['starts_at' => __('Choose a time that has not passed yet.')]);
+            }
+
+            $appointmentType = AppointmentType::withTrashed()->lockForUpdate()->find($appointmentTypeId);
+            $buffer          = $appointmentType->buffer_minutes;
+            $booked          = $others()
+                ->where('appointment_type_id', $appointmentTypeId)
+                ->where('starts_at', '<', $endsAt->copy()->addMinutes($buffer))
+                ->where('ends_at', '>', $startsAt->copy()->subMinutes($buffer))
+                ->count();
+
+            if ($booked >= $appointmentType->capacity_per_slot) {
+                throw ValidationException::withMessages(['starts_at' => __('This time is already fully booked for :type.', ['type' => $appointmentType->name])]);
+            }
+        }
+
+        $isBusyElsewhere = $userId && $others()
+            ->where('user_id', $userId)
+            ->where('appointment_type_id', '!=', $appointmentTypeId)
+            ->where('starts_at', '<', $endsAt)
+            ->where('ends_at', '>', $startsAt)
+            ->exists();
+
+        if ($isBusyElsewhere) {
+            throw ValidationException::withMessages(['user_id' => __(':name already has another appointment at this time.', ['name' => User::find($userId)?->contact_name])]);
+        }
     }
 
     /**

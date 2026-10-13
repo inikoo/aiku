@@ -180,7 +180,7 @@ const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!bor
                     class="w-full"
                     :class="fieldFocusClass" />
             </template>
-            <p v-if="errors.user_id || errors.state" class="mt-2 text-sm text-red-600">{{ errors.user_id || errors.state }}</p>
+            <p v-if="errors.user_id || errors.starts_at || errors.state" class="mt-2 text-sm text-red-600">{{ errors.user_id || errors.starts_at || errors.state }}</p>
             <template #footer>
                 <Button type="tertiary" :label="ctrans('Back')" @click="isAcceptOpen = false" />
                 <Button type="positive" icon="fal fa-check" :label="ctrans('Accept')" :disabled="!acceptUserId" :loading="isSending === 'accept'" @click="accept" />
@@ -227,7 +227,7 @@ const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!bor
                             {{ time }}
                         </button>
                     </div>
-                    <p v-if="errors.time || errors.date || errors.state" class="mt-2 text-sm text-red-600">{{ errors.time || errors.date || errors.state }}</p>
+                    <p v-if="errors.time || errors.date || errors.starts_at || errors.user_id || errors.state" class="mt-2 text-sm text-red-600">{{ errors.time || errors.date || errors.starts_at || errors.user_id || errors.state }}</p>
                 </div>
             </div>
             <template #footer>

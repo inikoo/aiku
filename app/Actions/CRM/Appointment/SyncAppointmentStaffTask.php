@@ -4,6 +4,7 @@ namespace App\Actions\CRM\Appointment;
 
 use App\Actions\Tasks\GetAikuAssistant;
 use App\Actions\Tasks\StoreStaffTask;
+use App\Actions\Tasks\SyncStaffTaskCollaborators;
 use App\Actions\Tasks\UpdateStaffTask;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\Tasks\StaffTaskStatusEnum;
@@ -11,13 +12,16 @@ use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
 use App\Models\SysAdmin\User;
 use App\Models\Tasks\StaffTask;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * An accepted appointment that has a member of staff is one open task for that person, so it
- * reaches them as a notification and sits in their task list until the day. The task follows the
- * appointment: it moves when the appointment is moved or handed to someone else, and closes when
- * the appointment is declined, cancelled or left without staff.
+ * An appointment that still has to happen is one open task, so it reaches staff as a notification
+ * and sits in their task list until the day. A request waiting for an answer is a task for
+ * everyone who arranges that type of appointment; once accepted it is the task of the member of
+ * staff it was given to. The task follows the appointment: it moves when the appointment is moved
+ * or handed to someone else, is done when the visit took place, and closes when the appointment is
+ * declined, cancelled, passed or left without staff.
  */
 class SyncAppointmentStaffTask
 {
@@ -34,26 +38,30 @@ class SyncAppointmentStaffTask
             ->first();
         $staff     = $this->staffToRemind($appointment);
 
-        if (!$staff) {
+        if ($staff->isEmpty()) {
             return $task
                 ? UpdateStaffTask::run($task, $assistant, [
-                    'status' => StaffTaskStatusEnum::CANCELLED->value,
+                    'status' => $appointment->state === AppointmentStateEnum::COMPLETED ? StaffTaskStatusEnum::DONE->value : StaffTaskStatusEnum::CANCELLED->value,
                     'note'   => $this->closingNote($appointment),
                 ])
                 : null;
         }
 
-        $subject     = $this->subject($appointment);
-        $description = $this->description($appointment);
-        $dueAt       = $appointment->starts_at->copy()->setTimezone($this->timezone($appointment))->toDateString();
+        /** @var User $assignee */
+        $assignee        = $staff->first();
+        $collaboratorIds = $staff->skip(1)->pluck('id')->all();
+        $subject         = $this->subject($appointment);
+        $description     = $this->description($appointment);
+        $dueAt           = $appointment->starts_at->copy()->setTimezone($this->timezone($appointment))->toDateString();
 
         if (!$task) {
             return StoreStaffTask::run($assistant, [
-                'subject'     => $subject,
-                'description' => $description,
-                'assignee_id' => $staff->id,
-                'due_at'      => $dueAt,
-                'data'        => [
+                'subject'          => $subject,
+                'description'      => $description,
+                'assignee_id'      => $assignee->id,
+                'collaborator_ids' => $collaboratorIds,
+                'due_at'           => $dueAt,
+                'data'             => [
                     'kind'            => self::TASK_KIND,
                     'appointment_id'  => $appointment->id,
                     'shop_id'         => $appointment->shop_id,
@@ -62,28 +70,37 @@ class SyncAppointmentStaffTask
             ]);
         }
 
-        if ($task->subject === $subject && $task->description === $description && $task->assignee_id === $staff->id) {
-            return $task;
+        if ($task->subject !== $subject || $task->description !== $description || $task->assignee_id !== $assignee->id) {
+            $task = UpdateStaffTask::run($task, $assistant, [
+                'subject'     => $subject,
+                'description' => $description,
+                'assignee_id' => $assignee->id,
+                'due_at'      => $dueAt,
+                'note'        => $task->subject !== $subject ? __('The appointment changed: :subject', ['subject' => $subject]) : null,
+            ]);
         }
 
-        return UpdateStaffTask::run($task, $assistant, [
-            'subject'     => $subject,
-            'description' => $description,
-            'assignee_id' => $staff->id,
-            'due_at'      => $dueAt,
-            'note'        => $task->subject !== $subject ? __('The appointment changed: :subject', ['subject' => $subject]) : null,
-        ]);
+        return SyncStaffTaskCollaborators::run($task, $collaboratorIds, $assistant);
     }
 
-    private function staffToRemind(Appointment $appointment): ?User
+    /**
+     * @return Collection<int, User> the first is who the task is for, the others work on it too
+     */
+    private function staffToRemind(Appointment $appointment): Collection
     {
-        if ($appointment->state !== AppointmentStateEnum::ACCEPTED || $appointment->ends_at->isPast()) {
-            return null;
+        if ($appointment->ends_at->isPast()) {
+            return collect();
         }
 
-        $staff = $appointment->user;
+        $staff = match ($appointment->state) {
+            AppointmentStateEnum::ACCEPTED  => collect([$appointment->user]),
+            AppointmentStateEnum::REQUESTED => $appointment->appointmentType?->attendees()->orderBy('users.id')->get() ?? collect(),
+            default                         => collect(),
+        };
 
-        return $staff && $staff->status && StaffTask::canBeAssigned($staff) ? $staff : null;
+        return $staff
+            ->filter(fn (?User $user) => $user && $user->status && StaffTask::canBeAssigned($user))
+            ->values();
     }
 
     private function closingNote(Appointment $appointment): string
@@ -91,6 +108,8 @@ class SyncAppointmentStaffTask
         return match (true) {
             $appointment->state === AppointmentStateEnum::DECLINED  => __('The appointment was declined'),
             $appointment->state === AppointmentStateEnum::CANCELLED => __('The appointment was cancelled'),
+            $appointment->state === AppointmentStateEnum::COMPLETED => __('The visit took place'),
+            $appointment->state === AppointmentStateEnum::NO_SHOW   => __('The visitor did not come'),
             $appointment->ends_at->isPast()                         => __('The appointment has passed'),
             default                                                 => __('The appointment is no longer yours'),
         };
@@ -111,11 +130,19 @@ class SyncAppointmentStaffTask
 
     private function subject(Appointment $appointment): string
     {
-        return mb_substr(__(':type with :visitor, :when', [
+        $replacements = [
             'type'    => $appointment->appointmentType->name,
             'visitor' => $appointment->contact_name,
             'when'    => $this->when($appointment),
-        ]), 0, 255);
+        ];
+
+        return mb_substr(
+            $appointment->state === AppointmentStateEnum::REQUESTED
+                ? __('Appointment request: :type with :visitor, :when', $replacements)
+                : __(':type with :visitor, :when', $replacements),
+            0,
+            255
+        );
     }
 
     private function where(AppointmentType $appointmentType): ?string
@@ -128,6 +155,7 @@ class SyncAppointmentStaffTask
         $appointmentType = $appointment->appointmentType;
 
         $lines = array_filter([
+            $appointment->state === AppointmentStateEnum::REQUESTED ? __('Booked on the website and waiting for an answer: accept it, decline it or offer another time.') : null,
             __('When').': '.$this->when($appointment).' ('.$this->timezone($appointment).')',
             __('Type').': '.$appointmentType->name.' · '.$appointmentType->meeting_mode->label(),
             $this->where($appointmentType) ? __('Where').': '.$this->where($appointmentType) : null,

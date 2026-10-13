@@ -29,6 +29,8 @@ class UpdateAppointment extends OrgAction
         $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt) {
             $modelData = $this->prepareAppointmentData($appointment->shop, $modelData, $appointment);
 
+            $this->ensureAppointmentFits($modelData, $appointment);
+
             $appointment = $this->update($appointment, $modelData);
 
             $this->notifyVisitorAboutChange($appointment, $previousState, $previousStartsAt);
