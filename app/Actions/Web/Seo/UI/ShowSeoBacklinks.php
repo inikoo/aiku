@@ -162,7 +162,7 @@ class ShowSeoBacklinks extends OrgAction
                 ],
                 'domain'       => $domain,
                 'isConfigured' => DataForSeoClient::make() !== null,
-                'fetchRoute'   => app()->environment('local') && $this->canEdit && $shop->website ? [
+                'fetchRoute'   => $this->canEdit && $shop->website ? [
                     'name'       => 'grp.models.shop.seo.backlink_fetch.store',
                     'parameters' => [$shop->id],
                 ] : null,

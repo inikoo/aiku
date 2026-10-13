@@ -26,6 +26,8 @@ class IndexSearchConsoleQueries extends OrgAction
 
     public const int OPPORTUNITY_MAX_CTR = 2;
 
+    private const int PAGE_URLS_PER_QUERY = 5;
+
     public function handle(Website $website, ?string $fromDate = null, ?string $toDate = null, ?string $prefix = null, bool $lowCtrOnly = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -53,12 +55,40 @@ class IndexSearchConsoleQueries extends OrgAction
                     ->havingRaw('SUM(search_console_page_queries.clicks) * 100.0 / NULLIF(SUM(search_console_page_queries.impressions), 0) < ?', [self::OPPORTUNITY_MAX_CTR]);
             });
 
-        return $queryBuilder
+        $queries = $queryBuilder
             ->defaultSort($lowCtrOnly ? '-impressions' : '-clicks')
             ->allowedSorts(['query', 'clicks', 'impressions', 'ctr', 'position', 'pages'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
+
+        $this->attachPageUrls($queries, $website, $fromDate, $toDate);
+
+        return $queries;
+    }
+
+    /**
+     * Sets `page_urls` on every query of the page: the pages Google showed for it, the one with the
+     * most clicks first, then the most impressions.
+     */
+    private function attachPageUrls(LengthAwarePaginator $queries, Website $website, ?string $fromDate, ?string $toDate): void
+    {
+        $pageUrls = SearchConsolePageQuery::query()
+            ->where('website_id', $website->id)
+            ->whereIn('query', $queries->getCollection()->pluck('query'))
+            ->when($fromDate, fn ($query) => $query->where('date', '>=', Carbon::parse($fromDate)->toDateString()))
+            ->when($toDate, fn ($query) => $query->where('date', '<=', Carbon::parse($toDate)->toDateString()))
+            ->groupBy('query', 'page_url')
+            ->select('query', 'page_url')
+            ->selectRaw('SUM(clicks) as clicks')
+            ->selectRaw('SUM(impressions) as impressions')
+            ->orderByDesc('clicks')
+            ->orderByDesc('impressions')
+            ->get()
+            ->groupBy('query')
+            ->map(fn ($pages) => $pages->take(self::PAGE_URLS_PER_QUERY)->pluck('page_url')->all());
+
+        $queries->getCollection()->each(fn ($query) => $query->setAttribute('page_urls', $pageUrls->get($query->query, [])));
     }
 
     public function tableStructure(?string $prefix = null, bool $lowCtrOnly = false): Closure
@@ -93,6 +123,7 @@ class IndexSearchConsoleQueries extends OrgAction
                 ->column(key: 'impressions', label: __('Impressions'), tooltip: __('Times this website was shown in Google results for the query'), sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'ctr', label: __('CTR'), tooltip: __('Clicks per 100 impressions'), sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'position', label: __('Position'), tooltip: __('Average position in Google results, weighted by impressions. 1 is the top result'), sortable: true, align: 'right', tooltipIcon: true)
+                ->column(key: 'page_urls', label: __('Page'), tooltip: __('The page of this website Google showed most for the query, by clicks. When Google showed more than one, the rest are listed under it'))
                 ->column(key: 'pages', label: __('Pages'), tooltip: __('Pages of this website that Google showed for the query'), sortable: true, align: 'right', tooltipIcon: true)
                 ->defaultSort($lowCtrOnly ? '-impressions' : '-clicks');
         };

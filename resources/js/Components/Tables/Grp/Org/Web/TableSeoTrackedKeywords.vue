@@ -47,7 +47,6 @@ const form = useForm({
     keyword: "",
     country_code: props.query.country_code,
     language_code: props.query.language_code,
-    device: "mobile",
     frequency: "on_request",
 })
 
@@ -84,7 +83,7 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
     <div class="py-4">
         <form
             v-if="canEdit"
-            class="mx-4 mb-4 grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 md:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end"
+            class="mx-4 mb-4 grid grid-cols-1 gap-3 rounded-xl bg-white p-4 ring-1 ring-gray-200 md:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end"
             @submit.prevent="addKeyword">
             <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Keyword") }}</span>
@@ -99,15 +98,12 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
                 <Select v-model="form.language_code" class="h-10 w-full items-center" :options="options.languages" optionLabel="label" optionValue="value" filter />
             </label>
             <label class="flex flex-col gap-1 text-sm">
-                <span class="font-medium text-gray-700">{{ ctrans("Device") }}</span>
-                <Select v-model="form.device" class="h-10 w-full items-center" :options="options.devices" optionLabel="label" optionValue="value" />
-            </label>
-            <label class="flex flex-col gap-1 text-sm">
                 <span class="font-medium text-gray-700">{{ ctrans("Check") }}</span>
                 <Select v-model="form.frequency" class="h-10 w-full items-center" :options="options.frequencies" optionLabel="label" optionValue="value" />
             </label>
             <Button class="h-10 justify-center" type="create" :label="ctrans('Track keyword')" :loading="form.processing" @click="addKeyword" />
-            <p v-if="Object.keys(form.errors).length" role="alert" class="text-sm text-red-600 lg:col-span-6">
+            <p class="text-xs text-gray-500 lg:col-span-5">{{ ctrans("Each keyword is tracked on both mobile and desktop, so a check costs twice as much.") }}</p>
+            <p v-if="Object.keys(form.errors).length" role="alert" class="text-sm text-red-600 lg:col-span-5">
                 {{ Object.values(form.errors)[0] }}
             </p>
         </form>
@@ -125,16 +121,7 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
             </template>
 
             <template #cell(device)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
-                <Select
-                    v-if="canEdit"
-                    :modelValue="trackedKeyword.device"
-                    :options="options.devices"
-                    optionLabel="label"
-                    optionValue="value"
-                    size="small"
-                    :aria-label="ctrans('Device')"
-                    @update:modelValue="(value: string) => update(trackedKeyword, { device: value })" />
-                <span v-else>{{ labelOf(options.devices, trackedKeyword.device) }}</span>
+                {{ labelOf(options.devices, trackedKeyword.device) }}
             </template>
 
             <template #cell(frequency)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
