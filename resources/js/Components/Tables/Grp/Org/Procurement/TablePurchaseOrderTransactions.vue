@@ -187,6 +187,8 @@ const typedSkos = ref<Record<number, number>>({})
 
 const quantityInputVersion = ref<Record<number, number>>({})
 
+watch(currentLevel, () => (typedSkos.value = {}))
+
 function refreshQuantityInput(item: any, quantityOrdered: number) {
     item.quantity_ordered = quantityOrdered
     quantityInputVersion.value[item.id] = (quantityInputVersion.value[item.id] ?? 0) + 1
