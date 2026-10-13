@@ -85,7 +85,6 @@ use App\Actions\Retina\Dropshipping\Orders\ImportRetinaOrderTransaction;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalance;
 use App\Actions\Retina\Dropshipping\Orders\PayRetinaOrderWithBalanceAfterSubmitted;
 use App\Actions\Retina\Dropshipping\Orders\RemoveRetinaOrderVoucher;
-use App\Actions\Retina\Dropshipping\Orders\MarkRetinaOrderPurchaseGtmEventSent;
 use App\Actions\Retina\Dropshipping\Orders\StoreOrderAddressCollection;
 use App\Actions\Retina\Dropshipping\Orders\StoreRetinaOrder;
 use App\Actions\Retina\Dropshipping\Orders\StoreRetinaOrderVoucher;
@@ -322,7 +321,6 @@ Route::name('order.')->prefix('order/{order:id}')->whereNumber('order')->group(f
     Route::patch('submit', SubmitRetinaOrder::class)->name('submit');
     Route::post('repeat', RepeatRetinaEcomOrder::class)->name('repeat');
     Route::patch('pay-with-balance', PayRetinaOrderWithBalance::class)->name('pay_with_balance');
-    Route::post('gtm-purchase-sent', MarkRetinaOrderPurchaseGtmEventSent::class)->name('gtm_purchase_sent');
     Route::post('pay-with-balance-after-submitted', PayRetinaOrderWithBalanceAfterSubmitted::class)->name('pay_with_balance_after_submitted');
 
     Route::patch('delivery-address-update', UpdateRetinaOrderDeliveryAddress::class)->name('delivery_address_update');
