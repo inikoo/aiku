@@ -145,11 +145,13 @@ class ShowTicketsReports extends OrgAction
         $createdByQuarterHour  = $countByQuarterHour($ticketsOfEveryone, 'created_at');
         $startedByQuarterHour  = $countByQuarterHour($base, 'started_at');
         $resolvedByQuarterHour = $countByQuarterHour($base, 'resolved_at');
+        $closedByQuarterHour   = $countByQuarterHour($base, 'closed_at');
         $byQuarterHour         = collect(range(0, 95))->map(fn (int $slot) => [
             'slot'    => $slot,
             'created' => (int) ($createdByQuarterHour[$slot] ?? 0),
             'started' => (int) ($startedByQuarterHour[$slot] ?? 0),
             'done'    => (int) ($resolvedByQuarterHour[$slot] ?? 0),
+            'closed'  => (int) ($closedByQuarterHour[$slot] ?? 0),
         ]);
 
         $oldestOpen = (clone $base)->whereNotIn('status', [TicketStatusEnum::RESOLVED, TicketStatusEnum::CANCELLED])->orderBy('created_at')->first();

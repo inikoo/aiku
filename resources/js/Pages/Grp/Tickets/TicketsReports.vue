@@ -46,7 +46,7 @@ const props = defineProps<{
         csat_by_month: { month: string; average: number | null; total: number }[]
         daily: { date: string; created: number; done: number; open: number }[]
         timezone: string
-        by_quarter_hour: { slot: number; created: number; started: number; done: number }[]
+        by_quarter_hour: { slot: number; created: number; started: number; done: number; closed: number }[]
         breakdown: [string, string, string, string, string | null, number][]
         modules: { value: string; label: string; total: number }[]
         kinds: { value: string; label: string; total: number }[]
@@ -123,10 +123,11 @@ const lineOptions = computed(() => ({
     },
 }))
 
-const HOURLY_SERIES: { key: "created" | "started" | "done"; label: string; color: string }[] = [
+const HOURLY_SERIES: { key: "created" | "started" | "done" | "closed"; label: string; color: string }[] = [
     { key: "created", label: ctrans("Created"), color: "#c0399f" },
     { key: "started", label: ctrans("Work started"), color: "#3b82f6" },
     { key: "done", label: ctrans("Resolved"), color: "#1f845a" },
+    { key: "closed", label: ctrans("Closed"), color: "#d97706" },
 ]
 
 const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.days, 1)) * 100) / 100
@@ -156,6 +157,7 @@ const timeSlots = computed(() => {
             created: quarters.reduce((sum, quarter) => sum + quarter.created, 0),
             started: quarters.reduce((sum, quarter) => sum + quarter.started, 0),
             done: quarters.reduce((sum, quarter) => sum + quarter.done, 0),
+            closed: quarters.reduce((sum, quarter) => sum + quarter.closed, 0),
         }
     })
 })
@@ -197,6 +199,13 @@ const timeOfDayBoxes = computed(() => {
             note: props.stats.assignee ? ctrans("Tickets of the chosen assignee") : ctrans("Tickets of every assignee"),
             series: ["started", "done"],
             storageKey: "tickets_reports_by_hour_collapsed",
+        },
+        {
+            key: "closed",
+            title: ctrans("Tickets closed, by time of day"),
+            note: props.stats.assignee ? ctrans("Resolved or cancelled, tickets of the chosen assignee") : ctrans("Resolved or cancelled, tickets of every assignee"),
+            series: ["closed"],
+            storageKey: "tickets_reports_closed_by_time_collapsed",
         },
     ]
 

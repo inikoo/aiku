@@ -790,6 +790,7 @@ test('tickets dashboard counts created, started and resolved tickets by the quar
         'created_at'  => $day->copy()->setTime(5, 10),
         'started_at'  => $day->copy()->setTime(9, 40),
         'resolved_at' => $day->copy()->setTime(14, 5),
+        'closed_at'   => $day->copy()->setTime(16, 20),
     ]);
 
     $after = $hourly();
@@ -798,6 +799,8 @@ test('tickets dashboard counts created, started and resolved tickets by the quar
         ->and($after[20]['created'])->toBe($before[20]['created'] + 1)
         ->and($after[38]['started'])->toBe($before[38]['started'] + 1)
         ->and($after[56]['done'])->toBe($before[56]['done'] + 1)
+        ->and($after[65]['closed'])->toBe($before[65]['closed'] + 1)
+        ->and($after[56]['closed'])->toBe($before[56]['closed'])
         ->and($after[20]['started'])->toBe($before[20]['started'])
         ->and($after[20]['done'])->toBe($before[20]['done'])
         ->and($after->sum('created'))->toBe($before->sum('created') + 1);
