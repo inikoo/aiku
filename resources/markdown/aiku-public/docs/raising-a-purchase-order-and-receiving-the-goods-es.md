@@ -1,8 +1,8 @@
 ---
 title: Cursar una orden de compra y recibir la mercancía
 summary: Compra a un proveedor ordinario - cursa la orden de compra, consigue que se confirme, y luego convierte la entrega en stock que puedas vender.
-date: 2026-10-10
-source_date: 2026-10-10
+date: 2026-10-12
+source_date: 2026-10-12
 tags: procurement, purchase orders, stock deliveries, suppliers, supplier claims, customs
 category: procurement
 ---
@@ -72,6 +72,8 @@ La entrega pasa después por sus propios estados:
 - **Checked** - si todavía no se ha colocado nada en stock, aquí todavía puedes **Cancel**ar.
 - **Booking in / Booked in** - las cantidades comprobadas se están dando de alta en el stock del almacén.
 - **Booked in** - pulsa **Place** para colocar el stock recibido. Este es el estado final de trabajo de la entrega.
+
+Para las entregas creadas a partir del 12 de octubre de 2026, los costes van antes que la mercancía: marcar una entrega como recibida mientras faltan costes pide un motivo, y su mercancía no se puede colocar hasta que la factura, el transporte y los aranceles tengan cada uno un importe, una estimación o **N/A**. Mira [cómo calcular el coste de una entrega de stock](/docs/costing-a-stock-delivery-es).
 
 Comprobar un artículo significa confirmar cuánto de cada línea llegó realmente - no todos los pedidos llegan completos, y las cantidades de menos o de más aparecen en la pestaña **Under/Over delivered items**, así que nada se pierde en la diferencia entre lo que pediste y lo que llegó.
 

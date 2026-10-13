@@ -17,6 +17,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Goods\TradeUnit;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Sentry;
 use Throwable;
@@ -32,6 +33,8 @@ class CopyShopifyPortfoliosToExternalShop extends OrgAction
     /**
      * A store moving from a dropshipping channel keeps every Shopify listing it had: each portfolio becomes a
      * product of the external shop on the same Shopify variant, made of the same trade units as the product sold.
+     * Price, name and description belong to Shopify: a product already here keeps them, and one created here only
+     * holds the portfolio's until the next products fetch replaces them.
      *
      * @return array{copied: int, updated: int, skipped: int}
      */
@@ -109,9 +112,9 @@ class CopyShopifyPortfoliosToExternalShop extends OrgAction
             $isNew = !$product;
 
             DB::transaction(function () use (&$product, $shop, $productData, $sourceProduct) {
-                if ($product) {
-                    $product = UpdateProduct::make()->action($product, $productData, strict: false);
-                } else {
+                if ($product && $product->marketplace_id !== $productData['marketplace_id']) {
+                    $product = UpdateProduct::make()->action($product, Arr::only($productData, ['marketplace_id', 'marketplace_second_id']), strict: false);
+                } elseif (!$product) {
                     $product = StoreProduct::make()->action($shop, [
                         ...$productData,
                         'unit'         => $sourceProduct->unit ?: 'Piece',

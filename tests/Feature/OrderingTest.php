@@ -75,12 +75,14 @@ use App\Actions\Retina\Ecom\Basket\RetinaEcomUpdateTransaction;
 use App\Actions\Retina\Ecom\Basket\UI\IndexBasketTransactions;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\ResetOrderTaxCategory;
 use App\Actions\Ordering\Order\UpdateOrderBillingAddress;
 use App\Actions\Ordering\Order\UpdateOrderDeliveryAddress;
 use App\Actions\Ordering\Order\UpdateOrderGiftMessage;
 use App\Actions\Ordering\Order\PdfOrderGiftMessage;
+use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
 use App\Actions\Ordering\Order\UpdateOrderIsShippingTBC;
 use App\Actions\Ordering\Order\UpdateOrderShippingTBCAmount;
 use App\Actions\Billables\Service\StoreService;
@@ -498,6 +500,42 @@ test('create transaction', function ($order) {
 
     return $transaction;
 })->depends('delete previous transaction');
+
+test('customer orders search finds the order holding a product', function (Transaction $transaction) {
+    $order    = $transaction->order;
+    $customer = $order->customer;
+    $product  = $transaction->historicAsset;
+
+    $shopState = $this->shop->state;
+    $this->shop->update(['state' => ShopStateEnum::OPEN]);
+
+    $ordersFound = fn (string $routeName, array $parameters, string $search) => collect(
+        get(route($routeName, $parameters + ['orders_filter' => ['global' => $search]]))
+            ->assertOk()
+            ->inertiaProps('data.data')
+    )->pluck('id');
+
+    $customerRoute = 'grp.org.shops.show.crm.customers.show.orders.index';
+    $customerPage  = [$this->organisation->slug, $this->shop->slug, $customer->slug];
+
+    expect($ordersFound($customerRoute, $customerPage, $product->code))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $product->name))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, $order->reference))->toContain($order->id)
+        ->and($ordersFound($customerRoute, $customerPage, 'no product is called this'))->toBeEmpty()
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $order->reference))->toContain($order->id)
+        ->and($ordersFound('grp.org.shops.show.ordering.orders.index', [$this->organisation->slug, $this->shop->slug], $product->code))->not->toContain($order->id);
+
+    $dialogOrders = fn (array $parameters) => collect(
+        get(route('grp.search.index', ['q' => $product->code, 'shop' => $this->shop->slug, 'organisation' => $this->organisation->slug] + $parameters))
+            ->assertOk()
+            ->json('results.orders')
+    )->pluck('id');
+
+    expect($dialogOrders(['route_src' => $customerRoute, 'customer' => $customer->slug]))->toContain($order->id)
+        ->and($dialogOrders(['route_src' => 'grp.org.shops.show.crm.customers.index']))->not->toContain($order->id);
+
+    $this->shop->update(['state' => $shopState]);
+})->depends('create transaction');
 
 test('store transaction for existing product adds to quantity instead of duplicating', function (Transaction $transaction) {
     $order         = $transaction->order;
@@ -2991,6 +3029,62 @@ test('paid then refunded order reads refunded not unpaid', function () {
         ->and((float)$order->payment_amount)->toBe(0.0);
 });
 
+test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 1,
+    ]);
+
+    $order->refresh();
+    $total = (float)$order->total_amount;
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'ZT'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    $order->forceFill(['total_amount' => 0])->saveQuietly();
+    UpdateOrderPaymentsStatus::run($order);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe($total);
+
+    $partialRefund = round($total / 2, 2);
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => -$partialRefund,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    expect($order->pay_status)->toBe(OrderPayStatusEnum::PAID)
+        ->and($order->pay_detailed_status)->toBe(OrderPayDetailedStatusEnum::OVERPAID)
+        ->and((float)$order->payment_amount)->toBe(round($total - $partialRefund, 2));
+});
+
 test('service only order sent to warehouse skips delivery note', function () {
     $service = StoreService::make()->action($this->shop, [
         'code'  => 'SRV1',
@@ -3289,6 +3383,32 @@ test('UI show order flags unpaid API orders as auto-held', function () {
             ->where('pageHead.api_order.held_unpaid', false)
             ->etc()
     );
+});
+
+test('UI show order tells per delivery note whether the sales channel ships it', function () {
+    $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => false]);
+
+    $noteData = fn (string $reference): array => [
+        'reference'        => $reference,
+        'state'            => DeliveryNoteStateEnum::UNASSIGNED,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id,
+    ];
+
+    $orderNote   = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id));
+    $replacement = StoreDeliveryNote::make()->action($order, $noteData('EXT-'.$order->id.'-r1'));
+    $replacement->update(['type' => DeliveryNoteTypeEnum::REPLACEMENT]);
+    $order = UpdateOrder::make()->action($order, ['is_shipping_by_external' => true]);
+
+    $notes = collect(ShowOrder::make()->getOrderBoxStats($order->refresh())['delivery_notes'])->keyBy('id');
+
+    expect($notes[$orderNote->id]['is_shipping_by_external'])->toBeTrue()
+        ->and($notes[$replacement->id]['is_shipping_by_external'])->toBeFalse();
 });
 
 test('UI order channels report groups by platform and sales channel', function () {

@@ -195,8 +195,9 @@ class IndexPartnerShippingList extends OrgAction
                 'job_order_artisans.contact_name as job_order_artisan',
                 DB::raw("(select json_agg(json_build_object('artisan', sub_job_artisans.contact_name, 'quantity', job_order_items.quantity) order by job_order_items.id) from job_order_items left join employees as sub_job_artisans on sub_job_artisans.id = job_order_items.employee_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id) as job_order_sub_jobs"),
                 DB::raw('(select sum(quantity) from job_order_items where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id) as job_order_quantity'),
-                DB::raw("exists(select 1 from job_order_item_tasks join job_order_items on job_order_items.id = job_order_item_tasks.job_order_item_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id and job_order_item_tasks.state = 'in_progress') as is_in_progress"),
-                DB::raw("(select count(*) > 0 and bool_and(job_order_item_tasks.state = 'done') from job_order_item_tasks join job_order_items on job_order_items.id = job_order_item_tasks.job_order_item_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id) as is_finished"),
+                DB::raw("exists(select 1 from job_order_item_tasks join job_order_items on job_order_items.id = job_order_item_tasks.job_order_item_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id and job_order_items.deleted_at is null and job_order_item_tasks.state != 'todo') as is_in_progress"),
+                DB::raw("(select json_agg(json_build_object('name', steps.name, 'artisans', steps.artisans) order by steps.position) from (select pending_tasks.position, min(manufacture_tasks.name) as name, json_agg(distinct step_artisans.contact_name) as artisans from job_order_items join lateral (select job_order_item_tasks.position, job_order_item_tasks.manufacture_task_id, job_order_item_tasks.employee_id from job_order_item_tasks where job_order_item_tasks.job_order_item_id = job_order_items.id and job_order_item_tasks.state != 'done' order by job_order_item_tasks.position, job_order_item_tasks.id limit 1) as pending_tasks on true join manufacture_tasks on manufacture_tasks.id = pending_tasks.manufacture_task_id left join employees as step_artisans on step_artisans.id = coalesce(pending_tasks.employee_id, job_order_items.employee_id, job_orders.employee_id) where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id and job_order_items.deleted_at is null group by pending_tasks.position, pending_tasks.manufacture_task_id) as steps) as current_steps"),
+                DB::raw("(select count(*) > 0 and bool_and(job_order_item_tasks.state = 'done') from job_order_item_tasks join job_order_items on job_order_items.id = job_order_item_tasks.job_order_item_id where job_order_items.job_order_id = job_orders.id and job_order_items.artefact_id = artefacts.id and job_order_items.deleted_at is null) as is_finished"),
             ])
             ->defaultSort('-created_at')
             ->allowedFilters([$globalSearch])
@@ -221,6 +222,11 @@ class IndexPartnerShippingList extends OrgAction
                         'artisan'   => $subJob['artisan'],
                         'quantity'  => (float) $subJob['quantity'],
                     ])->all()
+                    : [];
+                $item->current_steps = $item->job_order_state === JobOrderStateEnum::CONFIRMED->value
+                    ? collect(json_decode($item->current_steps ?? '[]', true))
+                        ->map(fn (array $step) => ['name' => $step['name'], 'artisans' => collect($step['artisans'])->sort()->values()->all()])
+                        ->all()
                     : [];
                 $item->order_quantum  = BatchedUnitsForDemand::make()->quantumInSkos($item->packed_in, $item->batch_size);
                 $item->is_hitchhiker  = !$item->job_order_id

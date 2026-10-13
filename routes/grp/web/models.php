@@ -11,6 +11,8 @@ use App\Actions\SupplyChain\StockDeliveryInvoice\StoreActualStockDeliveryInvoice
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\SupplyChain\AgentPayment\DeleteAgentPayment;
 use App\Actions\SupplyChain\AgentPayment\StoreAgentPayment;
+use App\Actions\SupplyChain\SupplierPayment\DeleteSupplierPayment;
+use App\Actions\SupplyChain\SupplierPayment\StoreSupplierPayment;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrder;
 use App\Actions\Procurement\AgentOrder\StoreAgentOrderLine;
 use App\Actions\Procurement\AgentOrder\SubmitAgentOrder;
@@ -180,6 +182,7 @@ use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\CheckCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\CloseCustomerSalesChannel;
 use App\Actions\Dropshipping\CustomerSalesChannel\ForceSyncCustomerSalesChannelPortfolios;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannelSettings;
 use App\Actions\Dropshipping\Ebay\Product\MatchBulkNewProductToCurrentEbay;
 use App\Actions\Dropshipping\Portfolio\MatchBulkPortfoliosToPlatform;
 use App\Actions\Dropshipping\Ebay\Product\MatchPortfolioToCurrentEbayProduct;
@@ -443,7 +446,6 @@ use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategoryImages;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterProductCategoryTranslations;
 use App\Actions\Masters\MasterProductCategory\UpdateMasterSubDepartmentsMasterDepartment;
-use App\Actions\Masters\MasterProductCategory\UploadImageMasterProductCategory;
 use App\Actions\Masters\MasterProductCategory\UploadImagesToMasterProductCategory;
 use App\Actions\Masters\MasterShop\StoreMasterShop;
 use App\Actions\Masters\MasterShop\UpdateMasterShop;
@@ -461,11 +463,15 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductAgentDetails;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonBarcode;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProductCartonWeights;
+use App\Actions\Procurement\PurchaseOrder\ConfirmPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
+use App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderDeposit;
+use App\Actions\Procurement\PurchaseOrder\UndoPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
@@ -519,12 +525,14 @@ use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Actions\Production\JobOrderItem\SplitJobOrderItem;
 use App\Actions\Production\JobOrderItem\UpdateJobOrderItem;
 use App\Actions\Production\ManufactureTaskSession\ReviewUnderTargetManufactureTaskSession;
+use App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity;
 use App\Actions\Production\ManufactureTaskSession\VoidManufactureTaskSession;
 use App\Actions\Production\ManufactureTaskSession\CloseManufactureTaskSession;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
+use App\Actions\Production\JobOrderItemTask\AssignJobOrderItemTask;
 use App\Actions\Production\JobOrderItemTask\CombineJobOrderItemTasks;
 use App\Actions\Production\JobOrderItemTask\SeparateJobOrderItemTasks;
 use App\Actions\Production\JobOrder\UpdateJobOrder;
@@ -544,6 +552,7 @@ use App\Actions\Reviews\UpdateReview;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\SupplyChain\SupplierProduct\ImportSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
 use App\Actions\SupplyChain\SupplierProduct\CheckSupplierProductForm;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProductFromForm;
 use App\Actions\SupplyChain\SupplierProduct\Upload\CancelSupplierProductUpload;
@@ -604,6 +613,13 @@ use App\Actions\Web\Announcement\StoreAnnouncement;
 use App\Actions\Web\Announcement\ToggleAnnouncement;
 use App\Actions\Web\Announcement\UpdateAnnouncement;
 use App\Actions\Web\Announcement\UploadImagesToAnnouncement;
+use App\Actions\Web\WebsiteDialog\DeleteWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\PublishWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\ResetWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\StoreWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\ToggleWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\UpdateWebsiteDialog;
+use App\Actions\Web\WebsiteDialog\UploadImagesToWebsiteDialog;
 use App\Actions\Web\Banner\DeleteBanner;
 use App\Actions\Web\Banner\PublishBanner;
 use App\Actions\Web\Banner\SetSnapshotToBanner;
@@ -800,7 +816,6 @@ Route::prefix('upcoming-transaction/{upcomingTransaction:id}')->name('upcoming_t
 Route::patch('master-product-category/{masterProductCategory:id}', UpdateMasterProductCategory::class)->name('master_product_category.update')->withoutScopedBindings();
 Route::patch('master-product-category/{masterProductCategory:id}/clone-family', CloneFamilyAndProductsFromMaster::class)->name('master_product_category.clone-to-child-shops')->withoutScopedBindings();
 
-Route::post('master-product-category/{masterProductCategory:id}/image', UploadImageMasterProductCategory::class)->name('master_product_category_image.upload')->withoutScopedBindings();
 Route::patch('master-product-category/{masterProductCategory:id}/translations', UpdateMasterProductCategoryTranslations::class)->name('master_product_categories.translations.update');
 Route::patch('master-product-category/{masterProductCategory:id}/master-sub-department/parent', UpdateMasterSubDepartmentsMasterDepartment::class)->name('master_product_category.master_sub_department.parent.update');
 
@@ -960,8 +975,10 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('clocking-machine', [StoreClockingMachine::class, 'inOrganisation'])->name('clocking-machine.store');
 
     Route::post('supplier', [StoreSupplier::class, 'inOrganisation'])->name('supplier.store');
+    Route::post('supplier/{supplier:id}/supplier-products/copy', CopySupplierProductsToSupplier::class)->name('supplier.supplier_products.copy')->withoutScopedBindings();
     Route::post('org-supplier/from-supplier/{supplier:id}', [StoreOrgSupplier::class, 'inOrganisation'])->name('org_supplier.store')->withoutScopedBindings();
     Route::post('stock-delivery-service-invoice', StoreStockDeliveryServiceInvoice::class)->name('stock_delivery_service_invoice.store');
+    Route::patch('org-supplier-product/{orgSupplierProduct:id}/agent-details', UpdateOrgSupplierProductAgentDetails::class)->name('org_supplier_product.agent_details.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/carton-weights', UpdateOrgSupplierProductCartonWeights::class)->name('org_supplier_product.carton_weights.update')->withoutScopedBindings();
     Route::patch('org-supplier-product/{orgSupplierProduct:id}/org-stock/{orgStock:id}/carton-barcode', UpdateOrgSupplierProductCartonBarcode::class)->name('org_supplier_product.carton_barcode.update')->withoutScopedBindings();
 
@@ -1276,6 +1293,16 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
             Route::patch('{announcement}/toggle', ToggleAnnouncement::class)->name('toggle')->withoutScopedBindings();
             Route::delete('{announcement}', DeleteAnnouncement::class)->name('delete')->withoutScopedBindings();
         });
+
+        Route::prefix('dialogs')->name('website_dialog.')->group(function () {
+            Route::post('/', StoreWebsiteDialog::class)->name('store')->withoutScopedBindings();
+            Route::post('{websiteDialog:id}/upload-images', UploadImagesToWebsiteDialog::class)->name('upload-images.store')->withoutScopedBindings();
+            Route::patch('{websiteDialog:id}/publish', PublishWebsiteDialog::class)->name('publish')->withoutScopedBindings();
+            Route::patch('{websiteDialog:id}/reset', ResetWebsiteDialog::class)->name('reset')->withoutScopedBindings();
+            Route::patch('{websiteDialog:id}/toggle', ToggleWebsiteDialog::class)->name('toggle')->withoutScopedBindings();
+            Route::patch('{websiteDialog:id}', UpdateWebsiteDialog::class)->name('update')->withoutScopedBindings();
+            Route::delete('{websiteDialog:id}', DeleteWebsiteDialog::class)->name('delete')->withoutScopedBindings();
+        });
     });
 
     Route::name('outboxes.')->prefix('outboxes/{outbox:id}')->group(function () {
@@ -1493,6 +1520,7 @@ Route::name('customer_sales_channel.')->prefix('customer-sales-channel/{customer
     Route::delete('delete', CloseCustomerSalesChannel::class)->name('delete');
     Route::patch('reset-shopify', ResetShopifyChannel::class)->name('shopify_reset');
     Route::patch('force-sync-portfolios', ForceSyncCustomerSalesChannelPortfolios::class)->name('force_sync_portfolios');
+    Route::patch('settings', UpdateCustomerSalesChannelSettings::class)->name('settings.update');
 });
 
 Route::post('{shop:id}/purge', StorePurge::class)->name('purge.store');
@@ -1553,6 +1581,7 @@ Route::patch('/job-order-item/{jobOrderItem:id}/split', SplitJobOrderItem::class
 Route::patch('/job-order/{jobOrder:id}/confirm', ConfirmJobOrder::class)->name('job-order.confirm')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/receive', ReceiveJobOrderIntoStock::class)->name('job-order.receive')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/void', VoidManufactureTaskSession::class)->name('manufacture-task-session.void')->withoutScopedBindings();
+Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/correct', CorrectManufactureTaskSessionQuantity::class)->name('manufacture-task-session.correct')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/under-target-review', ReviewUnderTargetManufactureTaskSession::class)->name('manufacture-task-session.under_target_review')->withoutScopedBindings();
 Route::post('/artefact/{artefact:id}/artisans', [AttachArtisan::class, 'inArtefact'])->name('artefact.artisans.attach')->withoutScopedBindings();
 Route::delete('/artefact/{artefact:id}/artisans/{employee:id}', [DetachArtisan::class, 'inArtefact'])->name('artefact.artisans.detach')->withoutScopedBindings();
@@ -1567,6 +1596,7 @@ Route::patch('/compliance-item/{artefactComplianceItem:id}', UpdateArtefactCompl
 Route::delete('/compliance-item/{artefactComplianceItem:id}', DeleteArtefactComplianceItem::class)->name('artefact.compliance-item.delete')->withoutScopedBindings();
 Route::post('/job-order-item-task/{jobOrderItemTask:id}/session', StartManufactureTaskSession::class)->name('job-order-item-task.session.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/combined-task', CombineJobOrderItemTasks::class)->name('production.combined_task.store')->withoutScopedBindings();
+Route::patch('/job-order-item-task/{jobOrderItemTask:id}/assign', AssignJobOrderItemTask::class)->name('job-order-item-task.assign')->withoutScopedBindings();
 Route::patch('/job-order-item-task/{jobOrderItemTask:id}/separate', SeparateJobOrderItemTasks::class)->name('job-order-item-task.separate')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/close', CloseManufactureTaskSession::class)->name('manufacture-task-session.close')->withoutScopedBindings();
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
@@ -1627,11 +1657,13 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 });
 
 Route::delete('agent-payment/{agentPayment:id}', DeleteAgentPayment::class)->name('agent_payment.delete');
+Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::class)->name('supplier_payment.delete');
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
+    Route::post('supplier-payment', StoreSupplierPayment::class)->name('supplier_payment.store');
     Route::post('agent-invoice/approve-charges', ApproveAgentInvoiceCharges::class)->name('agent_invoice.approve_charges');
     Route::patch('update', UpdateStockDelivery::class)->name('update');
     Route::patch('dispatch', DispatchStockDelivery::class)->name('dispatch');
@@ -1702,6 +1734,9 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('update', UpdatePurchaseOrder::class)->name('update');
     Route::patch('journey-stage', UpdatePurchaseOrderJourneyStage::class)->name('journey_stage');
     Route::post('deposit', StoreAspoDeposit::class)->name('deposit.store');
+    Route::post('payment', ConfirmPurchaseOrderPayment::class)->name('payment.confirm');
+    Route::patch('payment/undo', UndoPurchaseOrderPayment::class)->name('payment.undo');
+    Route::patch('payment/deposit', SetPurchaseOrderDeposit::class)->name('payment.deposit');
     Route::delete('', DeletePurchaseOrder::class)->name('delete');
     Route::patch('submit', UpdatePurchaseOrderStateToSubmitted::class)->name('submit');
     Route::patch('ready-to-send', SetPurchaseOrderReadyToSend::class)->name('ready_to_send');

@@ -26,7 +26,6 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Contracts\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use App\Actions\HumanResources\Employee\GenerateEmployeeLeaveBalance;
 
 class StoreLeave extends OrgAction
 {
@@ -338,7 +337,7 @@ class StoreLeave extends OrgAction
                 ->first();
 
             if ($contract) {
-                $balance = GenerateEmployeeLeaveBalance::run($contract);
+                $balance = GenerateEmployeeLeaveBalance::run($contract, GenerateEmployeeLeaveBalance::make()->periodStartFor($contract, $startDate));
             }
         }
 

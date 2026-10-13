@@ -660,8 +660,8 @@ class ShowDeliveryNote extends OrgAction
                 [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('Dispatch'),
-                    'label'   => __('Dispatch'),
+                    'tooltip' => $deliveryNote->collection_address_id ? __('Set as collected') : __('Dispatch'),
+                    'label'   => $deliveryNote->collection_address_id ? __('Set as collected') : __('Dispatch'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'patch',
@@ -787,6 +787,23 @@ class ShowDeliveryNote extends OrgAction
                 ];
             }
         } elseif (count($deliveryNote->parcels ?? [])) {
+            if ($deliveryNote->collection_address_id && $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT) {
+                return [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('Finalise and leave ready for the customer to collect'),
+                    'label'   => __('Finalise for collection'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.delivery_note.state.finalised',
+                        'parameters' => [
+                            'deliveryNote' => $deliveryNote->id
+                        ]
+                    ]
+                ];
+            }
+
             return [
                 'type'    => 'button',
                 'style'   => 'save',
@@ -794,15 +811,11 @@ class ShowDeliveryNote extends OrgAction
                 'label'   => match (true) {
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => __('Dispatch'),
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && $deliveryNote->collection_address_id => __('set as collected'),
-                    $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => __('Finalise and Dispatch'),
-                    (bool)$deliveryNote->collection_address_id => __('Finalise and set as Collected'),
                     default => __('Finalise and Dispatch')
                 },
                 'key'     => match (true) {
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => 'action',
                     $deliveryNote->type === DeliveryNoteTypeEnum::REPLACEMENT && $deliveryNote->collection_address_id => 'action',
-                    $deliveryNote->type !== DeliveryNoteTypeEnum::REPLACEMENT && !$deliveryNote->collection_address_id => 'finalise-and-dispatch',
-                    (bool)$deliveryNote->collection_address_id => 'action',
                     default => 'finalise-and-dispatch'
                 },
                 'route'   => [
@@ -1601,7 +1614,7 @@ class ShowDeliveryNote extends OrgAction
 
     public function getDeliveryNoteNotes(DeliveryNote $deliveryNote): array
     {
-        $canWork = request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeWorkedOnBy(request()->user());
+        $canWork = request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeNotedBy(request()->user());
 
         return [
             "note_list" => [

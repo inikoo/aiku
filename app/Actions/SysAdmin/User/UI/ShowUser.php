@@ -47,6 +47,8 @@ class ShowUser extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inEmployee(Organisation $organisation, Employee $employee, User $user, ActionRequest $request): User
     {
+        abort_unless($employee->organisation_id === $organisation->id && $employee->users()->whereKey($user->id)->exists(), 404);
+
         $this->authScope = $organisation;
         $this->initialisation($organisation, $request)->withTab(UserTabsEnum::values());
 

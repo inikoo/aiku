@@ -162,10 +162,21 @@ class UpdateBundle extends OrgAction
         });
     }
 
+    public function writeCurrentBundleTradeUnits(Bundle $bundle): Product
+    {
+        /** @var Product $product */
+        $product = $bundle->bundleable;
+
+        return UpdateProduct::make()->action($product, [
+            'trade_units' => $this->getCurrentBundleTradeUnits($bundle),
+            'units'       => $product->units
+        ]);
+    }
+
     /**
      * @return array<int, array{id: int, quantity: float}>
      */
-    private function getCurrentBundleTradeUnits(Bundle $bundle): array
+    public function getCurrentBundleTradeUnits(Bundle $bundle): array
     {
         $bundleItems = $bundle->items()
             ->where('item_type', class_basename(Product::class))

@@ -133,6 +133,8 @@ class CreateClockingMachine extends OrgAction
      */
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Response
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($workplace, $request);

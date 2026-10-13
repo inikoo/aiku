@@ -295,7 +295,7 @@ const columnGroups = computed<DetailColumnGroup[]>(() => {
     return [
         { key: "incoming", label: ctrans("Incoming"), title: incoming.map((column) => column.label).join(", "), columns: incoming },
         { key: "channels", label: ctrans("Channels"), title: channels.map((column) => column.label).join(", "), columns: channels },
-        ...columnsByKey(["orders"]).map((column) => ({ ...column, columns: [{ ...column, label: ctrans("Open orders") }] })),
+        ...columnsByKey(["orders"]).map((column) => ({ ...column, columns: [{ ...column, label: ctrans("Open customer orders") }] })),
     ]
 })
 

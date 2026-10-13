@@ -45,11 +45,15 @@ class IndexRetinaDropshippingCustomerSalesChannels extends RetinaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $globalGlobalClosed = $this->isClosed ? CustomerSalesChannelStatusEnum::CLOSED : CustomerSalesChannelStatusEnum::OPEN;
-        $query              = QueryBuilder::for(CustomerSalesChannel::class);
+        $query = QueryBuilder::for(CustomerSalesChannel::class);
         $query->leftjoin('platforms', 'customer_sales_channels.platform_id', 'platforms.id');
         $query->where('customer_sales_channels.customer_id', $customer->id);
-        $query->where('customer_sales_channels.status', $globalGlobalClosed);
+
+        if ($this->isClosed) {
+            $query->where('customer_sales_channels.status', CustomerSalesChannelStatusEnum::CLOSED);
+        } else {
+            $query->openOrHandedOverToExternalShop();
+        }
 
         return $query
             ->defaultSort('customer_sales_channels.reference')

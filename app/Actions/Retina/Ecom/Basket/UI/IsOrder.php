@@ -216,6 +216,7 @@ trait IsOrder
                     'slug'                         => $deliveryNote->slug,
                     'reference'                    => $deliveryNote->reference,
                     'type'                         => $deliveryNote->type,
+                    'is_shipping_by_external'      => (bool) $deliveryNote->is_shipping_by_external,
                     'parcels'                      => $deliveryNote->parcels,
                     'state'                        => $deliveryNote->state,
                     'state_icon'                   => $deliveryNote->state->stateIcon()[$deliveryNote->state->value],

@@ -21,6 +21,10 @@ class SendEmployeeBulkEmail extends OrgAction
 {
     use WithHumanResourcesEditAuthorisation;
 
+    public const int MAX_ATTACHMENTS = 5;
+
+    public const int MAX_ATTACHMENT_KILOBYTES = 5120;
+
     /**
      * @param array{subject: string, body: string, employee_ids?: array<int, int>|null, attachments?: array<int, UploadedFile>|null} $modelData
      */
@@ -35,24 +39,26 @@ class SendEmployeeBulkEmail extends OrgAction
             ->get()
             ->filter(fn (Employee $employee): bool => (bool) $this->recipientEmail($employee));
 
+        $recipients = $employees->map(fn (Employee $employee): array => [
+            'employee_id' => $employee->id,
+            'name'        => $employee->contact_name ?: ($employee->alias ?: $this->recipientEmail($employee)),
+            'email'       => $this->recipientEmail($employee),
+        ])->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
+
         $employeeBulkEmail = EmployeeBulkEmail::create([
             'group_id'          => $organisation->group_id,
             'organisation_id'   => $organisation->id,
             'sender_id'         => $senderId,
             'subject'           => $modelData['subject'],
             'body'              => $body,
-            'number_recipients' => $employees->count(),
-            'number_pending'    => $employees->count(),
+            'number_recipients' => $recipients->count(),
+            'number_pending'    => $recipients->count(),
+            'recipients'        => $recipients->map(fn (array $recipient): array => Arr::only($recipient, ['employee_id', 'name']))->all(),
             'attachments'       => $attachments,
         ]);
 
-        foreach ($employees as $employee) {
-            $email = $this->recipientEmail($employee);
-            SendEmployeeBulkEmailToEmployee::dispatch($employeeBulkEmail, $email, $employee->contact_name ?: ($employee->alias ?: $email));
-        }
-
-        if ($employees->isEmpty()) {
-            SendEmployeeBulkEmailToEmployee::deleteAttachments($employeeBulkEmail);
+        foreach ($recipients as $recipient) {
+            SendEmployeeBulkEmailToEmployee::dispatch($employeeBulkEmail, $recipient['email'], $recipient['name']);
         }
 
         return $employeeBulkEmail;
@@ -60,7 +66,7 @@ class SendEmployeeBulkEmail extends OrgAction
 
     /**
      * @param array<int, UploadedFile> $files
-     * @return array<int, array{path: string, name: string}>
+     * @return array<int, array{path: string, name: string, size: int|false}>
      */
     private function storeAttachments(array $files): array
     {
@@ -69,6 +75,7 @@ class SendEmployeeBulkEmail extends OrgAction
         return array_map(fn (UploadedFile $file): array => [
             'path' => $file->storeAs($directory, $file->hashName(), 'local'),
             'name' => $file->getClientOriginalName(),
+            'size' => $file->getSize(),
         ], $files);
     }
 
@@ -83,9 +90,9 @@ class SendEmployeeBulkEmail extends OrgAction
             'subject'        => ['required', 'string', 'max:255'],
             'body'           => ['required', 'string'],
             'employee_ids'   => ['nullable', 'array'],
-            'employee_ids.*' => ['integer', Rule::exists('employees', 'id')->where('organisation_id', $this->organisation->id)],
-            'attachments'    => ['nullable', 'array', 'max:5'],
-            'attachments.*'  => ['file', 'max:5120'],
+            'employee_ids.*' => ['integer', 'distinct', Rule::exists('employees', 'id')->where('organisation_id', $this->organisation->id)],
+            'attachments'    => ['nullable', 'array', 'max:'.self::MAX_ATTACHMENTS],
+            'attachments.*'  => ['file', 'max:'.self::MAX_ATTACHMENT_KILOBYTES],
         ];
     }
 
@@ -112,6 +119,6 @@ class SendEmployeeBulkEmail extends OrgAction
             'description' => trans_choice('Sending to :count employee|Sending to :count employees', $employeeBulkEmail->number_recipients),
         ]);
 
-        return Redirect::back();
+        return Redirect::route('grp.org.hr.bulk_emails.index', [$employeeBulkEmail->organisation->slug]);
     }
 }

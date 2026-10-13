@@ -20,6 +20,7 @@ enum PurchaseOrderAttachmentScopeEnum: string
     case PACKING_LIST = 'Packing list';
     case CLAIM        = 'Claim';
     case CUSTOMS      = 'Customs declaration';
+    case BANK_STATEMENT = 'Bank statement';
     case OTHER        = 'Other';
 
     public static function labels(): array
@@ -30,6 +31,7 @@ enum PurchaseOrderAttachmentScopeEnum: string
             'Packing list' => __('Packing list'),
             'Claim'        => __('Claim'),
             'Customs declaration' => __('Customs declaration'),
+            'Bank statement' => __('Bank statement'),
             'Other'        => __('Other'),
         ];
     }
@@ -55,6 +57,7 @@ enum PurchaseOrderAttachmentScopeEnum: string
         return match (true) {
             Str::contains($name, ['proforma', 'pro-forma', 'pro forma']) => self::PROFORMA,
             Str::contains($name, ['packing', 'packlist']) => self::PACKING_LIST,
+            Str::contains($name, ['bank statement', 'bank_statement', 'bank-statement', 'swift', 'remittance']) => self::BANK_STATEMENT,
             Str::contains($name, ['customs', 'colny', 'colný', 'aduana', 'zoll']) => self::CUSTOMS,
             Str::contains($name, ['invoice', 'factura', 'faktura', 'rechnung', 'fattura']) => self::INVOICE,
             default => self::OTHER,

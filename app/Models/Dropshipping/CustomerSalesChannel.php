@@ -20,6 +20,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -179,6 +180,34 @@ class CustomerSalesChannel extends Model implements Authenticatable, Auditable
     public function user(): MorphTo
     {
         return $this->morphTo(__FUNCTION__, 'platform_user_type', 'platform_user_id');
+    }
+
+    /**
+     * A channel whose Shopify store now belongs to an external shop takes no new orders, but the ones it
+     * already has are still finished through it.
+     */
+    public function isHandedOverToExternalShop(): bool
+    {
+        return $this->status === CustomerSalesChannelStatusEnum::INACTIVE
+            && $this->user instanceof ShopifyUser
+            && $this->user->external_shop_id !== null;
+    }
+
+    public function scopeOpenOrHandedOverToExternalShop(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->where('customer_sales_channels.status', CustomerSalesChannelStatusEnum::OPEN)
+                ->orWhere(function (Builder $query) {
+                    $query->where('customer_sales_channels.status', CustomerSalesChannelStatusEnum::INACTIVE)
+                        ->whereExists(function ($query) {
+                            $query->selectRaw('1')
+                                ->from('shopify_users')
+                                ->whereColumn('shopify_users.customer_sales_channel_id', 'customer_sales_channels.id')
+                                ->whereNotNull('shopify_users.external_shop_id')
+                                ->whereNull('shopify_users.deleted_at');
+                        });
+                });
+        });
     }
 
     public function platform(): BelongsTo

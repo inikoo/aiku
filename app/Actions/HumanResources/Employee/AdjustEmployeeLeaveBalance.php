@@ -9,6 +9,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesEditAuthorisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\EmployeeLeaveBalance;
 use App\Models\SysAdmin\Organisation;
@@ -17,6 +18,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AdjustEmployeeLeaveBalance extends OrgAction
 {
+    use WithHumanResourcesEditAuthorisation;
+
     public function rules(): array
     {
         return [
@@ -49,7 +52,12 @@ class AdjustEmployeeLeaveBalance extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): JsonResponse
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
+
+        $contractId = $this->validatedData['employee_contract_id'] ?? null;
+        abort_unless(!$contractId || $employee->contracts()->whereKey($contractId)->exists(), 404);
 
         $balance = $this->handle($employee, $this->validatedData);
 

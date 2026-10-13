@@ -9,6 +9,7 @@
 namespace App\Actions\Production\JobOrderItem;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\JobOrder\BatchedUnitsForDemand;
 use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
@@ -17,6 +18,7 @@ use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -53,6 +55,13 @@ class UpdateJobOrderItem extends OrgAction
 
         if (!in_array($this->jobOrderItem->jobOrder->state, JobOrderStateEnum::open()) || $this->jobOrderItem->quantity_received > 0) {
             $validator->errors()->add('quantity', __('This job is already being received, its quantity can no longer change.'));
+
+            return;
+        }
+
+        $carriedTo = $this->jobOrderItem->carriedTo();
+        if ($carriedTo) {
+            $validator->errors()->add('quantity', __('The rest of this job was carried to :reference, change the quantity there.', ['reference' => $carriedTo->reference]));
 
             return;
         }
@@ -105,6 +114,14 @@ class UpdateJobOrderItem extends OrgAction
     {
         $this->jobOrderItem = $jobOrderItem;
         $this->initialisation($jobOrderItem->organisation, $request);
+
+        if (Arr::has($this->validatedData, 'quantity')) {
+            data_set($this->validatedData, 'quantity', BatchedUnitsForDemand::make()->wholeOuters(
+                (int) $this->validatedData['quantity'],
+                $jobOrderItem->artefact->orgStock?->packed_in,
+                $jobOrderItem->artefact->recommended_batch_size
+            ));
+        }
 
         return $this->handle($jobOrderItem, $this->validatedData);
     }

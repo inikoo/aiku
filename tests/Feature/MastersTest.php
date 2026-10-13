@@ -1707,6 +1707,31 @@ test('UI Show Master Product attachments tab lists trade unit documents read onl
         ->has('attachments.documents'));
 })->depends('create master asset');
 
+test('master product page offers edit and add to other shop only to masters edit', function (MasterAsset $masterAsset) {
+    $actionKeys = fn (): array => collect(
+        get(route('grp.masters.master_shops.show.master_products.show', [
+            'masterShop'    => $masterAsset->masterShop->slug,
+            'masterProduct' => $masterAsset->slug,
+        ]))->assertOk()->viewData('page')['props']['pageHead']['actions']
+    )->filter()->pluck('key')->values()->all();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
+        expect($actionKeys())->not->toContain('edit', 'assign', 'repair-mismatch');
+
+        actingAsUserWithOnlyPermissions($this->user, ['masters.edit', 'masters.view']);
+        expect($actionKeys())->toContain('edit', 'assign');
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('create master asset');
+
 test('UI Index Master Products bulk edit tab lists products with their tax preset', function () {
     $masterShop = createFreshMasterShop();
 
@@ -4383,11 +4408,11 @@ describe('price tips, HELP-2331 and INI-075', function () {
             ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'price_changed_at' => now()->subDays(GenerateMasterAssetPriceTips::MANUAL_CHANGE_QUIET_DAYS + 1)->toDateString()]))->toBeNull()
             ->and(GenerateMasterAssetPriceTips::precheck([...$signals, 'cost' => 170.82])['outcome'])->toBe('cost_above_price');
 
-        $audit = fn (?int $userId, array $newValues, int $daysAgo) => DB::table('audits')->insert([
+        $audit = fn (?int $userId, array $newValues, int $daysAgo, string $event = 'updated') => DB::table('audits')->insert([
             'group_id'       => $this->tipMasterAsset->group_id,
             'auditable_type' => $this->tipMasterAsset->getMorphClass(),
             'auditable_id'   => $this->tipMasterAsset->id,
-            'event'          => 'updated',
+            'event'          => $event,
             'user_id'        => $userId,
             'tags'           => '[]',
             'old_values'     => json_encode(['price' => '10']),
@@ -4398,10 +4423,14 @@ describe('price tips, HELP-2331 and INI-075', function () {
         $audit(null, ['price' => 9], 1);
         $audit($userId, ['name' => 'Renamed'], 1);
         $audit($userId, ['price' => 9], GenerateMasterAssetPriceTips::MANUAL_CHANGE_QUIET_DAYS + 5);
+        $audit($userId, ['RRP GBP' => 1300], 1, 'updated_master_prices');
         expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id]))->toBeEmpty();
 
         $audit($userId, ['price' => 9], 3);
         expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id])->all())->toBe([$this->tipMasterAsset->id => now()->subDays(3)->toDateString()]);
+
+        $audit($userId, ['Price EUR' => 790, 'Price GBP' => 649], 2, 'updated_master_prices');
+        expect(GenerateMasterAssetPriceTips::make()->lastManualPriceChanges([$this->tipMasterAsset->id])->all())->toBe([$this->tipMasterAsset->id => now()->subDays(2)->toDateString()]);
     });
 
     test('lines on sale under 60 days and products that never sold are not looked at, and say why', function () use ($overstocked) {

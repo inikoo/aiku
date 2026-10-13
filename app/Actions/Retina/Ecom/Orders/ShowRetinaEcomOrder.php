@@ -88,7 +88,7 @@ class ShowRetinaEcomOrder extends RetinaAction
                 'type'    => 'button',
                 'style'   => '',
                 'tooltip' => __('Review your order and let us know how we can improve our service'),
-                'label'   => __('Review'),
+                'label'   => __('Review order'),
                 'icon'    => 'fal fa-stars',
                 'route'   => [
                     'name'       => 'retina.ecom.orders.review',

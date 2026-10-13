@@ -26,6 +26,7 @@ class DeleteLeaveApprover extends OrgAction
 
     public function asController(Organisation $organisation, LeaveApprover $leaveApprover, ActionRequest $request): bool
     {
+        abort_unless($leaveApprover->organisation_id === $organisation->id, 404);
         $this->initialisation($organisation, $request);
 
         return $this->handle($leaveApprover);

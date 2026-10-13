@@ -10,6 +10,7 @@ namespace App\Actions\Procurement;
 
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -34,9 +35,9 @@ class GetOrganisationStockCoverBuckets
         'w2'     => ['label' => 'Critical', 'description' => 'Out within 2 lead times', 'tone' => 'orange'],
         'w3'     => ['label' => 'Danger', 'description' => 'Out within 3 lead times', 'tone' => 'amber'],
         'w4'     => ['label' => 'Watch', 'description' => 'Out within 4 lead times', 'tone' => 'yellow'],
-        'ok'     => ['label' => 'Covered', 'tone' => 'green'],
-        'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'blue'],
-        'dead'   => ['label' => 'Dead stock', 'tone' => 'gray'],
+        'ok'     => ['label' => 'Covered', 'tone' => 'green-light'],
+        'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'green'],
+        'dead'   => ['label' => 'Dead stock', 'tone' => 'maroon'],
     ];
 
     public const SOURCES = [
@@ -201,15 +202,26 @@ class GetOrganisationStockCoverBuckets
             else 'ok' end";
     }
 
-    public function scope(Builder|EloquentBuilder $query, Organisation $organisation, ?OrgStockFamily $orgStockFamily = null, ?string $source = null): Builder|EloquentBuilder
+    /**
+     * A bucket is decided row by row from the SKO's own lead time, stats and family, so several
+     * organisations can be scoped at once and each SKO still lands where its own organisation puts it.
+     *
+     * @param Organisation|array<int, int> $organisation one organisation, or the ids of several
+     */
+    public function scope(Builder|EloquentBuilder $query, Organisation|array $organisation, ?OrgStockFamily $orgStockFamily = null, ?string $source = null): Builder|EloquentBuilder
     {
         return $query
             ->leftJoinLateral($this->primarySupplierProduct(), 'sp')
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
             ->leftJoin('stocks', 'stocks.id', 'org_stocks.stock_id')
             ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
-            ->where('org_stocks.organisation_id', $organisation->id)
+            ->when(
+                is_array($organisation),
+                fn ($query) => $query->whereIn('org_stocks.organisation_id', $organisation),
+                fn ($query) => $query->where('org_stocks.organisation_id', $organisation->id)
+            )
             ->where('org_stocks.state', OrgStockStateEnum::ACTIVE->value)
+            ->where(fn ($query) => $query->whereNull('stocks.state')->orWhereNotIn('stocks.state', [StockStateEnum::DISCONTINUING->value, StockStateEnum::DISCONTINUED->value]))
             ->whereRaw('coalesce(org_stocks.is_on_demand, false) = false')
             ->where(fn ($query) => $query->where('org_stocks.quantity_available', '>', 0)->orWhere(fn ($query) => $this->whereCountsAsStockOut($query)))
             ->when($orgStockFamily, fn ($query) => $query->where('org_stocks.org_stock_family_id', $orgStockFamily->id))

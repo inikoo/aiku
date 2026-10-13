@@ -12,6 +12,7 @@ use App\Events\BroadcastManufactureFloorChanged;
 use App\Events\BroadcastPartnerProductionChanged;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,6 +35,7 @@ use Illuminate\Support\Collection;
  * @property numeric $quantity_made
  * @property numeric $quantity_rejected
  * @property int|null $combined_task_id
+ * @property int|null $employee_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Group|null $group
@@ -52,6 +54,12 @@ use Illuminate\Support\Collection;
  */
 class JobOrderItemTask extends Model
 {
+    /**
+     * Who a step is for: its own operator, else the sub-job's, else the job order's.
+     * Needs job_order_items and job_orders joined.
+     */
+    public const string ASSIGNEE_SQL = 'coalesce(job_order_item_tasks.employee_id, job_order_items.employee_id, job_orders.employee_id)';
+
     protected static function booted(): void
     {
         static::saved(function (self $model) {
@@ -96,6 +104,30 @@ class JobOrderItemTask extends Model
     public function manufactureTask(): BelongsTo
     {
         return $this->belongsTo(ManufactureTask::class)->withTrashed();
+    }
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function packSize(): ?int
+    {
+        return ArtefactManufactureTask::packSize(
+            ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
+                ->where('manufacture_task_id', $this->manufacture_task_id)
+                ->value('units_per_artefact')
+        );
+    }
+
+    public function assigneeId(): ?int
+    {
+        return $this->employee_id ?? $this->jobOrderItem->artisanId();
+    }
+
+    public function assignee(): ?Employee
+    {
+        return $this->employee_id ? $this->employee : $this->jobOrderItem->artisan();
     }
 
     public function scopeLive(Builder $query): Builder

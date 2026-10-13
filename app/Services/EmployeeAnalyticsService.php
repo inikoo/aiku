@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Actions\HumanResources\Leave\StoreLeave;
 use App\Enums\HumanResources\Leave\LeaveStatusEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Leave;
@@ -9,6 +10,7 @@ use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\WorkSchedule;
 use App\Models\SysAdmin\Organisation;
 use Carbon\Carbon;
+use Illuminate\Support\Carbon as IlluminateCarbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -64,7 +66,7 @@ class EmployeeAnalyticsService
                             ->where('end_date', '>=', $range['end']);
                     });
             })
-            ->select('type', 'start_date', 'end_date')
+            ->select('id', 'employee_id', 'type', 'start_date', 'end_date', 'duration_days', 'is_half_day', 'session')
             ->get();
 
         $employeeMetrics = $this->buildEmployeeMetrics(
@@ -103,9 +105,6 @@ class EmployeeAnalyticsService
             ];
         }
 
-        $scheduleMap = $this->getOrganisationScheduleMap($employee->organisation_id);
-        $expectedDateKeys = $this->getExpectedWorkingDateKeys($range['start'], $range['end'], $scheduleMap);
-
         $leaves = Leave::query()
             ->where('employee_id', $employee->id)
             ->where('status', LeaveStatusEnum::APPROVED)
@@ -117,12 +116,12 @@ class EmployeeAnalyticsService
                             ->where('end_date', '>=', $range['end']);
                     });
             })
-            ->select('type', 'start_date', 'end_date')
+            ->select('id', 'employee_id', 'type', 'start_date', 'end_date', 'duration_days', 'is_half_day', 'session')
             ->get();
 
         $leaveSummary = $this->summariseLeaveDays(
             leaves: $leaves,
-            expectedDateKeys: $expectedDateKeys,
+            employee: $employee,
             rangeStart: $range['start'],
             rangeEnd: $range['end']
         );
@@ -137,15 +136,13 @@ class EmployeeAnalyticsService
     public function calculateSummaryMetrics(array $attendance, array $leave): array
     {
         $workingDays = (int) ($attendance['working_days'] ?? 0);
-        $leaveDays = (int) ($leave['total_leave_days'] ?? ($attendance['total_leave_days'] ?? 0));
-        $eligibleDays = (int) ($attendance['attendance_eligible_days'] ?? max(0, $workingDays - $leaveDays));
-        $presentDays = (int) ($attendance['present_days'] ?? 0);
+        $leaveDays = (float) ($leave['total_leave_days'] ?? ($attendance['total_leave_days'] ?? 0));
+        $eligibleDays = (float) ($attendance['attendance_eligible_days'] ?? max(0, $workingDays - $leaveDays));
+        $presentDays = (float) ($attendance['present_days'] ?? 0);
         $totalHours = (float) ($attendance['total_working_hours'] ?? 0);
         $overtimeHours = (float) ($attendance['overtime_hours'] ?? 0);
 
-        $attendancePercentage = $eligibleDays > 0
-            ? round(($presentDays / $eligibleDays) * 100, 2)
-            : 0.0;
+        $attendancePercentage = $this->attendancePercentage($presentDays, $eligibleDays);
 
         $avgDailyHours = $presentDays > 0
             ? round($totalHours / $presentDays, 2)
@@ -190,6 +187,37 @@ class EmployeeAnalyticsService
         ];
     }
 
+    /**
+     * @return array{start: string, end: string|null, today: string, status: string, working_days: int, employees_measured: int}
+     */
+    public function getAttendanceWindow(int $organisationId, Carbon $startDate, Carbon $endDate): array
+    {
+        $rangeStart = $startDate->copy()->startOfDay();
+        $rangeEnd = $endDate->copy()->endOfDay();
+        $timezone = $this->getOrganisationTimezone($organisationId);
+        $today = Carbon::parse(Carbon::now($timezone)->toDateString())->endOfDay();
+        $windowEnd = $this->capAtToday($rangeEnd, $timezone);
+        $hasElapsedDays = $windowEnd->gte($rangeStart);
+
+        $status = 'future';
+        if ($hasElapsedDays) {
+            $status = $rangeEnd->lte($today) ? 'past' : 'to_date';
+        }
+
+        $workingDays = $hasElapsedDays
+            ? count($this->getExpectedWorkingDateKeys($rangeStart, $windowEnd, $this->getOrganisationScheduleMap($organisationId)))
+            : 0;
+
+        return [
+            'start'              => $rangeStart->toDateString(),
+            'end'                => $hasElapsedDays ? $windowEnd->toDateString() : null,
+            'today'              => $today->toDateString(),
+            'status'             => $status,
+            'working_days'       => $workingDays,
+            'employees_measured' => $this->getOrganisationSnapshot($organisationId, $startDate, $endDate)['attendance_employee_count'],
+        ];
+    }
+
     public function getEmployeeAttendanceBreakdown(int $organisationId, Carbon $startDate, Carbon $endDate, int $limit = 10): array
     {
         $snapshot = $this->getOrganisationSnapshot($organisationId, $startDate, $endDate);
@@ -197,12 +225,14 @@ class EmployeeAnalyticsService
         $results = collect($snapshot['employees'])
             ->map(function (array $employee): array {
                 return [
-                    'id'                    => $employee['id'],
-                    'name'                  => $employee['name'],
-                    'slug'                  => $employee['slug'],
-                    'attendance_percentage' => $employee['attendance_percentage'],
-                    'late_clockins'         => $employee['late_clockins'],
-                    'early_clockouts'       => $employee['early_clockouts'],
+                    'id'                       => $employee['id'],
+                    'name'                     => $employee['name'],
+                    'slug'                     => $employee['slug'],
+                    'attendance_percentage'    => $employee['attendance_percentage'],
+                    'present_days'             => $employee['present_days'],
+                    'attendance_eligible_days' => $employee['attendance_eligible_days'],
+                    'late_clockins'            => $employee['late_clockins'],
+                    'early_clockouts'          => $employee['early_clockouts'],
                 ];
             })
             ->sortByDesc('attendance_percentage')
@@ -258,7 +288,7 @@ class EmployeeAnalyticsService
         $employees = Employee::query()
             ->where('organisation_id', $organisationId)
             ->where('state', 'working')
-            ->select('id', 'contact_name', 'slug', 'employment_start_at', 'employment_end_at')
+            ->select('id', 'organisation_id', 'contact_name', 'slug', 'employment_start_at', 'employment_end_at')
             ->get();
 
         $totalEmployees = $employees->count();
@@ -307,7 +337,7 @@ class EmployeeAnalyticsService
                             ->where('end_date', '>=', $rangeEnd);
                     });
             })
-            ->select('employee_id', 'type', 'start_date', 'end_date')
+            ->select('id', 'employee_id', 'type', 'start_date', 'end_date', 'duration_days', 'is_half_day', 'session')
             ->get()
             ->groupBy('employee_id');
 
@@ -362,7 +392,7 @@ class EmployeeAnalyticsService
     }
 
     protected function buildEmployeeMetrics(
-        object $employee,
+        Employee $employee,
         Collection $timesheets,
         Collection $leaves,
         ?array $scheduleMap,
@@ -391,25 +421,38 @@ class EmployeeAnalyticsService
             ];
         }
 
-        $expectedDateKeys = $this->getExpectedWorkingDateKeys(
-            $effectiveRange['start'],
-            $effectiveRange['end'],
-            $scheduleMap
-        );
+        $elapsedEnd = $this->capAtToday($effectiveRange['end'], $timezone);
+        $hasElapsedDays = $elapsedEnd->gte($effectiveRange['start']);
+
+        $expectedDateKeys = $hasElapsedDays
+            ? $this->getExpectedWorkingDateKeys($effectiveRange['start'], $elapsedEnd, $scheduleMap)
+            : [];
 
         $workingDays = count($expectedDateKeys);
-        $presentDays = $this->extractPresentDays($timesheets, $expectedDateKeys);
 
         $leaveSummary = $this->summariseLeaveDays(
             leaves: $leaves,
-            expectedDateKeys: $expectedDateKeys,
+            employee: $employee,
             rangeStart: $effectiveRange['start'],
             rangeEnd: $effectiveRange['end']
         );
 
+        $elapsedLeaveSummary = $hasElapsedDays
+            ? $this->summariseLeaveDays(
+                leaves: $leaves,
+                employee: $employee,
+                rangeStart: $effectiveRange['start'],
+                rangeEnd: $elapsedEnd
+            )
+            : ['total_leave_days' => 0, 'half_day_date_keys' => []];
+
+        $presentDays = $this->wholeDaysAsInteger(
+            $this->extractPresentDays($timesheets, $expectedDateKeys, $elapsedLeaveSummary['half_day_date_keys'])
+        );
+
         $totalLeaveDays = $leaveSummary['total_leave_days'];
-        $attendanceEligibleDays = max(0, $workingDays - $totalLeaveDays);
-        $absentDays = max(0, $attendanceEligibleDays - $presentDays);
+        $attendanceEligibleDays = $this->wholeDaysAsInteger(max(0, $workingDays - $elapsedLeaveSummary['total_leave_days']));
+        $absentDays = $this->wholeDaysAsInteger(max(0, $attendanceEligibleDays - $presentDays));
 
         [$lateClockins, $earlyClockouts] = $this->countLateAndEarly(
             timesheets: $timesheets,
@@ -420,9 +463,7 @@ class EmployeeAnalyticsService
         $totalWorkingHours = round(((int) $timesheets->sum('working_duration')) / 3600, 2);
         $overtimeHours = round($this->calculateOvertimeHours($totalWorkingHours, $attendanceEligibleDays), 2);
 
-        $attendancePercentage = $attendanceEligibleDays > 0
-            ? round(($presentDays / $attendanceEligibleDays) * 100, 2)
-            : 0.0;
+        $attendancePercentage = $this->attendancePercentage($presentDays, $attendanceEligibleDays);
 
         return [
             'id'                       => (int) $employee->id,
@@ -471,6 +512,13 @@ class EmployeeAnalyticsService
         ];
     }
 
+    protected function capAtToday(Carbon $rangeEnd, string $timezone): Carbon
+    {
+        $today = Carbon::parse(Carbon::now($timezone)->toDateString())->endOfDay();
+
+        return $rangeEnd->lt($today) ? $rangeEnd->copy() : $today;
+    }
+
     protected function getExpectedWorkingDateKeys(Carbon $startDate, Carbon $endDate, ?array $scheduleMap): array
     {
         $keys = [];
@@ -495,10 +543,28 @@ class EmployeeAnalyticsService
         return $keys;
     }
 
-    protected function extractPresentDays(Collection $timesheets, array $expectedDateKeys): int
+    protected function attendancePercentage(int|float $presentDays, int|float $eligibleDays): float
+    {
+        if ($eligibleDays <= 0) {
+            return 0.0;
+        }
+
+        return min(100.0, round(($presentDays / $eligibleDays) * 100, 2));
+    }
+
+    protected function wholeDaysAsInteger(int|float $days): int|float
+    {
+        return floor($days) == $days ? (int) $days : (float) $days;
+    }
+
+    /**
+     * @param  array<string, true>  $expectedDateKeys
+     * @param  array<string, int>  $halfDayLeaveDateKeys
+     */
+    protected function extractPresentDays(Collection $timesheets, array $expectedDateKeys, array $halfDayLeaveDateKeys = []): float
     {
         if (empty($expectedDateKeys)) {
-            return 0;
+            return 0.0;
         }
 
         $presentDateKeys = [];
@@ -510,56 +576,80 @@ class EmployeeAnalyticsService
 
             $dateKey = $timesheetDate->format('Y-m-d');
             if (isset($expectedDateKeys[$dateKey])) {
-                $presentDateKeys[$dateKey] = true;
+                $presentDateKeys[$dateKey] = max(0.0, 1 - 0.5 * ($halfDayLeaveDateKeys[$dateKey] ?? 0));
             }
         }
 
-        return count($presentDateKeys);
+        return (float) array_sum($presentDateKeys);
     }
 
+    /**
+     * @return array{total_leave_days: int|float, leave_breakdown: array<string, int|float>, half_day_date_keys: array<string, int>}
+     */
     protected function summariseLeaveDays(
         Collection $leaves,
-        array $expectedDateKeys,
+        Employee $employee,
         Carbon $rangeStart,
         Carbon $rangeEnd
     ): array {
-        if ($leaves->isEmpty()) {
-            return [
-                'total_leave_days' => 0,
-                'leave_breakdown'  => [],
-            ];
-        }
-
         $totalLeaveDays = 0.0;
         $leaveBreakdown = [];
+        $halfDayDateKeys = [];
 
         foreach ($leaves as $leave) {
-            $leaveStart = Carbon::parse($leave->start_date)->startOfDay();
-            $leaveEnd = Carbon::parse($leave->end_date)->endOfDay();
+            $daysInRange = $this->leaveDaysInRange($leave, $employee, $rangeStart, $rangeEnd);
 
-            if ($leaveEnd->lt($rangeStart) || $leaveStart->gt($rangeEnd)) {
+            if ($daysInRange <= 0) {
                 continue;
             }
 
             $leaveType = (string) $leave->type;
+            $totalLeaveDays += $daysInRange;
+            $leaveBreakdown[$leaveType] = ($leaveBreakdown[$leaveType] ?? 0.0) + $daysInRange;
 
-            $isHalfDay = $leave->is_half_day ?? false
-                || in_array($leaveType, ['halfday-morning', 'halfday-afternoon']);
-
-            $durationDays = $isHalfDay ? 0.5 : (float) ($leave->duration_days ?? 1);
-
-            $totalLeaveDays += $durationDays;
-
-            if (!isset($leaveBreakdown[$leaveType])) {
-                $leaveBreakdown[$leaveType] = 0.0;
+            if ($this->isHalfDayLeave($leave)) {
+                $dateKey = Carbon::parse($leave->start_date)->format('Y-m-d');
+                $halfDayDateKeys[$dateKey] = ($halfDayDateKeys[$dateKey] ?? 0) + 1;
             }
-            $leaveBreakdown[$leaveType] += $durationDays;
         }
 
         return [
-            'total_leave_days' => $totalLeaveDays,
-            'leave_breakdown'  => $leaveBreakdown,
+            'total_leave_days'   => $this->wholeDaysAsInteger($totalLeaveDays),
+            'leave_breakdown'    => array_map(fn (float $days): int|float => $this->wholeDaysAsInteger($days), $leaveBreakdown),
+            'half_day_date_keys' => $halfDayDateKeys,
         ];
+    }
+
+    protected function isHalfDayLeave(Leave $leave): bool
+    {
+        return (bool) $leave->is_half_day
+            || in_array((string) $leave->type, ['halfday-morning', 'halfday-afternoon'], true);
+    }
+
+    protected function leaveDaysInRange(Leave $leave, Employee $employee, Carbon $rangeStart, Carbon $rangeEnd): float
+    {
+        $leaveStart = Carbon::parse($leave->start_date)->startOfDay();
+        $leaveEnd = Carbon::parse($leave->end_date)->startOfDay();
+        $clippedStart = $leaveStart->max($rangeStart->copy()->startOfDay());
+        $clippedEnd = $leaveEnd->min($rangeEnd->copy()->startOfDay());
+
+        if ($clippedStart->gt($clippedEnd)) {
+            return 0.0;
+        }
+
+        if ($this->isHalfDayLeave($leave)) {
+            return 0.5;
+        }
+
+        if ($clippedStart->equalTo($leaveStart) && $clippedEnd->equalTo($leaveEnd)) {
+            return (float) $leave->duration_days;
+        }
+
+        return (float) StoreLeave::make()->calculateDurationDays(
+            IlluminateCarbon::parse($clippedStart->toDateString()),
+            IlluminateCarbon::parse($clippedEnd->toDateString()),
+            $employee
+        );
     }
 
     protected function countLateAndEarly(Collection $timesheets, ?array $scheduleMap, string $timezone): array
@@ -609,7 +699,7 @@ class EmployeeAnalyticsService
         return [$lateClockins, $earlyClockouts];
     }
 
-    protected function calculateOvertimeHours(float $totalWorkingHours, int $workingDays): float
+    protected function calculateOvertimeHours(float $totalWorkingHours, int|float $workingDays): float
     {
         $dailyScheduledHours = $this->config['thresholds']['daily_scheduled_hours'] ?? 8.0;
 

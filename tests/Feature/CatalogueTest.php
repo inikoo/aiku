@@ -121,6 +121,7 @@ test('create shop', function () {
     $shopPermissions = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
 
     expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->is_aiku)->toBeTrue()
         ->and($organisation->group->catalogueStats->number_shops)->toBe(1)
         ->and($organisation->group->catalogueStats->number_shops_type_b2b)->toBe(1)
         ->and($organisation->catalogueStats->number_shops)->toBe(1)
@@ -1208,6 +1209,7 @@ test('repair command resyncs product ingredients and origin from trade units', f
     \App\Actions\Catalogue\Product\SyncProductTradeUnits::run($product, [
         ['id' => $this->tradeUnit1->id, 'quantity' => 1],
     ]);
+    \App\Actions\Catalogue\Product\RepairProductIngredientsAndOriginFromTradeUnits::make()->handle($shop->id);
 
     Product::where('id', $product->id)->update([
         'marketing_ingredients' => 'Glass',

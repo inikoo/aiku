@@ -18,6 +18,7 @@ use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\Agent\UI\WithAgentEditAction;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Actions\Procurement\SupplierMessage\UI\IndexSupplierMessages;
 use App\Http\Resources\Procurement\SupplierMessagesResource;
@@ -81,33 +82,32 @@ class ShowOrgAgent extends OrgAction
                             $request->route()->originalParameters()
                         ),
                     ],
-                    // 'meta' => [
-                    //     [
-                    //         'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
-                    //         'number'   => $orgAgent->stats->number_org_suppliers,
-                    //         'route'     => [
-                    //             'grp.org.procurement.org_agents.show.org_suppliers.index',
-                    //             $orgAgent->organisation->slug
-                    //         ],
-                    //         'leftIcon' => [
-                    //             'icon'    => 'fal fa-person-dolly',
-                    //             'tooltip' => __('suppliers')
-                    //         ]
-                    //     ],
-                    //     [
-                    //         'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
-                    //         'number'   => $orgAgent->stats->number_org_supplier_products,
-                    //         'route'     => [
-                    //             'grp.org.procurement.org_agents.show.org_suppliers.index',
-                    //             $orgAgent->organisation->slug
-                    //         ],
-                    //         'leftIcon' => [
-                    //             'icon'    => 'fal fa-box-usd',
-                    //             'tooltip' => __('products')
-                    //         ]
-                    //     ]
-                    // ]
-
+                    'meta'          => $this->organisation->type === OrganisationTypeEnum::AGENT ? [] : [
+                        [
+                            'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
+                            'number'   => $orgAgent->stats->number_org_suppliers,
+                            'route'    => [
+                                'name'       => 'grp.org.procurement.org_agents.show.suppliers.index',
+                                'parameters' => [$this->organisation->slug, $orgAgent->slug],
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-person-dolly',
+                                'tooltip' => __('Suppliers'),
+                            ],
+                        ],
+                        [
+                            'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
+                            'number'   => $orgAgent->stats->number_org_supplier_products,
+                            'route'    => [
+                                'name'       => 'grp.org.procurement.org_agents.show.supplier_products.index',
+                                'parameters' => [$this->organisation->slug, $orgAgent->slug],
+                            ],
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-box-usd',
+                                'tooltip' => __('Products'),
+                            ],
+                        ],
+                    ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

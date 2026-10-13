@@ -27,6 +27,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property ?float $stock_value
  * @property ?float $projected_lost_revenue
  * @property string $bucket
+ * @property ?string $organisation_slug
+ * @property ?string $organisation_code
+ * @property ?string $organisation_name
+ * @property ?string $currency_code
+ * @property ?string $warehouse_slug
  */
 class StockCoverOrgStocksResource extends JsonResource
 {
@@ -50,6 +55,11 @@ class StockCoverOrgStocksResource extends JsonResource
             'bucket'               => $this->bucket,
             'bucket_label'         => GetOrganisationStockCoverBuckets::make()->bucketLabel($this->bucket),
             'bucket_tone'          => GetOrganisationStockCoverBuckets::BUCKETS[$this->bucket]['tone'],
+            'organisation_slug'    => $this->organisation_slug,
+            'organisation_code'    => $this->organisation_code,
+            'organisation_name'    => $this->organisation_name,
+            'currency_code'        => $this->currency_code,
+            'warehouse_slug'       => $this->warehouse_slug,
         ];
     }
 }

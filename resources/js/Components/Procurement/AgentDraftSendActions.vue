@@ -22,12 +22,12 @@ const waiting = computed(() => props.card.parts.filter((part) => !part.ready && 
 <template>
     <div class="flex items-center justify-end gap-2">
         <span v-if="!card.has_ours" class="mr-auto text-xs text-gray-400">{{ ctrans("Your organisation has nothing on this supplier") }}</span>
-        <Button v-else-if="!waiting.length" :label="ctrans('Send to agent')" type="tertiary" icon="fal fa-paper-plane" size="s" :loading="isSending" @click="$emit('send')" />
+        <Button v-else-if="!waiting.length" :label="ctrans('Submit to agent')" type="tertiary" icon="fal fa-paper-plane" size="s" :loading="isSending" @click="$emit('send')" />
         <template v-else>
             <span class="mr-auto text-xs text-amber-600">
                 {{ ctrans("Waiting for :organisations", { organisations: waiting.map((part) => part.organisation_code).join(", ") }) }}
             </span>
-            <Button :label="ctrans('Send without waiting')" type="negative" icon="fal fa-exclamation-triangle" size="s" @click="$emit('override')" />
+            <Button :label="ctrans('Submit without waiting')" type="negative" icon="fal fa-exclamation-triangle" size="s" @click="$emit('override')" />
         </template>
     </div>
 </template>

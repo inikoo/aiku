@@ -27,6 +27,8 @@ class DeleteRestrictedPeriodTarget extends OrgAction
 
     public function asController(Organisation $organisation, RestrictedPeriod $restrictedPeriod, RestrictedPeriodTarget $restrictedPeriodTarget, ActionRequest $request): bool
     {
+        abort_unless($restrictedPeriod->organisation_id === $organisation->id && $restrictedPeriodTarget->restricted_period_id === $restrictedPeriod->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($restrictedPeriodTarget);

@@ -23,8 +23,11 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import CopyButton from "@/Components/Utils/CopyButton.vue"
 import ArtisanPicker from "@/Components/Production/ArtisanPicker.vue"
 import ModalCreateManualJobOrder from "@/Components/Production/ModalCreateManualJobOrder.vue"
+import DatePicker from "primevue/datepicker"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { faCalendarDay } from "@fal"
 
-library.add(faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding, faBells)
+library.add(faUserHardHat, faPencil, faFilePdf, faPrint, faHashtag, faBars, faBuilding, faBells, faCalendarDay)
 
 type PublishedLabel = { id: number, name: string, run_sources: string[], pdf_url: string }
 
@@ -144,17 +147,18 @@ function toggle(item: { id: number, quantity: number }) {
     }
 }
 
-function createJobOrders(ids: number[] = Object.keys(selected).map(Number), employeeId: number | null = null, quantity: number | null = null) {
+function createJobOrders(ids: number[] = Object.keys(selected).map(Number), employeeId: number | null = null, quantity: number | null = null, plannedFor: string | null = null) {
     router.post(
         route("grp.org.productions.show.to_produce.job_orders.store", [route().params["organisation"], route().params["production"]]),
-        { ids, employee_id: employeeId, quantity },
+        { ids, employee_id: employeeId, quantity, planned_for: plannedFor },
         { preserveScroll: true, onSuccess: () => { for (const k in selected) delete selected[k] } }
     )
 }
 
-type BoardItem = { id: number, batch_size?: number | null, packed_in?: number | null, order_quantum?: number | null, is_hitchhiker?: boolean, stock_code: string, stock_name: string, state: string, quantity: number, quantity_to_produce: number | null, maker: string | null, maker_id: number | null, preparing_at: string | null, kind?: "item" | "mix", artefact_id?: number, job_order_id?: number | null, job_order_state?: string | null, job_order_reference?: string | null, job_order_artisan?: string | null, job_order_sub_jobs?: { reference: string, artisan: string | null, quantity: number }[], stock_available?: number | null, stock_promised?: number | null, buyer_code?: string | null, published_labels?: PublishedLabel[], batch_code?: string | null, run_batch_code?: string | null, run_expiry?: string | null, label_expiry_date?: string | null, pipeline?: { pending_booking: number, in_production: number, job_orders: string[] } }
+type BoardItem = { id: number, batch_size?: number | null, packed_in?: number | null, order_quantum?: number | null, is_hitchhiker?: boolean, stock_code: string, stock_name: string, state: string, quantity: number, quantity_to_produce: number | null, maker: string | null, maker_id: number | null, preparing_at: string | null, kind?: "item" | "mix", artefact_id?: number, job_order_id?: number | null, job_order_state?: string | null, job_order_reference?: string | null, job_order_artisan?: string | null, current_steps?: { name: string, artisans: (string | null)[] }[], job_order_sub_jobs?: { reference: string, artisan: string | null, quantity: number }[], stock_available?: number | null, stock_promised?: number | null, buyer_code?: string | null, published_labels?: PublishedLabel[], batch_code?: string | null, run_batch_code?: string | null, run_expiry?: string | null, label_expiry_date?: string | null, pipeline?: { pending_booking: number, in_production: number, job_orders: string[] } }
 
 function artisansOf(item: BoardItem): string[] {
+    if (item.current_steps?.length) return [...new Set(item.current_steps.flatMap(step => step.artisans.map(artisan => artisan ?? "")))]
     return item.job_order_sub_jobs?.length
         ? [...new Set(item.job_order_sub_jobs.map(subJob => subJob.artisan ?? ""))]
         : [item.job_order_artisan ?? ""]
@@ -368,19 +372,26 @@ function confirmPrepare() {
     pendingItems.value = []
 }
 
-function assign(employeeId: number) {
+const planDay = ref<Date>(new Date())
+
+function planFor() {
+    const day = planDay.value
+    assign(null, `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`)
+}
+
+function assign(employeeId: number | null, plannedFor: string | null = null) {
     const first = pendingFirst.value
     if (!first) return
     if (pickerMode.value === "reassign") {
-        router.patch(route("grp.models.job-order.update", { jobOrder: first.job_order_id }), { employee_id: employeeId }, { preserveScroll: true })
+        router.patch(route("grp.models.job-order.update", { jobOrder: first.job_order_id }), plannedFor ? { employee_id: null, planned_for: plannedFor } : { employee_id: employeeId }, { preserveScroll: true })
     } else if (first.kind === "mix") {
         router.post(
             route("grp.org.productions.show.to_produce.mixes.job_orders.store", [route().params["organisation"], route().params["production"]]),
-            { lines: [{ artefact_id: first.artefact_id, quantity: pendingQuantities[first.id] }], employee_id: employeeId },
+            { lines: [{ artefact_id: first.artefact_id, quantity: pendingQuantities[first.id] }], employee_id: employeeId, planned_for: plannedFor },
             { preserveScroll: true }
         )
     } else {
-        createJobOrders(pendingItems.value.map(item => item.id), employeeId)
+        createJobOrders(pendingItems.value.map(item => item.id), employeeId, null, plannedFor)
         selectedCards.value = []
     }
     pendingItems.value = []
@@ -676,12 +687,24 @@ function jobOrderHref(item: { job_order_slug: string }) {
                     <template v-if="pickerMode === 'reassign'">{{ ctrans("Change artisan of :reference", { reference: pendingFirst.job_order_reference ?? "" }) }} <span class="text-gray-400">({{ pendingFirst.job_order_artisan ?? ctrans("nobody") }})</span></template>
                     <template v-else>{{ pickerMode === 'assign-mix' ? ctrans("Who mixes it?") : pendingItems.length > 1 ? ctrans("Who makes them?") : ctrans("Who makes :count?", { count: Math.ceil(Number(pendingFirst.quantity_to_produce ?? pendingFirst.quantity)) }) }}</template>
                 </div>
+                <div v-if="canCreateJobOrder" class="mb-2 flex items-center gap-1.5 border-b border-gray-100 pb-2">
+                    <DatePicker v-model="planDay" :minDate="new Date()" dateFormat="D d M" :manualInput="false" :pt="{ pcInputText: { root: { class: '!w-24 !py-0.5 !text-xs' } } }" :aria-label="ctrans('Day')" />
+                    <Button type="tertiary" size="xs" :label="ctrans('Plan for this day')" :tooltip="ctrans('No operator yet: the supervisor gives each step to an operator on the Day plan')" @click="planFor">
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-calendar-day" class="text-gray-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
                 <ArtisanPicker :artisans="artisanWorkload ?? []" :default-maker="pendingDefaultMaker" @pick="assign" />
             </template>
         </div>
     </Teleport>
 
-    <div v-if="groupBy === 'board' && canCreateJobOrder" class="mx-4 mt-4 flex justify-end">
+    <div v-if="groupBy === 'board' && canCreateJobOrder" class="mx-4 mt-4 flex justify-end gap-3">
+        <Link :href="route('grp.org.productions.show.operations.day_plan', [route().params['organisation'], route().params['production']])" class="flex items-center gap-1.5 text-sm text-gray-700 hover:underline">
+            <FontAwesomeIcon icon="fal fa-calendar-day" class="text-gray-500" fixed-width aria-hidden="true" />
+            {{ ctrans("Day plan") }}
+        </Link>
         <button type="button" class="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700" @click="isCreatingJobOrder = true">
             + {{ ctrans("Create job order") }}
         </button>
@@ -806,7 +829,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                             {{ ctrans("SKO") }}
                         </span>
                         <span class="ml-auto flex items-center gap-1 tabular-nums" :class="item.priority === 'urgent' ? 'text-red-600 font-semibold' : ''">
-                            ×{{ useLocaleStore().number(Number(item.quantity)) }} {{ ctrans("SKO") }}
+                            ×{{ useLocaleStore().number(Math.ceil(Number(item.quantity))) }} {{ ctrans("SKO") }}
                             <template v-if="laneIndex === LANE_PREPARING && item.state === 'open'">
                                 <span class="text-indigo-600">→</span>
                                 <input
@@ -833,7 +856,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
                     </div>
                     <div v-if="laneIndex <= LANE_PREPARING" class="text-gray-400">
                         <span :class="freeStock(item) >= Number(item.quantity) ? 'text-emerald-600' : ''">{{ ctrans("In stock") }}: {{ useLocaleStore().number(Number(item.stock_available ?? 0)) }}</span>
-                        <span v-if="Number(item.stock_promised) > 0"> · {{ ctrans("promised to pre-picks") }}: {{ useLocaleStore().number(Number(item.stock_promised)) }} · {{ ctrans("free") }}: {{ useLocaleStore().number(freeStock(item)) }}</span>
+                        <span v-if="Number(item.stock_promised) > 0"> · {{ ctrans("promised to pre-picks") }}: {{ useLocaleStore().number(Number(item.stock_promised)) }} · {{ ctrans("not promised") }}: {{ useLocaleStore().number(freeStock(item)) }}</span>
                     </div>
                     <div
                         v-if="laneIndex === LANE_PREPARING && item.batch_code"
@@ -883,7 +906,16 @@ function jobOrderHref(item: { job_order_slug: string }) {
                             </template>
                         </div>
                     </div>
-                    <div v-if="item.job_order_sub_jobs?.length" class="space-y-0.5 text-gray-600">
+                    <div v-if="item.current_steps?.length" class="space-y-0.5 text-gray-600">
+                        <div v-for="step in item.current_steps" :key="step.name" class="flex items-center gap-1" :title="ctrans('Current step: :step', { step: step.name })">
+                            <FontAwesomeIcon icon="fal fa-user-hard-hat" class="text-gray-400" fixed-width />
+                            <span class="truncate">
+                                <template v-for="(artisan, artisanIndex) in step.artisans" :key="artisanIndex"><template v-if="artisanIndex">, </template><span :class="artisan ? '' : 'font-medium text-amber-600'">{{ artisan ?? ctrans("Unassigned") }}</span></template>
+                                · {{ step.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-else-if="item.job_order_sub_jobs?.length" class="space-y-0.5 text-gray-600">
                         <div v-for="subJob in item.job_order_sub_jobs" :key="subJob.reference" class="flex items-center gap-1" :title="subJob.reference">
                             <FontAwesomeIcon icon="fal fa-user-hard-hat" class="text-gray-400" fixed-width />
                             <span class="truncate">{{ subJob.artisan ?? ctrans("No artisan") }}</span>

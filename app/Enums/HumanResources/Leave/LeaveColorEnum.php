@@ -42,6 +42,15 @@ enum LeaveColorEnum: string
         ];
     }
 
+    public static function hexFor(?string $color): string
+    {
+        return match (true) {
+            !$color                      => '#6B7280',
+            str_starts_with($color, '#') => $color,
+            default                      => self::tryFrom(strtolower($color))?->hexColor() ?? '#6B7280',
+        };
+    }
+
     public function label(): string
     {
         return self::labels()[$this->value] ?? '';

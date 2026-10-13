@@ -38,7 +38,7 @@ class SplitJobOrderItem extends OrgAction
 
         DB::transaction(function () use ($line, $assignments) {
             $subJobs     = $this->subJobs($line)->keyBy('id');
-            $splitData   = Arr::except($line->data, ['demand_skos']);
+            $splitData   = Arr::except($line->data, ['demand_skos', 'carried_to']);
             $keptIds     = [];
 
             foreach ($assignments as $assignment) {
@@ -57,7 +57,7 @@ class SplitJobOrderItem extends OrgAction
                 $subJob->update([
                     'employee_id'   => $assignment['employee_id'],
                     'split_from_id' => $subJob->id == $line->id ? null : $line->id,
-                    'data'          => $splitData,
+                    'data'          => [...$splitData, ...Arr::only($subJob->data ?? [], ['carried_to'])],
                 ]);
 
                 $keptIds[] = $subJob->id;
@@ -138,6 +138,13 @@ class SplitJobOrderItem extends OrgAction
             return;
         }
 
+        $packedIn = max(1, (int) $line->artefact->orgStock?->packed_in);
+        if ($total % $packedIn === 0 && $assignments->contains(fn (array $assignment) => $assignment['quantity'] % $packedIn)) {
+            $validator->errors()->add('assignments', __('Each artisan gets whole outers: multiples of :count units.', ['count' => $packedIn]));
+
+            return;
+        }
+
         $assignedIds = $assignments->pluck('id')->filter();
         if ($assignedIds->diff($subJobs->keys())->isNotEmpty() || $assignedIds->duplicates()->isNotEmpty()) {
             $validator->errors()->add('assignments', __('This job changed meanwhile, reload the page.'));
@@ -160,7 +167,14 @@ class SplitJobOrderItem extends OrgAction
         }
 
         foreach ($assignments->whereNotNull('id') as $assignment) {
-            $subJob           = $subJobs->get($assignment['id']);
+            $subJob    = $subJobs->get($assignment['id']);
+            $carriedTo = $subJob->quantity != $assignment['quantity'] ? $subJob->carriedTo() : null;
+            if ($carriedTo) {
+                $validator->errors()->add('assignments', __('The rest of this job was carried to :reference, change the quantity there.', ['reference' => $carriedTo->reference]));
+
+                return;
+            }
+
             $unitsPerArtefact = $subJob->artefact->manufactureTasks->pluck('pivot.units_per_artefact', 'id');
 
             foreach ($subJob->tasks as $task) {

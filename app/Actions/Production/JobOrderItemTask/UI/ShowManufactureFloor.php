@@ -9,6 +9,7 @@
 namespace App\Actions\Production\JobOrderItemTask\UI;
 
 use App\Actions\Production\JobOrderItem\GetJobOrderItemMissingMixes;
+use App\Actions\Production\JobOrderItemTask\SettleShortJobOrderItemTask;
 use App\Actions\OrgAction;
 use App\Actions\Production\Production\UI\ShowProduction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
@@ -17,6 +18,7 @@ use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\HumanResources\Employee;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
@@ -42,7 +44,12 @@ class ShowManufactureFloor extends OrgAction
     /** @var array<int, Collection<int, JobOrderItemTask>> combined steps by the id of the step that stands for them */
     private array $combinedGroups = [];
 
+    private ?Collection $packSizes = null;
+
     private bool $canCombine = false;
+
+    /** @var array<int, string|null> reference of the job order a job's remainder was carried to, by its id */
+    private array $carriedToReferences = [];
 
     public function handle(Production $production): Production
     {
@@ -104,7 +111,7 @@ class ShowManufactureFloor extends OrgAction
 
         $openTasks = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
             ->where('job_order_item_tasks.state', '!=', JobOrderItemTaskStateEnum::DONE)
-            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask'])
+            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask', 'employee'])
             ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->live()
@@ -112,13 +119,15 @@ class ShowManufactureFloor extends OrgAction
                 $query->where('job_orders.state', JobOrderStateEnum::CONFIRMED)
                     ->orWhere(function ($query) {
                         $query->where('job_orders.state', JobOrderStateEnum::IN_PROCESS)
-                            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$this->employee?->id ?? 0]);
+                            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0]);
                     });
             })
             ->when(!$canPickOpenJobs, fn ($query) => $query->where(function ($query) {
-                $query->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$this->employee?->id ?? 0])
+                $query->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0])
                     ->orWhereIn('job_order_item_tasks.combined_task_id', $this->combinedTaskIdsOf($this->employee));
             }))
+            ->orderByRaw('job_orders.planned_for nulls last')
+            ->orderByRaw('job_orders.plan_position nulls last')
             ->orderBy('job_orders.date')
             ->orderBy('job_order_item_tasks.position')
             ->orderBy('job_order_item_tasks.id')
@@ -245,6 +254,7 @@ class ShowManufactureFloor extends OrgAction
                     ],
                     'band_feedback' => $this->bandFeedback($openSession),
                     'break_minutes' => (int) $openSession->break_minutes,
+                    'carry'         => $openSession->is_combined ? null : SettleShortJobOrderItemTask::make()->preview($openSession->jobOrderItemTask),
                 ] : null),
                 'artisan'      => $this->employee?->contact_name,
                 'can_pick_open_jobs' => $canPickOpenJobs,
@@ -410,11 +420,14 @@ class ShowManufactureFloor extends OrgAction
             'artefact_code'       => $members->map(fn (JobOrderItemTask $member) => $member->jobOrderItem->artefact->code)->unique()->implode(' + '),
             'artefact_name'       => $isCombined ? __('Combined batch') : $task->jobOrderItem->artefact->name,
             'job_order_reference' => $members->map(fn (JobOrderItemTask $member) => $member->jobOrder->reference)->unique()->implode(', '),
-            'artisan'             => $task->jobOrderItem->artisan()?->contact_name,
-            'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->jobOrderItem->artisanId() == $this->employee->id),
+            'continued_from'      => Arr::has($task->jobOrder->data, 'carried_from') ? SettleShortJobOrderItemTask::baseReference($task->jobOrder) : null,
+            'continued_in'        => $this->continuedIn($task),
+            'artisan'             => $task->assignee()?->contact_name,
+            'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->assigneeId() == $this->employee->id),
             'waiting_for'         => $members->flatMap(fn (JobOrderItemTask $member) => $this->missingMixes[$member->job_order_item_id] ??= array_column(GetJobOrderItemMissingMixes::run($member->jobOrderItem), 'code'))->unique()->values()->all(),
             'quantity_required'   => (float)$members->sum('quantity_required'),
             'quantity_made'       => (float)$members->sum('quantity_made'),
+            'pack_size'           => $this->packSize($members),
             'combined'            => $isCombined ? $members->map(fn (JobOrderItemTask $member) => [
                 'id'                  => $member->id,
                 'artefact_code'       => $member->jobOrderItem->artefact->code,
@@ -434,6 +447,25 @@ class ShowManufactureFloor extends OrgAction
                 'method'     => 'post',
             ],
         ];
+    }
+
+    /**
+     * @param Collection<int, JobOrderItemTask> $members
+     */
+    private function packSize(Collection $members): ?int
+    {
+        $this->packSizes ??= ArtefactManufactureTask::packSizes();
+
+        $sizes = $members->map(fn (JobOrderItemTask $member) => $this->packSizes[$member->jobOrderItem->artefact_id.':'.$member->manufacture_task_id] ?? null)->unique();
+
+        return $sizes->count() == 1 ? $sizes->first() : null;
+    }
+
+    private function continuedIn(JobOrderItemTask $task): ?string
+    {
+        $carriedToId = Arr::get($task->jobOrderItem->data, 'carried_to');
+
+        return $carriedToId ? $this->carriedToReferences[$carriedToId] ??= JobOrder::withTrashed()->whereKey($carriedToId)->value('reference') : null;
     }
 
     /**
@@ -479,7 +511,7 @@ class ShowManufactureFloor extends OrgAction
             ->whereNotNull('job_order_item_tasks.combined_task_id')
             ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
-            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) = ?', [$employee->id])
+            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$employee->id])
             ->distinct()
             ->pluck('job_order_item_tasks.combined_task_id')
             ->all();

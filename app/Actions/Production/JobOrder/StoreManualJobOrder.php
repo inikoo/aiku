@@ -35,7 +35,7 @@ class StoreManualJobOrder extends OrgAction
     public const array REASONS = ['stock', 'partner', 'sample', 'rework', 'other'];
 
     /**
-     * @param array{reason: string, notes?: string|null, needed_by?: string|null, employee_id?: int|null, lines: array<int, array{artefact_id: int, quantity: float}>} $modelData quantities in SKOs
+     * @param array{reason: string, notes?: string|null, needed_by?: string|null, employee_id?: int|null, lines: array<int, array{artefact_id: int, quantity: int}>} $modelData quantities in whole SKOs
      */
     public function handle(Production $production, array $modelData): JobOrder
     {
@@ -114,7 +114,7 @@ class StoreManualJobOrder extends OrgAction
             'employee_id'         => ['sometimes', 'nullable', 'integer', Rule::exists('employees', 'id')->where('organisation_id', $this->organisation->id)],
             'lines'               => ['required', 'array', 'min:1'],
             'lines.*.artefact_id' => ['required', 'integer', 'distinct'],
-            'lines.*.quantity'    => ['required', 'numeric', 'min:0.001'],
+            'lines.*.quantity'    => ['required', 'integer', 'min:1'],
         ];
     }
 

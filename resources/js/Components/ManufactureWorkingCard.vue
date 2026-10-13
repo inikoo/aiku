@@ -11,6 +11,10 @@ import { ctrans } from '@/Composables/useTrans'
 import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
 import { QrcodeStream } from 'vue-qrcode-reader'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faPause, faShare, faCheck, faTimes, faExclamationTriangle } from '@fal'
+library.add(faPause, faShare, faCheck, faTimes, faExclamationTriangle)
 
 const props = defineProps<{
     session: {
@@ -25,7 +29,10 @@ const props = defineProps<{
             job_order_reference: string | null
             quantity_made: number
             quantity_required: number
+            pack_size?: number | null
+            continued_from?: string | null
         }
+        carry?: null | { reference: string, units_per_artefact: number, quantity: number }
         close_route: { name: string, parameters: object }
         break_minutes: number
         band_feedback: null | {
@@ -49,6 +56,9 @@ const processing = ref(false)
 const quantityMade = ref<number | null>(null)
 const remaining = computed(() => Math.max(0, props.session.task.quantity_required - props.session.task.quantity_made))
 const quantityRejected = ref(0)
+const packSize = computed(() => props.session.task.pack_size ?? null)
+const inPieces = (packs: number) => Math.round(packs * (packSize.value ?? 1)).toLocaleString()
+const notWholePacks = computed(() => packSize.value !== null && quantityMade.value !== null && !Number.isInteger(quantityMade.value) && quantityMade.value !== remaining.value)
 
 const deviceClockOffset = computed(() => props.serverTime ? Date.parse(props.serverTime) - Date.now() : 0)
 const now = ref(Date.now() + deviceClockOffset.value)
@@ -97,6 +107,10 @@ const nextBand = computed(() => {
 })
 
 const askOutcome = ref(false)
+const confirmingMove = ref(false)
+const closedAt = computed(() => props.session.carry ? Math.floor((props.session.task.quantity_made + (quantityMade.value ?? 0)) / props.session.carry.units_per_artefact) : 0)
+const movedOn = computed(() => props.session.carry ? Math.max(0, props.session.carry.quantity - closedAt.value) : 0)
+const canMove = computed(() => !props.session.carry || (closedAt.value >= 1 && movedOn.value > 0))
 const confirming = ref(false)
 const isShort = computed(() => quantityMade.value !== null && quantityMade.value < remaining.value)
 const surplus = computed(() => quantityMade.value === null ? 0 : Math.max(0, quantityMade.value - remaining.value))
@@ -129,7 +143,7 @@ function onCameraError(error: Error) {
 }
 
 function onDone() {
-    if (quantityMade.value === null) return
+    if (quantityMade.value === null || notWholePacks.value) return
     confirming.value = true
 }
 
@@ -158,6 +172,7 @@ function finishActivity() {
 function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager: { manager_code: string, manager_method: 'qr' | 'pin' } | null = null) {
     if (quantityMade.value === null) return
     askOutcome.value = false
+    confirmingMove.value = false
     processing.value = true
     router.patch(
         route(props.session.close_route.name, props.session.close_route.parameters),
@@ -238,6 +253,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 </div>
                 <div class="text-lg text-gray-500 mt-1">
                     {{ ctrans('Job order') }} {{ session.task.job_order_reference }}
+                    <span v-if="session.task.continued_from"> · {{ ctrans('Continued from :reference', { reference: session.task.continued_from }) }}</span>
                 </div>
                 <button
                     type="button"
@@ -248,6 +264,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     <span class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
                     <span class="ml-3 text-xl text-gray-500">{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
                 </button>
+                <div v-if="packSize" class="mt-2 text-2xl font-semibold text-amber-700">
+                    {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}
+                </div>
             </div>
             <div class="text-right">
                 <div class="text-7xl font-mono tabular-nums text-[--app-accent-strong]">{{ elapsed }}</div>
@@ -262,7 +281,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
                 <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></span>
-                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}</b></span>
+                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}</b>
+                    <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
+                </span>
             </div>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
@@ -278,9 +299,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
 
         <div v-else-if="!askOutcome" class="mt-6 flex items-end gap-4">
             <div>
-                <label class="block text-lg text-gray-600 mb-1">{{ ctrans('Quantity made') }}</label>
+                <label class="block text-lg text-gray-600 mb-1">{{ packSize ? ctrans('Packs of :size made', { size: packSize }) : ctrans('Quantity made') }}</label>
                 <input
-                    type="number" min="0" inputmode="numeric"
+                    type="number" min="0" inputmode="numeric" :step="packSize ? 1 : 'any'"
                     v-model.number="quantityMade"
                     class="w-52 rounded-lg border-gray-300 text-5xl text-center py-4 tabular-nums"
                 />
@@ -296,11 +317,17 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <button
                 type="button"
                 class="flex-1 rounded-lg bg-green-600 text-white text-4xl font-semibold py-6 disabled:opacity-40"
-                :disabled="processing || quantityMade === null"
+                :disabled="processing || quantityMade === null || notWholePacks"
                 @click="onDone"
             >
                 {{ ctrans('DONE') }}
             </button>
+        </div>
+
+        <div v-if="packSize && quantityMade !== null && !confirming && !askOutcome" class="mt-4 text-2xl" :class="notWholePacks ? 'text-red-700' : 'text-gray-700'">
+            {{ notWholePacks
+                ? ctrans('Whole packs only: enter how many full packs of :size, not single pieces', { size: packSize })
+                : ctrans(':packs packs of :size = :pieces × :code', { packs: quantityMade, size: packSize, pieces: inPieces(quantityMade), code: session.task.artefact_code ?? '' }) }}
         </div>
 
         <div v-if="surplus > 0 && !askManager" class="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">
@@ -310,6 +337,9 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
         <Dialog v-model:visible="askManager" modal :closable="!processing" :header="ctrans('Manager authorisation required for overproduction')" class="w-[32rem] max-w-[95vw]">
             <div class="text-center text-lg text-gray-600">
                 {{ ctrans('Target') }} <b>{{ remaining }}</b> · {{ ctrans('Made') }} <b>{{ quantityMade }}</b> · {{ ctrans('Surplus') }} <b class="text-amber-600">+{{ surplus }}</b>
+            </div>
+            <div v-if="packSize" class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-xl font-semibold text-amber-800">
+                {{ ctrans('+:surplus packs of :size = :pieces × :code extra, approve?', { surplus, size: packSize, pieces: inPieces(surplus), code: session.task.artefact_code ?? '' }) }}
             </div>
 
             <div v-if="managerError" class="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-red-700">{{ managerError }}</div>
@@ -349,19 +379,50 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                 <div><span class="text-4xl font-semibold tabular-nums text-green-700">{{ quantityMade }}</span> <span class="text-lg text-gray-600">{{ ctrans('done') }}</span></div>
                 <div><span class="text-4xl font-semibold tabular-nums text-amber-700">{{ Math.max(0, remaining - (quantityMade ?? 0)) }}</span> <span class="text-lg text-gray-600">{{ ctrans('to do') }}</span></div>
             </div>
-            <div class="mt-3 grid gap-3 sm:grid-cols-3">
-                <button type="button" class="rounded-lg bg-[--app-accent] text-[--app-accent-text] text-xl font-semibold py-4 disabled:opacity-40"
-                    :disabled="processing" @click="closeSession('carry_over')">
-                    {{ ctrans('Continue later') }}
-                    <div class="text-xs font-normal opacity-80">{{ ctrans('The rest keeps this job number') }}</div>
+            <div v-if="confirmingMove" class="mt-3">
+                <div class="text-2xl font-semibold">
+                    {{ session.carry
+                        ? ctrans('Close job :reference at :made and move the remaining :left to new job :new?', { reference: session.task.job_order_reference, made: closedAt, left: movedOn, new: session.carry.reference })
+                        : ctrans('Close these jobs at what was made and move what is left of each to a new job?') }}
+                </div>
+                <div class="mt-1 text-lg text-gray-700">{{ ctrans('This job is closed and cannot be continued. The new job gets its own batch code. If it is the same mix, go back and pause instead.') }}</div>
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                    <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
+                        @click="confirmingMove = false">
+                        <FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" />
+                        {{ ctrans('Back') }}
+                    </button>
+                    <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 disabled:opacity-40"
+                        :disabled="processing" @click="closeSession('carry_over')">
+                        <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width class="text-amber-500" aria-hidden="true" />
+                        {{ ctrans('Yes, close and move') }}
+                    </button>
+                </div>
+            </div>
+            <div v-else class="mt-3 grid gap-3 sm:grid-cols-2">
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
+                    :disabled="processing" @click="closeSession()">
+                    <FontAwesomeIcon :icon="['fal', 'pause']" fixed-width class="text-amber-500" aria-hidden="true" />
+                    {{ ctrans('Pause') }}
+                    <div class="text-sm font-normal text-gray-500">{{ ctrans('Same mix: carry on later with job :reference, same batch code', { reference: session.task.job_order_reference }) }}</div>
                 </button>
-                <button type="button" class="rounded-lg bg-green-600 text-white text-xl font-semibold py-4 disabled:opacity-40"
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
+                    :disabled="processing || !canMove" @click="confirmingMove = true">
+                    <FontAwesomeIcon :icon="['fal', 'share']" fixed-width class="text-[--app-accent]" aria-hidden="true" />
+                    {{ session.carry
+                        ? ctrans('Close at :made and move remaining :left to new job :new', { made: closedAt, left: movedOn, new: session.carry.reference })
+                        : ctrans('Close and move what is left to new jobs') }}
+                    <div class="text-sm font-normal text-gray-500">{{ canMove ? ctrans('New mix: the rest gets a new batch code') : ctrans('Nothing finished yet to close this job with, pause instead') }}</div>
+                </button>
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3 disabled:opacity-40"
                     :disabled="processing" @click="closeSession('complete')">
+                    <FontAwesomeIcon :icon="['fal', 'check']" fixed-width class="text-green-600" aria-hidden="true" />
                     {{ ctrans('Job finished') }}
-                    <div class="text-xs font-normal opacity-80">{{ ctrans('Close with what was made') }}</div>
+                    <div class="text-sm font-normal text-gray-500">{{ ctrans('Close with what was made, nothing more to make') }}</div>
                 </button>
-                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4"
+                <button type="button" class="rounded-lg border border-gray-300 bg-white text-gray-700 text-xl font-semibold py-4 px-3"
                     @click="askOutcome = false">
+                    <FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" />
                     {{ ctrans('Back') }}
                 </button>
             </div>

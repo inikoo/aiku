@@ -13,7 +13,10 @@ use App\Models\Dispatching\DeliveryNoteLeaflet;
 use Illuminate\Support\Arr;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
+use Mccarlosen\LaravelMpdf\LaravelMpdf;
+use Rawilk\Printing\Api\PrintNode\Enums\PrintJobOption;
 use Rawilk\Printing\Api\PrintNode\Resources\PrintJob;
 
 trait WithPrintDeliveryNoteLeaflet
@@ -44,20 +47,16 @@ trait WithPrintDeliveryNoteLeaflet
         } else {
             $bytes = Storage::disk($media->disk)->get($media->getPathRelativeToRoot());
 
-            if ($media->mime_type && str_starts_with($media->mime_type, 'image/')) {
-                $pdf       = PDF::loadHTML('<img src="data:'.$media->mime_type.';base64,'.base64_encode($bytes).'" style="max-width:100%;height:auto;margin:0;padding:0">');
-                $pdf->SetPageSize('A6');
-                $pdf->SetMargins(0, 0, 0);
-                $pdfBase64 = base64_encode($pdf->output());
-            } else {
-                $pdfBase64 = base64_encode($bytes);
-            }
+            $pdfBase64 = base64_encode(
+                $media->mime_type && str_starts_with($media->mime_type, 'image/') ? $this->imageLeafletPdf($bytes) : $bytes
+            );
         }
 
         $result = $this->printPdf(
             title: $deliveryNoteLeaflet->name,
             printId: $printerId,
-            pdfBase64: $pdfBase64
+            pdfBase64: $pdfBase64,
+            options: [PrintJobOption::FitToPage->value => false]
         );
 
         $deliveryNoteLeaflet->update([
@@ -67,6 +66,44 @@ trait WithPrintDeliveryNoteLeaflet
         ]);
 
         return $result;
+    }
+
+    /**
+     * Lays an image on one A6 page, scaled to fit whole and centred, never cropped.
+     * The bytes go in as an mPDF image variable: inlined as base64 they exceed the HTML size mPDF accepts.
+     */
+    protected function imageLeafletPdf(string $bytes): string
+    {
+        $size = getimagesizefromstring($bytes);
+        if ($size === false) {
+            throw ValidationException::withMessages([
+                'messages' => __('The insert image could not be read. Ask the customer to upload it again as an A6 PDF.'),
+            ]);
+        }
+
+        [$width, $height]        = $size;
+        [$pageWidth, $pageHeight] = $width > $height ? [148, 105] : [105, 148];
+
+        $pdf = new LaravelMpdf([
+            'format'        => [$pageWidth, $pageHeight],
+            'margin_left'   => 0,
+            'margin_right'  => 0,
+            'margin_top'    => 0,
+            'margin_bottom' => 0,
+            'margin_header' => 0,
+            'margin_footer' => 0,
+        ]);
+
+        $scale       = min($pageWidth / $width, $pageHeight / $height);
+        $imageWidth  = $width * $scale;
+        $imageHeight = $height * $scale;
+
+        $mpdf                       = $pdf->getMpdf();
+        $mpdf->imageVars['leaflet'] = $bytes;
+        $mpdf->AddPage();
+        $mpdf->Image('var:leaflet', ($pageWidth - $imageWidth) / 2, ($pageHeight - $imageHeight) / 2, $imageWidth, $imageHeight, '', '', true, false);
+
+        return $pdf->output();
     }
 
     protected function personalisedMessageHtml(string $message): string

@@ -1,8 +1,8 @@
 ---
 title: Práca s obrazovkou dielne
 summary: Sprievodca pre remeselníka - obrazovka Moje úlohy, zoznam úloh, ktorý sa sám aktualizuje, START a DONE, a čo stlačiť, keď ste vyrobili menej, než sa žiadalo.
-date: 2026-10-09
-source_date: 2026-10-09
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-Pre tých, ktorí veci vyrábajú. <b>Factory → Jobs</b> (Výroba → Úlohy) je celý váš deň na jednej obrazovke: úlohy pre vás vľavo, tá, na ktorej práve pracujete, v strede. Stlačte <b>START</b> (Štart), vyrobte to, zadajte počet, stlačte <b>DONE</b> (Hotovo). Ak ste vyrobili menej, než sa žiadalo, obrazovka sa opýta jednu vec: dokončiť úlohu tu, alebo preniesť zvyšok do novej úlohy. Nič iné vypĺňať netreba.
+Pre tých, ktorí veci vyrábajú. <b>Factory → Jobs</b> (Výroba → Úlohy) je celý váš deň na jednej obrazovke: úlohy pre vás vľavo, tá, na ktorej práve pracujete, v strede. Stlačte <b>START</b> (Štart), vyrobte to, zadajte počet, stlačte <b>DONE</b> (Hotovo). Ak ste vyrobili menej, než sa žiadalo, obrazovka sa opýta jednu vec: pozastaviť a pokračovať neskôr, uzavrieť úlohu a presunúť zvyšok do novej, alebo ju tu dokončiť. Nič iné vypĺňať netreba.
 </aside>
 
 ## Obrazovka
 
 Stránka je usporiadaná ako doručená pošta.
 
-**Vľavo, vždy viditeľné:** zoznam. Hore dva počítadlá - kusy vyrobené dnes a úlohy dokončené dnes. Pod nimi <b>Your jobs</b> (Vaše úlohy), práca určená pre vás. Ak vám vaša pozícia dovoľuje vyberať si z otvoreného fondu, nasleduje časť <b>Open jobs</b> (Otvorené úlohy). Dole je <b>Finished today</b> (Dnes dokončené), čo ste už uzavreli.
+**Vľavo, vždy viditeľné:** zoznam. Hore dva počítadlá - kusy vyrobené dnes a úlohy dokončené dnes. Pod nimi <b>Your jobs</b> (Vaše úlohy), práca určená pre vás: celé úlohy s vaším menom a jednotlivé kroky, ktoré vám vedúci pridelil v dennom pláne (pozrite [Plánovanie výrobného dňa](/docs/planning-the-production-day-sk)). Úloha môže mať výrobu u jednej osoby a balenie u inej; každá vidí len svoj krok. Ak vám vaša pozícia dovoľuje vyberať si z otvoreného fondu, nasleduje časť <b>Open jobs</b> (Otvorené úlohy). Dole je <b>Finished today</b> (Dnes dokončené), čo ste už uzavreli.
 
 **Vpravo:** to, čo ste vybrali. Kým nezačnete, sú tam detaily úlohy s veľkým tlačidlom <b>START</b>. Po spustení sa zobrazí pracovná karta s hodinami.
 
@@ -46,15 +46,20 @@ Riadok so zelenou šípkou ▶ a časom je ten, na ktorom práve pracujete, a ke
 
 Vyrobili ste všetko, čo sa žiadalo? Tým je to hotové. Úloha sa uzavrie, pracovný príkaz je dokončený a sklad dostane informáciu, že má niečo na uloženie - pozrite [Ukladanie hotovej výroby](/docs/putting-away-finished-production-sk).
 
+## Kroky, ktoré sa počítajú v baleniach
+
+Niektoré kroky, najmä balenie, sa počítajú v baleniach a nie v jednotlivých kusoch: tácka s 8 bombami do kúpeľa sa počíta ako 1. Obrazovka vtedy jantárovou farbou ukáže <b>Counted in PACKS of 8</b> (Počíta sa v BALENIACH po 8) a pole sa volá <b>Packs of 8 made</b> (Vyrobené balenia po 8). Zadajte, koľko plných balení ste naplnili: pri 56 bombách na 7 táckach zadajte 7, nie 56. Pod poľom obrazovka ukáže, čo vaše číslo znamená, <i>7 packs of 8 = 56 × ABB-06a</i>, a potvrdenie to ukáže znova. Prijímajú sa len celé balenia; jedinou výnimkou je presný počet, ktorý ešte zostáva, a ten vyplníte ťuknutím na veľké číslo. Keď musí manažér schváliť nadvýrobu, okno ukáže nadbytok v baleniach aj v kusoch ešte pred schválením.
+
 ## Keď ste vyrobili menej, než sa žiadalo
 
-Zadajte skutočný počet a stlačte <b>DONE</b>. Riadok na zadávanie nahradí krátky panel: *19 hotovo · 6 zostáva* a tri tlačidlá.
+Zadajte skutočný počet a stlačte <b>DONE</b>. Riadok na zadávanie nahradí krátky panel: *19 hotovo · 6 zostáva* a štyri tlačidlá.
 
-- <b>Continue later</b> (Pokračovať neskôr) - úloha sa uzavrie na 19, a v zozname sa vám objaví nový pracovný príkaz na zvyšných 6, adresovaný vám. Vezmite ho zajtra, alebo keď príde materiál.
+- <b>Pause</b> (Pozastaviť) - tá istá zmes, pokračujete neskôr. Úloha zostáva otvorená s rovnakou referenciou a rovnakým kódom dávky a počet pokračuje od 19. Použite to, keď sa deň skončí skôr než zmes.
+- <b>Close at 19 and move remaining 6 to new job …</b> (Uzavrieť na 19 a zvyšných 6 presunúť do novej úlohy) - úloha sa uzavrie na 19 a 6 ide do nového pracovného príkazu s nasledujúcim písmenom (0127 sa stane 0127a) a vlastným kódom dávky. Použite to, keď bude zvyšok novou zmesou. Obrazovka vás požiada o potvrdenie tlačidlom <b>Yes, close and move</b> (Áno, uzavrieť a presunúť), pretože uzavretá úloha sa už nedá znova otvoriť.
 - <b>Job finished</b> (Úloha ukončená) - úloha sa uzavrie na 19 a tým to končí. Plánovač vidí pracovný príkaz, ktorý žiadal 25 a dostal 19.
 - <b>Back</b> (Späť) - zmeniť číslo.
 
-V oboch prípadoch sa úloha, na ktorej ste pracovali, uzavrie a preplatí podľa toho, čo ste vyrobili. Nič vám v zozname nezostáva rozrobené na polovicu.
+Úloha presunutá do novej zobrazuje na svojej karte <b>Continued from</b> (Pokračovanie z) 0127 a tá, z ktorej vznikla, zobrazuje <b>Continued in</b> (Pokračuje v) 0127a. Nová úloha zostáva u tých istých ľudí a v pláne toho istého dňa.
 
 ## Keď ste vyrobili viac, než sa žiadalo
 
@@ -66,6 +71,8 @@ Zadajte skutočné číslo a stlačte **DONE**. Obrazovka upozorní na kusy nad 
 Schváliť môže len ten, kto riadi túto výrobu, a nikdy nie vlastnú prácu. Po piatich nesprávnych kartách alebo PIN-och sa okno na 15 minút zablokuje.
 
 Po schválení sa úloha zväčší na to, čo sa naozaj vyrobilo: sklad zaskladní všetko, čo si žiadna objednávka nepýtala ide na sklad, a suroviny sa odpíšu za celú dávku. Nasledujúce kroky tej istej úlohy sa zväčšia tiež. Stránka výrobnej zákazky ukazuje, kto vyrobil navyše, kto to schválil, ako a kedy.
+
+Zadali ste nesprávne číslo, napríklad kusy tam, kde sa žiadali balenia? Manažér otvorí kartu <b>Performance</b> (Výkon), nájde záznam pod pracovníkom a stlačí <b>Correct quantity</b> (Opraviť množstvo). Záznam sa dá len znížiť. Úloha sa vráti na to, čo sa naozaj vyrobilo, schválená nadvýroba sa zníži spolu s ňou a mzda za tento záznam sa prepočíta. Funguje to, kým sklad nezačne úlohu naskladňovať.
 
 ## Jedna dávka pre viac riadkov
 
@@ -85,14 +92,14 @@ Vyrobiť viac, než všetky riadky žiadali, vyžaduje kartu alebo PIN vedúceho
 
 - **Jedna úloha naraz.** Kým máte otvorenú úlohu, tlačidlá START sú vypnuté. Najprv ju uzavrite.
 - **Vaša mzda za úlohu** sa riadi číslom v poli Quantity made, ako je vysvetlené v [Pozície vo výrobe](/docs/factory-positions-sk). Zamietnuté kusy sa nepreplácajú.
-- **Open jobs** (Otvorené úlohy) sú úlohy bez priradeného remeselníka, alebo priradené niekomu inému. Vziať si takú úlohu je v poriadku, ak to vaša pozícia dovoľuje; potom je vaša, kým ju neuzavriete.
+- **Open jobs** (Otvorené úlohy) sú úlohy a kroky bez uvedeného mena, alebo s uvedeným iným menom. Vziať si takú úlohu je v poriadku, ak to vaša pozícia dovoľuje; potom je vaša, kým ju neuzavriete.
 
 <aside class="wayfinder"><strong>Kde kliknúť v aiku</strong>
 <ul>
 <li><b>Vaša obrazovka:</b> vaša organizácia → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Začať:</b> klepnite na riadok → <b>START</b>.</li>
 <li><b>Dokončiť:</b> zadajte <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Menej, než sa žiadalo:</b> <b>DONE</b> → <b>Continue later</b> alebo <b>Job finished</b>.</li>
+<li><b>Menej, než sa žiadalo:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> alebo <b>Job finished</b>.</li>
 <li><b>Jedna dávka pre viac riadkov:</b> klepnite na riadok → <b>Combine … with other lines into one batch</b> → zaškrtnite riadky → <b>Combine</b>. Vrátenie späť: klepnite na spojený riadok → <b>Separate</b>.</li>
 </ul>
 </aside>

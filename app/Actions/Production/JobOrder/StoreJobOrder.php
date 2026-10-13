@@ -39,6 +39,9 @@ class StoreJobOrder extends OrgAction
         data_set($modelData, 'organisation_id', $production->organisation_id);
         data_set($modelData, 'in_process_at', now(), overwrite: false);
         data_set($modelData, 'state', JobOrderStateEnum::IN_PROCESS, overwrite: false);
+        if (Arr::get($modelData, 'planned_for')) {
+            data_set($modelData, 'plan_position', JobOrder::nextPlanPosition($production->id, $modelData['planned_for']), overwrite: false);
+        }
 
         if (!Arr::get($modelData, 'reference')) {
             $organisation = $production->organisation;
@@ -102,6 +105,8 @@ class StoreJobOrder extends OrgAction
             'reference'       => ['sometimes', 'nullable', 'string', 'max:64'],
             'state'           => ['sometimes', Rule::enum(JobOrderStateEnum::class)],
             'date'            => ['sometimes', 'nullable', 'date'],
+            'planned_for'     => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'plan_position'   => ['sometimes', 'nullable', 'integer', 'min:1', 'max:65535'],
             'in_process_at'   => ['sometimes', 'nullable', 'date'],
             'submitted_at'    => ['sometimes', 'nullable', 'date'],
             'confirmed_at'    => ['sometimes', 'nullable', 'date'],

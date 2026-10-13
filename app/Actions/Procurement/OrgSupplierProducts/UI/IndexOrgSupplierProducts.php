@@ -18,6 +18,7 @@ use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
+use App\Actions\SupplyChain\SupplierProduct\CopySupplierProductsToSupplier;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\UI\Procurement\OrgSupplierProductsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -26,6 +27,8 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -137,6 +140,7 @@ class IndexOrgSupplierProducts extends OrgAction
         }
 
         $queryBuilder->select([
+            'org_supplier_products.id',
             'org_supplier_products.slug',
             'supplier_products.code',
             'supplier_products.name',
@@ -298,6 +302,8 @@ class IndexOrgSupplierProducts extends OrgAction
                 OrgSupplierProductsTabsEnum::INDEX->value => $this->tab == OrgSupplierProductsTabsEnum::INDEX->value
                     ? fn () => OrgSupplierProductsResource::collection($orgSupplierProducts)
                     : Inertia::optional(fn () => OrgSupplierProductsResource::collection($orgSupplierProducts)),
+                'copy_products' => $this->getCopyProducts($request),
+                'copy_targets'  => Inertia::optional(fn () => $this->getCopyTargets($request)),
                 OrgSupplierProductsTabsEnum::HISTORY->value => $this->parent instanceof OrgSupplier && $this->tab == OrgSupplierProductsTabsEnum::HISTORY->value
                     ? fn () => HistoryResource::collection(IndexHistory::run($this->parent, OrgSupplierProductsTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => $this->parent instanceof OrgSupplier
@@ -306,6 +312,65 @@ class IndexOrgSupplierProducts extends OrgAction
             ],
         )->table($this->tableStructure($this->parent, OrgSupplierProductsTabsEnum::INDEX->value))
             ->table(IndexHistory::make()->tableStructure(prefix: OrgSupplierProductsTabsEnum::HISTORY->value));
+    }
+
+    private function agentCanCopyProducts(ActionRequest $request): bool
+    {
+        return $this->parent instanceof OrgSupplier
+            && $this->organisationAgentSupplies($this->parent)
+            && $request->user()->authTo("procurement.{$this->organisation->id}.edit");
+    }
+
+    /**
+     * @return array{agent_id: int, agents: array<int, array{id: int, label: string, create_route: array{name: string, parameters: array<int, string>}}>, copy_route: array{name: string, parameters: array<int, int>}}|null
+     */
+    private function getCopyProducts(ActionRequest $request): ?array
+    {
+        if (!$this->agentCanCopyProducts($request)) {
+            return null;
+        }
+
+        return [
+            'agent_id'   => $this->parent->supplier->agent_id,
+            'agents'     => CopySupplierProductsToSupplier::make()->getAccessibleAgents($request->user())
+                ->map(fn (Agent $agent) => [
+                    'id'           => $agent->id,
+                    'label'        => $agent->organisation->name,
+                    'create_route' => [
+                        'name'       => 'grp.org.procurement.org_suppliers.create_new',
+                        'parameters' => [$agent->organisation->slug],
+                    ],
+                ])
+                ->all(),
+            'copy_route' => [
+                'name'       => 'grp.models.org.supplier.supplier_products.copy',
+                'parameters' => [$this->organisation->id],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{id: int, agent_id: int, label: string, number_products: int}>
+     */
+    private function getCopyTargets(ActionRequest $request): array
+    {
+        if (!$this->agentCanCopyProducts($request)) {
+            return [];
+        }
+
+        return Supplier::whereIn('agent_id', CopySupplierProductsToSupplier::make()->getAccessibleAgents($request->user())->pluck('id'))
+            ->where('status', true)
+            ->where('id', '!=', $this->parent->supplier_id)
+            ->withCount('supplierProducts')
+            ->orderBy('code')
+            ->get(['id', 'agent_id', 'code', 'name'])
+            ->map(fn (Supplier $supplier) => [
+                'id'       => $supplier->id,
+                'agent_id' => $supplier->agent_id,
+                'number_products' => $supplier->supplier_products_count,
+                'label'    => $supplier->name && $supplier->name !== $supplier->code ? $supplier->code.' — '.$supplier->name : $supplier->code,
+            ])
+            ->all();
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

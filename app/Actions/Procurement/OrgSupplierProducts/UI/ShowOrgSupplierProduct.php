@@ -16,6 +16,7 @@ use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
+use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use App\Enums\UI\Procurement\OrgSupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
@@ -89,6 +90,31 @@ class ShowOrgSupplierProduct extends OrgAction
                     'icon'  => [
                         'icon'  => ['fal', 'box-usd'],
                         'title' => __('Supplier Product'),
+                    ],
+                    'actions' => [
+                        $this->organisationAgentSupplies($orgSupplierProduct) && $request->user()->authTo("procurement.{$this->organisation->id}.edit") ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'label' => __('Edit'),
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_supplier_products.edit',
+                                'parameters' => [
+                                    'organisation'       => $this->organisation->slug,
+                                    'orgSupplierProduct' => $orgSupplierProduct->slug,
+                                ],
+                            ],
+                        ] : false,
+                        $request->user()->authTo(GroupPermissionsEnum::SUPPLY_CHAIN_EDIT->value) ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'label' => __('Edit cost and units'),
+                            'route' => [
+                                'name'       => 'grp.supply-chain.supplier_products.edit',
+                                'parameters' => [
+                                    'supplierProduct' => $orgSupplierProduct->supplierProduct->slug,
+                                ],
+                            ],
+                        ] : false,
                     ],
                 ],
                 'tabs'        => [

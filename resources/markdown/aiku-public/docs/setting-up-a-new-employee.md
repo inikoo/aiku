@@ -1,7 +1,7 @@
 ---
 title: Setting up a new employee
 summary: Add a new starter to aiku — their personal details, employment terms and job positions — and, if they need it, give them their own login in the same form.
-date: 2026-08-31
+date: 2026-10-12
 tags: hr
 category: hr
 help_routes: grp.org.hr.employees.index, grp.org.hr.employees.create, grp.org.hr.employees.show, grp.org.hr.employees.edit
@@ -62,6 +62,7 @@ Anything you skipped — address, contract dates, extra positions — lives one 
 <ul>
 <li><b>Add someone:</b> your organisation → <b>HR → Employees</b> → <b>Create Employee</b>.</li>
 <li><b>Fix or finish later:</b> open the employee → <b>Edit</b>. Contracts, timesheets and positions have their own tabs on the employee's page.</li>
+<li><b>Their leave:</b> the <b>Leave</b> tab on the employee's page — requests, days taken and who covered. See <a href="/docs/handling-leave-requests">Handling leave requests</a>.</li>
 <li><b>Clocking PIN:</b> on the employee's page — view it or regenerate it there.</li>
 <li><b>Many starters at once:</b> the Employees list also offers a spreadsheet template you can download, fill and upload.</li>
 </ul>

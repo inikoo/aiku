@@ -165,12 +165,12 @@ const onSuccessPacked = () => {
 // 🔁 Finalise + Packed Button Logic (router)
 const loadingFinal = ref(false)
 
-const handleFinaliseAndDispatch = () => {
+const handleFinaliseAndDispatch = (routeName = 'grp.models.delivery_note.state.finalise_and_dispatch') => {
     if (!props.deliveryNote?.delivery_note_id) return
 
     loadingFinal.value = true
     router.patch(
-        route('grp.models.delivery_note.state.finalise_and_dispatch', {
+        route(routeName, {
             deliveryNote: props.deliveryNote.delivery_note_id,
         }),
         {},
@@ -242,7 +242,11 @@ onMounted(() => {
             />
 
             <Button v-if="data?.delivery_note?.can_work && props.deliveryNote?.delivery_note_id && props.deliveryNote.delivery_note_state === 'packed'"
-                type="save" :label="isCollection ? ctrans('Finalise and set as Collected') : ctrans('Finalise and Dispatch')" :loading="loadingFinal" @click="handleFinaliseAndDispatch" />
+                type="save" :label="isCollection ? ctrans('Finalise for collection') : ctrans('Finalise and Dispatch')" :loading="loadingFinal"
+                @click="() => isCollection ? handleFinaliseAndDispatch('grp.models.delivery_note.state.finalised') : handleFinaliseAndDispatch()" />
+
+            <Button v-if="data?.delivery_note?.can_work && isCollection && props.deliveryNote?.delivery_note_id && props.deliveryNote.delivery_note_state === 'finalised'"
+                type="save" :label="ctrans('Set as collected')" :loading="loadingFinal" @click="() => handleFinaliseAndDispatch('grp.models.delivery_note.state.dispatched')" />
 
             <Button v-if="data?.delivery_note?.can_work && props.deliveryNote?.delivery_note_id && (props.deliveryNote.delivery_note_state === 'handling' || props.deliveryNote.delivery_note_state === 'picked' || props.deliveryNote.delivery_note_state === 'packing')"
                 type="save" :label="ctrans('Set as packed')" size="sm" class="mx-3 whitespace-nowrap" :loading="loadingFinal"

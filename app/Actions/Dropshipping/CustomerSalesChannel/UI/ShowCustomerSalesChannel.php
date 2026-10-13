@@ -36,6 +36,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowCustomerSalesChannel extends OrgAction
 {
     use WithCustomerSalesChannelSubNavigation;
+    use WithCustomerSalesChannelSettingsBlueprint;
     use WithCRMAuthorisation;
 
     public function handle(CustomerSalesChannel $customerSalesChannel): CustomerSalesChannel
@@ -83,6 +84,8 @@ class ShowCustomerSalesChannel extends OrgAction
             $fulfilmentPolicies = $ebay?->getFulfilmentPolicies();
         }
 
+        $canEdit = CloseCustomerSalesChannel::canEditCustomerSalesChannelsIn($request->user(), $customerSalesChannel->shop);
+
         return Inertia::render(
             'Org/Dropshipping/CustomerSalesChannel',
             [
@@ -114,13 +117,44 @@ class ShowCustomerSalesChannel extends OrgAction
                     'platform_user'          => $customerSalesChannel->user,
                     'fulfilment_policies'    => $fulfilmentPolicies,
                     'reconnect_link'         => $this->getReconnectLink($customerSalesChannel),
-                    'can_edit'               => CloseCustomerSalesChannel::canEditCustomerSalesChannelsIn($request->user(), $customerSalesChannel->shop),
+                    'can_edit'               => $canEdit,
                 ],
                 CustomerPlatformTabsEnum::HISTORY->value => $this->tab == CustomerPlatformTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($customerSalesChannel, CustomerPlatformTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($customerSalesChannel, CustomerPlatformTabsEnum::HISTORY->value))),
+                CustomerPlatformTabsEnum::SETTINGS->value => $this->tab == CustomerPlatformTabsEnum::SETTINGS->value ?
+                    fn () => $this->getSettingsFormData($customerSalesChannel, $canEdit)
+                    : Inertia::optional(fn () => $this->getSettingsFormData($customerSalesChannel, $canEdit)),
             ]
         )->table(IndexHistory::make()->tableStructure(CustomerPlatformTabsEnum::HISTORY->value));
+    }
+
+    /**
+     * @return array{blueprint: array<int, array<string, mixed>>, args: array{updateRoute: array{name: string, parameters: array<string, int>, method: string}|null}}
+     */
+    public function getSettingsFormData(CustomerSalesChannel $customerSalesChannel, bool $canEdit): array
+    {
+        if (!$canEdit) {
+            return [
+                'blueprint' => $this->getReadOnlyCustomerSalesChannelSettingsBlueprint($customerSalesChannel),
+                'args'      => [
+                    'updateRoute' => null
+                ]
+            ];
+        }
+
+        return [
+            'blueprint' => $this->getCustomerSalesChannelSettingsBlueprint($customerSalesChannel),
+            'args'      => [
+                'updateRoute' => [
+                    'name'       => 'grp.models.customer_sales_channel.settings.update',
+                    'parameters' => [
+                        'customerSalesChannel' => $customerSalesChannel->id
+                    ],
+                    'method'     => 'patch'
+                ]
+            ]
+        ];
     }
 
     /**

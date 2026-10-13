@@ -21,14 +21,14 @@ import { routeType } from '@/types/route'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faEquals, faDollarSign, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
+import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
 
-library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faEquals, faDollarSign, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
+library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
 
 const props = defineProps<{
     data: { data?: any[] },
@@ -124,7 +124,14 @@ function differenceClass(value: number | null) {
 }
 
 function checkedQuantityBreakdown(item: any) {
-    const units = Number(item.unit_quantity_checked)
+    return unitsBreakdown(item, Number(item.unit_quantity_checked))
+}
+
+function placedQuantityBreakdown(item: any) {
+    return unitsBreakdown(item, Number(item.unit_quantity_placed))
+}
+
+function unitsBreakdown(item: any, units: number) {
     const pack = Number(item.units_per_pack) || 1
     const carton = Number(item.units_per_carton) || 1
 
@@ -207,8 +214,6 @@ const costFields = ['cost_items', 'cost_extra', 'cost_shipping', 'cost_duties', 
 
 const costDraft = reactive<Record<number, Record<string, number>>>({})
 const savingCostId = ref<number | null>(null)
-const extraCostToDistribute = ref<number>(0)
-const distributingType = ref<string | null>(null)
 
 watch(() => props.data?.data, (items) => {
     for (const id of Object.keys(costDraft)) {
@@ -302,84 +307,26 @@ async function saveAllCosts() {
     }
 }
 
-async function distributeExtraCost(type: 'equally' | 'by_value') {
-    const distributeRoute = props.costing?.distributeExtraCostRoute
-
-    if (!distributeRoute) {
-        return
-    }
-
-    distributingType.value = type
-
-    try {
-        await axios.patch(route(distributeRoute.name, distributeRoute.parameters), {
-            amount: Number(extraCostToDistribute.value) || 0,
-            type,
-        })
-        notify({ title: ctrans('Success'), text: ctrans('Extra costs distributed'), type: 'success' })
-        reloadStockDelivery()
-    } catch (error: any) {
-        notify({
-            title: ctrans('Something went wrong'),
-            text: error?.response?.data?.message || ctrans('Failed to distribute the extra costs'),
-            type: 'error',
-        })
-    } finally {
-        distributingType.value = null
-    }
-}
-
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #before-table>
-            <div v-if="costing?.distributeExtraCostRoute && costing.can_edit" class="flex flex-wrap items-center gap-3 px-6 py-3">
-                <label for="extra-cost-to-distribute" class="text-sm text-gray-600">
-                    {{ ctrans('Set extra costs') }} <span v-if="costing.currency">({{ costing.currency }})</span>
-                </label>
-                <input
-                    id="extra-cost-to-distribute"
-                    v-model="extraCostToDistribute"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    class="border border-gray-300 rounded text-sm py-1 px-2 w-32"
-                />
-
-                <span class="text-sm text-gray-600">{{ ctrans('Distribute') }}:</span>
-
-                <Button
-                    :tooltip="ctrans('Distribute equally each items')"
-                    icon="fal fa-equals"
-                    type="tertiary"
-                    size="xs"
-                    :loading="distributingType === 'equally'"
-                    :disabled="distributingType !== null"
-                    @click="distributeExtraCost('equally')"
-                />
-
-                <Button
-                    :tooltip="ctrans('Distribute depending on value')"
-                    icon="fal fa-dollar-sign"
-                    type="tertiary"
-                    size="xs"
-                    :loading="distributingType === 'by_value'"
-                    :disabled="distributingType !== null"
-                    @click="distributeExtraCost('by_value')"
-                />
-
+            <div v-if="costing?.can_edit" class="flex flex-wrap items-center gap-3 px-6 py-3">
                 <Button
                     :label="ctrans('Save all')"
                     :tooltip="ctrans('Save the costs of every changed item')"
-                    icon="fal fa-save"
-                    type="save"
+                    type="tertiary"
                     size="xs"
                     class="ml-auto"
                     :loading="isSavingAllCosts"
                     :disabled="isSavingAllCosts || savingCostId !== null"
                     @click="saveAllCosts"
-                />
+                >
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
             </div>
         </template>
 
@@ -518,13 +465,16 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
                     v-if="item.updateCostRoute && costDraft[item.id]"
                     :label="ctrans('Save')"
                     :tooltip="ctrans('Save the costs of this item')"
-                    icon="fal fa-save"
-                    type="save"
+                    type="tertiary"
                     size="xs"
                     :loading="savingCostId === item.id"
                     :disabled="savingCostId === item.id"
                     @click="saveCost(item)"
-                />
+                >
+                    <template #icon>
+                        <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
+                    </template>
+                </Button>
 
                 <Button
                     v-else-if="item.confirmRoute"
@@ -576,6 +526,10 @@ async function distributeExtraCost(type: 'equally' | 'by_value') {
 
         <template #cell(checked_quantity)="{ item }">
             <span class="text-gray-500">{{ checkedQuantityBreakdown(item) }}</span>
+        </template>
+
+        <template #cell(placed_quantity)="{ item }">
+            <span class="text-gray-500">{{ placedQuantityBreakdown(item) }}</span>
         </template>
 
         <template #cell(difference_percentage)="{ item }">

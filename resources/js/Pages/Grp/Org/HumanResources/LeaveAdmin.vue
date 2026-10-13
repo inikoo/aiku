@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import { Head, useForm } from "@inertiajs/vue3"
-import { computed, onMounted, ref, watch } from "vue"
-import DatePicker from "@vuepic/vue-datepicker"
-import "@vuepic/vue-datepicker/dist/main.css"
+import { Head, router, useForm } from "@inertiajs/vue3"
+import { computed, onMounted, reactive, ref, watch } from "vue"
+import { debounce } from "lodash-es"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
-import Table from "@/Components/Table/Table.vue"
-import Modal from "@/Components/Utils/Modal.vue"
-import ExportModalActions from "@/Components/HumanResources/ExportModalActions.vue"
-import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue"
+import Pagination from "@/Components/Table/Pagination.vue"
+import HrRequestCard from "@/Components/HumanResources/HrRequestCard.vue"
+import HrRequestFilters from "@/Components/HumanResources/HrRequestFilters.vue"
+import HrConfirmDialog from "@/Components/HumanResources/HrConfirmDialog.vue"
+import EmployeeAvatar from "@/Components/HumanResources/EmployeeAvatar.vue"
 import RejectLeaveModal from "@/Components/HumanResources/RejectLeaveModal.vue"
 import LeaveCoverSelect, { type LeaveCoverOption } from "@/Components/HumanResources/LeaveCoverSelect.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import Tag from "@/Components/Tag.vue"
 import Select from "primevue/select"
+import Dialog from "primevue/dialog"
+import DatePicker from "primevue/datepicker"
+import FileUpload from "primevue/fileupload"
+import RadioButton from "primevue/radiobutton"
+import { useConfirm } from "primevue/useconfirm"
 import Textarea from "primevue/textarea"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
@@ -20,20 +24,25 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { ctrans } from "@/Composables/useTrans"
 import { isOnLeaveDuring } from "@/Composables/useLeaveCovers"
+import { dateToIso, fieldFocusClass, inputFocusClass, isoToDate } from "@/Composables/useHrFormControls"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faTimes, faEdit, faDownload, faFileExcel, faFileCsv, faPaperclip, faTrash, faPlus, faChartNetwork } from "@fal"
+import { faCheck, faTimes, faEdit, faDownload, faFileExcel, faFileCsv, faPaperclip, faTrash, faPlus, faChartNetwork, faUserFriends, faCalendarAlt, faFileAlt } from "@fal"
 
-library.add(faCheck, faTimes, faEdit, faDownload, faFileExcel, faFileCsv, faPaperclip, faTrash, faPlus, faChartNetwork)
+library.add(faCheck, faTimes, faEdit, faDownload, faFileExcel, faFileCsv, faPaperclip, faTrash, faPlus, faChartNetwork, faUserFriends, faCalendarAlt, faFileAlt)
 
 const props = defineProps<{
 	title: string
 	pageHead: PageHeadingTypes
-	leaves: {
-		data: any[]
-		links: any
-		meta: any
+	leaves: any
+	filters?: {
+		search: string
+		status: string | null
+		type: string | null
+		from: string | null
+		to: string | null
 	}
+	can_delete?: boolean
 	type_options: Record<string, string | { label: string; category?: string }>
 	status_options: Record<string, string>
 	can_edit_admin: boolean
@@ -98,23 +107,10 @@ const holidayMap = computed<Record<string, string>>(() => {
 	return map
 })
 
-const isDisabledDate = (date: Date): boolean => {
-	const day = date.getDay()
-	if (day === 0 || day === 6) return true
-	const year = date.getFullYear()
-	const month = String(date.getMonth() + 1).padStart(2, "0")
-	const d = String(date.getDate()).padStart(2, "0")
-	return `${year}-${month}-${d}` in holidayMap.value
-}
+const holidayDates = computed(() => (props.holidays ?? []).map((holiday) => isoToDate(holiday.date)).filter((date): date is Date => !!date))
 
-const holidayMarkers = computed(() =>
-	(props.holidays ?? []).map((h) => ({
-		date: new Date(h.date + "T00:00:00"),
-		type: "dot" as const,
-		tooltip: h.label ? [{ text: h.label, color: "#ef4444" }] : undefined,
-		color: "#ef4444",
-	}))
-)
+const holidayLabel = (date: { year: number; month: number; day: number }): string | undefined =>
+	holidayMap.value[`${date.year}-${String(date.month + 1).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`]
 
 const locale = useLocaleStore()
 const isEditModalOpen = ref(false)
@@ -151,6 +147,49 @@ watch(
 	() => (recordForm.cover_employee_id = "")
 )
 
+const isoDateModel = (form: Record<string, any>, key: string) =>
+	computed<Date | null>({
+		get: () => isoToDate(form[key]),
+		set: (value) => {
+			form[key] = dateToIso(value)
+		},
+	})
+
+const recordStartDate = isoDateModel(recordForm, "start_date")
+const recordEndDate = isoDateModel(recordForm, "end_date")
+const editStartDate = isoDateModel(editForm, "start_date")
+const editEndDate = isoDateModel(editForm, "end_date")
+
+watch(
+	() => editForm.start_date,
+	(startDate) => {
+		if (editForm.is_half_day && startDate) {
+			editForm.end_date = startDate
+		}
+	}
+)
+
+const maxEditAttachments = 5
+const maxAttachmentSize = 5 * 1024 * 1024
+const editFileUpload = ref<InstanceType<typeof FileUpload> | null>(null)
+
+const onEditAttachmentsChanged = (event: { files: File[] }) => {
+	editForm.attachments = [...event.files]
+	editForm.clearErrors("attachments")
+}
+
+const formatFileSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`)
+
+const fileUploadPt = {
+	root: { class: "!border-0 !bg-transparent" },
+	header: { class: "!p-0 !border-0 !bg-transparent" },
+	content: { class: "!p-0 !pt-2 !border-0 !bg-transparent" },
+}
+
+const closeRecordModal = () => {
+	isRecordModalOpen.value = false
+}
+
 const recordCoverOptions = computed(() => coverOptionsFor(recordForm.employee_id, recordForm.start_date, recordForm.end_date))
 
 const editCoverOptions = computed(() => coverOptionsFor(selectedLeave.value?.employee_id ?? "", editForm.start_date, editForm.end_date))
@@ -173,6 +212,7 @@ const openApproveModal = (leave: any) => {
 const closeApproveModal = () => {
 	isApproveModalOpen.value = false
 	selectedLeave.value = null
+	approveForm.clearErrors()
 }
 
 const submitApprove = () => {
@@ -213,19 +253,6 @@ const exportForm = useForm({
 	employee_id: null as number | null,
 	format: "xlsx",
 })
-
-const getStatusTheme = (status: string): number => {
-	switch (status) {
-		case "approved":
-			return 3
-		case "pending":
-			return 1
-		case "rejected":
-			return 7
-		default:
-			return 99
-	}
-}
 
 const toNumber = (value: unknown): number => {
 	if (typeof value === "number") {
@@ -361,12 +388,15 @@ const openEditModal = (leave: any) => {
 	editForm.reason = leave.reason ?? ""
 	editForm.attachments = []
 	editForm.cover_employee_id = leave.cover_employee_id ? String(leave.cover_employee_id) : ""
+	editForm.clearErrors()
 	isEditModalOpen.value = true
 }
 
 const closeEditModal = () => {
 	isEditModalOpen.value = false
+	editFileUpload.value?.clear()
 	editForm.reset()
+	editForm.clearErrors()
 	selectedLeave.value = null
 }
 
@@ -375,27 +405,22 @@ const submitEdit = () => {
 
 	const orgId = route().params.organisation
 	isSubmitting.value = true
-	editForm.patch(
-		route("grp.org.hr.leaves.admin.update", {
-			organisation: orgId,
-			leave: selectedLeave.value.id,
-		}),
-		{
-			preserveScroll: true,
-			forceFormData: true,
-			onSuccess: () => {
-				isEditModalOpen.value = false
-				editForm.reset()
-				selectedLeave.value = null
-			},
-			onError: (errors) => {
-				console.error("Edit errors:", errors)
-			},
-			onFinish: () => {
-				isSubmitting.value = false
-			},
-		}
-	)
+	editForm
+		.transform((data) => ({ ...data, _method: "patch" }))
+		.post(
+			route("grp.org.hr.leaves.admin.update", {
+				organisation: orgId,
+				leave: selectedLeave.value.id,
+			}),
+			{
+				preserveScroll: true,
+				forceFormData: true,
+				onSuccess: closeEditModal,
+				onFinish: () => {
+					isSubmitting.value = false
+				},
+			}
+		)
 }
 
 const formatDate = (date: string) => {
@@ -410,6 +435,193 @@ const openRejectModal = (leave: any) => {
 const closeRejectModal = () => {
 	isRejectModalOpen.value = false
 	selectedLeave.value = null
+}
+
+const filterState = reactive({
+	search: props.filters?.search ?? "",
+	status: props.filters?.status ?? "all",
+	type: props.filters?.type ?? "",
+	from: props.filters?.from ?? "",
+	to: props.filters?.to ?? "",
+})
+const isLoadingList = ref(false)
+
+const statusFilterOptions = computed(() => [
+	{ label: ctrans("All"), value: "all" },
+	{ label: ctrans("Pending"), value: "pending", tone: "amber" as const },
+	{ label: ctrans("Approved"), value: "approved", tone: "emerald" as const },
+	{ label: ctrans("Rejected"), value: "rejected", tone: "red" as const },
+])
+
+const typeFilterModel = computed<string | null>({
+	get: () => filterState.type || null,
+	set: (value) => {
+		filterState.type = value ?? ""
+	},
+})
+
+const rows = computed<any[]>(() => props.leaves?.data ?? [])
+const paginationMeta = computed(() => props.leaves?.meta ?? props.leaves ?? {})
+const totalRequests = computed<number>(() => paginationMeta.value?.total ?? rows.value.length)
+const hasActiveFilters = computed(
+	() => filterState.search.trim() !== "" || filterState.status !== "all" || filterState.type !== "" || filterState.from !== "" || filterState.to !== ""
+)
+
+const listVisitOptions = {
+	preserveState: true,
+	preserveScroll: true,
+	replace: true,
+	only: ["leaves", "filters"],
+	onStart: () => {
+		isLoadingList.value = true
+	},
+	onFinish: () => {
+		isLoadingList.value = false
+	},
+}
+
+const reloadList = (extraQuery: Record<string, any> = {}) => {
+	const query: Record<string, any> = { ...extraQuery }
+	const search = filterState.search.trim()
+
+	if (search) query.filter = { global: search }
+	if (filterState.status !== "all") query.status = filterState.status
+	if (filterState.type) query.type = filterState.type
+	if (filterState.from) query.from = filterState.from
+	if (filterState.to) query.to = filterState.to
+
+	router.get(route("grp.org.hr.leaves.index", { organisation: (route().params as Record<string, any>).organisation }), query, listVisitOptions)
+}
+
+const reloadListDebounced = debounce(() => reloadList(), 350)
+
+watch(
+	() => filterState.search,
+	() => reloadListDebounced()
+)
+
+watch(
+	() => [filterState.status, filterState.type, filterState.from, filterState.to],
+	() => {
+		reloadListDebounced.cancel()
+		reloadList()
+	}
+)
+
+const clearFilters = () => {
+	filterState.search = ""
+	filterState.status = "all"
+	filterState.type = ""
+	filterState.from = ""
+	filterState.to = ""
+}
+
+const visitPage = (url?: string | null) => {
+	if (!url) return
+	router.get(url, {}, listVisitOptions)
+}
+
+const changePerPage = (perPage: number) => reloadList({ perPage })
+
+const statusLabel = (status: string): string => props.status_options?.[status] ?? status
+
+const typeTagStyle = (color: string) => ({
+	backgroundColor: `color-mix(in srgb, ${color} 12%, white)`,
+	borderColor: `color-mix(in srgb, ${color} 35%, white)`,
+	color: `color-mix(in srgb, ${color} 75%, black)`,
+})
+
+const daysLabel = (leave: any): string => {
+	const days = toNumber(leave.duration_days)
+
+	return days === 1 ? ctrans("1 day") : ctrans(":days days", { days: String(days) })
+}
+
+const decidedApprovals = (leave: any): any[] => (leave.approvals ?? []).filter((approval: any) => approval.status !== "pending")
+
+const parseYmdDate = (value: string): Date | null => {
+	const [year, month, day] = (value ?? "").split("-").map(Number)
+
+	return year && month && day ? new Date(year, month - 1, day) : null
+}
+
+const formatYmdDate = (date: Date | null): string =>
+	date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : ""
+
+const exportFromDateModel = computed<Date | null>({
+	get: () => parseYmdDate(exportForm.from),
+	set: (value) => {
+		exportForm.from = formatYmdDate(value)
+	},
+})
+
+const exportToDateModel = computed<Date | null>({
+	get: () => parseYmdDate(exportForm.to),
+	set: (value) => {
+		exportForm.to = formatYmdDate(value)
+	},
+})
+
+const exportStatusOptions = computed(() => Object.entries(props.status_options ?? {}).map(([value, label]) => ({ value, label })))
+
+const exportDepartmentOptions = computed(() =>
+	[...new Set(Object.values(props.employee_job_positions ?? {}).flatMap((positions) => positions.map((position) => position.department)))]
+		.filter((department): department is string => !!department)
+		.sort()
+		.map((department) => ({ value: department, label: department }))
+)
+
+const exportEmployeeOptions = computed(() => employeeSelectOptions.value.map((option) => ({ value: Number(option.value), label: option.label })))
+
+const exportFormatOptions = computed(() => [
+	{ label: ctrans("Excel (XLSX)"), value: "xlsx", icon: faFileExcel, iconClass: "text-green-600" },
+	{ label: ctrans("CSV"), value: "csv", icon: faFileCsv, iconClass: "text-sky-600" },
+])
+
+const confirm = useConfirm()
+const deletingLeaveId = ref<number | null>(null)
+
+const deleteLeaveMessage = (leave: any): string => {
+	const details = {
+		name: leave.employee_name,
+		type: leave.type_label,
+		from: formatDate(leave.start_date),
+		to: formatDate(leave.end_date),
+	}
+
+	if (leave.status === "approved") {
+		return ctrans(
+			"This leave was already approved. Deleting it takes :name's :type (:from – :to) off their leave record and the leave calendar, ends any absence cover assigned to it, and returns the days it used to their leave balance.",
+			details
+		)
+	}
+
+	if (leave.status === "rejected") {
+		return ctrans(
+			"This request was already rejected. Deleting it removes :name's :type request (:from – :to), and the reason it was rejected, from their leave record. Their leave balance is not affected.",
+			details
+		)
+	}
+
+	return ctrans("Delete :name's :type request (:from – :to)? It has not been approved or rejected yet, and the approvers will no longer see it.", details)
+}
+
+const confirmDeleteLeave = (leave: any) => {
+	confirm.require({
+		group: "leave-admin",
+		header: leave.status === "approved" ? ctrans("Delete approved leave") : leave.status === "rejected" ? ctrans("Delete rejected leave request") : ctrans("Delete leave request"),
+		message: deleteLeaveMessage(leave),
+		rejectProps: { label: ctrans("Cancel") },
+		acceptProps: { label: leave.status === "pending" ? ctrans("Delete") : ctrans("Delete anyway"), severity: "danger" },
+		accept: () => {
+			router.delete(route("grp.org.hr.leaves.delete", { organisation: route().params.organisation, leave: leave.id }), {
+				preserveScroll: true,
+				preserveState: true,
+				onStart: () => (deletingLeaveId.value = leave.id),
+				onFinish: () => (deletingLeaveId.value = null),
+			})
+		},
+	})
 }
 </script>
 
@@ -432,61 +644,97 @@ const closeRejectModal = () => {
 		</template>
 	</PageHeading>
 
-	<Modal :isOpen="isRecordModalOpen" @onClose="isRecordModalOpen = false" width="w-full max-w-lg">
-		<h2 class="mb-1 text-lg font-semibold text-gray-800">{{ ctrans("Record leave") }}</h2>
+	<Dialog
+		v-model:visible="isRecordModalOpen"
+		modal
+		:draggable="false"
+		:header="ctrans('Record leave')"
+		:style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }">
 		<p class="mb-4 text-sm text-gray-500">{{ ctrans("Recorded by HR on behalf of the employee, approved immediately.") }}</p>
 
-		<form @submit.prevent="submitRecord" class="space-y-4">
+		<form class="space-y-4" @submit.prevent="submitRecord">
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{ ctrans("Employee") }}</label>
+				<label for="record-leave-employee" class="mb-1 block text-sm font-medium text-gray-700">
+					{{ ctrans("Employee") }} <span class="text-red-500">*</span>
+				</label>
 				<Select
 					v-model="recordForm.employee_id"
+					inputId="record-leave-employee"
 					:options="employeeSelectOptions"
 					optionLabel="label"
 					optionValue="value"
 					filter
+					fluid
+					:invalid="!!(recordForm.errors as Record<string, string>).employee_id"
 					:placeholder="ctrans('Select employee')"
-					class="mt-1 w-full" />
+					:class="fieldFocusClass" />
+				<p v-if="(recordForm.errors as Record<string, string>).employee_id" class="mt-1 text-sm text-red-500">
+					{{ (recordForm.errors as Record<string, string>).employee_id }}
+				</p>
 			</div>
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{ ctrans("Leave Type") }}</label>
+				<label for="record-leave-type" class="mb-1 block text-sm font-medium text-gray-700">
+					{{ ctrans("Leave Type") }} <span class="text-red-500">*</span>
+				</label>
 				<Select
 					v-model="recordForm.type"
+					inputId="record-leave-type"
 					:options="parsedTypeOptions"
 					optionLabel="label"
 					optionValue="value"
+					filter
+					fluid
+					:invalid="!!recordForm.errors.type"
 					:placeholder="ctrans('Select type')"
-					class="mt-1 w-full" />
-				<p v-if="recordForm.errors.type" class="mt-1 text-sm text-red-600">{{ recordForm.errors.type }}</p>
+					:class="fieldFocusClass" />
+				<p v-if="recordForm.errors.type" class="mt-1 text-sm text-red-500">{{ recordForm.errors.type }}</p>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{ ctrans("Start Date") }}</label>
+					<label for="record-leave-start" class="mb-1 block text-sm font-medium text-gray-700">
+						{{ ctrans("Start Date") }} <span class="text-red-500">*</span>
+					</label>
 					<DatePicker
-						:modelValue="recordForm.start_date ? new Date(recordForm.start_date) : null"
-						@update:modelValue="(date: Date) => (recordForm.start_date = date ? date.toISOString().split('T')[0] : '')"
-						:markers="holidayMarkers"
-						:enableTimePicker="false"
-						:autoApply="true"
+						v-model="recordStartDate"
+						inputId="record-leave-start"
+						:maxDate="recordEndDate ?? undefined"
+						:manualInput="false"
+						:invalid="!!recordForm.errors.start_date"
+						dateFormat="d M yy"
+						showIcon
+						iconDisplay="input"
+						fluid
 						:placeholder="ctrans('Select start date')"
-						class="mt-1 block w-full"
-						inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-					<p v-if="recordForm.errors.start_date" class="mt-1 text-sm text-red-600">{{ recordForm.errors.start_date }}</p>
+						:class="fieldFocusClass">
+						<template #date="{ date }">
+							<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+						</template>
+					</DatePicker>
+					<p v-if="recordForm.errors.start_date" class="mt-1 text-sm text-red-500">{{ recordForm.errors.start_date }}</p>
 				</div>
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{ ctrans("End Date") }}</label>
+					<label for="record-leave-end" class="mb-1 block text-sm font-medium text-gray-700">
+						{{ ctrans("End Date") }} <span class="text-red-500">*</span>
+					</label>
 					<DatePicker
-						:modelValue="recordForm.end_date ? new Date(recordForm.end_date) : null"
-						@update:modelValue="(date: Date) => (recordForm.end_date = date ? date.toISOString().split('T')[0] : '')"
-						:markers="holidayMarkers"
-						:enableTimePicker="false"
-						:autoApply="true"
+						v-model="recordEndDate"
+						inputId="record-leave-end"
+						:minDate="recordStartDate ?? undefined"
+						:manualInput="false"
+						:invalid="!!recordForm.errors.end_date"
+						dateFormat="d M yy"
+						showIcon
+						iconDisplay="input"
+						fluid
 						:placeholder="ctrans('Select end date')"
-						class="mt-1 block w-full"
-						inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
-					<p v-if="recordForm.errors.end_date" class="mt-1 text-sm text-red-600">{{ recordForm.errors.end_date }}</p>
+						:class="fieldFocusClass">
+						<template #date="{ date }">
+							<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+						</template>
+					</DatePicker>
+					<p v-if="recordForm.errors.end_date" class="mt-1 text-sm text-red-500">{{ recordForm.errors.end_date }}</p>
 				</div>
 			</div>
 
@@ -496,242 +744,334 @@ const closeRejectModal = () => {
 				:error="recordForm.errors.cover_employee_id" />
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{ ctrans("Reason") }}</label>
+				<label for="record-leave-reason" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Reason") }}</label>
 				<Textarea
 					v-model="recordForm.reason"
+					id="record-leave-reason"
 					rows="2"
-					class="mt-1 w-full resize-none" />
+					autoResize
+					fluid
+					maxlength="1000"
+					:invalid="!!recordForm.errors.reason"
+					:class="inputFocusClass" />
+				<p v-if="recordForm.errors.reason" class="mt-1 text-sm text-red-500">{{ recordForm.errors.reason }}</p>
 			</div>
 
-			<div class="mt-6 flex justify-end gap-2">
-				<Button @click="isRecordModalOpen = false" :label="ctrans('Cancel')" type="tertiary" />
-				<Button type="save" nativeType="submit" :label="ctrans('Record leave')" :loading="recordForm.processing" />
+			<div class="flex justify-end gap-2 pt-2">
+				<Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeRecordModal">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" nativeType="submit" :label="ctrans('Record leave')" :loading="recordForm.processing" :disabled="!recordForm.employee_id">
+					<template #icon>
+						<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 		</form>
-	</Modal>
+	</Dialog>
 
-	<div class="mt-4">
-		<Table :resource="leaves">
-			<template #cell(employee_name)="{ item: leave }">
-				<span class="whitespace-nowrap">
-					{{ leave.employee_name }}
-				</span>
-			</template>
+	<HrRequestFilters
+		v-model:search="filterState.search"
+		v-model:status="filterState.status"
+		v-model:from="filterState.from"
+		v-model:to="filterState.to"
+		:total="totalRequests"
+		:countLabel="totalRequests === 1 ? ctrans('leave request') : ctrans('leave requests')"
+		:loading="isLoadingList"
+		:statusOptions="statusFilterOptions"
+		:searchPlaceholder="ctrans('Search employee, type or reason')"
+		:extraFilterActive="filterState.type !== ''"
+		@clear="clearFilters">
+		<template #extra>
+			<Select
+				v-model="typeFilterModel"
+				:options="parsedTypeOptions"
+				optionLabel="label"
+				optionValue="value"
+				size="small"
+				showClear
+				:placeholder="ctrans('All leave types')"
+				:aria-label="ctrans('Leave type')"
+				class="w-full sm:w-48"
+				:class="fieldFocusClass" />
+		</template>
+	</HrRequestFilters>
 
-			<template #cell(type_label)="{ item: leave }">
-				<span class="whitespace-nowrap">
-					{{ leave.type_label }}
-				</span>
-			</template>
-
-			<template #cell(start_date)="{ item: leave }">
-				<span class="whitespace-nowrap">
-					{{ formatDate(leave.start_date) }}
-				</span>
-			</template>
-
-			<template #cell(end_date)="{ item: leave }">
-				<span class="whitespace-nowrap">
-					{{ formatDate(leave.end_date) }}
-				</span>
-			</template>
-
-			<template #cell(status)="{ item: leave }">
-				<Tag :theme="getStatusTheme(leave.status)" size="xs" :label="leave.status">
-					<template #label>
-						<span class="capitalize">
-							{{ leave.status }}
-						</span>
+	<div class="px-4 py-4 transition-opacity" :class="{ 'pointer-events-none opacity-50': isLoadingList }" :aria-busy="isLoadingList">
+		<div v-if="rows.length === 0" class="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+			<FontAwesomeIcon :icon="faCalendarAlt" class="text-3xl text-gray-300" aria-hidden="true" />
+			<p class="mt-3 text-sm font-medium text-gray-900">
+				{{ hasActiveFilters ? ctrans("No leave requests match these filters") : ctrans("No leave requests yet") }}
+			</p>
+			<p v-if="hasActiveFilters" class="mt-1 text-sm text-gray-500">
+				{{ ctrans("Try a different search, status, leave type or date range.") }}
+			</p>
+			<div v-if="hasActiveFilters" class="mt-4 flex justify-center">
+				<Button type="tertiary" :label="ctrans('Clear filters')" @click="clearFilters">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
 					</template>
-				</Tag>
-			</template>
+				</Button>
+			</div>
+		</div>
 
-			<template #cell(approval_progress)="{ item: leave }">
-				<div class="min-w-40">
-					<div class="flex items-center justify-between gap-2 text-xs">
-						<span class="font-medium text-gray-700">
-							{{ approvalStatusLabel(leave) }}
-						</span>
-						<span class="text-gray-500">
-							{{ approvalProgressText(leave) }}
-						</span>
-					</div>
-					<div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-						<div
-							class="h-full rounded-full transition-all duration-300 ease-out"
-							:class="approvalBarClass(leave)"
-							:style="{ width: `${approvalProgressPercent(leave)}%` }" />
-					</div>
-				</div>
-			</template>
+		<div v-else class="flex flex-col gap-4">
+			<HrRequestCard v-for="leave in rows" :key="leave.id" :status="leave.status" :statusLabel="statusLabel(leave.status)">
+				<template #avatar>
+					<EmployeeAvatar :name="leave.employee_name" :image="leave.employee_avatar" size="md" />
+				</template>
+				<template #title>{{ leave.employee_name }}</template>
+				<template #meta>
+					<span
+						class="inline-flex items-center gap-1.5 whitespace-nowrap rounded border px-1.5 py-0.5 text-xs font-medium"
+						:style="typeTagStyle(leave.type_color_hex)">
+						<span class="h-1.5 w-1.5 rounded-full" :style="{ backgroundColor: leave.type_color_hex }" aria-hidden="true" />
+						{{ leave.type_label }}
+					</span>
+				</template>
 
-			<template #cell(reason)="{ item: leave }">
-				<div class="max-w-md">
-					<div v-if="leave.reason" class="text-sm text-gray-600 break-words">
-						{{ leave.reason }}
-					</div>
-					<div
-						v-if="leave.status === 'rejected' && leave.rejection_reason"
-						class="mt-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-						<div class="break-words">
-							{{ leave.rejection_reason }}
+				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					<div class="rounded-md bg-gray-50 px-3 py-2">
+						<div class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Leave period") }}</div>
+						<div class="mt-1 text-sm font-medium tabular-nums text-gray-900">
+							{{ formatDate(leave.start_date) }}
+							<template v-if="leave.end_date && leave.end_date !== leave.start_date"> – {{ formatDate(leave.end_date) }}</template>
+						</div>
+						<div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm tabular-nums text-gray-600">
+							{{ daysLabel(leave) }}
+							<span v-if="leave.is_half_day" class="inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
+								{{ ctrans("Half day") }}<template v-if="leave.session && leave.session !== 'Full'"> · {{ leave.session }}</template>
+							</span>
 						</div>
 					</div>
-					<span
-						v-if="
-							!leave.reason &&
-							!(leave.status === 'rejected' && leave.rejection_reason)
-						">
-						—
-					</span>
-				</div>
-			</template>
 
-			<template #cell(attachments)="{ item: leave }">
-				<div class="flex flex-wrap gap-1">
-					<a
-						v-for="attachment in leave.attachments ?? []"
-						:key="attachment.id"
-						:href="attachment.url"
-						target="_blank"
-						rel="noopener"
-						class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-[--app-accent] bg-[--app-accent-soft] rounded">
-						<FontAwesomeIcon :icon="faPaperclip" class="mr-1" fixed-width />
-						{{ attachment.name }}
-					</a>
-					<span
-						v-if="!leave.attachments || leave.attachments.length === 0"
-						class="text-gray-400 text-xs">
-						—
-					</span>
+					<div class="rounded-md bg-gray-50 px-3 py-2">
+						<div class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Approval") }}</div>
+						<div class="mt-1 flex items-center justify-between gap-2 text-sm">
+							<span class="font-medium text-gray-900">{{ approvalStatusLabel(leave) }}</span>
+							<span class="tabular-nums text-gray-600">{{ approvalProgressText(leave) }}</span>
+						</div>
+						<div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+							<div
+								class="h-full rounded-full transition-all duration-300 ease-out"
+								:class="approvalBarClass(leave)"
+								:style="{ width: `${approvalProgressPercent(leave)}%` }" />
+						</div>
+						<ul v-if="decidedApprovals(leave).length" class="mt-2 space-y-0.5 text-xs text-gray-600">
+							<li v-for="approval in decidedApprovals(leave)" :key="`${approval.level}-${approval.approver_name}`" class="flex flex-wrap items-center gap-x-1.5">
+								<FontAwesomeIcon
+									:icon="approval.status === 'rejected' ? faTimes : faCheck"
+									:class="approval.status === 'rejected' ? 'text-red-500' : 'text-green-600'"
+									fixed-width
+									aria-hidden="true" />
+								<span>{{ ctrans("Level :level", { level: String(approval.level) }) }}</span>
+								<span v-if="approval.approver_name" class="inline-flex items-center gap-1 font-medium text-gray-800">
+									<EmployeeAvatar :name="approval.approver_name" :image="approval.approver_avatar" size="xs" />
+									{{ approval.approver_name }}
+								</span>
+								<span v-if="approval.decided_at" class="tabular-nums text-gray-500">{{ useFormatTime(approval.decided_at, { formatTime: "hm", localeCode: locale?.language?.code }) }}</span>
+							</li>
+						</ul>
+						<p v-else-if="leave.status !== 'pending' && (leave.approver_name || leave.approved_at)" class="mt-2 text-xs text-gray-600">
+							<span v-if="leave.approver_name" class="inline-flex items-center gap-1 align-middle font-medium text-gray-800">
+								<EmployeeAvatar :name="leave.approver_name" :image="leave.approver_avatar" size="xs" />
+								{{ leave.approver_name }}
+							</span>
+							<span v-if="leave.approver_name && leave.approved_at" class="text-gray-300"> · </span>
+							<span v-if="leave.approved_at" class="tabular-nums">{{ useFormatTime(leave.approved_at, { formatTime: "hm", localeCode: locale?.language?.code }) }}</span>
+						</p>
+					</div>
 				</div>
-			</template>
 
-			<template #cell(actions)="{ item: leave }">
-				<div class="flex items-center gap-2">
-					<Button
-						v-if="leave.status === 'pending' && props.can_edit_admin"
-						type="transparent"
-						size="xs"
-						:icon="faEdit"
-						:label="ctrans('Edit')"
-						@click="() => openEditModal(leave)" />
-                    <span v-if="leave.status !== 'pending'" class="text-gray-400 text-xs">
+				<dl class="mt-4 space-y-2 text-sm empty:hidden">
+					<div v-if="leave.reason">
+						<dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Reason") }}</dt>
+						<dd class="whitespace-pre-line break-words text-gray-700">{{ leave.reason }}</dd>
+					</div>
+					<div v-if="leave.status === 'rejected' && leave.rejection_reason">
+						<dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Rejection reason") }}</dt>
+						<dd class="mt-1 whitespace-pre-line break-words rounded border border-red-200 bg-red-50 px-3 py-2 text-red-900">{{ leave.rejection_reason }}</dd>
+					</div>
+					<div v-if="leave.cover_employee_name">
+						<dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Covered by") }}</dt>
+						<dd class="flex items-center gap-1.5 text-gray-700">
+							<EmployeeAvatar :name="leave.cover_employee_name" :image="leave.cover_employee_avatar" size="xs" />
+							{{ leave.cover_employee_name }}
+						</dd>
+					</div>
+					<div v-if="leave.attachments?.length">
+						<dt class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Attachments") }}</dt>
+						<dd class="mt-1 flex flex-wrap gap-1.5">
+							<a
+								v-for="attachment in leave.attachments"
+								:key="attachment.id"
+								:href="attachment.url"
+								target="_blank"
+								rel="noopener"
+								class="inline-flex items-center gap-1 rounded bg-[--app-accent-soft] px-2 py-0.5 text-xs font-medium text-[--app-accent-strong] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]">
+								<FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />
+								{{ attachment.name }}
+							</a>
+						</dd>
+					</div>
+				</dl>
+
+				<template #actions>
+					<template v-if="leave.status === 'pending'">
+						<Button
+							v-if="leave.can_approve_current_user"
+							type="tertiary"
+							size="xs"
+							:label="ctrans('Approve')"
+							@click="() => openApproveModal(leave)">
+							<template #icon>
+								<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+						<Button
+							v-if="leave.can_approve_current_user"
+							type="tertiary"
+							size="xs"
+							:label="ctrans('Reject')"
+							@click="() => openRejectModal(leave)">
+							<template #icon>
+								<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+						<Button
+							v-if="props.can_edit_admin"
+							type="tertiary"
+							size="xs"
+							:label="ctrans('Edit')"
+							@click="() => openEditModal(leave)">
+							<template #icon>
+								<FontAwesomeIcon :icon="faEdit" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+					</template>
+					<span v-else class="mr-auto whitespace-nowrap text-xs text-gray-400">
 						{{ ctrans("Processed") }}
 					</span>
 					<Button
-						v-if="leave.status === 'pending' && leave.can_approve_current_user"
-						type="positive"
+						v-if="can_delete !== false"
+						type="tertiary"
 						size="xs"
-						:icon="faCheck"
-						:label="ctrans('Approve')"
-						@click="() => openApproveModal(leave)" />
-					<Button
-						v-if="leave.status === 'pending' && leave.can_approve_current_user"
-						type="warning"
-						size="xs"
-						:icon="faTimes"
-						:label="ctrans('Reject')"
-						@click="() => openRejectModal(leave)" />
-					<ModalConfirmationDelete
-						:routeDelete="{
-							name: 'grp.org.hr.leaves.delete',
-							parameters: { ...route().params, leave: leave.id },
-						}">
-						<template #default="{ changeModel, isLoadingdelete }">
-							<Button
-								type="negative"
-								size="xs"
-								:icon="faTrash"
-								:label="ctrans('Delete')"
-								:loading="isLoadingdelete"
-								@click="changeModel" />
+						:label="ctrans('Delete')"
+						:loading="deletingLeaveId === leave.id"
+						@click="() => confirmDeleteLeave(leave)">
+						<template #icon>
+							<FontAwesomeIcon :icon="faTrash" class="text-red-500" fixed-width aria-hidden="true" />
 						</template>
-					</ModalConfirmationDelete>
+					</Button>
+				</template>
+			</HrRequestCard>
+		</div>
 
-				</div>
-			</template>
-		</Table>
+		<Pagination
+			v-if="rows.length > 0 && Number(paginationMeta?.total ?? 0) > 15"
+			:on-click="visitPage"
+			:has-data="true"
+			:meta="paginationMeta"
+			:on-per-page-change="changePerPage"
+			custom-wrapper-class="mt-4 rounded-lg border border-gray-200" />
 	</div>
 
-	<Modal :isOpen="isEditModalOpen" @onClose="closeEditModal" width="w-full max-w-lg">
-		<h2 class="text-lg font-semibold text-gray-800 mb-1">
-			{{ ctrans("Edit Leave Request") }}
-		</h2>
-		<p class="text-sm text-gray-500 mb-4">
-			{{ selectedLeave?.employee_name }}
-		</p>
+	<Dialog
+		:visible="isEditModalOpen"
+		modal
+		:draggable="false"
+		:header="ctrans('Edit Leave Request')"
+		:style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+		@update:visible="(isVisible: boolean) => !isVisible && closeEditModal()">
+		<form v-if="selectedLeave" class="space-y-4" @submit.prevent="submitEdit">
+			<div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900">
+				{{ selectedLeave.employee_name }}
+			</div>
 
-		<form @submit.prevent="submitEdit" class="space-y-4">
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{
-					ctrans("Leave Type")
-				}}</label>
+				<label for="edit-leave-type" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Leave Type") }}</label>
 				<Select
 					v-model="editForm.type"
+					inputId="edit-leave-type"
 					:options="parsedTypeOptions"
 					optionLabel="label"
 					optionValue="value"
+					filter
+					fluid
+					:invalid="!!editForm.errors.type"
 					:placeholder="ctrans('Select type')"
-					class="mt-1 w-full" />
-				<p v-if="editForm.errors.type" class="mt-1 text-sm text-red-600">
-					{{ editForm.errors.type }}
-				</p>
+					:class="fieldFocusClass" />
+				<p v-if="editForm.errors.type" class="mt-1 text-sm text-red-500">{{ editForm.errors.type }}</p>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Start Date")
-					}}</label>
+					<label for="edit-leave-start" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Start Date") }}</label>
 					<DatePicker
-						:modelValue="editForm.start_date ? new Date(editForm.start_date) : null"
-						@update:modelValue="(date: Date) => (editForm.start_date = date ? date.toISOString().split('T')[0] : '')"
-						:disabledDates="isDisabledDate"
-						:markers="holidayMarkers"
-						:enableTimePicker="false"
-						:clearable="true"
-						:autoApply="true"
+						v-model="editStartDate"
+						inputId="edit-leave-start"
+						:disabledDays="[0, 6]"
+						:disabledDates="holidayDates"
+						:manualInput="false"
+						:invalid="!!editForm.errors.start_date"
+						dateFormat="d M yy"
+						showIcon
+						iconDisplay="input"
+						showClear
+						fluid
 						:placeholder="ctrans('Select start date')"
-						class="mt-1 block w-full"
-						inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]" />
-					<p v-if="editForm.errors.start_date" class="mt-1 text-sm text-red-600">
-						{{ editForm.errors.start_date }}
-					</p>
+						:class="fieldFocusClass">
+						<template #date="{ date }">
+							<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+						</template>
+					</DatePicker>
+					<p v-if="editForm.errors.start_date" class="mt-1 text-sm text-red-500">{{ editForm.errors.start_date }}</p>
 				</div>
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("End Date")
-					}}</label>
+					<label for="edit-leave-end" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("End Date") }}</label>
 					<DatePicker
-						:modelValue="editForm.end_date ? new Date(editForm.end_date) : null"
-						@update:modelValue="(date: Date) => (editForm.end_date = date ? date.toISOString().split('T')[0] : '')"
-						:disabledDates="isDisabledDate"
-						:markers="holidayMarkers"
-						:enableTimePicker="false"
-						:clearable="true"
-						:autoApply="true"
+						v-model="editEndDate"
+						inputId="edit-leave-end"
+						:disabled="editForm.is_half_day"
+						:minDate="editStartDate ?? undefined"
+						:disabledDays="[0, 6]"
+						:disabledDates="holidayDates"
+						:manualInput="false"
+						:invalid="!!editForm.errors.end_date"
+						dateFormat="d M yy"
+						showIcon
+						iconDisplay="input"
+						showClear
+						fluid
 						:placeholder="ctrans('Select end date')"
-						class="mt-1 block w-full"
-						inputClassName="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-[--app-accent] focus:ring-[--app-accent]" />
-					<p v-if="editForm.errors.end_date" class="mt-1 text-sm text-red-600">
-						{{ editForm.errors.end_date }}
-					</p>
+						:class="fieldFocusClass">
+						<template #date="{ date }">
+							<span :title="holidayLabel(date)" :class="holidayLabel(date) ? 'text-red-500 underline decoration-dotted' : ''">{{ date.day }}</span>
+						</template>
+					</DatePicker>
+					<p v-if="editForm.errors.end_date" class="mt-1 text-sm text-red-500">{{ editForm.errors.end_date }}</p>
 				</div>
 			</div>
+
+			<p v-if="editForm.is_half_day" class="text-xs text-gray-500">
+				{{ ctrans("Half day leave is applied to one date only.") }}
+			</p>
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{
-					ctrans("Reason")
-				}}</label>
+				<label for="edit-leave-reason" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Reason") }}</label>
 				<Textarea
 					v-model="editForm.reason"
+					id="edit-leave-reason"
 					rows="3"
-					class="mt-1 w-full resize-none"
-					:placeholder="ctrans('Enter reason...')" />
-				<p v-if="editForm.errors.reason" class="mt-1 text-sm text-red-600">
-					{{ editForm.errors.reason }}
-				</p>
+					autoResize
+					fluid
+					maxlength="1000"
+					:invalid="!!editForm.errors.reason"
+					:placeholder="ctrans('Enter reason...')"
+					:class="inputFocusClass" />
+				<p v-if="editForm.errors.reason" class="mt-1 text-sm text-red-500">{{ editForm.errors.reason }}</p>
 			</div>
 
 			<LeaveCoverSelect
@@ -741,225 +1081,233 @@ const closeRejectModal = () => {
 				:hint="ctrans('The cover gets this employee\'s permissions from approval until the leave ends')" />
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{
-					ctrans("Attachments")
-				}}</label>
-				<div
-					v-if="selectedLeave?.attachments?.length"
-					class="mt-1 mb-2 flex flex-wrap gap-1">
+				<span class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Attachments") }}</span>
+				<div v-if="selectedLeave.attachments?.length" class="mb-2 flex flex-wrap gap-1.5">
 					<a
-						v-for="att in selectedLeave.attachments"
-						:key="att.id"
-						:href="att.url"
+						v-for="attachment in selectedLeave.attachments"
+						:key="attachment.id"
+						:href="attachment.url"
 						target="_blank"
 						rel="noopener"
-						class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-[--app-accent] bg-[--app-accent-soft] rounded">
-						<FontAwesomeIcon :icon="faPaperclip" class="mr-1" fixed-width />
-						{{ att.name }}
+						class="inline-flex items-center gap-1 rounded bg-[--app-accent-soft] px-2 py-0.5 text-xs font-medium text-[--app-accent-strong] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]">
+						<FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />
+						{{ attachment.name }}
 					</a>
 				</div>
-				<input
-					type="file"
+				<FileUpload
+					ref="editFileUpload"
 					multiple
-					@change="
-						(e: Event) => {
-							const files = (e.target as HTMLInputElement).files
-							if (files) editForm.attachments = Array.from(files)
-						}
-					"
-					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-					accept=".pdf,.jpg,.jpeg,.png" />
-				<p class="mt-1 text-xs text-gray-500">
-					{{ ctrans("Uploading new files will replace existing attachments (PDF, JPG, PNG, max 5 files)") }}
-				</p>
-				<p v-if="editForm.errors.attachments" class="mt-1 text-sm text-red-600">
-					{{ editForm.errors.attachments }}
-				</p>
+					customUpload
+					accept=".pdf,.jpg,.jpeg,.png"
+					:maxFileSize="maxAttachmentSize"
+					:fileLimit="maxEditAttachments"
+					:pt="fileUploadPt"
+					@select="onEditAttachmentsChanged"
+					@remove="onEditAttachmentsChanged">
+					<template #header="{ chooseCallback }">
+						<Button type="tertiary" :label="ctrans('Choose file')" @click.prevent="chooseCallback">
+							<template #icon>
+								<FontAwesomeIcon :icon="faPaperclip" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+					</template>
+					<template #content="{ files, removeFileCallback }">
+						<ul v-if="files.length" class="divide-y divide-gray-100 rounded-lg border border-gray-200">
+							<li v-for="(file, index) in files" :key="file.name + file.size" class="flex items-center gap-2 px-3 py-2 text-sm">
+								<FontAwesomeIcon :icon="faFileAlt" class="text-gray-400" fixed-width aria-hidden="true" />
+								<span class="truncate text-gray-900">{{ file.name }}</span>
+								<span class="ml-auto shrink-0 text-xs tabular-nums text-gray-500">{{ formatFileSize(file.size) }}</span>
+								<button type="button" class="shrink-0 text-gray-400 hover:text-red-500" :aria-label="ctrans('Remove')" @click="removeFileCallback(index)">
+									<FontAwesomeIcon :icon="faTimes" fixed-width aria-hidden="true" />
+								</button>
+							</li>
+						</ul>
+					</template>
+					<template #empty>
+						<p class="rounded-lg border border-dashed border-gray-300 px-3 py-4 text-center text-xs text-gray-500">
+							{{ ctrans("Drop files here, or use the button above. PDF, JPG or PNG, up to :count files of 5 MB each. New files replace the existing attachments.", { count: maxEditAttachments }) }}
+						</p>
+					</template>
+				</FileUpload>
+				<p v-if="editForm.errors.attachments" class="mt-1 text-sm text-red-500">{{ editForm.errors.attachments }}</p>
 			</div>
 
-			<div class="mt-6 flex justify-end gap-2">
-				<Button @click="closeEditModal" :label="ctrans('Cancel')" type="tertiary" />
-				<Button
-					type="save"
-					nativeType="submit"
-					:label="ctrans('Save')"
-					:loading="isSubmitting" />
+			<div class="flex justify-end gap-2 pt-2">
+				<Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeEditModal">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" nativeType="submit" :label="ctrans('Save')" :loading="isSubmitting">
+					<template #icon>
+						<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 		</form>
-	</Modal>
+	</Dialog>
 
-	<Modal :isOpen="isExportModalOpen" @onClose="closeExportModal" width="w-full max-w-lg">
-		<h2 class="text-lg font-semibold text-gray-800 mb-4">
-			{{ ctrans("Export Leave Reports") }}
-		</h2>
-		<p class="text-sm text-gray-600 mb-4">
+	<Dialog
+		:visible="isExportModalOpen"
+		modal
+		:draggable="false"
+		:header="ctrans('Export Leave Reports')"
+		:style="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+		@update:visible="(isVisible: boolean) => !isVisible && closeExportModal()">
+		<p class="mb-4 text-sm text-gray-600">
 			{{ ctrans("Select filters and export format for your leave report.") }}
 		</p>
 
-		<form @submit.prevent="submitExport" class="space-y-4">
-			<div class="grid grid-cols-2 gap-4">
+		<form class="space-y-4" @submit.prevent="submitExport">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("From Date")
-					}}</label>
-					<input
-						v-model="exportForm.from"
-						type="date"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+					<label for="leave-export-from" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("From Date") }}</label>
+					<DatePicker
+						v-model="exportFromDateModel"
+						inputId="leave-export-from"
+						:maxDate="exportToDateModel ?? undefined"
+						dateFormat="d M yy"
+						:manualInput="false"
+						showIcon
+						iconDisplay="input"
+						showClear
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("To Date")
-					}}</label>
-					<input
-						v-model="exportForm.to"
-						type="date"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm" />
+					<label for="leave-export-to" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("To Date") }}</label>
+					<DatePicker
+						v-model="exportToDateModel"
+						inputId="leave-export-to"
+						:minDate="exportFromDateModel ?? undefined"
+						dateFormat="d M yy"
+						:manualInput="false"
+						showIcon
+						iconDisplay="input"
+						showClear
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Leave Type")
-					}}</label>
-					<select
+					<label for="leave-export-type" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Leave Type") }}</label>
+					<Select
 						v-model="exportForm.type"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-						<option value="">{{ ctrans("All Types") }}</option>
-						<option
-							v-for="option in parsedTypeOptions"
-							:key="option.value"
-							:value="option.value">
-							{{ option.label }}
-						</option>
-					</select>
+						inputId="leave-export-type"
+						:options="[{ value: '', label: ctrans('All Types') }, ...parsedTypeOptions]"
+						optionLabel="label"
+						optionValue="value"
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Status")
-					}}</label>
-					<select
+					<label for="leave-export-status" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Status") }}</label>
+					<Select
 						v-model="exportForm.status"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-						<option value="">{{ ctrans("All Statuses") }}</option>
-						<option
-							v-for="(label, value) in status_options"
-							:key="value"
-							:value="value">
-							{{ label }}
-						</option>
-					</select>
+						inputId="leave-export-status"
+						:options="[{ value: '', label: ctrans('All Statuses') }, ...exportStatusOptions]"
+						optionLabel="label"
+						optionValue="value"
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 			</div>
 
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Department")
-					}}</label>
-					<select
+					<label for="leave-export-department" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Department") }}</label>
+					<Select
 						v-model="exportForm.department"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-						<option value="">{{ ctrans("All Departments") }}</option>
-						<option
-							v-for="(label, value) in parsedDepartmentOptions"
-							:key="value"
-							:value="value">
-							{{ label }}
-						</option>
-					</select>
+						inputId="leave-export-department"
+						:options="[{ value: '', label: ctrans('All Departments') }, ...exportDepartmentOptions]"
+						optionLabel="label"
+						optionValue="value"
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Team")
-					}}</label>
-					<select
-						v-model="exportForm.team"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-						<option value="">{{ ctrans("All Teams") }}</option>
-						<option
-							v-for="(label, value) in parsedTeamOptions"
-							:key="value"
-							:value="value">
-							{{ label }}
-						</option>
-					</select>
-				</div>
-			</div>
-
-			<div class="grid grid-cols-2 gap-4">
-				<div>
-					<label class="block text-sm font-medium text-gray-700">{{
-						ctrans("Employee")
-					}}</label>
-					<select
+					<label for="leave-export-employee" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Employee") }}</label>
+					<Select
 						v-model="exportForm.employee_id"
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-						<option value="">{{ ctrans("All Employees") }}</option>
-						<option
-							v-for="(label, value) in parsedEmployeeOptions"
-							:key="value"
-							:value="value">
-							{{ label }}
-						</option>
-					</select>
+						inputId="leave-export-employee"
+						:options="[{ value: null, label: ctrans('All Employees') }, ...exportEmployeeOptions]"
+						optionLabel="label"
+						optionValue="value"
+						filter
+						fluid
+						:class="fieldFocusClass" />
 				</div>
 			</div>
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700">{{
-					ctrans("Export Format")
-				}}</label>
+				<span class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Export Format") }}</span>
 				<div class="mt-2 flex gap-4">
-					<label class="flex cursor-pointer items-center gap-2">
-						<input
-							v-model="exportForm.format"
-							type="radio"
-							value="xlsx"
-							class="text-[--app-accent] focus:ring-[--app-accent]" />
-						<FontAwesomeIcon icon="fal fa-file-excel" class="text-green-600" fixed-width />
-						<span class="text-sm">{{ ctrans("Excel (XLSX)") }}</span>
-					</label>
-					<label class="flex cursor-pointer items-center gap-2">
-						<input
-							v-model="exportForm.format"
-							type="radio"
-							value="csv"
-							class="text-[--app-accent] focus:ring-[--app-accent]" />
-						<FontAwesomeIcon icon="fal fa-file-csv" class="text-blue-600" fixed-width />
-						<span class="text-sm">{{ ctrans("CSV") }}</span>
+					<label v-for="formatOption in exportFormatOptions" :key="formatOption.value" class="flex cursor-pointer items-center gap-2">
+						<RadioButton v-model="exportForm.format" :value="formatOption.value" :inputId="`leave-export-format-${formatOption.value}`" />
+						<FontAwesomeIcon :icon="formatOption.icon" :class="formatOption.iconClass" fixed-width aria-hidden="true" />
+						<span class="text-sm">{{ formatOption.label }}</span>
 					</label>
 				</div>
 			</div>
+
+			<div class="flex justify-end gap-2 pt-2">
+				<Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeExportModal">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" nativeType="submit" :label="ctrans('Export')" :loading="isExporting">
+					<template #icon>
+						<FontAwesomeIcon :icon="faDownload" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</div>
 		</form>
-		<ExportModalActions
-			class-name="mt-6 flex justify-end gap-2"
-			:loading="isExporting"
-			export-icon="fal fa-download"
-			@cancel="closeExportModal"
-			@export="submitExport" />
-	</Modal>
+	</Dialog>
 
-	<Modal :isOpen="isApproveModalOpen" @onClose="closeApproveModal" width="w-full max-w-lg">
-		<h2 class="mb-1 text-lg font-semibold text-gray-800">{{ ctrans("Approve leave") }}</h2>
-		<p class="mb-4 text-sm text-gray-500">
-			{{ selectedLeave?.employee_name }} · {{ selectedLeave && formatDate(selectedLeave.start_date) }} – {{ selectedLeave && formatDate(selectedLeave.end_date) }}
-		</p>
+	<Dialog
+		:visible="isApproveModalOpen"
+		modal
+		:draggable="false"
+		:header="ctrans('Approve leave')"
+		:style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
+		@update:visible="(isVisible: boolean) => !isVisible && closeApproveModal()">
+		<form v-if="selectedLeave" class="space-y-4" @submit.prevent="submitApprove">
+			<div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
+				<div class="font-medium text-gray-900">{{ selectedLeave.employee_name }}</div>
+				<div class="tabular-nums text-gray-600">
+					{{ selectedLeave.type_label }}
+					<span class="text-gray-300">Â·</span>
+					{{ formatDate(selectedLeave.start_date) }} – {{ formatDate(selectedLeave.end_date) }}
+				</div>
+			</div>
 
-		<form @submit.prevent="submitApprove" class="space-y-4">
 			<LeaveCoverSelect
 				v-model="approveForm.cover_employee_id"
 				:options="approveCoverOptions"
 				:error="approveForm.errors.cover_employee_id"
 				:hint="ctrans('The cover gets this employee\'s permissions from approval until the leave ends')" />
 
-			<div class="mt-6 flex justify-end gap-2">
-				<Button @click="closeApproveModal" :label="ctrans('Cancel')" type="tertiary" />
-				<Button type="positive" nativeType="submit" :icon="faCheck" :label="ctrans('Yes, approve')" :loading="approveForm.processing" />
+			<p v-if="(approveForm.errors as Record<string, string>).status" class="text-sm text-red-500">
+				{{ (approveForm.errors as Record<string, string>).status }}
+			</p>
+
+			<div class="flex justify-end gap-2 pt-2">
+				<Button type="tertiary" :label="ctrans('Cancel')" @click.prevent="closeApproveModal">
+					<template #icon>
+						<FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" nativeType="submit" :label="ctrans('Yes, approve')" :loading="approveForm.processing">
+					<template #icon>
+						<FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 		</form>
-	</Modal>
+	</Dialog>
 
 	<RejectLeaveModal
 		:isOpen="isRejectModalOpen"
@@ -969,4 +1317,6 @@ const closeRejectModal = () => {
 			parameters: { ...route().params, leave: selectedLeave?.id },
 		}"
 		@close="closeRejectModal" />
+
+	<HrConfirmDialog group="leave-admin" />
 </template>

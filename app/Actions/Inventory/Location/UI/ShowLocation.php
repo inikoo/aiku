@@ -137,8 +137,8 @@ class ShowLocation extends OrgAction
                     : Inertia::optional(fn () => GetLocationShowcase::run($location)),
 
                 LocationTabsEnum::ORG_STOCKS->value => $this->tab == LocationTabsEnum::ORG_STOCKS->value ?
-                    fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location))
-                    : Inertia::optional(fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location))),
+                    fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location, LocationTabsEnum::ORG_STOCKS->value))
+                    : Inertia::optional(fn () => OrgStocksInLocationResource::collection(IndexOrgStocksInLocation::run($location, LocationTabsEnum::ORG_STOCKS->value))),
 
                 LocationTabsEnum::PALLETS->value => $this->tab == LocationTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))

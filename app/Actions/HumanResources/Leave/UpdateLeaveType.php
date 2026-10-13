@@ -87,6 +87,7 @@ class UpdateLeaveType extends OrgAction
 
     public function asController(Organisation $organisation, LeaveType $leaveType, ActionRequest $request): LeaveType
     {
+        abort_unless($leaveType->organisation_id === $organisation->id, 404);
         $this->leaveType = $leaveType;
         $this->initialisation($organisation, $request);
 

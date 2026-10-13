@@ -1276,8 +1276,12 @@ test('dispatch clerk can view trolleys and picked bays but not create them', fun
     actingAs($user->refresh());
 
     $parameters = [$this->organisation->slug, $this->warehouse->slug];
-    get(route('grp.org.warehouses.show.dispatching.trolleys.index', $parameters))->assertOk();
-    get(route('grp.org.warehouses.show.dispatching.picked_bays.index', $parameters))->assertOk();
+    $headingActions = fn (string $routeName): array => array_values(array_filter(
+        get(route($routeName, $parameters))->assertOk()->viewData('page')['props']['pageHead']['actions']
+    ));
+
+    expect($headingActions('grp.org.warehouses.show.dispatching.trolleys.index'))->toBe([])
+        ->and($headingActions('grp.org.warehouses.show.dispatching.picked_bays.index'))->toBe([]);
     get(route('grp.org.warehouses.show.dispatching.trolleys.create', $parameters))->assertForbidden();
     get(route('grp.org.warehouses.show.dispatching.picked_bays.create', $parameters))->assertForbidden();
 
@@ -2365,6 +2369,16 @@ test('delivery note steps need dispatching, and undispatching needs a supervisor
     patch(route('grp.models.delivery_note.update', $deliveryNote->id), [])->assertForbidden();
     patch(route('grp.models.delivery_note.state.auto_finish_waiting', $deliveryNote->id))->assertForbidden();
     expect($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::HANDLING_BLOCKED);
+
+    actingAsUserWithRoles($user, [RolesEnum::getRoleName(RolesEnum::CUSTOMER_SERVICE_CLERK->value, $deliveryNote->shop)]);
+    $stateBefore = $deliveryNote->refresh()->state;
+    expect($deliveryNote->canBeWorkedOnBy($user))->toBeFalse()
+        ->and($deliveryNote->canBeNotedBy($user))->toBeTrue();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), [])->assertForbidden();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), ['private_warehouse_note' => 'Check the seal', 'state' => DeliveryNoteStateEnum::DISPATCHED->value])->assertForbidden();
+    patch(route('grp.models.delivery_note.update', $deliveryNote->id), ['private_warehouse_note' => 'Check the seal'])->assertSessionHasNoErrors();
+    expect($deliveryNote->refresh()->private_warehouse_note)->toBe('Check the seal')
+        ->and($deliveryNote->state)->toBe($stateBefore);
 
     actingAsUserWithRoles($user, [RolesEnum::getRoleName('dispatch-clerk', $this->warehouse)]);
     expect($can())->toBe([true, false, true]);
@@ -5101,6 +5115,22 @@ test('a packed note shipped by the sales channel waits for the carrier label, th
 
     $order->setRelation('invoices', new Collection([1]));
     expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.dispatched');
+});
+
+test('a packed collection is finalised first and set as collected in a second step, a replacement stays one step (HELP-3886)', function () {
+    $deliveryNote = new DeliveryNote(['collection_address_id' => 1, 'parcels' => [['weight' => 1]], 'type' => DeliveryNoteTypeEnum::ORDER]);
+    $deliveryNote->id = 1;
+
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalised');
+
+    $deliveryNote->type = DeliveryNoteTypeEnum::REPLACEMENT;
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalise_and_dispatch');
+
+    $deliveryNote->type = DeliveryNoteTypeEnum::ORDER;
+    $deliveryNote->collection_address_id = null;
+    expect(ShowDeliveryNote::make()->getPackedActions($deliveryNote))
+        ->key->toBe('finalise-and-dispatch')
+        ->and(ShowDeliveryNote::make()->getPackedActions($deliveryNote)['route']['name'])->toBe('grp.models.delivery_note.state.finalise_and_dispatch');
 });
 
 test('returned delivery notes are listed first whatever the sort asked for (HELP-2763)', function () {

@@ -50,6 +50,8 @@ class UpdateLeaveConcurrencyRule extends OrgAction
 
     public function asController(Organisation $organisation, LeaveConcurrencyRule $leaveConcurrencyRule, ActionRequest $request): LeaveConcurrencyRule
     {
+        abort_unless($leaveConcurrencyRule->organisation_id === $organisation->id, 404);
+
         $this->leaveConcurrencyRule = $leaveConcurrencyRule;
         $this->initialisation($organisation, $request);
 

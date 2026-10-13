@@ -101,6 +101,7 @@ class UpdateWorkSchedule extends OrgAction
     public function rules(): array
     {
         return [
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'working_hours' => ['sometimes', 'array'],
         ];
     }

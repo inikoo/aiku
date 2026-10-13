@@ -17,6 +17,8 @@ class RejectLeave extends OrgAction
 {
     public function handle(Leave $leave, string $rejectionReason): Leave
     {
+        ApproveLeave::ensurePending($leave);
+
         $user = Auth::user();
 
         if (!$user) {
@@ -60,6 +62,8 @@ class RejectLeave extends OrgAction
 
     public function asController(Organisation $organisation, Leave $leave, ActionRequest $request): Leave
     {
+        abort_unless($leave->organisation_id === $organisation->id, 404);
+        ApproveLeave::ensurePending($leave);
         $this->initialisation($organisation, $request);
 
         return $this->handle($leave, $this->validatedData['rejection_reason']);

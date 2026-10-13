@@ -19,9 +19,13 @@ class GenerateJobOrderItemTasks
     use AsAction;
 
     /**
+     * A step that takes the place of a removed one is not asked for again where the removed step is already
+     * finished, so the same work neither holds up the steps after it nor is paid twice.
+     *
+     * @param  array<int, int>  $replacedSteps  removed manufacture task id by the id of the step replacing it
      * @return array<int, JobOrderItemTask>
      */
-    public function handle(JobOrderItem $jobOrderItem): array
+    public function handle(JobOrderItem $jobOrderItem, array $replacedSteps = []): array
     {
         $jobOrder = $jobOrderItem->jobOrder;
         $tasks    = [];
@@ -31,7 +35,14 @@ class GenerateJobOrderItemTasks
             $artefact->manufactureTasks()->attach(GetDefaultManufactureTask::run($jobOrder->production)->id, ['position' => 1, 'units_per_artefact' => 1]);
         }
 
+        $finishedTaskIds = $jobOrderItem->tasks()->where('state', JobOrderItemTaskStateEnum::DONE)->pluck('manufacture_task_id');
+
         foreach ($artefact->manufactureTasks()->get() as $manufactureTask) {
+            if ($finishedTaskIds->contains($replacedSteps[$manufactureTask->id] ?? null)
+                && $jobOrderItem->tasks()->where('manufacture_task_id', $manufactureTask->id)->doesntExist()) {
+                continue;
+            }
+
             $task = JobOrderItemTask::firstOrCreate(
                 [
                     'job_order_item_id'   => $jobOrderItem->id,

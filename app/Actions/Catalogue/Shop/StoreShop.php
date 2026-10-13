@@ -88,6 +88,10 @@ class StoreShop extends OrgAction
             $modelData['engine'] = $this->masterShop->type;
         }
 
+        if (!Arr::has($modelData, 'is_aiku') && !Arr::get($modelData, 'source_id')) {
+            $modelData['is_aiku'] = true;
+        }
+
         if (!Arr::has($modelData, 'timezone_id')) {
             $modelData['timezone_id'] = $organisation->timezone_id;
         }

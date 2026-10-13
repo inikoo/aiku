@@ -188,7 +188,7 @@ const apply = (invoice: Invoice) => {
                     :label="invoice.reading?.state === 'read' ? ctrans('Read again') : ctrans('Read invoice')"
                     type="tertiary" size="xs" :loading="busy === invoice.media_id" @click="read(invoice)" />
                 <Button v-if="invoice.reading?.state === 'read'"
-                    :label="openInvoice === invoice.media_id ? ctrans('Hide') : ctrans('Review')"
+                    :label="openInvoice === invoice.media_id ? ctrans('Hide') : ctrans('Review invoice')"
                     type="tertiary" size="xs" @click="openInvoice = openInvoice === invoice.media_id ? null : invoice.media_id" />
             </div>
 

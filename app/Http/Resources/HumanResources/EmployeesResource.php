@@ -16,7 +16,6 @@ use JsonSerializable;
 
 /**
  * @property mixed $job_positions
- * @property string|null $covered_by
  */
 class EmployeesResource extends JsonResource
 {
@@ -31,7 +30,8 @@ class EmployeesResource extends JsonResource
             'worker_number' => $employee->worker_number,
             'name'          => $employee->contact_name,
             'contact_name'  => $employee->contact_name,
-            'job_title'     => $employee->job_title,
+            'avatar'        => $employee->avatarUrl(),
+            'job_title'    => $employee->job_title,
             'state'         => $employee->state,
             'date_of_birth' => $employee->date_of_birth?->format('F j, Y'),
             'is_on_probation' => $employee->isOnProbation(),
@@ -40,7 +40,6 @@ class EmployeesResource extends JsonResource
             'state_icon'    => $employee->state->stateIcon()[$employee->state->value],
             'organisation_name' => $this->organisation_name,
             'organisation_slug' => $this->organisation_slug,
-            'covered_by'    => $this->covered_by,
             'employment_start_at' => $employee->employment_start_at?->format('F j, Y'),
             'employment_end_at' => $employee->employment_end_at?->format('F j, Y'),
         ];

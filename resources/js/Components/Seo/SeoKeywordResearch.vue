@@ -80,7 +80,6 @@ const track = (keyword: string) => {
         keyword,
         country_code: props.query.country_code,
         language_code: props.query.language_code,
-        device: "mobile",
         frequency: "on_request",
     }, {
         preserveScroll: true,

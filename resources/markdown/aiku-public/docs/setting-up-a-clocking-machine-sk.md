@@ -1,8 +1,8 @@
 ---
 title: Nastavenie dochádzkového zariadenia
 summary: Vytvorte dochádzkové zariadenie na pár kliknutí, dajte jeho kiosk odkaz na tablet alebo jeho QR kódy na stenu, a vedzte, kde každé pípnutie skončí.
-date: 2026-08-31
-source_date: 2026-08-31
+date: 2026-10-12
+source_date: 2026-10-12
 tags: hr, clocking
 category: hr
 series: Clocking in and out
@@ -74,6 +74,7 @@ Stránka **edit** zariadenia obsahuje priebežné ovládacie prvky: premenujte h
 <li><b>Tlač QR kódov:</b> otvorte zariadenie QR Code → <b>Generate QR code</b>, zadajte label; spravujte označenia a prepínač active v jeho zozname QR kódov.</li>
 <li><b>Kontrola polohy:</b> stránka <b>edit</b> zariadenia → QR Settings → <b>Allow Coordinates Matching</b>, špendlík na mape a rádius.</li>
 <li><b>Zobraziť pípnutia:</b> záložka <b>Clockings</b> zariadenia, zoznam pípnutí pracoviska, alebo výkaz pracovného času zamestnanca.</li>
+<li><b>Opraviť nesprávne alebo chýbajúce pípnutie:</b> pozrite <a href="/docs/correcting-a-clocking-sk">Oprava dochádzky</a>.</li>
 </ul>
 <strong>Aké práva potrebujete</strong>
 <ul>

@@ -41,6 +41,8 @@ class EditUser extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, User $user, ActionRequest $request): User
     {
+        abort_unless($employee->organisation_id === $organisation->id && $employee->users()->whereKey($user->id)->exists(), 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($user);

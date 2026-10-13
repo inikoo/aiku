@@ -14,8 +14,14 @@ use App\Models\Procurement\OrgAgent;
 
 trait WithOrgAgentSubNavigation
 {
+    use WithAgentShoppingSubNavigation;
+
     protected function getOrgAgentNavigation(OrgAgent $parent): array
     {
+        if ($this->organisation->type !== OrganisationTypeEnum::AGENT) {
+            return $this->getAgentShoppingNavigation($parent);
+        }
+
         return [
             [
                 "label"    => $parent->slug,

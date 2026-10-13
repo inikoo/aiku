@@ -73,7 +73,8 @@ const props = defineProps<{
         public_notes: string | null
         employee_id: number | null
         artisan: string | null
-        overproductions: { step: string, artefact_code: string, quantity: number, made_by: string, manager: string, method: 'qr' | 'pin', at: string }[]
+        overproductions: { step: string, artefact_code: string, quantity: number, pack_size?: number | null, made_by: string, manager: string, method: 'qr' | 'pin', at: string }[]
+        corrections: { step: string, artefact_code: string, pack_size: number | null, from: number, to: number, by: string | null, at: string }[]
         non_productive: { activity: string, hours: number, pay: string | null }[]
     }
     artisan_options: { id: number, name: string }[]
@@ -314,13 +315,20 @@ function receiveIntoStock() {
             <div class="font-semibold text-amber-800 mb-1">{{ ctrans('Overproduction') }}</div>
             <div v-for="(entry, index) in job_order.overproductions" :key="index">
                 {{ ctrans('+:quantity :code on :step by :maker, authorised by :manager via :method', {
-                    quantity: entry.quantity,
+                    quantity: entry.pack_size ? ctrans(':packs packs of :size (:pieces) of', { packs: entry.quantity, size: entry.pack_size, pieces: Math.round(entry.quantity * entry.pack_size) }) : entry.quantity,
                     code: entry.artefact_code,
                     step: entry.step,
                     maker: entry.made_by,
                     manager: entry.manager,
                     method: entry.method === 'qr' ? ctrans('QR scan') : ctrans('PIN'),
                 }) }}
+                <span class="text-gray-500">· {{ useFormatTime(entry.at, { formatTime: 'hm' }) }}</span>
+            </div>
+        </div>
+        <div v-if="job_order.corrections?.length" class="mb-6 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <div class="font-semibold mb-1">{{ ctrans('Corrected entries') }}</div>
+            <div v-for="(entry, index) in job_order.corrections" :key="index">
+                {{ ctrans(':code on :step corrected from :from to :to by :by', { code: entry.artefact_code, step: entry.step, from: entry.from, to: entry.pack_size ? ctrans(':packs packs of :size', { packs: entry.to, size: entry.pack_size }) : entry.to, by: entry.by ?? '—' }) }}
                 <span class="text-gray-500">· {{ useFormatTime(entry.at, { formatTime: 'hm' }) }}</span>
             </div>
         </div>
@@ -420,7 +428,7 @@ function receiveIntoStock() {
                             <tr v-for="subJob in item.sub_jobs" :key="subJob.id">
                                 <td class="py-2 pr-3 whitespace-nowrap">{{ subJob.reference }}</td>
                                 <td class="py-2 pr-3">{{ subJob.artisan ?? ctrans('Anyone') }}</td>
-                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity }}</td>
+                                <td class="py-2 pr-3 text-right tabular-nums">{{ subJob.quantity_target }}</td>
                                 <td class="py-2 pr-3 min-w-32">
                                     <div class="tabular-nums">{{ subJob.quantity_made }} / {{ subJob.quantity_target }}</div>
                                     <div class="mt-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">

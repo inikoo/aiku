@@ -51,6 +51,7 @@ use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\Collection\CollectionStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
@@ -220,7 +221,8 @@ test('UI show department', function () {
                     ->where('title', $this->product->department->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
@@ -696,7 +698,9 @@ test('UI show sub department in department', function () {
                     ->where('title', $this->subDepartment->name)
                     ->etc()
             )
-            ->has('tabs');
+            ->has('tabs')
+            ->missing('tabs.navigation.families_order')
+            ->missing('tabs.navigation.related_categories');
     });
 });
 
@@ -1819,6 +1823,33 @@ test('stock tab shows stock health by days of cover; warehouse work lives on ope
     actingAs($this->user);
     get(route('grp.dashboard.show'))
         ->assertInertia(fn (AssertableInertia $page) => $page->missing('warehouseOverview')->where('operations.route.name', 'grp.dashboard.operations'));
+});
+
+test('a stock health level opens as one list across every shop organisation', function () {
+    createWarehouse();
+    actingAs($this->user);
+
+    $overview = GetGroupWarehouseDashboardData::run($this->group->refresh());
+    expect($overview['routes']['stock_levels']['name'])->toBe('grp.dashboard.stock_levels.index');
+
+    $expectedOutOfStock = $this->group->organisations()->where('type', OrganisationTypeEnum::SHOP)->get()
+        ->sum(fn ($organisation) => collect(GetOrganisationStockCoverBuckets::run($organisation))->firstWhere('bucket', 'out')['count']);
+
+    get(route('grp.dashboard.stock_levels.index', ['elements' => ['cover' => 'out']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/OrganisationStockCoverItems')
+            ->where('data.meta.total', $expectedOutOfStock)
+            ->where('exportRoute', null)
+            ->where('currency', null));
+
+    $outsider = StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    actingAs($outsider);
+    get(route('grp.dashboard.stock_levels.index'))->assertForbidden();
 });
 
 test('warehouse page opens on its own operations tab', function () {

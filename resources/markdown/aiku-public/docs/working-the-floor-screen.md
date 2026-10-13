@@ -1,7 +1,7 @@
 ---
 title: Working the floor screen
 summary: The artisan's guide - the My tasks screen, the job list that updates on its own, START and DONE, and what to press when you made fewer than asked.
-date: 2026-10-09
+date: 2026-10-13
 tags: production, floor, artisan
 category: production
 help_routes: grp.org.productions.show.floor
@@ -10,14 +10,14 @@ order: 9
 ---
 
 <aside class="tldr">
-For the people who make things. <b>Factory → Jobs</b> is your whole day on one screen: the jobs addressed to you down the left, the one you are working on in the middle. Press <b>START</b>, make it, type how many, press <b>DONE</b>. If you made fewer than asked, the screen asks one question: finish the job here, or carry the rest over to a new job. Nothing else to fill in.
+For the people who make things. <b>Factory → Jobs</b> is your whole day on one screen: the jobs addressed to you down the left, the one you are working on in the middle. Press <b>START</b>, make it, type how many, press <b>DONE</b>. If you made fewer than asked, the screen asks one question: pause and carry on later, close the job and move the rest to a new one, or finish it here. Nothing else to fill in.
 </aside>
 
 ## The screen
 
 The page is laid out like an inbox.
 
-**Left, always visible:** the list. Two counters at the top - units made today and tasks finished today. Below them **Your jobs**, the work addressed to you. If your position lets you pick from the open pool, an **Open jobs** section follows. At the bottom, **Finished today**, what you have already closed.
+**Left, always visible:** the list. Two counters at the top - units made today and tasks finished today. Below them **Your jobs**, the work addressed to you: whole jobs with your name on them, and single steps the supervisor gave you on the day's plan (see [Planning the production day](/docs/planning-the-production-day)). A job can have its making with one person and its packing with another; each sees only their own step. If your position lets you pick from the open pool, an **Open jobs** section follows. At the bottom, **Finished today**, what you have already closed.
 
 **Right:** whatever you have selected. Before you start, it is the job's details with a big **START**. Once started, it is the working card with the clock.
 
@@ -46,15 +46,20 @@ A row with a green ▶ and a time is the one you are working on, and when you st
 
 Made everything that was asked? That is it. The task closes, the job order is finished and the warehouse is told there is something to put away - see [Putting away finished production](/docs/putting-away-finished-production).
 
+## Steps counted in packs
+
+Some steps, packing above all, are counted in packs and not in single pieces: a tray of 8 bath bombs counts as 1. The screen then says **Counted in PACKS of 8** in amber, and the box is called **Packs of 8 made**. Type how many full packs you filled: for 56 bath bombs in 7 trays type 7, not 56. Under the box the screen shows what your number means, *7 packs of 8 = 56 × ABB-06a*, and the confirmation shows it again. Only whole packs are accepted; the one exception is the exact number still to do, which you fill by tapping the big number. When a manager has to authorise extra, the window shows the extra in packs and in pieces before they approve.
+
 ## When you made fewer than asked
 
-Type the real number and press **DONE**. The input row is replaced by a short panel: *19 done · 6 to do* and three buttons.
+Type the real number and press **DONE**. The input row is replaced by a short panel: *19 done · 6 to do* and four buttons.
 
-- **Continue later** - the job is closed at 19, and a new job order for the 6 appears in your list, addressed to you. Pick it up tomorrow, or whenever the material arrives.
+- **Pause** - same mix, you carry on later. The job stays open with the same reference and the same batch code, and the count carries on from 19. Use this when the day ends before the mix does.
+- **Close at 19 and move remaining 6 to new job …** - the job is closed at 19 and the 6 go to a new job order with the next letter (0127 becomes 0127a) and its own batch code. Use this when the rest will be a new mix. The screen asks you to confirm with **Yes, close and move**, because a closed job cannot be continued.
 - **Job finished** - the job is closed at 19 and that is the end of it. The planner sees a job order that asked for 25 and got 19.
 - **Back** - change the number.
 
-Either way the job you were on is closed and paid for at what you made. Nothing stays half open on your list.
+A job moved to a new one shows **Continued from 0127** on its card, and the one it came from shows **Continued in 0127a**. The new job stays with the same people and on the same day's plan.
 
 ## When you made more than asked
 
@@ -66,6 +71,8 @@ Type the real number and press **DONE**. The screen warns *18 above target, a ma
 Only someone who runs this factory floor can authorise, and never for their own work. After five wrong badges or PINs the window refuses for 15 minutes.
 
 Once authorised the job grows to what was really made: the warehouse puts away all of it, what no order asked for goes to stock, and the raw materials are deducted for the whole batch. Later steps of the same job grow too, so the next person can finish all of it. The job order page shows who made the extra, who authorised it, how and when.
+
+Typed the wrong number, for example pieces where packs were asked? A manager opens the **Performance** tab, finds the entry under the worker and presses **Correct quantity**. The entry can only be lowered. The job goes back to what was really made, the authorised extra is reduced with it and the pay for that entry is worked out again. It works until the warehouse starts putting the job away.
 
 ## One batch for several lines
 
@@ -85,14 +92,14 @@ Making more than all the lines asked for needs a manager's badge or PIN, as abov
 
 - **One job at a time.** While you have a job open the START buttons are disabled. Close it first.
 - **Your pay for the task** follows the number in Quantity made, as explained in [Factory positions](/docs/factory-positions). Rejected pieces are not paid.
-- **Open jobs** are jobs with no artisan named, or with someone else named. Taking one is fine if your position allows it; it is then yours until closed.
+- **Open jobs** are jobs and steps with nobody named, or with someone else named. Taking one is fine if your position allows it; it is then yours until closed.
 
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
 <li><b>Your screen:</b> your organisation → <b>Factory</b> → <b>Jobs</b>.</li>
 <li><b>Start:</b> tap the row → <b>START</b>.</li>
 <li><b>Finish:</b> type <b>Quantity made</b> → <b>DONE</b>.</li>
-<li><b>Fewer than asked:</b> <b>DONE</b> → <b>Continue later</b> or <b>Job finished</b>.</li>
+<li><b>Fewer than asked:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> or <b>Job finished</b>.</li>
 <li><b>One batch for several lines:</b> tap a line → <b>Combine … with other lines into one batch</b> → tick the lines → <b>Combine</b>. To undo: tap the combined row → <b>Separate</b>.</li>
 </ul>
 </aside>

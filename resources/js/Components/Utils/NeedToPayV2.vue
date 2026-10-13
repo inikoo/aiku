@@ -182,11 +182,11 @@ const onPayWithBalance = () => {
                         <!-- <FontAwesomeIcon v-tooltip="ctrans('Not fully paid yet')" icon="fas fa-times-circle" class="text-red-600" fixed-width aria-hidden="true" /> -->
                     </div>
 
+                    <div class="opacity-70">
+                        {{ ctrans("Need to pay :amount of :total", { amount: locale.currencyFormat(currencyCode, Number(payAmount)), total: locale.currencyFormat(currencyCode, Number(totalAmount)) }) }}
+                    </div>
                     <div v-if="provisional" class="opacity-70 text-xs">
                         {{ ctrans("Amounts will be recalculated when picking is finished") }}
-                    </div>
-                    <div v-else class="opacity-70">
-                        Need to pay {{ locale.currencyFormat(currencyCode, Number(payAmount)) }} of {{ locale.currencyFormat(currencyCode, Number(totalAmount)) }}
                     </div>
 
                     <Button

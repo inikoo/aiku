@@ -10,6 +10,7 @@ import { ref, computed } from "vue"
 import Select from "primevue/select"
 import DatePicker from "primevue/datepicker"
 import Textarea from "primevue/textarea"
+import OvertimeTimeFields from "@/Components/HumanResources/OvertimeTimeFields.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -55,44 +56,6 @@ const overtimeForm = useForm<{
 	duration_minutes: "0",
 	reason: "",
 })
-
-const hourOptions = Array.from({ length: 24 }, (_, index) =>
-	index < 10 ? `0${index}` : `${index}`
-)
-
-const minuteOptions = Array.from({ length: 60 }, (_, index) =>
-	index < 10 ? `0${index}` : `${index}`
-)
-
-const durationBaseMinutes = ["0", "15", "30", "45"]
-
-const hourSelectOptions = computed(() =>
-	hourOptions.map((hour) => ({
-		label: hour,
-		value: hour,
-	}))
-)
-
-const minuteSelectOptions = computed(() =>
-	minuteOptions.map((minute) => ({
-		label: minute,
-		value: minute,
-	}))
-)
-
-const durationHourOptions = computed(() =>
-	Array.from({ length: 13 }, (_, index) => ({
-		label: String(index),
-		value: String(index),
-	}))
-)
-
-const durationMinuteOptions = computed(() =>
-	durationBaseMinutes.map((minute) => ({
-		label: minute,
-		value: minute,
-	}))
-)
 
 const overtimeTypeSelectOptions = computed(() => props.overtimeTypeOptions ?? [])
 
@@ -406,61 +369,14 @@ const submitOvertimeRequest = () => {
 					</p>
 				</div>
 
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div>
-						<span class="block text-sm font-medium text-gray-700 mb-1">
-							{{ ctrans("Start time") }}
-						</span>
-						<div class="flex items-center gap-1.5">
-							<Select
-								v-model="overtimeForm.start_hour"
-								:options="hourSelectOptions"
-								optionLabel="label"
-								optionValue="value"
-								:aria-label="ctrans('Hour')"
-								fluid
-								:class="fieldFocusClass" />
-							<span class="text-gray-400">:</span>
-							<Select
-								v-model="overtimeForm.start_minute"
-								:options="minuteSelectOptions"
-								optionLabel="label"
-								optionValue="value"
-								:aria-label="ctrans('Minute')"
-								fluid
-								:class="fieldFocusClass" />
-						</div>
-					</div>
-
-					<div>
-						<span class="block text-sm font-medium text-gray-700 mb-1">
-							{{ ctrans("Duration") }} <span class="text-red-500">*</span>
-						</span>
-						<div class="flex items-center gap-1.5">
-							<Select
-								v-model="overtimeForm.duration_hours"
-								:options="durationHourOptions"
-								optionLabel="label"
-								optionValue="value"
-								:aria-label="ctrans('Hours')"
-								fluid
-								:class="fieldFocusClass" />
-							<span class="text-xs text-gray-500">{{ ctrans("h") }}</span>
-							<Select
-								v-model="overtimeForm.duration_minutes"
-								:options="durationMinuteOptions"
-								optionLabel="label"
-								optionValue="value"
-								:aria-label="ctrans('Minutes')"
-								fluid
-								:class="fieldFocusClass" />
-							<span class="text-xs text-gray-500">{{ ctrans("min") }}</span>
-						</div>
-						<p v-if="getOvertimeError('requested_duration_minutes')" class="mt-1 text-sm text-red-500">
-							{{ getOvertimeError("requested_duration_minutes") }}
-						</p>
-					</div>
-				</div>
+				<OvertimeTimeFields
+					v-model:startHour="overtimeForm.start_hour"
+					v-model:startMinute="overtimeForm.start_minute"
+					v-model:durationHours="overtimeForm.duration_hours"
+					v-model:durationMinutes="overtimeForm.duration_minutes"
+					idPrefix="overtime-employee"
+					:startError="getOvertimeError('requested_start_at')"
+					:durationError="getOvertimeError('requested_duration_minutes') ?? getOvertimeError('duration_hours')" />
 
 				<div>
 					<label for="overtime-reason" class="block text-sm font-medium text-gray-700 mb-1">

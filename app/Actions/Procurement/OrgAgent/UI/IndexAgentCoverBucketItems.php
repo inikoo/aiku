@@ -55,6 +55,44 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private bool $hideOnOrder = false;
 
+    private bool $onAnyDraftOnly = false;
+
+    private ?string $prefix = null;
+
+    /**
+     * The Ordering rows of one supplier, kept to the products any organisation of the group has on a
+     * draft: a supplier goes to the agent as one job, so a draft is read next to what the others stack on it.
+     */
+    public function onSupplierDrafts(OrgAgent $orgAgent, int $supplierId, string $prefix): LengthAwarePaginator
+    {
+        $this->orgAgent       = $orgAgent;
+        $this->bucket         = null;
+        $this->rank           = null;
+        $this->supplierId     = $supplierId;
+        $this->onAnyDraftOnly = true;
+        $this->prefix         = $prefix;
+
+        InertiaTable::updateQueryBuilderParameters($prefix);
+
+        return $this->handle($orgAgent, null, null, $supplierId);
+    }
+
+    /**
+     * Every product of one supplier the organisation can order through the agent, as the Ordering rows.
+     */
+    public function onSupplier(OrgAgent $orgAgent, int $supplierId, string $prefix): LengthAwarePaginator
+    {
+        $this->orgAgent   = $orgAgent;
+        $this->bucket     = null;
+        $this->rank       = null;
+        $this->supplierId = $supplierId;
+        $this->prefix     = $prefix;
+
+        InertiaTable::updateQueryBuilderParameters($prefix);
+
+        return $this->handle($orgAgent, null, null, $supplierId);
+    }
+
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
         $buckets   = GetAgentStockCoverBuckets::make();
@@ -71,7 +109,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             fn ($query, bool $descending) => $query->orderByRaw($expression.($descending ? ' desc' : ' asc').' nulls last')
         );
 
-        $queryBuilder = QueryBuilder::for($buckets->scope(OrgSupplierProduct::query()->from('org_supplier_products as osp'), $orgAgent))
+        $queryBuilder = QueryBuilder::for($buckets->scope(OrgSupplierProduct::query()->from('org_supplier_products as osp'), $orgAgent, !$this->onAnyDraftOnly))
             ->join('suppliers as sup', 'sup.id', 'sp.supplier_id')
             ->leftJoin('currencies as cur', 'cur.id', 'sp.currency_id')
             ->when($bucket, fn ($query) => $query->whereRaw("$bucketSql = ?", [$bucket]))
@@ -79,6 +117,12 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->when($supplierId, fn ($query) => $query->where('sp.supplier_id', $supplierId))
             ->when($this->onDraftsOnly, fn ($query) => $query->whereRaw($this->onDraftSql()))
             ->when($this->hideOnOrder, fn ($query) => $query->whereRaw('not '.$this->onOrderSql()))
+            ->when($this->onAnyDraftOnly, fn ($query) => $query->whereExists(
+                fn ($drafts) => $drafts->selectRaw('1')
+                    ->fromSub(ShowAgentDraftsToSend::drafts($orgAgent), 'po')
+                    ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+                    ->whereColumn('pot.supplier_product_id', 'osp.supplier_product_id')
+            ))
             ->select([
                 'osp.id',
                 'osp.slug',
@@ -102,7 +146,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ])
             ->selectRaw("$bucketSql as bucket");
 
-        if (!request()->filled('sort')) {
+        if (!request()->filled(($this->prefix ? $this->prefix.'_' : '').'sort')) {
             $queryBuilder
                 ->orderByRaw("(os.id is not null and os.state = '".OrgStockStateEnum::ACTIVE->value."') desc")
                 ->orderByRaw("case os.health_rank when 'A' then 1 when 'B' then 2 when 'C' then 3 when 'D' then 4 when 'Z' then 5 end nulls last")
@@ -123,7 +167,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 ])
                 ->allowedFilters([$globalSearch, $supplierFilter])
                 ->orderBy('osp.id')
-                ->withPaginator(null, tableName: request()->route()?->getName())
+                ->withPaginator($this->prefix, tableName: request()->route()?->getName())
                 ->withQueryString()
         );
     }
@@ -137,6 +181,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             ->whereIn('product_has_org_stocks.org_stock_id', $rows->pluck('org_stock_id')->filter())
             ->whereNull('products.deleted_at')
             ->whereNotNull('products.web_images->main')
+            ->orderByRaw('(select count(*) from product_has_org_stocks as siblings where siblings.product_id = products.id) desc')
             ->orderBy('products.id')
             ->pluck('products.web_images', 'product_has_org_stocks.org_stock_id');
 
@@ -213,9 +258,13 @@ class IndexAgentCoverBucketItems extends OrgAction
         return $paginator;
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure(?string $prefix = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($prefix) {
+            if ($prefix) {
+                $table->name($prefix)->pageName($prefix.'Page')->withGlobalSearch();
+            }
+
             $table
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('No products found')])
@@ -223,7 +272,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 ->column(key: 'image', label: __('Image'), canBeHidden: false)
                 ->column(key: 'name', label: __('Product'), canBeHidden: false, sortable: true);
 
-            if ($this->bucket === null) {
+            if (($this->bucket ?? null) === null) {
                 $table->column(key: 'bucket', label: __('Stock group'), canBeHidden: false);
             }
 

@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
+import EmployeeAvatar from '@/Components/HumanResources/EmployeeAvatar.vue'
 import { useFormatTime, useSecondsToMS, useHMAP } from '@/Composables/useFormatTime'
 import { Timesheet } from "@/types/timesheet"
 import { useLocaleStore } from '@/Stores/locale'
@@ -69,6 +70,7 @@ const timesheetRoute = (timesheet: Timesheet) => {
         <!-- Column: Name (Jika ada) -->
         <template #cell(subject_name)="{ item: timesheet }">
             <div class="font-medium text-gray-900 flex items-center gap-x-1.5">
+                <EmployeeAvatar :name="timesheet.subject_name" :image="(timesheet as any).avatar" size="xs" />
                 <Link
                     v-if="timesheet.subject_slug"
                     :href="employeeTimesheetsRoute(timesheet)"

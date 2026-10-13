@@ -496,3 +496,213 @@ test('editing a bundle keeps exactly the pictures chosen, so a replaced componen
     expect($bundleProduct->images()->pluck('media.id')->all())->toBe([$newCandle->id])
         ->and($bundleProduct->image_id)->toBe($newCandle->id);
 });
+
+test('a component swapped for another one moves the bundle portfolio sku to the new component set', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'swapped_component_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $makeComponent = function () use ($family): array {
+        $stock = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+            Product::factory()->definition(),
+            [
+                'trade_units' => [['id' => $stock->tradeUnits()->firstOrFail()->id, 'quantity' => 1]],
+                'price'       => 10,
+                'rrp'         => 20,
+            ]
+        ));
+
+        return [$stock, \App\Actions\Catalogue\Product\UpdateProduct::make()->action($product, ['state' => ProductStateEnum::ACTIVE])];
+    };
+
+    [$oldStock, $oldComponent] = $makeComponent();
+    [$newStock, $newComponent] = $makeComponent();
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Swapped Component Bundle',
+        'products' => [
+            ['product_id' => $this->product->id, 'quantity' => 1],
+            ['product_id' => $oldComponent->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $portfolio = \App\Models\Dropshipping\Portfolio::where('bundle_id', $bundle->id)->firstOrFail();
+
+    expect($portfolio->sku)->toContain($oldStock->slug);
+
+    UpdateBundle::make()->action($bundle, [
+        'rrp'      => 41.45,
+        'products' => [
+            ['product_id' => $this->product->id, 'quantity' => 1],
+            ['product_id' => $newComponent->id, 'quantity' => 1],
+        ],
+    ]);
+
+    expect($bundle->items()->pluck('item_id')->all())->toEqualCanonicalizing([$this->product->id, $newComponent->id])
+        ->and($portfolio->refresh()->sku)->toContain($newStock->slug)
+        ->and($portfolio->sku)->not->toContain($oldStock->slug);
+});
+
+test('a bundle left holding one piece of a pack is given the whole pack, without touching its price or its sku', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'repair_fewer_trade_units_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $twelvePack = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units' => [['id' => $this->tradeUnit->id, 'quantity' => 12]],
+            'price'       => 10,
+            'rrp'         => 20,
+        ]
+    ));
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Bundle Created Before The Pack Was Multiplied',
+        'products' => [
+            ['product_id' => $twelvePack->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $bundleProduct = $bundle->bundleable;
+    $portfolio     = \App\Models\Dropshipping\Portfolio::where('item_type', 'Product')->where('item_id', $bundleProduct->id)->firstOrFail();
+    $priceBefore   = $bundleProduct->price;
+    $skuBefore     = $portfolio->sku;
+
+    $holdOnTheBundle = fn (float $quantity) => $bundleProduct->tradeUnits()->updateExistingPivot($this->tradeUnit->id, ['quantity' => $quantity]);
+    $heldByTheBundle = fn () => (float) $bundleProduct->tradeUnits()->firstOrFail()->pivot->quantity;
+    $repair          = \App\Actions\Maintenance\Dropshipping\RepairBundlesHoldingFewerTradeUnits::make();
+
+    $holdOnTheBundle(1);
+
+    $dryRun = $repair->handle($bundle, true);
+    expect($dryRun['outcome'])->toBe('repaired')
+        ->and($dryRun['changes'][0]['from'])->toEqual(1.0)
+        ->and($dryRun['changes'][0]['to'])->toEqual(12.0)
+        ->and($heldByTheBundle())->toEqual(1.0);
+
+    expect($repair->handle($bundle)['outcome'])->toBe('repaired')
+        ->and($heldByTheBundle())->toEqual(12.0)
+        ->and($bundleProduct->refresh()->price)->toEqual($priceBefore)
+        ->and($portfolio->refresh()->sku)->toBe($skuBefore)
+        ->and($repair->handle($bundle)['outcome'])->toBe('correct')
+        ->and($repair->bundlesQuery($this->shop, $bundleProduct->code)->pluck('id')->all())->toBe([$bundle->id]);
+
+    $holdOnTheBundle(24);
+
+    expect($repair->handle($bundle)['outcome'])->toBe('needs_review')
+        ->and($heldByTheBundle())->toEqual(24.0);
+});
+
+test('a bundle holding a whole pack where its component is one piece of it can be given back the fraction its items say', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'rederive_fraction_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $this->tradeUnit->update(['is_divisible' => false]);
+
+    $onePieceOfTen = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units' => [['id' => $this->tradeUnit->id, 'quantity' => 0.1]],
+            'price'       => 10,
+            'rrp'         => 20,
+        ]
+    ));
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Bundle Of One Piece',
+        'products' => [
+            ['product_id' => $onePieceOfTen->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $bundleProduct   = $bundle->bundleable;
+    $heldByTheBundle = fn () => (float) $bundleProduct->tradeUnits()->firstOrFail()->pivot->quantity;
+    $repair          = \App\Actions\Maintenance\Dropshipping\RepairBundlesHoldingFewerTradeUnits::make();
+
+    $bundleProduct->tradeUnits()->updateExistingPivot($this->tradeUnit->id, ['quantity' => 1]);
+
+    expect($repair->handle($bundle)['outcome'])->toBe('needs_review')
+        ->and($heldByTheBundle())->toEqual(1.0);
+
+    $rederived = $repair->handle($bundle, false, true);
+
+    expect($rederived['outcome'])->toBe('repaired')
+        ->and($rederived['changes'][0]['to'])->toEqual(0.1)
+        ->and($heldByTheBundle())->toEqual(0.1);
+});
+
+test('changing what a component is made of reaches the bundles that hold it', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first(),
+        ['reference' => 'component_change_channel']
+    );
+
+    $family = $this->shop->productCategories()
+        ->where('type', \App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum::FAMILY)
+        ->first();
+
+    $stock     = \App\Actions\Goods\Stock\StoreStock::make()->action($this->group, \App\Models\Goods\Stock::factory()->definition());
+    $tradeUnit = $stock->tradeUnits()->firstOrFail();
+
+    $component = \App\Actions\Catalogue\Product\StoreProduct::make()->action($family, array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 3]],
+            'price'       => 10,
+            'rrp'         => 20,
+        ]
+    ));
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'name'     => 'Bundle Of A Component That Changes',
+        'products' => [
+            ['product_id' => $component->id, 'quantity' => 2],
+        ],
+    ]);
+
+    $bundleProduct   = $bundle->bundleable;
+    $portfolio       = \App\Models\Dropshipping\Portfolio::where('bundle_id', $bundle->id)->firstOrFail();
+    $priceBefore     = $bundleProduct->price;
+    $heldByTheBundle = fn () => (float) $bundleProduct->tradeUnits()->firstOrFail()->pivot->quantity;
+
+    expect($heldByTheBundle())->toEqual(6.0);
+
+    \App\Actions\Catalogue\Product\UpdateProduct::make()->action($component, [
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 5]],
+    ]);
+
+    expect($heldByTheBundle())->toEqual(10.0)
+        ->and($bundleProduct->refresh()->price)->toEqual($priceBefore)
+        ->and($portfolio->refresh()->sku)->toBe($stock->slug.'-x10');
+
+    $portfolio->update(['platform_product_id' => 'listing-of-the-customer']);
+
+    \App\Actions\Catalogue\Product\UpdateProduct::make()->action($component, [
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 4]],
+    ]);
+
+    expect($heldByTheBundle())->toEqual(8.0)
+        ->and($portfolio->refresh()->sku)->toBe($stock->slug.'-x10');
+});

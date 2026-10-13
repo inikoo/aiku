@@ -27,6 +27,7 @@ class StoreShopifyLocationToProductVariant extends RetinaAction
     use WithActionUpdate;
     use WithPortfolioErrorResponse;
 
+    private const string ALREADY_STOCKED_AT_OUR_LOCATION = 'already active at the location';
 
     /** level 1: upload includes price
      *  level 0: match excludes price
@@ -152,8 +153,13 @@ class StoreShopifyLocationToProductVariant extends RetinaAction
 
             $body = $response['body']->toArray();
 
-            if (!empty($body['data']['inventoryActivate']['userErrors'])) {
-                $errors = $body['data']['inventoryActivate']['userErrors'];
+            $userErrors = $body['data']['inventoryActivate']['userErrors'] ?? [];
+            $errors     = array_values(array_filter(
+                $userErrors,
+                fn (array $error) => !str_contains((string) ($error['message'] ?? ''), self::ALREADY_STOCKED_AT_OUR_LOCATION)
+            ));
+
+            if (!empty($errors)) {
                 $errorMessage = 'User errors: '.json_encode($errors);
 
                 UpdatePortfolio::run($portfolio, [
@@ -162,6 +168,10 @@ class StoreShopifyLocationToProductVariant extends RetinaAction
                 Log::error("Inventory activation failed B: ".$errorMessage);
 
                 return [false, $errorMessage];
+            }
+
+            if (count($errors) < count($userErrors)) {
+                BulkUpdateShopifyPortfolio::dispatch($customerSalesChannel->id);
             }
 
             SaveShopifyProductData::run($portfolio);

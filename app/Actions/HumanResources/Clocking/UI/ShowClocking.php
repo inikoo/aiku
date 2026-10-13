@@ -42,6 +42,8 @@ class ShowClocking extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clocking->organisation_id === $organisation->id, 404);
+
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
         if ($this->isRestrictedToSection()) {
@@ -54,6 +56,8 @@ class ShowClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $workplace;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 
@@ -63,6 +67,8 @@ class ShowClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($clockingMachine->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 
@@ -73,6 +79,8 @@ class ShowClocking extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, Clocking $clocking, ActionRequest $request): Clocking
     {
+        abort_unless($workplace->organisation_id === $organisation->id, 404);
+
         $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request)->withTab(ClockingTabsEnum::values());
 

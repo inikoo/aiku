@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { debounce } from "lodash-es"
 import { Head, Link, router } from "@inertiajs/vue3"
 import DatePicker from "primevue/datepicker"
@@ -20,6 +20,7 @@ import {
 } from "chart.js"
 import { Bar, Doughnut } from "vue-chartjs"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import EmployeeAvatar from "@/Components/HumanResources/EmployeeAvatar.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime, useSecondsToMS } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
@@ -83,9 +84,16 @@ interface QuickAction {
 }
 
 interface LeaveOverviewDay {
+	date: string
 	label: string
 	count: number
 	is_today: boolean
+}
+
+interface LeavePeriod {
+	label: string
+	dates: string
+	route: { name: string; parameters: Record<string, unknown> }
 }
 
 interface EmployeeLeave {
@@ -102,6 +110,7 @@ interface LeaveTypeSlice {
 	color: string
 	count: number
 	percentage: number
+	route: { name: string; parameters: Record<string, unknown> }
 }
 
 interface AttendanceDate {
@@ -125,9 +134,19 @@ const props = defineProps<{
 	attendanceDate: AttendanceDate
 	birthdays: BirthdayRow[]
 	leaveOverview: LeaveOverviewDay[]
+	leaveOverviewPeriod: LeavePeriod
 	employeeLeaves: EmployeeLeave[]
 	leaveTypes: { total: number; types: LeaveTypeSlice[] }
+	leaveTypesPeriod: LeavePeriod
 }>()
+
+const leaveOverviewHref = computed(() => route(props.leaveOverviewPeriod.route.name, props.leaveOverviewPeriod.route.parameters))
+const leaveTypesHref = computed(() => route(props.leaveTypesPeriod.route.name, props.leaveTypesPeriod.route.parameters))
+
+const cardHeaderLinkClass =
+	"group -mx-2 -mt-2 mb-3 flex items-start justify-between gap-2 rounded-md px-2 py-2 transition hover:bg-[--app-accent-soft] focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]"
+const periodPillClass =
+	"mt-1 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
 
 const toDateString = (date: Date) =>
 	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
@@ -195,12 +214,6 @@ const showPeople = computed(() => ["annual", "sick", "absent"].includes(props.sh
 const visibleAttendance = computed(() =>
 	props.show === "late" ? props.attendance.filter((row) => row.is_late) : props.attendance
 )
-const brokenAvatars = reactive(new Set<string>())
-const showAvatar = (src: string | null): src is string => !!src && !brokenAvatars.has(src)
-
-const initials = (name: string) =>
-	name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("")
-
 const activeCard = computed(() => props.attendanceStats.find((card) => card.key === props.show))
 
 const shiftDay = (days: number) => {
@@ -234,11 +247,23 @@ const leaveOverviewData = computed(() => ({
 const leaveOverviewOptions = {
 	responsive: true,
 	maintainAspectRatio: false,
+	onClick: (_event: unknown, elements: unknown[]) => {
+		if (elements.length) {
+			router.visit(leaveOverviewHref.value)
+		}
+	},
+	onHover: (event: any, elements: unknown[]) => {
+		const target = event?.native?.target as HTMLElement | undefined
+		if (target) {
+			target.style.cursor = elements.length ? "pointer" : "default"
+		}
+	},
 	plugins: {
 		legend: { display: false },
 		tooltip: {
 			callbacks: {
 				label: (context: any) => `${context.parsed.y} ${ctrans("Employees")}`,
+				footer: () => ctrans("Click for details"),
 			},
 		},
 	},
@@ -405,8 +430,7 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 						<tr v-for="row in people" :key="row.id" class="hover:bg-gray-50">
 							<td class="py-2 pr-3">
 								<div class="flex items-center gap-3">
-									<img v-if="showAvatar(row.avatar)" :src="row.avatar" :alt="row.name" class="h-9 w-9 rounded-full object-cover bg-gray-100" @error="brokenAvatars.add(row.avatar)" loading="lazy" decoding="async" />
-<div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-[--app-accent-soft] text-xs font-semibold text-[--app-accent-strong]">{{ initials(row.name) }}</div>
+									<EmployeeAvatar :name="row.name" :image="row.avatar" size="sm" class="!h-9 !w-9" />
 									<div class="min-w-0">
 										<Link
 											:href="route(row.route.name, row.route.parameters)"
@@ -445,8 +469,7 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 						<tr v-for="row in visibleAttendance" :key="row.id" class="hover:bg-gray-50">
 							<td class="py-2 pr-3">
 								<div class="flex items-center gap-3">
-									<img v-if="showAvatar(row.avatar)" :src="row.avatar" :alt="row.employee_name" class="h-9 w-9 rounded-full object-cover bg-gray-100" @error="brokenAvatars.add(row.avatar)" loading="lazy" decoding="async" />
-<div v-else class="flex h-9 w-9 items-center justify-center rounded-full bg-[--app-accent-soft] text-xs font-semibold text-[--app-accent-strong]">{{ initials(row.employee_name) }}</div>
+									<EmployeeAvatar :name="row.employee_name" :image="row.avatar" size="sm" class="!h-9 !w-9" />
 									<div class="min-w-0">
 										<Link
 											:href="route(row.route.name, row.route.parameters)"
@@ -495,11 +518,18 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 	<div class="grid grid-cols-1 gap-5 px-4 pb-8 md:grid-cols-2 xl:grid-cols-4">
 		<!-- Leave overview -->
 		<div class="bg-white shadow-sm rounded-lg ring-1 ring-gray-100 p-4 flex flex-col">
-			<div class="flex items-center justify-between mb-4">
-				<h2 class="text-lg font-bold text-gray-800">{{ ctrans("Leave overview") }}</h2>
-				<span class="text-xs text-gray-400">{{ ctrans("This week") }}</span>
-			</div>
-			<div class="h-64">
+			<Link :href="leaveOverviewHref" :class="cardHeaderLinkClass" :title="ctrans('View leave details')">
+				<span class="min-w-0">
+					<h2 class="text-lg font-bold text-gray-800 group-hover:text-[--app-accent-strong]">{{ ctrans("Leave overview") }}</h2>
+					<span :class="periodPillClass">
+						<FontAwesomeIcon :icon="faCalendarAlt" class="text-gray-500" fixed-width aria-hidden="true" />
+						{{ leaveOverviewPeriod.label }} · {{ leaveOverviewPeriod.dates }}
+					</span>
+				</span>
+				<FontAwesomeIcon :icon="faArrowRight" class="mt-1.5 shrink-0 text-gray-400 group-hover:text-[--app-accent]" fixed-width aria-hidden="true" />
+			</Link>
+			<p class="mb-2 text-xs text-gray-500">{{ ctrans("Employees on approved leave each day") }}</p>
+			<div class="h-56">
 				<Bar :data="leaveOverviewData" :options="leaveOverviewOptions" />
 			</div>
 		</div>
@@ -509,8 +539,7 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 			<h2 class="text-lg font-bold text-gray-800 mb-3">{{ ctrans("Employee leaves") }}</h2>
 			<ul v-if="employeeLeaves.length" class="divide-y divide-gray-100 max-h-64 overflow-y-auto pr-1">
 				<li v-for="leave in employeeLeaves" :key="leave.id" class="flex items-center gap-3 py-2.5">
-					<img v-if="showAvatar(leave.avatar)" :src="leave.avatar" :alt="leave.name" class="h-8 w-8 rounded-full object-cover bg-gray-100" @error="brokenAvatars.add(leave.avatar)" loading="lazy" decoding="async" />
-<div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-[--app-accent-soft] text-xs font-semibold text-[--app-accent-strong]">{{ initials(leave.name) }}</div>
+					<EmployeeAvatar :name="leave.name" :image="leave.avatar" size="sm" />
 					<div class="min-w-0 flex-1">
 						<div class="font-medium text-gray-900 truncate">{{ leave.name }}</div>
 						<div class="text-xs font-medium truncate" :style="{ color: leave.type_color }">{{ leave.type_name }}</div>
@@ -525,7 +554,16 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 
 		<!-- Leave types -->
 		<div class="bg-white shadow-sm rounded-lg ring-1 ring-gray-100 p-4 flex flex-col">
-			<h2 class="text-lg font-bold text-gray-800 mb-3">{{ ctrans("Leave types") }}</h2>
+			<Link :href="leaveTypesHref" :class="cardHeaderLinkClass" :title="ctrans('View leave details')">
+				<span class="min-w-0">
+					<h2 class="text-lg font-bold text-gray-800 group-hover:text-[--app-accent-strong]">{{ ctrans("Leave types") }}</h2>
+					<span :class="periodPillClass">
+						<FontAwesomeIcon :icon="faCalendarAlt" class="text-gray-500" fixed-width aria-hidden="true" />
+						{{ leaveTypesPeriod.label }} · {{ leaveTypesPeriod.dates }}
+					</span>
+				</span>
+				<FontAwesomeIcon :icon="faArrowRight" class="mt-1.5 shrink-0 text-gray-400 group-hover:text-[--app-accent]" fixed-width aria-hidden="true" />
+			</Link>
 			<div class="relative h-40 w-40 mx-auto shrink-0">
 				<Doughnut v-if="leaveTypes.total > 0" :data="leaveTypesData" :options="leaveTypesOptions" class="relative z-10" />
 				<div v-else class="flex h-full w-full items-center justify-center rounded-full border-8 border-gray-100" />
@@ -534,11 +572,13 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 					<span class="text-xs text-gray-400">{{ ctrans("Employees") }}</span>
 				</div>
 			</div>
-			<div class="mt-4 space-y-2 max-h-40 overflow-y-auto pr-1">
-				<div
+			<div class="mt-4 space-y-1 max-h-40 overflow-y-auto p-0.5 pr-1">
+				<Link
 					v-for="type in leaveTypes.types"
 					:key="type.name"
-					class="flex items-center justify-between gap-3 text-sm">
+					:href="route(type.route.name, type.route.parameters)"
+					:title="ctrans('Show approved :type requests', { type: type.name })"
+					class="flex cursor-pointer items-center justify-between gap-3 rounded-md px-1.5 py-1 text-sm transition hover:bg-[--app-accent-soft] focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]">
 					<div class="flex min-w-0 items-center gap-2">
 						<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold text-white" :style="{ backgroundColor: type.color }">
 							{{ type.percentage }}%
@@ -548,7 +588,7 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 					<span class="whitespace-nowrap text-gray-500">
 						{{ type.count }} {{ type.count === 1 ? ctrans("employee") : ctrans("employees") }}
 					</span>
-				</div>
+				</Link>
 				<div v-if="leaveTypes.types.length === 0" class="py-6 text-center text-gray-400 text-sm">
 					{{ ctrans("No leaves this month.") }}
 				</div>
@@ -568,8 +608,7 @@ const iconColors: Record<string, { icon: string; bg: string }> = {
 					:key="person.id"
 					class="flex items-center gap-3 rounded-md px-2 py-2"
 					:class="person.is_today ? 'bg-pink-50 ring-1 ring-inset ring-pink-200' : person.day < new Date().getDate() ? 'opacity-60' : ''">
-					<img v-if="showAvatar(person.avatar)" :src="person.avatar" :alt="person.name" class="h-8 w-8 shrink-0 rounded-full object-cover bg-gray-100" @error="brokenAvatars.add(person.avatar)" loading="lazy" decoding="async" />
-					<div v-else class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[--app-accent-soft] text-xs font-semibold text-[--app-accent-strong]">{{ initials(person.name) }}</div>
+					<EmployeeAvatar :name="person.name" :image="person.avatar" size="sm" />
 					<div class="min-w-0 flex-1">
 						<div class="truncate text-sm font-medium text-gray-900">{{ person.name }}</div>
 						<div class="truncate text-xs text-gray-500">{{ person.job_title || "—" }}</div>

@@ -14,6 +14,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,8 +25,15 @@ class IndexOvertime extends OrgAction
     use WithHumanResourcesSectionAuthorisation;
     use WithOvertimeSubNavigation;
 
-    public function handle(Organisation $organisation, ?string $prefix = null): LengthAwarePaginator
+    /**
+     * @param  array{status?: string|null, from?: string|null, to?: string|null}  $modelData
+     */
+    public function handle(Organisation $organisation, ?string $prefix = null, array $modelData = []): LengthAwarePaginator
     {
+        $status = $modelData['status'] ?? null;
+        $from   = $modelData['from'] ?? null;
+        $to     = $modelData['to'] ?? null;
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
@@ -46,9 +54,13 @@ class IndexOvertime extends OrgAction
             ->leftJoin('employees as recorder', 'recorder.id', '=', 'overtime_requests.recorded_by_employee_id')
             ->join('overtime_types', 'overtime_types.id', '=', 'overtime_requests.overtime_type_id')
             ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('overtime_requests.employee_id', $this->sectionEmployeeIds))
+            ->when($status, fn ($query) => $query->where('overtime_requests.status', $status))
+            ->when($from, fn ($query) => $query->whereDate('overtime_requests.requested_date', '>=', $from))
+            ->when($to, fn ($query) => $query->whereDate('overtime_requests.requested_date', '<=', $to))
             ->select([
                 'overtime_requests.id',
                 'overtime_requests.employee_id',
+                'overtime_requests.approved_by_employee_id',
                 'overtime_requests.overtime_type_id',
                 'staff.contact_name as employee_name',
                 'approver.contact_name as approver_name',
@@ -64,6 +76,7 @@ class IndexOvertime extends OrgAction
                 'overtime_requests.lieu_requested_minutes',
                 'overtime_requests.reason',
                 'overtime_requests.status',
+                'overtime_requests.decision_note',
                 'overtime_requests.approved_at',
                 'overtime_requests.rejected_at',
                 'overtime_requests.source',
@@ -85,8 +98,17 @@ class IndexOvertime extends OrgAction
                 'requested_date',
                 'status',
             ])
-            ->withPaginator($prefix, tableName: request()->route()->getName())
+            ->withPaginator($prefix, tableName: 'grp.org.hr.overtime.index')
             ->withQueryString();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'status' => ['sometimes', 'nullable', Rule::enum(OvertimeRequestStatusEnum::class)],
+            'from'   => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'to'     => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+        ];
     }
 
     public function tableStructure(?string $prefix = null): Closure
@@ -191,8 +213,23 @@ class IndexOvertime extends OrgAction
         };
     }
 
+    public function withAvatars(LengthAwarePaginator $overtimeRequests): LengthAwarePaginator
+    {
+        $rows    = $overtimeRequests->getCollection();
+        $avatars = Employee::avatarUrlsFor($rows->pluck('employee_id')->merge($rows->pluck('approved_by_employee_id')));
+
+        return $overtimeRequests->through(function (OvertimeRequest $overtimeRequest) use ($avatars): OvertimeRequest {
+            $overtimeRequest->setAttribute('employee_avatar', $avatars->get($overtimeRequest->employee_id));
+            $overtimeRequest->setAttribute('approver_avatar', $avatars->get($overtimeRequest->approved_by_employee_id));
+
+            return $overtimeRequest;
+        });
+    }
+
     public function htmlResponse(LengthAwarePaginator $overtimeRequests, ActionRequest $request): Response
     {
+        $overtimeRequests = $this->withAvatars($overtimeRequests);
+
         return Inertia::render(
             'Org/HumanResources/Overtime',
             [
@@ -223,6 +260,12 @@ class IndexOvertime extends OrgAction
                     'subNavigation' => $this->isRestrictedToSection() ? [] : $this->getOvertimeSubNavigation($request),
                 ],
                 'data'               => $overtimeRequests,
+                'filters'            => [
+                    'search' => (string) $request->input('filter.global', ''),
+                    'status' => $this->validatedData['status'] ?? null,
+                    'from'   => $this->validatedData['from'] ?? null,
+                    'to'     => $this->validatedData['to'] ?? null,
+                ],
                 'can_edit'           => $this->canEdit,
                 'employeeOptions'    => $this->organisation->employees()
                     ->orderBy('contact_name')
@@ -258,7 +301,7 @@ class IndexOvertime extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation);
+        return $this->handle($organisation, null, $this->validatedData);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

@@ -25,9 +25,9 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPaperPlane, faExclamationTriangle, faCheck, faHourglassHalf } from "@fal"
+import { faPaperPlane, faExclamationTriangle, faCheck, faHourglassHalf, faChevronRight, faChevronDown } from "@fal"
 
-library.add(faPaperPlane, faExclamationTriangle, faCheck, faHourglassHalf)
+library.add(faPaperPlane, faExclamationTriangle, faCheck, faHourglassHalf, faChevronRight, faChevronDown)
 
 type Part = {
     purchase_order_id: number
@@ -45,7 +45,7 @@ type Part = {
     url: string | null
 }
 
-type View = "cards" | "orders" | "items"
+type View = "cards" | "orders"
 
 type Line = {
     id: number
@@ -116,6 +116,20 @@ const isAgreed = (card: Card) => card.has_ours && waitingParts(card).length === 
 const agreedCards = computed(() => props.cards.filter(isAgreed))
 
 const containerShare = (cbm: number) => `${locale.number(Math.round((cbm / props.container.cbm) * 1000) / 10)}%`
+const openOrders = ref<Set<number>>(new Set())
+const ownOrder = (card: { parts: { url: string | null; reference: string }[] }) => card.parts.find((part) => part.url)
+
+const shownOrderIds = computed(() => shownCards.value.flatMap((card) => card.parts.map((part) => part.purchase_order_id)))
+const isEveryOrderOpen = computed(() => shownOrderIds.value.length > 0 && shownOrderIds.value.every((id) => openOrders.value.has(id)))
+const toggleOrder = (id: number) => {
+    const next = new Set(openOrders.value)
+    next.has(id) ? next.delete(id) : next.add(id)
+    openOrders.value = next
+}
+const toggleEveryOrder = () => {
+    openOrders.value = isEveryOrderOpen.value ? new Set() : new Set(shownOrderIds.value)
+}
+
 const ourPart = (card: Card) => card.parts.find((part) => part.is_ours)
 
 const isSending = ref(false)
@@ -123,7 +137,7 @@ const reload = { preserveScroll: true, only: ["cards", "lines", "pageHead"] }
 
 const onError = (errors: Record<string, string>) =>
     notify({
-        title: ctrans("Not sent"),
+        title: ctrans("Not submitted"),
         text: errors.override_reason ?? errors.drafts ?? errors.ready ?? ctrans("Something went wrong, please try again"),
         type: "error",
     })
@@ -184,8 +198,16 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                 :selected="scope"
                 @select="(value: string | null) => (scope = value)" />
             <Button
+                v-if="currentView === 'orders' && shownOrderIds.length"
+                :label="isEveryOrderOpen ? ctrans('Hide all products') : ctrans('Show all products')"
+                type="tertiary"
+                :icon="isEveryOrderOpen ? 'fal fa-chevron-down' : 'fal fa-chevron-right'"
+                size="s"
+                class="ml-auto"
+                @click="toggleEveryOrder" />
+            <Button
                 v-if="canSend && agreedCards.length"
-                :label="ctrans('Send all agreed (:count)', { count: agreedCards.length })"
+                :label="ctrans('Submit all agreed (:count)', { count: agreedCards.length })"
                 type="tertiary"
                 icon="fal fa-paper-plane"
                 :loading="isSending"
@@ -200,6 +222,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                     <div class="min-w-0">
                         <div class="text-base font-semibold text-gray-900">{{ card.supplier_code }}</div>
                         <div class="truncate text-xs text-gray-500" :title="card.supplier_name">{{ card.supplier_name }}</div>
+                        <Link v-if="ownOrder(card)" :href="ownOrder(card).url" class="block truncate text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ ownOrder(card).reference }}</Link>
                     </div>
                     <span
                         class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums"
@@ -243,7 +266,7 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                             <th class="px-2 py-1.5 text-right">{{ ctrans("Products") }}</th>
                             <th class="px-2 py-1.5 text-right">{{ ctrans("Total") }}</th>
                             <th class="px-2 py-1.5 text-right">{{ ctrans("Volume") }}</th>
-                            <th class="py-1.5 pl-2 pr-4"><span class="sr-only">{{ ctrans("OK to send") }}</span></th>
+                            <th class="py-1.5 pl-2 pr-4"><span class="sr-only">{{ ctrans("OK to submit") }}</span></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -271,10 +294,10 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
 
                 <div v-if="canSend && isOnlyOurs(card)" class="mx-4 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
                     <span v-if="card.others_asked">
-                        {{ ctrans(":user told the other organisations on :date. Nobody has added anything, so it is yours to send.", { user: card.others_asked.by ?? "", date: useFormatTime(card.others_asked.at, { formatTime: "d MMM HH:mm" }) }) }}
+                        {{ ctrans(":user told the other organisations on :date. Nobody has added anything, so it is yours to submit.", { user: card.others_asked.by ?? "", date: useFormatTime(card.others_asked.at, { formatTime: "d MMM HH:mm" }) }) }}
                     </span>
                     <template v-else>
-                        <span>{{ ctrans("Only your organisation is ordering from this supplier. Want to let the others know before you send?") }}</span>
+                        <span>{{ ctrans("Only your organisation is ordering from this supplier. Want to let the others know before you submit?") }}</span>
                         <Button :label="ctrans('Let them know')" type="tertiary" size="xs" @click="tellOthers(card)" />
                     </template>
                 </div>
@@ -293,21 +316,21 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
             <table class="min-w-full text-sm">
                 <thead class="border-b border-gray-200 bg-gray-50 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
                     <tr>
-                        <th class="px-4 py-2">{{ currentView === "items" ? ctrans("Product") : ctrans("Purchase order") }}</th>
-                        <th v-if="currentView === 'items'" class="px-2 py-2 text-right">{{ ctrans("Cartons") }}</th>
-                        <th v-if="currentView === 'items'" class="px-2 py-2 text-right">{{ ctrans("Units") }}</th>
-                        <th v-if="currentView === 'items'" class="px-2 py-2 text-right">{{ ctrans("Unit cost") }}</th>
-                        <th v-if="currentView === 'orders'" class="px-2 py-2 text-right">{{ ctrans("Products") }}</th>
+                        <th class="px-4 py-2">{{ ctrans("Purchase order") }}</th>
+                        <th class="px-2 py-2 text-right">{{ ctrans("Products") }}</th>
+                        <th class="px-2 py-2 text-right">{{ ctrans("Cartons") }}</th>
+                        <th class="px-2 py-2 text-right">{{ ctrans("Unit cost") }}</th>
                         <th class="px-2 py-2 text-right">{{ ctrans("Total") }}</th>
                         <th class="px-2 py-2 text-right">{{ ctrans("Volume") }}</th>
-                        <th class="py-2 pl-2 pr-4"><span class="sr-only">{{ ctrans("OK to send") }}</span></th>
+                        <th class="py-2 pl-2 pr-4"><span class="sr-only">{{ ctrans("OK to submit") }}</span></th>
                     </tr>
                 </thead>
                 <tbody v-for="card in shownCards" :key="card.supplier_id" class="border-b border-gray-200 last:border-b-0">
                     <tr class="bg-gray-50">
-                        <td class="px-4 py-2" :colspan="currentView === 'items' ? 4 : 2">
+                        <td class="px-4 py-2" colspan="4">
                             <span class="font-semibold text-gray-900">{{ card.supplier_code }}</span>
                             <span class="ml-2 text-xs text-gray-500">{{ card.supplier_name }}</span>
+                            <Link v-if="ownOrder(card)" :href="ownOrder(card).url" class="ml-2 text-xs text-gray-500 underline decoration-dotted underline-offset-2">{{ ownOrder(card).reference }}</Link>
                             <span class="ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums" :class="card.all_ready ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
                                 {{ ctrans(":ready of :total ready", { ready: card.ready_count, total: card.parts.length }) }}
                             </span>
@@ -327,12 +350,25 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                     </tr>
                     <template v-for="part in card.parts" :key="part.purchase_order_id">
                         <tr class="border-t border-gray-100" :class="{ 'bg-gray-100': part.is_ours }">
-                            <td class="py-2 pl-8 pr-2" :colspan="currentView === 'items' ? 4 : 1">
-                                <div v-tooltip="part.organisation_name" class="font-medium text-gray-800">{{ part.organisation_code }}</div>
-                                <Link v-if="part.url" :href="part.url" :title="part.reference" class="block max-w-xs truncate text-[11px] leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ part.reference }}</Link>
-                                <div v-else :title="part.reference" class="max-w-xs truncate text-[11px] leading-tight text-gray-400">{{ part.reference }}</div>
+                            <td class="py-2 pl-4 pr-2">
+                                <div class="flex items-start gap-2">
+                                    <button
+                                        type="button"
+                                        class="mt-0.5 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                                        :aria-expanded="openOrders.has(part.purchase_order_id)"
+                                        :aria-label="openOrders.has(part.purchase_order_id) ? ctrans('Hide the products') : ctrans('Show the products')"
+                                        @click="toggleOrder(part.purchase_order_id)">
+                                        <FontAwesomeIcon :icon="openOrders.has(part.purchase_order_id) ? faChevronDown : faChevronRight" fixed-width aria-hidden="true" />
+                                    </button>
+                                    <div class="min-w-0">
+                                        <div v-tooltip="part.organisation_name" class="font-medium text-gray-800">{{ part.organisation_code }}</div>
+                                        <Link v-if="part.url" :href="part.url" :title="part.reference" class="block max-w-xs truncate text-[11px] leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ part.reference }}</Link>
+                                        <div v-else :title="part.reference" class="max-w-xs truncate text-[11px] leading-tight text-gray-400">{{ part.reference }}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td v-if="currentView === 'orders'" class="px-2 py-2 text-right tabular-nums">{{ locale.number(part.lines) }}</td>
+                            <td class="px-2 py-2 text-right tabular-nums">{{ locale.number(part.lines) }}</td>
+                            <td colspan="2" />
                             <td class="px-2 py-2 whitespace-nowrap text-right tabular-nums">
                                 <div>{{ orgMoney(card, part.amount) ?? money(card, part.amount) }}</div>
                                 <div v-if="card.org_exchange" class="text-[11px] font-normal leading-tight text-gray-400">{{ money(card, part.amount) }}</div>
@@ -345,14 +381,13 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                                 <AgentDraftReadyCell :part="part" :canSend="canSend" @setReady="(ready: boolean) => setReady(part, ready)" />
                             </td>
                         </tr>
-                        <template v-if="currentView === 'items'">
+                        <template v-if="openOrders.has(part.purchase_order_id)">
                             <tr v-for="line in lines[part.purchase_order_id] ?? []" :key="line.id" class="border-t border-gray-50 text-gray-600">
-                                <td class="py-1.5 pl-12 pr-2">
+                                <td class="py-1.5 pl-12 pr-2" colspan="2">
                                     <span class="font-medium text-gray-700">{{ line.code }}</span>
                                     <span class="ml-2">{{ line.name }}</span>
                                 </td>
                                 <td class="px-2 py-1.5 text-right tabular-nums">{{ line.cartons === null ? "—" : locale.number(line.cartons) }}</td>
-                                <td class="px-2 py-1.5 text-right tabular-nums">{{ locale.number(line.units) }}</td>
                                 <td class="px-2 py-1.5 text-right tabular-nums">{{ line.unit_cost === null ? "—" : money(card, line.unit_cost) }}</td>
                                 <td class="px-2 py-1.5 whitespace-nowrap text-right tabular-nums">
                                     <div>{{ orgMoney(card, line.amount) ?? money(card, line.amount) }}</div>
@@ -371,11 +406,11 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
             {{ cards.length ? ctrans("Your organisation has no draft purchase orders for :agent", { agent: agentName }) : ctrans("No draft purchase orders for :agent", { agent: agentName }) }}
         </p>
         <p class="mt-8 max-w-3xl text-xs text-gray-400">
-            {{ ctrans("Draft purchase orders through :agent, one card per supplier, with what each organisation has stacked on it. :agent sees nothing until a card is sent. Tick your part when it is finished; a card can be sent once every organisation has ticked.", { agent: agentName }) }}
+            {{ ctrans("Draft purchase orders through :agent, one card per supplier, with what each organisation has stacked on it. :agent sees nothing until a card is submitted. Tick your part when it is finished; a card can be submitted once every organisation has ticked.", { agent: agentName }) }}
         </p>
     </div>
 
-    <Dialog v-model:visible="isOverrideOpen" modal :header="ctrans('Send without waiting for the others?')" class="w-full max-w-lg">
+    <Dialog v-model:visible="isOverrideOpen" modal :header="ctrans('Submit without waiting for the others?')" class="w-full max-w-lg">
         <div v-if="overrideCard" class="space-y-4 text-sm text-gray-700">
             <div class="flex gap-3 rounded-lg border border-red-300 bg-red-50 p-3 text-red-800">
                 <FontAwesomeIcon :icon="faExclamationTriangle" class="mt-0.5 text-lg" fixed-width aria-hidden="true" />
@@ -384,21 +419,21 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                         {{ ctrans(":organisations have not said their order to :supplier is ready.", { organisations: waitingParts(overrideCard).map((part) => part.organisation_name).join(", "), supplier: overrideCard.supplier_code }) }}
                     </p>
                     <p class="mt-1">
-                        {{ ctrans("If you send now, :agent starts on this supplier without them. Their drafts stay behind as drafts and miss this order. This cannot be undone from here.", { agent: agentName }) }}
+                        {{ ctrans("If you submit now, :agent starts on this supplier without them. Their drafts stay behind as drafts and miss this order. This cannot be undone from here.", { agent: agentName }) }}
                     </p>
                 </div>
             </div>
 
             <label class="block">
                 <span class="font-medium text-gray-800">{{ ctrans("Why are you not waiting for them?") }}</span>
-                <Textarea v-model="overrideReason" rows="3" autoResize class="mt-1 w-full" :class="fieldFocusClass" :placeholder="ctrans('It is recorded on the purchase orders you send')" />
+                <Textarea v-model="overrideReason" rows="3" autoResize class="mt-1 w-full" :class="fieldFocusClass" :placeholder="ctrans('It is recorded on the purchase orders you submit')" />
                 <span class="mt-1 block text-xs text-gray-500">{{ ctrans("At least :count characters", { count: MINIMUM_REASON_LENGTH }) }}</span>
             </label>
 
             <div class="flex justify-end gap-2">
                 <Button :label="ctrans('Keep waiting')" type="tertiary" size="s" @click="overrideCard = null" />
                 <Button
-                    :label="ctrans('Send without them')"
+                    :label="ctrans('Submit without them')"
                     type="negative"
                     icon="fal fa-paper-plane"
                     size="s"

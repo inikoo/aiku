@@ -1302,6 +1302,56 @@ test('manual channel pricing policy shows an example price and says it only pric
         ->and($fields)->not->toHaveKey('pricing_value');
 });
 
+test('staff who can edit CRM manage a channel\'s settings from the channel page, others only see them', function () {
+    $customer       = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+    $manualPlatform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->first();
+    $channel        = StoreCustomerSalesChannel::make()->action($customer, $manualPlatform, ['reference' => 'test_manual_staff_settings']);
+    $channel->update(['stock_update' => true, 'stock_threshold' => 3, 'settings' => ['pricing' => ['type' => 'percent', 'value' => 150]]]);
+    $channel->refresh();
+
+    $action         = \App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel::make();
+    $customerFields = collect($action->getCustomerSalesChannelSettingsBlueprint($channel))->flatMap(fn ($section) => $section['fields']);
+
+    $editable       = $action->getSettingsFormData($channel, true);
+    $editableFields = collect($editable['blueprint'])->flatMap(fn ($section) => $section['fields']);
+
+    $readOnly       = $action->getSettingsFormData($channel, false);
+    $readOnlyFields = collect($readOnly['blueprint'])->flatMap(fn ($section) => $section['fields']);
+
+    expect($editable['args']['updateRoute']['name'])->toBe('grp.models.customer_sales_channel.settings.update')
+        ->and($editable['args']['updateRoute']['parameters'])->toBe(['customerSalesChannel' => $channel->id])
+        ->and($editableFields->all())->toEqual($customerFields->all())
+        ->and($readOnly['args']['updateRoute'])->toBeNull()
+        ->and($readOnlyFields->keys()->all())->toBe($customerFields->keys()->all())
+        ->and($readOnlyFields->every(fn ($field) => $field['readonly'] && $field['disabled'] && $field['noSaveButton'] && !isset($field['saveConfirmation'])))->toBeTrue()
+        ->and($readOnlyFields['stock_threshold']['value'])->toBe(3)
+        ->and(\App\Enums\UI\CRM\CustomerPlatformTabsEnum::navigation())->toHaveKey('settings');
+
+    $updateUrl = route('grp.models.customer_sales_channel.settings.update', ['customerSalesChannel' => $channel->id]);
+
+    actingAs($this->user)->patch($updateUrl, ['pricing_type' => 'fixed', 'pricing_value' => 2.5])->assertSessionHasNoErrors();
+    actingAs($this->user)->patch($updateUrl, ['stock_threshold' => 7])->assertSessionHasNoErrors();
+    actingAs($this->user)->patch($updateUrl, ['name' => '<b>Staff renamed</b>'])->assertSessionHasNoErrors();
+
+    $channel->refresh();
+    expect(Arr::get($channel->settings, 'pricing.type'))->toBe('fixed')
+        ->and((float) Arr::get($channel->settings, 'pricing.value'))->toBe(2.5)
+        ->and($channel->stock_threshold)->toBe(7)
+        ->and($channel->name)->toBe('Staff renamed');
+
+    actingAs($this->user)->patch($updateUrl, ['pricing_type' => 'not_follow'])->assertSessionHasErrors('pricing_type');
+
+    setPermissionsTeamId($this->group->id);
+    $guest = StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+    actingAs($guest)->patch($updateUrl, ['stock_threshold' => 99])->assertForbidden();
+    expect($channel->fresh()->stock_threshold)->toBe(7);
+
+    actingAs($this->user);
+});
+
 test('a channel pricing rule that would take a price to zero or below leaves new products at their RRP', function () {
     $customer       = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
     $manualPlatform = $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->first();

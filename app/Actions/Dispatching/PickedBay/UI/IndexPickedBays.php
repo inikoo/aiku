@@ -107,7 +107,7 @@ class IndexPickedBays extends OrgAction
                     'title'  => __('Picked bays'),
                     'icon'   => ['fal', 'fa-monument'],
                     'actions' => [
-                        [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('Create'),
@@ -115,7 +115,7 @@ class IndexPickedBays extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.dispatching.picked_bays.create',
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ],
-                        ],
+                        ] : false,
                     ],
                 ],
                 'tabs'        => [

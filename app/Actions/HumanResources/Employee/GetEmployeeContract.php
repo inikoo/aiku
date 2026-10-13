@@ -3,6 +3,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetEmployeeContract extends OrgAction
 {
+    use WithHumanResourcesAuthorisation;
+
     public function handle(Employee $employee): JsonResponse
     {
         $contract = $employee->getMedia('contracts')->sortByDesc('id')->first();
@@ -31,6 +34,8 @@ class GetEmployeeContract extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): JsonResponse
     {
+        abort_unless($employee->organisation_id === $organisation->id, 404);
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($employee);

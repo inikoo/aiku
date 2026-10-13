@@ -259,6 +259,7 @@ const props = defineProps<{
             slug: string
             reference: string
             type: string
+            is_shipping_by_external: boolean
             parcels: string
             state: string
             state_icon: IconTS
@@ -944,7 +945,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value) {
+    if (props.state === 'cancelled' || isEditLocked.value || props.is_faire_order) {
         return false
     }
 
@@ -1808,8 +1809,8 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 <Button v-if="routes.redispatch" @click="onRedispatch"
                     type="save"
                     :loading="isLoadingButton === 'redispatch'"
-                    :tooltip="ctrans('Dispatch the order')"
-                    :label="ctrans('Dispatch')"
+                    :tooltip="isCollection ? ctrans('Set the order as collected') : ctrans('Dispatch the order')"
+                    :label="isCollection ? ctrans('Set as collected') : ctrans('Dispatch')"
                     icon="fal fa-truck"
                     full />
 
@@ -2390,7 +2391,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
                             <!-- Button: Get shipment from Faire/Tiktok -->
                             <div
-                                v-if="note.shipments_routes?.can_work !== false && getShipmentFromPlatform(note) && ['packed', 'finalised', 'dispatched'].includes(note.state) && props.delivery_address_management.addresses.is_shipping_by_external && !note?.shipments?.length"
+                                v-if="note.shipments_routes?.can_work !== false && getShipmentFromPlatform(note) && ['packed', 'finalised', 'dispatched'].includes(note.state) && note.is_shipping_by_external && !note?.shipments?.length"
                                 class="flex items-center gap-2 text-sm mb-1"
                             >
 
@@ -2433,7 +2434,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                 </div>
                             </div>
 
-                            <dl v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !props.delivery_address_management.addresses.is_shipping_by_external && note.shipments"
+                            <dl v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !note.is_shipping_by_external && note.shipments"
                                 class="flex items-xcenter w-full pr-3 flex-none gap-x-1.5">
                                 <dt class="flex-none mt-1">
                                     <FontAwesomeIcon v-tooltip="ctrans('Shipment')" icon="fal fa-shipping-fast" fixed-width aria-hidden="true" class="text-gray-500" />
@@ -2879,6 +2880,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             @update:tab="handleTabUpdate" :ref="(e) => _refComponents = e"
             :routesProductsListModification="routes.products_list_modification"
             :is_shop_external
+            :marketplace_price_source="external_shop?.engine_value === 'shopify' ? external_shop?.engine_label : undefined"
             :allow_order_modification
             :locked="isEditLocked"
         />

@@ -25,6 +25,7 @@ import StockDeliveryCostingChecklist from "@/Components/Procurement/StockDeliver
 import StockDeliveryInvoiceCosting from "@/Components/Procurement/StockDeliveryInvoiceCosting.vue"
 import StockDeliveryInvoiceEntry from "@/Components/Procurement/StockDeliveryInvoiceEntry.vue"
 import StockDeliveryAgentPayments from "@/Components/Procurement/StockDeliveryAgentPayments.vue"
+import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliverySupplierPayments.vue"
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
@@ -163,6 +164,7 @@ const props = defineProps<{
 				payments: { id: number; date: string; amount: number; reference: string | null; notes: string | null; delete_route: routeType }[]
 				payment_store_route: routeType
 			} | null
+			supplier: InstanceType<typeof StockDeliverySupplierPayments>["$props"]["supplier"] | null
 		} | null
 	}
 	tabs: {
@@ -176,6 +178,7 @@ const props = defineProps<{
 	costing: {
 		is_costed: boolean
 		is_partner: boolean
+		viewed_by_agent: boolean
 		can_edit: boolean
 		can_edit_payments: boolean
 		reopened: { at: string, by: string | null, reason: string } | null
@@ -373,18 +376,24 @@ const costBlocks = computed(() => {
 	const status = (missing: string | null, done: string) =>
 		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
 
+	const invoiceBlock = {
+		...firstBlock,
+		summary: money(orgCurrency, invoiceTotal),
+		summarySub: agentInvoice
+			? (agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? "" : money(agentInvoice.currency, agentInvoice.total))
+			: (sameCurrency ? "" : money(currency, goods)),
+		detail: "",
+		balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
+		balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
+		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
+	}
+
+	if (props.costing.viewed_by_agent) {
+		return [invoiceBlock]
+	}
+
 	return [
-		{
-			...firstBlock,
-			summary: money(orgCurrency, invoiceTotal),
-			summarySub: agentInvoice
-				? (agentInvoiceRate === null || agentInvoice.currency === agentInvoice.org_currency ? "" : money(agentInvoice.currency, agentInvoice.total))
-				: (sameCurrency ? "" : money(currency, goods)),
-			detail: "",
-			balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
-			balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
-			status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
-		},
+		invoiceBlock,
 		{
 			key: "landed",
 			summary: money(orgCurrency, localTotal),
@@ -1116,7 +1125,16 @@ const confirmDeleteStockDelivery = (action: any) => {
 											:hasCharges="box_stats.invoice.charges_list.length > 0"
 											:isEstimate="box_stats.invoice.source === 'estimated'"
 										/>
-										<div v-if="isCostingVisible" class="mt-3">
+										<StockDeliverySupplierPayments
+											v-if="blockIndex === 0 && box_stats.invoice?.supplier && (box_stats.invoice.total > 0 || box_stats.invoice.supplier.payments.length > 0)"
+											:supplier="box_stats.invoice.supplier"
+											:currency="box_stats.invoice.currency"
+											:total="box_stats.invoice.total"
+											:orgCurrency="box_stats.invoice.org_currency"
+											:orgExchange="box_stats.invoice.org_exchange"
+											:isEstimate="box_stats.invoice.source === 'estimated'"
+										/>
+										<div v-if="isCostingVisible && !costing.viewed_by_agent" class="mt-3">
 											<Button
 												v-if="blockIndex === 0"
 												type="tertiary"

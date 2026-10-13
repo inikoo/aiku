@@ -21,7 +21,8 @@ class GetGroupWarehouseDashboardData
      * @return array{
      *     totals: array{stock_health: array<string, int>},
      *     stock_levels: array<int, array{bucket: string, label: string, description: string|null, tone: string}>,
-     *     organisations: array<int, array{name: string, slug: string, stock_health: array<string, int>, routes: array{stock_health: array{name: string, parameters: array<string, string>}}}>
+     *     organisations: array<int, array{name: string, slug: string, stock_health: array<string, int>, routes: array{stock_health: array{name: string, parameters: array<string, string>}}}>,
+     *     routes: array{stock_levels: array{name: string, parameters: array<string, string>}|null}
      * }
      */
     public function handle(Group $group): array
@@ -48,6 +49,11 @@ class GetGroupWarehouseDashboardData
                 'tone'        => $meta['tone'],
             ])->values()->all(),
             'organisations' => $organisations->values()->all(),
+            'routes'        => [
+                'stock_levels' => auth()->user()?->hasGroupAccess()
+                    ? ['name' => 'grp.dashboard.stock_levels.index', 'parameters' => []]
+                    : null,
+            ],
         ];
     }
 
