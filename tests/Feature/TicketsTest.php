@@ -750,9 +750,21 @@ test('tickets dashboard counts created, done, status and assignees', function ()
         ->and($stats['reporters'])->toBeArray()
         ->and($stats['assignees_total']['created'])->toBe($stats['created'])
         ->and(collect($stats['by_status'])->sum('total'))->toBe($stats['created'])
-        ->and(collect($stats['by_time_of_day'])->sum(2))->toBe($stats['created'])
-        ->and(ShowTicketsReports::make()->handle($this->group, '1w', timezone: 'Asia/Kuala_Lumpur')['by_time_of_day'])->not->toBe($stats['by_time_of_day'])
+        ->and($stats)->not->toHaveKey('by_time_of_day')
+        ->and($stats)->not->toHaveKey('by_hour')
+        ->and($stats['by_quarter_hour'])->toHaveCount(96)
+        ->and(collect($stats['by_quarter_hour'])->pluck('slot')->all())->toBe(range(0, 95))
+        ->and(collect($stats['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
+        ->and(collect($stats['by_quarter_hour'])->sum('done'))->toBe($stats['done'])
+        ->and(ShowTicketsReports::make()->handle($this->group, '1w', timezone: 'Asia/Kuala_Lumpur')['by_quarter_hour'])->not->toBe($stats['by_quarter_hour'])
         ->and($stats['resolvers_total']['done'])->toBe($before['resolvers_total']['done']);
+
+    $forSomeoneWithNoTickets = ShowTicketsReports::make()->handle($this->group, '1w', assignee: User::factory()->create(['group_id' => $this->group->id]));
+
+    expect($forSomeoneWithNoTickets['created'])->toBe(0)
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('started'))->toBe(0)
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('done'))->toBe(0);
 
     $oldTicket = StoreTicket::make()->action($this->group, ['subject' => 'Old but resolved now', 'assignee_id' => $this->user->id]);
     $oldTicket->update(['created_at' => now()->subMonths(3)]);
@@ -768,8 +780,8 @@ test('tickets dashboard counts created, done, status and assignees', function ()
     );
 });
 
-test('tickets dashboard counts created, started and resolved tickets by the hour of the day in the viewer timezone', function () {
-    $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_hour'])->keyBy('hour');
+test('tickets dashboard counts created, started and resolved tickets by the quarter hour of the day in the viewer timezone', function () {
+    $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_quarter_hour'])->keyBy('slot');
     $before = $hourly();
     $day    = now('UTC')->subDay()->startOfDay();
 
@@ -782,18 +794,18 @@ test('tickets dashboard counts created, started and resolved tickets by the hour
 
     $after = $hourly();
 
-    expect($after->keys()->all())->toBe(range(0, 23))
-        ->and($after[5]['created'])->toBe($before[5]['created'] + 1)
-        ->and($after[9]['started'])->toBe($before[9]['started'] + 1)
-        ->and($after[14]['done'])->toBe($before[14]['done'] + 1)
-        ->and($after[5]['started'])->toBe($before[5]['started'])
-        ->and($after[5]['done'])->toBe($before[5]['done'])
+    expect($after->keys()->all())->toBe(range(0, 95))
+        ->and($after[20]['created'])->toBe($before[20]['created'] + 1)
+        ->and($after[38]['started'])->toBe($before[38]['started'] + 1)
+        ->and($after[56]['done'])->toBe($before[56]['done'] + 1)
+        ->and($after[20]['started'])->toBe($before[20]['started'])
+        ->and($after[20]['done'])->toBe($before[20]['done'])
         ->and($after->sum('created'))->toBe($before->sum('created') + 1);
 
     $kualaLumpurBefore = $before->sum('created');
     $kualaLumpur       = $hourly('Asia/Kuala_Lumpur');
 
-    expect($kualaLumpur[13]['created'])->toBeGreaterThanOrEqual(1)
+    expect($kualaLumpur[52]['created'])->toBeGreaterThanOrEqual(1)
         ->and($kualaLumpur->sum('created'))->toBeGreaterThanOrEqual($kualaLumpurBefore);
 });
 

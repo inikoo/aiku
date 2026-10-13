@@ -132,27 +132,24 @@ class ShowTicketsReports extends OrgAction
             return ['month' => $month, 'average' => isset($monthlyCsat[$month]) ? (float) $monthlyCsat[$month]->average : null, 'total' => (int) ($monthlyCsat[$month]->total ?? 0)];
         });
 
-        $localCreatedAt = "tickets.created_at at time zone $zone";
-        $byTimeOfDay    = (clone $createdInRange)
-            ->selectRaw("extract(isodow from $localCreatedAt)::int as weekday, (extract(hour from $localCreatedAt) * 4 + floor(extract(minute from $localCreatedAt) / 15))::int as slot, count(*) as total")
-            ->groupBy('weekday', 'slot')
-            ->toBase()
-            ->get()
-            ->map(fn ($row) => [(int) $row->weekday, (int) $row->slot, (int) $row->total]);
+        $countByQuarterHour = function ($tickets, string $column) use ($from, $to, $zone) {
+            $localTime = "tickets.$column at time zone $zone";
 
-        $countByHour = fn (string $column) => (clone $base)->whereBetween("tickets.$column", [$from, $to])
-            ->selectRaw("extract(hour from tickets.$column at time zone $zone)::int as hour, count(*) as total")
-            ->groupBy('hour')
-            ->toBase()
-            ->pluck('total', 'hour');
-        $createdByHour  = $countByHour('created_at');
-        $startedByHour  = $countByHour('started_at');
-        $resolvedByHour = $countByHour('resolved_at');
-        $byHour         = collect(range(0, 23))->map(fn (int $hour) => [
-            'hour'    => $hour,
-            'created' => (int) ($createdByHour[$hour] ?? 0),
-            'started' => (int) ($startedByHour[$hour] ?? 0),
-            'done'    => (int) ($resolvedByHour[$hour] ?? 0),
+            return (clone $tickets)->whereBetween("tickets.$column", [$from, $to])
+                ->selectRaw("(extract(hour from $localTime) * 4 + floor(extract(minute from $localTime) / 15))::int as slot, count(*) as total")
+                ->groupBy('slot')
+                ->toBase()
+                ->pluck('total', 'slot');
+        };
+        $ticketsOfEveryone     = Ticket::where('tickets.group_id', $group->id)->when($viewer, fn ($query) => $query->visibleTo($viewer));
+        $createdByQuarterHour  = $countByQuarterHour($ticketsOfEveryone, 'created_at');
+        $startedByQuarterHour  = $countByQuarterHour($base, 'started_at');
+        $resolvedByQuarterHour = $countByQuarterHour($base, 'resolved_at');
+        $byQuarterHour         = collect(range(0, 95))->map(fn (int $slot) => [
+            'slot'    => $slot,
+            'created' => (int) ($createdByQuarterHour[$slot] ?? 0),
+            'started' => (int) ($startedByQuarterHour[$slot] ?? 0),
+            'done'    => (int) ($resolvedByQuarterHour[$slot] ?? 0),
         ]);
 
         $oldestOpen = (clone $base)->whereNotIn('status', [TicketStatusEnum::RESOLVED, TicketStatusEnum::CANCELLED])->orderBy('created_at')->first();
@@ -172,8 +169,7 @@ class ShowTicketsReports extends OrgAction
             'csat_by_month' => $csatByMonth->values()->all(),
             'daily'         => $daily->values()->all(),
             'timezone'      => $timezone,
-            'by_time_of_day' => $byTimeOfDay->values()->all(),
-            'by_hour'       => $byHour->all(),
+            'by_quarter_hour' => $byQuarterHour->all(),
             'breakdown'     => $breakdown->values()->all(),
             'modules'       => $labelled(TicketModuleEnum::labels() + ['none' => __('No module')], 1),
             'kinds'         => $labelled(TicketKindEnum::labels() + ['none' => __('No kind')], 2),
