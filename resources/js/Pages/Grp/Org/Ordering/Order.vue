@@ -78,6 +78,9 @@ import {
     faPercentage,
     faSackDollar,
     faUndo as falUndo,
+    faTimes,
+    faCheck,
+    faHandHoldingUsd,
     faInfoCircle,
 } from "@fal"
 import { Currency } from "@/types/LayoutRules"
@@ -278,6 +281,7 @@ const props = defineProps<{
         delivery_note: routeType
         rollback_dispatch: routeType | null
         redispatch?: routeType
+        change_to_cash_on_delivery?: routeType | null
     }
     // nonProductItems: {}
     transactions?: {}
@@ -659,6 +663,46 @@ const onSubmitSendUnpaid = () => {
             }
         }
     )
+}
+
+const changeToCashOnDeliveryLoading = ref(false)
+const confirmChangeToCashOnDelivery = () => {
+    const changeRoute = props.routes.change_to_cash_on_delivery
+    if (!changeRoute) {
+        return
+    }
+    confirm.require({
+        message: ctrans('The customer will pay the courier. The cash on delivery charge is added to the order and the order goes to the warehouse now, without waiting for a payment.'),
+        header: ctrans('Change to cash on delivery'),
+        rejectProps: {
+            label: ctrans('No')
+        },
+        acceptProps: {
+            label: ctrans('Yes, cash on delivery')
+        },
+        accept: () => {
+            router[changeRoute.method || 'patch'](
+                route(changeRoute.name, changeRoute.parameters),
+                {},
+                {
+                    preserveScroll: true,
+                    onStart: () => {
+                        changeToCashOnDeliveryLoading.value = true
+                    },
+                    onFinish: () => {
+                        changeToCashOnDeliveryLoading.value = false
+                    },
+                    onError: (errors) => {
+                        notify({
+                            title: ctrans("Error"),
+                            text: Object.values(errors ?? {})[0] as string || ctrans("Failed to change the order to cash on delivery"),
+                            type: "error",
+                        })
+                    }
+                }
+            )
+        },
+    })
 }
 
 const invoiceOnlyLoading = ref(false)
@@ -1631,9 +1675,27 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <ConfirmDialog>
-        <template #icon>
-            <FontAwesomeIcon :icon="faExclamationTriangle" class="text-xl text-orange-500" fixed-width />
+    <ConfirmDialog :style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="rounded-lg bg-white p-5">
+                <div class="flex items-center gap-2 font-semibold text-gray-900">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" class="text-orange-500" fixed-width aria-hidden="true" />
+                    {{ message.header }}
+                </div>
+                <p class="mt-3 text-sm text-gray-600">{{ message.message }}</p>
+                <div class="mt-5 flex justify-end gap-2">
+                    <Button type="tertiary" :label="message.rejectProps?.label ?? ctrans('Cancel')" @click="rejectCallback">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button type="tertiary" :label="message.acceptProps?.label ?? ctrans('Confirm')" @click="acceptCallback">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
+            </div>
         </template>
     </ConfirmDialog>
 
@@ -2286,6 +2348,15 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                         <Button @click.prevent="() => onClickPayInvoice()" xtype="secondary"
                                             xicon="far fa-ellipsis-v" :label="ctrans('Pay')" size="sm"
                                             xclass="rounded-l-none !border-l-0" />
+                                    </div>
+                                    <div v-if="routes.change_to_cash_on_delivery" class="mx-auto mt-2 w-fit">
+                                        <Button @click.prevent="confirmChangeToCashOnDelivery" type="tertiary" size="xs"
+                                            :label="ctrans('Change to cash on delivery')"
+                                            :loading="changeToCashOnDeliveryLoading">
+                                            <template #icon>
+                                                <FontAwesomeIcon :icon="faHandHoldingUsd" class="text-gray-500" fixed-width aria-hidden="true" />
+                                            </template>
+                                        </Button>
                                     </div>
                                 </div>
 

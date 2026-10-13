@@ -86,6 +86,10 @@ trait WithPlaceOrderByPaymentMethod
         /** @var Charge $charge */
         $charge = $order->shop->charges()->where('type', ChargeTypeEnum::COD)->where('state', ChargeStateEnum::ACTIVE)->first();
 
+        if (!$charge) {
+            return $order;
+        }
+
         $cashOnDeliveryTransaction   = null;
         $cashOnDeliveryTransactionID = DB::table('transactions')->where('order_id', $order->id)
             ->leftJoin('charges', 'transactions.model_id', '=', 'charges.id')

@@ -60,6 +60,9 @@ use App\Actions\Ordering\Adjustment\UpdateAdjustment;
 use App\Actions\Billables\Charge\DeleteCharge;
 use App\Actions\Billables\Charge\UpdateCharge;
 use App\Actions\Ordering\Order\CalculateOrderHangingCharges;
+use App\Actions\Ordering\Order\ChangeOrderToCashOnDelivery;
+use App\Actions\Accounting\PaymentAccountShop\StorePaymentAccountShop;
+use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
 use App\Enums\Ordering\Order\OrderChargesEngineEnum;
 use App\Actions\Ordering\Order\CalculateOrderShipping;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
@@ -1740,6 +1743,57 @@ describe('COD invoice paid email', function () {
         ProcessInvoicePaidNotification::make()->handle($invoice->id);
         Queue::assertNotPushed(JobDecorator::class, fn ($job) => $job->displayName() === SendInvoicePaidEmailToCustomer::class);
     });
+});
+
+test('a submitted unpaid bank transfer order can be changed to cash on delivery', function () {
+    $order = StoreOrder::make()->action($this->customer, Order::factory()->definition());
+    StoreTransaction::make()->action($order, $this->product->historicAsset, Transaction::factory()->definition());
+    $order = SubmitOrder::make()->action($order);
+    $order->update(['to_be_paid_by' => OrderToBePaidByEnum::BANK]);
+
+    expect($order->state)->toBe(OrderStateEnum::SUBMITTED)
+        ->and(ChangeOrderToCashOnDelivery::make()->blockingReason($order))->not->toBeNull();
+
+    $charge = StoreCharge::make()->action($order->shop, [
+        'code'        => 'COD'.mt_rand(1000, 9999),
+        'name'        => 'Cash on delivery',
+        'description' => 'Cash on delivery charge',
+        'type'        => ChargeTypeEnum::COD,
+    ]);
+    UpdateCharge::make()->action($charge, ['state' => ChargeStateEnum::ACTIVE, 'amount' => 5], strict: false);
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'ACC'.mt_rand(1000, 9999),
+            'name' => 'Cash on delivery '.mt_rand(1000, 9999),
+        ]
+    );
+    $paymentAccount->update(['type' => PaymentAccountTypeEnum::CASH_ON_DELIVERY, 'data' => ['countries' => []]]);
+    $paymentAccountShop = StorePaymentAccountShop::make()->action($paymentAccount, $order->shop, [
+        'state'            => PaymentAccountShopStateEnum::ACTIVE,
+        'show_in_checkout' => true,
+    ]);
+
+    expect(ChangeOrderToCashOnDelivery::make()->blockingReason($order->refresh()))->toContain('delivery country');
+
+    $paymentAccount->update(['data' => ['countries' => [$order->deliveryAddress->country_id]]]);
+    $totalBefore = (float)$order->total_amount;
+
+    $order = ChangeOrderToCashOnDelivery::make()->action($order->refresh());
+
+    $cashOnDeliveryNet = $order->transactions()->where('model_type', 'Charge')->where('model_id', $charge->id)->value('net_amount');
+
+    expect($order->to_be_paid_by)->toBe(OrderToBePaidByEnum::CASH_ON_DELIVERY)
+        ->and($order->state)->toBe(OrderStateEnum::IN_WAREHOUSE)
+        ->and((float)$cashOnDeliveryNet)->toBe(5.0)
+        ->and((float)$order->total_amount)->toBeGreaterThan($totalBefore)
+        ->and($order->deliveryNotes()->first()->is_cash_on_delivery)->toBeTrue()
+        ->and(ChangeOrderToCashOnDelivery::make()->blockingReason($order))->not->toBeNull();
+
+    $paymentAccountShop->update(['state' => PaymentAccountShopStateEnum::IN_PROCESS]);
+    $charge->update(['state' => ChargeStateEnum::DISCONTINUED]);
 });
 
 test('invoice from overpaid order credits excess to customer balance', function () {

@@ -15,6 +15,7 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Ordering\Order\AssignDefaultPackagingToOrderWithoutPackaging;
+use App\Actions\Ordering\Order\ChangeOrderToCashOnDelivery;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dropshipping\CustomerSalesChannel\UI\ShowCustomerSalesChannel;
@@ -536,7 +537,14 @@ class ShowOrder extends OrgAction
                             'order' => $order->id
                         ]
                     ],
-                    'delivery_note'              => $deliveryNoteRoute
+                    'delivery_note'              => $deliveryNoteRoute,
+                    'change_to_cash_on_delivery' => $canEdit && !ChangeOrderToCashOnDelivery::make()->blockingReason($order) ? [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.order.change_to_cash_on_delivery',
+                        'parameters' => [
+                            'order' => $order->id
+                        ]
+                    ] : null,
                 ],
 
                 'notes'                       => $this->getOrderNotes($order, $canEdit),
