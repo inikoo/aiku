@@ -258,8 +258,10 @@ Built on 8 October 2026 on DataForSEO, so it does not wait for Google Ads Basic 
 - Not built yet: the monthly refresh of saved keywords, with 2.2.
 
 **Screen.** SEO > Keywords, tab Research: keywords or a URL, country and language (defaulting to the
-shop's), results with intent, volume, a 12 month trend, difficulty, CPC and ad competition, a filter
-per intent. Below them, the Search Console queries of the website
+shop's), results with intent, volume, a 12 month trend, difficulty, CPC, the SERP features Google
+shows for the keyword (AI Overview, People also ask, images, shopping and so on, as in Rankings;
+from the `include_serp_info` option, at no extra cost, with the date of the snapshot, which can be
+months old) and ad competition, a filter per intent. Below them, the Search Console queries of the website
 that contain the same words (last 90 days). Every result has a Track action.
 
 ### Tracked keywords and competitors (set from the UI)
