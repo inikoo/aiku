@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\Helpers\Dashboard\InvalidateDashboardCaches;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\Traits\WithLineTaxCategories;
@@ -73,6 +74,11 @@ class CalculateInvoiceTotals extends OrgAction
         data_set($modelData, 'gross_amount', $grossAmount);
 
         $invoice->update($modelData);
+
+        if (!$invoice->in_process && $invoice->wasChanged(['net_amount', 'org_net_amount', 'grp_net_amount'])) {
+            InvalidateDashboardCaches::run($invoice);
+            RunInvoiceHydrators::make()->redoTimeSeries($invoice, $this->hydratorsDelay);
+        }
 
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
