@@ -34,11 +34,11 @@ const toneColor: Record<string, string> = {
 	"red-deep": "bg-red-700",
 	red: "bg-red-500",
 	orange: "bg-orange-500",
-	"orange-light": "bg-orange-300",
+	"orange-light": "bg-orange-400",
 	amber: "bg-amber-400",
 	yellow: "bg-yellow-300",
 	green: "bg-green-500",
-	maroon: "bg-red-900",
+	"red-light": "bg-red-400",
 	blue: "bg-sky-400",
 	gray: "bg-gray-400",
 }

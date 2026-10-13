@@ -37,7 +37,7 @@ class GetOrganisationStockCoverBuckets
         'w4'     => ['label' => 'Watch', 'description' => 'Out within 4 lead times', 'tone' => 'yellow'],
         'ok'     => ['label' => 'Covered', 'tone' => 'green'],
         'excess' => ['label' => 'Excess', 'description' => 'More than :days days of stock', 'tone' => 'orange-light'],
-        'dead'   => ['label' => 'Dead stock', 'tone' => 'maroon'],
+        'dead'   => ['label' => 'Dead stock', 'tone' => 'red-light'],
     ];
 
     public const SOURCES = [
