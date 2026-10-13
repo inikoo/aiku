@@ -12,7 +12,9 @@ use App\Helpers\TimeSeriesPeriodCalculator;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Actions\Traits\WithTimeSeriesRedo;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockTimeSeriesHydrateNumberRecords;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\OrgStockTimeSeries;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -62,10 +64,16 @@ class RedoOrgStockTimeSeries implements ShouldBeUnique
             return;
         }
 
+        $rangeFollowsSource = !$from && !$to;
+
         if (!$from || !$to) {
             $dateRange = $this->getDateRange($orgStock->id);
 
             if (!$dateRange['from']) {
+                if ($rangeFollowsSource) {
+                    $this->deleteRecordsOutsideSourceRange($orgStock);
+                }
+
                 return;
             }
 
@@ -76,10 +84,37 @@ class RedoOrgStockTimeSeries implements ShouldBeUnique
         foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
             [$periodFrom, $periodTo] = TimeSeriesPeriodCalculator::expandWindowToFullPeriods($frequency, $from, $to);
 
+            if ($rangeFollowsSource) {
+                $this->deleteRecordsOutsideSourceRange($orgStock, $frequency, $periodFrom, $periodTo);
+            }
+
             if ($async) {
                 ProcessOrgStockTimeSeriesRecords::dispatch($orgStock->id, $frequency, $periodFrom, $periodTo)->onQueue('sales_slave_historic');
             } else {
                 ProcessOrgStockTimeSeriesRecords::run($orgStock->id, $frequency, $periodFrom, $periodTo);
+            }
+        }
+    }
+
+    /**
+     * The rebuild only rewrites the periods between the first and the last invoice line of the org stock,
+     * so a record left outside that range, by invoice lines that were re-dated or removed since it was
+     * built, would keep its old sales for ever. Every record is rebuilt from invoice lines, so one
+     * outside their range has no source and goes.
+     */
+    protected function deleteRecordsOutsideSourceRange(OrgStock $orgStock, ?TimeSeriesFrequencyEnum $frequency = null, ?string $periodFrom = null, ?string $periodTo = null): void
+    {
+        $timeSeries = OrgStockTimeSeries::where('org_stock_id', $orgStock->id)
+            ->when($frequency, fn ($query) => $query->where('frequency', $frequency->value))
+            ->get();
+
+        foreach ($timeSeries as $series) {
+            $deleted = $series->records()
+                ->when($periodFrom, fn ($query) => $query->where(fn ($query) => $query->where('from', '<', $periodFrom)->orWhere('from', '>', $periodTo)))
+                ->delete();
+
+            if ($deleted && !$periodFrom) {
+                OrgStockTimeSeriesHydrateNumberRecords::run($series->id);
             }
         }
     }

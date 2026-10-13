@@ -4,6 +4,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 
 | Applies to | Rule file |
 | --- | --- |
+| app/Actions/**/*TimeSeries*.php | .ai/rules/actions.md |
 | app/Actions/Dispatching/** | .ai/rules/dispatching.md |
 | app/Actions/Dropshipping/** | .ai/rules/dropshipping.md |
 | app/Actions/GoodsIn/** | .ai/rules/goods-in.md |

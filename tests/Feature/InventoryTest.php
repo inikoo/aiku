@@ -148,6 +148,12 @@ use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use Illuminate\Support\Facades\Cache;
+use App\Actions\Inventory\OrgStock\RedoOrgStockTimeSeries;
+use App\Actions\Accounting\InvoiceTransaction\ProcessInvoiceTransactionTimeSeries;
+use App\Actions\Inventory\OrgStock\ProcessOrgStockTimeSeriesRecords;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Models\Accounting\InvoiceTransaction;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\PermissionRegistrar;
@@ -4986,4 +4992,101 @@ test('the skos tab of a location filters by its search box and sorts by referenc
 
     $ascending = $codesShown(['org_stocks_sort' => 'code']);
     expect($codesShown(['org_stocks_sort' => '-code']))->toBe(array_reverse($ascending));
+});
+
+test('rebuilding the sales history of an sko drops the periods its invoice lines no longer fall in', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $orgStock->timeSeries()->get()->each(function ($series) {
+        $series->records()->delete();
+        $series->delete();
+    });
+
+    $seriesId   = DB::table('org_stock_time_series')->insertGetId(['org_stock_id' => $orgStock->id, 'frequency' => 'monthly']);
+    $leftBehind = fn (): array => DB::table('org_stock_time_series_records')->where('org_stock_time_series_id', $seriesId)->orderBy('period')->pluck('period')->all();
+    $fetchMonth = fn () => DB::table('org_stock_time_series_records')->insert([
+        'org_stock_time_series_id'    => $seriesId,
+        'frequency'                   => 'M',
+        'period'                      => '2025-01',
+        'from'                        => '2025-01-01 00:00:00',
+        'to'                          => '2025-01-31 23:59:59',
+        'sales_grp_currency_external' => 3714,
+        'invoices'                    => 338,
+    ]);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id);
+    expect($leftBehind())->toBe([]);
+
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => '2013-06-11 10:00:00',
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_org_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'org_stock_id'           => $orgStock->id,
+        'net_amount'             => 12,
+        'org_net_amount'         => 12,
+        'grp_net_amount'         => 12,
+    ]);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id);
+    expect($leftBehind())->toBe(['2013-06']);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id, '2013-06-01', '2013-06-30');
+    expect($leftBehind())->toBe(['2013-06', '2025-01']);
+});
+
+test('an invoice line stored with an earlier date reaches the sales history of its sko', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $storeLine = function (string $date) use ($shop, $customer, $orgStock): InvoiceTransaction {
+        $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+            'group_id'        => $this->group->id,
+            'organisation_id' => $this->organisation->id,
+            'shop_id'         => $shop->id,
+            'customer_id'     => $customer->id,
+            'date'            => $date,
+            'tax_category_id' => DB::table('tax_categories')->value('id'),
+            'net_amount'      => 12,
+            'data'            => '{}',
+        ]);
+        DB::table('invoice_transaction_has_org_stocks')->insert([
+            'invoice_transaction_id' => $invoiceTransactionId,
+            'org_stock_id'           => $orgStock->id,
+            'net_amount'             => 12,
+            'org_net_amount'         => 12,
+            'grp_net_amount'         => 12,
+        ]);
+
+        return InvoiceTransaction::find($invoiceTransactionId);
+    };
+
+    $lateDate = now()->subDays(10);
+    $forSko   = fn ($action, array $arguments) => $arguments[0] === $orgStock->id;
+
+    Queue::fake();
+    ProcessInvoiceTransactionTimeSeries::run($storeLine(now()->toDateTimeString()));
+    ProcessOrgStockTimeSeriesRecords::assertNotPushed($forSko);
+
+    ProcessInvoiceTransactionTimeSeries::run($storeLine($lateDate->toDateTimeString()));
+    ProcessOrgStockTimeSeriesRecords::assertPushed(5, $forSko);
+    ProcessOrgStockTimeSeriesRecords::assertPushed(
+        1,
+        fn ($action, array $arguments) => $forSko($action, $arguments) && $arguments[1] === TimeSeriesFrequencyEnum::MONTHLY
+            && $arguments[2] === $lateDate->copy()->startOfMonth()->toDateString()
+            && $arguments[3] === $lateDate->toDateString()
+    );
 });
