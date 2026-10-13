@@ -51,6 +51,8 @@ use App\Actions\Retina\Wix\CreateRetinaNewAllPortfoliosToWix;
 use App\Actions\Retina\Wix\CreateRetinaNewBulkPortfoliosToWix;
 use App\Actions\Retina\CRM\DeleteRetinaBackInStockReminder;
 use App\Actions\Retina\CRM\DeleteRetinaCustomerDeliveryAddress;
+use App\Actions\Retina\CRM\Appointment\CancelRetinaAppointment;
+use App\Actions\Retina\CRM\Appointment\RescheduleRetinaAppointment;
 use App\Actions\Retina\CRM\DeleteRetinaFavourite;
 use App\Actions\Retina\CRM\StoreRetinaBackInStockReminder;
 use App\Actions\Retina\CRM\StoreRetinaCustomerClient;
@@ -224,6 +226,11 @@ Route::prefix('customer-comms/{customerComms:id}')->name('customer_comms.')->whe
     Route::patch('update', UpdateRetinaCustomerComms::class)->name('update');
 });
 
+
+Route::name('appointment.')->prefix('appointment/{appointment:id}')->whereNumber('appointment')->group(function () {
+    Route::post('cancel', CancelRetinaAppointment::class)->name('cancel');
+    Route::post('reschedule', RescheduleRetinaAppointment::class)->name('reschedule');
+});
 
 Route::post('favourite/{product:id}', StoreRetinaFavourite::class)->name('favourites.store')->whereNumber('product');
 Route::delete('un-favourite/{product:id}', DeleteRetinaFavourite::class)->name('favourites.delete')->whereNumber('product');

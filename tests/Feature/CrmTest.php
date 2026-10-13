@@ -51,6 +51,10 @@ use App\Actions\CRM\Appointment\RescheduleAppointment;
 use App\Actions\CRM\Appointment\StoreAppointment;
 use App\Actions\CRM\Appointment\SyncAppointmentStaffTask;
 use App\Actions\CRM\Appointment\UpdateAppointment;
+use App\Actions\CRM\Appointment\UI\ShowAppointmentsCalendar;
+use App\Actions\Retina\CRM\Appointment\CancelRetinaAppointment;
+use App\Actions\Retina\CRM\Appointment\IndexRetinaAppointments;
+use App\Actions\Retina\CRM\Appointment\RescheduleRetinaAppointment;
 use App\Actions\CRM\AppointmentStaff\StoreAppointmentStaff;
 use App\Actions\CRM\AppointmentStaff\UpdateAppointmentStaff;
 use App\Actions\CRM\AppointmentType\DeleteAppointmentType;
@@ -786,7 +790,7 @@ test('UI Index appointment types', function (AppointmentType $appointmentType) {
                 ->has('title')
                 ->has('breadcrumbs', 3)
                 ->where('pageHead.title', __('Appointment types'))
-                ->has('pageHead.subNavigation', 4)
+                ->has('pageHead.subNavigation', 5)
                 ->where('data.data', fn ($rows) => collect($rows)->contains('slug', $appointmentType->slug));
         });
 })->depends('update appointment type');
@@ -882,7 +886,7 @@ test('UI Index appointment staff', function () {
             $page
                 ->component('Org/Shop/CRM/AppointmentStaff')
                 ->has('breadcrumbs', 3)
-                ->has('pageHead.subNavigation', 4)
+                ->has('pageHead.subNavigation', 5)
                 ->where('data.data', fn ($rows) => collect($rows)->contains('id', $this->user->id));
         });
 })->depends('change the appointments a staff arranges');
@@ -1491,7 +1495,7 @@ test('UI Index appointments', function (Appointment $appointment) {
             $page
                 ->component('Org/Shop/CRM/Appointments')
                 ->has('breadcrumbs', 3)
-                ->has('pageHead.subNavigation', 4)
+                ->has('pageHead.subNavigation', 5)
                 ->where('tabs.current', 'upcoming')
                 ->has('tabs.navigation.requested')
                 ->where('upcoming.data', fn ($rows) => collect($rows)->contains('id', $appointment->id));
@@ -1508,7 +1512,7 @@ test('UI Show appointments dashboard', function (Appointment $appointment) {
             $page
                 ->component('Org/Shop/CRM/AppointmentsDashboard')
                 ->has('breadcrumbs', 4)
-                ->has('pageHead.subNavigation', 4)
+                ->has('pageHead.subNavigation', 5)
                 ->has('dashboard.stats', 4)
                 ->has('dashboard.states', 5)
                 ->has('dashboard.days', 14)
@@ -1548,6 +1552,98 @@ test('UI Show appointments dashboard', function (Appointment $appointment) {
                 ->and(collect($after['types'])->firstWhere('name', $appointmentType->name))
                 ->toBe(['name' => $appointmentType->name, 'total' => 1, 'upcoming' => 1]);
         });
+})->depends('cancel and rebook an appointment');
+
+test('UI Show appointments calendar', function (Appointment $appointment) {
+    $timezone = $this->shop->timezone?->name ?? 'UTC';
+    $startsAt = $appointment->refresh()->starts_at->copy()->setTimezone($timezone);
+    $cells    = fn (array $calendar) => collect($calendar['weeks'])->flatten(1);
+
+    $this->get(route('grp.org.shops.show.crm.appointments.calendar', [$this->organisation->slug, $this->shop->slug, 'month' => $startsAt->format('Y-m')]))
+        ->assertInertia(function (AssertableInertia $page) use ($appointment, $startsAt, $cells) {
+            $page
+                ->component('Org/Shop/CRM/AppointmentsCalendar')
+                ->has('breadcrumbs', 4)
+                ->has('pageHead.subNavigation', 5)
+                ->has('calendar.weekdays', 7)
+                ->where('calendar.month', $startsAt->format('Y-m'))
+                ->where('calendar.previous', $startsAt->copy()->startOfMonth()->subMonth()->format('Y-m'))
+                ->where('calendar.weeks', function ($weeks) use ($appointment, $startsAt, $cells) {
+                    $weeks = collect($weeks)->toArray();
+                    $day   = $cells(['weeks' => $weeks])->firstWhere('date', $startsAt->toDateString());
+
+                    return collect($weeks)->every(fn ($week) => count($week) === 7)
+                        && $day['in_month']
+                        && collect($day['appointments'])->contains(fn ($row) => $row['id'] === $appointment->id && $row['time'] === $startsAt->format('H:i'));
+                });
+        });
+
+    $declined = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointment->appointment_type_id,
+        'starts_at'           => $startsAt->copy()->addDay()->format('Y-m-d').' 16:00',
+        'contact_name'        => 'Declined visitor',
+        'state'               => AppointmentStateEnum::REQUESTED->value,
+    ]);
+    DeclineAppointment::make()->action($declined);
+
+    $calendar = ShowAppointmentsCalendar::make()->handle($this->shop, $declined->starts_at->copy()->setTimezone($timezone)->format('Y-m'));
+
+    expect($cells($calendar)->pluck('appointments')->flatten(1)->pluck('id'))->not->toContain($declined->id);
+
+    $this->get(route('grp.org.shops.show.crm.appointments.calendar', [$this->organisation->slug, $this->shop->slug, 'month' => 'October']))
+        ->assertSessionHasErrors('month');
+})->depends('cancel and rebook an appointment');
+
+test('a customer sees, moves and cancels their appointments in their account', function (Appointment $appointment) {
+    $customer        = $appointment->refresh()->visitor;
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Account visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_keys($slots)[8];
+    [$firstTime, $secondTime] = $slots[$date];
+
+    $booked = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $date.' '.$firstTime,
+        'contact_name'        => 'Returning customer',
+        'customer_id'         => $customer->id,
+    ]);
+
+    $appointments = IndexRetinaAppointments::make()->handle($customer);
+    $upcoming     = collect($appointments['upcoming'])->firstWhere('id', $booked->id);
+    $webUser      = (new WebUser())->setRelation('customer', $customer);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($upcoming['can_change'])->toBeTrue()
+        ->and($appointments['free_slots'][$appointmentType->id][$date])->toContain($secondTime)
+        ->and($appointments['free_slots'][$appointmentType->id][$date])->not->toContain($firstTime)
+        ->and(IndexRetinaAppointments::navigation($webUser)['route']['name'])->toBe('retina.appointments.index')
+        ->and(IndexRetinaAppointments::navigation((new WebUser())->setRelation('customer', null)))->toBeNull();
+
+    $timezone = $this->shop->timezone?->name ?? 'UTC';
+    $moved    = RescheduleRetinaAppointment::make()->handle($booked, ['date' => $date, 'time' => $secondTime]);
+
+    expect($moved->starts_at->copy()->setTimezone($timezone)->format('Y-m-d H:i'))->toBe($date.' '.$secondTime)
+        ->and($moved->state)->toBe(AppointmentStateEnum::ACCEPTED)
+        ->and(fn () => RescheduleRetinaAppointment::make()->handle($moved, ['date' => $date, 'time' => $secondTime]))->toThrow(ValidationException::class, 'just been taken');
+
+    $cancelled = CancelRetinaAppointment::make()->handle($moved, ['reason' => 'Plans changed']);
+
+    expect($cancelled->state)->toBe(AppointmentStateEnum::CANCELLED)
+        ->and($cancelled->state_reason)->toContain('Plans changed')
+        ->and(fn () => CancelRetinaAppointment::make()->handle($cancelled, []))->toThrow(ValidationException::class, 'no longer be changed');
+
+    $appointments = IndexRetinaAppointments::make()->handle($customer);
+
+    expect(collect($appointments['upcoming'])->pluck('id'))->not->toContain($booked->id)
+        ->and(collect($appointments['past'])->firstWhere('id', $booked->id)['can_change'])->toBeFalse();
 })->depends('cancel and rebook an appointment');
 
 test('UI Create appointment', function () {

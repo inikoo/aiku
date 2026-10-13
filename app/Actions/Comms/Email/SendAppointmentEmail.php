@@ -136,6 +136,12 @@ class SendAppointmentEmail extends OrgAction
 
         if (in_array($code, [OutboxCodeEnum::APPOINTMENT_REQUESTED, OutboxCodeEnum::APPOINTMENT_ACCEPTED, OutboxCodeEnum::APPOINTMENT_RESCHEDULED], true)) {
             $html .= $this->detailsTable($appointment);
+
+            if ($manageUrl = $appointment->manageUrl()) {
+                $html .= $this->paragraph(
+                    __('Cannot make it?').' <a href="'.e($manageUrl).'">'.__('Choose another time or cancel this appointment').'</a>.'
+                );
+            }
         }
 
         $html .= $this->paragraph(__('If you have any questions, reply to this email.'));

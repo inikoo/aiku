@@ -7,6 +7,7 @@ import DatePicker from "primevue/datepicker"
 import Select from "primevue/select"
 import Textarea from "primevue/textarea"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import { notify } from "@kyvg/vue3-notification"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -17,6 +18,7 @@ library.add(faCheck, faTimes, faCalendarEdit, faCalendarCheck)
 export type AppointmentForActions = {
     id: number
     contact_name: string
+    email?: string | null
     date_label: string
     time: string
     can_accept: boolean
@@ -61,6 +63,17 @@ const send = (action: "accept" | "decline" | "reschedule", data: Record<string, 
         onSuccess: () => {
             options.value = null
             onSuccess()
+            notify({
+                title: { accept: ctrans("Appointment accepted"), decline: ctrans("Appointment declined"), reschedule: ctrans("Appointment moved") }[action],
+                text: props.appointment.email
+                    ? {
+                        accept: ctrans("We emailed :email the confirmation with a calendar invitation.", { email: props.appointment.email }),
+                        decline: ctrans("We emailed :email that we cannot see them.", { email: props.appointment.email }),
+                        reschedule: ctrans("We emailed :email the new time with a calendar invitation.", { email: props.appointment.email }),
+                    }[action]
+                    : ctrans("The visitor has no email, so nothing was sent to them."),
+                type: "success",
+            })
         },
         onError: (serverErrors) => (errors.value = serverErrors as Record<string, string>),
         onFinish: () => (isSending.value = ""),

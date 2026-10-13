@@ -44,6 +44,17 @@ trait WithAppointmentsSubNavigation
             ],
             [
                 'route'    => [
+                    'name'       => 'grp.org.shops.show.crm.appointments.calendar',
+                    'parameters' => $routeParameters,
+                ],
+                'label'    => __('Calendar'),
+                'leftIcon' => [
+                    'icon'    => 'fal fa-calendar-alt',
+                    'tooltip' => __('Appointments by month'),
+                ],
+            ],
+            [
+                'route'    => [
                     'name'       => 'grp.org.shops.show.crm.appointments.types.index',
                     'parameters' => $routeParameters,
                 ],

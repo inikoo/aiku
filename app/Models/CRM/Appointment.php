@@ -105,6 +105,26 @@ class Appointment extends Model implements Auditable
         return $digits ? 'https://wa.me/'.$digits : null;
     }
 
+    /**
+     * What the visitor's own link carries, so they can move or cancel without signing in.
+     */
+    public function manageToken(): string
+    {
+        return hash_hmac('sha256', 'appointment-manage:'.$this->id, (string) config('app.key'));
+    }
+
+    public function manageUrl(): ?string
+    {
+        $domain = $this->shop->website?->domain;
+
+        return $domain ? 'https://'.$domain.'/appointment/'.$this->id.'/'.$this->manageToken() : null;
+    }
+
+    public function canBeChangedByVisitor(): bool
+    {
+        return $this->state->holdsSlot() && $this->starts_at->isFuture();
+    }
+
     public function appointmentType(): BelongsTo
     {
         return $this->belongsTo(AppointmentType::class)->withTrashed();

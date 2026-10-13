@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Actions\Retina\CRM\Appointment\IndexRetinaAppointments;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -178,6 +179,10 @@ class GetRetinaFulfilmentNavigation
                 ];
             }
 
+
+            if ($appointmentsNavigation = IndexRetinaAppointments::navigation($webUser)) {
+                $groupNavigation['appointments'] = $appointmentsNavigation;
+            }
 
             $groupNavigation['spaces'] = [
                 'label'   => __('Spaces'),
