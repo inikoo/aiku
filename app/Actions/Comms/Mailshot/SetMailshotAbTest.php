@@ -119,7 +119,7 @@ class SetMailshotAbTest extends OrgAction
             'size_percentage'       => ['sometimes', 'integer', 'min:10', 'max:100'],
             'variant_delay_seconds' => ['sometimes', 'integer', 'min:0', 'max:604800'],
             'tracking_hours'      => ['sometimes', 'integer', 'min:1', 'max:720'],
-            'winning_metric'      => ['sometimes', Rule::enum(MailshotAbTestWinningMetricEnum::class)->except(MailshotAbTestWinningMetricEnum::unavailable())],
+            'winning_metric'      => ['sometimes', Rule::enum(MailshotAbTestWinningMetricEnum::class)],
             'auto_send_winner'    => ['sometimes', 'boolean'],
         ];
     }

@@ -33,7 +33,7 @@ export interface AbTest {
     can_edit_settings: boolean
     estimated_recipients: number | null
     winning_metric: string
-    winning_metric_options: { value: string, label: string, disabled: boolean }[]
+    winning_metric_options: { value: string, label: string }[]
     is_blocked_by_second_wave: boolean
     size_percentage: number
     winner_mailshot_id: number | null
@@ -224,14 +224,10 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                 <p class="text-xs text-gray-500">{{ ctrans('Select the metric that will determine the test winner.') }}</p>
                 <div class="mt-2 space-y-1.5">
                     <label v-for="option in abTest.winning_metric_options" :key="option.value"
-                        class="flex w-fit items-center gap-2 text-sm"
-                        :class="option.disabled ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer text-gray-700'">
+                        class="flex w-fit cursor-pointer items-center gap-2 text-sm text-gray-700">
                         <RadioButton v-model="winningMetric" :value="option.value" name="winning_metric"
-                            :disabled="isSaving || option.disabled" />
+                            :disabled="isSaving" />
                         {{ option.label }}
-                        <span v-if="option.disabled" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
-                            {{ ctrans('Coming soon') }}
-                        </span>
                     </label>
                 </div>
             </fieldset>

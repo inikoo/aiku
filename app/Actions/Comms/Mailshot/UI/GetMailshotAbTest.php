@@ -12,6 +12,8 @@ use App\Actions\Comms\Mailshot\PrepareMailshotAbTestRecipients;
 use App\Enums\Comms\Mailshot\MailshotAbTestWinningMetricEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
+use App\Enums\Web\WebsiteVisitor\WebsiteVisitorChannelEnum;
 use App\Models\Comms\Mailshot;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -44,9 +46,8 @@ class GetMailshotAbTest
             'estimated_recipients'      => $canEditSettings && $variant ? (PrepareMailshotAbTestRecipients::make()->audienceQuery($original)?->count('customers.id') ?? 0) : null,
             'winning_metric'            => $original->ab_test_winning_metric->value,
             'winning_metric_options'    => collect(MailshotAbTestWinningMetricEnum::cases())->map(fn (MailshotAbTestWinningMetricEnum $metric) => [
-                'value'    => $metric->value,
-                'label'    => $metric->label(),
-                'disabled' => !$metric->isAvailable(),
+                'value' => $metric->value,
+                'label' => $metric->label(),
             ])->all(),
             'is_blocked_by_second_wave' => $original->is_second_wave_enabled,
             'size_percentage'           => $original->ab_test_size_percentage,
@@ -136,7 +137,8 @@ class GetMailshotAbTest
     }
 
     /**
-     * Recipients of this version who placed an order after it started sending, up to the end of the tracking window.
+     * Recipients of this version who reached the checkout or purchased on the website from an email visit,
+     * after it started sending and up to the end of the tracking window, as in the SEO conversions table.
      */
     private function placedOrders(Mailshot $mailshot, ?Carbon $trackingEndsAt): int
     {
@@ -149,11 +151,13 @@ class GetMailshotAbTest
             ->where('mailshot_recipients.recipient_type', 'Customer')
             ->whereExists(fn ($query) => $query->select(DB::raw(1))
                 ->from('orders')
+                ->join('website_conversion_events', 'website_conversion_events.order_id', '=', 'orders.id')
+                ->join('website_visitors', 'website_visitors.id', '=', 'website_conversion_events.website_visitor_id')
                 ->whereColumn('orders.customer_id', 'mailshot_recipients.recipient_id')
-                ->whereNull('orders.deleted_at')
-                ->whereNull('orders.cancelled_at')
-                ->where('orders.submitted_at', '>=', $mailshot->start_sending_at)
-                ->when($trackingEndsAt, fn ($query) => $query->where('orders.submitted_at', '<=', $trackingEndsAt)))
+                ->whereIn('website_conversion_events.event_type', [WebsiteConversionEventTypeEnum::CHECKOUT->value, WebsiteConversionEventTypeEnum::PURCHASE->value])
+                ->where('website_visitors.traffic_source_type', WebsiteVisitorChannelEnum::EMAIL_TYPE)
+                ->where('website_conversion_events.created_at', '>=', $mailshot->start_sending_at)
+                ->when($trackingEndsAt, fn ($query) => $query->where('website_conversion_events.created_at', '<=', $trackingEndsAt)))
             ->count();
     }
 

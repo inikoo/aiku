@@ -26,17 +26,4 @@ enum MailshotAbTestWinningMetricEnum: string
             self::PLACED_ORDER_RATE => __('Placed order rate'),
         };
     }
-
-    public function isAvailable(): bool
-    {
-        return $this !== self::PLACED_ORDER_RATE;
-    }
-
-    /**
-     * @return array<int, self>
-     */
-    public static function unavailable(): array
-    {
-        return array_values(array_filter(self::cases(), fn (self $metric) => !$metric->isAvailable()));
-    }
 }
