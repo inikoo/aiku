@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Mailshot;
 
+use App\Actions\Comms\Mailshot\Hydrators\MailshotHydratePurchases;
 use App\Actions\Comms\Mailshot\UI\GetMailshotAbTest;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Models\Comms\Mailshot;
@@ -71,6 +72,8 @@ class RunMailshotAbTestVariants
             }
 
             try {
+                MailshotHydratePurchases::run($mailshot);
+                MailshotHydratePurchases::run($mailshot->abTestVariant);
                 SendMailshotAbTestWinner::make()->action($mailshot, [
                     'winner_mailshot_id' => GetMailshotAbTest::run($mailshot, false)['suggested_winner_id'] ?? $mailshot->id,
                 ]);

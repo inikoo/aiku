@@ -12,11 +12,7 @@ use App\Actions\Comms\Mailshot\PrepareMailshotAbTestRecipients;
 use App\Enums\Comms\Mailshot\MailshotAbTestWinningMetricEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
-use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
-use App\Enums\Web\WebsiteVisitor\WebsiteVisitorChannelEnum;
 use App\Models\Comms\Mailshot;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMailshotAbTest
@@ -36,7 +32,7 @@ class GetMailshotAbTest
         $bothSent         = $variant && $original->state === MailshotStateEnum::SENT && $variant->state === MailshotStateEnum::SENT;
         $trackingEndsAt   = $original->abTestTrackingEndsAt();
         $isTrackingOver   = $bothSent && !$trackingEndsAt?->isFuture();
-        $versions         = $variant ? [$this->version('A', $original, $trackingEndsAt), $this->version('B', $variant, $trackingEndsAt)] : [];
+        $versions         = $variant ? [$this->version('A', $original), $this->version('B', $variant)] : [];
         $canEditSettings  = $canEdit && !$mailshot->isAbTestVariant() && in_array($original->state, [MailshotStateEnum::IN_PROCESS, MailshotStateEnum::READY]);
 
         return [
@@ -78,7 +74,7 @@ class GetMailshotAbTest
         ];
     }
 
-    private function version(string $label, Mailshot $mailshot, ?Carbon $trackingEndsAt): array
+    private function version(string $label, Mailshot $mailshot): array
     {
         $routePrefix = $mailshot->type === MailshotTypeEnum::NEWSLETTER ? 'grp.org.shops.show.marketing.newsletters' : 'grp.org.shops.show.marketing.mailshots';
         $routeParameters = [
@@ -93,7 +89,7 @@ class GetMailshotAbTest
         $opened    = (int)$stats->number_delivered_open_success;
         $clicked   = (int)$stats->number_opened_interact_success;
         $bounced   = (int)$stats->number_dispatched_emails_state_hard_bounce + (int)$stats->number_dispatched_emails_state_soft_bounce;
-        $ordered   = $this->placedOrders($mailshot, $trackingEndsAt);
+        $ordered   = (int)$stats->number_purchases;
 
         return [
             'label'                     => $label,
@@ -134,31 +130,6 @@ class GetMailshotAbTest
                 'bounce_rate'      => $this->rate($bounced, $sent),
             ],
         ];
-    }
-
-    /**
-     * Recipients of this version who reached the checkout or purchased on the website from an email visit,
-     * after it started sending and up to the end of the tracking window, as in the SEO conversions table.
-     */
-    private function placedOrders(Mailshot $mailshot, ?Carbon $trackingEndsAt): int
-    {
-        if (!$mailshot->start_sending_at) {
-            return 0;
-        }
-
-        return DB::table('mailshot_recipients')
-            ->where('mailshot_recipients.mailshot_id', $mailshot->id)
-            ->where('mailshot_recipients.recipient_type', 'Customer')
-            ->whereExists(fn ($query) => $query->select(DB::raw(1))
-                ->from('orders')
-                ->join('website_conversion_events', 'website_conversion_events.order_id', '=', 'orders.id')
-                ->join('website_visitors', 'website_visitors.id', '=', 'website_conversion_events.website_visitor_id')
-                ->whereColumn('orders.customer_id', 'mailshot_recipients.recipient_id')
-                ->whereIn('website_conversion_events.event_type', [WebsiteConversionEventTypeEnum::CHECKOUT->value, WebsiteConversionEventTypeEnum::PURCHASE->value])
-                ->where('website_visitors.traffic_source_type', WebsiteVisitorChannelEnum::EMAIL_TYPE)
-                ->where('website_conversion_events.created_at', '>=', $mailshot->start_sending_at)
-                ->when($trackingEndsAt, fn ($query) => $query->where('website_conversion_events.created_at', '<=', $trackingEndsAt)))
-            ->count();
     }
 
     /**
