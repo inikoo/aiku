@@ -17,7 +17,7 @@ class ReleasePausedWebsiteDialogs
      */
     public function handle(WebsiteDialog $websiteDialog): void
     {
-        foreach ($websiteDialog->pausedWebsiteDialogs as $paused) {
+        foreach ($websiteDialog->pausedWebsiteDialogs()->get() as $paused) {
             $this->update($paused, [
                 'status'                      => $paused->statusForOwnDates(),
                 'paused_by_website_dialog_id' => null,

@@ -10036,6 +10036,7 @@ function orgStockOnSaleAndReceived(OrgStock $orgStock): OrgStock
     [, $product] = createProduct($shop);
     $product->update(['is_for_sale' => true]);
     $product->orgStocks()->syncWithoutDetaching([$orgStock->id => ['quantity' => 1]]);
+    $orgStock->stock->update(['state' => StockStateEnum::ACTIVE]);
 
     DB::table('org_stock_movements')->insert([
         'group_id'        => $orgStock->group_id,
@@ -10144,6 +10145,7 @@ test('UI supplier cover bucket items index', function () {
 test('organisation stock cover buckets judge each active sko against its lead time', function () {
     $orgStock = $this->orgStocks[0];
     $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'is_on_demand' => false, 'estimated_lead_time_days' => 10, 'quantity_available' => 50]);
+    $orgStock->stock->update(['state' => StockStateEnum::ACTIVE]);
     $buckets = App\Actions\Procurement\GetOrganisationStockCoverBuckets::make();
 
     $bucketFor = function (array $stats) use ($orgStock, $buckets) {
@@ -13394,6 +13396,9 @@ test('a container on the way shows and is found by its shipper reference and tra
     $tracking = 'MSKU'.random_int(1000000, 9999999);
     $shipper  = 'SHP-'.Str::random(8);
 
+    StoreStockDelivery::make()->action($this->orgAgent, ['reference' => 'other-'.Str::random(6), 'date' => date('Y-m-d')], strict: false)
+        ->update(['state' => StockDeliveryStateEnum::DISPATCHED, 'dispatched_at' => now()]);
+
     $stockDelivery = UpdateStockDelivery::make()->action($stockDelivery, [
         'shipper_reference' => $shipper,
         'tracking_number'   => $tracking,
@@ -13410,6 +13415,8 @@ test('a container on the way shows and is found by its shipper reference and tra
             ->etc());
 
     $stageUrl = route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stages::ON_THE_WAY]);
+
+    config(['query-builder.parameters.filter' => 'filter']);
 
     foreach ([$tracking, $shipper] as $search) {
         $this->get($stageUrl.'?'.http_build_query(['filter' => ['global' => $search]]))
