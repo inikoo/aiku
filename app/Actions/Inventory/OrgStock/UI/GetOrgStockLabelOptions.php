@@ -10,6 +10,7 @@
 namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Models\Inventory\OrgStock;
+use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -49,6 +50,37 @@ class GetOrgStockLabelOptions
             'fields'        => $this->getFields($labels),
             'levels'        => $this->getLevels($labels),
             'custom_text_max_length' => 255,
+            'unified'       => $this->getUnified($orgStock, $supplierProduct),
+        ];
+    }
+
+    /**
+     * The unified label has no tick boxes: per level it either prints or says what is missing. The
+     * batch is the one thing typed, so the reasons are worked out with a batch in place and the
+     * modal checks what is typed against the same pattern.
+     *
+     * @return array<string, mixed>
+     */
+    private function getUnified(OrgStock $orgStock, ?SupplierProduct $supplierProduct): array
+    {
+        $batch  = GetOrgStockUnifiedLabelData::run($orgStock, 'unit', $supplierProduct)['batch'];
+        $levels = [];
+
+        foreach (GetOrgStockUnifiedLabelData::SIZES as $level => $size) {
+            if ($level === 'sko' && (int) ($orgStock->packed_in ?? 1) <= 1) {
+                continue;
+            }
+
+            $levels[$level] = [
+                'size'     => trimDecimalZeros($size['width']).' x '.trimDecimalZeros($size['height']),
+                'blockers' => GetOrgStockUnifiedLabelData::run($orgStock, $level, $supplierProduct, $batch ?? 'BATCH')['blockers'],
+            ];
+        }
+
+        return [
+            'batch'         => $batch,
+            'batch_pattern' => trim(GetOrgStockUnifiedLabelData::BATCH_PATTERN, '/'),
+            'levels'        => $levels,
         ];
     }
 

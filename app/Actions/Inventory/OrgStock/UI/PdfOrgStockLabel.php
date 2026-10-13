@@ -226,6 +226,11 @@ class PdfOrgStockLabel
     public function handle(OrgStock $orgStock, string $level, array $options): Response
     {
         $level = isset(self::LEVEL_FIELDS[$level]) ? $level : 'unit';
+
+        if (($options['standard'] ?? 'localised') === 'unified') {
+            return PdfOrgStockUnifiedLabel::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options), $options['batch'] ?? null);
+        }
+
         $label = GetOrgStockLabelData::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options));
 
         /* The unit label is built around its barcode, so without one there is nothing to print. The
@@ -609,6 +614,8 @@ class PdfOrgStockLabel
     {
         return [
             'level'                  => ['sometimes', 'string', 'in:sko,unit,carton'],
+            'standard'               => ['sometimes', 'string', 'in:unified,localised'],
+            'batch'                  => ['sometimes', 'nullable', 'string', 'max:20'],
             'supplier_product'       => ['sometimes', 'nullable', 'integer'],
             'with_ingredients'       => ['sometimes', 'boolean'],
             'layout'                 => ['sometimes', 'string', 'in:single,sheet'],

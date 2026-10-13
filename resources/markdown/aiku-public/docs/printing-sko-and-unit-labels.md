@@ -1,7 +1,7 @@
 ---
 title: Printing SKO and unit labels
 summary: Print the label that goes on the product and the one that goes on the box, straight from the SKO page or from a line on a delivery note, on the roll you already buy or 27 up on an A4 sheet.
-date: 2026-09-23
+date: 2026-10-13
 tags: warehouse, inventory, labels, barcodes, printing
 category: warehouse
 help_routes: grp.org.warehouses.show.inventory.org_stocks, grp.org.warehouses.show.dispatching.delivery_notes
@@ -11,7 +11,34 @@ help_routes: grp.org.warehouses.show.inventory.org_stocks, grp.org.warehouses.sh
 A SKO can print <b>two different labels</b>. The <b>unit label</b> goes on the product a customer ends up holding, so it carries the origin, the manufacturer, the weight and your company's address, and it is built around the unit EAN13. The <b>SKO label</b> goes on the outer box, so it says what the box is and how many are in it, in type you can read from a few metres down an aisle. Open either from the SKO page or from a line on a delivery note, tick what you want on it, pick your label size, and print one or a sheet of 27.
 </aside>
 
-## The two labels
+## The unified label
+
+The label panel opens on **Unified**: one unit, SKO and carton label that is the same in every centre, so stock moves between the United Kingdom, Spain and Slovakia without being relabelled. The **Unified / Localised** switch at the top of the panel takes you back to the labels described in the rest of this page, for the few cases that need a label of one organisation only.
+
+| | Unit | SKO | Carton |
+| --- | --- | --- | --- |
+| Size | 100 × 60 mm | 100 × 50 mm | 100 × 70 mm |
+| Barcode | the unit EAN-13 | GS1-128 with a GTIN-14 starting with 1, then the batch | GS1-128 with a GTIN-14 starting with 2, then the batch |
+| Printed when | always | only when the SKO holds more than one unit | always |
+
+All three print one label per page for a 100 mm wide roll. There is nothing to tick: the unit label carries the name in every language the trade unit has one in, the country of origin, the material, the batch, the warnings and the three importers; the SKO label says how many units are in the pack; the carton label adds units per pack, packs and units per carton, weights, origin and HS code.
+
+The pack and the carton get a number of their own, worked out from the unit EAN-13, so a pack no longer scans as one unit. The barcode scanner page reads these new barcodes and still reads the numbers already on the shelves.
+
+**The batch code is the only thing you type.** It is proposed as the supplier's code and the month (for example `PKS202610`) and takes up to 20 characters: A to Z, 0 to 9 and hyphen.
+
+**A unified label with something missing does not print.** The panel lists what is missing and the PDF button stays off until the record is corrected:
+
+- the unit has no valid EAN-13;
+- the name in Spanish or Slovak is missing on the trade unit;
+- the country of origin is missing;
+- the product has warnings but none in English, Spanish or Slovak;
+- the carton label needs the units per carton of the supplier product;
+- the texts do not fit on the label.
+
+A carton weight is printed only when the supplier product has both the net and the gross weight and the net is not above the gross.
+
+## The two localised labels
 
 They are not the same label at two sizes. They are for two different readers.
 

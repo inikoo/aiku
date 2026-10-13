@@ -289,7 +289,7 @@ class GetOrgStockLabelData
         return $this->isValidEan13((string) $number) ? 'EAN13' : 'C128B';
     }
 
-    private function isValidEan13(string $number): bool
+    public function isValidEan13(string $number): bool
     {
         if (!preg_match('/^\d{13}$/', $number)) {
             return false;

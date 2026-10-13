@@ -21,6 +21,8 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelData;
 use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelOptions;
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockUnifiedLabelData;
+use App\Actions\Inventory\OrgStock\Json\ScanSkoBarcode;
 use App\Actions\Inventory\OrgStock\Json\FetchOrgStockLabelOptions;
 use App\Actions\Inventory\OrgStock\UI\PdfOrgStockLabel;
 use App\Enums\Goods\Stock\StockStateEnum;
@@ -258,7 +260,7 @@ test('the SKO label offers only its own fields and its own four sizes', function
     expect(collect($options['fields']['sko'])->pluck('key')->all())
         ->toBe(['with_image', 'with_custom_text'])
         ->and(collect($options['fields']['unit'])->pluck('key')->all())
-        ->toBe(['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature'])
+        ->toBe(['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature', 'with_eu_responsible_person', 'with_es_importer'])
         ->and(collect($options['sizes']['sko'])->pluck('key')->all())
         ->toBe(['63x29.6', '63.5x29.6', '70x29.7', '130x60'])
         ->and($options['sizes']['unit'])->toHaveCount(8);
@@ -350,4 +352,78 @@ test('a unit EAN held by another trade unit is refused naming that item by code 
 
     expect($orgStock->tradeUnits->first()->refresh()->barcode)->toBeNull()
         ->and($holder->refresh()->barcode)->toBe($number);
+});
+
+test('a pack and a carton get a GTIN-14 of their own from the unit EAN, and a scan of it reads back the unit and the batch', function () {
+    expect(GetOrgStockUnifiedLabelData::gtin14(1, '5055796570355'))->toBe('15055796570352')
+        ->and(GetOrgStockUnifiedLabelData::gtin14(2, '5055796570553'))->toBe('25055796570557');
+
+    foreach ([']C1011505579657035210PKS202610', '(01) 15055796570352 (10) PKS202610'] as $scan) {
+        expect(GetOrgStockUnifiedLabelData::parseGs1($scan))->toBe([
+            'gtin14'     => '15055796570352',
+            'indicator'  => 1,
+            'unit_ean13' => '5055796570355',
+            'batch'      => 'PKS202610',
+        ]);
+    }
+
+    expect(GetOrgStockUnifiedLabelData::parseGs1('011505579657035910PKS202610'))->toBeNull()
+        ->and(GetOrgStockUnifiedLabelData::parseGs1('5055796570355'))->toBeNull();
+});
+
+test('the unified label refuses to print with a required value missing and prints once it is there', function () {
+    $orgStock = ($this->makeOrgStock)([[
+        'name'              => 'Bali Dreamcatcher',
+        'name_i8n'          => ['en' => 'Bali Dreamcatcher', 'es' => 'Atrapasueños Bali'],
+        'country_of_origin' => $this->country->code,
+        'origin_country_id' => $this->country->id,
+    ]]);
+    $orgStock->update(['packed_in' => 6]);
+
+    $blocked = GetOrgStockUnifiedLabelData::run($orgStock, 'unit', null, 'PKS202610');
+
+    expect($blocked['blockers'])->toBe(['The name in SK is missing'])
+        ->and(fn () => PdfOrgStockLabel::run($orgStock, 'unit', ['standard' => 'unified', 'batch' => 'PKS202610']))
+        ->toThrow(\Symfony\Component\HttpKernel\Exception\HttpException::class, 'The name in SK is missing');
+
+    $orgStock->tradeUnits->first()->update(['name_i8n' => ['en' => 'Bali Dreamcatcher', 'es' => 'Atrapasueños Bali', 'sk' => 'Lapač Snov Bali']]);
+    $orgStock = $orgStock->refresh()->load('tradeUnits');
+
+    $sko = GetOrgStockUnifiedLabelData::run($orgStock, 'sko', null, 'pks202610');
+
+    expect($sko['blockers'])->toBe([])
+        ->and($sko['gtin14'])->toBe(GetOrgStockUnifiedLabelData::gtin14(1, $orgStock->unit_barcode))
+        ->and($sko['hri'])->toBe('(01) '.$sko['gtin14'].' (10) PKS202610')
+        ->and($sko['gs1_128_data'])->toBe(chr(241).'01'.$sko['gtin14'].'10PKS202610')
+        ->and(array_keys($sko['names']))->toBe(['es', 'sk'])
+        ->and(GetOrgStockUnifiedLabelData::run($orgStock, 'unit', null, 'TOO LONG A BATCH CODE!')['blockers'])->toHaveCount(1)
+        ->and(GetOrgStockUnifiedLabelData::run($orgStock, 'carton', null, 'PKS202610')['blockers'])->toBe(['The supplier product has no units per carton']);
+
+    foreach (['unit', 'sko'] as $level) {
+        $response = PdfOrgStockLabel::run($orgStock, $level, ['standard' => 'unified', 'batch' => 'PKS202610']);
+
+        expect($response->getStatusCode())->toBe(200)
+            ->and($response->getContent())->toStartWith('%PDF');
+    }
+
+    $unified = GetOrgStockLabelOptions::run($orgStock)['unified'];
+
+    expect(array_keys($unified['levels']))->toBe(['unit', 'sko', 'carton'])
+        ->and($unified['levels']['unit'])->toBe(['size' => '100 x 60', 'blockers' => []]);
+
+    $orgStock->update(['packed_in' => 1]);
+
+    expect(array_keys(GetOrgStockLabelOptions::run($orgStock->refresh())['unified']['levels']))->toBe(['unit', 'carton'])
+        ->and(GetOrgStockUnifiedLabelData::run($orgStock, 'sko', null, 'PKS202610')['blockers'])->toContain('A pack of one has no SKO label: the unit label is its label');
+});
+
+test('scanning the GS1-128 of a unified SKO label finds the SKO of that unit', function () {
+    $unitEan  = GetOrgStockUnifiedLabelData::parseGs1('01'.GetOrgStockUnifiedLabelData::gtin14(1, '50'.substr((string) hrtime(true), -10).'0'))['unit_ean13'];
+    $orgStock = ($this->makeOrgStock)([[]], $unitEan);
+
+    $gtin14        = GetOrgStockUnifiedLabelData::gtin14(1, $unitEan);
+    $brokenGtin14  = substr($gtin14, 0, 13).(((int) $gtin14[13] + 1) % 10);
+
+    expect(ScanSkoBarcode::make()->handle($this->organisation, '(01) '.$gtin14.' (10) PKS202610')?->id)->toBe($orgStock->id)
+        ->and(ScanSkoBarcode::make()->handle($this->organisation, '(01) '.$brokenGtin14.' (10) PKS202610'))->toBeNull();
 });
