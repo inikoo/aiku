@@ -776,7 +776,7 @@ test('tickets dashboard counts created, done, status and assignees', function ()
         ->and($after['resolvers_total']['done'])->toBe($stats['resolvers_total']['done'] + 1);
 
     get(route('grp.tickets.reports', ['created' => 'lm']))->assertInertia(
-        fn (AssertableInertia $page) => $page->component('Tickets/TicketsReports')->where('stats.interval', 'lm')->has('stats.daily', now()->subMonth()->daysInMonth)
+        fn (AssertableInertia $page) => $page->component('Tickets/TicketsReports')->where('stats.interval', 'lm')->where('stats.timezone', $this->user->timezone_name)->has('stats.daily', now()->subMonth()->daysInMonth)
     );
 });
 

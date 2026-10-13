@@ -721,7 +721,10 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
                     <Chart type="line" :data="box.chart" :options="hourlyOptions" class="h-full" />
                 </div>
                 <div class="mt-4 border-t border-gray-200 pt-3">
-                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Average per day") }}</div>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Average per day") }}</div>
+                        <div class="text-xs text-gray-400">{{ ctrans("Times shown in :timezone", { timezone: stats.timezone }) }}</div>
+                    </div>
                     <dl class="mt-2 flex divide-x divide-gray-200">
                         <div v-for="stat in box.averages" :key="stat.key" class="px-4 first:pl-0">
                             <dt class="flex items-center gap-1.5 text-xs text-gray-500">
