@@ -58,7 +58,7 @@ trait WithPrintDeliveryNoteLeaflet
             title: $deliveryNoteLeaflet->name,
             printId: $printerId,
             pdfBase64: $pdfBase64,
-            options: [PrintJobOption::FitToPage->value => false] + ($media ? $this->leafletPaperOption($printerId) : [])
+            options: ($media ? $this->leafletPaperOption($printerId) : []) + [PrintJobOption::FitToPage->value => false]
         );
 
         $deliveryNoteLeaflet->update([
@@ -73,8 +73,9 @@ trait WithPrintDeliveryNoteLeaflet
     /**
      * Names the printer's own A6 paper for the job. Without it the printer uses its default paper,
      * usually A4, and lays the A6 page in the middle of that sheet, half off the card.
+     * A driver that offers no A6 gets its nearest paper (Postcard, 100 x 148 mm) and the page fitted to it.
      *
-     * @return array<string, string>
+     * @return array<string, string|bool>
      */
     protected function leafletPaperOption(int $printerId): array
     {
@@ -86,9 +87,34 @@ trait WithPrintDeliveryNoteLeaflet
             return [];
         }
 
-        $paper = $this->a6PaperName(json_decode(json_encode($papers ?? []), true) ?: []);
+        $papers = json_decode(json_encode($papers ?? []), true) ?: [];
+        $paper  = $this->a6PaperName($papers);
 
-        return $paper === null ? [] : [PrintJobOption::Paper->value => $paper];
+        if ($paper !== null) {
+            return [PrintJobOption::Paper->value => $paper];
+        }
+
+        $paper = $this->nearA6PaperName($papers);
+
+        return $paper === null ? [] : [PrintJobOption::Paper->value => $paper, PrintJobOption::FitToPage->value => true];
+    }
+
+    /**
+     * @param  array<string, array{0: int|null, 1: int|null}>  $papers  paper name => [width, height] in tenths of a millimetre
+     */
+    protected function nearA6PaperName(array $papers): ?string
+    {
+        $distances = [];
+        foreach ($papers as $name => $size) {
+            $widthGap  = abs((int) Arr::get($size, 0) - 1050);
+            $heightGap = abs((int) Arr::get($size, 1) - 1480);
+            if (max($widthGap, $heightGap) <= 60) {
+                $distances[(string) $name] = $widthGap + $heightGap;
+            }
+        }
+        asort($distances);
+
+        return array_key_first($distances);
     }
 
     /**
