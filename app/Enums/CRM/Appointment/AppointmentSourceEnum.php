@@ -18,4 +18,13 @@ enum AppointmentSourceEnum: string
             self::WEBSITE => __('Booked on the website'),
         };
     }
+
+    public function historyText(?string $bookedBy): string
+    {
+        return match (true) {
+            $this === self::WEBSITE => __('Booked on the website'),
+            (bool) $bookedBy        => __('Booked by :name', ['name' => $bookedBy]),
+            default                 => __('Booked by staff'),
+        };
+    }
 }

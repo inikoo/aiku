@@ -1489,6 +1489,104 @@ test('an appointment whose time has passed completes itself and closes its task'
     expect($noShow->state)->toBe(AppointmentStateEnum::NO_SHOW);
 });
 
+test('an appointment completed or marked no show before its time stays in the past list', function () {
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'              => 'Early outcome '.Str::random(6),
+        'meeting_mode'      => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'  => 30,
+        'capacity_per_slot' => 3,
+    ]);
+
+    $marker = 'early'.Str::lower(Str::random(8));
+    $book   = fn () => StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => now($this->shop->timezone?->name ?? 'UTC')->addDays(6)->format('Y-m-d').' 11:00',
+        'contact_name'        => $marker.' visitor',
+    ]);
+
+    $completed  = UpdateAppointment::make()->action($book(), ['state' => AppointmentStateEnum::COMPLETED->value]);
+    $noShow     = UpdateAppointment::make()->action($book(), ['state' => AppointmentStateEnum::NO_SHOW->value]);
+    $stillAhead = $book();
+
+    $rowIds = function (string $tab) use ($marker): array {
+        $ids = [];
+        $this->get(route('grp.org.shops.show.crm.appointments.index', [$this->organisation->slug, $this->shop->slug, 'tab' => $tab, $tab.'_filter' => ['global' => $marker]]))
+            ->assertInertia(function (AssertableInertia $page) use ($tab, &$ids) {
+                $ids = collect($page->toArray()['props'][$tab]['data'])->pluck('id')->all();
+            });
+
+        return $ids;
+    };
+
+    expect($completed->ends_at->isFuture())->toBeTrue()
+        ->and($rowIds('past'))->toEqualCanonicalizing([$completed->id, $noShow->id])
+        ->and($rowIds('upcoming'))->toBe([$stillAhead->id])
+        ->and($rowIds('requested'))->toBe([])
+        ->and($rowIds('cancelled'))->toBe([]);
+
+    $pastOnDashboard = function (): int {
+        $past = 0;
+        $this->get(route('grp.org.shops.show.crm.appointments.dashboard', [$this->organisation->slug, $this->shop->slug]))
+            ->assertInertia(function (AssertableInertia $page) use (&$past) {
+                $past = collect($page->toArray()['props']['dashboard']['states'])->firstWhere('label', 'Past')['value'];
+            });
+
+        return $past;
+    };
+
+    $pastBefore = $pastOnDashboard();
+    UpdateAppointment::make()->action($stillAhead, ['state' => AppointmentStateEnum::COMPLETED->value]);
+
+    expect($pastOnDashboard())->toBe($pastBefore + 1);
+});
+
+test('appointment history keeps every reschedule and change of state', function () {
+    Appointment::enableAuditing();
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'History '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 30,
+    ]);
+    $timezone = $this->shop->timezone?->name ?? 'UTC';
+    $day      = now($timezone)->addDays(8)->format('Y-m-d');
+
+    $appointment = StoreAppointment::make()->action($this->shop, [
+        'appointment_type_id' => $appointmentType->id,
+        'starts_at'           => $day.' 10:00',
+        'contact_name'        => 'History visitor',
+        'created_by_user_id'  => $this->user->id,
+    ]);
+    $acceptedAt = $appointment->accepted_at;
+
+    expect($acceptedAt)->not->toBeNull();
+
+    $this->travel(5)->minutes();
+    $appointment = RescheduleAppointment::make()->action($appointment, ['date' => $day, 'time' => '14:00']);
+
+    expect($appointment->accepted_at->equalTo($acceptedAt))->toBeTrue();
+
+    $this->travel(5)->minutes();
+    $appointment = UpdateAppointment::make()->action($appointment, ['state' => AppointmentStateEnum::COMPLETED->value]);
+    $this->travel(5)->minutes();
+    $appointment = UpdateAppointment::make()->action($appointment, ['state' => AppointmentStateEnum::NO_SHOW->value]);
+
+    $this->get(route('grp.org.shops.show.crm.appointments.show', [$this->organisation->slug, $this->shop->slug, $appointment->id]))
+        ->assertInertia(function (AssertableInertia $page) use ($appointment) {
+            $history = collect($page->toArray()['props']['history']);
+            $staff   = $this->user->chatName();
+
+            expect($history->pluck('text')->all())->toBe([
+                'Booked by '.$staff,
+                'Rescheduled from '.$appointment->starts_at->copy()->setTime(10, 0)->translatedFormat('D j M Y H:i').' to '.$appointment->starts_at->copy()->setTime(14, 0)->translatedFormat('D j M Y H:i'),
+                'Completed',
+                'No show',
+            ])
+                ->and($history->pluck('by')->all())->toBe([null, $staff, $staff, $staff])
+                ->and($history->pluck('at')->unique()->count())->toBe(4);
+        });
+});
+
 test('UI Index appointments', function (Appointment $appointment) {
     $this->get(route('grp.org.shops.show.crm.appointments.index', [$this->organisation->slug, $this->shop->slug, 'tab' => 'upcoming']))
         ->assertInertia(function (AssertableInertia $page) use ($appointment) {

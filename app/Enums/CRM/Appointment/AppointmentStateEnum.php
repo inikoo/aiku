@@ -31,6 +31,14 @@ enum AppointmentStateEnum: string
         return [self::DECLINED, self::CANCELLED];
     }
 
+    /**
+     * @return array<int, self>
+     */
+    public static function finished(): array
+    {
+        return [self::COMPLETED, self::NO_SHOW];
+    }
+
     public function holdsSlot(): bool
     {
         return in_array($this, self::holdingSlot(), true);

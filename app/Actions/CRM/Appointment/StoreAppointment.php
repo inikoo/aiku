@@ -24,11 +24,12 @@ class StoreAppointment extends OrgAction
     public function handle(Shop $shop, array $modelData): Appointment
     {
         $appointment = DB::transaction(function () use ($shop, $modelData) {
+            data_set($modelData, 'state', AppointmentStateEnum::ACCEPTED, overwrite: false);
+
             $modelData = $this->prepareAppointmentData($shop, $modelData);
 
             data_set($modelData, 'group_id', $shop->group_id);
             data_set($modelData, 'organisation_id', $shop->organisation_id);
-            data_set($modelData, 'state', AppointmentStateEnum::ACCEPTED, overwrite: false);
             data_set($modelData, 'source', AppointmentSourceEnum::STAFF, overwrite: false);
 
             $this->ensureAppointmentFits($modelData);

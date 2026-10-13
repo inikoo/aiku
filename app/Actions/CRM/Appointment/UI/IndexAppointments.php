@@ -54,8 +54,11 @@ class IndexAppointments extends OrgAction
                 ->where('appointments.ends_at', '>=', now())
                 ->defaultSort('appointments.starts_at'),
             AppointmentsTabsEnum::PAST => $queryBuilder
-                ->whereNotIn('appointments.state', AppointmentStateEnum::closed())
-                ->where('appointments.ends_at', '<', now())
+                ->where(fn ($query) => $query
+                    ->whereIn('appointments.state', AppointmentStateEnum::finished())
+                    ->orWhere(fn ($query) => $query
+                        ->whereIn('appointments.state', AppointmentStateEnum::holdingSlot())
+                        ->where('appointments.ends_at', '<', now())))
                 ->defaultSort('-appointments.starts_at'),
             AppointmentsTabsEnum::CANCELLED => $queryBuilder
                 ->whereIn('appointments.state', AppointmentStateEnum::closed())

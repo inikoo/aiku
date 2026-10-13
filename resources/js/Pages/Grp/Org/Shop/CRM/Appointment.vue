@@ -12,10 +12,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {
     faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone,
-    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faGlobe,
+    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe,
 } from "@fal"
 
-library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faGlobe)
+library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe)
 
 type RouteDefinition = { name: string, parameters: Record<string, string | number> }
 
@@ -23,6 +23,7 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     canEdit: boolean
+    history: { at: string, icon: string, icon_class: string, text: string, by: string | null }[]
     appointment: {
         id: number
         state: string
@@ -45,11 +46,6 @@ const props = defineProps<{
         notes: string | null
         visitor: { type: string, label: string, name: string, route: RouteDefinition } | null
         source_label: string
-        created_by: string | null
-        created_at: string
-        accepted_at: string | null
-        declined_at: string | null
-        cancelled_at: string | null
         can_accept: boolean
         can_decline: boolean
         can_reschedule: boolean
@@ -178,14 +174,16 @@ const statusMessage = computed(() => ({
 
             <section class="rounded-lg border border-gray-200 bg-white p-5 text-sm">
                 <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("History") }}</h2>
-                <ul class="space-y-1.5 text-gray-700">
-                    <li>
-                        {{ appointment.source_label }}<template v-if="appointment.created_by"> {{ ctrans("by :name", { name: appointment.created_by }) }}</template>,
-                        {{ useFormatTime(appointment.created_at, { formatTime: "hm" }) }}
+                <ul class="space-y-2 text-gray-700">
+                    <li v-for="(event, index) in history" :key="index" class="flex gap-2">
+                        <FontAwesomeIcon :icon="event.icon" :class="event.icon_class" class="mt-0.5" fixed-width aria-hidden="true" />
+                        <div>
+                            <div class="font-medium text-gray-900">{{ event.text }}</div>
+                            <div class="text-xs text-gray-500">
+                                {{ useFormatTime(event.at, { formatTime: "hm" }) }}<template v-if="event.by"> · {{ ctrans("by :name", { name: event.by }) }}</template>
+                            </div>
+                        </div>
                     </li>
-                    <li v-if="appointment.accepted_at">{{ ctrans("Accepted") }}, {{ useFormatTime(appointment.accepted_at, { formatTime: "hm" }) }}</li>
-                    <li v-if="appointment.declined_at">{{ ctrans("Declined") }}, {{ useFormatTime(appointment.declined_at, { formatTime: "hm" }) }}</li>
-                    <li v-if="appointment.cancelled_at">{{ ctrans("Cancelled") }}, {{ useFormatTime(appointment.cancelled_at, { formatTime: "hm" }) }}</li>
                 </ul>
             </section>
         </div>
