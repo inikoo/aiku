@@ -653,6 +653,9 @@ class ShowStockDelivery extends OrgAction
                     'port_of_export'   => Arr::get($stockDelivery->data, 'port_of_export'),
                     'port_of_import'   => Arr::get($stockDelivery->data, 'port_of_import'),
                     'delivery_address' => Arr::get($stockDelivery->data, 'delivery_address'),
+                    'shipper_reference' => Arr::get($stockDelivery->data, 'shipper_reference'),
+                    'tracking_number'   => Arr::get($stockDelivery->data, 'tracking_number'),
+                    'shipping_agent'    => Arr::get($stockDelivery->data, 'shipping_agent'),
                 ],
             ],
             'second_block' => [

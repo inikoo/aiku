@@ -92,6 +92,13 @@ const verdict = computed(() => {
 					tooltip: ctrans("Stock lasts :time, less than the :lead lead time. Order now or it will run out before a new order arrives", times),
 				}
 	}
+	if (days > overstockDays.value && thisOrder.value > 0 && suggestion.value !== null && suggestion.value > 0 && thisOrder.value <= suggestion.value) {
+		return {
+			label: ctrans("OK"),
+			class: "text-green-600",
+			tooltip: ctrans("With this order the stock lasts :time, past the :overstock overstock limit, but this is the fewest whole cartons that cover the need. The quantity is right", times),
+		}
+	}
 	if (days > overstockDays.value) {
 		return thisOrder.value > 0
 			? {

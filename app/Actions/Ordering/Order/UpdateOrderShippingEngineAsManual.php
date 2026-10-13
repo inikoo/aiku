@@ -8,7 +8,6 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Catalogue\Shop\External\Faire\UpdateFaireOrder;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Actions\OrgAction;
@@ -18,7 +17,7 @@ use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Catalogue\Shop\ShopEngineEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderShippingEngineEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
@@ -64,11 +63,6 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
 
         if (in_array($order->state, [OrderStateEnum::FINALISED, OrderStateEnum::DISPATCHED])) {
             UpdateOrderPaymentsStatus::run($order);
-        }
-
-        if ($order->shop->type == ShopTypeEnum::EXTERNAL && $order->shop->engine == ShopEngineEnum::FAIRE && $order->external_id) {
-            UpdateFaireOrder::run($order);
-            $order->refresh();
         }
 
         return $order;
@@ -158,7 +152,12 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->order->state == OrderStateEnum::CANCELLED) {
+        $isFaire = $this->order->shop->engine == ShopEngineEnum::FAIRE;
+        if ($isFaire && $this->order->is_shipping_by_external) {
+            $validator->errors()->add('message', __('This order is sent with a Faire label, so Faire pays no shipping for it and none can be added.'));
+        } elseif ($isFaire && $this->order->deliveryNotes()->where('state', '!=', DeliveryNoteStateEnum::CANCELLED)->whereHas('shipments')->exists()) {
+            $validator->errors()->add('message', __('The tracking of this order was already sent to Faire. Enter the shipping cost on Faire and it is copied here.'));
+        } elseif ($this->order->state == OrderStateEnum::CANCELLED) {
             $validator->errors()->add('message', __('Shipping can not be changed once order is cancelled.'));
         } elseif (in_array($this->order->state, [OrderStateEnum::DISPATCHED, OrderStateEnum::FINALISED]) && $this->order->invoices()->exists()) {
             $validator->errors()->add('message', __('Shipping can not be changed once order is invoiced.'));

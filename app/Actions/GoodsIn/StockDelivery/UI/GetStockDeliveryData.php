@@ -69,6 +69,31 @@ class GetStockDeliveryData
                 ],
             ],
             [
+                'title'  => __('Tracking'),
+                'fields' => [
+                    'our_reference'     => [
+                        'type'  => 'readonly',
+                        'label' => __('Our reference'),
+                        'value' => $stockDelivery->reference,
+                    ],
+                    'shipper_reference' => [
+                        'type'  => 'input',
+                        'label' => __('Shipper reference'),
+                        'value' => Arr::get($data, 'shipper_reference'),
+                    ],
+                    'tracking_number'   => [
+                        'type'  => 'input',
+                        'label' => __('Tracking number (from the bill of lading)'),
+                        'value' => Arr::get($data, 'tracking_number'),
+                    ],
+                    'shipping_agent'    => [
+                        'type'  => 'input',
+                        'label' => __('Shipping agent'),
+                        'value' => Arr::get($data, 'shipping_agent'),
+                    ],
+                ],
+            ],
+            [
                 'title'  => __('Delivery rules'),
                 'fields' => [
                     'incoterm'         => [

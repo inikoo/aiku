@@ -59,6 +59,7 @@ interface FloorTask {
     blocked_by_step: string | null
     can_start: boolean
     steps: FloorStep[]
+    pack_size: number | null
     quantity_required: number
     quantity_made: number
     combined: CombinedLine[] | null
@@ -339,7 +340,11 @@ function startTask(task: FloorTask) {
                     <div class="text-sm text-gray-600 truncate">{{ task.artefact_name }}</div>
                     <div class="text-xs text-gray-500 mt-0.5 flex justify-between">
                         <span>{{ task.task_name }} · {{ task.job_order_reference }}</span>
-                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}</span>
+                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}<template v-if="task.pack_size"> {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
+                    </div>
+                    <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
+                        <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
+                        <span v-if="task.continued_in">{{ ctrans('Continued in :reference', { reference: task.continued_in }) }}</span>
                     </div>
                     <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
                         <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
@@ -453,6 +458,7 @@ function startTask(task: FloorTask) {
                 <div class="text-xl text-gray-600">{{ selectedTask.artefact_name }}</div>
                 <div class="text-5xl font-semibold tabular-nums my-6">
                     {{ selectedTask.quantity_made }} <span class="text-gray-400 text-3xl">/ {{ selectedTask.quantity_required }}</span>
+                    <div v-if="selectedTask.pack_size" class="mt-1 text-2xl text-amber-700">{{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: selectedTask.pack_size, code: selectedTask.artefact_code }) }}</div>
                 </div>
                 <div v-if="selectedTask.artisan && !selectedTask.is_mine" class="text-gray-500 mb-2">{{ ctrans('For') }} {{ selectedTask.artisan }}</div>
                 <div v-if="selectedTask.waiting_for.length" class="text-amber-600 font-medium mb-2">{{ ctrans('Waiting for mix') }}: {{ selectedTask.waiting_for.join(', ') }}</div>

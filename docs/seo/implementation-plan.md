@@ -93,7 +93,7 @@ Done on 7 October 2026.
 - Tabs under the cards:
   - Webpages: search clicks, impressions and position added beside the traffic columns, from
     `search_console_page_days`.
-  - Search queries: by query, with clicks, impressions, CTR, position and the number of pages shown.
+  - Search queries: by query, with clicks, impressions, CTR, position, the page Google showed most (up to five are kept, the rest counted) and the number of pages shown.
   - Low CTR queries: at least 100 impressions, average position 10 or better, CTR under 2%
     (constants on `IndexSearchConsoleQueries`).
 - Position is always weighted by impressions.
@@ -152,7 +152,8 @@ without alt, internal links in, in sitemap, indexable, matched `webpage_id`) and
 severity, the trend over the kept audits, and the issue list with pages per issue and the change
 since the previous audit. Each issue opens a page list with the URL, the matched webpage in Aiku,
 status, internal links in and the issue details. While an audit runs, the page polls its progress
-every 5 seconds.
+every 5 seconds. An Excel button downloads the latest audit as a workbook: the audit in numbers, the
+issue types against the previous audit, and one row per page and issue.
 
 **First result.** A 150 page test audit of awgifts.bg found product pages rendering
 `<meta name="description" content>` with no text, because `webpages.description` is empty while
@@ -264,10 +265,11 @@ that contain the same words (last 90 days). Every result has a Track action.
 ### Tracked keywords and competitors (set from the UI)
 
 - `seo_tracked_keywords`: shop, keyword (lower case), country, language, device (mobile, desktop),
-  check frequency (weekly, daily), optional target webpage, active. Unique per shop, keyword,
-  country, language and device.
+  check frequency (on request, monthly, weekly, daily), optional target webpage, active. Unique per
+  shop, keyword, country, language and device. Adding a keyword stores one row per device, so every
+  keyword is tracked on mobile and on desktop and nobody picks a device. A check costs twice as much.
 - `seo_competitors`: shop, domain (stored without scheme, `www.` and path), optional name.
-- SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change device and frequency inline,
+- SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change frequency inline,
   pause, remove. Editing needs the same web edit permission as the other SEO actions
   (`WithSeoEditAuthorisation`).
 - Nothing is fetched for them yet; that is 2.2.
@@ -361,7 +363,8 @@ row returned).
   us, filtered to those linking to two or more by default.
 - The Missing pages tab gets a Backlinks column: links pointing at each 404 path, sortable, so the
   redirects that win back the most links come first.
-- Locally only, a Fetch now button runs the fetch for the shop at once.
+- A Fetch data button queues the fetch for the website and its competitors at once. A domain already
+  fetched today is skipped, and the link lists of our own website are fetched only when due.
 
 ### 3.2 Competitor research
 
@@ -440,8 +443,8 @@ gifts and incense supplier"), not names, and no URLs. So:
 - `FetchSeoAiMentions` (1st of the month, 03:30 UTC): `google` in the shop's market when LLM Mentions
   has it, and `chat_gpt` (United States) for shops in English, stored per date in `seo_ai_mentions`.
   About $0.15 per shop a month.
-- Locally, Run now asks up to five of the prompts that are due and fetches LLM Mentions if the
-  month has none.
+- A Fetch data button asks the prompts that are due and fetches LLM Mentions of our domain and the
+  competitors, once a day at most.
 
 **Screens.** SEO > AI visibility:
 
@@ -596,7 +599,8 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   research had recommended daily top 100, about $486 a month for 2,700 keywords.
 - **Export and scheduled reports.** Built on 9 October 2026.
   - An Excel button on every SEO table (Rankings, Tracked keywords, Top pages, Missing pages,
-    Referring domains, Backlinks, Keyword gap, SEO portfolio) downloads it with the filters and sort
+    Referring domains, Backlinks, Keyword gap, SEO portfolio, and since HELP-3885 Search queries, Search
+    opportunities, the pages of each Site audit issue and Suggested fixes) downloads it with the filters and sort
     it has on screen, up to 20,000 rows (`ExportSeoTable`, `ExportSeoPortfolio`, `SeoTableExport`).
     The same index actions are read in pages of 2,000 for the request.
   - Weekly report by email: anyone can turn it on per shop (SEO dashboard) or for every website (SEO

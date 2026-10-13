@@ -70,6 +70,13 @@ class CloseManufactureTaskSession extends OrgAction
             $members = $session->is_combined ? $this->combinedMembers($task) : collect([$task]);
 
             $left         = $members->sum(fn (JobOrderItemTask $member) => max(0, (float) $member->quantity_required - (float) $member->quantity_made));
+            $packSize = $members->map(fn (JobOrderItemTask $member) => $member->packSize())->filter()->first();
+            if ($packSize && (float) $modelData['quantity_made'] != floor((float) $modelData['quantity_made']) && abs((float) $modelData['quantity_made'] - $left) > 0.001) {
+                throw ValidationException::withMessages([
+                    'quantity_made' => __('This step is counted in whole packs of :size, enter a whole number', ['size' => $packSize]),
+                ]);
+            }
+
             $overproduced = round((float) $modelData['quantity_made'] - $left, 3);
             $authorisedBy = null;
             if ($overproduced > 0) {
@@ -267,6 +274,7 @@ class CloseManufactureTaskSession extends OrgAction
             'step'          => $task->manufactureTask->name,
             'artefact_code' => $task->jobOrderItem->artefact->code,
             'quantity'      => $overproduced,
+            'pack_size'     => $task->packSize(),
             'made_by'       => $session->user->contact_name ?: $session->user->username,
             'manager'       => $manager->contact_name,
             'manager_id'    => $manager->id,
@@ -277,7 +285,7 @@ class CloseManufactureTaskSession extends OrgAction
         $jobOrder->update(['data' => $data]);
     }
 
-    private function isUnderTarget(ManufactureTaskSession $session): bool
+    public function isUnderTarget(ManufactureTaskSession $session): bool
     {
         if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PRODUCTION || $session->standard_rate === null) {
             return false;

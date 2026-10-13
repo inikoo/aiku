@@ -1,8 +1,8 @@
 ---
 title: Lucrul cu ecranul de fabrică
 summary: Ghidul meșteșugarului - ecranul Sarcinile mele, lista de sarcini care se actualizează singură, START și DONE, și ce apeși dacă ai făcut mai puțin decât ți s-a cerut.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -46,6 +46,10 @@ Un rând cu ▶ verde și o oră e cel la care lucrezi, și ora la care l-ai în
 
 Ai făcut tot ce ți s-a cerut? Gata. Sarcina se închide, ordinul de lucru e terminat și depozitul e anunțat că are ceva de pus la locul lui - vezi [Punerea la loc a producției terminate](/docs/putting-away-finished-production-ro).
 
+## Pași care se numără în pachete
+
+Unii pași, mai ales ambalarea, se numără în pachete și nu în bucăți: o tavă cu 8 bile de baie se numără ca 1. Ecranul arată atunci <b>Counted in PACKS of 8</b> (se numără în PACHETE de 8) în chihlimbar, iar căsuța se numește <b>Packs of 8 made</b> (pachete de 8 făcute). Scrie câte pachete pline ai umplut: pentru 56 de bile de baie în 7 tăvi scrie 7, nu 56. Sub căsuță ecranul arată ce înseamnă numărul tău, <i>7 packs of 8 = 56 × ABB-06a</i>, iar confirmarea îl arată din nou. Se acceptă doar pachete întregi; singura excepție este numărul exact rămas de făcut, pe care îl completezi atingând numărul mare. Când un manager trebuie să autorizeze surplusul, fereastra arată surplusul în pachete și în bucăți înainte de aprobare.
+
 ## Când ai făcut mai puțin decât ți s-a cerut
 
 Scrie numărul real și apasă <b>DONE</b>. Rândul de completat e înlocuit cu un panou scurt: *19 făcute · 6 de făcut* și patru butoane.
@@ -67,6 +71,8 @@ Scrie numărul real și apasă **DONE**. Ecranul avertizează *18 above target, 
 Doar cineva care conduce acest atelier de fabrică poate aproba, și niciodată pentru propria muncă. După cinci coduri sau PIN-uri greșite, fereastra refuză timp de 15 minute.
 
 Odată aprobată, sarcina crește la cât s-a făcut de fapt: depozitul pune totul la loc, ce nu a cerut nicio comandă intră în stoc, iar materiile prime se scad pentru tot lotul. Pașii următori ai aceleiași sarcini cresc și ei, ca următorul om să poată termina tot. Pagina comenzii de lucru arată cine a făcut surplusul, cine l-a aprobat, cum și când.
+
+Ai scris un număr greșit, de exemplu bucăți acolo unde se cereau pachete? Un manager deschide fila <b>Performance</b> (performanță), găsește înregistrarea sub lucrător și apasă <b>Correct quantity</b> (corectează cantitatea). Înregistrarea poate fi doar micșorată. Sarcina revine la ce s-a făcut cu adevărat, surplusul autorizat se reduce odată cu ea, iar plata pentru acea înregistrare se calculează din nou. Funcționează până când depozitul începe să pună sarcina la raft.
 
 ## Un singur lot pentru mai multe linii
 

@@ -41,6 +41,9 @@ class UpdateStockDelivery extends OrgAction
         'port_of_export',
         'port_of_import',
         'delivery_address',
+        'shipper_reference',
+        'tracking_number',
+        'shipping_agent',
     ];
 
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
@@ -100,6 +103,9 @@ class UpdateStockDelivery extends OrgAction
             'port_of_export'            => ['sometimes', 'nullable', 'string'],
             'port_of_import'            => ['sometimes', 'nullable', 'string'],
             'delivery_address'          => ['sometimes', 'nullable', 'string'],
+            'shipper_reference'         => ['sometimes', 'nullable', 'string', 'max:255'],
+            'tracking_number'           => ['sometimes', 'nullable', 'string', 'max:255'],
+            'shipping_agent'            => ['sometimes', 'nullable', 'string', 'max:255'],
             'org_exchange'              => ['sometimes', 'numeric', 'gt:0'],
         ];
 

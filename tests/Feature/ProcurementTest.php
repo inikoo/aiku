@@ -9423,11 +9423,23 @@ test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO 
     expect($isDead($oldCode))->toBeTrue()
         ->and($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
 
+    DB::table('org_supplier_products')->where('id', $oldCode->id)->update(['org_agent_id' => null]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and(collect($discontinue->preview($this->organisation->slug))->pluck('agent'))->toContain('direct');
+
     $discontinue->handle($this->organisation->slug);
 
     expect($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
         ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
         ->and($oldCode->supplierProduct->fresh()->state)->not->toBe(SupplierProductStateEnum::DISCONTINUED);
+
+    $stock->update(['state' => StockStateEnum::ACTIVE]);
+    $orgStock->update(['state' => OrgStockStateEnum::DISCONTINUED]);
+    App\Actions\Goods\Stock\Hydrators\StockHydrateStateFromOrgStocks::run($stock->id);
+
+    expect($stock->fresh()->state)->toBe(StockStateEnum::DISCONTINUED)
+        ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value);
 });
 
 test('agent round budget is a usual month of orders plus restocking, in the organisation currency', function () {
@@ -9999,6 +10011,13 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->where('agent_ordering.addRoute.name', 'grp.org.procurement.org_agents.show.shopping.drafts.line')
             ->where('items.data', fn ($items) => collect($items)->pluck('code')->all() === [$supplierProduct->code]
                 && $items[0]['other_organisations_drafts'][0]['organisation_code'] === $otherOrganisation->code)
+            ->etc());
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=products')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('products.data', fn ($products) => collect($products)->pluck('code')->contains($supplierProduct->code)
+                && array_key_exists('stock_cover', $products[0])
+                && array_key_exists('other_organisations_drafts', $products[0]))
             ->etc());
 });
 
@@ -13365,6 +13384,45 @@ test('UI agent order stages', function (string $stage) {
         ->where('rows.meta.total', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->missing('scope'));
 })->with(App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::STAGES);
+
+test('a container on the way shows and is found by its shipper reference and tracking number (HELP-3884)', function () {
+    $stages = App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::class;
+
+    $stockDelivery = StoreStockDelivery::make()->action($this->orgAgent, ['reference' => 'track-'.Str::random(6), 'date' => date('Y-m-d')], strict: false);
+    $stockDelivery->update(['state' => StockDeliveryStateEnum::DISPATCHED, 'dispatched_at' => now()]);
+
+    $tracking = 'MSKU'.random_int(1000000, 9999999);
+    $shipper  = 'SHP-'.Str::random(8);
+
+    $stockDelivery = UpdateStockDelivery::make()->action($stockDelivery, [
+        'shipper_reference' => $shipper,
+        'tracking_number'   => $tracking,
+        'shipping_agent'    => 'Ocean Forwarding',
+    ]);
+
+    expect($stockDelivery->data['tracking_number'])->toBe($tracking)
+        ->and(collect(App\Actions\GoodsIn\StockDelivery\UI\GetStockDeliveryData::run($stockDelivery)['blueprint'])->firstWhere('title', 'Tracking')['fields']['tracking_number']['value'])->toBe($tracking);
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('box_stats.first_block.delivery.shipper_reference', $shipper)
+            ->where('box_stats.first_block.delivery.tracking_number', $tracking)
+            ->etc());
+
+    $stageUrl = route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stages::ON_THE_WAY]);
+
+    foreach ([$tracking, $shipper] as $search) {
+        $this->get($stageUrl.'?'.http_build_query(['filter' => ['global' => $search]]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('rows.data', 1)
+                ->where('rows.data.0.id', $stockDelivery->id)
+                ->where('rows.data.0.tracking_number', $tracking)
+                ->where('rows.data.0.shipper_reference', $shipper)
+                ->where('rows.data.0.shipping_agent', 'Ocean Forwarding')
+                ->etc());
+    }
+});
 
 test('agent order stage rejects an unknown stage', function () {
     $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]).'/nowhere')->assertNotFound();

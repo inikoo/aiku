@@ -9,7 +9,6 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
-use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Models\Web\SeoTrackedKeyword;
 use Illuminate\Http\RedirectResponse;
@@ -31,7 +30,6 @@ class UpdateSeoTrackedKeyword extends OrgAction
     {
         return [
             'is_active' => ['sometimes', 'boolean'],
-            'device'    => ['sometimes', Rule::enum(SeoKeywordDeviceEnum::class)],
             'frequency' => ['sometimes', Rule::enum(SeoKeywordFrequencyEnum::class)],
         ];
     }

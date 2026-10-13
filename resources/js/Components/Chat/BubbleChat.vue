@@ -1141,6 +1141,11 @@ watch(selectedLanguage, async (val) => {
                 <span v-else>{{ message.retraction_reason || ctrans("This message was removed") }}</span>
             </div>
 
+            <div v-if="emailSubject && !isUnsupportedMessage && !(isRetracted && viewerType !== 'agent')"
+                class="mb-2 pb-1.5 border-b border-gray-200 text-[13px] font-semibold break-words">
+                {{ emailSubject }}
+            </div>
+
             <div v-if="isUnsupportedMessage"
                 class="inline-flex w-fit items-center gap-1.5 text-[11px] italic opacity-60">
                 <FontAwesomeIcon :icon="faCircleExclamation" class="text-[10px]" fixed-width />
@@ -1148,10 +1153,6 @@ watch(selectedLanguage, async (val) => {
             </div>
 
             <div v-else-if="emailSummary && !showFullEmail" class="text-sm">
-                <div v-if="emailSubject"
-                    class="mb-2 pb-1.5 border-b border-gray-200 text-[13px] font-semibold break-words">
-                    {{ emailSubject }}
-                </div>
                 <div class="mb-1 text-[10px] font-medium uppercase tracking-wide text-indigo-500">{{ ctrans("Summary") }}</div>
                 <p class="whitespace-pre-wrap break-words">{{ emailSummary }}</p>
                 <div class="mt-1.5 flex items-start gap-3">
@@ -1165,10 +1166,6 @@ watch(selectedLanguage, async (val) => {
 
             <!-- A received email keeps its layout; everything else is text. -->
             <template v-else-if="showEmailBody">
-                <div v-if="emailSubject"
-                    class="mb-2 pb-1.5 border-b border-gray-200 text-[13px] font-semibold break-words">
-                    {{ emailSubject }}
-                </div>
                 <EmailBody :html="message.html_body" />
             </template>
 

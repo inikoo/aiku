@@ -5,6 +5,7 @@ namespace App\Actions\Catalogue\Shop\External\Faire;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Ordering\Order;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Sentry;
@@ -27,31 +28,7 @@ class UpdateShippingFaireOrder extends OrgAction
             && app()->isProduction()
         ) {
             try {
-                $shipments = [];
-
-
-                foreach ($deliveryNote->shipments as $shipment) {
-                    $cost = $shipment->cost ? (int)($shipment->cost * 100) : 0;
-
-                    $trackings = preg_split('/[,\/]+/', $shipment->tracking, -1, PREG_SPLIT_NO_EMPTY);
-
-
-                    $cost = (int)($cost / count($trackings));
-
-                    foreach ($trackings as $tracking) {
-                        $shipments[] = [
-
-                            'carrier'       => $shipment->shipper->trade_as,
-                            'tracking_code' => trim($tracking),
-                            'maker_cost'    => [
-                                'amount_minor' => $cost,
-                                'currency'      => $order->currency->code,
-                            ],
-
-                        ];
-                    }
-                }
-
+                $shipments = $this->getFaireShipments($deliveryNote, $order);
 
                 $result = $order->shop->updateShippingFaireOrder($order->external_id, [
                     'shipments' => $shipments,
@@ -93,6 +70,49 @@ class UpdateShippingFaireOrder extends OrgAction
                 'msg'    => __('Unprocessable order')
             ];
         }
+    }
+
+    /**
+     * Faire reimburses the maker_cost sent with the tracking. A shipment rarely carries its own
+     * cost, so the shipping staff typed on the order is sent instead (HELP-3906): that is what
+     * saves them entering it again on Faire. It all goes on the first tracking, never spread:
+     * every new shipment re-sends the whole list, and a share that moved between trackings could
+     * be counted twice. A label Faire itself issued is never given a cost, Faire pays none on it.
+     *
+     * @return array<int, array{carrier: string, tracking_code: string, maker_cost: array{amount_minor: int, currency: string}}>
+     */
+    public function getFaireShipments(DeliveryNote $deliveryNote, Order $order): array
+    {
+        $shipments = [];
+
+        $hasFaireLabel = false;
+
+        foreach ($deliveryNote->shipments->sortBy('id') as $shipment) {
+            $hasFaireLabel = $hasFaireLabel || str_ends_with((string)$shipment->shipper->code, '-faire');
+            $trackings     = preg_split('/[,\/]+/', (string)$shipment->tracking, -1, PREG_SPLIT_NO_EMPTY);
+            if (!$trackings) {
+                continue;
+            }
+
+            $cost = (int)((int)round($shipment->cost * 100) / count($trackings));
+
+            foreach ($trackings as $tracking) {
+                $shipments[] = [
+                    'carrier'       => $shipment->shipper->trade_as,
+                    'tracking_code' => trim($tracking),
+                    'maker_cost'    => [
+                        'amount_minor' => $cost,
+                        'currency'     => $order->currency->code,
+                    ],
+                ];
+            }
+        }
+
+        if ($shipments && !$hasFaireLabel && array_sum(array_column(array_column($shipments, 'maker_cost'), 'amount_minor')) == 0) {
+            $shipments[0]['maker_cost']['amount_minor'] = max(0, (int)round($order->shipping_amount * 100));
+        }
+
+        return $shipments;
     }
 
     public function getCommandSignature(): string

@@ -27,6 +27,7 @@ use App\Models\SysAdmin\User;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -280,7 +281,21 @@ class IndexTickets extends OrgAction
             ->defaultSort('-tickets.created_at')
             ->allowedSorts(['reference', 'subject', 'status', 'qa_status', 'priority', 'created_at', 'updated_at'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
-            ->withQueryString();
+            ->appends($this->queryKeepingClearedFilters());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function queryKeepingClearedFilters(): array
+    {
+        $query = request()->query();
+
+        array_walk_recursive($query, function (&$value) {
+            $value ??= '';
+        });
+
+        return $query;
     }
 
     protected function pinToTop($queryBuilder): void
@@ -368,8 +383,12 @@ class IndexTickets extends OrgAction
         return TicketResource::collection($tickets);
     }
 
-    public function htmlResponse(LengthAwarePaginator $tickets): Response
+    public function htmlResponse(LengthAwarePaginator $tickets): Response|RedirectResponse
     {
+        if ($tickets->currentPage() > $tickets->lastPage()) {
+            return redirect()->to($tickets->url(1));
+        }
+
         return Inertia::render(
             'Tickets/Tickets',
             [

@@ -1,8 +1,8 @@
 ---
 title: Praca z ekranem hali
 summary: Przewodnik dla rzemieślnika - ekran Moje zadania, lista zadań, która sama się aktualizuje, START i DONE, oraz co nacisnąć, gdy zrobiłeś mniej niż było trzeba.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -46,6 +46,10 @@ Wiersz z zieloną strzałką ▶ i godziną to ten, nad którym pracujesz, oraz 
 
 Zrobiłeś wszystko, co było zamówione? To tyle. Zadanie się zamyka, zlecenie produkcyjne jest zakończone, a magazyn dostaje informację, że jest coś do odłożenia - zobacz [Odkładanie gotowej produkcji](/docs/putting-away-finished-production-pl).
 
+## Kroki liczone w opakowaniach
+
+Niektóre kroki, przede wszystkim pakowanie, liczy się w opakowaniach, a nie w pojedynczych sztukach: tacka z 8 kulami do kąpieli liczy się jako 1. Ekran pokazuje wtedy na bursztynowo **Counted in PACKS of 8** (Liczone w OPAKOWANIACH po 8), a pole nazywa się **Packs of 8 made** (Wykonane opakowania po 8). Wpisz, ile pełnych opakowań napełniłeś: dla 56 kul na 7 tackach wpisz 7, nie 56. Pod polem ekran pokazuje, co oznacza twoja liczba, *7 packs of 8 = 56 × ABB-06a*, a potwierdzenie pokazuje to jeszcze raz. Przyjmowane są tylko całe opakowania; jedynym wyjątkiem jest dokładna liczba pozostała do zrobienia, którą wpisujesz, dotykając dużej liczby. Gdy kierownik musi zatwierdzić nadwyżkę, okno pokazuje ją w opakowaniach i w sztukach przed zatwierdzeniem.
+
 ## Gdy zrobiłeś mniej niż było zamówione
 
 Wpisz prawdziwą liczbę i naciśnij **DONE**. Pole z liczbą zamienia się w krótki panel: *19 zrobione · 6 do zrobienia* i cztery przyciski.
@@ -67,6 +71,8 @@ Wpisz prawdziwą liczbę i naciśnij **DONE**. Ekran ostrzega *18 above target, 
 Zatwierdzić może tylko ktoś, kto prowadzi tę halę produkcyjną, i nigdy dla własnej pracy. Po pięciu błędnych kodach lub PIN-ach okno odmawia przez 15 minut.
 
 Po zatwierdzeniu zadanie rośnie do tego, co naprawdę zrobiono: magazyn odkłada całość, to, czego nie zamówiło żadne zamówienie, trafia na stan, a surowce są odejmowane za całą partię. Kolejne kroki tego samego zadania też rosną, żeby następna osoba mogła dokończyć całość. Strona zlecenia produkcyjnego pokazuje, kto zrobił nadwyżkę, kto ją zatwierdził, jak i kiedy.
+
+Wpisano złą liczbę, na przykład sztuki tam, gdzie chodziło o opakowania? Kierownik otwiera kartę **Performance** (Wydajność), znajduje wpis pod pracownikiem i naciska **Correct quantity** (Popraw ilość). Wpis można tylko zmniejszyć. Zadanie wraca do tego, co naprawdę zrobiono, zatwierdzona nadwyżka zmniejsza się razem z nim, a wynagrodzenie za ten wpis jest liczone od nowa. Działa to, dopóki magazyn nie zacznie przyjmować zadania.
 
 ## Jedna partia dla kilku pozycji
 

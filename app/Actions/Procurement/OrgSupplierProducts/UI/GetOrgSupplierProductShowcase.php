@@ -128,7 +128,7 @@ class GetOrgSupplierProductShowcase
                     'parameters' => [
                         'organisation'       => $viewingOrganisation->id,
                         'orgSupplierProduct' => $orgSupplierProduct->id,
-                        'orgStock'           => $orgStock->id,
+                        'stock'              => $orgStock->stock_id,
                     ],
                 ] : null,
                 'label_options_route' => $agent

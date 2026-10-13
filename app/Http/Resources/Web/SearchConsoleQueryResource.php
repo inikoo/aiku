@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string|null $ctr
  * @property string|null $position
  * @property int $pages
+ * @property array<int, string> $page_urls
  */
 class SearchConsoleQueryResource extends JsonResource
 {
@@ -32,6 +33,7 @@ class SearchConsoleQueryResource extends JsonResource
             'ctr'         => (float) $this->ctr,
             'position'    => $this->position !== null ? (float) $this->position : null,
             'pages'       => (int) $this->pages,
+            'page_urls'   => $this->page_urls ?? [],
         ];
     }
 }

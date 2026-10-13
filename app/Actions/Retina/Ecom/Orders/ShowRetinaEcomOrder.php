@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\Ecom\Orders;
 
+use App\Actions\Ordering\Order\GetOrderPendingPurchaseGtmEvent;
 use App\Actions\Ordering\PreOrder\GetPreOrderShowcase;
 use App\Actions\Ordering\Order\UI\GetOrderDeliveryAddressManagement;
 use App\Actions\Ordering\Order\UI\ShowOrder;
@@ -109,6 +110,7 @@ class ShowRetinaEcomOrder extends RetinaAction
             [
                 'title'       => __('order') . ' #' . $order->reference,
                 'breadcrumbs' => $this->getBreadcrumbs($order),
+                'gtm_purchase' => GetOrderPendingPurchaseGtmEvent::run($order),
                 'pageHead'    => [
                     'title'   => $order->reference,
                     'model'   => __('Order'),
