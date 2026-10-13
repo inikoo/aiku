@@ -3709,6 +3709,25 @@ test('warehouse packing change recomputes product pick quantity', function () {
         ->and((int) $row->divisor)->toBe(1);
 });
 
+test('a product whose trade unit has no group stock keeps the organisation SKO holding that trade unit', function () {
+    [, $product] = createProduct($this->shop);
+    $tradeUnit   = $product->tradeUnits()->first();
+    $product->tradeUnits()->updateExistingPivot($tradeUnit->id, ['quantity' => 2]);
+
+    $stock = $tradeUnit->stocks()->first() ?? $this->group->stocks()->first();
+    $tradeUnit->stocks()->syncWithoutDetaching([$stock->id => ['quantity' => 1]]);
+    $orgStock = $stock->orgStocks()->where('organisation_id', $product->organisation_id)->first();
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 2]]);
+    $tradeUnit->stocks()->detach();
+
+    \App\Actions\Catalogue\Product\SyncProductOrgStocksFromTradeUnits::run($product->refresh());
+
+    $rows = DB::table('product_has_org_stocks')->where('product_id', $product->id)->get();
+    expect($rows)->toHaveCount(1)
+        ->and($rows->first()->org_stock_id)->toBe($orgStock->id)
+        ->and((float) $rows->first()->quantity)->toBe(1.0);
+});
+
 test('two master shops can each have a department and sub department with the same code', function () {
     $sharedDepartmentCode    = 'SHDEP'.uniqid();
     $sharedSubDepartmentCode = 'SHSUB'.uniqid();
