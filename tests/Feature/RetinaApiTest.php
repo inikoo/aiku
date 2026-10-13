@@ -304,7 +304,9 @@ test('retina api dropshipping order submit', function () {
      * assert the order actually left the basket. */
     $order->refresh();
     expect($order->submitted_at)->not->toBeNull()
-        ->and($order->state)->not->toBe(OrderStateEnum::CREATING);
+        ->and($order->state)->not->toBe(OrderStateEnum::CREATING)
+        ->and($order->pay_status)->not->toBeNull()
+        ->and($response->json('data.pay_status'))->toBe($order->pay_status->value);
 });
 
 // ---- Dropshipping: products & portfolios ----

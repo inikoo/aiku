@@ -40,6 +40,7 @@ class OrderApiResource extends JsonResource
             'id'            => $order->id,
             'reference'     => $order->reference,
             'state'         => $order->state,
+            'pay_status'    => $order->pay_status,
             'net_amount'    => $order->net_amount,
             'total_amount'    => $order->total_amount,
             'item_amount' => $order->goods_amount,
