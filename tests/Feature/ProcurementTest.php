@@ -13304,11 +13304,10 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
     $row = collect($stages::make()->handle($this->orgAgent, $stages::ON_THE_WAY)->items())->firstWhere('id', $stockDelivery->id);
 
     expect($row['days_late'])->toBe(3)
-        ->and($row['is_ours'])->toBeTrue()
         ->and($row['url'])->toContain($stockDelivery->slug);
 
     $invoiceState = fn () => collect($stages::make()->handle($this->orgAgent, $stages::ON_THE_WAY)->items())->firstWhere('id', $stockDelivery->id)['agent_invoice'];
-    $isListedAs   = fn (string $filter) => collect($stages::make()->handle($this->orgAgent, $stages::ON_THE_WAY, true, $filter)->items())->contains('id', $stockDelivery->id);
+    $isListedAs   = fn (string $filter) => collect($stages::make()->handle($this->orgAgent, $stages::ON_THE_WAY, $filter)->items())->contains('id', $stockDelivery->id);
     $missing      = $stages::agentInvoiceCounts($this->orgAgent, $stages::ON_THE_WAY)['missing'];
 
     expect($invoiceState())->toBe('missing')
@@ -13352,26 +13351,19 @@ test('agent order stages follow purchase orders and stock deliveries to arrival'
 });
 
 test('UI agent order stages', function (string $stage) {
-    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'ours']));
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage]));
     $response->assertOk();
 
     $response->assertInertia(fn (AssertableInertia $page) => $page
         ->component('Procurement/AgentOrderStage')
         ->where('stage', $stage)
-        ->where('scope', 'ours')
         ->where('orgCurrency', $this->organisation->currency->code)
-        ->where('oursCount', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->has('rows.data')
         ->has('pageHead.subNavigation', 8)
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->firstWhere('active', true)['number'] === App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
         ->where('pageHead.subNavigation', fn ($navigation) => collect($navigation)->where('active', true)->pluck('route.parameters.2')->all() === [$stage])
-        ->where('rows.data', fn ($rows) => collect($rows)->every(fn (array $row) => $row['is_ours'])));
-
-    $this->get(route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stage, 'scope' => 'all']))
-        ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('canSeeAll', false)
-            ->where('scope', 'ours'));
+        ->where('rows.meta.total', App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::countOurs($this->orgAgent, $stage))
+        ->missing('scope'));
 })->with(App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderStage::STAGES);
 
 test('agent order stage rejects an unknown stage', function () {

@@ -23,10 +23,7 @@ library.add(faClipboardListCheck, faBoxOpen, faShip, faWarehouseAlt)
 type Row = {
     id: number
     reference: string
-    organisation_code: string
-    organisation_name: string
-    is_ours: boolean
-    url: string | null
+    url: string
     supplier_code: string | null
     supplier_name: string | null
     purchase_orders: number | null
@@ -52,9 +49,6 @@ const props = defineProps<{
     agentName: string
     orgCurrency: string
     container: { label: string, cbm: number }
-    scope: "ours" | "all"
-    canSeeAll: boolean
-    oursCount: number
     agentInvoice: { selected: string | null, counts: Record<string, number> } | null
     rows: { data: Row[] }
 }>()
@@ -78,10 +72,6 @@ const selectAgentInvoice = (value: string | null) => {
     router.get(window.location.pathname, value ? { agent_invoice: value } : {}, { preserveScroll: true })
 }
 
-const selectScope = (value: string | null) => {
-    router.get(window.location.pathname, value === "ours" ? {} : { scope: "all" }, { preserveScroll: true })
-}
-
 </script>
 
 <template>
@@ -89,14 +79,6 @@ const selectScope = (value: string | null) => {
     <PageHeading :data="pageHead" />
 
     <div class="mx-4 mt-4 flex flex-col gap-4 pb-8">
-        <div v-if="canSeeAll" class="flex flex-wrap items-center justify-between gap-3">
-            <PillFilterBar
-                :label="isOrdered ? ctrans('Purchase orders') : ctrans('Stock deliveries')"
-                :options="[{ value: 'ours', label: ctrans('Of my organisation'), count: oursCount }]"
-                :selected="scope === 'ours' ? 'ours' : null"
-                @select="selectScope" />
-        </div>
-
         <PillFilterBar
             v-if="agentInvoice"
             :label="ctrans('Agent invoice')"
@@ -106,12 +88,7 @@ const selectScope = (value: string | null) => {
 
         <Table :resource="rows" class="mt-0">
             <template #cell(reference)="{ item }">
-                <Link v-if="!canSeeAll && item.url" :href="item.url" :title="item.reference" class="block max-w-xs truncate font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
-                <template v-else>
-                <div v-tooltip="item.organisation_name" class="font-medium text-gray-800">{{ item.organisation_code }}</div>
-                <Link v-if="item.url" :href="item.url" :title="item.reference" class="block max-w-xs truncate text-xs leading-tight text-gray-500 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
-                <div v-else :title="item.reference" class="max-w-xs truncate text-xs leading-tight text-gray-400">{{ item.reference }}</div>
-                </template>
+                <Link :href="item.url" :title="item.reference" class="block max-w-xs truncate font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
             </template>
             <template #cell(supplier_code)="{ item }">
                 <div class="font-medium text-gray-800">{{ item.supplier_code }}</div>
