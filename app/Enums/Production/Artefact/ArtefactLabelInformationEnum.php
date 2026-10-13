@@ -24,6 +24,7 @@ enum ArtefactLabelInformationEnum: string
     case IMPORTER              = 'importer';
     case UK_RESPONSIBLE_PERSON = 'uk_responsible_person';
     case EU_RESPONSIBLE_PERSON = 'eu_responsible_person';
+    case ES_IMPORTER           = 'es_importer';
     case INGREDIENTS           = 'ingredients';
     case CPNP_NUMBER           = 'cpnp_number';
     case UFI_NUMBER            = 'ufi_number';
@@ -54,6 +55,7 @@ enum ArtefactLabelInformationEnum: string
             'importer'              => __('Importer / responsible person'),
             'uk_responsible_person' => __('UK responsible person'),
             'eu_responsible_person' => __('EU responsible person'),
+            'es_importer'           => __('ES importer'),
             'ingredients'           => __('Ingredients'),
             'cpnp_number'           => __('CPNP number'),
             'ufi_number'            => __('UFI number'),

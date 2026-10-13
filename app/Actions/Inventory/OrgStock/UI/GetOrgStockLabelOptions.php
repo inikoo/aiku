@@ -23,6 +23,12 @@ class GetOrgStockLabelOptions
 {
     use AsObject;
 
+    private const PREVIEWED_FIELDS = [
+        'with_account_signature'     => 'signature',
+        'with_eu_responsible_person' => 'eu_responsible_person',
+        'with_es_importer'           => 'es_importer',
+    ];
+
     /**
      * @return array<string, mixed>
      */
@@ -134,6 +140,8 @@ class GetOrgStockLabelOptions
             'with_weight'            => [__('With weight'), 'weight', __('This item has no weight'), true],
             'with_custom_text'       => [__('With custom text'), null, null, false],
             'with_account_signature' => [__('With account signature'), 'signature', __('This organisation has no address'), false],
+            'with_eu_responsible_person' => [__('With EU responsible person'), 'eu_responsible_person', null, true],
+            'with_es_importer'       => [__('With ES importer'), 'es_importer', null, false],
             'with_ingredients'       => [__('With ingredients/materials'), 'materials', __('This item has no materials'), true],
         ];
 
@@ -149,7 +157,7 @@ class GetOrgStockLabelOptions
                     $source === null ? true : $label[$source],
                     $reason,
                     $default,
-                    $key === 'with_account_signature' ? $label['signature'] : null
+                    isset(self::PREVIEWED_FIELDS[$key]) ? $label[self::PREVIEWED_FIELDS[$key]] : null
                 );
             }
         }
@@ -158,8 +166,8 @@ class GetOrgStockLabelOptions
     }
 
     /**
-     * The signature is the organisation's name, address and phone, which nobody can guess from the
-     * tick box, so its text comes along for the modal to show what will be printed.
+     * The signature, the EU responsible person and the ES importer are names and addresses nobody can
+     * guess from the tick box, so their text comes along for the modal to show what will be printed.
      *
      * @return array<string, mixed>
      */

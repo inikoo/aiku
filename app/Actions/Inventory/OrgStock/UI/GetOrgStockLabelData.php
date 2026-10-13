@@ -26,6 +26,10 @@ class GetOrgStockLabelData
 {
     use AsObject;
 
+    public const EU_RESPONSIBLE_PERSON = "RP in EU: AncientWisdom s.r.o.\nPrilohy, Zavar, 91926, Trava, Slovakia,\ncontact@awgifts.eu";
+
+    public const ES_IMPORTER = "Imported to Spain by: AW Artisan S.L, 39 Caleta de\nVelez Street 29004 Málaga, Spain,\nhola@awartisan.es";
+
     /**
      * @return array<string, mixed>
      */
@@ -45,6 +49,8 @@ class GetOrgStockLabelData
             'manufactured_by' => $this->getManufacturedBy($tradeUnits),
             'weight'          => $this->getWeight($barcode['weight'] ?? null),
             'signature'       => $this->getSignature($orgStock->organisation),
+            'eu_responsible_person' => self::EU_RESPONSIBLE_PERSON,
+            'es_importer'     => self::ES_IMPORTER,
             'has_image'       => filled($imagePath),
             'image_path'      => $imagePath,
             'materials'       => $this->collapseWhitespace($this->getSharedTradeUnit($tradeUnits, 'marketing_ingredients')?->marketing_ingredients),
