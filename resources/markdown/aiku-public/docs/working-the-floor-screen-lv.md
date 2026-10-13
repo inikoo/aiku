@@ -1,8 +1,8 @@
 ---
 title: Darbs ar ražotnes ekrānu
 summary: Amatnieka rokasgrāmata - ekrāns Manu uzdevumi, darbu saraksts, kas atjaunojas pats, START un DONE, un ko spiest, ja izgatavoji mazāk, nekā prasīts.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -46,6 +46,10 @@ Rinda ar zaļu ▶ un laiku ir tā, ar kuru strādā, un kad to sāki. Dzeltena 
 
 Izgatavoji visu, kas prasīts? Ar to viss. Uzdevums aizveras, darba uzdevums ir pabeigts, un noliktava saņem ziņu, ka ir kaut kas jāpieņem - skaties [Gatavās produkcijas pieņemšana noliktavā](/docs/putting-away-finished-production-lv).
 
+## Soļi, ko skaita iepakojumos
+
+Dažus soļus, galvenokārt iepakošanu, skaita iepakojumos, nevis atsevišķos gabalos: paplāte ar 8 vannas bumbām skaitās kā 1. Ekrāns tad dzintara krāsā rāda **Counted in PACKS of 8** (Skaita IEPAKOJUMOS pa 8), un lauks saucas **Packs of 8 made** (Izgatavotie iepakojumi pa 8). Ieraksti, cik pilnus iepakojumus piepildīji: 56 vannas bumbām 7 paplātēs raksti 7, nevis 56. Zem lauka ekrāns rāda, ko tavs skaitlis nozīmē, *7 packs of 8 = 56 × ABB-06a*, un apstiprinājums to rāda vēlreiz. Pieņem tikai veselus iepakojumus; vienīgais izņēmums ir precīzs atlikušais skaits, ko ieraksti, pieskaroties lielajam skaitlim. Kad vadītājam jāapstiprina pārpalikums, logs pirms apstiprināšanas rāda to iepakojumos un gabalos.
+
 ## Ja izgatavoji mazāk, nekā prasīts
 
 Ieraksti reālo skaitu un spied **DONE** (Pabeigts). Ievades rindas vietā parādās īss panelis: *19 gatavi · 6 vēl jāizgatavo* un četras pogas.
@@ -67,6 +71,8 @@ Ieraksti īsto skaitu un nospied **DONE**. Ekrāns brīdina *18 above target, a 
 Apstiprināt var tikai tas, kurš vada šo ražošanas cehu, un nekad savam darbam. Pēc piecām nepareizām kartēm vai PIN logs 15 minūtes atsakās.
 
 Pēc apstiprināšanas darbs pieaug līdz tam, kas patiešām izgatavots: noliktava novieto visu, ko neviens pasūtījums neprasīja, nonāk krājumā, un izejvielas tiek norakstītas par visu partiju. Tā paša darba nākamie soļi arī pieaug, lai nākamais cilvēks varētu pabeigt visu. Ražošanas pasūtījuma lapā redzams, kas izgatavoja pārpalikumu, kas to apstiprināja, kā un kad.
+
+Ierakstīts nepareizs skaitlis, piemēram, gabali tur, kur prasīti iepakojumi? Vadītājs atver cilni **Performance** (Sniegums), atrod ierakstu pie darbinieka un nospiež **Correct quantity** (Labot daudzumu). Ierakstu var tikai samazināt. Darbs atgriežas pie patiesi izgatavotā, apstiprinātais pārpalikums samazinās līdz ar to, un samaksa par šo ierakstu tiek aprēķināta no jauna. Tas darbojas, līdz noliktava sāk darbu novietot.
 
 ## Viena partija vairākām rindām
 

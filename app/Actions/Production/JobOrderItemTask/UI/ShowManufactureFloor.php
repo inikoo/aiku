@@ -18,6 +18,7 @@ use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\HumanResources\Employee;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
@@ -42,6 +43,8 @@ class ShowManufactureFloor extends OrgAction
 
     /** @var array<int, Collection<int, JobOrderItemTask>> combined steps by the id of the step that stands for them */
     private array $combinedGroups = [];
+
+    private ?Collection $packSizes = null;
 
     private bool $canCombine = false;
 
@@ -424,6 +427,7 @@ class ShowManufactureFloor extends OrgAction
             'waiting_for'         => $members->flatMap(fn (JobOrderItemTask $member) => $this->missingMixes[$member->job_order_item_id] ??= array_column(GetJobOrderItemMissingMixes::run($member->jobOrderItem), 'code'))->unique()->values()->all(),
             'quantity_required'   => (float)$members->sum('quantity_required'),
             'quantity_made'       => (float)$members->sum('quantity_made'),
+            'pack_size'           => $this->packSize($members),
             'combined'            => $isCombined ? $members->map(fn (JobOrderItemTask $member) => [
                 'id'                  => $member->id,
                 'artefact_code'       => $member->jobOrderItem->artefact->code,
@@ -443,6 +447,18 @@ class ShowManufactureFloor extends OrgAction
                 'method'     => 'post',
             ],
         ];
+    }
+
+    /**
+     * @param Collection<int, JobOrderItemTask> $members
+     */
+    private function packSize(Collection $members): ?int
+    {
+        $this->packSizes ??= ArtefactManufactureTask::packSizes();
+
+        $sizes = $members->map(fn (JobOrderItemTask $member) => $this->packSizes[$member->jobOrderItem->artefact_id.':'.$member->manufacture_task_id] ?? null)->unique();
+
+        return $sizes->count() == 1 ? $sizes->first() : null;
     }
 
     private function continuedIn(JobOrderItemTask $task): ?string

@@ -1,8 +1,8 @@
 ---
 title: Trabajar la pantalla de planta
 summary: La guía del artesano - la pantalla Mis tareas, la lista de trabajos que se actualiza sola, START y DONE, y qué pulsar cuando hiciste menos de lo pedido.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -46,6 +46,10 @@ Una fila con una ▶ verde y una hora es la que estás trabajando, y cuándo la 
 
 ¿Hiciste todo lo que se pedía? Eso es todo. La tarea se cierra, la orden de trabajo termina y se avisa al almacén de que hay algo que guardar - ver [Guardar la producción terminada](/docs/putting-away-finished-production-es).
 
+## Pasos que se cuentan en paquetes
+
+Algunos pasos, sobre todo el empaquetado, se cuentan en paquetes y no en piezas sueltas: una bandeja de 8 bombas de baño cuenta como 1. La pantalla dice entonces <b>Counted in PACKS of 8</b> (Se cuenta en PAQUETES de 8) en ámbar, y la casilla se llama <b>Packs of 8 made</b> (Paquetes de 8 hechos). Escribe cuántos paquetes completos llenaste: para 56 bombas de baño en 7 bandejas escribe 7, no 56. Debajo de la casilla la pantalla muestra lo que significa tu número, <i>7 packs of 8 = 56 × ABB-06a</i>, y la confirmación lo muestra otra vez. Solo se aceptan paquetes enteros; la única excepción es el número exacto que queda por hacer, que se rellena tocando el número grande. Cuando un encargado tiene que autorizar el exceso, la ventana muestra el exceso en paquetes y en piezas antes de aprobar.
+
 ## Cuando hiciste menos de lo pedido
 
 Escribe el número real y pulsa <b>DONE</b>. La fila de entrada se sustituye por un panel corto: *19 hechos · 6 pendientes* y cuatro botones.
@@ -67,6 +71,8 @@ Escribe el número real y pulsa **DONE**. La pantalla avisa de las unidades por 
 Solo puede autorizar quien dirige esta planta, y nunca su propio trabajo. Tras cinco tarjetas o PIN erróneos la ventana se bloquea 15 minutos.
 
 Una vez autorizado, el trabajo crece a lo realmente hecho: el almacén guarda todo, lo que ningún pedido pidió va a stock y las materias primas se descuentan por el lote entero. Los pasos siguientes del mismo trabajo crecen también. La página de la orden de trabajo muestra quién hizo el extra, quién lo autorizó, cómo y cuándo.
+
+¿Se escribió un número equivocado, por ejemplo piezas donde se pedían paquetes? Un encargado abre la pestaña <b>Performance</b> (Rendimiento), busca la entrada bajo el trabajador y pulsa <b>Correct quantity</b> (Corregir cantidad). La entrada solo se puede bajar. El trabajo vuelve a lo que realmente se hizo, el exceso autorizado se reduce con él y el pago de esa entrada se calcula de nuevo. Funciona hasta que el almacén empieza a guardar el trabajo.
 
 ## Un lote para varias líneas
 

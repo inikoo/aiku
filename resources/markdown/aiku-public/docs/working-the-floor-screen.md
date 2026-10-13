@@ -1,7 +1,7 @@
 ---
 title: Working the floor screen
 summary: The artisan's guide - the My tasks screen, the job list that updates on its own, START and DONE, and what to press when you made fewer than asked.
-date: 2026-10-12
+date: 2026-10-13
 tags: production, floor, artisan
 category: production
 help_routes: grp.org.productions.show.floor
@@ -46,6 +46,10 @@ A row with a green ▶ and a time is the one you are working on, and when you st
 
 Made everything that was asked? That is it. The task closes, the job order is finished and the warehouse is told there is something to put away - see [Putting away finished production](/docs/putting-away-finished-production).
 
+## Steps counted in packs
+
+Some steps, packing above all, are counted in packs and not in single pieces: a tray of 8 bath bombs counts as 1. The screen then says **Counted in PACKS of 8** in amber, and the box is called **Packs of 8 made**. Type how many full packs you filled: for 56 bath bombs in 7 trays type 7, not 56. Under the box the screen shows what your number means, *7 packs of 8 = 56 × ABB-06a*, and the confirmation shows it again. Only whole packs are accepted; the one exception is the exact number still to do, which you fill by tapping the big number. When a manager has to authorise extra, the window shows the extra in packs and in pieces before they approve.
+
 ## When you made fewer than asked
 
 Type the real number and press **DONE**. The input row is replaced by a short panel: *19 done · 6 to do* and four buttons.
@@ -67,6 +71,8 @@ Type the real number and press **DONE**. The screen warns *18 above target, a ma
 Only someone who runs this factory floor can authorise, and never for their own work. After five wrong badges or PINs the window refuses for 15 minutes.
 
 Once authorised the job grows to what was really made: the warehouse puts away all of it, what no order asked for goes to stock, and the raw materials are deducted for the whole batch. Later steps of the same job grow too, so the next person can finish all of it. The job order page shows who made the extra, who authorised it, how and when.
+
+Typed the wrong number, for example pieces where packs were asked? A manager opens the **Performance** tab, finds the entry under the worker and presses **Correct quantity**. The entry can only be lowered. The job goes back to what was really made, the authorised extra is reduced with it and the pay for that entry is worked out again. It works until the warehouse starts putting the job away.
 
 ## One batch for several lines
 
