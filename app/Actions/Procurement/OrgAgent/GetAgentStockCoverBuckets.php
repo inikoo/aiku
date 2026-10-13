@@ -83,12 +83,12 @@ class GetAgentStockCoverBuckets
      * The one org stock that answers for a supplier product: the link table's own primary, so the
      * tiles, the bucket rows and the add guard all judge the same stock.
      */
-    public static function bestOrgStock(): Builder
+    public static function bestOrgStock(string $orgSupplierProduct = 'osp'): Builder
     {
         return DB::table('org_stock_has_org_supplier_products as link')
             ->join('org_stocks', 'org_stocks.id', 'link.org_stock_id')
-            ->whereColumn('link.org_supplier_product_id', 'osp.id')
-            ->where('link.status', true)
+            ->whereColumn('link.org_supplier_product_id', $orgSupplierProduct.'.id')
+            ->whereRaw('link.status')
             ->orderByDesc('link.local_priority')
             ->orderByRaw("(org_stocks.state = '".OrgStockStateEnum::ACTIVE->value."') desc, org_stocks.quantity_available desc nulls last")
             ->select(['org_stocks.id', 'org_stocks.stock_id', 'org_stocks.state', 'org_stocks.quantity_available', 'org_stocks.health_rank', 'org_stocks.is_excluded_from_auto_ordering'])
@@ -127,7 +127,29 @@ class GetAgentStockCoverBuckets
         return $query
             ->where('osp.state', OrgSupplierProductStateEnum::ACTIVE->value)
             ->where('osp.is_available', true)
-            ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))');
+            ->whereRaw('not (os.id is null and ('.self::everySkoDiscontinuedExpression().' or '.self::boughtUnderAnotherCodeExpression().'))')
+            ->whereRaw('not '.self::outrankedForItsOrgStockExpression());
+    }
+
+    /**
+     * An SKO the agent can supply under several supplier products is one thing to order, not one
+     * per supplier: it is listed under its preferred supplier product only, the link with the
+     * highest priority, so it cannot be ordered twice from two rows that show the same stock.
+     */
+    private static function outrankedForItsOrgStockExpression(): string
+    {
+        return "exists (select 1 from org_stock_has_org_supplier_products mine
+            join org_stock_has_org_supplier_products rival_link on rival_link.org_stock_id = mine.org_stock_id and rival_link.status
+            join org_supplier_products rival on rival.id = rival_link.org_supplier_product_id
+                and rival.org_agent_id = osp.org_agent_id
+                and rival.id <> osp.id
+                and rival.state = '".OrgSupplierProductStateEnum::ACTIVE->value."'
+                and rival.is_available
+            join supplier_products rival_sp on rival_sp.id = rival.supplier_product_id and rival_sp.deleted_at is null
+            where mine.org_supplier_product_id = osp.id and mine.org_stock_id = os.id and mine.status
+                and (coalesce(rival_link.local_priority, 0) > coalesce(mine.local_priority, 0)
+                    or (coalesce(rival_link.local_priority, 0) = coalesce(mine.local_priority, 0) and rival.id < osp.id))
+                and os.id = (select rival_stock.id from (".self::bestOrgStock('rival')->toRawSql().') rival_stock))';
     }
 
     public function bucketSql(OrgAgent $orgAgent): string

@@ -13407,6 +13407,48 @@ test('an org stock linked to several supplier products answers with its preferre
             ->value('primary_sp.estimated_lead_time_days'))->toBe(9);
 });
 
+test('an SKO the agent supplies under several supplier products is listed once, under the preferred one', function () {
+    $buckets = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+    $listed  = fn (OrgSupplierProduct $orgSupplierProduct) => $buckets->scopedQuery($this->orgAgent)->where('osp.id', $orgSupplierProduct->id)->exists();
+
+    $orgStock = \App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action(
+        $this->organisation,
+        StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]))
+    );
+
+    $link = function (int $priority) use ($orgStock): OrgSupplierProduct {
+        [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+        $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+        DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+        DB::table('org_stock_has_org_supplier_products')->insert([
+            'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id]),
+            'org_stock_id'                  => $orgStock->id,
+            'org_supplier_product_id'       => $orgSupplierProduct->id,
+            'status'                        => true,
+            'local_priority'                => $priority,
+            'created_at'                    => now(),
+            'updated_at'                    => now(),
+        ]);
+
+        return $orgSupplierProduct;
+    };
+
+    $other = $link(0);
+    expect($listed($other))->toBeTrue();
+
+    $preferred = $link(10);
+    expect($listed($preferred))->toBeTrue()
+        ->and($listed($other))->toBeFalse();
+
+    $preferred->update(['is_available' => false]);
+    expect($listed($other))->toBeTrue();
+
+    $preferred->update(['is_available' => true]);
+    $tied = $link(10);
+    expect($listed($preferred))->toBeTrue()
+        ->and($listed($tied))->toBeFalse();
+});
+
 test('goods in records the batches a delivery line arrived in and puts them away in order', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'BATCHES-IN', [10]);
     $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
