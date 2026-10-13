@@ -52,9 +52,15 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Masters\MasterAsset;
 use App\Models\Ordering\Order;
+use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Shipment;
+use App\Models\Dispatching\Shipper;
+use App\Models\Helpers\Currency;
+use App\Actions\Catalogue\Shop\External\Faire\UpdateShippingFaireOrder;
 use App\Models\Ordering\Transaction;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
 
 beforeAll(function () {
@@ -490,10 +496,14 @@ test('a faire line moved to a re-order leaves the original order unless it alrea
     expect($movedLine->order_id)->toBe($reOrder->id);
 });
 
-/** HELP-3906: Faire is the source of truth, so nobody sets shipping by hand on a Faire order. */
-test('manual shipping is refused on a faire order', function () {
+/** HELP-3906: shipping is typed in Aiku only on a Faire order we ship ourselves, and before its tracking goes to Faire. */
+test('manual shipping on a faire order is refused with a faire label and allowed when we ship it ourselves', function () {
     $order = StoreOrder::make()->action($this->customer, []);
     StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
+    createWarehouse();
+    SubmitOrder::make()->action($order->refresh());
+    SendOrderToWarehouse::make()->action($order, []);
+    $order->refresh()->update(['is_shipping_by_external' => true]);
 
     $this->shop->updateQuietly(['type' => ShopTypeEnum::EXTERNAL, 'engine' => ShopEngineEnum::FAIRE]);
 
@@ -501,9 +511,46 @@ test('manual shipping is refused on a faire order', function () {
         patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 4.95])
             ->assertSessionHasErrors('message');
         expect((float)$order->refresh()->shipping_amount)->toBe(0.0);
+
+        $order->update(['is_shipping_by_external' => false]);
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 4.95])
+            ->assertSessionHasNoErrors();
+        expect((float)$order->refresh()->shipping_amount)->toBe(4.95);
+
+        $order->refresh()->deliveryNotes()->first()->shipments()->create([
+            'group_id'        => $order->group_id,
+            'organisation_id' => $order->organisation_id,
+            'tracking'        => 'HELP3906',
+            'data'            => [],
+        ]);
+
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 9.99])
+            ->assertSessionHasErrors('message');
+        get(route('grp.models.order.set_shipping_engine_auto', $order->id))
+            ->assertSessionHasErrors('message');
+        expect((float)$order->refresh()->shipping_amount)->toBe(4.95);
     } finally {
         $this->shop->updateQuietly(['type' => ShopTypeEnum::B2B, 'engine' => ShopEngineEnum::AIKU]);
     }
+});
+
+/** HELP-3906: the shipping typed on the order is what Faire is asked to reimburse, unless the shipment has its own cost. */
+test('the tracking sent to faire carries the order shipping on its first tracking, never on a faire label', function () {
+    $nextId   = 0;
+    $shipment = function (string $tracking, ?float $cost = null, string $shipper = 'gls') use (&$nextId) {
+        return (new Shipment(['id' => ++$nextId, 'tracking' => $tracking, 'cost' => $cost]))
+            ->setRelation('shipper', new Shipper(['code' => $shipper, 'trade_as' => 'GLS']));
+    };
+    $order = (new Order(['shipping_amount' => 40.91]))->setRelation('currency', new Currency(['code' => 'EUR']));
+    $sent  = fn (array $shipments) => array_column(array_column(
+        UpdateShippingFaireOrder::make()->getFaireShipments((new DeliveryNote())->setRelation('shipments', collect($shipments)), $order),
+        'maker_cost'
+    ), 'amount_minor');
+
+    expect($sent([$shipment('A1 , A2'), $shipment('B1')]))->toBe([4091, 0, 0])
+        ->and($sent([$shipment('A1', 40.91)]))->toBe([4091])
+        ->and($sent([$shipment('A1', null, 'dhl_express-faire')]))->toBe([0])
+        ->and($sent([$shipment('')]))->toBe([]);
 });
 
 /** HELP-3906: the shipping Faire reimburses when we ship an order ourselves is read from Faire, also after invoicing. */

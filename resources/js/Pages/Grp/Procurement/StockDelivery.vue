@@ -49,10 +49,12 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
+	faShip,
+	faHashtag,
 	faBalanceScale,
 	faPassport,
 	faInventory,
@@ -110,6 +112,9 @@ const props = defineProps<{
 				port_of_export: string | null
 				port_of_import: string | null
 				delivery_address: string | null
+				shipper_reference: string | null
+				tracking_number: string | null
+				shipping_agent: string | null
 			}
 		}
 		second_block: {
@@ -920,6 +925,27 @@ const confirmDeleteStockDelivery = (action: any) => {
 							<span>{{ ctrans("Port of import not set") }}</span>
 						</dd>
 					</div>
+				</div>
+
+				<div v-if="box_stats.first_block.delivery.tracking_number" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Tracking number')" icon="fal fa-ship" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>
+						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.tracking_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.tracking_number }}</a>
+					</dd>
+				</div>
+				<div v-if="box_stats.first_block.delivery.shipper_reference" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Shipper reference')" icon="fal fa-hashtag" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>{{ box_stats.first_block.delivery.shipper_reference }}</dd>
+				</div>
+				<div v-if="box_stats.first_block.delivery.shipping_agent" class="flex items-center gap-2">
+					<dt>
+						<FontAwesomeIcon v-tooltip="ctrans('Shipping agent')" icon="fal fa-people-arrows" aria-hidden="true" fixed-width />
+					</dt>
+					<dd>{{ box_stats.first_block.delivery.shipping_agent }}</dd>
 				</div>
 
 				<!-- Deliver to -->

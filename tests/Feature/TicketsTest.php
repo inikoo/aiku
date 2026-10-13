@@ -1688,6 +1688,67 @@ test('the QA list shows at a glance how far QA is behind on the tickets done', f
     get(route('grp.tickets.list'))->assertInertia(fn (AssertableInertia $page) => $page->where('listSummary', null));
 });
 
+test('the next page of the ticket and QA lists keeps the filters that were cleared', function () {
+    $qa = User::factory()->create(['group_id' => $this->group->id]);
+    setPermissionsTeamId($this->group->id);
+    $qa->assignRole('qa');
+    actingAs($qa);
+
+    foreach (range(1, 11) as $number) {
+        $ticket = StoreTicket::make()->action($this->group, ['subject' => 'QA passed pagination '.$number]);
+        Ticket::whereKey($ticket->id)->update(['status' => TicketStatusEnum::RESOLVED, 'qa_status' => TicketQaStatusEnum::PASSED]);
+    }
+
+    $firstPage = get(route('grp.tickets.qa_list', [
+        'filter'   => ['qa_state' => 'passed'],
+        'elements' => ['qa_status' => '', 'qa_checker' => ''],
+        'perPage'  => 10,
+    ]))->assertOk()->viewData('page')['props']['data'];
+
+    $firstPageIds = collect($firstPage['data'])->pluck('id');
+
+    $nextPageUrl = urldecode($firstPage['links']['next']);
+
+    expect($nextPageUrl)->toContain('elements[qa_status]=', 'elements[qa_checker]=', 'filter[qa_state]=passed', 'page=2');
+
+    $secondPage = get($firstPage['links']['next'])->assertOk()->viewData('page')['props']['data'];
+
+    expect($secondPage['data'])->not->toBeEmpty()
+        ->and(collect($secondPage['data'])->pluck('qa_status')->unique()->all())->toBe([TicketQaStatusEnum::PASSED->value])
+        ->and(collect($secondPage['data'])->pluck('id')->intersect($firstPageIds)->all())->toBe([])
+        ->and($secondPage['meta']['total'])->toBe($firstPage['meta']['total']);
+
+    $ticketList = get(route('grp.tickets.list', ['elements' => ['mine' => '', 'status' => ''], 'perPage' => 10]))
+        ->assertOk()->viewData('page')['props']['data'];
+
+    expect(urldecode($ticketList['links']['next']))->toContain('elements[mine]=', 'elements[status]=', 'page=2');
+});
+
+test('a page past the last one of the ticket and QA lists goes back to the first page', function () {
+    $qa = User::factory()->create(['group_id' => $this->group->id]);
+    setPermissionsTeamId($this->group->id);
+    $qa->assignRole('qa');
+    actingAs($qa);
+
+    $ticket = StoreTicket::make()->action($this->group, ['subject' => 'QA skipped out of range page']);
+    Ticket::whereKey($ticket->id)->update(['status' => TicketStatusEnum::RESOLVED, 'qa_status' => TicketQaStatusEnum::SKIPPED]);
+
+    foreach (['grp.tickets.list', 'grp.tickets.qa_list'] as $routeName) {
+        $query = ['elements' => ['mine' => '', 'status' => '', 'qa_status' => 'skipped'], 'perPage' => 1000];
+
+        $redirect = get(route($routeName, [...$query, 'page' => 7]))->assertRedirect();
+
+        expect(urldecode($redirect->headers->get('Location')))
+            ->toContain(route($routeName), 'elements[mine]=', 'elements[status]=', 'elements[qa_status]=skipped', 'page=1')
+            ->not->toContain('page=7');
+
+        get($redirect->headers->get('Location'))->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => expect(collect($page->toArray()['props']['data']['data'])->pluck('reference')->all())->toContain($ticket->reference));
+
+        get(route($routeName, [...$query, 'filter' => ['global' => 'nothing-matches-this-'.uniqid()], 'page' => 1]))->assertOk();
+    }
+});
+
 test('the dashboard shows QA details to QA, and the urgent check lands on requested tickets only', function () {
     $engineer = User::factory()->create(['group_id' => $this->group->id]);
     $qa       = User::factory()->create(['group_id' => $this->group->id]);

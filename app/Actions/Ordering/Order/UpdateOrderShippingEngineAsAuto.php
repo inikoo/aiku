@@ -13,6 +13,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Catalogue\Shop\ShopEngineEnum;
 use App\Enums\Ordering\Order\OrderShippingEngineEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
@@ -56,7 +57,9 @@ class UpdateOrderShippingEngineAsAuto extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (in_array($this->order->state, [
+        if ($this->order->shop->engine == ShopEngineEnum::FAIRE) {
+            $validator->errors()->add('message', __('Shipping is not calculated by Aiku on a Faire order.'));
+        } elseif (in_array($this->order->state, [
             OrderStateEnum::DISPATCHED,
             OrderStateEnum::FINALISED,
             OrderStateEnum::CANCELLED
