@@ -141,6 +141,11 @@ const groupPositionList = {
                 grade: "manager",
                 label: ctrans("Manager")
                 // number_employees: props.options.positions?.data?.find(position => position.slug == 'gp-g')?.number_employees || 0,
+            },
+            {
+                slug: "gp-g-v", // Note, this is not slug is job position code
+                grade: "clerk-1",
+                label: ctrans("Viewer")
             }
         ]
         // value: null

@@ -15,6 +15,7 @@ import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
 import Chart from "primevue/chart"
 import Select from "primevue/select"
 import TicketsCreatedInterval from "@/Components/Tickets/TicketsCreatedInterval.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { useLiveTickets } from "@/Composables/useLiveTickets"
 import ProcurementOverviewPill from "@/Components/DataDisplay/Dashboard/Widget/ProcurementOverviewPill.vue"
 import DashboardWidgetBox from "@/Components/DataDisplay/Dashboard/Widget/DashboardWidgetBox.vue"
@@ -45,8 +46,7 @@ const props = defineProps<{
         csat_by_month: { month: string; average: number | null; total: number }[]
         daily: { date: string; created: number; done: number; open: number }[]
         timezone: string
-        by_time_of_day: [number, number, number][]
-        by_hour: { hour: number; created: number; started: number; done: number }[]
+        by_quarter_hour: { slot: number; created: number; started: number; done: number }[]
         breakdown: [string, string, string, string, string | null, number][]
         modules: { value: string; label: string; total: number }[]
         kinds: { value: string; label: string; total: number }[]
@@ -131,21 +131,77 @@ const HOURLY_SERIES: { key: "created" | "started" | "done"; label: string; color
 
 const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.days, 1)) * 100) / 100
 
-const hourLabel = (hour: number) => `${String(hour).padStart(2, "0")}:00`
+type SlotMinutes = "15" | "30" | "60"
 
-const hourlyChart = computed(() => ({
-    labels: props.stats.by_hour.map((row) => hourLabel(row.hour)),
-    datasets: HOURLY_SERIES.map((series) => ({
+const slotMinutes = ref<SlotMinutes>("60")
+
+const slotOptions: { label: string; value: SlotMinutes }[] = [
+    { label: ctrans("15 minutes"), value: "15" },
+    { label: ctrans("30 minutes"), value: "30" },
+    { label: ctrans("1 hour"), value: "60" },
+]
+
+const timeLabel = (minutes: number) => `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
+
+const timeSlots = computed(() => {
+    const minutes = Number(slotMinutes.value)
+    const quartersPerSlot = minutes / 15
+
+    return Array.from({ length: 96 / quartersPerSlot }, (_, index) => {
+        const quarters = props.stats.by_quarter_hour.slice(index * quartersPerSlot, (index + 1) * quartersPerSlot)
+
+        return {
+            from: index * minutes,
+            to: (index + 1) * minutes,
+            created: quarters.reduce((sum, quarter) => sum + quarter.created, 0),
+            started: quarters.reduce((sum, quarter) => sum + quarter.started, 0),
+            done: quarters.reduce((sum, quarter) => sum + quarter.done, 0),
+        }
+    })
+})
+
+type HourlySeriesKey = (typeof HOURLY_SERIES)[number]["key"]
+
+const timeOfDayChart = (keys: HourlySeriesKey[]) => ({
+    labels: timeSlots.value.map((slot) => timeLabel(slot.from)),
+    datasets: HOURLY_SERIES.filter((series) => keys.includes(series.key)).map((series) => ({
         label: series.label,
-        data: props.stats.by_hour.map((row) => averagePerDay(row[series.key])),
-        totals: props.stats.by_hour.map((row) => row[series.key]),
+        data: timeSlots.value.map((slot) => averagePerDay(slot[series.key])),
+        totals: timeSlots.value.map((slot) => slot[series.key]),
         borderColor: series.color,
         backgroundColor: series.color,
-        tension: 0.3,
+        tension: 0,
         borderWidth: 1.5,
-        pointRadius: 2,
+        pointRadius: slotMinutes.value === "15" ? 1 : 2,
     })),
-}))
+})
+
+const dailyAverages = (keys: HourlySeriesKey[]) => HOURLY_SERIES.filter((series) => keys.includes(series.key)).map((series) => {
+    const total = props.stats.by_quarter_hour.reduce((sum, quarter) => sum + quarter[series.key], 0)
+
+    return { ...series, total, average: averagePerDay(total) }
+})
+
+const timeOfDayBoxes = computed(() => {
+    const boxes: { key: string; title: string; note: string; series: HourlySeriesKey[]; storageKey: string }[] = [
+        {
+            key: "created",
+            title: ctrans("Tickets created, by time of day"),
+            note: props.stats.assignee ? ctrans("Created by anyone, whoever the assignee is") : ctrans("Created by anyone"),
+            series: ["created"],
+            storageKey: "tickets_reports_created_by_time_collapsed",
+        },
+        {
+            key: "work",
+            title: ctrans("Work started and resolved, by time of day"),
+            note: props.stats.assignee ? ctrans("Tickets of the chosen assignee") : ctrans("Tickets of every assignee"),
+            series: ["started", "done"],
+            storageKey: "tickets_reports_by_hour_collapsed",
+        },
+    ]
+
+    return boxes.map((box) => ({ ...box, chart: timeOfDayChart(box.series), averages: dailyAverages(box.series) }))
+})
 
 const hourlyOptions = computed(() => ({
     ...lineOptions.value,
@@ -153,7 +209,7 @@ const hourlyOptions = computed(() => ({
         legend: lineOptions.value.plugins.legend,
         tooltip: {
             callbacks: {
-                title: (items: any[]) => `${items[0].label} – ${hourLabel((items[0].dataIndex + 1) % 24)}`,
+                title: (items: any[]) => `${items[0].label} – ${timeLabel(timeSlots.value[items[0].dataIndex].to)}`,
                 label: (item: any) => `${item.dataset.label}: ${item.formattedValue} ${ctrans("per day")} (${item.dataset.totals[item.dataIndex]} ${ctrans("in total")})`,
             },
         },
@@ -183,48 +239,6 @@ const reportTabs: { key: ReportTab; label: string }[] = [
     { key: "reporters", label: ctrans("By reporter") },
     { key: "time_of_day", label: ctrans("By time of day") },
 ]
-
-const slotMinutes = ref<15 | 30 | 60>(30)
-
-const slotOptions: { key: 15 | 30 | 60; label: string }[] = [
-    { key: 15, label: ctrans("15 min") },
-    { key: 30, label: ctrans("30 min") },
-    { key: 60, label: ctrans("1 h") },
-]
-
-const WEEKDAY_LABELS = ["", ctrans("Mon"), ctrans("Tue"), ctrans("Wed"), ctrans("Thu"), ctrans("Fri"), ctrans("Sat"), ctrans("Sun")]
-
-const timeOfDayChart = computed(() => {
-    const perSlot = slotMinutes.value / 15
-    const slots = 96 / perSlot
-    const pad = (value: number) => String(value).padStart(2, "0")
-    const labels = Array.from({ length: slots }, (_, index) => {
-        const minutes = index * slotMinutes.value
-        return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`
-    })
-    const weekdays = [1, 2, 3, 4, 5, 6, 7]
-    const counts = Object.fromEntries(weekdays.map((weekday) => [weekday, Array(slots).fill(0)]))
-    props.stats.by_time_of_day.forEach(([weekday, slot, total]) => {
-        counts[weekday][Math.floor(slot / perSlot)] += total
-    })
-    return {
-        labels,
-        datasets: weekdays.map((weekday) => ({
-            label: WEEKDAY_LABELS[weekday],
-            data: counts[weekday],
-            backgroundColor: MODULE_PALETTE[weekday - 1],
-            stack: "tickets",
-        })),
-    }
-})
-
-const timeOfDayOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: "index", intersect: false },
-    plugins: { legend: { position: "bottom" } },
-    scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } },
-}
 
 const requestedTab = new URLSearchParams(window.location.search).get("tab")
 
@@ -690,43 +704,39 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
             </div>
         </DashboardWidgetBox>
 
-        <DashboardWidgetBox v-if="reportTab === 'overview'" storageKey="tickets_reports_by_hour_collapsed">
-            <template #header>
-                <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
-                    <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
-                    {{ ctrans("Average day, hour by hour") }}
-                </span>
-                <span class="text-xs text-gray-400">{{ ctrans("Tickets per hour, averaged over the :days days of this period", { days: stats.days }) }} · {{ stats.timezone }}</span>
-            </template>
-            <div class="h-72">
-                <Chart type="line" :data="hourlyChart" :options="hourlyOptions" class="h-full" />
+        <template v-if="reportTab === 'time_of_day'">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs text-gray-400">{{ ctrans("Tickets per time slot, averaged over the :days days of this period", { days: stats.days }) }} · {{ stats.timezone }}</span>
+                <SegmentedToggle v-model="slotMinutes" :options="slotOptions" :ariaLabel="ctrans('Time slot')" />
             </div>
-        </DashboardWidgetBox>
-
-        <DashboardWidgetBox v-if="reportTab === 'time_of_day'" storageKey="tickets_reports_time_of_day_collapsed">
-            <template #header>
-                <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
-                    <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
-                    {{ ctrans("Tickets created by time of day") }}
-                </span>
-            </template>
-            <div class="mb-3 flex justify-end">
-                <span class="inline-flex overflow-hidden rounded-full border border-gray-200 text-xs">
-                    <button
-                        v-for="option in slotOptions"
-                        :key="option.key"
-                        type="button"
-                        class="px-2.5 py-1 transition"
-                        :class="slotMinutes === option.key ? 'bg-[--app-accent-soft] text-[--app-accent-strong]' : 'text-gray-500 hover:bg-gray-50'"
-                        @click="slotMinutes = option.key">
-                        {{ option.label }}
-                    </button>
-                </span>
-            </div>
-            <div class="h-80">
-                <Chart type="bar" :data="timeOfDayChart" :options="timeOfDayOptions" class="h-full" />
-            </div>
-        </DashboardWidgetBox>
+            <DashboardWidgetBox v-for="box in timeOfDayBoxes" :key="box.key" :storageKey="box.storageKey">
+                <template #header>
+                    <span class="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                        <FontAwesomeIcon icon="fal fa-clock" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                        {{ box.title }}
+                    </span>
+                    <span class="text-xs text-gray-400">{{ box.note }}</span>
+                </template>
+                <div class="h-72">
+                    <Chart type="line" :data="box.chart" :options="hourlyOptions" class="h-full" />
+                </div>
+                <div class="mt-4 border-t border-gray-200 pt-3">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Average per day") }}</div>
+                    <dl class="mt-2 flex divide-x divide-gray-200">
+                        <div v-for="stat in box.averages" :key="stat.key" class="px-4 first:pl-0">
+                            <dt class="flex items-center gap-1.5 text-xs text-gray-500">
+                                <span class="size-2 rounded-sm" :style="{ backgroundColor: stat.color }" aria-hidden="true" />
+                                {{ stat.label }}
+                            </dt>
+                            <dd class="mt-0.5 flex items-baseline gap-2">
+                                <span class="text-2xl font-semibold tabular-nums text-gray-800">{{ stat.average }}</span>
+                                <span class="text-xs tabular-nums text-gray-400">{{ ctrans(":total in :days days", { total: stat.total, days: stats.days }) }}</span>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </DashboardWidgetBox>
+        </template>
 
         <DashboardWidgetBox v-if="!['overview', 'time_of_day'].includes(reportTab)" storageKey="tickets_reports_by_module_collapsed">
             <template #header>

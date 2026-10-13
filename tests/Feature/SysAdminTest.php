@@ -141,7 +141,7 @@ test('create group', function () {
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
-        ->and($group->roles()->count())->toBe(17)
+        ->and($group->roles()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -149,14 +149,14 @@ test('create group', function () {
 
 test('group scoped job positions', function (Group $group) {
     $jobPositions = collect(config("blueprint.job_positions.positions"));
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     $this->artisan('group:seed-job-positions', [
         'group' => $group->slug,
     ])->assertSuccessful();
 
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 })->depends('create group');
 
@@ -208,8 +208,8 @@ test('create organisation type shop', function (Group $group) {
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
         ->and($organisation->address)->toBeInstanceOf(Address::class)
-        ->and($organisation->roles()->count())->toBe(10)
-        ->and($group->roles()->count())->toBe(27)
+        ->and($organisation->roles()->count())->toBe(11)
+        ->and($group->roles()->count())->toBe(29)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
@@ -2136,6 +2136,21 @@ test('supply chain job positions: the worker views and edits, only the manager d
 
     UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => []]);
     expect($user->refresh()->authTo('supply-chain.view'))->toBeFalse();
+})->depends('SetUserAuthorisedModels command');
+
+test('goods viewer job position sees goods and edits nothing', function (User $user) {
+    app()->instance('group', $user->group);
+    setPermissionsTeamId($user->group->id);
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => ['gp-g-v']]);
+    $user->refresh();
+
+    expect($user->authTo('goods.view'))->toBeTrue()
+        ->and($user->authTo('goods.edit'))->toBeFalse()
+        ->and($user->authTo('goods'))->toBeFalse();
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => []]);
+    expect($user->refresh()->authTo('goods.view'))->toBeFalse();
 })->depends('SetUserAuthorisedModels command');
 
 test('changing group permissions leaves the cached ui props in sync with the menu', function (User $admin) {

@@ -64,6 +64,7 @@ interface GetMessagesParams {
 }
 
 import { formatChatTime, formatChatAge } from "@/Composables/chatTime"
+import { chatEmailRecipient, chatEmailRecipientLabel } from "@/Composables/chatEmailRecipient"
 import { useChatClosingCountdown } from "@/Composables/useChatClosingCountdown"
 import { useChatWaitingForCustomer, waitingOptions } from "@/Composables/useChatWaitingForCustomer"
 import { faGlobe } from "@fal"
@@ -683,11 +684,9 @@ const customerLanguage = computed<{ code: string, name: string } | null>(() =>
     (props.session as any)?.channel === "whatsapp" ? null : (props.session as any)?.customer_language ?? null
 )
 
-const emailRecipient = computed(() => {
-    const metadata = (props.session as any)?.metadata ?? {}
+const emailRecipient = computed(() => chatEmailRecipient((props.session as any)?.metadata).address)
 
-    return String(metadata.email_reply_to || metadata.email_from || "").toLowerCase()
-})
+const emailRecipientLabel = computed(() => isEmailChat.value ? chatEmailRecipientLabel((props.session as any)?.metadata) : "")
 
 const emailCopyCandidates = computed<{ address: string; name: string | null }[]>(() => {
     if (!isEmailChat.value) return []
@@ -1717,6 +1716,11 @@ const handleClickOutside = (e: MouseEvent) => {
             <input ref="imageInput" type="file" accept=".webp,.jpg,.jpeg,.png,.avif" multiple class="hidden"
                 @change="handleImageSelect" />
             <input ref="fileInput" type="file" :accept="FILE_EXTENSIONS.map((extension) => `.${extension}`).join(',')" multiple class="hidden" @change="handleDocSelect" />
+
+            <div v-if="emailRecipientLabel" class="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-gray-500">
+                <span class="font-medium">{{ ctrans("To") }}</span>
+                <span class="text-gray-700">{{ emailRecipientLabel }}</span>
+            </div>
 
             <div v-if="emailCopyCandidates.length" class="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-gray-500">
                 <span class="font-medium">{{ ctrans("Cc") }}</span>

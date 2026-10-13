@@ -17,6 +17,7 @@ import PurchaseOrderSuggestButton from "@/Components/Procurement/PurchaseOrderSu
 import Table from "@/Components/Table/Table.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { notify } from "@kyvg/vue3-notification"
+import axios from "axios"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { faCheckCircle } from "@fas"
 import { faTrashAlt } from "@fal"
@@ -46,12 +47,17 @@ type BucketItem = {
     other_organisations_drafts: { organisation_code: string, organisation_name: string, units: number }[]
     stock_deliveries?: { coming?: { slug: string, reference: string, state_label: string, quantity: number }[], recent_received?: { slug: string, reference: string, received_at: string, quantity: number }[] } | null
     other_open_purchase_orders?: { slug: string | null, reference: string, stage?: string | null, state: string, quantity_ordered: number }[]
+    saveRoute?: LineRoute
+    deleteRoute?: LineRoute | null
 }
+
+type LineRoute = { name: string, parameters: Record<string, number | string>, method: string }
 
 const props = withDefaults(defineProps<{
     items: { data: BucketItem[] }
-    orgAgent: { id: number, slug: string, currency: string }
-    addRoute: { name: string, parameters: (string | number)[] }
+    orgAgent?: { id: number, slug: string, currency: string }
+    addRoute?: { name: string, parameters: (string | number)[] }
+    currency?: string
     bucket?: string | null
     bucketLabels: Record<string, { label: string, tone: string }>
     view?: "cards" | "list"
@@ -72,6 +78,8 @@ const bucketChip: Record<string, string> = {
 }
 
 const locale = useLocaleStore()
+
+const orgCurrency = computed(() => props.currency ?? props.orgAgent?.currency ?? "")
 
 const cartons = ref<Record<number, number>>({})
 const commitTimers: Record<number, ReturnType<typeof setTimeout>> = {}
@@ -100,6 +108,32 @@ function commit(item: BucketItem) {
         return
     }
 
+    const forget = () => {
+        if (cartons.value[item.id] === quantity) {
+            delete cartons.value[item.id]
+        }
+    }
+    const refuse = (message?: string) => {
+        delete cartons.value[item.id]
+        notify({
+            title: ctrans("Not saved"),
+            text: message ?? ctrans("The quantity could not be saved, it is back to what is on the draft"),
+            type: "error",
+        })
+    }
+
+    if (item.saveRoute) {
+        const lineRoute = quantityUnits === 0 && item.deleteRoute ? item.deleteRoute : item.saveRoute
+        axios({ method: lineRoute.method, url: route(lineRoute.name, lineRoute.parameters), data: { quantity_ordered: quantityUnits } })
+            .then(() => router.reload({ ...(props.reloadOnly ? { only: props.reloadOnly } : {}), onSuccess: forget }))
+            .catch((error) => refuse(error?.response?.data?.message))
+        return
+    }
+
+    if (!props.addRoute) {
+        return
+    }
+
     router.post(
         route(props.addRoute.name, [...props.addRoute.parameters, item.id]),
         { quantity_units: quantityUnits },
@@ -107,19 +141,8 @@ function commit(item: BucketItem) {
             preserveScroll: true,
             preserveState: true,
             ...(props.reloadOnly ? { only: props.reloadOnly } : {}),
-            onSuccess: () => {
-                if (cartons.value[item.id] === quantity) {
-                    delete cartons.value[item.id]
-                }
-            },
-            onError: (errors) => {
-                delete cartons.value[item.id]
-                notify({
-                    title: ctrans("Not saved"),
-                    text: Object.values(errors)[0] ?? ctrans("The quantity could not be saved, it is back to what is on the draft"),
-                    type: "error",
-                })
-            },
+            onSuccess: forget,
+            onError: (errors) => refuse(Object.values(errors)[0]),
         }
     )
 }
@@ -205,7 +228,7 @@ const stockDeliveryRoute = (slug: string) => route("grp.org.procurement.stock_de
 const amountOf = (item: BucketItem) => cartonsFor(item) * unitsPerCarton(item) * Number(item.cost ?? 0)
 
 const orgAmountOf = (item: BucketItem) =>
-    item.org_exchange && item.currency && item.currency !== props.orgAgent.currency ? amountOf(item) * item.org_exchange : null
+    item.org_exchange && item.currency && item.currency !== orgCurrency.value ? amountOf(item) * item.org_exchange : null
 
 const quantityBreakdown = (item: BucketItem) => {
     const units = cartonsFor(item) * unitsPerCarton(item)
@@ -244,7 +267,7 @@ const quantityBreakdown = (item: BucketItem) => {
                         </p>
                         <div class="space-y-0.5">
                             <div class="text-xs text-gray-500">
-                                {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
+                                {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgCurrency, item.cost) : "-" }}</span>
                                 <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
                             </div>
                             <div v-if="item.lead_time_days" class="text-xs text-gray-500">
@@ -261,8 +284,8 @@ const quantityBreakdown = (item: BucketItem) => {
                                         {{ quantityBreakdown(item) }}
                                     </div>
                                     <div v-if="item.cost !== null" class="font-medium text-gray-800">
-    {{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}
-    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgAgent.currency, orgAmountOf(item)!) }})</span>
+    {{ locale.currencyFormat(item.currency ?? orgCurrency, amountOf(item)) }}
+    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgCurrency, orgAmountOf(item)!) }})</span>
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                                 </div>
@@ -327,7 +350,7 @@ const quantityBreakdown = (item: BucketItem) => {
                     <div class="space-y-0.5">
                         <div class="text-gray-900">{{ item.name }}</div>
                         <div class="text-xs text-gray-500">
-                            {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgAgent.currency, item.cost) : "-" }}</span>
+                            {{ ctrans("Unit cost") }}: <span class="tabular-nums text-gray-700">{{ item.cost !== null ? locale.currencyFormat(item.currency ?? orgCurrency, item.cost) : "-" }}</span>
                             <template v-if="item.units_per_carton"> · {{ ctrans(":count per carton", { count: locale.number(item.units_per_carton) }) }}</template>
                         </div>
                         <div v-if="item.lead_time_days" class="text-xs text-gray-500">
@@ -351,8 +374,8 @@ const quantityBreakdown = (item: BucketItem) => {
                             {{ quantityBreakdown(item) }}
                         </div>
                         <div v-if="item.cost !== null" class="font-medium text-gray-800">
-    {{ locale.currencyFormat(item.currency ?? orgAgent.currency, amountOf(item)) }}
-    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgAgent.currency, orgAmountOf(item)!) }})</span>
+    {{ locale.currencyFormat(item.currency ?? orgCurrency, amountOf(item)) }}
+    <span v-if="orgAmountOf(item) !== null" class="font-normal text-gray-500">({{ locale.currencyFormat(orgCurrency, orgAmountOf(item)!) }})</span>
 </div>
                                 <div v-if="isPartCarton(item) && cartons[item.id] === undefined" class="text-amber-600">{{ ctrans("The draft holds :units units, not whole cartons", { units: locale.number(item.ordered_quantity) }) }}</div>
                     </div>

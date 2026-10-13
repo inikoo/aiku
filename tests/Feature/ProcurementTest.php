@@ -10987,6 +10987,33 @@ test('purchase order products and items tabs show stock and quarterly usage of e
         ->and($row['stock_cover']['overstock_days'])->toBe(GetOrganisationStockCoverBuckets::EXCESS_DAYS)
         ->and($row['stock_cover']['lead_time_days'])->toBeInt();
 
+    $agentId = $purchaseOrder->agent_id;
+    $purchaseOrder->updateQuietly(['agent_id' => null]);
+    $directProducts = fn (array $filter = []) => $this->get(route('grp.org.procurement.purchase_orders.show', [
+        $this->organisation->slug, $purchaseOrder->slug, 'tab' => 'products', 'products_filter' => ['global' => $supplierProduct->code, ...$filter],
+    ]))->assertOk()->viewData('page')['props']['products'];
+    $stockGroup      = collect($directProducts()['data'])->firstWhere('id', $orgSupplierProduct->id)['bucket'];
+    $inItsStockGroup = $directProducts(['cover' => $stockGroup]);
+    $inAnotherGroup  = $directProducts(['cover' => $stockGroup === 'never' ? 'out' : 'never']);
+    $openOrder = StorePurchaseOrder::make()->action($this->orgSupplier, [...PurchaseOrder::factory()->definition(), 'reference' => 'PO-OPEN-'.PurchaseOrder::max('id')], strict: false);
+    $openLine  = StorePurchaseOrderTransaction::make()->action($openOrder, $supplierProduct->historicSupplierProduct, $orgStock, PurchaseOrderTransaction::factory()->definition());
+    $openOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+    $notOnOrder = $directProducts(['hide_ordered' => 1]);
+    $openLine->forceDelete();
+    $openOrder->forceDelete();
+    $purchaseOrder->updateQuietly(['agent_id' => $agentId]);
+
+    expect(collect($notOnOrder['data'])->pluck('id'))->not->toContain($orgSupplierProduct->id)
+        ->and($notOnOrder['ordering']['active']['hide_ordered'])->toBeTrue()
+        ->and(collect($notOnOrder['ordering']['cover'])->sum('count'))->toBe(0);
+
+    expect($stockGroup)->toBeIn(array_keys(App\Actions\Procurement\OrgSupplier\GetSupplierStockCoverBuckets::BUCKETS))
+        ->and(collect($inItsStockGroup['data'])->pluck('id'))->toContain($orgSupplierProduct->id)
+        ->and(collect($inItsStockGroup['data'])->pluck('bucket')->unique()->all())->toBe([$stockGroup])
+        ->and(collect($inItsStockGroup['ordering']['cover'])->firstWhere('value', $stockGroup)['count'])->toBe($inItsStockGroup['meta']['total'])
+        ->and($inItsStockGroup['ordering']['active']['cover'])->toBe($stockGroup)
+        ->and(collect($inAnotherGroup['data'])->pluck('id'))->not->toContain($orgSupplierProduct->id);
+
     $transaction = StorePurchaseOrderTransaction::make()->action(
         $purchaseOrder,
         $supplierProduct->historicSupplierProduct,

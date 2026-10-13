@@ -105,6 +105,16 @@ return [
             ],
             'organisation_types' => []
         ],
+        'gp-g-v'      => [
+            'code'               => 'gp-g-v',
+            'name'               => 'Goods Viewer',
+            'scope'              => JobPositionScopeEnum::GROUP,
+            'department'         => 'group procurement',
+            'roles'              => [
+                RolesEnum::GOODS_VIEWER
+            ],
+            'organisation_types' => []
+        ],
         'gp-mas'      => [
             'code'               => 'gp-mas',
             'name'               => 'Masters Manager',
@@ -283,6 +293,20 @@ return [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
                 OrganisationTypeEnum::AGENT
+            ],
+        ],
+        'rep' => [
+            'code'               => 'rep',
+            'name'               => 'Reports',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
+            'department'         => 'admin',
+            'roles'              => [
+                RolesEnum::REPORTS_VIEWER
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT,
             ],
         ],
         'acc-v' => [

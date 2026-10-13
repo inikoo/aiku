@@ -3,6 +3,7 @@
 namespace App\Actions\Maintenance\Comms;
 
 use App\Actions\Comms\Email\GetEmailSocialIcons;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\Email;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Helpers\Snapshot;
@@ -87,7 +88,7 @@ class RepairEmailSocialIcons
         return $this->ownIconUrls[$url] ??= $socialIcons["$match[1]/$match[2]"] ?? null;
     }
 
-    public string $commandSignature = 'repair:email-social-icons';
+    public string $commandSignature = 'repair:email-social-icons {shop? : Only repair the emails and email templates of this shop slug}';
 
     public string $commandDescription = 'Replace Beefree social icon urls in the live and unpublished email snapshots and in email templates with our own seeded icons';
 
@@ -99,6 +100,20 @@ class RepairEmailSocialIcons
             return 1;
         }
 
+        $shop = null;
+        if ($command->argument('shop')) {
+            $shop = Shop::where('slug', $command->argument('shop'))->first();
+
+            if (!$shop) {
+                $command->error('Shop not found: '.$command->argument('shop'));
+
+                return 1;
+            }
+        }
+
+        $emails         = Email::when($shop, fn ($query) => $query->where('shop_id', $shop->id));
+        $emailTemplates = EmailTemplate::when($shop, fn ($query) => $query->where('shop_id', $shop->id));
+
         $replaced = 0;
         $missing  = [];
         $repair   = function (Snapshot|EmailTemplate $model) use (&$replaced, &$missing) {
@@ -108,8 +123,8 @@ class RepairEmailSocialIcons
         };
 
         $command->info('Email snapshots in use');
-        $progressBar = $command->getOutput()->createProgressBar(Email::count());
-        Email::select(['id', 'live_snapshot_id', 'unpublished_snapshot_id'])->chunkById(500, function ($emails) use ($repair, $progressBar) {
+        $progressBar = $command->getOutput()->createProgressBar($emails->clone()->count());
+        $emails->select(['id', 'live_snapshot_id', 'unpublished_snapshot_id'])->chunkById(500, function ($emails) use ($repair, $progressBar) {
             $this->snapshotsWithBeefreeIcons($emails->pluck('live_snapshot_id')->merge($emails->pluck('unpublished_snapshot_id'))->filter()->unique()->all())
                 ->each($repair);
             $progressBar->advance($emails->count());
@@ -118,7 +133,7 @@ class RepairEmailSocialIcons
         $command->newLine();
 
         $command->info('Email templates');
-        EmailTemplate::whereRaw('layout::text LIKE ?', ['%'.self::BEEFREE_ICON_PATH.'%'])->lazyById()->each($repair);
+        $emailTemplates->whereRaw('layout::text LIKE ?', ['%'.self::BEEFREE_ICON_PATH.'%'])->lazyById()->each($repair);
 
         $command->info("Done: $replaced icon urls replaced");
         foreach (array_unique($missing) as $url) {
