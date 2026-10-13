@@ -5,6 +5,7 @@
 
 <script setup lang="ts">
 import Table from "@/Components/Table/Table.vue"
+import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 
@@ -37,48 +38,53 @@ const pathOf = (url: string) => {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab">
-        <template #cell(query)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span class="break-words text-gray-900">{{ searchQuery.query }}</span>
-        </template>
+    <div>
+        <div class="mx-4 mb-2 mt-4 flex justify-end">
+            <SeoExportButton :table="tab" />
+        </div>
+        <Table :resource="data" :name="tab">
+            <template #cell(query)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span class="break-words text-gray-900">{{ searchQuery.query }}</span>
+            </template>
 
-        <template #cell(page_urls)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <div v-if="searchQuery.page_urls.length" class="max-w-xs space-y-0.5">
-                <a
-                    v-for="(url, index) in searchQuery.page_urls"
-                    :key="url"
-                    :href="url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    :title="url"
-                    class="block truncate text-xs underline-offset-2 hover:underline focus-visible:underline"
-                    :class="index === 0 ? 'primaryLink' : 'text-gray-500'">{{ pathOf(url) }}</a>
-                <span v-if="searchQuery.pages > searchQuery.page_urls.length" class="block text-xs text-gray-400">
-                    {{ ctrans("+:count more", { count: locale.number(searchQuery.pages - searchQuery.page_urls.length) }) }}
-                </span>
-            </div>
-            <span v-else class="text-gray-400">-</span>
-        </template>
+            <template #cell(page_urls)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <div v-if="searchQuery.page_urls.length" class="max-w-xs space-y-0.5">
+                    <a
+                        v-for="(url, index) in searchQuery.page_urls"
+                        :key="url"
+                        :href="url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :title="url"
+                        class="block truncate text-xs underline-offset-2 hover:underline focus-visible:underline"
+                        :class="index === 0 ? 'primaryLink' : 'text-gray-500'">{{ pathOf(url) }}</a>
+                    <span v-if="searchQuery.pages > searchQuery.page_urls.length" class="block text-xs text-gray-400">
+                        {{ ctrans("+:count more", { count: locale.number(searchQuery.pages - searchQuery.page_urls.length) }) }}
+                    </span>
+                </div>
+                <span v-else class="text-gray-400">-</span>
+            </template>
 
-        <template #cell(clicks)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span class="tabular-nums">{{ locale.number(searchQuery.clicks) }}</span>
-        </template>
+            <template #cell(clicks)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span class="tabular-nums">{{ locale.number(searchQuery.clicks) }}</span>
+            </template>
 
-        <template #cell(impressions)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span class="tabular-nums">{{ locale.number(searchQuery.impressions) }}</span>
-        </template>
+            <template #cell(impressions)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span class="tabular-nums">{{ locale.number(searchQuery.impressions) }}</span>
+            </template>
 
-        <template #cell(ctr)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span class="tabular-nums">{{ locale.number(searchQuery.ctr) }}%</span>
-        </template>
+            <template #cell(ctr)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span class="tabular-nums">{{ locale.number(searchQuery.ctr) }}%</span>
+            </template>
 
-        <template #cell(position)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span v-if="searchQuery.position !== null" class="tabular-nums">{{ locale.number(searchQuery.position) }}</span>
-            <span v-else class="text-gray-400">-</span>
-        </template>
+            <template #cell(position)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span v-if="searchQuery.position !== null" class="tabular-nums">{{ locale.number(searchQuery.position) }}</span>
+                <span v-else class="text-gray-400">-</span>
+            </template>
 
-        <template #cell(pages)="{ item: searchQuery }: { item: SearchQueryRow }">
-            <span class="tabular-nums">{{ locale.number(searchQuery.pages) }}</span>
-        </template>
-    </Table>
+            <template #cell(pages)="{ item: searchQuery }: { item: SearchQueryRow }">
+                <span class="tabular-nums">{{ locale.number(searchQuery.pages) }}</span>
+            </template>
+        </Table>
+    </div>
 </template>

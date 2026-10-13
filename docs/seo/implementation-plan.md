@@ -599,7 +599,8 @@ Strategy (Research)", 8 October 2026). None is built; each needs the team's go-a
   research had recommended daily top 100, about $486 a month for 2,700 keywords.
 - **Export and scheduled reports.** Built on 9 October 2026.
   - An Excel button on every SEO table (Rankings, Tracked keywords, Top pages, Missing pages,
-    Referring domains, Backlinks, Keyword gap, SEO portfolio) downloads it with the filters and sort
+    Referring domains, Backlinks, Keyword gap, SEO portfolio, and since HELP-3885 Search queries, Search
+    opportunities, the pages of each Site audit issue and Suggested fixes) downloads it with the filters and sort
     it has on screen, up to 20,000 rows (`ExportSeoTable`, `ExportSeoPortfolio`, `SeoTableExport`).
     The same index actions are read in pages of 2,000 for the request.
   - Weekly report by email: anyone can turn it on per shop (SEO dashboard) or for every website (SEO

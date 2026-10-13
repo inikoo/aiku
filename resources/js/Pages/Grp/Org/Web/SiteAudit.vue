@@ -68,6 +68,8 @@ const props = defineProps<{
 
 const locale = useLocaleStore()
 
+const routeParams = route().params as Record<string, string>
+
 const severityDots: Record<Severity, string> = {
     error: "bg-red-500",
     warning: "bg-amber-500",
@@ -195,6 +197,7 @@ const finishReasonText = computed(() => {
             <SeoExportButton
                 v-if="audit.latest"
                 routeName="grp.org.shops.show.seo.site_audit.export"
+                :routeParameters="[routeParams.organisation, routeParams.shop]"
                 :tooltip="ctrans('Download the latest audit as an Excel file: its numbers, the issue types, and every page with every issue found on it')" />
             <Link :href="route(suggestions.route.name, suggestions.route.parameters)">
                 <Button
