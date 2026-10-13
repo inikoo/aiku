@@ -155,6 +155,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Production\Artefact;
 use App\Actions\Ordering\Order\UpdateState\CancelOrder;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
+use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Ordering\Order\UpdateState\DispatchOrder;
 use App\Models\Production\JobOrder;
@@ -6299,6 +6300,47 @@ describe('partner shopping list', function () {
         expect(PartnerShoppingListItem::find($item->id))->toBeNull()
             ->and($openLines)->toHaveCount(1)
             ->and((float) $openLines->first()->quantity)->toBe(30.0);
+    });
+
+    test('lowering a partner order line gives the difference back to the buyer list', function () {
+        PartnerShoppingListItem::openPartnerLineFor($this->orgPartner->id, $this->buyerOrgStock->id)->delete();
+        $item = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 30]);
+        CherryPickPartnerShoppingListItems::make()->action($this->orgPartner->partner, [['id' => $item->id]]);
+        $transaction = $item->refresh()->transaction;
+        $fullQuantity = (float) $transaction->quantity_ordered;
+
+        UpdateTransaction::make()->action($transaction, ['quantity_ordered' => $fullQuantity * 20 / 30]);
+
+        $openLine = PartnerShoppingListItem::openPartnerLineFor($this->orgPartner->id, $this->buyerOrgStock->id)->sole();
+        expect($item->refresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
+            ->and((float) $item->quantity)->toBe(20.0)
+            ->and((float) $openLine->quantity)->toBe(10.0)
+            ->and($openLine->parent_id)->toBe($item->id)
+            ->and($openLine->transaction_id)->toBeNull();
+
+        $item->update(['pre_picked_at' => now()]);
+        UpdateTransaction::make()->action($transaction->refresh(), ['quantity_ordered' => $fullQuantity * 12 / 30]);
+
+        $prePickedBack = PartnerShoppingListItem::where('parent_id', $item->id)->whereNotNull('pre_picked_at')->sole();
+        expect((float) $item->refresh()->quantity)->toBe(12.0)
+            ->and((float) $prePickedBack->quantity)->toBe(8.0)
+            ->and($prePickedBack->state)->toBe(ShoppingListItemStateEnum::OPEN)
+            ->and((float) $openLine->refresh()->quantity)->toBe(10.0);
+    });
+
+    test('zeroing a partner order line already in the warehouse puts it back on the buyer list', function () {
+        PartnerShoppingListItem::openPartnerLineFor($this->orgPartner->id, $this->buyerOrgStock->id)->delete();
+        $item   = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 13]);
+        $result = CherryPickPartnerShoppingListItems::make()->action($this->orgPartner->partner, [['id' => $item->id]]);
+        $transaction = $item->refresh()->transaction;
+        $result['orders'][0]->update(['state' => OrderStateEnum::IN_WAREHOUSE]);
+
+        UpdateTransaction::make()->action($transaction->refresh(), ['quantity_ordered' => 0]);
+
+        expect($transaction->refresh()->trashed())->toBeFalse()
+            ->and($item->refresh()->state)->toBe(ShoppingListItemStateEnum::OPEN)
+            ->and($item->transaction_id)->toBeNull()
+            ->and((float) $item->quantity)->toBe(13.0);
     });
 
     test('cancelling a partner order puts its lines back on the buyer list', function () {
