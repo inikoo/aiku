@@ -194,8 +194,9 @@ const stockCostStats = computed(() => {
 
 const renderBarcodes = () => {
     props.data.barcodes?.forEach((barcode) => {
-        if (!barcode.number) return
-        JsBarcode("#barcode-" + barcode.level, barcode.number, {
+        const barcodeElement = document.getElementById("barcode-" + barcode.level)
+        if (!barcode.number || !barcodeElement) return
+        JsBarcode(barcodeElement, barcode.number, {
             format: /^\d{13}$/.test(barcode.number) ? "EAN13" : "CODE128",
             lineColor: "#000",
             width: 2,
