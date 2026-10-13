@@ -48,4 +48,14 @@ trait WithShopifyApi
         return [true, $response];
     }
 
+    /**
+     * Shopify answers an assigned fulfilment orders query this way when the token's app owns no fulfilment
+     * service in the store. A service with our name can still be listed there, yet no order of that store
+     * reaches us.
+     */
+    public function fulfilmentServiceIsLost(string $message): bool
+    {
+        return str_contains($message, 'not associated with any fulfillment service');
+    }
+
 }

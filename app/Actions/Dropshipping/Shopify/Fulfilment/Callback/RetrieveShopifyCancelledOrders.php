@@ -24,7 +24,7 @@ class RetrieveShopifyCancelledOrders extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(ShopifyUser $shopifyUser)
+    public function handle(ShopifyUser $shopifyUser): array
     {
         return $this->retrieveOrders($shopifyUser, 'CANCELLATION_REQUESTED');
     }
@@ -68,8 +68,8 @@ class RetrieveShopifyCancelledOrders extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function asCommand(Command $command): void
+    public function asCommand(Command $command): int
     {
-        $this->executeCommand($command, 'customerSalesChannel');
+        return $this->executeCommand($command, 'customerSalesChannel');
     }
 }

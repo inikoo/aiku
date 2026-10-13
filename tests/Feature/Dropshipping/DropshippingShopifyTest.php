@@ -19,8 +19,10 @@ use App\Actions\Dropshipping\CustomerSalesChannel\SyncCustomerSalesChannelPortfo
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Dropshipping\CustomerSalesChannel\Json\GetShopifyProducts;
 use App\Actions\Dropshipping\Shopify\FulfilmentService\AdoptShopifyFulfilmentService;
+use App\Actions\Dropshipping\Shopify\FulfilmentService\GetFulfilmentServiceName;
 use App\Actions\Dropshipping\Shopify\FulfilmentService\AddShopifyLocationToDeliveryProfiles;
 use App\Actions\Dropshipping\Shopify\Fulfilment\Callback\CallbackFetchStock;
+use App\Actions\Dropshipping\Shopify\Fulfilment\Callback\CallbackFulfillmentOrderNotification;
 use App\Actions\Dropshipping\Shopify\Product\BulkUpdateShopifyPortfolio;
 use App\Actions\Dropshipping\Shopify\Product\StoreShopifyLocationToProductVariant;
 use App\Actions\Dropshipping\Shopify\Product\CreateNewBulkPortfoliosToShopify;
@@ -69,6 +71,7 @@ use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\Ordering\Order\StoreOrder;
@@ -2688,4 +2691,83 @@ test('a store that revoked our refresh token is shown as disconnected, any other
     expect(\App\Actions\Dropshipping\Shopify\RefreshShopifyOfflineTokens::run($shopifyUser))->toBeFalse()
         ->and($channel->refresh()->can_connect_to_platform)->toBeFalse()
         ->and($channel->platform_status)->toBeFalse();
+});
+
+test('a store whose app lost its fulfilment service stops showing as connected, a passing shopify error leaves it alone', function () {
+    $shopifyUser = shopifyProductChannel($this, 'detached-'.Str::lower(Str::random(6)));
+    $shopifyUser->update(['password' => 'shpat_detached']);
+    $channel = $shopifyUser->customerSalesChannel;
+    $connect = fn () => $channel->update(['can_connect_to_platform' => true, 'exist_in_platform' => true, 'platform_status' => true]);
+    $connect();
+
+    $noOrders = ShopifyFake::graphql(['shop' => ['assignedFulfillmentOrders' => ['edges' => []]]]);
+    $passing  = ShopifyFake::graphql([], [['message' => 'Internal error. Looks like something went wrong on our end.', 'extensions' => ['code' => 'INTERNAL_SERVER_ERROR']]]);
+    $detached = ShopifyFake::graphql([], [['message' => 'The api_client is not associated with any fulfillment service.', 'extensions' => ['code' => 'BAD_REQUEST'], 'path' => ['shop', 'assignedFulfillmentOrders']]]);
+
+    Log::spy();
+    ShopifyFake::fake(['assignedFulfillmentOrders' => $passing]);
+    CallbackFulfillmentOrderNotification::run($shopifyUser, ['kind' => 'FULFILLMENT_REQUEST']);
+    Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => str_contains($message, $channel->slug) && str_contains($message, 'Internal error'))->once();
+    expect($channel->refresh()->platform_status)->toBeTrue();
+
+    ShopifyFake::fake(['assignedFulfillmentOrders' => $detached]);
+    CallbackFulfillmentOrderNotification::run($shopifyUser, ['kind' => 'FULFILLMENT_REQUEST']);
+    Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => str_contains($message, $channel->slug) && str_contains($message, 'not associated with any fulfillment service'))->once();
+    expect($channel->refresh()->platform_status)->toBeFalse()
+        ->and($channel->can_connect_to_platform)->toBeTrue();
+
+    $this->artisan('shopify:retrieve_orders', ['customerSalesChannel' => $channel->slug])
+        ->expectsOutputToContain('not associated with any fulfillment service')
+        ->assertExitCode(1);
+
+    $shopListingOurService = ShopifyFake::graphql(['shop' => ['id' => 'gid://shopify/Shop/77', 'name' => 'Detached', 'fulfillmentServices' => [
+        ['id' => 'gid://shopify/FulfillmentService/501', 'serviceName' => GetFulfilmentServiceName::run($channel), 'location' => ['id' => 'gid://shopify/Location/1001']],
+    ]]]);
+    ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $detached]);
+    expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeFalse()
+        ->and($channel->exist_in_platform)->toBeTrue();
+
+    ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $passing]);
+    expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeFalse();
+
+    ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $noOrders]);
+    expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeTrue();
+    $channel->update(['platform_status' => false]);
+
+    ShopifyFake::fake(['assignedFulfillmentOrders' => $noOrders]);
+    $this->artisan('shopify:retrieve_orders', ['customerSalesChannel' => $channel->slug])
+        ->expectsOutputToContain('Retrieved assigned fulfillment orders')
+        ->assertExitCode(0);
+});
+
+test('the detached report lists the connected stores that no longer hand us their orders and changes nothing', function () {
+    $detachedUser = shopifyProductChannel($this, 'report-detached-'.Str::lower(Str::random(6)));
+    $healthyUser  = shopifyProductChannel($this, 'report-healthy-'.Str::lower(Str::random(6)));
+    foreach ([$detachedUser, $healthyUser] as $shopifyUser) {
+        $shopifyUser->update(['password' => 'shpat_report']);
+        $shopifyUser->customerSalesChannel->update(['can_connect_to_platform' => true, 'exist_in_platform' => true, 'platform_status' => true]);
+    }
+
+    $passing = false;
+    ShopifyFake::fake(['fulfilmentServiceOwnership' => function (array $variables, $request) use ($detachedUser, &$passing) {
+        if ($passing) {
+            return ShopifyFake::graphql([], [['message' => 'Internal error. Looks like something went wrong on our end.']]);
+        }
+
+        return str_contains($request->url(), $detachedUser->name)
+            ? ShopifyFake::graphql([], [['message' => 'The api_client is not associated with any fulfillment service.']])
+            : ShopifyFake::graphql(['shop' => ['assignedFulfillmentOrders' => ['edges' => []]]]);
+    }]);
+
+    expect(CheckShopifyChannel::make()->ownsFulfilmentService($detachedUser))->toBeFalse()
+        ->and(CheckShopifyChannel::make()->ownsFulfilmentService($healthyUser))->toBeTrue();
+
+    $this->artisan('shopify:check', ['--detached' => true])
+        ->expectsOutputToContain($detachedUser->customerSalesChannel->slug)
+        ->doesntExpectOutputToContain($healthyUser->customerSalesChannel->slug)
+        ->assertExitCode(0);
+
+    $passing = true;
+    expect(CheckShopifyChannel::make()->ownsFulfilmentService($detachedUser))->toBeNull()
+        ->and($detachedUser->customerSalesChannel->refresh()->platform_status)->toBeTrue();
 });

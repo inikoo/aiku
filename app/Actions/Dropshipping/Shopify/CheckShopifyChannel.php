@@ -16,6 +16,7 @@ use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laravel\Nightwatch\Facades\Nightwatch;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,8 +26,14 @@ class CheckShopifyChannel
 {
     use asAction;
     use WithActionUpdate;
+    use WithShopifyApi;
 
 
+    /**
+     * A service with our name listed in the store is not proof that the store hands our app its orders.
+     * So a channel that is not connected is only connected again once the store confirms our app owns one,
+     * which keeps a store the order pickup marked as detached from being switched back on every night.
+     */
     public function handle(CustomerSalesChannel $customerSalesChannel): CustomerSalesChannel
     {
         $canConnectToPlatform = false;
@@ -66,7 +73,7 @@ class CheckShopifyChannel
                 foreach ($storeData['fulfillmentServices'] as $service) {
                     if (isset($service['serviceName']) && $service['serviceName'] === $fulfilmentServiceName) {
                         $existInPlatform                             = true;
-                        $platformStatus                              = true;
+                        $platformStatus                              = $customerSalesChannel->platform_status || $this->ownsFulfilmentService($customerSalesChannel->user) === true;
                         $updateData['shopify_fulfilment_service_id'] = $service['id'];
 
                         // Extract location_id from the found fulfillmentService and save it to shopify_location_id
@@ -97,7 +104,8 @@ class CheckShopifyChannel
 
     public function getCommandSignature(): string
     {
-        return 'shopify:check {customerSalesChannel? : The slug of the customer sales channel to check (optional, processes all channels with platform_id=1 if not provided)}';
+        return 'shopify:check {customerSalesChannel? : The slug of the customer sales channel to check (optional, processes all channels with platform_id=1 if not provided)}
+            {--detached : Only list the connected channels whose store no longer hands our app its orders, changing nothing}';
     }
 
     public function asCommand(Command $command): void
@@ -105,6 +113,12 @@ class CheckShopifyChannel
         Nightwatch::dontSample();
 
         $customerSalesChannelSlug = $command->argument('customerSalesChannel');
+
+        if ($command->option('detached')) {
+            $this->reportDetachedChannels($command, $customerSalesChannelSlug);
+
+            return;
+        }
 
         if ($customerSalesChannelSlug) {
             // Process a single customer sales channel
@@ -115,13 +129,7 @@ class CheckShopifyChannel
             $this->displayChannelInfo($command, $customerSalesChannel);
         } else {
 
-            $shopifyPlatform = Platform::where('type', PlatformTypeEnum::SHOPIFY)->firstOrFail();
-
-            $customerSalesChannels = CustomerSalesChannel::where('platform_id', $shopifyPlatform->id)
-                ->where('status', CustomerSalesChannelStatusEnum::OPEN)
-                ->where('platform_user_type', class_basename(ShopifyUser::class))
-                ->whereIn('platform_user_id', ShopifyUser::where('password', 'like', 'shpat_%')->select('id'))
-                ->get();
+            $customerSalesChannels = $this->openChannelsHoldingAToken()->get();
 
             if ($customerSalesChannels->isEmpty()) {
                 $command->info('No customer sales channels found with platform_id=1.');
@@ -155,6 +163,67 @@ class CheckShopifyChannel
             $command->newLine(2);
             $command->info("Processed {$customerSalesChannels->count()} customer sales channels: $successCount successful, $failCount failed.");
         }
+    }
+
+    private function openChannelsHoldingAToken(): Builder
+    {
+        $shopifyPlatform = Platform::where('type', PlatformTypeEnum::SHOPIFY)->firstOrFail();
+
+        return CustomerSalesChannel::where('platform_id', $shopifyPlatform->id)
+            ->where('status', CustomerSalesChannelStatusEnum::OPEN)
+            ->where('platform_user_type', class_basename(ShopifyUser::class))
+            ->whereIn('platform_user_id', ShopifyUser::where('password', 'like', 'shpat_%')->select('id'));
+    }
+
+    /**
+     * One read per store, and Shopify meters each store on its own, so the run needs no pacing of its own.
+     */
+    private function reportDetachedChannels(Command $command, ?string $customerSalesChannelSlug): void
+    {
+        $customerSalesChannels = $this->openChannelsHoldingAToken()
+            ->where('platform_status', true)
+            ->when($customerSalesChannelSlug, fn (Builder $query) => $query->where('slug', $customerSalesChannelSlug))
+            ->get();
+
+        $detached  = [];
+        $unchecked = 0;
+
+        $command->withProgressBar($customerSalesChannels, function (CustomerSalesChannel $customerSalesChannel) use (&$detached, &$unchecked) {
+            $ownsFulfilmentService = $this->ownsFulfilmentService($customerSalesChannel->user);
+
+            if ($ownsFulfilmentService === false) {
+                $detached[] = [$customerSalesChannel->slug, $customerSalesChannel->user->name];
+            } elseif ($ownsFulfilmentService === null) {
+                $unchecked++;
+            }
+        });
+
+        $command->newLine(2);
+        $command->table(['Channel', 'Store'], $detached);
+        $command->info(count($detached)." of {$customerSalesChannels->count()} connected channels cannot receive orders, $unchecked could not be checked.");
+    }
+
+    /**
+     * True when the store hands our app its fulfilment orders, false when Shopify says the app owns no
+     * fulfilment service there, null when the store could not be asked (throttled, 5xx, no client).
+     */
+    public function ownsFulfilmentService(?ShopifyUser $shopifyUser): ?bool
+    {
+        if (!$shopifyUser) {
+            return null;
+        }
+
+        try {
+            [$status, $response] = $this->doPost($shopifyUser, 'query fulfilmentServiceOwnership { shop { assignedFulfillmentOrders(first: 1) { edges { node { id } } } } }', []);
+        } catch (\Exception) {
+            return null;
+        }
+
+        if ($status) {
+            return true;
+        }
+
+        return $this->fulfilmentServiceIsLost($response) ? false : null;
     }
 
     /**
