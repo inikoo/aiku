@@ -12719,6 +12719,56 @@ test('an agent order goes to the agent as one email, its PDF is built without a 
     $this->organisation->update(['settings' => $originalSettings]);
 });
 
+test('a placed stock delivery costed in Aurora is marked as costed, one costed in aiku or not costed in Aurora is left alone', function () {
+    $repair = \App\Actions\Transfers\Aurora\RepairAuroraStockDeliveryCosting::make();
+    $token  = random_int(100000, 999999);
+
+    $deliveries = collect(['costed' => 1, 'open' => 2, 'aiku' => 3])->map(function (int $index, string $code) use ($token) {
+        $stockDelivery = createStockDeliveryWithItems($this, "AuCost-$code-$token", [5]);
+        $stockDelivery->updateQuietly([
+            'state'     => StockDeliveryStateEnum::PLACED,
+            'is_costed' => false,
+            'source_id' => $this->organisation->id.':'.($token * 10 + $index),
+        ]);
+
+        return $stockDelivery;
+    });
+    StoreStockDeliveryCost::make()->action($deliveries['aiku'], ['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'label' => 'Port fee', 'amount' => 10, 'received_at' => now()]);
+    $deliveries['aiku']->updateQuietly(['is_costed' => false]);
+
+    $auroraStates = collect([
+        $token * 10 + 1 => 'InvoiceChecked',
+        $token * 10 + 2 => 'Placed',
+        $token * 10 + 3 => 'InvoiceChecked',
+    ]);
+
+    expect($repair->markCostedInAurora($this->organisation, $auroraStates, true))->toBe(1)
+        ->and($deliveries['costed']->fresh()->is_costed)->toBeFalse()
+        ->and($repair->markCostedInAurora($this->organisation, $auroraStates))->toBe(1)
+        ->and($deliveries['costed']->fresh()->is_costed)->toBeTrue()
+        ->and($deliveries['costed']->items()->where('is_costed', false)->count())->toBe(0)
+        ->and($deliveries['open']->fresh()->is_costed)->toBeFalse()
+        ->and($deliveries['aiku']->fresh()->is_costed)->toBeFalse();
+});
+
+test('the agent order PDF leaves out cancelled supplier orders and cancelled lines', function () {
+    $orgAgent          = createFreshOrgAgent($this);
+    [$live, $cancelled] = createAgentOrderToSend($this, $orgAgent, 2);
+    $pdf               = \App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder::make();
+
+    $cancelled->update(['state' => PurchaseOrderStateEnum::CANCELLED]);
+    $cancelled->purchaseOrderTransactions()->update(['state' => \App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::CANCELLED]);
+
+    expect($pdf->withoutCancelled(collect([$live, $cancelled]))->pluck('id')->all())->toBe([$live->id])
+        ->and($pdf->withoutCancelled(collect([$cancelled]))->pluck('id')->all())->toBe([$cancelled->id])
+        ->and($pdf->lines($cancelled->fresh()))->toHaveCount(1)
+        ->and($pdf->lines($live->fresh()))->toHaveCount(1);
+
+    $live->purchaseOrderTransactions()->update(['state' => \App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::CANCELLED]);
+
+    expect($pdf->lines($live->fresh()))->toHaveCount(0);
+});
+
 test('the agent order PDF is only served for a reference that has orders under that organisation and org agent', function () {
     $orgAgent      = createFreshOrgAgent($this);
     $otherOrgAgent = createFreshOrgAgent($this);
