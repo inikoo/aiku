@@ -269,7 +269,7 @@ class SubmitOrder extends OrgAction
 
         /** Tells any other browser tab still showing this order's checkout to redirect away,
          * so a stale card widget cannot take a second payment */
-        RetinaOrderSubmittedEvent::dispatch($order->customer_id, $order->id);
+        broadcast(new RetinaOrderSubmittedEvent($order->customer_id, $order->id))->toOthers();
 
         return $order;
     }
