@@ -76,8 +76,8 @@ export const createSidePanel = (layout: any, screenType: Ref<'mobile' | 'tablet'
         document.body.style.paddingRight = reserved === '0px' ? '' : 'var(--iris-side-width)'
     })
 
-    watch(() => (page.props as any)?.flash?.gtm?.event, (gtmEvent) => {
-        if (gtmEvent !== 'purchase') {
+    watch(() => (page.props as any)?.flash?.confetti?.key, (orderPlacedKey) => {
+        if (!orderPlacedKey) {
             return
         }
         close()

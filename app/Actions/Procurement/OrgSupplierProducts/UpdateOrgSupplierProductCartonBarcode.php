@@ -2,11 +2,10 @@
 
 namespace App\Actions\Procurement\OrgSupplierProducts;
 
-use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
-use App\Models\Inventory\OrgStock;
+use App\Models\Goods\Stock;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
@@ -16,9 +15,11 @@ class UpdateOrgSupplierProductCartonBarcode extends OrgAction
     use WithAgentOrganisation;
     use WithProcurementEditAuthorisation;
 
-    public function handle(OrgStock $orgStock, ?string $cartonBarcode): OrgStock
+    public function handle(Stock $stock, ?string $cartonBarcode): Stock
     {
-        return UpdateOrgStock::make()->action($orgStock, ['carton_barcode' => $cartonBarcode]);
+        $stock->update(['carton_barcode' => blank($cartonBarcode) ? null : trim($cartonBarcode)]);
+
+        return $stock;
     }
 
     public function rules(): array
@@ -28,13 +29,13 @@ class UpdateOrgSupplierProductCartonBarcode extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, OrgSupplierProduct $orgSupplierProduct, OrgStock $orgStock, ActionRequest $request): OrgStock
+    public function asController(Organisation $organisation, OrgSupplierProduct $orgSupplierProduct, Stock $stock, ActionRequest $request): Stock
     {
         $this->initialisation($organisation, $request);
         $this->authorizeProcurementRecord($orgSupplierProduct);
 
-        abort_unless($orgSupplierProduct->supplierProduct->stocks()->where('stocks.id', $orgStock->stock_id)->exists(), 404);
+        abort_unless($orgSupplierProduct->supplierProduct->stocks()->where('stocks.id', $stock->id)->exists(), 404);
 
-        return $this->handle($orgStock, $this->validatedData['carton_barcode']);
+        return $this->handle($stock, $this->validatedData['carton_barcode']);
     }
 }

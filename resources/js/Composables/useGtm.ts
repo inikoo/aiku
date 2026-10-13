@@ -150,6 +150,45 @@ export const pushServerGtmEventOnce = (event: string, data: Record<string, any> 
     return true
 }
 
+const inFlightEcommerceEventKeys = new Set<string>()
+
+export const pushGtmEventOnceConfirmed = (
+    event: string,
+    data: Record<string, any>,
+    onConfirmed: () => void,
+): void => {
+    if (typeof window === "undefined" || !ALLOWED_GTM_EVENTS.includes(event)) {
+        return
+    }
+
+    const eventKey = buildEcommerceEventKey(event, data?.ecommerce)
+
+    if (!eventKey || inFlightEcommerceEventKeys.has(eventKey)) {
+        return
+    }
+
+    if (readSentEcommerceEventKeys().includes(eventKey)) {
+        onConfirmed()
+
+        return
+    }
+
+    inFlightEcommerceEventKeys.add(eventKey)
+
+    pushEventWithEcommerceReset(event, {
+        ...data,
+        eventTimeout: GTM_EVENT_CALLBACK_TIMEOUT_MS,
+        eventCallback: () => {
+            if (readSentEcommerceEventKeys().includes(eventKey)) {
+                return
+            }
+
+            rememberSentEcommerceEventKey(eventKey)
+            onConfirmed()
+        },
+    })
+}
+
 export const pushServerGtmEvent = (event: string, data: Record<string, any> = {}): void => {
     if (typeof window === "undefined" || !event) {
         return

@@ -9,6 +9,7 @@
 
 namespace App\Actions\Retina\Dropshipping\Orders;
 
+use App\Actions\Ordering\Order\GetOrderPendingPurchaseGtmEvent;
 use App\Actions\Ordering\PreOrder\GetPreOrderShowcase;
 use App\Actions\Ordering\Order\UI\GetOrderDeliveryAddressManagement;
 use App\Actions\Ordering\Order\UI\IndexAllReviewsInOrder;
@@ -118,6 +119,7 @@ class ShowRetinaDropshippingOrder extends RetinaAction
             [
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs($order),
+                'gtm_purchase' => GetOrderPendingPurchaseGtmEvent::run($order),
                 'pageHead'    => [
                     'title'   => $order->reference,
                     'model'   => __('Order'),
