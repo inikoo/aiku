@@ -19,6 +19,7 @@ use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
@@ -421,6 +422,7 @@ class ShowStockDelivery extends OrgAction
                 'parameters' => [
                     'organisation'  => (request()->route('organisation') ?? $stockDelivery->organisation)->slug,
                     'stockDelivery' => $stockDelivery->slug,
+                    'filename'      => PdfStockDelivery::make()->filename($stockDelivery),
                 ],
             ],
         ];

@@ -150,7 +150,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgAgent'])->name('.purchase-orders.show');
         Route::get('order-pipeline', ShowAgentOrderPipeline::class)->name('.order_pipeline');
         Route::get('agent-orders', IndexAgentOrders::class)->name('.agent_orders.index');
-        Route::get('agent-orders/{agentOrderReference}/pdf', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
+        Route::get('agent-orders/{agentOrderReference}/pdf/{filename?}', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
         Route::get('agent-orders/{agentOrderReference}', ShowAgentOrder::class)->name('.agent_orders.show')->where('agentOrderReference', '.*');
         Route::get('org-stocks', [IndexOrgStocks::class, 'inOrgAgent'])->name('.org-stocks.index');
         Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');
@@ -286,7 +286,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('export', ExportPurchaseOrders::class)->name('export');
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
-    Route::get('{purchaseOrder}/pdf', PdfPurchaseOrder::class)->name('pdf');
+    Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
 Route::prefix('stock-deliveries')->as('stock_deliveries.')->group(function () {
@@ -295,5 +295,5 @@ Route::prefix('stock-deliveries')->as('stock_deliveries.')->group(function () {
     Route::get('create', CreateStockDelivery::class)->name('create');
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
     Route::get('{stockDelivery}/edit', EditStockDelivery::class)->name('edit');
-    Route::get('{stockDelivery}/pdf', PdfStockDelivery::class)->name('pdf');
+    Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
 });

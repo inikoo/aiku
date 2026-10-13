@@ -260,6 +260,8 @@ use App\Models\Procurement\OrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\CreateOrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
+use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
+use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -11098,6 +11100,26 @@ test('stock delivery pdf downloads', function () {
 
     $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
     expect(str_starts_with($response->getContent(), '%PDF'))->toBeTrue();
+});
+
+test('procurement pdf links end in the file name the browser saves it under', function () {
+    $this->stockDelivery->update(['reference' => 'SD 143_UK']);
+    $filename = PdfStockDelivery::make()->filename($this->stockDelivery);
+
+    $actions = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $this->stockDelivery->slug]))
+        ->assertOk()->viewData('page')['props']['pageHead']['actions'];
+    $pdfRoute = collect($actions)->firstWhere('route.name', 'grp.org.procurement.stock_deliveries.pdf')['route'];
+
+    expect($filename)->toStartWith('SD-143_UK-')->toEndWith('.pdf')
+        ->and($pdfRoute['parameters']['filename'])->toBe($filename);
+
+    $this->get(route($pdfRoute['name'], $pdfRoute['parameters']))
+        ->assertOk()
+        ->assertHeader('Content-Disposition', 'inline; filename="'.$filename.'"');
+
+    $purchaseOrder = PurchaseOrder::where('organisation_id', $this->organisation->id)->firstOrFail();
+    $this->get(route('grp.org.procurement.purchase_orders.pdf', [$this->organisation->slug, $purchaseOrder->slug, PdfPurchaseOrder::make()->filename($purchaseOrder)]))
+        ->assertOk()->assertHeader('Content-Type', 'application/pdf');
 });
 
 test('stock delivery pdf is not found under another organisation', function () {
