@@ -4148,6 +4148,7 @@ test('warehouse supervisors see their warehouse team and add clockings from the 
     \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
     \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($warehouse->organisation);
     $organisation = $warehouse->organisation;
+    $this->travelTo(now($organisation->timezone->name)->setTime(12, 0));
 
     if (!$organisation->workplaces()->exists()) {
         StoreWorkplace::make()->action($organisation, [
