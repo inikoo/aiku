@@ -49,6 +49,7 @@ use App\Actions\CRM\PollOption\UpdatePollOption;
 use App\Actions\CRM\PollReply\StorePollReply;
 use App\Actions\CRM\PollReply\UpdatePollReply;
 use App\Actions\CRM\Prospect\StoreProspect;
+use App\Actions\CRM\Prospect\UI\CreateProspectFromWebBlock;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\CRM\Prospect\UpdateProspectEmailClicked;
 use App\Actions\CRM\Prospect\UpdateProspectEmailHardBounced;
@@ -1342,6 +1343,41 @@ test('create 10th prospect (Email Unsubscribed)', function () {
         ->and($prospect->fail_status)->toBe(ProspectFailStatusEnum::UNSUBSCRIBED);
 
     return $prospect;
+});
+
+test('newsletter sign-up stores the phone number on the prospect', function () {
+    Queue::fake();
+
+    $subscribe = function (array $payload): Prospect {
+        $request = \Lorisleiva\Actions\ActionRequest::create('/', 'POST', $payload);
+        $request->merge(['website' => $this->website]);
+
+        return CreateProspectFromWebBlock::make()->asController($request);
+    };
+
+    $prospect = $subscribe(['email' => 'dialog.phone@example.com', 'phone' => '+44 7911 123456']);
+
+    expect($prospect->email)->toBe('dialog.phone@example.com')
+        ->and($prospect->phone)->toBe('+44 7911 123456')
+        ->and($prospect->shop_id)->toBe($this->website->shop_id);
+
+    $prospectWithoutPhone = $subscribe(['email' => 'dialog.nophone@example.com', 'phone' => null]);
+
+    expect($prospectWithoutPhone->phone)->toBeNull();
+
+    $prospectWithPhoneOnly = $subscribe(['email' => null, 'phone' => '+44 7911 654321']);
+
+    expect($prospectWithPhoneOnly->phone)->toBe('+44 7911 654321')
+        ->and($prospectWithPhoneOnly->email)->toBeNull();
+
+    expect(fn () => $subscribe(['email' => null, 'phone' => null]))
+        ->toThrow(ValidationException::class);
+
+    expect(fn () => $subscribe(['email' => 'dialog.badphone@example.com', 'phone' => 'call me']))
+        ->toThrow(ValidationException::class);
+
+    expect(fn () => $subscribe(['email' => 'dialog.samephone@example.com', 'phone' => '+44 7911 123456']))
+        ->toThrow(ValidationException::class);
 });
 
 test('UI Index polls', function () {

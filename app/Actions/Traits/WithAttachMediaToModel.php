@@ -25,11 +25,12 @@ use App\Models\SysAdmin\User;
 use App\Models\Web\Announcement;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Website;
+use App\Models\Web\WebsiteDialog;
 use stdClass;
 
 trait WithAttachMediaToModel
 {
-    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser|Website|WebBlock|Product|MasterProductCategory|TradeUnit|MasterAsset|ProductCategory|Announcement|MasterCollection|Collection|SupplierProduct $model, Media $media, string $scope = 'default', ?string $subScope = null, $data = null): Group|Organisation|Shop|User|Website|Webuser|WebBlock|Product|MasterProductCategory|TradeUnit|MasterAsset|ProductCategory|Announcement|MasterCollection|Collection|SupplierProduct
+    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser|Website|WebBlock|Product|MasterProductCategory|TradeUnit|MasterAsset|ProductCategory|Announcement|WebsiteDialog|MasterCollection|Collection|SupplierProduct $model, Media $media, string $scope = 'default', ?string $subScope = null, $data = null): Group|Organisation|Shop|User|Website|Webuser|WebBlock|Product|MasterProductCategory|TradeUnit|MasterAsset|ProductCategory|Announcement|WebsiteDialog|MasterCollection|Collection|SupplierProduct
     {
 
 

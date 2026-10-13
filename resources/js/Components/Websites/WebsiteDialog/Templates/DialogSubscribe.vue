@@ -1,0 +1,155 @@
+<script setup lang="ts">
+import { computed, inject, ref } from "vue"
+import axios from "axios"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faEnvelope, faPhone } from "@fal"
+import { faCheckCircle } from "@fas"
+import { getStyles } from "@/Composables/styles"
+import { ctrans } from "@/Composables/useTrans"
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import DialogText from "@/Components/Websites/WebsiteDialog/Templates/DialogText.vue"
+import { isSubscribePhoneShown } from "@/Components/Websites/WebsiteDialog/Templates/Blueprint"
+import { useDialogTemplate } from "@/Components/Websites/WebsiteDialog/Templates/useDialogTemplate"
+import type { WebsiteDialogTemplateData } from "@/types/WebsiteDialog"
+
+library.add(faEnvelope, faPhone, faCheckCircle)
+
+const props = defineProps<{
+    dialogData?: WebsiteDialogTemplateData
+    isEditable?: boolean
+}>()
+
+const { screenType, fields, accent, accentSoft, editable } = useDialogTemplate(props)
+
+const layout = inject<{ iris?: { website?: { id?: number } } }>("layout", {})
+
+const isPhoneShown = computed(() => isSubscribePhoneShown(fields.value.subscribe))
+
+const inputEmail = ref("")
+const inputPhone = ref("")
+const honeypot = ref("")
+const isLoading = ref(false)
+const state = ref<"" | "success" | "error">("")
+const errorMessage = ref("")
+
+const onSubmit = async () => {
+    if (props.isEditable || honeypot.value || isLoading.value) {
+        return
+    }
+
+    isLoading.value = true
+    state.value = ""
+    errorMessage.value = ""
+
+    if (!layout?.iris?.website?.id) {
+        setTimeout(() => {
+            inputEmail.value = ""
+            inputPhone.value = ""
+            state.value = "success"
+            isLoading.value = false
+        }, 600)
+        return
+    }
+
+    try {
+        await axios.post(window.origin + "/app/webhooks/subscribe-newsletter", {
+            email: inputEmail.value,
+            phone: isPhoneShown.value ? inputPhone.value.trim() || null : null,
+        })
+        inputEmail.value = ""
+        inputPhone.value = ""
+        state.value = "success"
+    } catch (error: any) {
+        const errors = error?.response?.data?.errors
+        const fieldErrors = errors?.email || errors?.phone
+        state.value = "error"
+        errorMessage.value = (Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors) || ctrans("An error occurred while subscribing.")
+    } finally {
+        isLoading.value = false
+    }
+}
+</script>
+
+<template>
+    <div
+        class="relative max-w-[calc(100vw-2rem)] overflow-hidden shadow-2xl"
+        :style="getStyles(dialogData?.container_properties, screenType)"
+        v-bind="editable('container')"
+    >
+        <div class="h-1.5 w-full" :style="{ background: accent }" />
+
+        <div class="flex flex-col items-center gap-y-3 px-8 pb-9 pt-8 text-center sm:px-10">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full text-xl" :style="{ background: accentSoft, color: accent }">
+                <FontAwesomeIcon icon="fal fa-envelope" fixed-width aria-hidden="true" />
+            </div>
+
+            <DialogText
+                fieldKey="eyebrow"
+                :dialogData="dialogData"
+                :isEditable="isEditable"
+                class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider"
+                :style="{ background: accentSoft, color: accent }"
+            />
+
+            <DialogText fieldKey="title" :dialogData="dialogData" :isEditable="isEditable" class="w-full text-2xl leading-tight sm:text-3xl" />
+
+            <DialogText fieldKey="description" :dialogData="dialogData" :isEditable="isEditable" class="w-full text-base leading-relaxed opacity-80" />
+
+            <div v-if="state === 'success'" class="mt-3 flex flex-col items-center gap-y-2 text-green-600" role="status">
+                <FontAwesomeIcon icon="fas fa-check-circle" class="text-4xl" fixed-width aria-hidden="true" />
+                <span class="font-medium">{{ fields.subscribe?.success_text || ctrans("You have successfully subscribed!") }}</span>
+            </div>
+
+            <form v-else class="mt-3 w-full" v-bind="editable('subscribe')" @submit.prevent="onSubmit">
+                <input v-model="honeypot" type="text" name="website_dialog_confirm" class="hidden" aria-hidden="true" tabindex="-1" autocomplete="off" />
+
+                <div class="flex w-full flex-col gap-2">
+                    <label class="relative w-full">
+                        <span class="sr-only">{{ ctrans("Email address") }}</span>
+                        <FontAwesomeIcon icon="fal fa-envelope" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
+                        <input
+                            v-model="inputEmail"
+                            type="email"
+                            required
+                            autocomplete="email"
+                            :placeholder="fields.subscribe?.placeholder || ctrans('Your email address')"
+                            :disabled="isLoading || isEditable"
+                            class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
+                            :style="{ '--tw-ring-color': state === 'error' ? 'rgb(239 68 68)' : undefined }"
+                        />
+                    </label>
+
+                    <label v-if="isPhoneShown" class="relative w-full">
+                        <span class="sr-only">{{ ctrans("Phone number") }}</span>
+                        <FontAwesomeIcon icon="fal fa-phone" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fixed-width aria-hidden="true" />
+                        <input
+                            v-model="inputPhone"
+                            type="tel"
+                            maxlength="24"
+                            autocomplete="tel"
+                            :placeholder="fields.subscribe?.phone_placeholder || ctrans('Your phone number (optional)')"
+                            :disabled="isLoading || isEditable"
+                            class="w-full rounded-full border-0 bg-white py-3 pl-9 pr-4 text-sm text-gray-800 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2"
+                        />
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="inline-flex shrink-0 items-center justify-center gap-x-2 font-semibold shadow-sm transition-transform duration-150 hover:-translate-y-0.5 disabled:opacity-70"
+                        :style="getStyles(fields.button?.container?.properties, screenType)"
+                        :disabled="isLoading"
+                        v-bind="editable('button')"
+                    >
+                        <LoadingIcon v-if="isLoading" />
+                        <span v-html="fields.button?.text || ctrans('Subscribe')" />
+                    </button>
+                </div>
+
+                <p v-if="state === 'error'" class="mt-2 text-left text-sm text-red-600">{{ errorMessage }}</p>
+            </form>
+
+            <DialogText fieldKey="note" :dialogData="dialogData" :isEditable="isEditable" class="mt-1 w-full text-xs opacity-60" />
+        </div>
+    </div>
+</template>
