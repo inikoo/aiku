@@ -334,7 +334,7 @@ class IndexAgentCoverBucketItems extends OrgAction
      * stock delivery that is not booked in yet. It is wider than the rows shown under the stepper,
      * which drop a purchase order line once its delivery exists and a delivery once it is all placed.
      */
-    private function onOrderSql(): string
+    public static function onOrderSql(string $product = 'osp', string $orgStockId = 'os.id'): string
     {
         $openOrders       = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
         $finishedDelivery = "'".implode("', '", [
@@ -346,15 +346,15 @@ class IndexAgentCoverBucketItems extends OrgAction
 
         return "(exists (select 1 from purchase_order_transactions pot
                 join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
-                where pot.supplier_product_id = osp.supplier_product_id and pot.deleted_at is null
-                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+                where pot.supplier_product_id = $product.supplier_product_id and pot.deleted_at is null
+                    and po.organisation_id = $product.organisation_id and po.state in ($openOrders))
             or exists (select 1 from purchase_order_transactions pot
                 join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
-                where pot.org_stock_id = os.id and pot.deleted_at is null
-                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+                where pot.org_stock_id = $orgStockId and pot.deleted_at is null
+                    and po.organisation_id = $product.organisation_id and po.state in ($openOrders))
             or exists (select 1 from stock_delivery_items sdi
                 join stock_deliveries sd on sd.id = sdi.stock_delivery_id and sd.deleted_at is null
-                where sdi.org_stock_id = os.id and sdi.deleted_at is null and sd.state not in ($finishedDelivery)))";
+                where sdi.org_stock_id = $orgStockId and sdi.deleted_at is null and sd.state not in ($finishedDelivery)))";
     }
 
     /**
