@@ -13,12 +13,17 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
+use App\Enums\Ordering\Transaction\UpcomingTransactionTypeEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -27,6 +32,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\InertiaTable\InertiaTable;
+use Closure;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -78,15 +86,44 @@ class ShowGoodsDashboard extends OrgAction
 
     public const string DEFAULT_PERIOD = '90d';
 
-    public const array CONDITIONS = ['oos', 'oos_no_po', 'ns', 'low', 'low_no_po', 'over', 'dead', 'off', 'sell', 'hold', 'ret', 'ok'];
+    public const array CONDITIONS = ['oos', 'oos_no_po', 'ns', 'low', 'low_no_po', 'over', 'dead', 'off', 'sell', 'hold', 'ret', 'ok', 'suggested'];
 
-    public const array SORTS = ['code', 'sales', 'trend', 'cover'];
+    public const array SORTS = ['code', 'sales', 'trend', 'cover', 'suggestions', 'complaints', 'feedback'];
+
+    public const int COMPLAINT_MONTHS = 12;
+
+    /**
+     * Bad feedback is judged against how often the product is ordered: the lowest share, in percent,
+     * of the orders that carried it in the last year that ended with a customer compensated. A best
+     * seller with 39 compensated customers in 2,925 orders is mild; 5 in 30 is not.
+     *
+     * ponytail: thresholds are a first guess, tune them once supply chain has used the list
+     */
+    public const array FEEDBACK_LEVELS = ['mild' => 0.0, 'bad' => 2.0, 'severe' => 5.0, 'disaster' => 10.0];
+
+    /**
+     * Below this many customers a rate is noise (one refund on the only order is 100%), so the
+     * level stays mild whatever the rate.
+     */
+    public const int FEEDBACK_MIN_CUSTOMERS = 3;
+
+
+    /**
+     * Replacements sent for these reasons say nothing about the product itself.
+     */
+    private const array REPLACEMENT_REASONS_NOT_THE_PRODUCT = [
+        DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value,
+        DeliveryNoteItemReplacementReasonEnum::LOST_IN_TRANSIT->value,
+        DeliveryNoteItemReplacementReasonEnum::WRONG_ITEM_SENT->value,
+        DeliveryNoteItemReplacementReasonEnum::MISSING_FROM_PARCEL->value,
+        DeliveryNoteItemReplacementReasonEnum::CUSTOMER_ERROR->value,
+    ];
 
     public const array DEFERRED_PROPS = ['built_at', 'organisations', 'families', 'missing_rates', 'rates', 'kpis', 'rows', 'pagination', 'editable_organisations', 'can_change_group'];
 
     public static function cacheKey(int $groupId): string
     {
-        return 'product-command-control:'.$groupId;
+        return 'product-command-control:v2:'.$groupId;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -103,10 +140,12 @@ class ShowGoodsDashboard extends OrgAction
             'family'       => ['sometimes', 'nullable', 'string'],
             'condition'    => ['sometimes', 'nullable', Rule::in(self::CONDITIONS)],
             'state'        => ['sometimes', 'nullable', Rule::in(OrgStockStateEnum::values())],
+            'feedback'     => ['sometimes', 'nullable', Rule::in(array_keys(self::FEEDBACK_LEVELS))],
             'search'       => ['sometimes', 'nullable', 'string', 'max:255'],
             'sort'         => ['sometimes', 'nullable', Rule::in(array_merge(self::SORTS, array_map(fn ($sort) => '-'.$sort, self::SORTS)))],
             'period'       => ['sometimes', 'nullable', Rule::in(self::PERIODS)],
             'page'         => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'perPage'      => ['sometimes', 'nullable', 'integer', 'min:1'],
         ];
     }
 
@@ -130,15 +169,22 @@ class ShowGoodsDashboard extends OrgAction
 
         $organisation = Arr::get($filters, 'organisation');
         $total        = count($rows);
-        $lastPage     = max(1, (int) ceil($total / self::PER_PAGE));
+        $perPage      = min(max((int) (Arr::get($filters, 'perPage') ?: self::PER_PAGE), config('ui.table.min_records_per_page')), config('ui.table.max_records_per_page'));
+        $lastPage     = max(1, (int) ceil($total / $perPage));
         $page         = min(max(1, (int) Arr::get($filters, 'page', 1)), $lastPage);
-        $pageRows     = array_slice($rows, ($page - 1) * self::PER_PAGE, self::PER_PAGE);
+        $pageRows     = array_slice($rows, ($page - 1) * $perPage, $perPage);
 
         [$editableOrganisations, $canChangeGroup] = $this->editingRights();
 
         $organisationsMeta = collect($dataset['organisations']);
         foreach ($pageRows as &$row) {
             $row['action'] = $this->rowAction($row, $organisationsMeta, $editableOrganisations, $canChangeGroup);
+        }
+        unset($row);
+
+        $evidence = OrgStockDiscontinueSuggestion::evidenceForStocks(array_column(array_filter($pageRows, fn (array $row) => $row['suggestions'] > 0), 'id'));
+        foreach ($pageRows as &$row) {
+            $row['suggestion_evidence'] = $evidence[$row['id']] ?? null;
         }
         unset($row);
 
@@ -156,7 +202,7 @@ class ShowGoodsDashboard extends OrgAction
                 'page'      => $page,
                 'last_page' => $lastPage,
                 'total'     => $total,
-                'per_page'  => self::PER_PAGE,
+                'per_page'  => $perPage,
             ],
             'filters'       => $this->normalisedFilters($filters),
             'editable_organisations' => $editableOrganisations,
@@ -174,6 +220,7 @@ class ShowGoodsDashboard extends OrgAction
             'family'       => Arr::get($filters, 'family'),
             'condition'    => Arr::get($filters, 'condition'),
             'state'        => Arr::get($filters, 'state'),
+            'feedback'     => Arr::get($filters, 'feedback'),
             'search'       => Arr::get($filters, 'search'),
             'sort'         => Arr::get($filters, 'sort') ?: '-sales',
             'period'       => Arr::get($filters, 'period') ?: self::DEFAULT_PERIOD,
@@ -202,11 +249,26 @@ class ShowGoodsDashboard extends OrgAction
         $period  = Arr::get($filters, 'period') ?: self::DEFAULT_PERIOD;
         $rows    = $this->flattenPeriod($dataset['rows'], $period);
 
+        $suggestions = OrgStockDiscontinueSuggestion::tallyByStock($this->group->id);
+        foreach ($rows as &$row) {
+            $row['suggestions']       = $suggestions[$row['id']]['times'] ?? 0;
+            $row['suggestion_people'] = $suggestions[$row['id']]['people'] ?? 0;
+            $row['complaint_rate']    = $row['orders'] > 0 ? round($row['complaint_customers'] / $row['orders'] * 100, 1) : null;
+            $row['feedback_level']    = $this->feedbackLevel($row);
+            $row['feedback']          = $row['feedback_level'] === null ? 0.0 : array_search($row['feedback_level'], array_keys(self::FEEDBACK_LEVELS)) * 1000 + min(999.0, (float) $row['complaint_rate']);
+        }
+        unset($row);
+
         $inView = array_values(array_filter($rows, fn (array $row) => $this->matches($row, $filters)));
 
         $condition    = Arr::get($filters, 'condition');
         $organisation = Arr::get($filters, 'organisation');
         $filtered     = $condition ? array_values(array_filter($inView, fn (array $row) => $this->hasCondition($row, $condition, $organisation))) : $inView;
+
+        $feedback = Arr::get($filters, 'feedback');
+        if ($feedback) {
+            $filtered = array_values(array_filter($filtered, fn (array $row) => $row['feedback_level'] === $feedback));
+        }
 
         $this->sort($filtered, Arr::get($filters, 'sort') ?: '-sales');
 
@@ -235,6 +297,13 @@ class ShowGoodsDashboard extends OrgAction
             $row['sales'] = $row['sales_by_period'][$period]['amount'];
             $row['trend'] = $row['sales_by_period'][$period]['trend'];
             unset($row['sales_by_period']);
+
+            foreach ($row['organisations'] as &$cell) {
+                $cell['sales'] = $cell['sales_by_period'][$period]['amount'] ?? 0.0;
+                $cell['trend'] = $cell['sales_by_period'][$period]['trend'] ?? null;
+                unset($cell['sales_by_period']);
+            }
+            unset($cell);
 
             return $row;
         }, $rows);
@@ -284,17 +353,7 @@ class ShowGoodsDashboard extends OrgAction
 
     private function buildDataset(): array
     {
-        $organisations = Organisation::where('group_id', $this->group->id)
-            ->whereHas('orgStocks', fn ($query) => $query->whereIn('state', [
-                OrgStockStateEnum::ACTIVE->value,
-                OrgStockStateEnum::DISCONTINUING->value,
-                OrgStockStateEnum::SUSPENDED->value,
-                OrgStockStateEnum::DISCONTINUED->value,
-            ]))
-            ->with(['currency', 'warehouses'])
-            ->orderBy('id')
-            ->get()
-            ->keyBy('id');
+        $organisations = $this->organisationsWithStock();
 
         $rates = $this->currencyRates($organisations, $this->group->currency);
 
@@ -309,9 +368,13 @@ class ShowGoodsDashboard extends OrgAction
         }
 
         $organisationsSorted = $organisations->sortBy('id')->values();
+        $complaints          = $this->complaintsByStock();
 
         $rows = collect($cellsByStock)
-            ->map(fn (array $stockCells) => $this->row($stockCells, $organisationsSorted, $rates))
+            ->map(fn (array $stockCells, int $stockId) => array_merge(
+                $this->row($stockCells, $organisationsSorted, $rates),
+                $complaints[$stockId] ?? self::NO_COMPLAINTS
+            ))
             ->values();
 
         return [
@@ -336,6 +399,137 @@ class ShowGoodsDashboard extends OrgAction
     /**
      * @return Collection<int, array{rate: float|null, date: string|null, source: string|null}>
      */
+    /**
+     * @return Collection<int, Organisation>
+     */
+    private function organisationsWithStock(): Collection
+    {
+        return Organisation::where('group_id', $this->group->id)
+            ->whereHas('orgStocks', fn ($query) => $query->whereIn('state', [
+                OrgStockStateEnum::ACTIVE->value,
+                OrgStockStateEnum::DISCONTINUING->value,
+                OrgStockStateEnum::SUSPENDED->value,
+                OrgStockStateEnum::DISCONTINUED->value,
+            ]))
+            ->with(['currency', 'warehouses'])
+            ->orderBy('id')
+            ->get()
+            ->keyBy('id');
+    }
+
+    public function tableStructure(): Closure
+    {
+        return function (InertiaTable $table) {
+            $table
+                ->withEmptyState(['title' => __('No products match these filters.')])
+                ->column(key: 'code', label: __('Code — description'), canBeHidden: false, sortable: true)
+                ->column(key: 'sales', label: __('Sales'), canBeHidden: false, sortable: true, align: 'right');
+
+            $table
+                ->column(key: 'stock', label: __('Group stock'), tooltip: __('Available in all organisations, what is on the way in green, and one dot per organisation coloured by its stock condition. Hover a row for each organisation'), canBeHidden: false, align: 'right')
+                ->column(
+                    key: 'feedback',
+                    label: __('Bad feedback'),
+                    tooltip: __('First, counted on its own over the last 12 months: level, share of orders that ended with the customer compensated, customers compensated / orders that carried the product. Then what staff reported by hand. Counted: refunds of goods sent, replacements (not when the courier, the warehouse or the customer was at fault), items added free to a next order and claims to the supplier at goods in'),
+                    sortable: true
+                )
+                ->column(key: 'state', label: __('Status'), tooltip: __('Group product status'), canBeHidden: false)
+                ->defaultSort('-sales');
+        };
+    }
+
+    private const array NO_COMPLAINTS = ['complaints' => 0, 'complaint_customers' => 0, 'refunds' => 0, 'replacements' => 0, 'next_order' => 0, 'supplier_claims' => 0, 'orders' => 0];
+
+    /**
+     * What customers and deliveries already said about each stock in the last year, with nobody
+     * having to report it: refunds of goods that were dispatched, replacements sent (unless the
+     * courier, the warehouse or the customer was at fault), claimed items added free to a next
+     * order, and claims raised against the supplier at goods in, beside the number of orders that
+     * carried the stock in the same year. A product made of several stocks counts against each of them.
+     *
+     * @return array<int, array{complaints: int, complaint_customers: int, refunds: int, replacements: int, next_order: int, supplier_claims: int, orders: int}>
+     */
+    private function complaintsByStock(): array
+    {
+        $since = now()->subMonths(self::COMPLAINT_MONTHS);
+
+        $refunds = DB::table('invoice_transactions as it')
+            ->join('transactions as t', 't.id', 'it.transaction_id')
+            ->join('product_has_org_stocks as phos', 'phos.product_id', 'it.model_id')
+            ->join('org_stocks as os', 'os.id', 'phos.org_stock_id')
+            ->where('it.group_id', $this->group->id)
+            ->where('it.is_refund', true)
+            ->where('it.model_type', 'Product')
+            ->whereNull('it.deleted_at')
+            ->where('it.date', '>=', $since)
+            ->where('t.quantity_dispatched', '>', 0)
+            ->selectRaw("os.stock_id, it.customer_id, 'refunds' as kind");
+
+        $replacements = DB::table('delivery_note_items as dni')
+            ->join('delivery_notes as dn', 'dn.id', 'dni.delivery_note_id')
+            ->join('org_stocks as os', 'os.id', 'dni.org_stock_id')
+            ->where('dn.group_id', $this->group->id)
+            ->where('dn.type', DeliveryNoteTypeEnum::REPLACEMENT->value)
+            ->whereNull('dn.deleted_at')
+            ->where('dn.date', '>=', $since)
+            ->where(fn ($query) => $query->whereNull('dni.replacement_reason')->orWhereNotIn('dni.replacement_reason', self::REPLACEMENT_REASONS_NOT_THE_PRODUCT))
+            ->selectRaw("os.stock_id, dn.customer_id, 'replacements' as kind");
+
+        $nextOrder = DB::table('upcoming_transactions as ut')
+            ->join('product_has_org_stocks as phos', 'phos.product_id', 'ut.product_id')
+            ->join('org_stocks as os', 'os.id', 'phos.org_stock_id')
+            ->where('ut.group_id', $this->group->id)
+            ->where('ut.type', UpcomingTransactionTypeEnum::FOLLOW_ON->value)
+            ->where('ut.created_at', '>=', $since)
+            ->selectRaw("os.stock_id, ut.customer_id, 'next_order' as kind");
+
+        $complaints = [];
+        foreach (DB::query()->fromSub($refunds->unionAll($replacements)->unionAll($nextOrder), 'events')
+            ->whereNotNull('stock_id')
+            ->groupBy('stock_id')
+            ->selectRaw("stock_id, count(*) as complaints, count(distinct customer_id) as complaint_customers, count(*) filter (where kind = 'refunds') as refunds, count(*) filter (where kind = 'replacements') as replacements, count(*) filter (where kind = 'next_order') as next_order")
+            ->get() as $row) {
+            $complaints[$row->stock_id] = [
+                'complaints'          => (int) $row->complaints,
+                'complaint_customers' => (int) $row->complaint_customers,
+                'refunds'             => (int) $row->refunds,
+                'replacements'        => (int) $row->replacements,
+                'next_order'          => (int) $row->next_order,
+                'supplier_claims'     => 0,
+                'orders'              => 0,
+            ];
+        }
+
+        foreach (DB::table('stock_delivery_claims as sdc')
+            ->join('org_stocks as os', 'os.id', 'sdc.org_stock_id')
+            ->where('sdc.group_id', $this->group->id)
+            ->where('sdc.created_at', '>=', $since)
+            ->whereNotNull('os.stock_id')
+            ->groupBy('os.stock_id')
+            ->selectRaw('os.stock_id, count(*) as supplier_claims')
+            ->get() as $row) {
+            $complaints[$row->stock_id] ??= self::NO_COMPLAINTS;
+            $complaints[$row->stock_id]['supplier_claims'] = (int) $row->supplier_claims;
+        }
+
+        foreach (DB::table('delivery_note_items as dni')
+            ->join('delivery_notes as dn', 'dn.id', 'dni.delivery_note_id')
+            ->join('org_stocks as os', 'os.id', 'dni.org_stock_id')
+            ->where('dn.group_id', $this->group->id)
+            ->where('dn.type', DeliveryNoteTypeEnum::ORDER->value)
+            ->where('dn.state', '!=', DeliveryNoteStateEnum::CANCELLED->value)
+            ->whereNull('dn.deleted_at')
+            ->where('dn.date', '>=', $since)
+            ->whereIn('os.stock_id', array_keys($complaints))
+            ->groupBy('os.stock_id')
+            ->selectRaw('os.stock_id, count(distinct dn.id) as orders')
+            ->get() as $row) {
+            $complaints[$row->stock_id]['orders'] = (int) $row->orders;
+        }
+
+        return $complaints;
+    }
+
     private function currencyRates(Collection $organisations, Currency $groupCurrency): Collection
     {
         $pivotCode   = config('app.currency_exchange.pivot');
@@ -737,6 +931,8 @@ class ShowGoodsDashboard extends OrgAction
                 'available'        => (float) $cell->quantity_available,
                 'allocated'        => max(0.0, (float) $cell->quantity_in_locations - (float) $cell->quantity_available),
                 'inbound'          => (float) $cell->inbound_quantity,
+                'sales_by_period'  => $this->cellSalesByPeriod($cell),
+                'cover_weeks'      => (float) $cell->predicted_daily_usage > 0 ? round(max(0.0, (float) $cell->quantity_available) / (float) $cell->predicted_daily_usage / 7, 1) : null,
                 'next_expected_at' => $cell->next_expected_at,
                 'has_po'           => (float) $cell->inbound_quantity > 0,
                 'condition'        => $this->condition($cell),
@@ -844,8 +1040,54 @@ class ShowGoodsDashboard extends OrgAction
             && ($search === '' || Str::contains($row['code'].' '.$row['name'].' '.$row['family_code'], $search, ignoreCase: true));
     }
 
+    /**
+     * @return array<string, array{amount: float, trend: ?float}>
+     */
+    private function cellSalesByPeriod(object $cell): array
+    {
+        $sales = [];
+        foreach (self::PERIODS as $period) {
+            $column   = $this->periodColumn($period);
+            $current  = (float) $cell->{$column};
+            $previous = (float) $cell->{$column.'_prev'};
+
+            $sales[$period] = [
+                'amount' => round($current, 2),
+                'trend'  => $previous > 0 ? round(($current - $previous) / $previous * 100) : null,
+            ];
+        }
+
+        return $sales;
+    }
+
+    /**
+     * The level of what was counted on its own (customers compensated, supplier claims). What staff
+     * reported by hand is shown beside it, never mixed in, so each can be judged for what it is.
+     */
+    private function feedbackLevel(array $row): ?string
+    {
+        if (!$row['complaint_customers'] && !$row['supplier_claims']) {
+            return null;
+        }
+
+        $level = 'mild';
+        if ($row['complaint_customers'] >= self::FEEDBACK_MIN_CUSTOMERS) {
+            foreach (self::FEEDBACK_LEVELS as $name => $fromRate) {
+                if ($row['complaint_rate'] === null || $row['complaint_rate'] >= $fromRate) {
+                    $level = $name;
+                }
+            }
+        }
+
+        return $level;
+    }
+
     private function hasCondition(array $row, string $condition, ?string $organisation): bool
     {
+        if ($condition === 'suggested') {
+            return $row['suggestions'] > 0;
+        }
+
         foreach ($this->scopedCells($row, $organisation) as $cell) {
             $matches = match ($condition) {
                 'oos_no_po' => $cell['condition'] === 'oos' && !$cell['has_po'],
@@ -863,7 +1105,7 @@ class ShowGoodsDashboard extends OrgAction
     private function sort(array &$rows, string $sort): void
     {
         $descending = str_starts_with($sort, '-');
-        $field      = ['code' => 'code', 'sales' => 'sales', 'trend' => 'trend', 'cover' => 'cover_weeks'][ltrim($sort, '-')];
+        $field      = ['code' => 'code', 'sales' => 'sales', 'trend' => 'trend', 'cover' => 'cover_weeks', 'suggestions' => 'suggestions', 'complaints' => 'complaint_customers', 'feedback' => 'feedback'][ltrim($sort, '-')];
 
         usort($rows, function (array $a, array $b) use ($field, $descending) {
             if ($a[$field] === null || $b[$field] === null) {
@@ -889,9 +1131,18 @@ class ShowGoodsDashboard extends OrgAction
             'overstock_value'         => 0.0,
             'offline'                 => 0,
             'offline_value'           => 0.0,
+            'suggested'               => 0,
+            'suggestions'             => 0,
+            'feedback_levels'         => array_fill_keys(array_keys(self::FEEDBACK_LEVELS), 0),
         ];
 
         foreach ($rows as $row) {
+            $kpis['suggested']   += (int) ($row['suggestions'] > 0);
+            $kpis['suggestions'] += $row['suggestions'];
+            if ($row['feedback_level']) {
+                $kpis['feedback_levels'][$row['feedback_level']]++;
+            }
+
             $flags = [];
             foreach ($this->scopedCells($row, $organisation) as $cell) {
                 if (in_array($cell['condition'], ['ns', 'ret'], true)) {
@@ -932,6 +1183,16 @@ class ShowGoodsDashboard extends OrgAction
             $deferred[$prop] = Inertia::defer(function () use (&$dashboard, $filters, $prop) {
                 $dashboard ??= $this->handle($filters);
 
+                if ($prop === 'rows') {
+                    return new LengthAwarePaginator(
+                        $dashboard['rows'],
+                        $dashboard['pagination']['total'],
+                        $dashboard['pagination']['per_page'],
+                        $dashboard['pagination']['page'],
+                        ['path' => request()->url(), 'query' => request()->query()]
+                    );
+                }
+
                 return $dashboard[$prop];
             }, 'dashboard');
         }
@@ -956,7 +1217,7 @@ class ShowGoodsDashboard extends OrgAction
                 'currency_code' => $this->group->currency->code,
                 'can_edit'      => $this->canEdit,
             ])
-        );
+        )->table($this->tableStructure());
     }
 
     public function getBreadcrumbs(): array

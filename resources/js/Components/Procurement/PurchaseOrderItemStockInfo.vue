@@ -6,6 +6,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { usePurchaseOrderStockCover } from "@/Composables/usePurchaseOrderStockCover"
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 
 interface QuarterUsage {
 	period: string
@@ -485,5 +486,7 @@ function purchaseOrderRoute(slug: string) {
 				</div>
 			</div>
 		</div>
+
+		<DiscontinueSuggestion v-if="!isPartner && item.org_stock_id && item.discontinue_suggestions" :orgStockId="item.org_stock_id" :code="item.code" :tally="item.discontinue_suggestions" source="buying" />
 	</div>
 </template>

@@ -358,6 +358,7 @@ use App\Actions\Helpers\Translations\Translate;
 use App\Actions\Helpers\Translations\TranslateFromMaster;
 use App\Actions\HumanResources\Clocking\DeleteClocking;
 use App\Actions\HumanResources\Clocking\StoreManualClocking;
+use App\Actions\Inventory\OrgStock\SuggestOrgStockDiscontinue;
 use App\Actions\Inventory\WarehouseTeam\DeleteWarehouseTeamClocking;
 use App\Actions\Inventory\WarehouseTeam\StoreWarehouseTeamClocking;
 use App\Actions\Inventory\WarehouseTeam\UpdateWarehouseTeamClocking;
@@ -1809,6 +1810,7 @@ Route::name('artefact.')->prefix('artefact/{artefact:id}')->group(function () {
 });
 
 Route::name('org_stock.')->prefix('org-stock/{orgStock:id}')->group(function () {
+    Route::post('discontinue-suggestion', SuggestOrgStockDiscontinue::class)->name('discontinue_suggestion.store');
     Route::post('label-sheet', [PdfArtefactLabelSheet::class, 'inOrgStock'])->name('label_sheet');
     Route::post('labels', [StoreArtefactLabel::class, 'inOrgStock'])->name('labels.store');
     Route::post('labels/{label:id}', [UpdateArtefactLabel::class, 'inOrgStock'])->name('labels.update');

@@ -75,6 +75,7 @@ interface CustomerStats {
     number_orders_state_creating: number
 }
 
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 const props = defineProps<{
     session: PanelSession
     initialTab?: SidePanelTab
@@ -226,7 +227,7 @@ interface CustomerProfile {
         orders: string[]
         max_age_days: number
         photos: number
-        lines: { id: number, transaction_id: number | null, code: string | null, name: string | null, ordered: number, dispatched: number, claimable: number, mentioned: boolean }[]
+        lines: { id: number, transaction_id: number | null, org_stock_id: number | null, code: string | null, name: string | null, ordered: number, dispatched: number, claimable: number, mentioned: boolean }[]
         reason: string
         reasons: { value: string, label: string }[]
         replacement: { name: string, parameters: Record<string, any> }
@@ -1075,6 +1076,7 @@ const copyChatId = async () => {
                                 <input type="checkbox" :checked="line.id in claimPicked" :disabled="customerProfile.claim.order.too_old || line.claimable <= 0" @change="toggleClaimLine(line)" />
                                 <span class="shrink-0 text-gray-800">{{ line.code }}</span>
                                 <span class="truncate text-gray-500" :title="line.name ?? ''">{{ line.name }}</span>
+                                <DiscontinueSuggestion v-if="line.org_stock_id" class="shrink-0" :orgStockId="line.org_stock_id" :code="line.code" source="customer_services" :label="ctrans('Bad product')" />
                                 <span class="ml-auto shrink-0 tabular-nums" :class="line.dispatched < line.ordered ? 'text-red-600' : 'text-gray-400'"
                                     v-tooltip="ctrans('Ordered, sent')">{{ line.ordered }}/{{ line.dispatched }}</span>
                                 <span v-if="line.claimable < line.ordered" class="shrink-0 text-amber-700" v-tooltip="ctrans('Left to claim, the rest is already replaced, refunded or waiting in their next order')">{{ ctrans(":count left", { count: String(line.claimable) }) }}</span>

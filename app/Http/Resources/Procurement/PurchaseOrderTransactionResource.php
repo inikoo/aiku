@@ -38,6 +38,7 @@ class PurchaseOrderTransactionResource extends JsonResource
             'image_preview'        => $tradeUnit?->imageSources(480, 480),
             'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
             'quarterly_usage'      => $transaction->quarterly_usage ?? [],
+            'discontinue_suggestions' => $transaction->discontinue_suggestions,
             'stock_cover'          => $transaction->buying_signals ?? GetOrgStockBuyingSignals::run($orgStock, $supplierProduct),
             'stock_deliveries'     => $transaction->stock_deliveries,
             'other_open_purchase_orders' => $transaction->other_open_purchase_orders ?? [],

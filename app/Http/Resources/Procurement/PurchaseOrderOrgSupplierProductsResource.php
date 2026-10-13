@@ -93,6 +93,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
             'image_thumbnail'  => $this->image_sources,
             'stock_in_locations' => $this->stock_in_locations === null ? null : trimDecimalZeros($this->stock_in_locations),
             'quarterly_usage'  => $this->quarterly_usage ?? [],
+            'discontinue_suggestions' => $this->discontinue_suggestions,
             'stock_cover'      => $this->stock_cover ?? null,
             'other_open_purchase_orders' => $this->other_open_purchase_orders ?? [],
             'stock_deliveries' => $this->stock_deliveries,
