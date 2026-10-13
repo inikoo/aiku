@@ -11,6 +11,7 @@ namespace App\Actions\Production\JobOrderItem;
 use App\Actions\OrgAction;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -178,7 +179,7 @@ class SplitJobOrderItem extends OrgAction
             $unitsPerArtefact = $subJob->artefact->manufactureTasks->pluck('pivot.units_per_artefact', 'id');
 
             foreach ($subJob->tasks as $task) {
-                if ($assignment['quantity'] * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
+                if (ArtefactManufactureTask::stepQuantity($assignment['quantity'], $unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
                     $validator->errors()->add('assignments', __(':artisan already made more than :quantity.', [
                         'artisan'  => $subJob->employee?->contact_name ?? __('Someone'),
                         'quantity' => $assignment['quantity'],

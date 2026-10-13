@@ -204,7 +204,7 @@ class ReceiveJobOrderIntoStock extends OrgAction
             ]);
         }
 
-        return min((float) $item->quantity, floor((float) $lastTask->quantity_made / (float) $unitsPerArtefact));
+        return min((float) $item->quantity, ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact));
     }
 
     private function deductRawMaterials(JobOrderItem $item, float $producedArtefactUnits, ?int $userId): void

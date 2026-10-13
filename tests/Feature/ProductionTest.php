@@ -6130,6 +6130,63 @@ test('a recipe change does not ask again for a step whose replaced step is alrea
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
 
+test('a change of a step units per artefact reaches open job steps nobody has worked on, and leaves worked ones alone', function () {
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+
+    $jobOrder      = StoreJobOrder::make()->action($this->production, []);
+    $untouchedItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
+    $workedItem    = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 6]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $workedItem->tasks()->first()), ['quantity_made' => 2]);
+
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [['manufacture_task_id' => $this->manufactureTask->id, 'position' => 1, 'units_per_artefact' => 0.5]],
+    ]);
+
+    expect((float) $untouchedItem->tasks()->first()->quantity_required)->toBe(3.0)
+        ->and((float) $workedItem->tasks()->first()->quantity_required)->toBe(6.0);
+
+    expect(\App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($this->artefact, [$this->manufactureTask->id => 1])->all())
+        ->toContain($jobOrder->reference.' '.$this->artefact->code)
+        ->and(\App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($this->artefact, [$this->manufactureTask->id => 0.5])->all())
+        ->toBe([]);
+
+    \App\Actions\Production\Artefact\AttachManufactureTaskToArtefact::make()->action($this->artefact, [
+        'manufacture_task_id' => $this->manufactureTask->id,
+        'units_per_artefact'  => 0.25,
+    ]);
+
+    expect((float) $untouchedItem->tasks()->first()->quantity_required)->toBe(1.5)
+        ->and((float) $workedItem->tasks()->first()->quantity_required)->toBe(6.0);
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
+test('a step counted in packs typed as a rounded fraction asks for whole packs', function () {
+    expect(ArtefactManufactureTask::stepQuantity(60, '0.166700'))->toBe(10.0)
+        ->and(ArtefactManufactureTask::stepQuantity(240, 0.3333))->toBe(80.0)
+        ->and(ArtefactManufactureTask::artefactsIn(10, 0.1667))->toBe(60.0)
+        ->and(ArtefactManufactureTask::artefactsIn(9, 0.1667))->toBe(54.0)
+        ->and(ArtefactManufactureTask::exactUnits(0.4))->toBe(0.4)
+        ->and(ArtefactManufactureTask::stepQuantity(5, 6))->toBe(30.0);
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 0.1667]]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 60]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $step = $item->tasks()->first();
+
+    expect((float) $step->quantity_required)->toBe(10.0);
+
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $step), ['quantity_made' => 10]);
+
+    expect($step->refresh()->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
 function dayPlanOperator(\App\Models\SysAdmin\Organisation $organisation): Employee
 {
     $modelData = Employee::factory()->make(['organisation_id' => $organisation->id])->toArray();

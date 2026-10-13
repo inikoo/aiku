@@ -16,6 +16,7 @@ use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStateEnum;
 use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
 use App\Models\CRM\WebUser;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -39,7 +40,7 @@ class UpdateJobOrderItem extends OrgAction
             $unitsPerArtefact = $jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
 
             foreach ($jobOrderItem->tasks as $task) {
-                $task->update(['quantity_required' => $jobOrderItem->quantity * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)]);
+                $task->update(['quantity_required' => ArtefactManufactureTask::stepQuantity($jobOrderItem->quantity, $unitsPerArtefact[$task->manufacture_task_id] ?? 1)]);
                 CalculateJobOrderItemTaskQuantities::run($task);
             }
         }
@@ -68,7 +69,7 @@ class UpdateJobOrderItem extends OrgAction
 
         $unitsPerArtefact = $this->jobOrderItem->artefact->manufactureTasks()->get()->pluck('pivot.units_per_artefact', 'id');
         foreach ($this->jobOrderItem->tasks as $task) {
-            if ($this->get('quantity') * ($unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
+            if (ArtefactManufactureTask::stepQuantity($this->get('quantity'), $unitsPerArtefact[$task->manufacture_task_id] ?? 1) < $task->quantity_made) {
                 $validator->errors()->add('quantity', __('More than that is already made, the quantity cannot go below it.'));
 
                 return;

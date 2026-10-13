@@ -152,6 +152,6 @@ class GetJobOrderDestinationAllocation
             ->where('manufacture_task_id', $lastTask->manufacture_task_id)
             ->value('units_per_artefact') ?: 1;
 
-        return floor((float) $lastTask->quantity_made / $unitsPerArtefact);
+        return ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact);
     }
 }

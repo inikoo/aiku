@@ -251,7 +251,7 @@ class CloseManufactureTaskSession extends OrgAction
         $unitsPerArtefact = ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
             ->pluck('units_per_artefact', 'manufacture_task_id');
 
-        $artefacts = (int) floor($taskUnitsMade / max(0.001, (float) ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)));
+        $artefacts = (int) ArtefactManufactureTask::artefactsIn($taskUnitsMade, max(0.001, (float) ($unitsPerArtefact[$task->manufacture_task_id] ?? 1)));
         if ($artefacts <= $item->quantity) {
             return;
         }
@@ -260,7 +260,7 @@ class CloseManufactureTaskSession extends OrgAction
 
         $laterSteps = $item->tasks->skipUntil(fn (JobOrderItemTask $step) => $step->id == $task->id)->skip(1);
         foreach ($laterSteps as $step) {
-            $step->update(['quantity_required' => max($artefacts * (float) ($unitsPerArtefact[$step->manufacture_task_id] ?? 1), (float) $step->quantity_required)]);
+            $step->update(['quantity_required' => max(ArtefactManufactureTask::stepQuantity($artefacts, $unitsPerArtefact[$step->manufacture_task_id] ?? 1), (float) $step->quantity_required)]);
             CalculateJobOrderItemTaskQuantities::run($step);
         }
     }

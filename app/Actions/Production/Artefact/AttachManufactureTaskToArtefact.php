@@ -13,13 +13,16 @@ use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\Artefact;
+use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachManufactureTaskToArtefact extends OrgAction
 {
+    /** @var array<int, string> */
+    private array $jobsKeepingTheirCount = [];
+
     public function handle(Artefact $artefact, array $modelData): Artefact
     {
         $step = [
@@ -30,11 +33,15 @@ class AttachManufactureTaskToArtefact extends OrgAction
             $step['standard_rate'] = $modelData['standard_rate'];
         }
 
+        $previousUnits = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
+
         $artefact->manufactureTasks()->syncWithoutDetaching([$modelData['manufacture_task_id'] => $step]);
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem));
+            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, [], $previousUnits));
+
+        $this->jobsKeepingTheirCount = GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($artefact, $previousUnits)->all();
 
         return $artefact;
     }
@@ -91,6 +98,16 @@ class AttachManufactureTaskToArtefact extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::back();
+        if (!$this->jobsKeepingTheirCount) {
+            return back();
+        }
+
+        return back()->with('notification', [
+            'status'      => 'warning',
+            'title'       => __('Jobs already worked on keep their old count'),
+            'description' => __('Work is already recorded on these with the previous units, check them on the job order: :jobs', [
+                'jobs' => implode(', ', $this->jobsKeepingTheirCount),
+            ]),
+        ]);
     }
 }

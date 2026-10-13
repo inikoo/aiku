@@ -47,6 +47,28 @@ class ArtefactManufactureTask extends Pivot
     }
 
     /**
+     * A pack step is typed as a rounded fraction (0.1667 for a box of six, 0.3333 for a pack of three).
+     * The pack is what is meant, so 60 artefacts are 10 boxes and not 10.002.
+     */
+    public static function exactUnits(float|string|null $unitsPerArtefact): float
+    {
+        $unitsPerArtefact = (float) $unitsPerArtefact;
+        $packSize         = self::packSize($unitsPerArtefact);
+
+        return $packSize && abs($unitsPerArtefact - 1 / $packSize) <= 0.00005 ? 1 / $packSize : $unitsPerArtefact;
+    }
+
+    public static function stepQuantity(float|int|string $artefacts, float|string|null $unitsPerArtefact): float
+    {
+        return round((float) $artefacts * self::exactUnits($unitsPerArtefact), 3);
+    }
+
+    public static function artefactsIn(float|int|string $stepQuantity, float|string|null $unitsPerArtefact): float
+    {
+        return floor(round((float) $stepQuantity / self::exactUnits($unitsPerArtefact), 3));
+    }
+
+    /**
      * @return Collection<string, int> pack size by "artefact id:manufacture task id", only for steps counted in packs
      */
     public static function packSizes(): Collection
