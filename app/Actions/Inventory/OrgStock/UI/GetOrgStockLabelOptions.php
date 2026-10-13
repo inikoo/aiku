@@ -148,7 +148,8 @@ class GetOrgStockLabelOptions
                     $fieldLabel,
                     $source === null ? true : $label[$source],
                     $reason,
-                    $default
+                    $default,
+                    $key === 'with_account_signature' ? $label['signature'] : null
                 );
             }
         }
@@ -157,9 +158,12 @@ class GetOrgStockLabelOptions
     }
 
     /**
+     * The signature is the organisation's name, address and phone, which nobody can guess from the
+     * tick box, so its text comes along for the modal to show what will be printed.
+     *
      * @return array<string, mixed>
      */
-    private function getField(string $key, string $label, mixed $value, ?string $reason = null, bool $default = true): array
+    private function getField(string $key, string $label, mixed $value, ?string $reason = null, bool $default = true, ?string $preview = null): array
     {
         $available = filled($value);
 
@@ -169,6 +173,7 @@ class GetOrgStockLabelOptions
             'available' => $available,
             'checked'   => $available && $default,
             'reason'    => $available ? null : $reason,
+            'preview'   => $available ? $preview : null,
         ];
     }
 }
