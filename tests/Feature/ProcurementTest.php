@@ -4687,6 +4687,24 @@ test('adopt a free supplier into the organisation', function () {
     expect($orgSupplier)->not->toBeNull();
 });
 
+test('a supplier without an agent is switched off and on from its edit page', function () {
+    $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $orgSupplier = OrgSupplier::where('organisation_id', $this->organisation->id)->where('supplier_id', $supplier->id)->first()
+        ?? StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $orgSupplier->update(['status' => false]);
+
+    $blueprint = $this->get(route('grp.org.procurement.org_suppliers.edit', [$this->organisation->slug, $orgSupplier->slug]))
+        ->viewData('page')['props']['formData']['blueprint'];
+    $statusField = collect($blueprint)->pluck('fields.status')->filter()->first();
+
+    expect($statusField['value'])->toBeFalse()
+        ->and($statusField['updateRoute'])->toBe(['name' => 'grp.models.org_supplier.update', 'parameters' => $orgSupplier->id]);
+
+    $this->patch(route('grp.models.org_supplier.update', $orgSupplier->id), ['status' => true])->assertSessionHasNoErrors();
+
+    expect($orgSupplier->refresh()->status)->toBeTrue();
+});
+
 test('agent organisation manages its own supplier identity', function () {
     $ownAgent = StoreAgent::make()->action($this->group, Agent::factory()->definition());
 
