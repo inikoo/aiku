@@ -635,6 +635,7 @@ test('website lists open appointment types with their free times', function () {
     $listed   = $types->firstWhere('id', $openType->id);
 
     expect($response->json('shop_name'))->toBe($this->shop->name)
+        ->and($response->json('country_code'))->toBe($this->shop->country?->code)
         ->and($listed)->not->toBeNull()
         ->and($listed['meeting_mode'])->toBe('store_visit')
         ->and($listed['slots'])->not->toBeEmpty()

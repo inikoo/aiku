@@ -102,6 +102,8 @@ import MapPickerField from '@/Components/Forms/Fields/MapPickerField.vue'
 import InputWorkingHours from '@/Components/Forms/Fields/InputWorkingHours.vue'
 import AppointmentAvailability from '@/Components/Forms/Fields/AppointmentAvailability.vue'
 import AppointmentSlot from '@/Components/Forms/Fields/AppointmentSlot.vue'
+import AppointmentLocation from '@/Components/Forms/Fields/AppointmentLocation.vue'
+import AppointmentStaffSelect from '@/Components/Forms/Fields/AppointmentStaffSelect.vue'
 import EmployeeWorkingHours from '@/Components/Forms/Fields/EmployeeWorkingHours.vue'
 import InputWithWarning from '@/Components/Forms/Fields/InputWithWarning.vue'
 import Ratio from '@/Components/Forms/Fields/Ratio.vue'
@@ -231,6 +233,8 @@ export const componentsList: { [key: string]: Component } = {
     'working-hours' : InputWorkingHours,
     'appointment_availability': AppointmentAvailability,
     'appointment_slot': AppointmentSlot,
+    'appointment_location': AppointmentLocation,
+    'appointment_staff': AppointmentStaffSelect,
     'employee-working-hours' : EmployeeWorkingHours,
     'ratio' : Ratio,
     'free_gift': FreeGift,

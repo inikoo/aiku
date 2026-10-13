@@ -21,7 +21,7 @@ class AppointmentTypesResource extends JsonResource
             'name'              => $appointmentType->name,
             'meeting_mode'      => $appointmentType->meeting_mode->label(),
             'meeting_mode_icon' => $appointmentType->meeting_mode->icon(),
-            'location'          => $appointmentType->location,
+            'location'          => $appointmentType->media()?->label() ?? $appointmentType->location,
             'duration_minutes'  => $appointmentType->duration_minutes,
             'capacity_per_slot' => $appointmentType->capacity_per_slot,
             'attendees_count'   => $this->attendees_count ?? 0,

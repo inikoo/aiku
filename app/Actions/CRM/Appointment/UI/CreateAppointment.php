@@ -49,7 +49,7 @@ class CreateAppointment extends OrgAction
                         ],
                         [
                             'title'  => __('Visitor'),
-                            'fields' => $this->appointmentVisitorFields(),
+                            'fields' => $this->appointmentVisitorFields($shop),
                         ],
                     ],
                     'route'     => [

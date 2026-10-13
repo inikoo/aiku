@@ -23,7 +23,7 @@ class StoreAppointment extends OrgAction
      */
     public function handle(Shop $shop, array $modelData): Appointment
     {
-        return DB::transaction(function () use ($shop, $modelData) {
+        $appointment = DB::transaction(function () use ($shop, $modelData) {
             $modelData = $this->prepareAppointmentData($shop, $modelData);
 
             data_set($modelData, 'group_id', $shop->group_id);
@@ -38,6 +38,10 @@ class StoreAppointment extends OrgAction
 
             return $appointment;
         });
+
+        SyncAppointmentStaffTask::run($appointment);
+
+        return $appointment;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -68,6 +72,8 @@ class StoreAppointment extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $this->discardDialCodeOnlyPhone();
+
         if (!$this->asAction) {
             $this->set('created_by_user_id', $request->user()->id);
         }

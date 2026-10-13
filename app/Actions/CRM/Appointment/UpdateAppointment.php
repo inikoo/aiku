@@ -26,7 +26,7 @@ class UpdateAppointment extends OrgAction
         $previousState    = $appointment->state;
         $previousStartsAt = $appointment->starts_at->copy();
 
-        return DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt) {
+        $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt) {
             $modelData = $this->prepareAppointmentData($appointment->shop, $modelData, $appointment);
 
             $appointment = $this->update($appointment, $modelData);
@@ -35,6 +35,10 @@ class UpdateAppointment extends OrgAction
 
             return $appointment;
         });
+
+        SyncAppointmentStaffTask::run($appointment);
+
+        return $appointment;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -58,6 +62,11 @@ class UpdateAppointment extends OrgAction
     public function getValidationMessages(): array
     {
         return $this->appointmentPhoneMessages();
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        $this->discardDialCodeOnlyPhone();
     }
 
     public function asController(Appointment $appointment, ActionRequest $request): Appointment

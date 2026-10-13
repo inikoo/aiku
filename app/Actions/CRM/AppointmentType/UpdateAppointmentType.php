@@ -21,6 +21,7 @@ class UpdateAppointmentType extends OrgAction
     public function handle(AppointmentType $appointmentType, array $modelData): AppointmentType
     {
         $availability = $this->pullAvailability($modelData);
+        $modelData    = $this->applyMeetingPlace($modelData, $appointmentType);
 
         return DB::transaction(function () use ($appointmentType, $modelData, $availability) {
             $appointmentType = $this->update($appointmentType, $modelData);

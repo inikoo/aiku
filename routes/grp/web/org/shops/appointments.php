@@ -4,6 +4,7 @@ use App\Actions\CRM\Appointment\UI\CreateAppointment;
 use App\Actions\CRM\Appointment\UI\EditAppointment;
 use App\Actions\CRM\Appointment\UI\IndexAppointments;
 use App\Actions\CRM\Appointment\UI\ShowAppointment;
+use App\Actions\CRM\Appointment\UI\ShowAppointmentsDashboard;
 use App\Actions\CRM\AppointmentStaff\UI\CreateAppointmentStaff;
 use App\Actions\CRM\AppointmentStaff\UI\EditAppointmentStaff;
 use App\Actions\CRM\AppointmentStaff\UI\IndexAppointmentStaff;
@@ -13,6 +14,7 @@ use App\Actions\CRM\AppointmentType\UI\IndexAppointmentTypes;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', IndexAppointments::class)->name('index');
+Route::get('dashboard', ShowAppointmentsDashboard::class)->name('dashboard');
 Route::get('create', CreateAppointment::class)->name('create');
 Route::get('{appointment:id}', ShowAppointment::class)->name('show')->whereNumber('appointment');
 Route::get('{appointment:id}/edit', EditAppointment::class)->name('edit')->whereNumber('appointment');

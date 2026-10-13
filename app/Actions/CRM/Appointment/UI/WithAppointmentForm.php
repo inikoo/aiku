@@ -6,12 +6,22 @@ use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 trait WithAppointmentForm
 {
     protected function appointmentWhenFields(Shop $shop, ?Appointment $appointment = null): array
     {
         $timezone = $shop->timezone?->name ?? 'UTC';
+
+        $appointmentTypeIdsByUser = DB::table('appointment_type_user')
+            ->join('appointment_types', 'appointment_types.id', '=', 'appointment_type_user.appointment_type_id')
+            ->where('appointment_types.shop_id', $shop->id)
+            ->whereNull('appointment_types.deleted_at')
+            ->get(['appointment_type_user.user_id', 'appointment_type_user.appointment_type_id'])
+            ->groupBy('user_id')
+            ->map(fn (Collection $rows) => $rows->pluck('appointment_type_id')->all());
 
         return [
             'appointment_type_id' => [
@@ -32,27 +42,26 @@ trait WithAppointmentForm
                 'value'       => $appointment?->starts_at->copy()->setTimezone($timezone)->format('Y-m-d H:i'),
             ],
             'user_id'             => [
-                'type'        => 'select',
-                'label'       => __('Staff'),
-                'information' => __('Who meets the visitor. Leave empty and anyone who arranges this type can take it.'),
-                'labelProp'   => 'name',
-                'valueProp'   => 'id',
-                'searchable'  => true,
-                'options'     => User::whereIn(
-                    'id',
-                    $shop->appointmentTypes()
-                        ->join('appointment_type_user', 'appointment_type_user.appointment_type_id', '=', 'appointment_types.id')
-                        ->select('appointment_type_user.user_id')
-                )
+                'type'                => 'appointment_staff',
+                'label'               => __('Staff'),
+                'information'         => __('Only staff who arrange the chosen type are listed. Leave empty and any of them can take it.'),
+                'appointment_type_id' => $appointment?->appointment_type_id,
+                'options'             => User::whereIn('id', $appointmentTypeIdsByUser->keys())
                     ->orderBy('contact_name')
-                    ->get(['id', 'contact_name', 'username'])
-                    ->map(fn (User $user) => ['id' => $user->id, 'name' => $user->chatName()]),
-                'value'       => $appointment?->user_id,
+                    ->get(['id', 'contact_name', 'username', 'nickname'])
+                    ->map(fn (User $user) => [
+                        'id'                   => $user->id,
+                        'name'                 => $user->chatName(),
+                        'appointment_type_ids' => $appointmentTypeIdsByUser->get($user->id),
+                    ])
+                    ->values()
+                    ->all(),
+                'value'               => $appointment?->user_id,
             ],
         ];
     }
 
-    protected function appointmentVisitorFields(?Appointment $appointment = null): array
+    protected function appointmentVisitorFields(Shop $shop, ?Appointment $appointment = null): array
     {
         return [
             'contact_name'    => [
@@ -68,10 +77,13 @@ trait WithAppointmentForm
                 'value'       => $appointment?->email ?? '',
             ],
             'phone'           => [
-                'type'        => 'input',
+                'type'        => 'phone',
                 'label'       => __('Phone'),
-                'information' => __('Required for video calls, which we make on WhatsApp. Include the country code, for example +44.'),
+                'information' => __('Required for video calls, which we make on WhatsApp.'),
                 'value'       => $appointment?->phone ?? '',
+                'options'     => [
+                    'defaultCountry' => $shop->country?->code,
+                ],
             ],
             'number_visitors' => [
                 'type'  => 'input_number',

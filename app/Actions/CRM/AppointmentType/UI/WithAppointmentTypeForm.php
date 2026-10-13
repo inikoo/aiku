@@ -2,6 +2,7 @@
 
 namespace App\Actions\CRM\AppointmentType\UI;
 
+use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\AppointmentType;
@@ -11,6 +12,28 @@ trait WithAppointmentTypeForm
 {
     protected function appointmentTypeFormBlueprint(Shop $shop, ?AppointmentType $appointmentType = null): array
     {
+        $shopAddress = $this->shopAddressOnOneLine($shop);
+
+        $meetingPlaceFields = [
+            'location' => [
+                'type'             => 'appointment_location',
+                'label'            => __('Location'),
+                'information'      => __('Where the customer comes to. It starts with the shop\'s address, change it if customers come somewhere else.'),
+                'default_location' => $shopAddress,
+                'showIf'           => ['field' => 'meeting_mode', 'value' => AppointmentTypeMeetingModeEnum::STORE_VISIT->value],
+                'value'            => $appointmentType ? ($appointmentType->location ?? '') : $shopAddress,
+            ],
+            'media'    => [
+                'type'        => 'select',
+                'label'       => __('Media'),
+                'information' => __('What the video call is made on.'),
+                'required'    => true,
+                'options'     => AppointmentTypeMediaEnum::valuesWithLabels(),
+                'showIf'      => ['field' => 'meeting_mode', 'value' => AppointmentTypeMeetingModeEnum::VIDEO_CALL->value],
+                'value'       => ($appointmentType?->media() ?? AppointmentTypeMediaEnum::WHATSAPP)->value,
+            ],
+        ];
+
         return [
             [
                 'title'  => __('Details'),
@@ -25,18 +48,14 @@ trait WithAppointmentTypeForm
                         'value'       => $appointmentType?->name ?? '',
                     ],
                     'meeting_mode' => [
-                        'type'     => 'select',
-                        'label'    => __('Visit type'),
-                        'required' => true,
-                        'options'  => AppointmentTypeMeetingModeEnum::valuesWithLabels(),
-                        'value'    => $appointmentType?->meeting_mode->value ?? AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+                        'type'               => 'select',
+                        'label'              => __('Visit type'),
+                        'required'           => true,
+                        'options'            => AppointmentTypeMeetingModeEnum::valuesWithLabels(),
+                        'revisit_after_save' => true,
+                        'value'              => $appointmentType?->meeting_mode->value ?? AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
                     ],
-                    'location'     => [
-                        'type'        => 'input',
-                        'label'       => __('Location'),
-                        'information' => __('Where the customer comes to, or the meeting link for a video call.'),
-                        'value'       => $appointmentType?->location ?? '',
-                    ],
+                    ...$meetingPlaceFields,
                     'description'  => [
                         'type'        => 'textarea',
                         'label'       => __('Description'),
@@ -109,6 +128,13 @@ trait WithAppointmentTypeForm
                 ],
             ],
         ];
+    }
+
+    protected function shopAddressOnOneLine(Shop $shop): string
+    {
+        $lines = preg_split('/\R/', (string) $shop->address?->formatted_address);
+
+        return mb_substr(implode(', ', array_filter(array_map('trim', $lines))), 0, 255);
     }
 
     /**

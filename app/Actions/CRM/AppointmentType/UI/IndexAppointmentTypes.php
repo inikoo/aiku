@@ -80,7 +80,7 @@ class IndexAppointmentTypes extends OrgAction
                 ->column(key: 'is_active', label: '', type: 'icon', canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'meeting_mode', label: __('Visit type'), canBeHidden: false, sortable: true)
-                ->column(key: 'location', label: __('Location'), canBeHidden: true)
+                ->column(key: 'location', label: __('Location or media'), canBeHidden: true)
                 ->column(key: 'duration_minutes', label: __('Duration'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'attendees_count', label: __('Staff'), canBeHidden: false, sortable: true, align: 'right');
         };

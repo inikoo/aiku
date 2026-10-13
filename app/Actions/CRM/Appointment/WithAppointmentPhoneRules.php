@@ -18,6 +18,15 @@ trait WithAppointmentPhoneRules
         return [...($isUpdate ? ['sometimes'] : []), 'required', 'string', 'max:64', 'regex:/^\s*(\+|00)/', new Phone()];
     }
 
+    protected function discardDialCodeOnlyPhone(): void
+    {
+        $phone = $this->get('phone');
+
+        if (is_string($phone) && strlen(preg_replace('/\D+/', '', $phone)) <= 4) {
+            $this->set('phone', null);
+        }
+    }
+
     protected function appointmentPhoneMessages(): array
     {
         return [

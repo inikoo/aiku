@@ -19,6 +19,7 @@ const isLive = !!layout?.iris?.website?.id
 const appointmentTypes = ref<AppointmentTypeOption[]>([])
 const timezone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone)
 const organizerName = ref<string>(layout?.iris?.website?.name ?? "")
+const defaultCountry = ref<string | null>(null)
 const isLoading = ref(true)
 
 onMounted(async () => {
@@ -32,6 +33,7 @@ onMounted(async () => {
         appointmentTypes.value = data.appointment_types
         timezone.value = data.timezone
         organizerName.value = data.shop_name
+        defaultCountry.value = data.country_code
     } catch {
         appointmentTypes.value = []
     }
@@ -62,6 +64,7 @@ const book = async (payload: AppointmentBookingPayload) => {
             <AppointmentBooking
                 :appointmentTypes="appointmentTypes"
                 :timezone="timezone"
+                :defaultCountry="defaultCountry"
                 :organizerName="organizerName"
                 :showPickerHeading="!hasText(fieldValue?.value?.headline)"
                 :isLoading="isLoading"

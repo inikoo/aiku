@@ -3,6 +3,7 @@
 namespace App\Models\CRM;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
@@ -95,6 +96,15 @@ class AppointmentType extends Model implements Auditable
         'is_active',
         'weekly_hours',
     ];
+
+    public function media(): ?AppointmentTypeMediaEnum
+    {
+        if ($this->meeting_mode !== AppointmentTypeMeetingModeEnum::VIDEO_CALL) {
+            return null;
+        }
+
+        return AppointmentTypeMediaEnum::tryFrom((string) data_get($this->data, 'media')) ?? AppointmentTypeMediaEnum::WHATSAPP;
+    }
 
     public function requiresPhone(): bool
     {

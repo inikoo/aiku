@@ -11,13 +11,14 @@ use Lorisleiva\Actions\ActionRequest;
 class GetIrisAppointmentTypes extends IrisAction
 {
     /**
-     * @return array{shop_name: string, timezone: string, appointment_types: array<int, array<string, mixed>>}
+     * @return array{shop_name: string, timezone: string, country_code: string|null, appointment_types: array<int, array<string, mixed>>}
      */
     public function handle(Shop $shop): array
     {
         return [
             'shop_name'         => $shop->name,
             'timezone'          => $shop->timezone?->name ?? 'UTC',
+            'country_code'      => $shop->country?->code,
             'appointment_types' => $shop->appointmentTypes()
                 ->where('is_active', true)
                 ->orderBy('name')

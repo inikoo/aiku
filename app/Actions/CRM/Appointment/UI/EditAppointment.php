@@ -77,7 +77,7 @@ class EditAppointment extends OrgAction
                             'title'  => __('Visitor'),
                             'label'  => __('Visitor'),
                             'icon'   => 'fal fa-user',
-                            'fields' => $this->appointmentVisitorFields($appointment),
+                            'fields' => $this->appointmentVisitorFields($appointment->shop, $appointment),
                         ],
                     ],
                     'args'      => [

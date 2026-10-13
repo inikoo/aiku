@@ -5,6 +5,8 @@ import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
 import Textarea from "primevue/textarea"
 import Checkbox from "primevue/checkbox"
+import { VueTelInput } from "vue-tel-input"
+import "vue-tel-input/vue-tel-input.css"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faStoreAlt, faVideo, faClock, faMapMarkerAlt, faCalendarAlt, faGlobe, faArrowLeft } from "@fal"
@@ -51,6 +53,7 @@ const props = defineProps<{
     organizerName?: string
     showPickerHeading?: boolean
     timezone?: string
+    defaultCountry?: string | null
     isLoading?: boolean
     showMarketingOptIn?: boolean
     prefill?: { contact_name?: string, email?: string }
@@ -223,15 +226,11 @@ const datePickerPt = {
     dayCell: { class: "!border-0 !bg-transparent !p-0.5 !text-center" },
     day: ({ context }: { context: DayContext }) => ({
         class: [
-            "relative mx-auto aspect-square !h-auto !w-full !max-w-[2.75rem] text-[0.95rem] max-sm:text-sm",
-            context.disabled ? "!opacity-100 !text-slate-700" : "",
-            context.selected ? "!shadow-none !outline-none !font-bold" : "",
-            !context.disabled && !context.selected
-                ? "!font-semibold !text-[var(--theme-color-0)] !bg-[color-mix(in_srgb,var(--theme-color-0)_9%,white)] hover:!bg-[color-mix(in_srgb,var(--theme-color-0)_20%,white)]"
-                : "",
-            context.today
-                ? "after:absolute after:bottom-1.5 after:h-1 after:w-1 after:rounded-full after:bg-current after:content-['']"
-                : "",
+            "appointment-day",
+            context.disabled ? "appointment-day-disabled" : "",
+            context.selected ? "appointment-day-selected" : "",
+            !context.disabled && !context.selected ? "appointment-day-available" : "",
+            context.today ? "appointment-day-today" : "",
         ],
     }),
 }
@@ -299,7 +298,7 @@ const datePickerPt = {
             class="mx-auto flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_1px_8px_rgba(0,0,0,0.08)] transition-[max-width] duration-300 md:flex-row"
             :class="step === 'pick' && selectedDate ? 'max-w-[1060px]' : 'max-w-[760px]'">
             <aside
-                class="border-b border-slate-200 px-6 py-6 md:border-b-0 md:border-r md:px-6 md:py-7"
+                class="appointment-panel border-b border-slate-200 md:border-b-0 md:border-r"
                 :class="step === 'pick' && selectedDate ? 'md:w-[300px] md:shrink-0' : 'md:w-1/2'">
                 <button
                     v-if="step === 'details' || appointmentTypes.length > 1" type="button"
@@ -337,7 +336,7 @@ const datePickerPt = {
                 <div v-if="selectedType.description" class="mt-6 text-sm leading-relaxed text-slate-600">{{ selectedType.description }}</div>
             </aside>
 
-            <section v-if="step === 'pick'" class="flex flex-1 flex-col gap-6 px-6 py-7 lg:flex-row">
+            <section v-if="step === 'pick'" class="appointment-panel appointment-pick">
                 <div class="min-w-0 flex-1">
                     <h3 class="mb-6 text-xl font-bold text-slate-800">{{ ctrans("Select a Date & Time") }}</h3>
 
@@ -366,24 +365,22 @@ const datePickerPt = {
                     </template>
                 </div>
 
-                <div v-if="selectedDate" class="flex flex-col lg:w-[220px] lg:shrink-0 lg:pt-14">
+                <div v-if="selectedDate" class="appointment-times">
                     <div class="mb-4 shrink-0 text-base text-slate-800">{{ dayHeading(selectedDate) }}</div>
-                    <div class="relative min-h-0 flex-1">
-                        <div class="flex max-h-96 flex-col gap-2.5 overflow-y-auto pr-1 [scrollbar-width:thin] lg:absolute lg:inset-0 lg:max-h-none">
-                            <div v-for="time in timesForDate" :key="time" class="flex shrink-0 gap-2">
+                    <div class="appointment-times-frame">
+                        <div class="appointment-times-list">
+                            <div v-for="time in timesForDate" :key="time" class="appointment-time-row">
                                 <button
                                     type="button"
-                                    class="h-[52px] flex-1 rounded border text-base font-bold transition-all"
-                                    :class="time === selectedTime
-                                        ? 'border-slate-600 bg-slate-600 text-white'
-                                        : 'border-[color-mix(in_srgb,var(--theme-color-0)_50%,white)] text-[var(--theme-color-0)] hover:border-2 hover:border-[var(--theme-color-0)]'"
+                                    class="appointment-time"
+                                    :class="time === selectedTime ? 'appointment-time-selected' : ''"
                                     :aria-pressed="time === selectedTime"
                                     @click="selectedTime = time">
                                     {{ time }}
                                 </button>
                                 <button
                                     v-if="time === selectedTime" type="button"
-                                    class="h-[52px] flex-1 rounded bg-[var(--theme-color-0)] text-base font-bold text-[var(--theme-color-1)] transition hover:opacity-90"
+                                    class="appointment-time appointment-time-next"
                                     @click="step = 'details'">
                                     {{ ctrans("Next") }}
                                 </button>
@@ -394,7 +391,7 @@ const datePickerPt = {
                 </div>
             </section>
 
-            <form v-else class="flex-1 space-y-4 px-6 py-7" @submit.prevent="submit">
+            <form v-else class="appointment-panel flex-1 space-y-4" @submit.prevent="submit">
                 <h3 class="mb-2 text-xl font-bold text-slate-800">{{ ctrans("Enter Details") }}</h3>
 
                 <div hidden aria-hidden="true">
@@ -421,17 +418,24 @@ const datePickerPt = {
                         </template>
                         <template v-else>{{ ctrans("Phone") }}</template>
                     </label>
-                    <InputText
-                        id="appointment-phone"
+                    <VueTelInput
                         v-model="form.phone"
-                        type="tel"
-                        autocomplete="tel"
-                        :required="selectedType.meeting_mode === 'video_call'"
-                        :placeholder="selectedType.meeting_mode === 'video_call' ? '+44 7700 900123' : ''"
-                        :pt="fieldPt"
-                        :invalid="!!errors.phone" />
+                        mode="international"
+                        :defaultCountry="defaultCountry || 'GB'"
+                        :autoFormat="true"
+                        :validCharactersOnly="true"
+                        :styleClasses="['appointment-phone', errors.phone ? 'appointment-phone-invalid' : '']"
+                        :dropdownOptions="{ showFlags: true, showDialCodeInSelection: true, showDialCodeInList: true, showSearchBox: true }"
+                        :inputOptions="{
+                            id: 'appointment-phone',
+                            type: 'tel',
+                            autocomplete: 'tel',
+                            required: selectedType.meeting_mode === 'video_call',
+                            placeholder: ctrans('Enter a phone number'),
+                            showDialCode: false,
+                        }" />
                     <span v-if="selectedType.meeting_mode === 'video_call' && !errors.phone" class="mt-1 block text-slate-500">
-                        {{ ctrans("We call you on WhatsApp. Include your country code.") }}
+                        {{ ctrans("We call you on WhatsApp.") }}
                     </span>
                     <span v-if="errors.phone" class="mt-1 block text-red-600">{{ errors.phone }}</span>
                 </div>
@@ -461,3 +465,198 @@ const datePickerPt = {
         </div>
     </div>
 </template>
+
+<style scoped>
+:deep(.appointment-day) {
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    width: 2.5rem !important;
+    min-width: 2.5rem;
+    height: 2.5rem !important;
+    flex: none;
+    padding: 0 !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: visible;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+:deep(.appointment-day-disabled) {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+:deep(.appointment-day-available) {
+    background: color-mix(in srgb, var(--theme-color-0) 9%, white) !important;
+    color: var(--theme-color-0) !important;
+    font-weight: 600;
+}
+
+:deep(.appointment-day-available:hover) {
+    background: color-mix(in srgb, var(--theme-color-0) 20%, white) !important;
+}
+
+:deep(.appointment-day-selected) {
+    box-shadow: none !important;
+    outline: none !important;
+    font-weight: 700;
+}
+
+:deep(.appointment-day-today)::after {
+    position: absolute;
+    bottom: 0.3rem;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: currentColor;
+    content: "";
+}
+
+@media (max-width: 639px) {
+    :deep(.appointment-day) {
+        width: 2rem !important;
+        min-width: 2rem;
+        height: 2rem !important;
+        font-size: 0.875rem;
+    }
+}
+
+.appointment-panel {
+    padding: 1.75rem 1.5rem;
+}
+
+.appointment-pick {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 0%;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.appointment-times {
+    display: flex;
+    flex-direction: column;
+}
+
+.appointment-times-frame {
+    position: relative;
+    min-height: 0;
+    flex: 1 1 0%;
+}
+
+.appointment-times-list {
+    display: flex;
+    max-height: 24rem;
+    flex-direction: column;
+    gap: 0.625rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+    scrollbar-width: thin;
+}
+
+.appointment-time-row {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.5rem;
+}
+
+.appointment-time {
+    height: 52px;
+    min-width: 0;
+    flex: 1 1 0%;
+    border: 1px solid color-mix(in srgb, var(--theme-color-0) 50%, white);
+    border-radius: 0.25rem;
+    background: #ffffff;
+    color: var(--theme-color-0);
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.appointment-time:hover {
+    border-color: var(--theme-color-0);
+    box-shadow: inset 0 0 0 1px var(--theme-color-0);
+}
+
+.appointment-time-selected,
+.appointment-time-selected:hover {
+    border-color: #475569;
+    background: #475569;
+    box-shadow: none;
+    color: #ffffff;
+}
+
+.appointment-time-next,
+.appointment-time-next:hover {
+    border-color: var(--theme-color-0);
+    background: var(--theme-color-0);
+    box-shadow: none;
+    color: var(--theme-color-1);
+}
+
+.appointment-time-next:hover {
+    opacity: 0.9;
+}
+
+@media (min-width: 1024px) {
+    .appointment-pick {
+        flex-direction: row;
+    }
+
+    .appointment-times {
+        width: 220px;
+        flex-shrink: 0;
+        padding-top: 3.5rem;
+    }
+
+    .appointment-times-list {
+        position: absolute;
+        inset: 0;
+        max-height: none;
+    }
+}
+
+:deep(.appointment-phone) {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: none;
+}
+
+:deep(.appointment-phone:focus-within) {
+    border-color: var(--theme-color-0);
+    box-shadow: none;
+}
+
+:deep(.appointment-phone.appointment-phone-invalid) {
+    border-color: #dc2626;
+}
+
+:deep(.appointment-phone .vti__dropdown) {
+    border-radius: 6px 0 0 6px;
+    padding: 0 0.625rem;
+}
+
+:deep(.appointment-phone .vti__input) {
+    border: 0;
+    border-radius: 0 6px 6px 0;
+    background: transparent;
+    padding: 0.5rem 0.75rem;
+    font-size: inherit;
+    box-shadow: none;
+}
+
+:deep(.appointment-phone .vti__input:focus) {
+    outline: none;
+    box-shadow: none;
+}
+
+:deep(.appointment-phone .vti__dropdown-list) {
+    z-index: 20;
+    max-width: min(22rem, 85vw);
+}
+</style>

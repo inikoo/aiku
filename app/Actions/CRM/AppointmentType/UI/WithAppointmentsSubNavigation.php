@@ -18,6 +18,17 @@ trait WithAppointmentsSubNavigation
         return [
             [
                 'route'    => [
+                    'name'       => 'grp.org.shops.show.crm.appointments.dashboard',
+                    'parameters' => $routeParameters,
+                ],
+                'label'    => __('Dashboard'),
+                'leftIcon' => [
+                    'icon'    => 'fal fa-tachometer-alt',
+                    'tooltip' => __('Appointments dashboard'),
+                ],
+            ],
+            [
+                'route'    => [
                     'name'       => 'grp.org.shops.show.crm.appointments.index',
                     'parameters' => $routeParameters,
                 ],

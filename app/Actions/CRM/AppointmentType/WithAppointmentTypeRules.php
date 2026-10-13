@@ -2,9 +2,11 @@
 
 namespace App\Actions\CRM\AppointmentType;
 
+use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\AppointmentType;
 use App\Rules\IUnique;
+use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -29,7 +31,8 @@ trait WithAppointmentTypeRules
             'name'                          => [...$required, 'string', 'max:255', new IUnique(table: 'appointment_types', extraConditions: $uniqueNameConditions)],
             'description'                   => [...$optional, 'nullable', 'string', 'max:5000'],
             'meeting_mode'                  => [...$required, Rule::enum(AppointmentTypeMeetingModeEnum::class)],
-            'location'                      => [...$optional, 'nullable', 'string', 'max:255'],
+            'location'                      => [...$optional, 'nullable', 'string', 'max:255', $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::STORE_VISIT, $appointmentType)],
+            'media'                         => [...$optional, 'nullable', Rule::enum(AppointmentTypeMediaEnum::class), $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::VIDEO_CALL, $appointmentType)],
             'duration_minutes'              => [...$required, 'integer', 'min:5', 'max:480'],
             'buffer_minutes'                => [...$optional, 'integer', 'min:0', 'max:240'],
             'min_notice_hours'              => [...$optional, 'integer', 'min:0', 'max:720'],
@@ -100,6 +103,43 @@ trait WithAppointmentTypeRules
             ->sortBy('from')
             ->values()
             ->all();
+    }
+
+    /**
+     * On the edit page every field saves on its own, so a location or media can arrive while the
+     * saved visit type is still the other one. Saving it would silently drop it.
+     */
+    private function belongsToMeetingMode(AppointmentTypeMeetingModeEnum $meetingMode, ?AppointmentType $appointmentType): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) use ($meetingMode, $appointmentType) {
+            if (!$appointmentType || $this->has('meeting_mode') || $appointmentType->meeting_mode === $meetingMode) {
+                return;
+            }
+
+            $fail(__('Save the visit type as :mode first.', ['mode' => strtolower($meetingMode->label())]));
+        };
+    }
+
+    /**
+     * A store visit happens at a location, a video call on a media: each type keeps only its own.
+     */
+    protected function applyMeetingPlace(array $modelData, ?AppointmentType $appointmentType = null): array
+    {
+        $media       = Arr::pull($modelData, 'media');
+        $meetingMode = Arr::get($modelData, 'meeting_mode', $appointmentType?->meeting_mode);
+        $meetingMode = $meetingMode instanceof AppointmentTypeMeetingModeEnum ? $meetingMode : AppointmentTypeMeetingModeEnum::tryFrom((string) $meetingMode);
+        $data        = $appointmentType?->data ?? [];
+
+        if ($meetingMode === AppointmentTypeMeetingModeEnum::VIDEO_CALL) {
+            $modelData['location'] = null;
+            $data['media']         = $media ?: (Arr::get($data, 'media') ?: AppointmentTypeMediaEnum::WHATSAPP->value);
+        } else {
+            unset($data['media']);
+        }
+
+        $modelData['data'] = $data;
+
+        return $modelData;
     }
 
     protected function pullAvailability(array &$modelData): ?array
