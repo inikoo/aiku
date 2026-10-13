@@ -9423,11 +9423,23 @@ test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO 
     expect($isDead($oldCode))->toBeTrue()
         ->and($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
 
+    DB::table('org_supplier_products')->where('id', $oldCode->id)->update(['org_agent_id' => null]);
+
+    expect($isDead($oldCode))->toBeTrue()
+        ->and(collect($discontinue->preview($this->organisation->slug))->pluck('agent'))->toContain('direct');
+
     $discontinue->handle($this->organisation->slug);
 
     expect($oldCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
         ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
         ->and($oldCode->supplierProduct->fresh()->state)->not->toBe(SupplierProductStateEnum::DISCONTINUED);
+
+    $stock->update(['state' => StockStateEnum::ACTIVE]);
+    $orgStock->update(['state' => OrgStockStateEnum::DISCONTINUED]);
+    App\Actions\Goods\Stock\Hydrators\StockHydrateStateFromOrgStocks::run($stock->id);
+
+    expect($stock->fresh()->state)->toBe(StockStateEnum::DISCONTINUED)
+        ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value);
 });
 
 test('agent round budget is a usual month of orders plus restocking, in the organisation currency', function () {
