@@ -12,7 +12,7 @@ namespace App\Actions\Goods\Barcode\UI;
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\UI\Goods\BarcodeTabsEnum;
 use App\Http\Resources\Goods\BarcodeResource;
 use App\Http\Resources\History\HistoryResource;
@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowBarcode extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
     public function asController(Barcode $barcode, ActionRequest $request): Barcode
     {

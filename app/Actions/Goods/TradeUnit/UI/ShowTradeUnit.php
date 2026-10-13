@@ -18,7 +18,7 @@ use App\Actions\Goods\TradeUnit\IndexTradeUnitImages;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Inventory\OrgStocksResource;
@@ -37,7 +37,7 @@ class ShowTradeUnit extends OrgAction
 {
     use WithBucketNavigation;
 
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
 
     public function handle(TradeUnit $tradeUnit): TradeUnit

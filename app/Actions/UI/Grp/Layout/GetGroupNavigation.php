@@ -54,7 +54,7 @@ class GetGroupNavigation
                 ],
             ]
         ];
-        if ($user->hasAnyPermission(['goods.view','masters.view'])) {
+        if ($user->authTo(['goods.view', 'compliance.view', 'masters.view'])) {
             $groupNavigation['trade-units'] = $this->getTradeUnitsNavs();
         }
 
@@ -74,8 +74,11 @@ class GetGroupNavigation
             $groupNavigation['organisations'] = $this->getOrganisationsNavs();
         }
 
-        if (app()->isLocal()) {
+        if (app()->isLocal() && $user->canViewSalesChannels()) {
             $groupNavigation['sales-channels'] = $this->getSalesChannelsNavs();
+        }
+
+        if (app()->isLocal() && $user->canViewGroupWebsites()) {
             $groupNavigation['website'] = $this->getWebsiteNavs();
         }
 
@@ -254,28 +257,30 @@ class GetGroupNavigation
             ],
         ];
 
-        $groupNavigation['devops'] = [
-            'label'   => __('Devops'),
-            'tooltip' => __('Application Performance Monitoring'),
-            'icon'    => ['fal', 'fa-server'],
-            'root'    => 'grp.devops.',
-            'route'   => [
-                'name' => 'grp.devops.dashboard',
-            ],
-            'topMenu' => [
-                'subSections' => [
-
-
+        if ($user->canViewDevops()) {
+            $groupNavigation['devops'] = [
+                'label'   => __('Devops'),
+                'tooltip' => __('Application Performance Monitoring'),
+                'icon'    => ['fal', 'fa-server'],
+                'root'    => 'grp.devops.',
+                'route'   => [
+                    'name' => 'grp.devops.dashboard',
                 ],
-            ],
-        ];
+                'topMenu' => [
+                    'subSections' => [
+
+
+                    ],
+                ],
+            ];
+        }
 
         if ($user->hasPermissionTo('sysadmin.view')) {
             $groupNavigation['sysadmin'] = $this->getSysAdminNavs();
         }
 
         if (!$user->hasGroupAccess()) {
-            $modules = $user->worksOnlyForAgents() ? ['tickets'] : ['tickets', 'projects'];
+            $modules = $user->worksOnlyForAgents() ? ['tickets'] : ['sales-channels', 'website', 'tickets', 'projects'];
 
             return Arr::only($groupNavigation, $user->canViewSales() ? ['dashboard', ...$modules] : $modules);
         }

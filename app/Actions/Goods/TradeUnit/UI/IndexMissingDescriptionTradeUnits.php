@@ -3,7 +3,7 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitIndex;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
@@ -21,7 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexMissingDescriptionTradeUnits extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
     use WithTradeUnitIndex;
 
     private Group $parent;

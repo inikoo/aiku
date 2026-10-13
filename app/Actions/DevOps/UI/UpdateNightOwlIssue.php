@@ -25,7 +25,7 @@ class UpdateNightOwlIssue
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewDevops();
     }
 
     /** @return array<string, array<int, string>> */

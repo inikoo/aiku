@@ -6,7 +6,7 @@ use App\Actions\OrgAction;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitIndex;
 use App\Actions\Helpers\Brand\UI\ShowBrand;
 use App\Actions\Helpers\Brand\WithBrandSubNavigation;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\UI\Goods\TradeUnitsTabsEnum;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\InertiaTable\InertiaTable;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexTradeUnitsInBrand extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
     use WithTradeUnitIndex;
     use WithBrandSubNavigation;
 

@@ -15,6 +15,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditSalesChannel extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->authTo('sysadmin.edit');
+    }
+
     public function htmlResponse(SalesChannel $salesChannel): Response
     {
         return Inertia::render(

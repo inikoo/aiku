@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitIndex;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitEditSections;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitStandardIndex;
@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexTradeUnits extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
     use WithTradeUnitIndex;
     use WithTradeUnitStandardIndex;
     use WithTradeUnitEditSections;

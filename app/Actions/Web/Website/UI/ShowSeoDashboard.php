@@ -113,7 +113,7 @@ class ShowSeoDashboard extends OrgAction
                     'is_subscribed' => SeoReportSubscription::where('user_id', $request->user()->id)->where('shop_id', $shop->id)->exists(),
                     'route'         => ['name' => 'grp.models.shop.seo.report_subscription.toggle', 'parameters' => [$shop->id]],
                 ],
-                'groupLinks'  => $request->user()->hasGroupAccess() ? [
+                'groupLinks'  => $request->user()->canViewGroupWebsites() ? [
                     [
                         'label' => __('SEO portfolio'),
                         'icon'  => 'fal fa-globe',

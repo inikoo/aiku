@@ -15,6 +15,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSalesChannel extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->canViewSalesChannels();
+    }
+
     public function htmlResponse(SalesChannel $salesChannel): Response
     {
         return Inertia::render(

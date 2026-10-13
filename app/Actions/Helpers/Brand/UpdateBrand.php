@@ -12,6 +12,7 @@ namespace App\Actions\Helpers\Brand;
 
 use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitsEditAuthorisation;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Brand;
 use Illuminate\Http\RedirectResponse;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateBrand extends OrgAction
 {
+    use WithTradeUnitsEditAuthorisation;
+
     public function handle(Brand $brand, array $modelData): Brand
     {
         $image = Arr::pull($modelData, 'image', null);

@@ -25,6 +25,46 @@ beforeEach(function () {
     Config::set('services.discord.webhook_url', 'https://discord.com/api/webhooks/1/A');
 });
 
+function devopsEngineer(string $role = 'help-desk-clerk'): App\Models\SysAdmin\User
+{
+    $group = createGroup();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $user = App\Models\SysAdmin\User::factory()->create(['group_id' => $group->id]);
+    $user->assignRole($role);
+
+    return $user->refresh();
+}
+
+test('devops is for engineers and QA only: its pages, its menu entry and the server widget', function () {
+    $pages = [route('grp.devops.dashboard')];
+
+    $groupAdmin = createAdminGuest(createGroup())->getUser();
+    $this->actingAs($groupAdmin);
+    foreach ($pages as $page) {
+        $this->get($page)->assertForbidden();
+    }
+    $this->patch(route('grp.devops.telemetry.issues.update', ['issueId' => 1]), ['status' => 'resolved'])->assertForbidden();
+
+    expect($groupAdmin->hasGroupAccess())->toBeTrue()
+        ->and($groupAdmin->canViewDevops())->toBeFalse()
+        ->and(App\Actions\UI\Grp\Layout\GetGroupNavigation::run($groupAdmin))->not->toHaveKey('devops')
+        ->and(App\Actions\UI\Grp\Layout\GetLayout::run($groupAdmin)['can_view_devops'])->toBeFalse();
+
+    foreach (['help-desk-clerk', 'help-desk-supervisor', 'qa'] as $role) {
+        $engineer = devopsEngineer($role);
+        $this->actingAs($engineer);
+        foreach ($pages as $page) {
+            $this->get($page)->assertOk();
+        }
+
+        expect($engineer->canViewDevops())->toBeTrue()
+            ->and(App\Actions\UI\Grp\Layout\GetGroupNavigation::run($engineer))->toHaveKey('devops')
+            ->and(App\Actions\UI\Grp\Layout\GetLayout::run($engineer)['can_view_devops'])->toBeTrue();
+    }
+});
+
 it('logs success and does NOT send notification when website is up', function () {
     Http::fake([
         'https://example.test' => Http::response('OK'),
@@ -528,7 +568,7 @@ it('records server usage samples, rolls them into hours and shows them on the de
     expect(App\Actions\DevOps\Server\StoreServerLiveMetric::recentReadings('metrics-box'))->toHaveCount(2)
         ->and(App\Models\DevOps\ServerMetric::where('server_id', $server->id)->count())->toBe(2);
 
-    $this->actingAs(createAdminGuest(createGroup())->getUser())
+    $this->actingAs(devopsEngineer())
         ->get(route('grp.devops.dashboard'))
         ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
             ->component('Devops/Dashboard', false)
@@ -607,7 +647,7 @@ it('records github workflow runs, jobs and deploy task progress and shows them o
         'status' => 'in_progress', 'conclusion' => null, 'head_message' => '📈 Server metrics', 'deploy_done' => 1, 'deploy_total' => 30,
     ]);
 
-    $this->actingAs(createAdminGuest(createGroup())->getUser())
+    $this->actingAs(devopsEngineer())
         ->get(route('grp.devops.dashboard'))
         ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
             ->component('Devops/Dashboard', false)
@@ -665,7 +705,7 @@ it('records backend test results and shows counts, failures and daily stats on t
     $this->postJson(route('devops.test-results.store'), $results, ['X-DEVOPS-TOKEN' => 'test-devops-token'])->assertOk();
     Event::assertDispatched(App\Events\BroadcastCiRunUpdated::class);
 
-    $this->actingAs(createAdminGuest(createGroup())->getUser())
+    $this->actingAs(devopsEngineer())
         ->get(route('grp.devops.dashboard'))
         ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
             ->component('Devops/Dashboard', false)
@@ -764,7 +804,7 @@ it('shows nightowl telemetry graphs, top tables, request, job and command waterf
     Config::set('inertia.testing.ensure_pages_exist', false);
 
     try {
-        $this->actingAs(createAdminGuest(createGroup())->getUser())
+        $this->actingAs(devopsEngineer())
             ->get(route('grp.devops.dashboard', ['tab' => 'telemetry', 'range' => '24h', 'trace' => 'request', 'id' => 555, 'at' => $createdAt->toDateTimeString()]))
             ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
                 ->component('Devops/Dashboard', false)

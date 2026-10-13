@@ -10,7 +10,7 @@ namespace App\Actions\Goods\TradeUnitFamily\UI;
 
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\UI\Goods\TradeUnitFamiliesTabsEnum;
 use App\Http\Resources\Goods\TradeUnitFamiliesResource;
@@ -29,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTradeUnitFamilies extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
     private Group $parent;
 

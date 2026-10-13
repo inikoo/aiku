@@ -3,7 +3,7 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Helpers\Barcode\BarcodeStatusEnum;
 use Inertia\Inertia;
@@ -12,7 +12,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowTradeUnitsDashboard extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
     public function asController(ActionRequest $request): ActionRequest
     {

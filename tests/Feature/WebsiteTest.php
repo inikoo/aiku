@@ -3872,3 +3872,47 @@ test('website write routes need the web edit permission of the shop, INI-073', f
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 })->depends('launch website');
+
+test('the group website section and sales channels are for the group admin, system admin and group webmaster', function () {
+    $group = createGroup();
+    $user  = \App\Models\SysAdmin\User::factory()->create(['group_id' => $group->id]);
+
+    $pages = [
+        route('grp.websites.index'),
+        route('grp.websites.seo.portfolio'),
+        route('grp.websites.seo.api_usage'),
+        route('grp.sales_channels.index'),
+    ];
+    $subscribed = fn () => \App\Models\Web\SeoReportSubscription::where('user_id', $user->id)->whereNull('shop_id')->exists();
+    $navigation = function () use ($user) {
+        app()->detectEnvironment(fn () => 'local');
+
+        try {
+            return array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($user->refresh()));
+        } finally {
+            app()->detectEnvironment(fn () => 'testing');
+        }
+    };
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+
+    expect($user->hasGroupAccess())->toBeTrue()
+        ->and($navigation())->toContain('masters')->not->toContain('website', 'sales-channels');
+    foreach ($pages as $page) {
+        \Pest\Laravel\get($page)->assertForbidden();
+    }
+    \Pest\Laravel\post(route('grp.models.group.seo_report_subscription.toggle'))->assertForbidden();
+    expect($subscribed())->toBeFalse();
+
+    foreach (['group-webmaster.view', 'sysadmin.view'] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+
+        expect($navigation())->toContain('website', 'sales-channels');
+        foreach ($pages as $page) {
+            \Pest\Laravel\get($page)->assertOk();
+        }
+    }
+
+    \Pest\Laravel\post(route('grp.models.group.seo_report_subscription.toggle'))->assertRedirect();
+    expect($subscribed())->toBeTrue();
+});

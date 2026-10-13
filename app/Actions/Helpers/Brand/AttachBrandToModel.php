@@ -13,6 +13,7 @@ namespace App\Actions\Helpers\Brand;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateProducts;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateTradeUnits;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitsEditAuthorisation;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\Helpers\Brand;
@@ -20,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachBrandToModel extends OrgAction
 {
+    use WithTradeUnitsEditAuthorisation;
+
     protected TradeUnit|TradeUnitFamily $parent;
 
     public function handle(TradeUnit|TradeUnitFamily $model, array $modelData): void
@@ -63,7 +66,8 @@ class AttachBrandToModel extends OrgAction
 
     public function action(TradeUnit|TradeUnitFamily $parent, array $modelData)
     {
-        $this->parent = $parent;
+        $this->asAction = true;
+        $this->parent   = $parent;
         $this->initialisationFromGroup($parent->group, $modelData);
 
         $this->handle($parent, $this->validatedData);

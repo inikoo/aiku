@@ -34,7 +34,7 @@ class ShowDevopsDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewDevops();
     }
 
     public function handle(Group $group): Group
@@ -62,7 +62,7 @@ class ShowDevopsDashboard extends OrgAction
                 'pageHead'        => [
                     'title' => $title,
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-tools'],
+                        'icon'  => ['fal', 'fa-server'],
                         'title' => $title,
                     ],
                 ],
@@ -263,7 +263,7 @@ class ShowDevopsDashboard extends OrgAction
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'icon'  => 'fal fa-comment-alt',
+                        'icon'  => 'fal fa-server',
                         'route' => [
                             'name'       => 'grp.devops.dashboard',
                             'parameters' => $routeParameters,

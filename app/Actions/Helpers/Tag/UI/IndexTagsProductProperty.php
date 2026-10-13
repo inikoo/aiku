@@ -3,6 +3,7 @@
 namespace App\Actions\Helpers\Tag\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\Helpers\Tag\TagScopeEnum;
 use App\Http\Resources\Catalogue\TagsResource;
 use App\InertiaTable\InertiaTable;
@@ -19,9 +20,13 @@ use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 
 class IndexTagsProductProperty extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
+    use WithTradeUnitsAuthorisation;
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        return $request->user()->authTo(['goods.view', 'masters.view']);
+        $this->initialisationFromGroup(group(), $request);
+
+        return $this->handle();
     }
 
     public function handle($prefix = null): LengthAwarePaginator

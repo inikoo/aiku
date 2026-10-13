@@ -26,7 +26,7 @@ class IndexSalesChannels extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewSalesChannels();
     }
 
     public function handle(Group $group, ?string $prefix = null): LengthAwarePaginator

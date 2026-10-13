@@ -411,6 +411,25 @@ class User extends Authenticatable implements HasMedia, Auditable, PasskeyUser
             || $this->authTo(['group-overview', 'sysadmin.view', 'goods.view', 'masters.view', 'supply-chain.view', 'organisations.view']);
     }
 
+    public function canViewDevops(): bool
+    {
+        return $this->authTo(['help-desk', 'help-desk.resolve', 'help-desk.qa']);
+    }
+
+    /**
+     * The group Website section (websites dashboard, SEO portfolio and its weekly report, SEO API
+     * usage) is for the group administrator, the system administrator and the group webmaster.
+     */
+    public function canViewGroupWebsites(): bool
+    {
+        return $this->authTo(['group-webmaster.view', 'sysadmin.view']);
+    }
+
+    public function canViewSalesChannels(): bool
+    {
+        return $this->authTo(['group-webmaster.view', 'sysadmin.view']);
+    }
+
     /**
      * Anyone whose work moves sales (masters, procurement, webmasters, shopkeepers,
      * customer service, PPC, SEO, social, marketing, accounting) can see the group sales.

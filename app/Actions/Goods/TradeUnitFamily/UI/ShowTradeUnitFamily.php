@@ -15,7 +15,7 @@ use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 use App\Actions\Goods\TradeUnit\UI\Traits\WithTradeUnitEditSections;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Actions\Traits\HasBucketAttachment;
 use App\Enums\UI\SupplyChain\TradeUnitFamilyTabsEnum;
 use App\Http\Resources\Goods\TradeUnitFamilyResource;
@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowTradeUnitFamily extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
     use HasBucketAttachment;
     use WithTradeUnitEditSections;
 

@@ -6,7 +6,7 @@ use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\Brand\WithBrandSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Enums\UI\SupplyChain\BrandTabsEnum;
 use App\Http\Resources\Catalogue\BrandResource;
 use App\Http\Resources\History\HistoryResource;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowBrand extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
     use WithBrandSubNavigation;
 
     public function htmlResponse(Brand $brand, ActionRequest $request)

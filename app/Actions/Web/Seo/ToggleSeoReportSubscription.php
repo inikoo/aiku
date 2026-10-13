@@ -25,7 +25,7 @@ class ToggleSeoReportSubscription extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->isPortfolio) {
-            return $request->user()->hasGroupAccess();
+            return $request->user()->canViewGroupWebsites();
         }
 
         return $request->user()->authTo([

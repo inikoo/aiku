@@ -14,12 +14,15 @@ use App\Actions\Helpers\Brand\Hydrators\BrandHydrateModels;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateProducts;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateTradeUnits;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitsEditAuthorisation;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Brand;
 use Lorisleiva\Actions\ActionRequest;
 
 class DetachBrandFromModel extends OrgAction
 {
+    use WithTradeUnitsEditAuthorisation;
+
     public function handle(TradeUnit $model, Brand $brand): void
     {
         $model->Brands()->detach([$brand->id]);

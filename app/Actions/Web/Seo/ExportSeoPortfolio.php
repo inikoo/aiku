@@ -9,7 +9,6 @@ namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
 use App\Exports\Web\SeoTableExport;
-use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -21,7 +20,7 @@ class ExportSeoPortfolio extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewGroupWebsites();
     }
 
     public function handle(): BinaryFileResponse

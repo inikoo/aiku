@@ -9,7 +9,7 @@
 namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Http\Resources\Goods\TradeUnitsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Goods\TradeUnit;
@@ -23,7 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetTradeUnitsForTradeUnitFamily extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
     private Group $parent;
 

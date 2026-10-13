@@ -1096,6 +1096,84 @@ test('UI Edit Trade Unit Family page loads', function () {
     });
 });
 
+test('masters and goods viewers read the trade units section, and only goods or masters editors change brands, families and tags', function () {
+    $family = StoreTradeUnitFamily::make()->action($this->group, [
+        'code' => 'TUF-'.uniqid(),
+        'name' => 'Guarded Family',
+    ]);
+    $brand = \App\Actions\Helpers\Brand\StoreBrand::make()->handle($this->group, [
+        'name'      => 'Guarded Brand '.uniqid(),
+        'reference' => 'GB-'.uniqid(),
+    ]);
+    $tag = \App\Models\Helpers\Tag::create([
+        'group_id' => $this->group->id,
+        'name'     => 'Guarded Tag '.uniqid(),
+        'scope'    => \App\Enums\Helpers\Tag\TagScopeEnum::PRODUCT_PROPERTY,
+    ]);
+
+    $viewPages = [
+        route('grp.trade_units.dashboard'),
+        route('grp.trade_units.units.active'),
+        route('grp.trade_units.families.index'),
+        route('grp.trade_units.families.show', [$family->slug]),
+        route('grp.masters.trade-unit-families.show', [$family->slug]),
+        route('grp.trade_units.brands.index'),
+        route('grp.trade_units.brands.show', [$brand->slug]),
+        route('grp.trade_units.tags.index'),
+        route('grp.trade_units.barcodes.index'),
+    ];
+    $editPages = [
+        route('grp.trade_units.brands.edit', [$brand->slug]),
+        route('grp.trade_units.families.edit', [$family->slug]),
+        route('grp.masters.trade-unit-families.edit', [$family->slug]),
+        route('grp.goods.trade-unit-families.edit', [$family->slug]),
+        route('grp.trade_units.tags.edit', [$tag->slug]),
+    ];
+    $refusedSaves = function () use ($brand, $family, $tag) {
+        \Pest\Laravel\patch(route('grp.models.brand.update', [$brand->id]), ['name' => 'Changed by a viewer'])->assertForbidden();
+        \Pest\Laravel\post(route('grp.models.brand.store'), ['name' => 'Viewer brand', 'reference' => 'VB-'.uniqid()])->assertForbidden();
+        \Pest\Laravel\delete(route('grp.models.brand.delete', [$brand->id]))->assertForbidden();
+        \Pest\Laravel\patch(route('grp.models.trade_unit_family.update', [$family->id]), ['name' => 'Changed by a viewer'])->assertForbidden();
+        \Pest\Laravel\post(route('grp.models.trade_unit_family.store'), ['code' => 'TUF-'.uniqid(), 'name' => 'Viewer family'])->assertForbidden();
+        \Pest\Laravel\patch(route('grp.trade_units.tags.update', [$tag->id]), ['name' => 'Changed by a viewer'])->assertForbidden();
+    };
+
+    $user       = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id]);
+    $navigation = fn () => array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($user->refresh()));
+
+    actingAsUserWithOnlyPermissions($user, []);
+    foreach ([...$viewPages, ...$editPages] as $page) {
+        get($page)->assertForbidden();
+    }
+    $refusedSaves();
+    expect($navigation())->not->toContain('trade-units');
+
+    foreach (['masters.view', 'goods.view'] as $viewPermission) {
+        actingAsUserWithOnlyPermissions($user, [$viewPermission]);
+        foreach ($viewPages as $page) {
+            get($page)->assertOk();
+        }
+        foreach ($editPages as $page) {
+            get($page)->assertForbidden();
+        }
+        $refusedSaves();
+        expect($navigation())->toContain('trade-units');
+    }
+
+    expect($brand->refresh()->name)->not->toBe('Changed by a viewer')
+        ->and($family->refresh()->name)->toBe('Guarded Family')
+        ->and($tag->refresh()->name)->not->toBe('Changed by a viewer');
+
+    foreach (['masters.edit', 'goods.edit'] as $editPermission) {
+        actingAsUserWithOnlyPermissions($user, [$editPermission]);
+        foreach ($editPages as $page) {
+            get($page)->assertOk();
+        }
+        \Pest\Laravel\patch(route('grp.models.brand.update', [$brand->id]), ['name' => 'Renamed with '.$editPermission])->assertRedirect();
+        expect($brand->refresh()->name)->toBe('Renamed with '.$editPermission);
+    }
+});
+
 test('UI Create Trade Unit Family page loads', function () {
     $response = get(route('grp.trade_units.families.create'));
 

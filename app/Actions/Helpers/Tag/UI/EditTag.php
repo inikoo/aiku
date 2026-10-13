@@ -23,9 +23,24 @@ use App\Actions\Traits\Authorisations\WithCrmTagsAuthorisation;
 
 class EditTag extends OrgAction
 {
-    use WithCrmTagsAuthorisation;
+    use WithCrmTagsAuthorisation {
+        authorize as authorizeCrmTags;
+    }
 
     private ?TagScopeEnum $forcedScope = null;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        if ($this->forcedScope === TagScopeEnum::PRODUCT_PROPERTY) {
+            return $request->user()->authTo(['goods.edit', 'masters.edit']);
+        }
+
+        return $this->authorizeCrmTags($request);
+    }
 
     public function inSelfFilledTags(Organisation $organisation, Shop $shop, Tag $tag, ActionRequest $request): Response
     {

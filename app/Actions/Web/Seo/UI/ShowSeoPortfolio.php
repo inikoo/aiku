@@ -20,7 +20,7 @@ class ShowSeoPortfolio extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewGroupWebsites();
     }
 
     public function asController(ActionRequest $request): Group

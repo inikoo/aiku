@@ -29,7 +29,7 @@ class GetLayout
         return [
             'group'          => $this->getGroupData($user->group),
             'has_group_access' => $hasGroupAccess || $user->canViewSales(),
-            'can_view_devops'  => $hasGroupAccess,
+            'can_view_devops'  => $user->canViewDevops(),
             'organisations'  => GetUserOrganisationLayout::make()->getOrganisations($user),
             'agents'         => GetUserOrganisationLayout::make()->getAgents($user),
             'digital_agency' => GetUserOrganisationLayout::make()->getDigitalAgencies($user),

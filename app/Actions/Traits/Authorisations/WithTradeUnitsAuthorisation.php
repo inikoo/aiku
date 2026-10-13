@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Actions\Traits\Authorisations;
+
+use Lorisleiva\Actions\ActionRequest;
+
+trait WithTradeUnitsAuthorisation
+{
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        $this->canEdit           = $request->user()->authTo('goods.edit');
+        $this->canEditCompliance = $request->user()->authTo('compliance.edit');
+
+        return $request->user()->authTo(['goods.view', 'compliance.view', 'masters.view']);
+    }
+}

@@ -30,6 +30,10 @@ trait WithCrmTagsAuthorisation
             return $this->canEdit;
         }
 
+        if (str_starts_with($routeName, 'grp.models.trade-unit.tags.') || $routeName === 'grp.trade_units.tags.update') {
+            return $request->user()->authTo(['goods.edit', 'masters.edit']);
+        }
+
         if (str_starts_with($routeName, 'grp.models.customer.tags.')) {
             if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
                 return $request->user()->authTo("fulfilment-shop.{$this->shop->fulfilment->id}.edit");

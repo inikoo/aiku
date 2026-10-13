@@ -3,6 +3,7 @@
 namespace App\Actions\Helpers\Brand;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitsEditAuthorisation;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateProducts;
 use App\Actions\Helpers\Brand\Hydrators\BrandHydrateTradeUnits;
 use App\Models\Goods\TradeUnit;
@@ -11,6 +12,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachBrandToMultipleModel extends OrgAction
 {
+    use WithTradeUnitsEditAuthorisation;
+
     public function handle(Brand $brand, array $modelData): void
     {
         $tradeUnits = TradeUnit::whereIn('id', data_get($modelData, 'trade_units.*.id', []))->get();

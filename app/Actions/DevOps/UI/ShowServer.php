@@ -27,7 +27,7 @@ class ShowServer extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasGroupAccess();
+        return $request->user()->canViewDevops();
     }
 
     public function asController(Server $server, ActionRequest $request): Server

@@ -4,7 +4,7 @@ namespace App\Actions\Helpers\Brand\UI;
 
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnitsDashboard;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithGoodsAuthorisation;
+use App\Actions\Traits\Authorisations\WithTradeUnitsAuthorisation;
 use App\Http\Resources\Helpers\BrandResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Helpers\Brand;
@@ -20,7 +20,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexBrands extends OrgAction
 {
-    use WithGoodsAuthorisation;
+    use WithTradeUnitsAuthorisation;
 
     private Group $parent;
 
