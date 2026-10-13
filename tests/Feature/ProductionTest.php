@@ -5587,6 +5587,49 @@ test('a job carried to another day is one row on the board, with the amount the 
         ->and($rows[0]['in_progress'])->toBeFalse();
 });
 
+test('a batch made for stock is never offered a goods out bay as its shelf', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $user = $this->guest->getUser();
+    \App\Models\Production\ManufactureTaskSession::where('user_id', $user->id)
+        ->where('state', \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN)->delete();
+
+    $orgStock = createOrgStocks($this->organisation, [createStocks($this->group)[0]])[0];
+    $this->artefact->update(['org_stock_id' => $orgStock->id]);
+
+    $warehouse  = \App\Actions\Inventory\Warehouse\StoreWarehouse::make()->action($this->organisation, ['code' => 'WH-SHELF', 'name' => 'Shelf warehouse']);
+    $area       = \App\Actions\Inventory\WarehouseArea\StoreWarehouseArea::make()->action($warehouse, ['code' => 'A-SHELF', 'name' => 'Shelf area']);
+    $locationOf = fn (string $code) => \App\Actions\Inventory\Location\StoreLocation::make()->action($area, ['code' => $code, 'name' => $code] + \App\Models\Inventory\Location::factory()->definition());
+
+    $bay = $locationOf('BAY-SHELF');
+    $bay->update(['is_goods_out' => true]);
+    $shelf = $locationOf('SHELF-01');
+
+    $orgStock->locations()->detach();
+    foreach ([$bay, $shelf] as $location) {
+        \App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock::make()->action($orgStock, $location, [
+            'type' => \App\Enums\Inventory\LocationStock\LocationStockTypeEnum::PICKING,
+        ]);
+    }
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 12]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    CloseManufactureTaskSession::make()->action(
+        StartManufactureTaskSession::make()->action($user, $item->tasks()->first()),
+        ['quantity_made' => 12, 'outcome' => 'complete']
+    );
+
+    $row = collect(\App\Actions\Dispatching\ProductionOutput\GetFinishedProductionJobOrders::run($warehouse))
+        ->where('destination.type', 'stock')
+        ->flatMap(fn (array $trip) => collect($trip['jobs'])->flatMap(fn (array $job) => $job['items']))
+        ->firstWhere('item_id', $item->id);
+
+    expect($row['location_code'])->toBe('SHELF-01')
+        ->and(collect($row['locations'])->pluck('code')->all())->toBe(['SHELF-01']);
+});
+
 test('organisation navigation shows the warehouse section above production', function () {
     $sections = array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationNavigation::run($this->guest->getUser(), $this->organisation));
 

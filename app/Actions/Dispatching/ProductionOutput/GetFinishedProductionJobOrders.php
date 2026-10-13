@@ -72,7 +72,7 @@ class GetFinishedProductionJobOrders
                 $trips[$key]['job_order_ids'][$jobOrder->id] = $jobOrder->id;
 
                 $packedIn       = max(1, (int) $item->artefact->orgStock?->packed_in);
-                $stockLocations = $locationId ? [] : ($item->artefact->orgStock?->locations->sortBy('pivot.picking_priority')
+                $stockLocations = $locationId ? [] : ($item->artefact->orgStock?->locations->reject(fn (Location $location) => $location->is_goods_out)->sortBy('pivot.picking_priority')
                     ->map(fn (Location $location) => ['code' => $location->code, 'quantity' => round((float) $location->pivot->quantity, 3)])->values()->all() ?? []);
 
                 $group = $trips[$key]['jobs'][$root][$item->artefact_id] ?? [];
