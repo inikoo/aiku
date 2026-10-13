@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Procurement\OrgPartner\GetPartnerSellingShopIds;
 use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
@@ -283,8 +284,9 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
         $quarterlyUsage  = GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries = GetOrgStocksStockDeliveries::run($orgStockIds);
+        $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
-        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $supplierProducts, $partnerLeadTimeDays) {
+        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays) {
             $orgStock  = $orgStocks->get($row->org_stock_id);
             $tradeUnit = $orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
 
@@ -293,6 +295,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             $row->quarterly_usage    = $quarterlyUsage->get($row->org_stock_id) ?? collect();
             $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays);
             $row->stock_deliveries   = $stockDeliveries->get($row->org_stock_id);
+            $row->discontinue_suggestions = $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0];
 
             return $row;
         });

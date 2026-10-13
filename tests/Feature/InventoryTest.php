@@ -160,6 +160,8 @@ use App\Actions\Inventory\OrgStock\ApplyScheduledOrgStockStateChanges;
 use App\Actions\Inventory\OrgStock\DiscontinueGroupOrgStocks;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\GetOrgStockDiscontinuePreview;
+use App\Actions\Inventory\OrgStock\SuggestOrgStockDiscontinue;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -4225,6 +4227,52 @@ describe('discontinue confirm', function () {
         expect(StockHydrateStateFromOrgStocks::make()->getStockStateFromOrgStocks($stock->refresh()))->toBe(StockStateEnum::DISCONTINUED);
     });
 
+    test('discontinue suggestions pile up per stock across the group and show on product command control', function () {
+        $orgStock      = $this->orgStocks[0];
+        $otherOrgStock = $this->otherOrgStocks[0];
+        $stock         = $orgStock->stock;
+        $url           = route('grp.models.org_stock.discontinue_suggestion.store', [$orgStock->id]);
+        $state         = $orgStock->state;
+
+        $this->from(route('grp.goods.dashboard'))->post($url, ['reasons' => [], 'note' => ''])->assertSessionHasErrors(['source', 'reasons', 'note']);
+        $this->from(route('grp.goods.dashboard'))->post($url, ['source' => 'buying', 'reasons' => ['not_a_reason'], 'note' => 'Customers keep sending it back'])->assertSessionHasErrors(['reasons.0']);
+        expect(OrgStockDiscontinueSuggestion::where('stock_id', $stock->id)->count())->toBe(0);
+
+        $this->post($url, ['source' => 'buying', 'reasons' => ['high_complaints', 'slow_seller'], 'note' => 'Customers keep sending it back'])->assertRedirect()->assertSessionHasNoErrors();
+        SuggestOrgStockDiscontinue::make()->action($otherOrgStock, auth()->user(), ['source' => 'goods_in', 'reasons' => ['slow_seller', 'arrived_broken'], 'note' => 'Half the carton arrived in pieces']);
+
+        expect(OrgStockDiscontinueSuggestion::tallyForOrgStocks([$orgStock->id, $otherOrgStock->id])->all())->toBe([
+            $orgStock->id      => ['times' => 2, 'people' => 1],
+            $otherOrgStock->id => ['times' => 2, 'people' => 1],
+        ])->and($orgStock->refresh()->state)->toBe($state);
+
+        $props = [];
+        $this->get(route('grp.goods.dashboard', ['condition' => 'suggested', 'sort' => '-suggestions']))->assertOk()
+            ->assertInertia(function (AssertableInertia $page) use (&$props) {
+                $page->loadDeferredProps('dashboard', function (AssertableInertia $reload) use (&$props) {
+                    $props = $reload->toArray()['props'];
+                });
+            });
+
+        $row = collect($props['rows']['data'])->firstWhere('id', $stock->id);
+
+        expect(collect($props['rows']['data'])->every(fn (array $row) => $row['suggestions'] > 0))->toBeTrue()
+            ->and($props['kpis']['suggested'])->toBeGreaterThanOrEqual(1)
+            ->and($row['suggestions'])->toBe(2)
+            ->and($row['suggestion_people'])->toBe(1)
+            ->and($row['suggestion_evidence']['reasons'][0])->toBe(['label' => 'Slow seller', 'times' => 2])
+            ->and(array_column($row['suggestion_evidence']['sources'], 'times', 'label'))->toBe(['Goods in' => 1, 'Buying' => 1])
+            ->and(array_column($row['suggestion_evidence']['notes'], 'note'))->toBe(['Half the carton arrived in pieces', 'Customers keep sending it back'])
+            ->and($row)->toHaveKeys(['complaints', 'complaint_customers', 'refunds', 'replacements', 'next_order', 'supplier_claims', 'orders', 'complaint_rate']);
+
+        expect($row['complaint_customers'])->toBe(0)
+            ->and($row['feedback_level'])->toBeNull()
+            ->and($props['kpis']['feedback_levels'])->toHaveKeys(['mild', 'bad', 'severe', 'disaster']);
+
+        $this->get(route('grp.goods.dashboard', ['feedback' => 'mild', 'sort' => '-feedback', 'search' => $stock->code]))->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->loadDeferredProps('dashboard', fn (AssertableInertia $reload) => $reload->where('rows.total', 0)));
+    });
+
     test('group routes preview and change org stocks picked across organisations in one request', function () {
         $orgStock      = $this->orgStocks[1];
         $otherOrgStock = $this->otherOrgStocks[2];
@@ -4368,7 +4416,7 @@ describe('discontinue confirm', function () {
             $this->get(route('grp.goods.dashboard', ['search' => $stock->code]))->assertOk()
                 ->assertInertia(function (AssertableInertia $page) use (&$rows) {
                     $page->loadDeferredProps('dashboard', function (AssertableInertia $reload) use (&$rows) {
-                        $rows = $reload->toArray()['props']['rows'];
+                        $rows = $reload->toArray()['props']['rows']['data'];
                     });
                 });
 

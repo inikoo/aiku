@@ -5,7 +5,7 @@ import {faArrowRight, faCube, faInfoCircle, faLink, faSyncAlt} from "@fal"
 import {faArrowRight as farArrowRight} from "@far"
 import {library} from "@fortawesome/fontawesome-svg-core"
 import {Link, router} from "@inertiajs/vue3"
-import {inject, ref} from "vue"
+import {computed, inject, ref} from "vue"
 import Timeline from '@/Components/Utils/Timeline.vue'
 
 import {aikuLocaleStructure} from "@/Composables/useLocaleStructure"
@@ -120,6 +120,14 @@ const onSubmitReconnect = async () => {
 	}
 };
 
+const canReconnect = computed(() => {
+	if (props.deleted_notice) return false
+
+	const type = props.customer_sales_channel?.type
+
+	return type === 'wix' ? props.platform_status : ['ebay', 'allegro'].includes(type) && !props.platform_status
+})
+
 const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 </script>
@@ -146,7 +154,7 @@ const layout = inject('layout', layoutStructure)
                     <div class="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
                         <div
                             class="relative flex w-fit items-center gap-x-4 rounded-full bg-gray-100 px-4 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                            <span class="font-medium text-indigo-600 italic">
+                            <span class="font-medium text-[--app-accent] italic">
                                 {{ props.step.label }}
                             </span>
                         </div>
@@ -251,10 +259,10 @@ const layout = inject('layout', layoutStructure)
                 </div>
 
 				<div class="flex flex-nowrap items-center gap-2">
-					<div v-if="['ebay', 'allegro'].includes(customer_sales_channel?.type) && !platform_status && !deleted_notice">
+					<div v-if="canReconnect">
 						<ButtonWithLink @click="onSubmitReconnect" type="tertiary"
 										:label="ctrans('Reconnect')"
-										:icon="['fas', 'fa-spinner']">
+										:icon="['fal', 'fa-link']">
 						</ButtonWithLink>
 					</div>
 					<div v-if="route().params?.['customerSalesChannel'] && platform_status">
