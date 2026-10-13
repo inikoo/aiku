@@ -32,4 +32,19 @@ trait WithAgentOrganisationRedirect
 
         return $organisation;
     }
+
+    protected function getSearchedOrganisationForUser(?User $user, ?string $organisationSlug): ?Organisation
+    {
+        if (!$user || !$organisationSlug) {
+            return null;
+        }
+
+        $organisation = Organisation::where('slug', $organisationSlug)->first();
+
+        if (!$organisation || !$user->authTo("procurement.$organisation->id.view")) {
+            return null;
+        }
+
+        return $organisation;
+    }
 }

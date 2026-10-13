@@ -20,7 +20,6 @@ import { notify } from "@kyvg/vue3-notification"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
-import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import StockDeliveryCostingChecklist from "@/Components/Procurement/StockDeliveryCostingChecklist.vue"
 import StockDeliveryInvoiceCosting from "@/Components/Procurement/StockDeliveryInvoiceCosting.vue"
 import StockDeliveryInvoiceEntry from "@/Components/Procurement/StockDeliveryInvoiceEntry.vue"
@@ -201,7 +200,6 @@ const props = defineProps<{
 	done_items?: {}
 	under_over_delivered?: {}
 	customs?: {}
-	showcase?: {}
 	attachments?: {}
 	attachmentScopes: { name: string; code: string }[]
 	invoice_costing: InstanceType<typeof StockDeliveryInvoiceCosting>["$props"]["invoices"]
@@ -227,7 +225,6 @@ const component = computed(() => {
 		under_over_delivered: TableStockDeliveryDiscrepancies,
 		customs: StockDeliveryCustoms,
 		purchase_orders: TablePurchaseOrders,
-		showcase: ProcurementOrderData,
 		attachments: TableAttachments,
 		notes: TableProcurementNotes,
 		history: TableHistories,

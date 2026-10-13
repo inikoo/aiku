@@ -12,6 +12,8 @@ import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { ctrans } from "@/Composables/useTrans"
 import ServiceInvoiceTypeChip from "@/Components/Procurement/ServiceInvoiceTypeChip.vue"
+import StockDeliveryServiceInvoiceReadings, { type ServiceInvoiceReading } from "@/Components/Procurement/StockDeliveryServiceInvoiceReadings.vue"
+import { type HandTypedCost } from "@/Components/Procurement/StockDeliveryHandTypedCostWarning.vue"
 import { routeType } from "@/types/route"
 
 library.add(faPlus, faPencil, faTrashAlt, faPaperclip)
@@ -29,6 +31,10 @@ const props = defineProps<{
 		stock_deliveries: { id: number; reference: string }[]
 		store_route: routeType
 		index_route: routeType
+		readings: ServiceInvoiceReading[]
+		read_route: routeType
+		hand_typed: HandTypedCost[]
+		cost_kinds: Record<string, string | null>
 	}
 }>()
 
@@ -120,6 +126,17 @@ const confirmDelete = (row: ServiceInvoiceRow) =>
 		</ul>
 		<p v-if="data.list.some(row => row.type === 'tax')" class="text-xs text-gray-400">{{ ctrans("Import VAT is recovered, it is not part of the landed cost.") }}</p>
 
+		<StockDeliveryServiceInvoiceReadings
+			v-if="canChange() || data.readings.length"
+			:readings="data.readings"
+			:readRoute="data.read_route"
+			:types="data.types"
+			:handTyped="data.hand_typed"
+			:costKinds="data.cost_kinds"
+			:orgCurrency="data.org_currency"
+			:canEdit="canChange()"
+		/>
+
 		<StockDeliveryServiceInvoiceDialog
 			v-model:visible="isDialogOpen"
 			:invoice="editing"
@@ -129,6 +146,9 @@ const confirmDelete = (row: ServiceInvoiceRow) =>
 			:stockDeliveries="data.stock_deliveries"
 			:stockDeliveryId="data.stock_delivery_id"
 			:storeRoute="data.store_route"
+			:handTyped="data.hand_typed"
+			:costKinds="data.cost_kinds"
+			:orgCurrency="data.org_currency"
 		/>
 	</div>
 </template>

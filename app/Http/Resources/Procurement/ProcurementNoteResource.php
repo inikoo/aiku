@@ -17,6 +17,7 @@ use Illuminate\Support\Arr;
  * @property \Illuminate\Support\Carbon $created_at
  * @property string|null $user_name
  * @property string|null $purchase_order_reference
+ * @property int|null $number_documents
  */
 class ProcurementNoteResource extends JsonResource
 {
@@ -29,6 +30,7 @@ class ProcurementNoteResource extends JsonResource
             'note'                     => Arr::get($this->new_values, 'note'),
             'strikethrough'            => (bool)Arr::get($this->data, 'strikethrough', false),
             'purchase_order_reference' => $this->auditable_type === 'PurchaseOrder' ? $this->purchase_order_reference : null,
+            'number_purchase_orders'   => $this->auditable_type === 'PurchaseOrder' && $this->purchase_order_reference ? (int) $this->number_documents : null,
         ];
     }
 }

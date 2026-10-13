@@ -144,6 +144,7 @@ return [
             'suppliers', 'supplier_*', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
             'agents', 'agent_*', 'org_agents', 'org_partners', 'partner_shopping_list_items',
             'purchase_order*', 'stock_deliver*', 'aspo_deposits', 'deposit_request*', 'competitor*',
+            'org_stock_discontinue_suggestions',
         ],
 
         'production' => [

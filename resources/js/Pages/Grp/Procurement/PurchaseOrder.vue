@@ -1000,7 +1000,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<FontAwesomeIcon icon="fal fa-shopping-cart" aria-hidden="true" fixed-width />
 					<span class="italic">{{ ctrans("Their order is created when you submit") }}</span>
 				</div>
-				<ProcurementOrderData v-if="showcase" :data="showcase" bare :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
+				<ProcurementOrderData v-if="showcase" :data="showcase" :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
 			</div>
 		</BoxStatPallet>
 

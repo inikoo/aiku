@@ -54,7 +54,7 @@ class StoreWebsiteDialog extends OrgAction
 
         WebsiteHydrateWebsiteDialogs::dispatch($website->id)->delay(2);
 
-        return $websiteDialog;
+        return $websiteDialog->refresh();
     }
 
     public function rules(): array

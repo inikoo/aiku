@@ -17,7 +17,9 @@ use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryUnderOverDeliveredItems;
@@ -101,7 +103,6 @@ class ShowStockDelivery extends OrgAction
         StockDeliveryTabsEnum::UNDER_OVER_DELIVERED,
         StockDeliveryTabsEnum::CUSTOMS,
         StockDeliveryTabsEnum::PURCHASE_ORDERS,
-        StockDeliveryTabsEnum::SHOWCASE,
     ];
 
     public function authorize(ActionRequest $request): bool
@@ -175,6 +176,11 @@ class ShowStockDelivery extends OrgAction
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
+        $editRoute = $this->canEdit && !$this->goodsIn && $stockDelivery->organisation_id === $this->organisation->id && !$stockDelivery->isManagedByPartner() ? [
+            'name'       => 'grp.org.procurement.stock_deliveries.edit',
+            'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+        ] : null;
+
         return Inertia::render(
             'Procurement/StockDelivery',
             [
@@ -193,13 +199,8 @@ class ShowStockDelivery extends OrgAction
                         'label' => $this->getStateLabels($stockDelivery)[$stockDelivery->state->value]
                             .($stockDelivery->isManagedByPartner() && $stockDelivery->state !== StockDeliveryStateEnum::DISPATCHED ? ' · '.__('Managed by :partner until dispatched', ['partner' => $stockDelivery->parent?->partner?->name]) : ''),
                     ],
-                    'edit'       => $this->canEdit && !$stockDelivery->isManagedByPartner() ? [
-                        'route' => [
-                            'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            'parameters' => array_values($request->route()->originalParameters()),
-                        ],
-                    ] : false,
-                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery)),
+                    'edit'       => $editRoute ? ['route' => $editRoute] : false,
+                    'actions'    => array_merge($this->getUpdateCostingActions($stockDelivery), $this->getBookInLinkAction($stockDelivery, $request), $this->getAllowedActions($stockDelivery), $editRoute ? [['type' => 'button', 'style' => 'edit', 'label' => __('Settings'), 'route' => $editRoute]] : []),
                 ],
                 'stock_delivery'   => StockDeliveryResource::make($stockDelivery)->toArray($request),
                 'timelines'        => $this->getTimeline($stockDelivery),
@@ -230,10 +231,6 @@ class ShowStockDelivery extends OrgAction
                         ],
                     ],
                 ],
-
-                StockDeliveryTabsEnum::SHOWCASE->value => $this->tab == StockDeliveryTabsEnum::SHOWCASE->value ?
-                    fn () => GetStockDeliveryData::run($stockDelivery)
-                    : Inertia::optional(fn () => GetStockDeliveryData::run($stockDelivery)),
 
                 StockDeliveryTabsEnum::ITEMS->value => $this->tab == StockDeliveryTabsEnum::ITEMS->value ?
                     fn () => $this->getItems($stockDelivery)
@@ -1014,6 +1011,10 @@ class ShowStockDelivery extends OrgAction
                 ->toArray(),
             'store_route'  => ['name' => 'grp.models.org.stock_delivery_service_invoice.store', 'parameters' => ['organisation' => $stockDelivery->organisation_id], 'method' => 'post'],
             'index_route'  => ['name' => 'grp.org.procurement.service_invoices.index', 'parameters' => [$stockDelivery->organisation->slug]],
+            'readings'     => GetStockDeliveryServiceInvoiceReadings::run($stockDelivery),
+            'hand_typed'   => GetStockDeliveryHandTypedCosts::run($stockDelivery),
+            'cost_kinds'   => GetStockDeliveryHandTypedCosts::costKinds(),
+            'read_route'   => ['name' => 'grp.models.stock-delivery.service-invoice.read-upload', 'parameters' => ['stockDelivery' => $stockDelivery->id], 'method' => 'post'],
         ];
     }
 

@@ -258,8 +258,10 @@ Built on 8 October 2026 on DataForSEO, so it does not wait for Google Ads Basic 
 - Not built yet: the monthly refresh of saved keywords, with 2.2.
 
 **Screen.** SEO > Keywords, tab Research: keywords or a URL, country and language (defaulting to the
-shop's), results with intent, volume, a 12 month trend, difficulty, CPC and ad competition, a filter
-per intent. Below them, the Search Console queries of the website
+shop's), results with intent, volume, a 12 month trend, difficulty, CPC, the SERP features Google
+shows for the keyword (AI Overview, People also ask, images, shopping and so on, as in Rankings;
+from the `include_serp_info` option, at no extra cost, with the date of the snapshot, which can be
+months old) and ad competition, a filter per intent. Below them, the Search Console queries of the website
 that contain the same words (last 90 days). Every result has a Track action.
 
 ### Tracked keywords and competitors (set from the UI)
@@ -270,8 +272,14 @@ that contain the same words (last 90 days). Every result has a Track action.
   keyword is tracked on mobile and on desktop and nobody picks a device. A check costs twice as much.
 - `seo_competitors`: shop, domain (stored without scheme, `www.` and path), optional name.
 - SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change frequency inline,
-  pause, remove. Editing needs the same web edit permission as the other SEO actions
-  (`WithSeoEditAuthorisation`).
+  pause, remove.
+- Access (HELP-3885): every SEO page, menu entry and SEO action is limited to PPC and admins.
+  Viewing (`canViewSeo`) and editing (`canEditSeo`) go to the group admin and system admin, the
+  organisation admin, the shop admin, the Shop PPC role of the shop, `ppc.{organisation}` (view or
+  edit), and the SEO permissions a Job Position generates: `seo.{organisation}` with `.view` and
+  `.edit`, and `org-supervisor.{organisation}.seo`. The group-level SEO portfolio and API usage (`canViewGroupSeo`) go to the group
+  admin and anybody holding one of those roles in any shop; changing the API budget is group admin
+  only. Webmaster roles no longer open SEO. Everything is in `WithShopPpcPermissions`.
 - Nothing is fetched for them yet; that is 2.2.
 
 ### 2.2 Rank tracking

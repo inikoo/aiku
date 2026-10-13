@@ -98,6 +98,7 @@ const props = withDefaults(defineProps<{
     placeholder?: any | String
     uploadImageRoute?: routeType
     routeGetInternalLink?: routeType
+    mergeTags?: Array<{ name: string, value: string }>
 }>(), {
     editable: true,
     type: 'Bubble',
@@ -124,6 +125,7 @@ const showAddYoutubeDialog = ref<boolean>(false)
 const showAddTableDialog = ref<boolean>(false)
 const showAddImageDialog = ref<boolean>(false)
 const showAddVariableDialog = ref<boolean>(false)
+const showMergeTagDialog = ref<boolean>(false)
 const showLinkDialog = ref<boolean>()
 const tippyOptions = {
     theme: 'tiptap-bubble',
@@ -411,12 +413,53 @@ function updateLink(value?: string) {
         return
     }
 
-    editorInstance.value
-        ?.chain()
+    const editor = editorInstance.value
+    if (!editor) {
+        return
+    }
+
+    if (!editor.state.selection.empty || editor.isActive("link")) {
+        editor.chain().focus().extendMarkRange("link").setLink({ href: value }).run()
+        return
+    }
+
+    const wordRange = getWordRangeAtCursor()
+    if (wordRange) {
+        editor.chain().focus().setTextSelection(wordRange).setLink({ href: value }).run()
+        return
+    }
+
+    editor
+        .chain()
         .focus()
-        .extendMarkRange("link")
-        .setLink({ href: value })
+        .insertContent({ type: "text", text: value, marks: [{ type: "link", attrs: { href: value } }] })
         .run()
+}
+
+function getWordRangeAtCursor(): { from: number, to: number } | null {
+    const selectionStart = editorInstance.value?.state.selection.$from
+    if (!selectionStart || !selectionStart.parent.isTextblock) {
+        return null
+    }
+
+    const leafPlaceholder = " "
+    const blockText = selectionStart.parent.textBetween(0, selectionStart.parent.content.size, undefined, leafPlaceholder)
+    const isWordCharacter = (index: number): boolean => index >= 0 && index < blockText.length && /\S/.test(blockText[index])
+
+    let wordStart = selectionStart.parentOffset
+    let wordEnd = selectionStart.parentOffset
+    while (isWordCharacter(wordStart - 1)) {
+        wordStart -= 1
+    }
+    while (isWordCharacter(wordEnd)) {
+        wordEnd += 1
+    }
+
+    if (wordStart === wordEnd) {
+        return null
+    }
+
+    return { from: selectionStart.start() + wordStart, to: selectionStart.start() + wordEnd }
 }
 
 
@@ -457,6 +500,12 @@ const setVariabel = (value) => {
     const content = `<span class="mention" data-type="mention" data-id="${value}" contenteditable="false">${value}</span>`;
     editorInstance.value?.chain().focus().insertContent(content).run();
 };
+
+const mergeTagOptions = computed(() => (props.mergeTags ?? []).map((tag) => ({ label: tag.name, value: tag.value })))
+
+const insertMergeTag = (value: string) => {
+    editorInstance.value?.chain().focus().insertContent({ type: 'text', text: value }).run()
+}
 
 defineExpose({
     editor: editorInstance
@@ -924,6 +973,13 @@ onMounted(async () => {
                             </TiptapToolbarDropdown>
                         </TiptapToolbarGroup>
 
+                        <TiptapToolbarGroup v-if="mergeTags?.length" class="px-1 first:pl-0">
+                            <TiptapToolbarButton :label="ctrans('Merge tags')"
+                                @click="showMergeTagDialog = true; showDialog = true">
+                                <FontAwesomeIcon :icon="faBracketsCurly" class="h-4 w-4" fixed-width />
+                            </TiptapToolbarButton>
+                        </TiptapToolbarGroup>
+
                         <!-- Links -->
                         <TiptapToolbarGroup v-if="toggle.includes('link') || toggle.includes('customLink')"
                             class="px-1 first:pl-0">
@@ -1202,6 +1258,16 @@ onMounted(async () => {
             :variables="irisVariable"
             @insert="setVariabel"
             @close="() => { showAddVariableDialog = false; showDialog = false; }"
+        />
+
+        <TiptapVariableDialog
+            v-if="showMergeTagDialog"
+            :show="showMergeTagDialog"
+            :variables="mergeTagOptions"
+            :header="ctrans('Insert merge tag')"
+            :description="ctrans('Pick a merge tag to place at the cursor. It is replaced with the recipient\'s details when the email is sent.')"
+            @insert="insertMergeTag"
+            @close="() => { showMergeTagDialog = false; showDialog = false; }"
         />
 
         <TiptapVideoDialog

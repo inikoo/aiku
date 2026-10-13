@@ -48,6 +48,7 @@ type SectionConfig = {
     label: string
     icon: string
     redirectRoute?: string
+    opensInOrganisation?: boolean
 }
 
 const SECTIONS: Record<string, SectionConfig> = {
@@ -60,7 +61,7 @@ const SECTIONS: Record<string, SectionConfig> = {
     stock_families: { label: 'Stock Families', icon: 'fal fa-boxes-alt', redirectRoute: 'grp.majordomo.redirect_stock_family' },
     trade_units: { label: 'Trade Units', icon: 'fal fa-atom', redirectRoute: 'grp.majordomo.redirect_trade_unit' },
     trade_unit_families: { label: 'Trade Unit Families', icon: 'fal fa-boxes-alt', redirectRoute: 'grp.majordomo.redirect_trade_unit_family' },
-    suppliers: { label: 'Suppliers', icon: 'fal fa-person-dolly', redirectRoute: 'grp.majordomo.redirect_supplier' },
+    suppliers: { label: 'Suppliers', icon: 'fal fa-person-dolly', redirectRoute: 'grp.majordomo.redirect_supplier', opensInOrganisation: true },
     prospects: { label: 'Prospects', icon: 'fal fa-user-plus', redirectRoute: 'grp.majordomo.redirect_prospect' },
     reviews: { label: 'Reviews', icon: 'fal fa-star' },
     charges: { label: 'Charges', icon: 'fal fa-charging-station', redirectRoute: 'grp.majordomo.redirect_charge' },
@@ -83,8 +84,8 @@ const SECTIONS: Record<string, SectionConfig> = {
     tickets: { label: 'Tickets', icon: 'fal fa-life-ring' },
     purchase_orders: { label: 'Purchase Orders', icon: 'fal fa-clipboard-list', redirectRoute: 'grp.majordomo.redirect_purchase_order' },
     stock_deliveries: { label: 'Stock Deliveries', icon: 'fal fa-truck-loading', redirectRoute: 'grp.majordomo.redirect_stock_delivery' },
-    agents: { label: 'Agents', icon: 'fal fa-people-arrows', redirectRoute: 'grp.majordomo.redirect_agent' },
-    supplier_products: { label: 'Supplier Products', icon: 'fal fa-boxes', redirectRoute: 'grp.majordomo.redirect_supplier_product' },
+    agents: { label: 'Agents', icon: 'fal fa-people-arrows', redirectRoute: 'grp.majordomo.redirect_agent', opensInOrganisation: true },
+    supplier_products: { label: 'Supplier Products', icon: 'fal fa-boxes', redirectRoute: 'grp.majordomo.redirect_supplier_product', opensInOrganisation: true },
     artefact_departments: { label: 'Artefact Departments', icon: 'fal fa-folder-tree' },
     artefact_families: { label: 'Artefact Families', icon: 'fal fa-boxes-alt' },
     artefacts: { label: 'Artefacts', icon: 'fal fa-flask-potion' },
@@ -120,9 +121,16 @@ function buildHref(sectionKey: string, item: ResultItem): string | null {
         return item.href
     }
 
-    const redirectRoute = SECTIONS[sectionKey]?.redirectRoute
+    const section = SECTIONS[sectionKey]
 
-    return redirectRoute ? route(redirectRoute, [item.id]) : null
+    if (!section?.redirectRoute) {
+        return null
+    }
+
+    const href = route(section.redirectRoute, [item.id])
+    const organisation = section.opensInOrganisation ? route().params.organisation : null
+
+    return organisation ? `${href}?organisation=${encodeURIComponent(String(organisation))}` : href
 }
 
 const activeItems = computed(() =>

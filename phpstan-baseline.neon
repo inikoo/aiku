@@ -4291,12 +4291,6 @@ parameters:
 			path: app/Actions/Web/WebBlock/Workshop/GetWebBlockSubDepartmentsThree.php
 
 		-
-			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
-			identifier: larastan.noEnvCallsOutsideOfConfig
-			count: 1
-			path: app/Actions/Web/Webpage/GetWebpageGoogleCloud.php
-
-		-
 			message: '#^Variable \$label on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 2

@@ -1046,6 +1046,20 @@ test('majordomo redirect supplier link sends users without supply chain access t
         ->toBe(route('grp.org.procurement.org_suppliers.show', [$this->organisation->slug, $orgSupplier->slug]));
 });
 
+test('majordomo redirect supplier link opens the supplier in the organisation searched from', function () {
+    $supplier = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
+
+    $this->get(route('grp.majordomo.redirect_supplier', [$supplier->id, 'organisation' => $this->organisation->slug]))
+        ->assertRedirect(route('grp.org.procurement.org_suppliers.show', [$this->organisation->slug, $orgSupplier->slug]));
+
+    $this->get(route('grp.majordomo.redirect_supplier', [$supplier->id, 'organisation' => 'no-such-organisation']))
+        ->assertRedirect(route('grp.supply-chain.suppliers.show', [$supplier->slug]));
+});
+
 test('majordomo redirect supplier product link', function () {
     $freeSupplier = StoreSupplier::make()->action(
         parent: $this->group,
@@ -1547,7 +1561,9 @@ test('UI edit supplier product', function () {
                     ->etc()
             )
             ->has('formData.args.updateRoute')
-            ->has('formData.blueprint.0.fields.code');
+            ->has('formData.blueprint.0.fields.code')
+            ->where('formData.blueprint.0.fields.state.value', $supplierProduct->state->value)
+            ->has('formData.blueprint.0.fields.state.options', 4);
     });
 });
 

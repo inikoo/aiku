@@ -1,7 +1,7 @@
 ---
 title: Costing a stock delivery
 summary: Enter what a delivery really cost - the agent or supplier invoice and the bills paid locally for freight, customs and transport - so the stock is valued at its landed cost.
-date: 2026-10-12
+date: 2026-10-13
 tags: procurement, stock deliveries, costing, landed cost, service invoices, customs
 category: procurement
 help_routes: grp.org.procurement.stock_deliveries, grp.org.procurement.service_invoices, grp.org.procurement.dashboard
@@ -68,6 +68,29 @@ Freight is shared by value instead of by weight when a product in the delivery h
 
 Each bill fills the costing by itself, and a cost filled by a bill can only be changed by changing the bill. All the bills of your organisation are listed under **Service invoices**, reached from the heading of that list, where you can filter them by kind, sender, paid or unpaid, and period.
 
+If a cost was already typed by hand, aiku warns you before you save a bill of the same kind, whether you type the bill or have it read from its file. A bill for shipping or duty replaces the amount typed by hand, and the warning shows both amounts when they are not the same. A bill for any other kind of cost counts next to the one typed by hand, so remove the typed one if it is the same cost. An amount typed as an estimate is simply replaced by the bill.
+
+## Reading a bill from its file
+
+Instead of typing a bill, aiku can read it. Open the **Landed costs** row and, under **Read from a document**, press **Read an invoice** and choose the PDF, the spreadsheet or a photo of the bill. It shows **Reading…** for up to a minute or two, then press **Review**.
+
+The review shows who issued the bill, its reference, date and currency, and each line with its amount and the kind of cost aiku thinks it is. Check them against the bill and change the kind of a line if it is wrong. The amounts can not be changed: they are the ones printed on the bill. Press **Add to the service invoices**. Lines of the same kind become one service invoice, so a forwarder's bill with sea freight and customs clearance on it becomes two, each shared over the items its own way, and each keeps the file.
+
+Nothing is costed until you press that button. The bill is read twice, by two different AI models, and aiku then checks the reading itself. It refuses the reading, and says why, when:
+
+- the two readings do not agree on an amount, the reference, the date or the currency,
+- an amount, the reference or the currency that was read is not printed in the document,
+- the document does not mention the delivery, or mentions another delivery too, even one that is already costed or belongs to another organisation,
+- the lines do not add up to the total of the bill,
+- the bill has no reference, date or currency,
+- a bill with the same reference is already entered, or one of the same amount is already on the delivery,
+- the bill is larger than the value of the goods,
+- the delivery is costed, cancelled or a partner delivery.
+
+A refused bill shows **Enter it by hand**: add it with **Add**, as in the section above. A scan or a photo has no text for aiku to check, so it asks you to tick that you have checked every amount yourself.
+
+VAT on the bill is left out of the cost, and is written in the notes of the service invoice.
+
 ## Typing a cost without a bill
 
 Press **Edit landed costs** to open the costs as a table. Each cost has:
@@ -116,6 +139,7 @@ People who cost deliveries can ask their AI assistant to show the costs of a del
 <li><b>Enter the invoice:</b> open the invoice row → <b>Invoice</b> → <b>Save invoice</b>.</li>
 <li><b>Approve an agent's charges or record a payment:</b> open the invoice row → <b>Agent payments</b>.</li>
 <li><b>Add a bill:</b> open <b>Landed costs</b> → <b>Add</b> next to <b>Service invoices</b>.</li>
+<li><b>Have a bill read from its file:</b> open <b>Landed costs</b> → <b>Read an invoice</b> under <b>Read from a document</b> → <b>Review</b> → <b>Add to the service invoices</b>.</li>
 <li><b>Type a cost, mark it N/A or waiting:</b> open <b>Landed costs</b> → <b>Edit landed costs</b>.</li>
 <li><b>Correct a costed delivery (accounting managers):</b> <b>Update costing</b> at the top of the delivery, then <b>Finish costing</b>.</li>
 <li><b>See what is waiting:</b> <b>Procurement</b> dashboard, the bar at the top; or the <b>Costing</b> filter of the stock deliveries list.</li>

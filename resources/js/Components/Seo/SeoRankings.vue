@@ -15,9 +15,9 @@ import { faBell, faSyncAlt } from "@fal"
 import { faBell as fasBell } from "@fas"
 import SeoKeywordHistoryChart from "@/Components/Seo/SeoKeywordHistoryChart.vue"
 import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
+import { featureLabel } from "@/Components/Seo/serpFeatures"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
-import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
@@ -157,26 +157,6 @@ const intentLabels: Record<string, string> = {
     commercial: ctrans("Commercial"),
     transactional: ctrans("Transactional"),
 }
-
-const serpFeatureLabels: Record<string, string> = {
-    ai_overview: ctrans("AI Overview"),
-    featured_snippet: ctrans("Featured snippet"),
-    local_pack: ctrans("Local pack"),
-    map: ctrans("Map"),
-    shopping: ctrans("Shopping results"),
-    popular_products: ctrans("Popular products"),
-    paid: ctrans("Ads"),
-    people_also_ask: ctrans("People also ask"),
-    people_also_search: ctrans("People also search"),
-    related_searches: ctrans("Related searches"),
-    images: ctrans("Images"),
-    video: ctrans("Videos"),
-    top_stories: ctrans("Top stories"),
-    knowledge_graph: ctrans("Knowledge panel"),
-    discussions_and_forums: ctrans("Forums"),
-}
-
-const featureLabel = (feature: string) => serpFeatureLabels[feature] ?? capitalize(feature.replaceAll("_", " "))
 
 const share = (count: number, total: number) => total ? Math.round(count / total * 100) : 0
 

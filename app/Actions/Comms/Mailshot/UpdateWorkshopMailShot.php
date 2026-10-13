@@ -37,6 +37,7 @@ class UpdateWorkshopMailShot extends OrgAction
         if ($snapshot) {
             // update existing snapshot
             $modelData['builder'] = $outbox->builder->value ?? $snapshot->builder->value;
+            $modelData['compiled_layout'] = Arr::get($modelData, 'compiled_layout');
             $this->update($snapshot, $modelData);
             unset($modelData['builder']);
         } else {
@@ -47,6 +48,7 @@ class UpdateWorkshopMailShot extends OrgAction
                     'state'          => SnapshotStateEnum::UNPUBLISHED,
                     'published_at'   => now(),
                     'layout'         => Arr::get($modelData, 'layout'),
+                    'compiled_layout' => Arr::get($modelData, 'compiled_layout'),
                     'first_commit'   => false,
                     'comment'        => Arr::get($modelData, 'comment'),
                     'publisher_id'   => Arr::get($modelData, 'publisher_id'),
@@ -68,7 +70,8 @@ class UpdateWorkshopMailShot extends OrgAction
     public function rules(): array
     {
         return [
-            'layout' => ['required']
+            'layout'          => ['required'],
+            'compiled_layout' => ['sometimes', 'nullable', 'string'],
         ];
     }
 

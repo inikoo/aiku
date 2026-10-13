@@ -70,7 +70,10 @@ function addNote() {
 
         <template #cell(note)="{ item }">
             <div class="whitespace-pre-line" :class="{ 'line-through text-gray-400': item.strikethrough }">{{ item.note }}</div>
-            <div v-if="item.purchase_order_reference" class="text-xs text-gray-500">
+            <div v-if="item.number_purchase_orders > 1" class="text-xs text-gray-500">
+                {{ ctrans('On :count purchase orders', { count: item.number_purchase_orders }) }}
+            </div>
+            <div v-else-if="item.purchase_order_reference" class="text-xs text-gray-500">
                 {{ ctrans('On purchase order') }} {{ item.purchase_order_reference }}
             </div>
         </template>

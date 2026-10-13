@@ -11,6 +11,8 @@ interface VariableOption {
 const props = defineProps<{
 	show: boolean
 	variables: VariableOption[]
+	header?: string
+	description?: string
 }>()
 
 const emit = defineEmits<{
@@ -34,13 +36,13 @@ const insertVariable = (value: string) => {
 <template>
 	<Dialog
 		v-model:visible="visible"
-		:header="ctrans('Insert variable')"
+		:header="header ?? ctrans('Insert variable')"
 		modal
 		:style="{ width: '26rem' }"
 		:breakpoints="{ '640px': '95vw' }">
 		<div class="flex flex-col gap-3">
 			<p class="text-sm text-gray-500">
-				{{ ctrans('Pick a variable to place at the cursor. Its value is filled in automatically when a visitor opens the page.') }}
+				{{ description ?? ctrans('Pick a variable to place at the cursor. Its value is filled in automatically when a visitor opens the page.') }}
 			</p>
 
 			<div class="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200">

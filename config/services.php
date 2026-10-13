@@ -149,6 +149,9 @@ return [
             'deepseek/deepseek-v4.1-flash' => ['reasoning' => ['enabled' => false], 'provider' => ['data_collection' => 'deny']],
         ],
     ],
+    'stock_delivery_documents' => [
+        'readers' => explode(',', env('STOCK_DELIVERY_DOCUMENT_READERS', 'anthropic/claude-opus-5.5,openai/gpt-5.6-sol')),
+    ],
     'pastpay' => [
         'demo_api_key' => env('PASTPAY_DEMO_API_KEY'),
         'base_url' => env('PASTPAY_BASE_URL'),

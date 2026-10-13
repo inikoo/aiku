@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Language;
 use App\Models\Web\SeoContentBrief;
@@ -18,14 +19,11 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class GetSeoContentBrief extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo([
-            "websites-view.{$this->shop->organisation_id}",
-            "web.{$this->shop->id}",
-            "web.{$this->shop->id}.view",
-            'group-webmaster.view',
-        ]);
+        return $this->canViewSeo($request->user(), $this->shop);
     }
 
     public function handle(SeoContentBrief $brief): array

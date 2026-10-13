@@ -14,6 +14,8 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -36,16 +38,9 @@ class IndexProcurementNotes
             ->leftJoin('purchase_orders', function ($join) {
                 $join->on('purchase_orders.id', 'audits.auditable_id')->where('audits.auditable_type', 'PurchaseOrder');
             })
-            ->where('audits.event', AuditEventEnum::NOTE->value)
-            ->where(function ($query) use ($model) {
-                $query->where(fn ($query) => $query->where('audits.auditable_type', class_basename($model))->where('audits.auditable_id', $model->id));
-
-                if ($model instanceof StockDelivery) {
-                    $query->orWhere(fn ($query) => $query->where('audits.auditable_type', 'PurchaseOrder')
-                        ->whereIn('audits.auditable_id', $model->purchaseOrders()->pluck('purchase_orders.id')));
-                }
-            })
+            ->joinSub($this->distinctNotes($model), 'distinct_notes', 'distinct_notes.id', 'audits.id')
             ->select([
+                'distinct_notes.number_documents',
                 'audits.id',
                 'audits.auditable_type',
                 'audits.new_values',
@@ -61,6 +56,25 @@ class IndexProcurementNotes
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()?->getName())
             ->withQueryString();
+    }
+
+    /**
+     * A note copied onto several purchase orders of a stock delivery is one note: same text, author and minute.
+     */
+    private function distinctNotes(PurchaseOrder|StockDelivery $model): Builder
+    {
+        return DB::table('audits')
+            ->where('audits.event', AuditEventEnum::NOTE->value)
+            ->where(function ($query) use ($model) {
+                $query->where(fn ($query) => $query->where('audits.auditable_type', class_basename($model))->where('audits.auditable_id', $model->id));
+
+                if ($model instanceof StockDelivery) {
+                    $query->orWhere(fn ($query) => $query->where('audits.auditable_type', 'PurchaseOrder')
+                        ->whereIn('audits.auditable_id', $model->purchaseOrders()->pluck('purchase_orders.id')));
+                }
+            })
+            ->groupByRaw("audits.auditable_type, audits.new_values->>'note', audits.user_id, audits.data->>'author', date_trunc('minute', audits.created_at)")
+            ->selectRaw('min(audits.id) as id, count(*) as number_documents');
     }
 
     public function tableStructure(?string $prefix = null): Closure

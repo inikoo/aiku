@@ -18,6 +18,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Actions\Traits\WithActionUpdate;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -28,6 +29,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class UpdateOrgStockUnitBarcode extends OrgAction
 {
+    use WithActionUpdate;
+
     private OrgStock $orgStock;
 
     public function handle(OrgStock $orgStock, array $modelData): OrgStock

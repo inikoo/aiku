@@ -100,7 +100,8 @@ use App\Actions\Catalogue\Variant\UpdateVariantProductOrder;
 use App\Actions\Comms\Email\SendTestEmail;
 use App\Actions\Comms\Email\UpdateEmailUnpublishedSnapshot;
 use App\Actions\Comms\EmailTemplate\UpdateEmailTemplate;
-use App\Actions\Comms\EmailTemplate\UploadImagesToEmailTemplate;
+use App\Actions\Comms\Email\StoreEmailVideoThumbnail;
+use App\Actions\Comms\Email\UploadImagesToEmail;
 use App\Actions\Comms\Mailshot\CancelMailshotSchedule;
 use App\Actions\Comms\Mailshot\ConvertMailshotToBlog;
 use App\Actions\Comms\Mailshot\DeleteMailshot;
@@ -342,7 +343,9 @@ use App\Actions\Helpers\Dashboard\BreakDashboardTimeSeriesCache;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
 use App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice;
+use App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryServiceInvoiceReading;
 use App\Actions\Helpers\Media\AttachImagesToModel;
 use App\Actions\Helpers\Media\DetachAttachmentFromModel;
 use App\Actions\Helpers\Snapshot\ApplyWebsiteMenuSnapshot;
@@ -1614,7 +1617,8 @@ Route::patch('/{mailshot:id}/mailshot/utm-settings', UpdateMailshotUtmSettings::
 
 Route::name('email-templates.')->prefix('email-templates')->group(function () {
     Route::patch('{emailTemplate:id}/update', UpdateEmailTemplate::class)->name('content.update');
-    Route::post('{emailTemplate:id}/images', UploadImagesToEmailTemplate::class)->name('images.store');
+    Route::post('{emailTemplate:id}/images', [UploadImagesToEmail::class, 'inEmailTemplate'])->name('images.store');
+    Route::post('{emailTemplate:id}/video-thumbnail', [StoreEmailVideoThumbnail::class, 'inEmailTemplate'])->name('video-thumbnail.store');
 });
 
 Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
@@ -1680,6 +1684,9 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inStockDelivery'])->name('attachment.attach');
     Route::post('invoice/{media:id}/read', ReadStockDeliveryInvoice::class)->name('invoice.read')->withoutScopedBindings();
     Route::post('invoice/{media:id}/apply', ApplyStockDeliveryInvoiceCosting::class)->name('invoice.apply')->withoutScopedBindings();
+    Route::post('service-invoice/read', [ReadStockDeliveryServiceInvoice::class, 'inUpload'])->name('service-invoice.read-upload');
+    Route::post('service-invoice/{media:id}/read', ReadStockDeliveryServiceInvoice::class)->name('service-invoice.read')->withoutScopedBindings();
+    Route::post('service-invoice/{media:id}/apply', ApplyStockDeliveryServiceInvoiceReading::class)->name('service-invoice.apply')->withoutScopedBindings();
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStockDelivery'])->name('attachment.detach')->withoutScopedBindings();
 });
 
@@ -1752,6 +1759,8 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 });
 
 Route::name('email.')->prefix('email/')->group(function () {
+    Route::post('{email:id}/images', UploadImagesToEmail::class)->name('images.store');
+    Route::post('{email:id}/video-thumbnail', StoreEmailVideoThumbnail::class)->name('video-thumbnail.store');
     Route::name('snapshot.')->prefix('snapshot/{snapshot:id}')->group(function () {
         Route::patch('/update', UpdateEmailUnpublishedSnapshot::class)->name('update');
     });

@@ -13,7 +13,9 @@ use App\Actions\Traits\Authorisations\WithSupplyChainEditAuthorisation;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierUnitEnum;
+use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -167,6 +169,17 @@ class EditSupplierProduct extends OrgAction
                                     'label' => __('Available'),
                                     'value' => $supplierProduct->is_available,
                                 ],
+                                ...($request->user()->authTo(GroupPermissionsEnum::SUPPLY_CHAIN->value) ? [
+                                    'state' => [
+                                        'type'        => 'select',
+                                        'label'       => __('State'),
+                                        'information' => __('Changes the state of this product in every organisation that buys it.'),
+                                        'options'     => collect(SupplierProductStateEnum::labels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
+                                        'value'       => $supplierProduct->state->value,
+                                        'required'    => true,
+                                        'mode'        => 'single',
+                                    ],
+                                ] : []),
                             ]
                         ],
                     ],
