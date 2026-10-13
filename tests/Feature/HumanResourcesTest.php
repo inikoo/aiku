@@ -4075,6 +4075,17 @@ test('every non-shop department has a view-only position that gives way to a hig
     expect($scopes)->toBe(['hr-v' => [], 'wah-sc' => ['Warehouse' => [1]], 'wah-v' => ['Warehouse' => [2]]]);
 });
 
+test('the reports position gives the organisation reports and nothing else', function () {
+    setPermissionsTeamId($this->group->id);
+    \App\Actions\SysAdmin\Group\Seeders\SeedJobPositionCategories::run($this->group);
+    \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($this->organisation);
+
+    $position = JobPosition::where('organisation_id', $this->organisation->id)->where('code', 'rep')->firstOrFail();
+
+    expect($position->roles->pluck('name')->all())->toBe(['reports-viewer-'.$this->organisation->id])
+        ->and($position->roles->first()->permissions->pluck('name')->all())->toBe(['org-reports.'.$this->organisation->id]);
+});
+
 test('a section supervisor sees, read only, only the HR pages of the employees in their section', function () {
     $warehouse    = createWarehouse();
     $organisation = $warehouse->organisation;
