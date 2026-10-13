@@ -13,10 +13,13 @@ use App\Models\Production\JobOrderItemTask;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class AssignJobOrderItemTask extends OrgAction
 {
+    private JobOrderItemTask $jobOrderItemTask;
+
     /**
      * Names the operator of one step, or of every step made with it as one batch. Only decides who
      * sees the step on the floor: sessions go on recording who did the work.
@@ -47,9 +50,19 @@ class AssignJobOrderItemTask extends OrgAction
         ];
     }
 
+    public function afterValidator(Validator $validator): void
+    {
+        $employeeId = $this->get('employee_id');
+        $allowed    = $this->jobOrderItemTask->manufactureTask->artisans;
+        if ($employeeId && $allowed->isNotEmpty() && !$allowed->contains('id', $employeeId)) {
+            $validator->errors()->add('employee_id', __('Only :names can do :step', ['names' => $allowed->pluck('contact_name')->implode(', '), 'step' => $this->jobOrderItemTask->manufactureTask->name]));
+        }
+    }
+
     public function action(JobOrderItemTask $jobOrderItemTask, ?int $employeeId): JobOrderItemTask
     {
-        $this->asAction = true;
+        $this->asAction         = true;
+        $this->jobOrderItemTask = $jobOrderItemTask;
         $this->initialisation($jobOrderItemTask->organisation, ['employee_id' => $employeeId]);
 
         return $this->handle($jobOrderItemTask, $this->validatedData['employee_id']);
@@ -57,6 +70,7 @@ class AssignJobOrderItemTask extends OrgAction
 
     public function asController(JobOrderItemTask $jobOrderItemTask, ActionRequest $request): JobOrderItemTask
     {
+        $this->jobOrderItemTask = $jobOrderItemTask;
         $this->initialisationFromProduction($jobOrderItemTask->production, $request);
 
         return $this->handle($jobOrderItemTask, $this->validatedData['employee_id']);

@@ -88,6 +88,16 @@ Niekedy jedna dávka slúži viac než jednej úlohe. Napríklad 100 bochníkov 
 
 Vyrobiť viac, než všetky riadky žiadali, vyžaduje kartu alebo PIN vedúceho, ako je uvedené vyššie; prebytok sa tiež rozdelí medzi riadky. Manažér môže riadky znova **Separate** (Oddeliť), kedykoľvek na nich nikto nepracuje. Čo sa už spolu vyrobilo, zostáva pri každom riadku.
 
+## Miešanie a ďalšie kroky vážené v kg
+
+Miešanie je samostatný krok na začiatku receptúry a počíta sa v kg, nie v kusoch. Obrazovka ukazuje pri číslach **kg** a pole sa volá **Kg made** (Vyrobené kg): pri 50 kg zmesi zadajte 50. Pod poľom obrazovka ukáže, čo z toho vyjde, *50 kg of mix = 500 × ABB-06a*. Zmes, ktorá vyjde o trochu viac, než úloha žiadala, sa prijme tak, ako je, bez manažéra.
+
+Krok vidia a môžu ho začať len remeselníci, ktorí sú pri ňom uvedení; v zozname nikoho iného nie je. Platí sa od hodiny základnou sadzbou: bez cieľa, bez platového pásma a bez poznámky o nesplnenom cieli, a čas sa stále počíta do nákladov výrobku.
+
+Ďalší krok zostáva zamknutý s **Waiting for** (Čaká sa na) a názvom kroku miešania, kým sa nezapíše nejaká zmes, a otvorí sa hneď po zadaní prvej. Jedna zmes pre viac riadkov funguje ako v časti vyššie: manažér spojí riadky miešania, miešač zadá kg raz a každý riadok dostane svoj podiel.
+
+**Nastavenie (manažéri).** Na stránke výrobnej úlohy je v **Only these artisans can do it** (Môžu ju robiť len títo remeselníci) zoznam ľudí, ktorí ju smú robiť; tam ich pridáte alebo odoberiete. Formulár úprav má **Paid by piece rate** (Platené od kusu; vypnuté pri hodinovej práci) a **Recorded in kg** (Zapisuje sa v kg). Koľko kg zmesi ide na jeden kus, sa zadáva v kroku receptúry každého výrobku.
+
 ## Čo je dobré vedieť
 
 - **Jedna úloha naraz.** Kým máte otvorenú úlohu, tlačidlá START sú vypnuté. Najprv ju uzavrite.

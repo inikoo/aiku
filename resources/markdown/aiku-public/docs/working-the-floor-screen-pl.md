@@ -88,6 +88,16 @@ Czasem jedna partia służy kilku zadaniom. Na przykład 100 bochenków HCS-48 i
 
 Zrobienie więcej, niż chciały wszystkie pozycje razem, wymaga kodu lub PIN-u kierownika, jak wyżej; nadwyżka też jest dzielona między pozycje. Kierownik może pozycje znów rozdzielić (**Separate**), kiedy nikt nad nimi nie pracuje. To, co już zrobiono razem, zostaje przy każdej pozycji.
 
+## Mieszanie i inne kroki ważone w kg
+
+Mieszanie to osobny krok na początku receptury i liczy się je w kg, a nie w sztukach. Ekran pokazuje przy liczbach **kg**, a pole nazywa się **Kg made** (Wykonane kg): dla mieszanki 50 kg wpisz 50. Pod polem ekran pokazuje, co z tego wyjdzie, *50 kg of mix = 500 × ABB-06a*. Mieszanka, która wyjdzie trochę ponad to, czego wymagało zadanie, jest przyjmowana bez kierownika.
+
+Krok widzą i mogą go rozpocząć tylko rzemieślnicy wskazani przy tym kroku; nie ma go na liście nikogo innego. Jest płatny za godzinę według stawki podstawowej: bez celu, bez progu płacowego i bez uwagi o niewykonaniu celu, a czas nadal liczy się do kosztu produktu.
+
+Następny krok pozostaje zablokowany z napisem **Waiting for** (Oczekiwanie na) i nazwą kroku mieszania, dopóki nie zostanie zapisana jakaś mieszanka, i otwiera się zaraz po wpisaniu pierwszej. Jedna mieszanka dla kilku pozycji działa jak w części powyżej: kierownik łączy pozycje mieszania, mieszający wpisuje kg raz, a każda pozycja dostaje swoją część.
+
+**Ustawienie (kierownicy).** Na stronie zadania produkcyjnego **Only these artisans can do it** (Mogą je wykonywać tylko ci rzemieślnicy) pokazuje, kto może je wykonywać; tam dodaje się lub usuwa osoby. Formularz edycji ma **Paid by piece rate** (Płatne od sztuki; wyłączone dla pracy godzinowej) oraz **Recorded in kg** (Zapisywane w kg). Ile kg mieszanki przypada na jedną sztukę, wpisuje się w kroku receptury każdego produktu.
+
 ## Warto wiedzieć
 
 - **Jedno zadanie naraz.** Gdy masz otwarte zadanie, przyciski START są nieaktywne. Najpierw je zamknij.

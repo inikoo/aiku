@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ctrans } from "@/Composables/useTrans"
+import ArtisanAssignments from "@/Components/Production/ArtisanAssignments.vue"
 
 interface ManufactureTaskShowcaseData {
     slug: string
@@ -8,6 +9,13 @@ interface ManufactureTaskShowcaseData {
     description: string | null
     status: boolean
     is_piece_rate: boolean
+    is_recorded_in_kg: boolean
+    artisans: {
+        current: { id: number, name: string }[]
+        options: { id: number, name: string }[]
+        attach_route: { name: string, parameters: (number | string)[] } | null
+        detach_route: { name: string, parameters: (number | string)[] } | null
+    }
 }
 
 defineProps<{
@@ -30,9 +38,20 @@ defineProps<{
                 </div>
                 <div>
                     <div class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('Paid by piece rate') }}</div>
-                    <div class="text-sm text-gray-900">{{ data.is_piece_rate ? ctrans('Yes') : ctrans('No') }}</div>
+                    <div class="text-sm text-gray-900">{{ data.is_piece_rate ? ctrans('Yes') : ctrans('No, paid by the hour') }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('Quantity recorded in') }}</div>
+                    <div class="text-sm text-gray-900">{{ data.is_recorded_in_kg ? ctrans('kg') : ctrans('Units') }}</div>
                 </div>
             </div>
+
+            <ArtisanAssignments
+                :data="data.artisans"
+                :label="ctrans('Only these artisans can do it')"
+                :empty="ctrans('anyone')"
+                plain
+                class="!mx-0 mt-6" />
 
             <p class="text-xs text-gray-500 mt-6">{{ ctrans('Targets and rates are set on each product\'s recipe step.') }}</p>
         </div>

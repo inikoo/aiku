@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\ManufactureTask\UI;
 
+use App\Actions\Production\Artisan\GetArtisanAssignmentProps;
 use App\Models\Production\ManufactureTask;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -15,7 +16,7 @@ class GetManufactureTaskShowcase
 {
     use AsObject;
 
-    public function handle(ManufactureTask $manufactureTask): array
+    public function handle(ManufactureTask $manufactureTask, bool $canEditArtisans = false): array
     {
         return [
             'slug'          => $manufactureTask->slug,
@@ -24,6 +25,8 @@ class GetManufactureTaskShowcase
             'description'   => $manufactureTask->description,
             'status'        => $manufactureTask->status,
             'is_piece_rate' => $manufactureTask->is_piece_rate,
+            'is_recorded_in_kg' => $manufactureTask->is_recorded_in_kg,
+            'artisans'      => GetArtisanAssignmentProps::run($manufactureTask, $canEditArtisans),
         ];
     }
 }

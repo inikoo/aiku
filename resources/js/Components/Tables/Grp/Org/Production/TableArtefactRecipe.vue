@@ -38,6 +38,7 @@ interface RecipeRow {
     task_standard_rate: number | string | null
     position: number
     units_per_artefact: number | string
+    is_recorded_in_kg: boolean
     standard_rate: number | string | null
     targets: { code: string, name: string, hourly_rate: number, units_per_hour: number }[]
     raw_materials: RecipeStepRawMaterial[]
@@ -245,8 +246,10 @@ function detachRawMaterial(stepId: number, rawMaterialId: number) {
 
                 <label class="block">
                     <span class="mb-1 flex items-center gap-1 text-xs text-gray-500">
-                        {{ ctrans('Units per artefact') }}
-                        <InformationIcon :information="ctrans('How many units of this task one artefact needs. A job order for 10 artefacts at 2 units per artefact asks the artisan for 20 units of work.')" />
+                        {{ row.is_recorded_in_kg ? ctrans('Kg per artefact') : ctrans('Units per artefact') }}
+                        <InformationIcon :information="row.is_recorded_in_kg
+                            ? ctrans('How many kg of this step one artefact takes. A job order for 500 artefacts at 0.1 kg per artefact asks for 50 kg.')
+                            : ctrans('How many units of this task one artefact needs. A job order for 10 artefacts at 2 units per artefact asks the artisan for 20 units of work.')" />
                     </span>
                     <InputNumber
                         v-model="unitsDraft[row.id]"

@@ -88,6 +88,16 @@ Uneori un lot servește mai multe sarcini. De exemplu, 100 de batoane HCS-48 și
 
 Dacă faci mai mult decât au cerut toate liniile la un loc, e nevoie de codul sau PIN-ul unui manager, ca mai sus; surplusul se împarte și el între linii. Un manager poate **Separate** (separa) liniile din nou oricând nu lucrează nimeni la ele. Ce s-a făcut deja împreună rămâne la fiecare linie.
 
+## Amestecarea și alți pași cântăriți în kg
+
+Amestecarea este un pas separat la începutul rețetei și se numără în kg, nu în bucăți. Ecranul arată **kg** lângă numere, iar căsuța se numește **Kg made** (kg făcute): pentru un amestec de 50 kg scrie 50. Sub căsuță ecranul arată ce iese din el, *50 kg of mix = 500 × ABB-06a*. Un amestec care iese puțin peste ce a cerut sarcina este acceptat așa cum este, fără manager.
+
+Doar meșteșugarii numiți la acest pas îl văd și îl pot începe; nu apare în lista nimănui altcuiva. Se plătește la oră, la tariful de bază: fără țintă, fără treaptă de plată și fără notă de țintă neatinsă, iar timpul se numără în continuare în costul produsului.
+
+Pasul următor rămâne blocat cu **Waiting for** (se așteaptă) și numele pasului de amestecare până când se înregistrează ceva amestec, și se deschide imediat ce se introduce primul. Un singur amestec pentru mai multe linii funcționează ca în secțiunea de mai sus: un manager combină liniile de amestecare, cel care amestecă scrie kg o singură dată și fiecare linie își primește partea.
+
+**Configurare (manageri).** Pe pagina sarcinii de fabricație, **Only these artisans can do it** (doar acești meșteșugari o pot face) arată cine o poate face; acolo se adaugă sau se scot oameni. Formularul de editare are **Paid by piece rate** (plată la bucată; oprit pentru munca la oră) și **Recorded in kg** (înregistrat în kg). Câte kg de amestec intră într-o bucată se trec la pasul din rețeta fiecărui produs.
+
 ## Lucruri bune de știut
 
 - **O sarcină pe rând.** Cât timp ai o sarcină deschisă, butoanele START sunt dezactivate. Închide-o mai întâi.

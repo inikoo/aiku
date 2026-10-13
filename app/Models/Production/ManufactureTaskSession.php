@@ -131,6 +131,10 @@ class ManufactureTaskSession extends Model
 
     public function recipeStandardRate(): ?float
     {
+        if (!$this->manufactureTask?->is_piece_rate) {
+            return null;
+        }
+
         if ($this->is_combined) {
             return $this->combinedStandardRate();
         }

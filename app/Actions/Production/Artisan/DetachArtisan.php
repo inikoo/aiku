@@ -12,12 +12,13 @@ use App\Actions\OrgAction;
 use App\Models\HumanResources\Employee;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactDepartment;
+use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 
 class DetachArtisan extends OrgAction
 {
-    public function handle(Artefact|ArtefactDepartment $model, Employee $employee): Artefact|ArtefactDepartment
+    public function handle(Artefact|ArtefactDepartment|ManufactureTask $model, Employee $employee): Artefact|ArtefactDepartment|ManufactureTask
     {
         $model->artisans()->detach($employee->id);
 
@@ -41,7 +42,7 @@ class DetachArtisan extends OrgAction
         ]);
     }
 
-    public function action(Artefact|ArtefactDepartment $model, Employee $employee): Artefact|ArtefactDepartment
+    public function action(Artefact|ArtefactDepartment|ManufactureTask $model, Employee $employee): Artefact|ArtefactDepartment|ManufactureTask
     {
         $this->asAction = true;
         $this->initialisation($model->organisation, []);
@@ -61,5 +62,12 @@ class DetachArtisan extends OrgAction
         $this->initialisationFromProduction($artefactDepartment->production, $request);
 
         return $this->handle($artefactDepartment, $employee);
+    }
+
+    public function inManufactureTask(ManufactureTask $manufactureTask, Employee $employee, ActionRequest $request): ManufactureTask
+    {
+        $this->initialisationFromProduction($manufactureTask->production, $request);
+
+        return $this->handle($manufactureTask, $employee);
     }
 }

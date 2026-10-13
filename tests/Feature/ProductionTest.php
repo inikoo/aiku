@@ -722,7 +722,7 @@ test('UI edit manufacture task', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 5)
+            ->has('formData.blueprint.0.fields', 6)
             ->has('pageHead')
             ->where('breadcrumbs', fn ($breadcrumbs) => collect($breadcrumbs)->last()['type'] === 'editingModel');
     });
@@ -6245,4 +6245,113 @@ test('a planned job not finished on its day stays on the plan until it is confir
     expect($carried->refresh()->planned_for)->toBeNull()
         ->and($carried->plan_position)->toBeNull()
         ->and($planRow($today, $carried->id))->toBeNull();
+});
+
+test('an hourly mixing step is for its named artisans only, is recorded in kg, pays the base rate with no target and opens forming once some mix is made', function () {
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+    $bandAttributes = ['group_id' => $this->production->group_id, 'organisation_id' => $this->production->organisation_id, 'effective_from' => now()->subYear()];
+    $band0 = \App\Models\Production\ManufacturePayBand::query()->firstOrCreate(['production_id' => $this->production->id, 'code' => '0'], ['name' => 'Band 0', 'hourly_rate' => 12.71] + $bandAttributes);
+    \App\Models\Production\ManufacturePayBand::query()->firstOrCreate(['production_id' => $this->production->id, 'code' => '1'], ['name' => 'Band 1', 'hourly_rate' => 13, 'target_multiplier' => 0.0001] + $bandAttributes);
+
+    $suffix  = rand(10000, 99999);
+    $mixTask = StoreManufactureTask::make()->action($this->production, [
+        'code'              => 'MIX'.$suffix,
+        'name'              => 'Mixing '.$suffix,
+        'is_piece_rate'     => false,
+        'is_recorded_in_kg' => true,
+    ]);
+    $artefact = StoreArtefact::make()->action($this->production, ['code' => 'BOMB'.$suffix, 'name' => 'Bath bomb '.$suffix]);
+    $artefact->manufactureTasks()->sync([
+        $mixTask->id               => ['position' => 1, 'units_per_artefact' => 0.1, 'standard_rate' => 5],
+        $this->manufactureTask->id => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $floorUser = function () {
+        $employee  = dayPlanOperator($this->organisation);
+        $floorUser = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id]);
+        $floorUser->employees()->attach($employee->id, ['group_id' => $this->group->id, 'organisation_id' => $this->organisation->id]);
+        $floorUser->givePermissionTo("productions_operations.{$this->production->id}.view");
+
+        return [$employee, $floorUser];
+    };
+    [$mixer, $mixerUser]       = $floorUser();
+    [$pieceWorker, $pieceUser] = $floorUser();
+
+    \Pest\Laravel\post(route('grp.models.manufacture_task.artisans.attach', [$mixTask->id]), ['employee_id' => $mixer->id])->assertRedirect();
+    expect($mixTask->artisans()->pluck('employees.id')->all())->toBe([$mixer->id]);
+
+    $steps = collect([300, 200, 100])->map(function (int $quantity) use ($artefact, $pieceWorker) {
+        $jobOrder = StoreJobOrder::make()->action($this->production, ['employee_id' => $pieceWorker->id]);
+        $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => $quantity]);
+        ConfirmJobOrder::make()->action($jobOrder);
+
+        return $item->tasks()->orderBy('position')->get();
+    });
+    [[$mixA, $formingA], [$mixB], [$mixC, $formingC]] = $steps->map->all()->all();
+
+    expect((float) $mixA->quantity_required)->toBe(30.0)
+        ->and($mixA->packSize())->toBeNull()
+        ->and($mixA->assigneeId())->toBeNull();
+
+    $floorOf = function (\App\Models\SysAdmin\User $floorUser) use ($user) {
+        actingAs($floorUser);
+        $tasks = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks']);
+        actingAs($user);
+
+        return $tasks;
+    };
+
+    $mixIds = [$mixA->id, $mixB->id, $mixC->id];
+    expect($floorOf($pieceUser)->whereIn('id', $mixIds))->toBeEmpty()
+        ->and($floorOf($pieceUser)->pluck('id'))->toContain($formingA->id);
+
+    $mixerFloor = $floorOf($mixerUser);
+    expect($mixerFloor->whereIn('id', $mixIds)->pluck('id')->sort()->values()->all())->toBe($mixIds)
+        ->and($mixerFloor->pluck('id'))->not->toContain($formingA->id)
+        ->and($mixerFloor->firstWhere('id', $mixA->id))->toMatchArray(['unit' => 'kg', 'kg_per_unit' => 0.1, 'pack_size' => null, 'can_start' => true, 'only_for' => [$mixer->contact_name]]);
+
+    expect(fn () => StartManufactureTaskSession::make()->action($pieceUser, $mixA->refresh()))->toThrow(ValidationException::class, 'Only')
+        ->and(fn () => StartManufactureTaskSession::make()->action($user, $formingA->refresh()))->toThrow(ValidationException::class, 'Finish');
+    patch(route('grp.models.job-order-item-task.assign', ['jobOrderItemTask' => $mixA->id]), ['employee_id' => $pieceWorker->id])->assertSessionHasErrors('employee_id');
+
+    \Pest\Laravel\post(route('grp.models.production.combined_task.store', ['production' => $this->production->id]), ['job_order_item_task_ids' => [$mixA->id, $mixB->id]])->assertSessionHasNoErrors();
+
+    $session = StartManufactureTaskSession::make()->action($mixerUser, $mixA->refresh());
+    $session->update(['started_at' => now()->subHours(2)]);
+    $closed = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 50.5])->refresh();
+
+    expect($closed->standard_rate)->toBeNull()
+        ->and($closed->is_under_target)->toBeFalse()
+        ->and($closed->band_code)->toBe('0')
+        ->and((float) $closed->bonus)->toBe(0.0)
+        ->and((float) $closed->task_work_cost)->toBe(0.0)
+        ->and((float) $closed->pay)->toBe(round(2 * (float) $band0->hourly_rate, 2))
+        ->and((float) $mixA->refresh()->quantity_made)->toBe(30.3)
+        ->and((float) $mixB->refresh()->quantity_made)->toBe(20.2)
+        ->and($mixA->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and((int) $mixA->jobOrderItem->quantity)->toBe(300);
+
+    $partial = StartManufactureTaskSession::make()->action($mixerUser, $mixC->refresh());
+    CloseManufactureTaskSession::make()->action($partial, ['quantity_made' => 4]);
+    expect($mixC->refresh()->state)->toBe(JobOrderItemTaskStateEnum::IN_PROGRESS);
+
+    $forming = StartManufactureTaskSession::make()->action($user, $formingC->refresh());
+    expect($forming->job_order_item_task_id)->toBe($formingC->id);
+    CloseManufactureTaskSession::make()->action($forming, ['quantity_made' => 1]);
+
+    $planned     = StoreJobOrder::make()->action($this->production, ['employee_id' => $pieceWorker->id]);
+    $plannedItem = StoreJobOrderItem::make()->action($planned, ['artefact_id' => $artefact->id, 'quantity' => 10]);
+    $plannedMix  = $plannedItem->tasks()->orderBy('position')->first();
+    expect($planned->refresh()->state)->toBe(JobOrderStateEnum::IN_PROCESS)
+        ->and($floorOf($mixerUser)->firstWhere('id', $plannedMix->id)['is_mine'] ?? null)->toBeTrue()
+        ->and($floorOf($pieceUser)->pluck('id'))->not->toContain($plannedMix->id);
+    $plannedSession = StartManufactureTaskSession::make()->action($mixerUser, $plannedMix);
+    expect($planned->refresh()->state)->toBe(JobOrderStateEnum::CONFIRMED);
+    CloseManufactureTaskSession::make()->action($plannedSession, ['quantity_made' => 1]);
+
+    \Pest\Laravel\delete(route('grp.models.manufacture_task.artisans.detach', [$mixTask->id, $mixer->id]))->assertRedirect();
+    expect($mixTask->artisans()->count())->toBe(0)
+        ->and($mixA->refresh()->assigneeId())->toBe($pieceWorker->id);
 });

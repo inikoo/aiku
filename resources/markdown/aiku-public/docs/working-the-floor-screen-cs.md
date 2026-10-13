@@ -88,6 +88,16 @@ Někdy jedna dávka slouží více úkolům. Například 100 bochníků HCS-48 a
 
 Vyrobit víc, než chtěly všechny řádky dohromady, vyžaduje kód nebo PIN vedoucího, jako výše; přebytek se také rozdělí mezi řádky. Vedoucí může řádky znovu oddělit (**Separate**), kdykoli na nich nikdo nepracuje. Co už se vyrobilo společně, zůstává u každého řádku.
 
+## Míchání a další kroky vážené v kg
+
+Míchání je samostatný krok na začátku receptury a počítá se v kg, ne v kusech. Obrazovka ukazuje u čísel **kg** a pole se jmenuje **Kg made** (Vyrobené kg): u 50 kg směsi zadejte 50. Pod polem obrazovka ukáže, co z toho vyjde, *50 kg of mix = 500 × ABB-06a*. Směs, která vyjde o trochu víc, než úkol požadoval, se přijme tak, jak je, bez manažera.
+
+Krok vidí a mohou ho začít jen řemeslníci, kteří jsou u něj uvedeni; v seznamu nikoho jiného není. Platí se od hodiny základní sazbou: bez cíle, bez platového pásma a bez poznámky o nesplněném cíli, a čas se dál počítá do nákladů výrobku.
+
+Další krok zůstává zamčený s **Waiting for** (Čeká se na) a názvem kroku míchání, dokud se nezapíše nějaká směs, a otevře se hned po zadání první. Jedna směs pro několik řádků funguje jako v části výše: manažer spojí řádky míchání, míchač zadá kg jednou a každý řádek dostane svůj podíl.
+
+**Nastavení (manažeři).** Na stránce výrobního úkolu je v **Only these artisans can do it** (Mohou ho dělat jen tito řemeslníci) seznam lidí, kteří ho smějí dělat; tam je přidáte nebo odeberete. Formulář úprav má **Paid by piece rate** (Placeno od kusu; vypnuto u hodinové práce) a **Recorded in kg** (Zapisuje se v kg). Kolik kg směsi jde na jeden kus, se zadává v kroku receptury každého výrobku.
+
 ## Co je dobré vědět
 
 - **Jeden úkol najednou.** Dokud máte otevřený úkol, tlačítka START jsou vypnutá. Nejdřív ho uzavřete.

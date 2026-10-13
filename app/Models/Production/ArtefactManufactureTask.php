@@ -52,6 +52,7 @@ class ArtefactManufactureTask extends Pivot
     public static function packSizes(): Collection
     {
         return self::where('units_per_artefact', '<', 1)
+            ->whereNotIn('manufacture_task_id', ManufactureTask::where('is_recorded_in_kg', true)->select('id'))
             ->get(['artefact_id', 'manufacture_task_id', 'units_per_artefact'])
             ->mapWithKeys(fn (self $step) => [$step->artefact_id.':'.$step->manufacture_task_id => self::packSize($step->units_per_artefact)]);
     }

@@ -87,7 +87,7 @@ class IndexJobOrderPlan extends OrgAction
             ->withQueryString();
 
         $paginator->getCollection()->load([
-            'tasks.manufactureTask',
+            'tasks.manufactureTask.artisans',
             'tasks.employee',
             'tasks.sessions' => fn ($query) => $query->where('state', ManufactureTaskSessionStateEnum::OPEN)->with('user'),
             'employee',

@@ -77,8 +77,9 @@ class CloseManufactureTaskSession extends OrgAction
                 ]);
             }
 
-            $overproduced = round((float) $modelData['quantity_made'] - $left, 3);
-            $authorisedBy = null;
+            $isRecordedInKg = (bool) $manufactureTask->is_recorded_in_kg;
+            $overproduced   = $isRecordedInKg ? 0 : round((float) $modelData['quantity_made'] - $left, 3);
+            $authorisedBy   = null;
             if ($overproduced > 0) {
                 if (empty($modelData['manager_code'])) {
                     throw ValidationException::withMessages([
@@ -88,7 +89,7 @@ class CloseManufactureTaskSession extends OrgAction
                 $authorisedBy = $this->overproductionManager($session, $modelData['manager_code']);
             }
 
-            $shares = $session->is_combined ? $this->shareOut($session, $members, $modelData) : collect();
+            $shares = $session->is_combined ? $this->shareOut($session, $members, $modelData, !$isRecordedInKg) : collect();
 
             $session->fill([
                 'quantity_made'                   => $modelData['quantity_made'],
@@ -150,11 +151,11 @@ class CloseManufactureTaskSession extends OrgAction
      * @param Collection<int, JobOrderItemTask> $members
      * @return Collection<int, ManufactureTaskSessionShare> keyed by task id
      */
-    private function shareOut(ManufactureTaskSession $session, Collection $members, array $modelData): Collection
+    private function shareOut(ManufactureTaskSession $session, Collection $members, array $modelData, bool $wholeUnits = true): Collection
     {
         $weights  = ManufactureTaskSession::combinedWeights($members);
-        $made     = self::apportion((float) $modelData['quantity_made'], $weights);
-        $rejected = self::apportion((float) ($modelData['quantity_rejected'] ?? 0), $weights);
+        $made     = self::apportion((float) $modelData['quantity_made'], $weights, $wholeUnits);
+        $rejected = self::apportion((float) ($modelData['quantity_rejected'] ?? 0), $weights, $wholeUnits);
 
         $session->shares()->delete();
         $shares = $members->mapWithKeys(fn (JobOrderItemTask $member) => [
@@ -172,14 +173,14 @@ class CloseManufactureTaskSession extends OrgAction
 
     /**
      * Splits a quantity by weight. Whole quantities are split into whole units by largest remainder,
-     * anything else to three decimals, with the rounding left on the last line.
+     * anything else, and every quantity weighed in kg, to three decimals, with the rounding left on the last line.
      *
      * @param Collection<int, float> $weights fractions summing to 1, keyed by task id
      * @return array<int, float>
      */
-    public static function apportion(float $quantity, Collection $weights): array
+    public static function apportion(float $quantity, Collection $weights, bool $wholeUnits = true): array
     {
-        if ($quantity == floor($quantity)) {
+        if ($wholeUnits && $quantity == floor($quantity)) {
             $exact  = $weights->map(fn (float $weight) => $quantity * $weight);
             $shares = $exact->map(fn (float $share) => floor($share + 1e-9));
             $spare  = (int) round($quantity - $shares->sum());
