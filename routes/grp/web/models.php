@@ -342,7 +342,9 @@ use App\Actions\Helpers\Dashboard\BreakDashboardTimeSeriesCache;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
 use App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice;
+use App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryServiceInvoice;
 use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryServiceInvoiceReading;
 use App\Actions\Helpers\Media\AttachImagesToModel;
 use App\Actions\Helpers\Media\DetachAttachmentFromModel;
 use App\Actions\Helpers\Snapshot\ApplyWebsiteMenuSnapshot;
@@ -1680,6 +1682,9 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inStockDelivery'])->name('attachment.attach');
     Route::post('invoice/{media:id}/read', ReadStockDeliveryInvoice::class)->name('invoice.read')->withoutScopedBindings();
     Route::post('invoice/{media:id}/apply', ApplyStockDeliveryInvoiceCosting::class)->name('invoice.apply')->withoutScopedBindings();
+    Route::post('service-invoice/read', [ReadStockDeliveryServiceInvoice::class, 'inUpload'])->name('service-invoice.read-upload');
+    Route::post('service-invoice/{media:id}/read', ReadStockDeliveryServiceInvoice::class)->name('service-invoice.read')->withoutScopedBindings();
+    Route::post('service-invoice/{media:id}/apply', ApplyStockDeliveryServiceInvoiceReading::class)->name('service-invoice.apply')->withoutScopedBindings();
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStockDelivery'])->name('attachment.detach')->withoutScopedBindings();
 });
 

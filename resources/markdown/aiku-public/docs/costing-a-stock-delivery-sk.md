@@ -1,8 +1,8 @@
 ---
 title: Oceňovanie dodávky na sklad
 summary: Zadajte, koľko dodávka naozaj stála - faktúru agenta alebo dodávateľa a účty zaplatené na mieste za dopravu, clo a prepravu - aby sa sklad ocenil jeho celkovou nákladovou cenou.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: procurement, stock deliveries, costing, landed cost, service invoices, customs
 category: procurement
 ---
@@ -68,6 +68,29 @@ Preprava sa rozdelí podľa hodnoty namiesto hmotnosti, keď niektorý produkt v
 
 Každý účet vyplní oceňovanie sám a náklad vyplnený účtom sa dá zmeniť len zmenou samotného účtu. Všetky účty vašej organizácie sú uvedené pod **Service invoices**, ku ktorým sa dostanete z nadpisu tohto zoznamu, a môžete ich filtrovať podľa druhu, odosielateľa, zaplatené alebo nezaplatené a obdobia.
 
+Ak už bol náklad zadaný ručne, aiku vás upozorní pred uložením účtu rovnakého druhu, či účet zadáte sami, alebo si ho necháte načítať z jeho súboru. Účet za prepravu alebo clo nahradí sumu zadanú ručne a upozornenie ukáže obe sumy, ak sa nezhodujú. Účet za akýkoľvek iný druh nákladu sa počíta popri tom, ktorý bol zadaný ručne, preto ručne zadaný náklad odstráňte, ak ide o ten istý náklad. Suma zadaná ako odhad sa účtom jednoducho nahradí.
+
+## Načítanie účtu z jeho súboru
+
+Namiesto prepisovania účtu ho aiku vie načítať. Otvorte riadok **Landed costs**, pod **Read from a document** stlačte **Read an invoice** a vyberte PDF, tabuľku alebo fotografiu účtu. Až minútu či dve sa zobrazuje **Reading…**, potom stlačte **Review**.
+
+Kontrola ukáže, kto účet vystavil, jeho referenciu, dátum a menu a každý riadok s jeho sumou a druhom nákladu, o ktorom si aiku myslí, že ide. Skontrolujte ich podľa účtu a ak je druh riadku nesprávny, zmeňte ho. Sumy sa meniť nedajú: sú to tie, ktoré sú vytlačené na účte. Stlačte **Add to the service invoices**. Riadky rovnakého druhu sa stanú jednou service invoice, takže účet špeditéra s morskou prepravou a colným konaním sa stane dvoma, každá sa rozdelí medzi položky svojím spôsobom a každá si ponechá súbor.
+
+Nič sa neocení, kým toto tlačidlo nestlačíte. Účet sa načíta dvakrát, dvoma rôznymi AI modelmi, a aiku potom samo skontroluje načítanie. Načítanie odmietne a povie prečo, keď:
+
+- sa obe načítania nezhodujú v sume, referencii, dátume alebo mene,
+- suma, referencia alebo mena, ktorá sa načítala, nie je v dokumente vytlačená,
+- dokument sa o dodávke nezmieňuje, alebo sa zmieňuje aj o inej dodávke, dokonca aj o takej, ktorá je už ocenená alebo patrí inej organizácii,
+- riadky nedávajú dokopy celkovú sumu účtu,
+- účet nemá referenciu, dátum alebo menu,
+- účet s rovnakou referenciou je už zadaný, alebo účet s rovnakou sumou je už na dodávke,
+- účet je vyšší než hodnota tovaru,
+- dodávka je ocenená, zrušená alebo ide o dodávku od partnera.
+
+Odmietnutý účet ukáže **Enter it by hand**: pridajte ho cez **Add**, ako v časti vyššie. Sken alebo fotografia nemá text, ktorý by aiku mohlo skontrolovať, preto vás požiada, aby ste zaškrtli, že ste každú sumu skontrolovali sami.
+
+DPH na účte sa do nákladu nezahŕňa a zapíše sa do poznámok service invoice.
+
 ## Zadanie nákladu bez účtu
 
 Stlačte **Edit landed costs** a náklady sa otvoria ako tabuľka. Každý náklad má:
@@ -116,6 +139,7 @@ Dashboard **Procurement** sa otvára pruhom, ktorý ukazuje, koľko dodávok eš
 <li><b>Zadať faktúru:</b> otvorte riadok faktúry → <b>Invoice</b> → <b>Save invoice</b>.</li>
 <li><b>Schváliť poplatky agenta alebo zaznamenať platbu:</b> otvorte riadok faktúry → <b>Agent payments</b>.</li>
 <li><b>Pridať účet:</b> otvorte <b>Landed costs</b> → <b>Add</b> vedľa <b>Service invoices</b>.</li>
+<li><b>Nechať si účet načítať z jeho súboru:</b> otvorte <b>Landed costs</b> → <b>Read an invoice</b> pod <b>Read from a document</b> → <b>Review</b> → <b>Add to the service invoices</b>.</li>
 <li><b>Zadať náklad, označiť ho ako N/A alebo čakajúci:</b> otvorte <b>Landed costs</b> → <b>Edit landed costs</b>.</li>
 <li><b>Opraviť ocenenú dodávku (manažéri účtovníctva):</b> <b>Update costing</b> hore na dodávke, potom <b>Finish costing</b>.</li>
 <li><b>Pozrieť, čo čaká:</b> dashboard <b>Procurement</b>, pruh hore; alebo filter <b>Costing</b> v zozname stock deliveries.</li>

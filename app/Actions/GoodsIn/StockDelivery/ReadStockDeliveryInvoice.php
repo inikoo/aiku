@@ -18,10 +18,7 @@ use App\Models\Helpers\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Throwable;
 
 /**
@@ -33,6 +30,7 @@ class ReadStockDeliveryInvoice extends OrgAction
     use WithStockDeliveryCostingEditAuthorisation;
     use WithAICreditErrorHandler;
     use WithAIGateway;
+    use WithStockDeliveryDocument;
 
     public int $jobTimeout = 300;
 
@@ -106,7 +104,7 @@ class ReadStockDeliveryInvoice extends OrgAction
             ->timeout(240)
             ->post('chat/completions', [
                 'model'           => $this->aiModel(self::MODEL),
-                'messages'        => [['role' => 'user', 'content' => [['type' => 'text', 'text' => $prompt], $this->documentPart($media)]]],
+                'messages'        => [['role' => 'user', 'content' => [['type' => 'text', 'text' => $prompt], $this->documentPart($media, stream_get_contents($media->stream()))]]],
                 'response_format' => ['type' => 'json_schema', 'json_schema' => ['name' => 'supplier_invoice', 'strict' => true, 'schema' => self::schema()]],
             ]);
 
@@ -115,48 +113,6 @@ class ReadStockDeliveryInvoice extends OrgAction
         $response->throw();
 
         return json_decode((string) $response->json('choices.0.message.content'), true, flags: JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function documentPart(Media $media): array
-    {
-        $content  = stream_get_contents($media->stream());
-        $mimeType = (string) $media->mime_type;
-
-        if ($mimeType === 'application/pdf') {
-            return ['type' => 'file', 'file' => ['filename' => $media->file_name, 'file_data' => 'data:application/pdf;base64,'.base64_encode($content)]];
-        }
-
-        if (Str::startsWith($mimeType, 'image/')) {
-            return ['type' => 'image_url', 'image_url' => ['url' => "data:$mimeType;base64,".base64_encode($content)]];
-        }
-
-        return ['type' => 'text', 'text' => "The invoice, as CSV:\n".$this->spreadsheetAsCsv($content, $media->file_name)];
-    }
-
-    private function spreadsheetAsCsv(string $content, string $fileName): string
-    {
-        $base = tempnam(sys_get_temp_dir(), 'invoice-');
-        $path = $base.'.'.pathinfo($fileName, PATHINFO_EXTENSION);
-
-        try {
-            file_put_contents($path, $content);
-            $spreadsheet = IOFactory::load($path);
-            $csv         = '';
-
-            foreach ($spreadsheet->getAllSheets() as $index => $sheet) {
-                ob_start();
-                (new Csv($spreadsheet))->setSheetIndex($index)->save('php://output');
-                $csv .= '# '.$sheet->getTitle()."\n".ob_get_clean()."\n";
-            }
-
-            return $csv;
-        } finally {
-            @unlink($path);
-            @unlink($base);
-        }
     }
 
     /**

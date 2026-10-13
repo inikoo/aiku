@@ -17,7 +17,9 @@ use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryServiceInvoiceReadings;
 use App\Actions\GoodsIn\StockDelivery\Traits\WithStockDeliveryWeightAndVolume;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryItems;
 use App\Actions\GoodsIn\StockDeliveryItem\UI\IndexStockDeliveryUnderOverDeliveredItems;
@@ -1009,6 +1011,10 @@ class ShowStockDelivery extends OrgAction
                 ->toArray(),
             'store_route'  => ['name' => 'grp.models.org.stock_delivery_service_invoice.store', 'parameters' => ['organisation' => $stockDelivery->organisation_id], 'method' => 'post'],
             'index_route'  => ['name' => 'grp.org.procurement.service_invoices.index', 'parameters' => [$stockDelivery->organisation->slug]],
+            'readings'     => GetStockDeliveryServiceInvoiceReadings::run($stockDelivery),
+            'hand_typed'   => GetStockDeliveryHandTypedCosts::run($stockDelivery),
+            'cost_kinds'   => GetStockDeliveryHandTypedCosts::costKinds(),
+            'read_route'   => ['name' => 'grp.models.stock-delivery.service-invoice.read-upload', 'parameters' => ['stockDelivery' => $stockDelivery->id], 'method' => 'post'],
         ];
     }
 
