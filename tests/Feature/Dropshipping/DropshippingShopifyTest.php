@@ -2732,7 +2732,13 @@ test('a store whose app lost its fulfilment service stops showing as connected, 
 
     ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $noOrders]);
     expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeTrue();
-    $channel->update(['platform_status' => false]);
+
+    ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $passing]);
+    expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeTrue();
+
+    ShopifyFake::fake(['shop' => $shopListingOurService, 'fulfilmentServiceOwnership' => $detached]);
+    expect(CheckShopifyChannel::make()->handle($channel)->refresh()->platform_status)->toBeFalse()
+        ->and($channel->can_connect_to_platform)->toBeTrue();
 
     ShopifyFake::fake(['assignedFulfillmentOrders' => $noOrders]);
     $this->artisan('shopify:retrieve_orders', ['customerSalesChannel' => $channel->slug])

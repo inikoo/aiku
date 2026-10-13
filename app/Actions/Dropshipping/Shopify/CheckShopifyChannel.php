@@ -30,9 +30,9 @@ class CheckShopifyChannel
 
 
     /**
-     * A service with our name listed in the store is not proof that the store hands our app its orders.
-     * So a channel that is not connected is only connected again once the store confirms our app owns one,
-     * which keeps a store the order pickup marked as detached from being switched back on every night.
+     * A service with our name listed in the store is not proof that the store hands our app its orders, so
+     * the store is asked. Its yes connects the channel, its no disconnects it, and a store that could not be
+     * asked (throttled, 5xx) keeps the channel as it was until the next check.
      */
     public function handle(CustomerSalesChannel $customerSalesChannel): CustomerSalesChannel
     {
@@ -73,7 +73,7 @@ class CheckShopifyChannel
                 foreach ($storeData['fulfillmentServices'] as $service) {
                     if (isset($service['serviceName']) && $service['serviceName'] === $fulfilmentServiceName) {
                         $existInPlatform                             = true;
-                        $platformStatus                              = $customerSalesChannel->platform_status || $this->ownsFulfilmentService($customerSalesChannel->user) === true;
+                        $platformStatus                              = $this->ownsFulfilmentService($customerSalesChannel->user) ?? $customerSalesChannel->platform_status;
                         $updateData['shopify_fulfilment_service_id'] = $service['id'];
 
                         // Extract location_id from the found fulfillmentService and save it to shopify_location_id
