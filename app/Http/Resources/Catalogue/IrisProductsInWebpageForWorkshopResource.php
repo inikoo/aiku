@@ -12,6 +12,7 @@ namespace App\Http\Resources\Catalogue;
 use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Http\Resources\HasSelfCall;
 use App\Http\Resources\Traits\HasPriceMetrics;
+use App\Http\Resources\Traits\HasProductBadge;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -49,6 +50,7 @@ class IrisProductsInWebpageForWorkshopResource extends JsonResource
 {
     use HasSelfCall;
     use HasPriceMetrics;
+    use HasProductBadge;
 
     public function toArray($request): array
     {
@@ -78,6 +80,7 @@ class IrisProductsInWebpageForWorkshopResource extends JsonResource
             'unit'            => $this->unit,
             'url'             => $url,
             'top_seller'      => $this->top_seller,
+            ...$this->getProductBadgeData(),
             'web_images'      => [
                 'main'      => Arr::get($this->web_images, 'main'),
                 'secondary' => Arr::get($this->web_images, 'secondary'),

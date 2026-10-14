@@ -85,6 +85,9 @@ class IndexRetinaCustomerBackInStockReminders extends OrgAction
                 'products.units',
                 'products.unit',
                 'products.top_seller',
+                'products.first_available_at',
+                'products.back_in_stock_since',
+                'products.out_of_stock_since',
                 'products.web_images',
                 'webpages.canonical_url',
                 'products.offers_data as product_offers_data'

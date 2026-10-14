@@ -113,7 +113,9 @@ class ProductHydrateAvailableQuantity implements ShouldBeUnique
                 }
 
 
-                $dataToUpdate['out_of_stock_since'] = now();
+                if ($currentQuantity > 0 || !$product->out_of_stock_since) {
+                    $dataToUpdate['out_of_stock_since'] = now();
+                }
             } else {
                 $status = ProductStatusEnum::FOR_SALE;
             }
@@ -125,6 +127,7 @@ class ProductHydrateAvailableQuantity implements ShouldBeUnique
         }
 
         $product = UpdateProduct::run($product, $dataToUpdate);
+        $product = ProductHydrateFirstAvailableAt::run($product);
 
         $wentOutOfStock = ($currentQuantity ?? 0) > 0 && $availableQuantity == 0;
         $cameBackInStock = ($currentQuantity ?? 0) == 0 && $availableQuantity > 0;

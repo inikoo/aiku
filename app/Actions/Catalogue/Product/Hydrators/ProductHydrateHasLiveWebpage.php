@@ -51,6 +51,8 @@ class ProductHydrateHasLiveWebpage implements ShouldBeUnique
         if ($product->wasChanged('has_live_webpage')) {
             ShopHydrateProductsNotOnline::dispatch($product->shop)->delay(2);
         }
+
+        ProductHydrateFirstAvailableAt::run($product);
     }
 
 }
