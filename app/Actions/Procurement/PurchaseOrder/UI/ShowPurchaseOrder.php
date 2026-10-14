@@ -10,6 +10,9 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
@@ -207,6 +210,7 @@ class ShowPurchaseOrder extends OrgAction
                             'type'    => 'button',
                             'style'   => 'tertiary',
                             'icon'    => 'fal fa-boxes',
+                            'key'     => 'whole_agent_order',
                             'label'   => __('Whole agent order'),
                             'tooltip' => __('See :reference with the orders to all its suppliers', ['reference' => $purchaseOrder->agent_order_reference]),
                             'route'   => [
@@ -217,6 +221,7 @@ class ShowPurchaseOrder extends OrgAction
                         $this->canEdit || $this->agentCanEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
+                            'key'   => 'edit',
                             'label' => __('Edit'),
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase_orders.edit',
@@ -371,9 +376,15 @@ class ShowPurchaseOrder extends OrgAction
 
                 'showcase' => GetPurchaseOrderData::run($purchaseOrder),
 
+                'agreement' => GetPurchaseOrderAgreement::run($purchaseOrder, $purchaseOrder->organisation_id !== $this->organisation->id),
+
+                'agreed_term_differences' => $purchaseOrder->organisation_id === $this->organisation->id ? CheckAgainstAgreedTerms::make()->forPage($purchaseOrder) : null,
+
                 PurchaseOrderTabsEnum::NOTES->value => $this->tab == PurchaseOrderTabsEnum::NOTES->value ?
-                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value))
-                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value))),
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value, forAgent: $purchaseOrder->organisation_id !== $this->organisation->id))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value, forAgent: $purchaseOrder->organisation_id !== $this->organisation->id))),
+
+                'note_form' => GetAgreement::make()->noteForm($request->user(), $purchaseOrder->group, $purchaseOrder->organisation_id !== $this->organisation->id),
 
                 'note_store_route' => [
                     'name'       => 'grp.models.purchase-order.note.store',

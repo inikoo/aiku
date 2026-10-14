@@ -32,7 +32,7 @@ Začíná to **koláčovým grafem**: každý produkt v katalogu, jedna výseč 
 Pod grafem jsou kategorie rozdělené do dvou skupin. **Needs ordering** (Vyžaduje objednání) obsahuje pět, které chtějí vaši pozornost:
 
 - **Out of stock** (Bez skladu) — na polici nezbylo nic.
-- **Doomed** (Odsouzeno) — sklad ještě máte, ale dojde dřív, než by mohla dorazit dodávka, i kdybyste objednali hned teď.
+- **Doomed** (Odsouzeno) — sklad ještě máte, ale dojde dřív, než by mohla dorazit dodávka, i kdybyste objednali hned teď. Zboží, které je už na cestě, v otevřených dodávkách a odeslaných nákupních objednávkách, se počítá v každé skupině: produkt s dostatkem zboží na cestě se nezobrazí jako ohrožený.
 - **Critical / Danger / Watch** (Kritické / Nebezpečné / Sledovat) — dojde do dvou, tří nebo čtyř dodacích lhůt.
 
 **Not for ordering** (Neobjednávat) obsahuje další tři:

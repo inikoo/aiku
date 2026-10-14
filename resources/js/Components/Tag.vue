@@ -49,7 +49,7 @@ const compTheme = () => {
 </script>
 
 <template>
-    <div class="inline-flex items-center gap-x-1 rounded select-none px-1.5 py-1 w-fit font-medium border"
+    <div class="inline-flex items-center gap-x-1 rounded px-1.5 py-1 w-fit font-medium border"
         :class="[
             `text-${size}`,
             stringToColor ? false : compTheme()  // If stringToColor false then take provided style

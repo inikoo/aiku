@@ -561,6 +561,16 @@ class GetGroupNavigation
                             'parameters' => []
                         ]
                     ],
+                    [
+                        'label'   => __('Google Tag Manager'),
+                        'tooltip' => __('Google Tag Manager accounts and containers of the group'),
+                        'icon'    => ['fal', 'fa-tags'],
+                        'root'    => 'grp.websites.google_tag_manager',
+                        'route'   => [
+                            'name'       => 'grp.websites.google_tag_manager.index',
+                            'parameters' => []
+                        ]
+                    ],
                 ]
             ]
         ];

@@ -7,6 +7,8 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -47,8 +49,29 @@ class PdfPurchaseOrder extends OrgAction
      */
     private array $deliveryAddresses = [];
 
+    /**
+     * @var array<int, Collection>
+     */
+    private array $agreedTerms = [];
+
+    /**
+     * @var array<int, Collection>
+     */
+    private array $agreedNotes = [];
+
+    /**
+     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
+     */
+    private function loadAgreements(Collection $purchaseOrders): void
+    {
+        $this->agreedTerms = GetPurchaseOrderAgreedTerms::make()->forMany($purchaseOrders, forDocument: true);
+        $this->agreedNotes = GetPurchaseOrderAgreement::make()->documentNotesForMany($purchaseOrders);
+    }
+
     public function handle(PurchaseOrder $purchaseOrder): string
     {
+        $this->loadAgreements(collect([$purchaseOrder]));
+
         return PDF::loadView('procurement.templates.pdf.purchase-order', $this->viewData($purchaseOrder))->output();
     }
 
@@ -61,6 +84,7 @@ class PdfPurchaseOrder extends OrgAction
     {
         $purchaseOrders = $this->withoutCancelled($purchaseOrders);
         (new EloquentCollection($purchaseOrders->all()))->loadMissing(self::PDF_RELATIONS);
+        $this->loadAgreements($purchaseOrders);
 
         return PDF::loadView('procurement.templates.pdf.purchase-orders', [
             'reference'      => $purchaseOrders->first()->agent_order_reference ?? $purchaseOrders->first()->reference,
@@ -121,6 +145,8 @@ class PdfPurchaseOrder extends OrgAction
             'deliveryAddress' => $this->deliveryAddress($purchaseOrder),
             'lines'           => $lines,
             'images'          => $this->withImages ? $this->lineImages($lines) : null,
+            'agreedTerms'     => $this->agreedTerms[$purchaseOrder->id] ?? collect(),
+            'agreedNotes'     => $this->agreedNotes[$purchaseOrder->id] ?? collect(),
             'totals'          => $lines->groupBy(fn ($transaction) => $transaction->supplierProduct?->currency?->code ?? $purchaseOrder->currency->code)
                 ->map(fn ($transactions) => $transactions->sum(fn ($transaction) => (float)$transaction->net_amount)),
         ];

@@ -22,7 +22,6 @@ type TrackedKeywordRow = {
     keyword: string
     country_code: string
     language_code: string
-    device: string
     frequency: string
     is_active: boolean
     avg_monthly_searches: number | null
@@ -118,10 +117,6 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
 
             <template #cell(language_code)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
                 {{ labelOf(options.languages, trackedKeyword.language_code) }}
-            </template>
-
-            <template #cell(device)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
-                {{ labelOf(options.devices, trackedKeyword.device) }}
             </template>
 
             <template #cell(frequency)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">

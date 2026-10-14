@@ -8,7 +8,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCalendarAlt, faChevronDown } from '@fal'
 library.add(faCalendarAlt, faChevronDown)
 
-const selectedPeriodType = ref<string>('all')
+const props = defineProps<{
+  dateInterval?: string | null
+}>()
 
 const periodOptions = [
   { label: ctrans('All Time'), value: 'all' },
@@ -26,6 +28,8 @@ const periodOptions = [
   { label: ctrans('Last Week'), value: 'lw' },
   { label: ctrans('Last Day'), value: 'ld' }
 ]
+
+const selectedPeriodType = ref<string>(periodOptions.some(p => p.value === props.dateInterval) ? props.dateInterval as string : 'all')
 
 watch(selectedPeriodType, (newValue) => {
   router.reload({

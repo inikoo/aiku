@@ -10,7 +10,6 @@ namespace App\Actions\Catalogue\CollectionTimeSeries;
 use App\Helpers\TimeSeriesPeriodCalculator;
 use App\Actions\Traits\Hydrators\WithHydrateCommand;
 use App\Actions\Traits\WithTimeSeriesRedo;
-use App\Enums\Catalogue\Collection\CollectionStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Models\Catalogue\Collection as CollectionModel;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -66,14 +65,16 @@ class RedoCollectionTimeSeries implements ShouldBeUnique
             return;
         }
 
-        if ($collection->state == CollectionStateEnum::IN_PROCESS) {
-            return;
-        }
+        $rangeFollowsSource = !$from && !$to;
 
         if (!$from || !$to) {
             $dateRange = $this->getDateRange($collection->id);
 
             if (!$dateRange['from']) {
+                if ($rangeFollowsSource) {
+                    $this->deleteRecordsOutsideSourceRange($collection->timeSeries()->get());
+                }
+
                 return;
             }
 
@@ -83,6 +84,10 @@ class RedoCollectionTimeSeries implements ShouldBeUnique
 
         foreach (TimeSeriesFrequencyEnum::cases() as $frequency) {
             [$periodFrom, $periodTo] = TimeSeriesPeriodCalculator::expandWindowToFullPeriods($frequency, $from, $to);
+
+            if ($rangeFollowsSource) {
+                $this->deleteRecordsOutsideSourceRange($collection->timeSeries()->where('frequency', $frequency->value)->get(), $periodFrom, $periodTo);
+            }
 
             if ($async) {
                 ProcessCollectionTimeSeriesRecords::dispatch($collection->id, $frequency, $periodFrom, $periodTo)->onQueue('sales_slave_historic');

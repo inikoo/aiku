@@ -32,7 +32,7 @@ Začína **koláčovým grafom**: každý produkt v katalógu, jeden výsek na k
 Pod grafom sú koše rozdelené do dvoch skupín. **Needs ordering** (potrebuje objednať) obsahuje päť košov, ktoré si žiadajú vašu pozornosť:
 
 - **Out of stock** - na regáli nič nie je.
-- **Doomed** - stále máte sklad, ale minie sa skôr, než by mohla doraziť dodávka, aj keby ste objednali práve teraz.
+- **Doomed** - stále máte sklad, ale minie sa skôr, než by mohla doraziť dodávka, aj keby ste objednali práve teraz. Tovar, ktorý je už na ceste, v otvorených dodávkach a odoslaných nákupných objednávkach, sa počíta v každej skupine: produkt s dostatkom tovaru na ceste sa nezobrazí ako ohrozený.
 - **Critical / Danger / Watch** - dôjde do dvoch, troch alebo štyroch časov dodania.
 
 **Not for ordering** (neobjednávať) obsahuje ostatné tri:

@@ -27,11 +27,11 @@ class FetchAuroraPurchaseOrderNote extends FetchAurora
 
         $this->parsedData['purchase_order'] = $purchaseOrder;
         $this->parsedData['note']           = [
-            'note'       => $note,
-            'user_id'    => $user?->id,
-            'author'     => $this->auroraModelData->{'Author Name'} ?: null,
-            'created_at' => $this->parseDatetime($this->auroraModelData->{'History Date'}),
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'History Key'},
+            'body'           => $note,
+            'author_user_id' => $user?->id,
+            'author_name'    => $this->auroraModelData->{'Author Name'} ?: null,
+            'created_at'     => $this->parseDatetime($this->auroraModelData->{'History Date'}),
+            'source_id'      => $this->organisation->id.':'.$this->auroraModelData->{'History Key'},
         ];
     }
 

@@ -32,7 +32,7 @@ It opens with a **donut chart**: every product in the catalogue, one slice per b
 Below the chart the buckets sit in two groups. **Needs ordering** holds the five that want your attention:
 
 - **Out of stock** — nothing left on the shelf.
-- **Doomed** — you still have stock, but it will run out before a delivery could arrive, even if you ordered right now.
+- **Doomed** — you still have stock, but it will run out before a delivery could arrive, even if you ordered right now. Stock already on its way, in open deliveries and submitted purchase orders, is counted in every group: a product with enough coming is not shown as at risk.
 - **Critical / Danger / Watch** — will run out within two, three or four lead times.
 
 **Not for ordering** holds the other three:

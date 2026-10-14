@@ -9,6 +9,11 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\IndexSupplierAgreedTerms;
+use App\Http\Resources\Procurement\ProcurementNoteResource;
+use App\Http\Resources\Procurement\SupplierAgreedTermResource;
 use App\Actions\Traits\Authorisations\WithSupplyChainAuthorisation;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
@@ -125,17 +130,29 @@ class ShowAgent extends OrgAction
                 ],
                 'attachmentScopes' => SupplyChainAttachmentScopeEnum::options(),
 
+                'agreement' => GetAgreement::run($agent, null, $request->user()),
+
+                AgentTabsEnum::AGREED_TERMS->value => $this->tab == AgentTabsEnum::AGREED_TERMS->value ?
+                    fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($agent, AgentTabsEnum::AGREED_TERMS->value, null, false))
+                    : Inertia::optional(fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($agent, AgentTabsEnum::AGREED_TERMS->value, null, false))),
+
+                AgentTabsEnum::NOTES->value => $this->tab == AgentTabsEnum::NOTES->value ?
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($agent, AgentTabsEnum::NOTES->value, null, false))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($agent, AgentTabsEnum::NOTES->value, null, false))),
+
                 AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($agent, AgentTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($agent, AgentTabsEnum::HISTORY->value)))
 
 
             ]
-        )->table(
-            IndexHistory::make()->tableStructure(
-                prefix: AgentTabsEnum::HISTORY->value
-            )
-        )->table(IndexAttachments::make()->tableStructure(prefix: AgentTabsEnum::ATTACHMENTS->value));
+        )->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: AgentTabsEnum::AGREED_TERMS->value))
+            ->table(IndexProcurementNotes::make()->tableStructure(prefix: AgentTabsEnum::NOTES->value))
+            ->table(
+                IndexHistory::make()->tableStructure(
+                    prefix: AgentTabsEnum::HISTORY->value
+                )
+            )->table(IndexAttachments::make()->tableStructure(prefix: AgentTabsEnum::ATTACHMENTS->value));
     }
 
 

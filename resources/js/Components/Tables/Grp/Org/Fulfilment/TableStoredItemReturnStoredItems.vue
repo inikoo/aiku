@@ -13,16 +13,17 @@ import Tag from '@/Components/Tag.vue'
 import NumberWithButtonSave from '@/Components/NumberWithButtonSave.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCheck, faUndoAlt, faArrowDown, faTimes, faDebug } from '@fal'
+import { faCheck, faUndoAlt, faArrowDown, faTimes, faDebug, faExclamationTriangle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Collapse } from 'vue-collapsed'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import axios from 'axios'
 import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
 import Modal from '@/Components/Utils/Modal.vue'
+import ModalPalletStoredItemReservedStock from '@/Components/Fulfilment/PalletReturns/ModalPalletStoredItemReservedStock.vue'
 import LabelPalletStoredItemLocation from '@/Components/Fulfilment/PalletReturns/LabelPalletStoredItemLocation.vue'
 import SelectPalletStoredItemLocation from '@/Components/Fulfilment/PalletReturns/SelectPalletStoredItemLocation.vue'
-library.add(faCheck, faUndoAlt, faArrowDown, faDebug)
+library.add(faCheck, faUndoAlt, faArrowDown, faDebug, faExclamationTriangle)
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -376,6 +377,8 @@ const openModalLocation = (item: any, currentPalletStoredItem: any) => {
     isModalLocation.value = true
 }
 
+const _modalReservedStock = ref<InstanceType<typeof ModalPalletStoredItemReservedStock> | null>(null)
+
 const onSelectPalletStoredItem = async (palletStoredItemId: number) => {
     if (!selectedStoredItemValue.value || !selectedCurrentPalletStoredItem.value) {
         return
@@ -431,7 +434,10 @@ const onSetAsPicked = async (pallet_stored_item: any, quantity: number, loadingK
         return
     }
 
-    const quantityToPick = Math.min(Math.max(Number(quantity || 0), 1), remainingQuantity)
+    const quantityToPick = getPickableQuantity(pallet_stored_item, Math.max(Number(quantity || 0), 1))
+    if (quantityToPick <= 0) {
+        return
+    }
 
     try {
         set(isLoadingSetPicked, loadingKey, true)
@@ -470,6 +476,14 @@ function getProcessedQuantity(palletStoredItem: any): number {
 function getRemainingActionQuantity(palletStoredItem: any): number {
     const orderedQuantity = Number(palletStoredItem?.selected_quantity || 0)
     return Math.max(0, orderedQuantity - getProcessedQuantity(palletStoredItem))
+}
+
+function getQuantityInPallet(palletStoredItem: any): number {
+    return Math.max(0, Number(palletStoredItem?.quantity_in_pallet || 0))
+}
+
+function getPickableQuantity(palletStoredItem: any, quantity: number): number {
+    return Math.max(0, Math.min(quantity, getRemainingActionQuantity(palletStoredItem), getQuantityInPallet(palletStoredItem)))
 }
 
 function getPickedPalletStoredItems(item: any) {
@@ -607,7 +621,25 @@ function getRequestedPalletStoredItems(item: any) {
                                     noHoverColor
                                 />
 
-                                <div v-if="palletReturn.state === 'in_process'" v-tooltip="ctrans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
+                                <template v-if="palletReturn.state === 'in_process'">
+                                    <div
+                                        v-if="Number(pallet_stored_item.reserved_quantity || 0) > 0"
+                                        role="button"
+                                        tabindex="0"
+                                        @click="_modalReservedStock?.open(value, pallet_stored_item)"
+                                        @keydown.enter="_modalReservedStock?.open(value, pallet_stored_item)"
+                                        v-tooltip="ctrans(':available free to add out of :stock in this pallet. :reserved reserved by other open returns. Click to see where.', {
+                                            available: locale.number(pallet_stored_item.available_quantity || 0),
+                                            stock: locale.number(pallet_stored_item.quantity_in_pallet || 0),
+                                            reserved: locale.number(pallet_stored_item.reserved_quantity || 0)
+                                        })"
+                                        class="text-base tabular-nums whitespace-nowrap cursor-pointer rounded px-1 hover:bg-amber-50"
+                                    >
+                                        <span class="font-medium" :class="Number(pallet_stored_item.available_quantity || 0) > 0 ? 'text-amber-600' : 'text-red-500'">{{ locale.number(pallet_stored_item.available_quantity || 0) }}</span>
+                                        <span class="text-gray-400"> ({{ locale.number(pallet_stored_item.quantity_in_pallet || 0) }})</span>
+                                    </div>
+                                    <div v-else v-tooltip="ctrans('Available quantity')" class="text-base">{{ pallet_stored_item.available_quantity }}</div>
+                                </template>
                                 <!-- <div v-else-if="palletReturn.state === 'picking'" v-tooltip="ctrans(`Quantity of Customer's SKO that should be picked`)" class="text-base">{{ pallet_stored_item.selected_quantity }}</div> -->
 
                                 <!-- Button: input number (in_process) -->
@@ -902,10 +934,21 @@ function getRequestedPalletStoredItems(item: any) {
                     >
                         <template #save="{ quantity }">
                             <div class="flex items-start gap-x-1">
+                                <FontAwesomeIcon
+                                    v-if="getQuantityInPallet(pallet_stored_item) < getRemainingActionQuantity(pallet_stored_item)"
+                                    v-tooltip="ctrans('Only :stock left in this pallet, :remaining still to pick. Pick what is there and set the rest as not picked.', {
+                                        stock: locale.number(getQuantityInPallet(pallet_stored_item)),
+                                        remaining: locale.number(getRemainingActionQuantity(pallet_stored_item))
+                                    })"
+                                    icon="fal fa-exclamation-triangle"
+                                    class="text-amber-500 mt-1.5"
+                                    fixed-width
+                                />
                                 <Button
                                     @click="() => onSetAsPicked(pallet_stored_item, Number(quantity || 0), `picked_${stored_item.id}_${pallet_stored_item.id}`)"
                                     icon="fal fa-clipboard-list-check"
-                                    :label="locale.number(quantity || 0)"
+                                    :label="locale.number(getPickableQuantity(pallet_stored_item, Number(quantity || 0)))"
+                                    :disabled="getPickableQuantity(pallet_stored_item, Number(quantity || 0)) <= 0"
                                     :key="1"
                                     size="xs"
                                     type="secondary"
@@ -953,4 +996,6 @@ function getRequestedPalletStoredItems(item: any) {
             />
         </div>
     </Modal>
+
+    <ModalPalletStoredItemReservedStock ref="_modalReservedStock" />
 </template>

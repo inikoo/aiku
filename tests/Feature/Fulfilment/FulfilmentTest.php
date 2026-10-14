@@ -68,6 +68,7 @@ use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturnWithStoredItems;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
@@ -83,6 +84,9 @@ use App\Actions\Fulfilment\Space\UpdateSpace;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase;
+use App\Actions\Fulfilment\StoredItem\UI\IndexPalletStoredItems;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemAudit\CompleteStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
@@ -144,6 +148,11 @@ use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Actions\Fulfilment\Pallet\ExportPalletsInCustomer;
+use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
+use App\Exports\Pallets\PalletsInCustomerExport;
+use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
+use App\Http\Resources\Fulfilment\PalletStoredItemsResource;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\RecurringBill;
@@ -2645,6 +2654,129 @@ test('attach stored item second pallet return again', function (PalletReturn $pa
     return $palletReturn;
 })->depends('create second pallet return');
 
+test('stored item reserved by an open return cannot be over-allocated to another return', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $reservedItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+        ->whereNotNull('pallet_stored_item_id')
+        ->firstOrFail();
+    $palletStoredItem = $reservedItem->palletStoredItem;
+    $quantityInPallet = (float) $palletStoredItem->quantity;
+    $quantityReserved = (float) $reservedItem->quantity_ordered;
+    $quantityFree     = $quantityInPallet - $quantityReserved;
+
+    expect($quantityReserved)->toBeGreaterThan(0)
+        ->and($quantityFree)->toBeGreaterThan(0);
+
+    $otherPalletReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $palletReturn->fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    expect($palletStoredItem->getQuantityReservedInOtherReturns($otherPalletReturn->id))->toBe($quantityReserved)
+        ->and($palletStoredItem->getQuantityReservedInOtherReturns($palletReturn->id))->toBe(0.0)
+        ->and($palletStoredItem->getMaxQuantityForReturn($otherPalletReturn))->toBe($quantityFree)
+        ->and($palletStoredItem->getMaxQuantityForReturn($palletReturn))->toBe($quantityInPallet)
+        ->and(fn () => AttachStoredItemToReturn::make()->action($otherPalletReturn, $palletStoredItem, ['quantity_ordered' => $quantityInPallet]))->toThrow(ValidationException::class);
+
+    $route = (new \Illuminate\Routing\Route(['GET'], 'x', []))->name('grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show');
+    request()->setRouteResolver(fn () => $route);
+
+    $palletStoredItemRow = collect(
+        PalletReturnItemsWithStoredItemsResource::collection(
+            IndexStoredItemsInReturn::run($otherPalletReturn, 'stored_items')
+        )->toArray(request())
+    )->flatMap(fn (array $storedItemRow) => $storedItemRow['pallet_stored_items'])->firstWhere('id', $palletStoredItem->id);
+
+    expect($palletStoredItemRow['quantity_in_pallet'])->toBe((int) $quantityInPallet)
+        ->and($palletStoredItemRow['available_quantity'])->toBe((int) $quantityFree)
+        ->and($palletStoredItemRow['max_quantity'])->toBe((int) $quantityFree)
+        ->and($palletStoredItemRow['reserved_quantity'])->toBe((int) $quantityReserved)
+        ->and($palletStoredItemRow['reserved_in_other_returns'])->toHaveCount(1)
+        ->and($palletStoredItemRow['reserved_in_other_returns'][0]['reference'])->toBe($palletReturn->reference)
+        ->and($palletStoredItemRow['reserved_in_other_returns'][0]['quantity'])->toBe((int) $quantityReserved);
+
+    $storedItemInPalletRow = collect(
+        PalletStoredItemsResource::collection(
+            IndexPalletStoredItems::run($palletStoredItem->pallet, 'stored_items')
+        )->toArray(request())
+    )->firstWhere('stored_item_reference', $palletStoredItem->storedItem->reference);
+
+    expect($storedItemInPalletRow['stored_item_slug'])->toBe($palletStoredItem->storedItem->slug)
+        ->and($storedItemInPalletRow['quantity_in_pallet'])->toBe((int) $quantityInPallet)
+        ->and($storedItemInPalletRow['reserved_quantity'])->toBe((int) $quantityReserved)
+        ->and($storedItemInPalletRow['available_quantity'])->toBe((int) $quantityFree)
+        ->and($storedItemInPalletRow['reserved_in_other_returns'][0]['reference'])->toBe($palletReturn->reference);
+
+    $palletInShowcase = collect(GetStoredItemShowcase::run($palletStoredItem->storedItem)['pallets'])
+        ->firstWhere('id', $palletStoredItem->pallet_id);
+
+    expect($palletInShowcase['quantity'])->toBe((int) $quantityInPallet)
+        ->and($palletInShowcase['reserved_quantity'])->toBe((int) $quantityReserved)
+        ->and($palletInShowcase['available_quantity'])->toBe((int) $quantityFree)
+        ->and($palletInShowcase['reserved_in_other_returns'][0]['reference'])->toBe($palletReturn->reference);
+
+    AttachStoredItemToReturn::make()->action($otherPalletReturn, $palletStoredItem, ['quantity_ordered' => $quantityFree]);
+
+    $otherItem = PalletReturnItem::where('pallet_return_id', $otherPalletReturn->id)
+        ->where('pallet_stored_item_id', $palletStoredItem->id)
+        ->firstOrFail();
+
+    expect((float) $otherItem->quantity_ordered)->toBe($quantityFree)
+        ->and($palletStoredItem->getMaxQuantityForReturn($palletReturn))->toBe($quantityReserved)
+        ->and(fn () => AttachStoredItemToReturn::make()->action($palletReturn, $palletStoredItem, ['quantity_ordered' => $quantityReserved + 1]))->toThrow(ValidationException::class);
+
+    $otherPalletReturn->items()->delete();
+    $otherPalletReturn->delete();
+
+    expect($palletStoredItem->getMaxQuantityForReturn($palletReturn))->toBe($quantityInPallet);
+
+    return $palletReturn;
+})->depends('create second pallet return');
+
+test('customer pallets export lists the SKO reference, follows the tab and can give one row per SKO', function (PalletReturn $palletReturn) {
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+    $palletStoredItem   = PalletStoredItem::whereHas('pallet', fn ($query) => $query
+        ->where('fulfilment_customer_id', $fulfilmentCustomer->id)
+        ->where('status', PalletStatusEnum::STORING))
+        ->where('quantity', '>', 0)
+        ->firstOrFail();
+    $storedItem = $palletStoredItem->storedItem;
+    $storedItem->update(['name' => 'Export Name '.$storedItem->id]);
+    $quantity = (int) $palletStoredItem->quantity;
+
+    $storingTab = FulfilmentCustomerPalletsTabsEnum::STORING->value;
+
+    $perPallet     = new PalletsInCustomerExport($fulfilmentCustomer, $storingTab);
+    $storingPallets = $perPallet->query()->get();
+    $palletRow     = $perPallet->map($storingPallets->firstWhere('id', $palletStoredItem->pallet_id));
+
+    expect($storingPallets->pluck('status')->unique()->all())->each->toBeIn([PalletStatusEnum::STORING, PalletStatusEnum::RETURNING])
+        ->and($palletRow)->toHaveCount(count($perPallet->headings()))
+        ->and($palletRow[1])->toBe($palletStoredItem->pallet->reference)
+        ->and($palletRow[4])->toContain($storedItem->reference.' - '.$storedItem->name.' ('.$quantity.')');
+
+    $perStoredItem = new PalletsInCustomerExport($fulfilmentCustomer, $storingTab, true);
+    $storedItemRows = collect($perStoredItem->map($perStoredItem->query()->get()->firstWhere('id', $palletStoredItem->pallet_id)));
+    $storedItemRow  = $storedItemRows->firstWhere(4, $storedItem->reference);
+
+    expect($storedItemRows)->toHaveCount($palletStoredItem->pallet->storedItems()->count())
+        ->and($storedItemRow)->toHaveCount(count($perStoredItem->headings()))
+        ->and($storedItemRow[1])->toBe($palletStoredItem->pallet->reference)
+        ->and($storedItemRow[5])->toBe($storedItem->name)
+        ->and($storedItemRow[6])->toBe((string) $quantity);
+
+    $emptyPallet = new Pallet(['reference' => 'EMPTY', 'customer_reference' => 'EMPTY-REF', 'type' => PalletTypeEnum::PALLET]);
+    $emptyPallet->setRelation('storedItems', collect());
+
+    expect($perStoredItem->map($emptyPallet))->toBe([['pallet', 'EMPTY', 'EMPTY-REF', '', '', '', '']])
+        ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, true))->toBe('customer-sko-storing')
+        ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, false))->toBe('customer-pallets-storing');
+})->depends('create second pallet return');
+
 test('submit second pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
@@ -2732,6 +2864,58 @@ test('pick pallet return item', function (PalletReturn $palletReturn) {
 
     return $palletReturn;
 })->depends('picking second pallet to return');
+
+test('picking a stored item never takes the pallet below zero', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $palletStoredItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+        ->whereNotNull('pallet_stored_item_id')
+        ->firstOrFail()
+        ->palletStoredItem;
+    $quantityInPallet = (float) $palletStoredItem->quantity;
+
+    expect($quantityInPallet)->toBeGreaterThan(0);
+
+    $overBookedReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $palletReturn->fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    AttachStoredItemToReturn::make()->action($overBookedReturn, $palletStoredItem, ['quantity_ordered' => $quantityInPallet]);
+    SubmitAndConfirmPalletReturn::make()->action($overBookedReturn);
+    $overBookedReturn = PickingPalletReturn::make()->action($overBookedReturn->refresh());
+
+    $overBookedItem = PalletReturnItem::where('pallet_return_id', $overBookedReturn->id)
+        ->where('pallet_stored_item_id', $palletStoredItem->id)
+        ->firstOrFail();
+    $overBookedItem->update([
+        'quantity_ordered' => $quantityInPallet + 2,
+        'state'            => PalletReturnItemStateEnum::PICKING,
+    ]);
+
+    expect(fn () => PickedPalletReturnWithStoredItems::make()->handle($overBookedReturn->refresh()))->toThrow(ValidationException::class)
+        ->and($overBookedReturn->refresh()->state)->toBe(PalletReturnStateEnum::PICKING)
+        ->and((float) $palletStoredItem->refresh()->quantity)->toBe($quantityInPallet);
+
+    $overBookedItem = PickPalletReturnItemInPalletReturnWithStoredItem::make()->action(
+        $overBookedItem->refresh(),
+        [
+            'quantity_picked' => $quantityInPallet + 2,
+        ],
+    );
+
+    expect((float) $overBookedItem->refresh()->quantity_picked)->toBe($quantityInPallet)
+        ->and((float) $palletStoredItem->refresh()->quantity)->toBe(0.0);
+
+    $scanOutcome = \App\Actions\Fulfilment\PalletReturnItem\PickPalletReturnItemByScan::make()
+        ->handle($overBookedReturn->refresh(), $this->user, ['barcode' => $overBookedItem->storedItem->reference]);
+
+    expect($scanOutcome['status'])->toBe('no_stock')
+        ->and((float) $overBookedItem->refresh()->quantity_picked)->toBe($quantityInPallet)
+        ->and((float) $palletStoredItem->refresh()->quantity)->toBe(0.0);
+})->depends('pick pallet return item');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);

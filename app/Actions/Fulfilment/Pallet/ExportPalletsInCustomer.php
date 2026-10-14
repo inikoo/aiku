@@ -25,14 +25,20 @@ class ExportPalletsInCustomer extends OrgAction
      */
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): BinaryFileResponse
     {
-        $type = $modelData['type'];
-        $tab  = $modelData['tab'] ?? FulfilmentCustomerPalletsTabsEnum::ALL->value;
+        $type                = $modelData['type'];
+        $tab                 = $modelData['tab'] ?? FulfilmentCustomerPalletsTabsEnum::ALL->value;
+        $oneRowPerStoredItem = (bool) Arr::get($modelData, 'one_row_per_sko', false);
 
         return $this->export(
-            new PalletsInCustomerExport($fulfilmentCustomer, $tab),
-            'customer-pallets-'.$tab,
+            new PalletsInCustomerExport($fulfilmentCustomer, $tab, $oneRowPerStoredItem),
+            $this->filenamePrefix($tab, $oneRowPerStoredItem),
             $type
         );
+    }
+
+    public function filenamePrefix(string $tab, bool $oneRowPerStoredItem): string
+    {
+        return ($oneRowPerStoredItem ? 'customer-sko-' : 'customer-pallets-').$tab;
     }
 
     public function rules(): array
@@ -42,6 +48,7 @@ class ExportPalletsInCustomer extends OrgAction
                 'sometimes',
                 Rule::in(FulfilmentCustomerPalletsTabsEnum::values()),
             ],
+            'one_row_per_sko' => ['sometimes', 'boolean'],
         ]);
     }
 

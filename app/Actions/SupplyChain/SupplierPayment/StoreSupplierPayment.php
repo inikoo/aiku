@@ -10,6 +10,7 @@ namespace App\Actions\SupplyChain\SupplierPayment;
 
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Models\GoodsIn\StockDelivery;
@@ -18,10 +19,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreSupplierPayment extends OrgAction
 {
+    private StockDelivery $stockDelivery;
+
     /**
      * @param  array{date: string, amount: float|string, method: string, reference?: string|null, bank_statement?: UploadedFile|null}  $modelData
      */
@@ -60,6 +64,13 @@ class StoreSupplierPayment extends OrgAction
         ];
     }
 
+    public function afterValidator(Validator $validator): void
+    {
+        if (!$this->asAction && CheckAgainstAgreedTerms::hasUnaccepted(CheckAgainstAgreedTerms::make()->stockDelivery($this->stockDelivery))) {
+            $validator->errors()->add('agreed_terms', __('The invoice charges more than was agreed. Purchasing must accept each difference with a reason before it is paid.'));
+        }
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $this->asAction || $request->user()->authTo(["procurement.{$this->organisation->id}.edit", "accounting.{$this->organisation->id}.edit"]);
@@ -68,6 +79,7 @@ class StoreSupplierPayment extends OrgAction
     public function asController(StockDelivery $stockDelivery, ActionRequest $request): SupplierPayment
     {
         abort_if($stockDelivery->agent_id || $stockDelivery->parent_type !== 'OrgSupplier', 404);
+        $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
         return $this->handle($stockDelivery, $this->validatedData);
@@ -75,7 +87,8 @@ class StoreSupplierPayment extends OrgAction
 
     public function action(StockDelivery $stockDelivery, array $modelData): SupplierPayment
     {
-        $this->asAction = true;
+        $this->asAction      = true;
+        $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $modelData);
 
         return $this->handle($stockDelivery, $this->validatedData);

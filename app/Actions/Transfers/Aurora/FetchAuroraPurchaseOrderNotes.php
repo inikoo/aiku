@@ -25,7 +25,7 @@ class FetchAuroraPurchaseOrderNotes extends FetchAuroraAction
         }
 
         if ($note = ProcurementNote::where('source_id', $noteData['note']['source_id'])->first()) {
-            $note->update(['new_values' => ['note' => $noteData['note']['note']]]);
+            $note->update(['body' => $noteData['note']['body']]);
             $this->recordChange($organisationSource, $note->wasChanged());
 
             return $note;

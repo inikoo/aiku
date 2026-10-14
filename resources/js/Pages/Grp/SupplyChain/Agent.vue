@@ -28,6 +28,9 @@ import { capitalize } from "@/Composables/capitalize"
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue"
 import { useForm } from "@inertiajs/vue3"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/TableSupplierAgreedTerms.vue'
+import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -47,6 +50,9 @@ const props = defineProps<{
     purchase_orders?: object,
     errors?: object,
     history?: object
+    agreed_terms?: object
+    notes?: object
+    agreement: object
     attachments?: object
     attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
     attachmentScopes: { name: string; code: string }[]
@@ -80,6 +86,8 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         attachments: TableAttachments,
+        agreed_terms: TableSupplierAgreedTerms,
+        notes: TableProcurementNotes,
         history: TableHistories
     }
     return components[currentTab.value]
@@ -118,7 +126,10 @@ const getErrors = () => {
     <!--suppress TypeScriptUnresolvedReference -->
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute"></component>
+    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
+        <AgreementSummary :agreement="agreement" />
+    </div>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}"></component>
 
     <UploadAttachment
         v-model="isModalUploadAttachmentOpen"

@@ -32,7 +32,7 @@ Zaczyna się od **wykresu pączkowego (donut chart)**: każdy produkt w katalogu
 Poniżej wykresu kubełki są ułożone w dwóch grupach. **Needs ordering** (Wymaga zamówienia) zawiera pięć, które potrzebują Twojej uwagi:
 
 - **Out of stock** (Brak w magazynie) - nic nie zostało na półce.
-- **Doomed** (Skazane) - masz jeszcze stan, ale skończy się, zanim mogłaby dotrzeć dostawa, nawet gdybyś zamówił właśnie teraz.
+- **Doomed** (Skazane) - masz jeszcze stan, ale skończy się, zanim mogłaby dotrzeć dostawa, nawet gdybyś zamówił właśnie teraz. Towar, który jest już w drodze, w otwartych dostawach i wysłanych zamówieniach zakupu, liczy się w każdej grupie: produkt z wystarczającą ilością w drodze nie jest pokazywany jako zagrożony.
 - **Critical / Danger / Watch** (Krytyczne / Niebezpieczne / Do obserwacji) - skończy się w ciągu dwóch, trzech albo czterech czasów realizacji.
 
 **Not for ordering** (Nie do zamawiania) zawiera pozostałe trzy:

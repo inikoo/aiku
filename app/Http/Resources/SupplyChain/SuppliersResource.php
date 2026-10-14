@@ -36,6 +36,7 @@ class SuppliersResource extends JsonResource
             'number_supplier_products' => $this->number_supplier_products,
             'number_purchase_orders'   => $this->number_purchase_orders,
             'number_stock_deliveries'  => $this->number_stock_deliveries,
+            'open_incidents'           => (int) ($this->open_incidents ?? 0),
         ];
     }
 

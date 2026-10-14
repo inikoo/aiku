@@ -15,6 +15,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\ProcurementNote;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
@@ -70,7 +71,7 @@ class IndexOrgSuppliers extends OrgAction
                 'org_supplier_stats.number_purchase_orders',
                 'org_supplier_stats.number_stock_deliveries',
                 'org_suppliers.slug as org_supplier_slug',
-            ]);
+            ])->selectSub(ProcurementNote::openIncidentsOfSupplierQuery($parent), 'open_incidents');
         }
 
         return $queryBuilder

@@ -18,9 +18,11 @@ use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -28,10 +30,12 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * How an agent's products sell in the organisations that buy them: what the organisations sold of them to their own
- * customers each month, and the products in trouble there (out of stock, about to run out, not selling). Goods one
- * organisation passes to another are not a sale, the organisation that receives them sells them. Amounts are in the
- * agent's currency.
+ * How an agent's products sell in the organisations that buy them, valued at what the goods cost and never at what
+ * the organisations charged their customers: an agent sees the worth of its goods leaving the shelves, the
+ * organisations' revenue and margin are not its to see. Month by month, plus the products in trouble (out of stock,
+ * about to run out, not selling). Goods one organisation passes to another are not a sale, the organisation that
+ * receives them sells them, so a month's cost is kept in the proportion its sales went to its own customers.
+ * Amounts are in the agent's currency.
  */
 class ShowAgentSales extends OrgAction
 {
@@ -42,35 +46,56 @@ class ShowAgentSales extends OrgAction
 
     private const int RANKING = 10;
 
-    private const array PROBLEMS = [
+    public const array PROBLEMS = [
         'out'  => 'out',
         'w1'   => 'low',
         'w2'   => 'low',
         'dead' => 'dead',
     ];
 
-    private function monthlySales(Agent $agent, CarbonInterface $from): Builder
+    public const string COST_OF_SALES = 'r.cogs_grp_currency * case
+        when r.sales_grp_currency_external + r.sales_grp_currency_internal > 0
+            then r.sales_grp_currency_external / (r.sales_grp_currency_external + r.sales_grp_currency_internal)
+        else 1 end';
+
+    private ?Supplier $supplier = null;
+
+    /**
+     * The cost-of-sales records of every org stock the agent's products are linked to, narrowed to one supplier's
+     * products when asked, in any frequency.
+     */
+    public function linkedOrgStocks(Agent $agent, ?int $supplierId = null): Builder
+    {
+        return DB::table('org_stock_has_org_supplier_products as link')
+            ->join('org_supplier_products as linked', 'linked.id', 'link.org_supplier_product_id')
+            ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
+            ->where('org_agents.agent_id', $agent->id)
+            ->where('link.status', true)
+            ->when($supplierId, fn ($query) => $query
+                ->join('supplier_products as linked_sp', 'linked_sp.id', 'linked.supplier_product_id')
+                ->where('linked_sp.supplier_id', $supplierId))
+            ->select('link.org_stock_id');
+    }
+
+    public function records(Agent $agent, ?int $supplierId = null): Builder
     {
         return DB::table('org_stock_time_series as ts')
             ->join('org_stock_time_series_records as r', 'r.org_stock_time_series_id', 'ts.id')
             ->join('org_stocks as sold_stock', 'sold_stock.id', 'ts.org_stock_id')
+            ->whereIn('ts.org_stock_id', $this->linkedOrgStocks($agent, $supplierId));
+    }
+
+    public function monthlySales(Agent $agent, CarbonInterface $from, ?int $supplierId = null): Builder
+    {
+        return $this->records($agent, $supplierId)
             ->where('ts.frequency', TimeSeriesFrequencyEnum::MONTHLY->value)
-            ->where('r.period', '>=', $from->format('Y-m'))
-            ->whereIn(
-                'ts.org_stock_id',
-                DB::table('org_stock_has_org_supplier_products as link')
-                    ->join('org_supplier_products as linked', 'linked.id', 'link.org_supplier_product_id')
-                    ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
-                    ->where('org_agents.agent_id', $agent->id)
-                    ->where('link.status', true)
-                    ->select('link.org_stock_id')
-            );
+            ->where('r.period', '>=', $from->format('Y-m'));
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function handle(Agent $agent): array
+    public function handle(Agent $agent, ?Supplier $supplier = null): array
     {
         $organisation = $agent->organisation;
         $toAgent      = (float) GetCurrencyExchange::run($organisation->group->currency, $organisation->currency);
@@ -81,8 +106,8 @@ class ShowAgentSales extends OrgAction
 
         $year = now()->year;
 
-        $byMonth = $this->monthlySales($agent, now()->subYear()->startOfYear())
-            ->selectRaw('sold_stock.organisation_id, r.period as month, sum(r.sales_grp_currency_external) as sales')
+        $byMonth = $this->monthlySales($agent, now()->subYear()->startOfYear(), $supplier?->id)
+            ->selectRaw('sold_stock.organisation_id, r.period as month, sum('.self::COST_OF_SALES.') as sales')
             ->groupBy('sold_stock.organisation_id', 'r.period')
             ->get()
             ->groupBy('organisation_id')
@@ -98,7 +123,7 @@ class ShowAgentSales extends OrgAction
         foreach ($orgAgents as $orgAgent) {
             $code        = $orgAgent->organisation->code;
             $stockToAgent = (float) (GetCurrencyExchange::run($orgAgent->organisation->currency, $currency) ?: 1);
-            $rows        = $this->productRows($agent, $orgAgent, $from);
+            $rows        = $this->productRows($agent, $orgAgent, $from, $supplier);
 
             $organisations[] = [
                 'code'     => $code,
@@ -145,22 +170,23 @@ class ShowAgentSales extends OrgAction
      * One row per org stock the organisation holds of this agent's products, with what it sold in the period, in the
      * group's currency, the value of what it holds, in its own, and the stock cover verdict its own buyers see.
      */
-    private function productRows(Agent $agent, OrgAgent $orgAgent, CarbonInterface $from): Collection
+    private function productRows(Agent $agent, OrgAgent $orgAgent, CarbonInterface $from, ?Supplier $supplier): Collection
     {
         $buckets = GetAgentStockCoverBuckets::make();
 
         return $buckets->scope(DB::table('org_supplier_products as osp'), $orgAgent, false)
             ->leftJoinSub(
-                $this->monthlySales($agent, $from)
+                $this->monthlySales($agent, $from, $supplier?->id)
                     ->where('sold_stock.organisation_id', $orgAgent->organisation_id)
                     ->groupBy('ts.org_stock_id')
-                    ->selectRaw('ts.org_stock_id, sum(r.sales_grp_currency_external) as sold'),
+                    ->selectRaw('ts.org_stock_id, sum('.self::COST_OF_SALES.') as sold'),
                 'sold',
                 'sold.org_stock_id',
                 '=',
                 'os.id'
             )
             ->whereNotNull('os.id')
+            ->when($supplier, fn ($query) => $query->where('sp.supplier_id', $supplier->id))
             ->whereRaw('((osp.state = ? and osp.is_available) or sold.sold > 0)', [OrgSupplierProductStateEnum::ACTIVE->value])
             ->selectRaw('sp.id as supplier_product_id, sp.code, sp.name, os.id as org_stock_id, coalesce(s.stock_value, 0) as stock_value, coalesce(sold.sold, 0) as sold, '.$buckets->bucketSql($orgAgent).' as bucket')
             ->get()
@@ -199,35 +225,99 @@ class ShowAgentSales extends OrgAction
         return $agent;
     }
 
+    public function inSupplier(Organisation $organisation, Supplier $supplier, ActionRequest $request): Agent
+    {
+        $agent = $this->asController($organisation, $request);
+        abort_unless($supplier->agent_id === $agent->id, 404);
+        $this->supplier = $supplier;
+
+        return $agent;
+    }
+
+    /**
+     * The links of the "See all" actions: the products list, narrowed to the supplier on a supplier dashboard and to
+     * one problem for each ranking.
+     *
+     * @return array<string, string>
+     */
+    private function productLinks(): array
+    {
+        $parameters = array_filter(['organisation' => $this->organisation->slug, 'supplier' => $this->supplier?->id]);
+
+        return collect(['all' => null, 'out' => 'out', 'low' => 'low', 'dead' => 'dead'])
+            ->map(fn (?string $problem) => route('grp.org.agent.sales.products.index', $problem ? [...$parameters, 'elements' => ['problem' => $problem]] : $parameters))
+            ->all();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $trail
+     * @return array<int, array<string, mixed>>
+     */
+    public function getBreadcrumbs(array $routeParameters, array $trail = []): array
+    {
+        $parameters = Arr::only($routeParameters, 'organisation');
+
+        return array_merge(
+            ShowProcurementDashboard::make()->getBreadcrumbs($parameters),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'label' => __('Sales'),
+                        'route' => [
+                            'name'       => 'grp.org.agent.sales.dashboard',
+                            'parameters' => $parameters,
+                        ],
+                    ],
+                ],
+            ],
+            $trail
+        );
+    }
+
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
+        $parameters = $request->route()->originalParameters();
+        $trail      = $this->supplier ? [
+            [
+                'type'   => 'simple',
+                'simple' => [
+                    'label' => __('Suppliers'),
+                    'route' => [
+                        'name'       => 'grp.org.agent.sales.suppliers.index',
+                        'parameters' => Arr::only($parameters, 'organisation'),
+                    ],
+                ],
+            ],
+            [
+                'type'   => 'simple',
+                'simple' => [
+                    'label' => $this->supplier->code,
+                    'route' => [
+                        'name'       => 'grp.org.agent.sales.suppliers.show',
+                        'parameters' => $parameters,
+                    ],
+                ],
+            ],
+        ] : [];
+
         return Inertia::render(
             'Org/Procurement/AgentSales',
             [
-                'title'       => __('Sales'),
-                'breadcrumbs' => array_merge(
-                    ShowProcurementDashboard::make()->getBreadcrumbs($request->route()->originalParameters()),
-                    [
-                        [
-                            'type'   => 'simple',
-                            'simple' => [
-                                'label' => __('Sales'),
-                                'route' => [
-                                    'name'       => 'grp.org.agent.sales.dashboard',
-                                    'parameters' => [$this->organisation->slug],
-                                ],
-                            ],
-                        ],
-                    ]
-                ),
+                'title'       => $this->supplier?->name ?? __('Sales'),
+                'breadcrumbs' => $this->getBreadcrumbs($parameters, $trail),
                 'pageHead'    => [
                     'icon'  => [
                         'title' => __('Sales'),
-                        'icon'  => 'fal fa-chart-line',
+                        'icon'  => $this->supplier ? 'fal fa-person-dolly' : 'fal fa-chart-line',
                     ],
-                    'title' => __('Sales'),
+                    'title' => $this->supplier?->name ?? __('Sales'),
+                    'model' => $this->supplier ? __('Sales') : null,
                 ],
-                'sales'       => Inertia::defer(fn () => $this->handle($agent)),
+                'supplier'    => $this->supplier ? ['code' => $this->supplier->code, 'name' => $this->supplier->name] : null,
+                'links'       => $this->productLinks(),
+                'sales'       => Inertia::defer(fn () => $this->handle($agent, $this->supplier)),
+                'feedback'    => Inertia::defer(fn () => GetAgentSalesFeedback::run($agent, $this->supplier), 'feedback'),
             ]
         );
     }

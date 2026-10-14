@@ -19,6 +19,8 @@ import Icon from '@/Components/Icon.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { printBarcode } from '@/Composables/printBarcode'
+import PalletStoredItemAvailableStock from '@/Components/Fulfilment/PalletReturns/PalletStoredItemAvailableStock.vue'
+import ModalPalletStoredItemReservedStock from '@/Components/Fulfilment/PalletReturns/ModalPalletStoredItemReservedStock.vue'
 
 import { faEmptySet } from '@fas'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -109,6 +111,34 @@ const generateLinkPallet = () => {
                 });
         default:
             null
+    }
+}
+
+const _modalReservedStock = ref<InstanceType<typeof ModalPalletStoredItemReservedStock> | null>(null)
+
+const generateLinkPalletShow = (pallet: { slug?: string }): string | undefined => {
+    if (!pallet.slug) {
+        return undefined
+    }
+
+    const params = route().params as Record<string, string | undefined>
+
+    switch (route().current()) {
+        case 'grp.org.warehouses.show.inventory.stored_items.current.show':
+            return route('grp.org.warehouses.show.inventory.pallets.current.show', {
+                organisation: params.organisation,
+                warehouse: params.warehouse,
+                pallet: pallet.slug,
+            })
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.show':
+            return route('grp.org.fulfilments.show.crm.customers.show.pallets.show', {
+                organisation: params.organisation,
+                fulfilment: params.fulfilment,
+                fulfilmentCustomer: params.fulfilmentCustomer,
+                pallet: pallet.slug,
+            })
+        default:
+            return undefined
     }
 }
 
@@ -337,14 +367,25 @@ const saveBarcode = (value: string | null) => {
                     </div>
                     <div v-if="data.pallets?.length" class="flex flex-col divide-y divide-gray-100">
                         <div v-for="pallet in data.pallets" :key="pallet.id" class="flex items-center justify-between gap-x-4 py-2 text-sm">
-                            <div class="flex min-w-0 items-center gap-x-2">
+                            <component
+                                :is="generateLinkPalletShow(pallet) ? Link : 'div'"
+                                :href="generateLinkPalletShow(pallet)"
+                                class="-mx-2 flex min-w-0 items-center gap-x-2 rounded px-2 py-1"
+                                :class="generateLinkPalletShow(pallet) ? 'transition-colors hover:bg-[--app-accent-soft] focus:outline-none focus-visible:bg-[--app-accent-soft] focus-visible:ring-2 focus-visible:ring-[--app-accent]' : ''"
+                            >
                                 <Icon :data="pallet.state_icon" />
-                                <span class="truncate font-medium text-gray-700">{{ pallet.reference || ctrans('To be delivered') }}</span>
+                                <span class="truncate font-medium" :class="generateLinkPalletShow(pallet) ? 'primaryLink' : 'text-gray-700'">{{ pallet.reference || ctrans('To be delivered') }}</span>
                                 <span v-if="pallet.location?.code" class="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{{ pallet.location.code }}</span>
-                            </div>
+                            </component>
                             <div class="flex shrink-0 items-center gap-x-3">
                                 <span class="text-xs text-gray-400">{{ pallet.state_label }}</span>
-                                <span class="font-semibold tabular-nums text-gray-800">{{ locale.number(pallet.quantity) }}</span>
+                                <PalletStoredItemAvailableStock
+                                    class="font-semibold text-gray-800"
+                                    :quantityInPallet="pallet.quantity"
+                                    :availableQuantity="pallet.available_quantity"
+                                    :reservedQuantity="pallet.reserved_quantity"
+                                    @showReservations="_modalReservedStock?.open(data.stored_item, { ...pallet, quantity_in_pallet: pallet.quantity })"
+                                />
                             </div>
                         </div>
                     </div>
@@ -398,6 +439,8 @@ const saveBarcode = (value: string | null) => {
             />
         </div> -->
     </div>
+
+    <ModalPalletStoredItemReservedStock ref="_modalReservedStock" :title="ctrans('Stock reserved by open returns')" />
 
     <!-- Modal: add or edit the item's own barcode by typing or scanning into the input -->
     <Modal :isOpen="isBarcodeModalOpen" @onClose="isBarcodeModalOpen = false" width="w-full max-w-md">

@@ -16,4 +16,7 @@
         .totals td { padding: 4px 5px; }
         .totals .grand td { font-weight: bold; border-top: 1px solid #bbb; }
         .terms { margin-top: 22px; font-size: 8.5pt; color: #444; }
+        .agreed-terms { width: 100%; border-collapse: collapse; }
+        .agreed-terms td { padding: 2px 8px 2px 0; border-bottom: 0.5px solid #ddd; vertical-align: top; }
+        .agreed-terms .agreed-term { width: 32%; font-weight: bold; }
     </style>

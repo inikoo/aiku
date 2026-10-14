@@ -246,9 +246,9 @@ class IndexPurchaseOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent, ?array $modelOperations = null, $prefix = null, bool $withRemoveFromContainer = false): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $withRemoveFromContainer) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -298,6 +298,10 @@ class IndexPurchaseOrders extends OrgAction
                     ->column(key: 'number_current_purchase_order_transactions', label: __('Items'), canBeHidden: false, sortable: true, align: 'right')
                     ->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
                     ->column(key: 'org_total_cost', label: __('Amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency');
+            }
+
+            if ($withRemoveFromContainer) {
+                $table->column(key: 'actions', label: '', canBeHidden: false, align: 'right');
             }
 
             $table->defaultSort('-date');
