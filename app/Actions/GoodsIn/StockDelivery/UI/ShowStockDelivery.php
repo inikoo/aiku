@@ -14,6 +14,7 @@ use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Models\Procurement\PurchaseOrder;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
@@ -94,6 +95,7 @@ class ShowStockDelivery extends OrgAction
     private bool $canUnreceive = false;
     private bool $viewedByAgent = false;
     private bool $goodsIn = false;
+    private bool $canAddPurchaseOrders = false;
 
     private const array BOOKING_IN_TABS = [
         StockDeliveryTabsEnum::PENDING_ITEMS,
@@ -122,6 +124,9 @@ class ShowStockDelivery extends OrgAction
         $this->canUpdateCosting = !$isAgent && $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
         $this->canBookIn        = $this->authToBookIn($request, 'incoming.%d.edit');
         $this->canUnreceive     = $this->authToBookIn($request, 'supervisor-incoming.%d');
+
+        $this->canAddPurchaseOrders = AddPurchaseOrdersToStockDelivery::acceptsPurchaseOrders($this->stockDelivery)
+            && AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDelivery, $request->user());
 
         return true;
     }
@@ -172,6 +177,7 @@ class ShowStockDelivery extends OrgAction
         $this->canUpdateCosting = false;
         $this->canBookIn        = false;
         $this->canUnreceive     = false;
+        $this->canAddPurchaseOrders = false;
 
         return $this->handle($stockDelivery);
     }
@@ -212,6 +218,7 @@ class ShowStockDelivery extends OrgAction
                     'navigation' => $this->getTabsNavigation($stockDelivery),
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
+                'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
                 'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
                 'service_invoices' => $this->getServiceInvoices($stockDelivery),
@@ -1310,11 +1317,36 @@ class ShowStockDelivery extends OrgAction
         ])->filter(fn (array $entry) => $entry['changes'] !== [])->values()->all();
     }
 
+    private function getAddPurchaseOrders(StockDelivery $stockDelivery): array
+    {
+        $purchaseOrderIdsInContainer = $stockDelivery->purchaseOrders()->pluck('purchase_orders.id')->all();
+
+        return [
+            'route'           => [
+                'method'     => 'post',
+                'name'       => 'grp.models.stock-delivery.purchase_orders.add',
+                'parameters' => ['stockDelivery' => $stockDelivery->id],
+            ],
+            'purchase_orders' => AddPurchaseOrdersToStockDelivery::addablePurchaseOrders($stockDelivery)
+                ->get()
+                ->map(fn (PurchaseOrder $purchaseOrder) => [
+                    'id'                             => $purchaseOrder->id,
+                    'reference'                      => $purchaseOrder->reference,
+                    'supplier'                       => $purchaseOrder->parent_name,
+                    'agent_order_reference'          => $purchaseOrder->agent_order_reference,
+                    'confirmed_at'                   => $purchaseOrder->confirmed_at,
+                    'number_items_awaiting_delivery' => $purchaseOrder->number_items_awaiting_delivery,
+                    'in_this_container'              => in_array($purchaseOrder->id, $purchaseOrderIdsInContainer, true),
+                ])
+                ->values(),
+        ];
+    }
+
     private function getTabsNavigation(StockDelivery $stockDelivery): array
     {
         $navigation = Arr::only(StockDeliveryTabsEnum::navigation(), $this->getTabs($stockDelivery));
 
-        if (!$stockDelivery->purchaseOrders()->exists()) {
+        if (!$this->canAddPurchaseOrders && !$stockDelivery->purchaseOrders()->exists()) {
             unset($navigation[StockDeliveryTabsEnum::PURCHASE_ORDERS->value]);
         }
 

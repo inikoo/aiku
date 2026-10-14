@@ -10,6 +10,7 @@ import type { Component } from "vue"
 import { Head, Link, router } from "@inertiajs/vue3"
 import { ctrans } from "@/Composables/useTrans"
 
+import Checkbox from "primevue/checkbox"
 import ConfirmDialog from "primevue/confirmdialog"
 import Dialog from "primevue/dialog"
 import DatePicker from "primevue/datepicker"
@@ -49,12 +50,13 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt } from "@fal"
+import { faInventory, faWarehouse, faPersonDolly, faBoxUsd, faTruck, faTerminal, faCameraRetro, faPaperclip, faInfoCircle, faHandHoldingBox, faPeopleArrows, faExclamationTriangle, faBoxOpen, faClipboardList, faBalanceScale, faPassport, faCheckCircle, faTimes, faCheck, faSquare, faChevronRight, faChevronDown, faShip, faHashtag, faTrashAlt, faPlus } from "@fal"
 import { faBars, faBoxCheck, faInventory as fasInventory, faShare, faArrowCircleRight, faArrowCircleLeft, faExclamationCircle, faBoxFull, faCheckSquare } from "@fas"
 
 library.add(
 	faShip,
 	faHashtag,
+	faPlus,
 	faBalanceScale,
 	faPassport,
 	faInventory,
@@ -98,6 +100,18 @@ const props = defineProps<{
 		[key: string]: TSTimeline
 	}
 	purchase_orders?: {}
+	add_purchase_orders: {
+		route: routeType
+		purchase_orders: {
+			id: number
+			reference: string
+			supplier: string | null
+			agent_order_reference: string | null
+			confirmed_at: string | null
+			number_items_awaiting_delivery: number
+			in_this_container: boolean
+		}[]
+	} | null
 	box_stats: {
 		first_block: {
 			orderer: {
@@ -234,6 +248,64 @@ const component = computed(() => {
 
 	return components[currentTab.value]
 })
+
+const addPurchaseOrdersOpen = ref(false)
+const addPurchaseOrdersSearch = ref("")
+const selectedPurchaseOrderIds = ref<number[]>([])
+const addPurchaseOrdersLoading = ref(false)
+
+const filteredAddablePurchaseOrders = computed(() => {
+	const search = addPurchaseOrdersSearch.value.trim().toLowerCase()
+	const purchaseOrders = props.add_purchase_orders?.purchase_orders ?? []
+
+	return search
+		? purchaseOrders.filter(purchaseOrder => [purchaseOrder.reference, purchaseOrder.supplier, purchaseOrder.agent_order_reference]
+			.some(value => value?.toLowerCase().includes(search)))
+		: purchaseOrders
+})
+
+const allFilteredPurchaseOrdersSelected = computed(() =>
+	filteredAddablePurchaseOrders.value.length > 0
+	&& filteredAddablePurchaseOrders.value.every(purchaseOrder => selectedPurchaseOrderIds.value.includes(purchaseOrder.id))
+)
+
+const toggleAllFilteredPurchaseOrders = () => {
+	const filteredIds = filteredAddablePurchaseOrders.value.map(purchaseOrder => purchaseOrder.id)
+
+	selectedPurchaseOrderIds.value = allFilteredPurchaseOrdersSelected.value
+		? selectedPurchaseOrderIds.value.filter(id => !filteredIds.includes(id))
+		: [...new Set([...selectedPurchaseOrderIds.value, ...filteredIds])]
+}
+
+const openAddPurchaseOrders = () => {
+	selectedPurchaseOrderIds.value = []
+	addPurchaseOrdersSearch.value = ""
+	addPurchaseOrdersOpen.value = true
+}
+
+const addPurchaseOrders = () => {
+	const addRoute = props.add_purchase_orders?.route
+
+	if (!addRoute || selectedPurchaseOrderIds.value.length === 0) {
+		return
+	}
+
+	router.post(route(addRoute.name, addRoute.parameters), {
+		purchase_order_ids: selectedPurchaseOrderIds.value,
+	}, {
+		preserveScroll: true,
+		onStart: () => { addPurchaseOrdersLoading.value = true },
+		onSuccess: () => { addPurchaseOrdersOpen.value = false },
+		onFinish: () => { addPurchaseOrdersLoading.value = false },
+		onError: (errors: Record<string, string>) => {
+			notify({
+				title: ctrans("Failed to add purchase orders"),
+				text: Object.values(errors)[0] ?? ctrans("Something went wrong"),
+				type: "error",
+			})
+		},
+	})
+}
 
 const metrics = computed(() => {
 	const { weight, volume, is_weight_partial, is_volume_partial } = props.box_stats.second_block
@@ -1292,6 +1364,21 @@ const confirmDeleteStockDelivery = (action: any) => {
 	</Dialog>
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+	<div v-if="currentTab === 'purchase_orders' && add_purchase_orders" class="flex items-center justify-end gap-3 px-4 pt-3">
+		<span v-if="add_purchase_orders.purchase_orders.length === 0" class="text-sm text-gray-500">
+			{{ ctrans("No confirmed purchase orders of this agent are waiting for a container") }}
+		</span>
+		<Button
+			type="tertiary"
+			:label="ctrans('Add purchase orders')"
+			:disabled="add_purchase_orders.purchase_orders.length === 0"
+			@click="openAddPurchaseOrders"
+		>
+			<template #icon>
+				<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+			</template>
+		</Button>
+	</div>
 	<component
 		:is="component"
 		:key="currentTab"
@@ -1371,6 +1458,76 @@ const confirmDeleteStockDelivery = (action: any) => {
 					</Button>
 				</div>
 			</div>
+		</template>
+	</Dialog>
+
+	<Dialog
+		v-if="add_purchase_orders"
+		v-model:visible="addPurchaseOrdersOpen"
+		modal
+		:header="ctrans('Add purchase orders to this container')"
+		:style="{ width: '44rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:draggable="false"
+	>
+		<p class="mb-3 text-sm text-gray-600">
+			{{ ctrans("The items of the selected purchase orders that are not in a container yet are added to this one.") }}
+		</p>
+		<div class="mb-3 flex items-center gap-3">
+			<InputText v-model="addPurchaseOrdersSearch" class="flex-1" :placeholder="ctrans('Search reference or supplier')" />
+			<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+				<Checkbox :modelValue="allFilteredPurchaseOrdersSelected" binary @update:modelValue="toggleAllFilteredPurchaseOrders" />
+				{{ ctrans("Select all") }}
+			</label>
+		</div>
+
+		<div class="flex max-h-[60vh] flex-col divide-y divide-gray-200 overflow-y-auto rounded-lg border border-gray-200">
+			<label
+				v-for="purchaseOrder in filteredAddablePurchaseOrders"
+				:key="purchaseOrder.id"
+				class="flex cursor-pointer items-center gap-3 p-3 hover:bg-gray-50"
+			>
+				<Checkbox v-model="selectedPurchaseOrderIds" :value="purchaseOrder.id" />
+				<span class="min-w-0 flex-1">
+					<span class="flex flex-wrap items-center gap-2 font-medium text-gray-800">
+						{{ purchaseOrder.reference }}
+						<span v-if="purchaseOrder.in_this_container" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-600">
+							{{ ctrans("Partly in this container") }}
+						</span>
+					</span>
+					<span class="block truncate text-sm text-gray-500">
+						{{ [purchaseOrder.supplier, purchaseOrder.agent_order_reference].filter(Boolean).join(" · ") }}
+					</span>
+				</span>
+				<span class="whitespace-nowrap text-sm text-gray-500">
+					{{ purchaseOrder.number_items_awaiting_delivery === 1
+						? ctrans("1 item awaiting delivery")
+						: ctrans(":count items awaiting delivery", { count: locale.number(purchaseOrder.number_items_awaiting_delivery) }) }}
+				</span>
+			</label>
+			<p v-if="filteredAddablePurchaseOrders.length === 0" class="p-4 text-center text-sm text-gray-500">
+				{{ ctrans("No purchase orders match your search") }}
+			</p>
+		</div>
+
+		<template #footer>
+			<Button type="tertiary" :label="ctrans('Cancel')" @click="addPurchaseOrdersOpen = false">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button
+				type="tertiary"
+				:label="selectedPurchaseOrderIds.length === 1
+					? ctrans('Add 1 purchase order')
+					: ctrans('Add :count purchase orders', { count: selectedPurchaseOrderIds.length })"
+				:loading="addPurchaseOrdersLoading"
+				:disabled="selectedPurchaseOrderIds.length === 0"
+				@click="addPurchaseOrders"
+			>
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 	</Dialog>
 
