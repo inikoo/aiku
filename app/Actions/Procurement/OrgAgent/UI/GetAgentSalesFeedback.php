@@ -49,7 +49,6 @@ class GetAgentSalesFeedback
                 'rating'         => $reviews ? round($products->sum('rating_sum') / $reviews, 2) : null,
                 'reviews'        => $reviews,
                 'refund_percent' => $invoices ? round(100 * $products->sum('refunds') / $invoices, 2) : null,
-                'faults'         => (int) $products->sum('faults'),
                 'recent'         => $this->recentReviews($agent, $supplier),
             ],
             'purchasing' => $this->notes($agent, $supplier),

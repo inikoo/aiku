@@ -61,28 +61,35 @@ class ShowAgentSales extends OrgAction
     private ?Supplier $supplier = null;
 
     /**
-     * The monthly cost-of-sales records of every org stock the agent's products are linked to, narrowed to one
-     * supplier's products when asked.
+     * The cost-of-sales records of every org stock the agent's products are linked to, narrowed to one supplier's
+     * products when asked, in any frequency.
      */
-    public function monthlySales(Agent $agent, CarbonInterface $from, ?int $supplierId = null): Builder
+    public function linkedOrgStocks(Agent $agent, ?int $supplierId = null): Builder
+    {
+        return DB::table('org_stock_has_org_supplier_products as link')
+            ->join('org_supplier_products as linked', 'linked.id', 'link.org_supplier_product_id')
+            ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
+            ->where('org_agents.agent_id', $agent->id)
+            ->where('link.status', true)
+            ->when($supplierId, fn ($query) => $query
+                ->join('supplier_products as linked_sp', 'linked_sp.id', 'linked.supplier_product_id')
+                ->where('linked_sp.supplier_id', $supplierId))
+            ->select('link.org_stock_id');
+    }
+
+    public function records(Agent $agent, ?int $supplierId = null): Builder
     {
         return DB::table('org_stock_time_series as ts')
             ->join('org_stock_time_series_records as r', 'r.org_stock_time_series_id', 'ts.id')
             ->join('org_stocks as sold_stock', 'sold_stock.id', 'ts.org_stock_id')
+            ->whereIn('ts.org_stock_id', $this->linkedOrgStocks($agent, $supplierId));
+    }
+
+    public function monthlySales(Agent $agent, CarbonInterface $from, ?int $supplierId = null): Builder
+    {
+        return $this->records($agent, $supplierId)
             ->where('ts.frequency', TimeSeriesFrequencyEnum::MONTHLY->value)
-            ->where('r.period', '>=', $from->format('Y-m'))
-            ->whereIn(
-                'ts.org_stock_id',
-                DB::table('org_stock_has_org_supplier_products as link')
-                    ->join('org_supplier_products as linked', 'linked.id', 'link.org_supplier_product_id')
-                    ->join('org_agents', 'org_agents.id', 'linked.org_agent_id')
-                    ->where('org_agents.agent_id', $agent->id)
-                    ->where('link.status', true)
-                    ->when($supplierId, fn ($query) => $query
-                        ->join('supplier_products as linked_sp', 'linked_sp.id', 'linked.supplier_product_id')
-                        ->where('linked_sp.supplier_id', $supplierId))
-                    ->select('link.org_stock_id')
-            );
+            ->where('r.period', '>=', $from->format('Y-m'));
     }
 
     /**

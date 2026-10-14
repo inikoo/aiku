@@ -680,10 +680,18 @@ test('agent manager only sees their own agent organisation', function () {
     $this->get(route('grp.org.agent.sales.dashboard', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.suppliers.index', $organisation->slug))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesSuppliers')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesSuppliers')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'short_percent'])->count() === 3)->has('data.meta.total')->has('currency'));
     $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'elements' => ['problem' => 'out']]))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesProducts')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesProducts')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'short_percent'])->count() === 3)->has('data.meta.total')->has('currency'));
+    $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'dateInterval' => 'ytd']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', 'ytd')->has('data.meta.total'));
+    $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'dateInterval' => 'all']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', 'all')->has('data.meta.total'));
+    $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'dateInterval' => 'nonsense']))
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', '1y'));
     $salesSupplier = Supplier::where('agent_id', $this->agent->id)->firstOrFail();
     $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $salesSupplier->slug]))
         ->assertOk()

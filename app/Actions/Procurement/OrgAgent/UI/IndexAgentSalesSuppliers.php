@@ -40,9 +40,9 @@ class IndexAgentSalesSuppliers extends OrgAction
             $query->whereRaw('(code collate "C" ilike ? or name ilike ?)', [$like, $like]);
         });
 
-        return QueryBuilder::for(Supplier::withoutGlobalScopes()->fromSub(GetAgentSalesProducts::make()->suppliers($agent), 'suppliers')->selectRaw('suppliers.*, '.GetAgentSalesProducts::DERIVED))
+        return QueryBuilder::for(Supplier::withoutGlobalScopes()->fromSub(GetAgentSalesProducts::make()->suppliers($agent, $this->dateInterval), 'suppliers')->selectRaw('suppliers.*, '.GetAgentSalesProducts::DERIVED))
             ->defaultSort('-sold')
-            ->allowedSorts(['code', 'name', 'products', 'selling', 'sold', 'this_year', 'out_of_stock', 'low', 'dead', 'faults', ...GetAgentSalesProducts::make()->derivedSorts()])
+            ->allowedSorts(['code', 'name', 'products', 'selling', 'sold', 'out_of_stock', 'low', 'dead', ...GetAgentSalesProducts::make()->derivedSorts()])
             ->allowedFilters([$globalSearch])
             ->orderBy('id')
             ->withPaginator(null, tableName: request()->route()?->getName())
@@ -53,6 +53,7 @@ class IndexAgentSalesSuppliers extends OrgAction
     {
         return function (InertiaTable $table) {
             $table
+                ->dateInterval($this->dateInterval)
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Supplier'), __('Suppliers')])
                 ->withEmptyState(['title' => __('No suppliers found')])
@@ -60,13 +61,11 @@ class IndexAgentSalesSuppliers extends OrgAction
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'products', label: __('Products'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'selling', label: __('Products that sold'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'sold', label: __('Sold, 12 months, at cost'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'this_year', label: __('This year, at cost'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'last_year', label: __('Same months last year'), canBeHidden: false, align: 'right')
+                ->column(key: 'sold', label: __('Sold, at cost'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'last_year', label: __('Same period last year, at cost'), canBeHidden: false, align: 'right')
                 ->column(key: 'change_percent', label: __('Change'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'rating', label: __('Rating'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'refund_percent', label: __('Refunds %'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'faults', label: __('Supplier faults'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'short_percent', label: __('Short deliveries %'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'out_of_stock', label: __('Out of stock'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'low', label: __('About to run out'), canBeHidden: false, sortable: true, align: 'right')
@@ -77,6 +76,7 @@ class IndexAgentSalesSuppliers extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Agent
     {
         $this->initialisation($organisation, $request);
+        $this->dateInterval = GetAgentSalesProducts::make()->interval($request->input('dateInterval'));
         $agent = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
 
