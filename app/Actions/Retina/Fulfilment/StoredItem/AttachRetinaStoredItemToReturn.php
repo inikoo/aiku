@@ -20,6 +20,8 @@ class AttachRetinaStoredItemToReturn extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
 
+    private PalletReturn $palletReturn;
+
     private PalletStoredItem $palletStoredItem;
 
     public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData)
@@ -30,12 +32,20 @@ class AttachRetinaStoredItemToReturn extends RetinaAction
     public function rules(): array
     {
         return [
-            'quantity_ordered' => ['required', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->quantity]
+            'quantity_ordered' => ['required', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->getMaxQuantityForReturn($this->palletReturn)]
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'quantity_ordered.max' => __('Only :max available on this pallet, the rest is already reserved by other open returns.'),
         ];
     }
 
     public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request)
     {
+        $this->palletReturn = $palletReturn;
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisation($request);
 
@@ -46,6 +56,7 @@ class AttachRetinaStoredItemToReturn extends RetinaAction
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->palletReturn = $palletReturn;
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFulfilmentActions($palletReturn->fulfilmentCustomer, $modelData);
 
