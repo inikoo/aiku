@@ -14,6 +14,7 @@ import ManufactureWorkingCard from '@/Components/ManufactureWorkingCard.vue'
 import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import { capitalize } from '@/Composables/capitalize'
+import { mixBatchesLabel } from '@/Composables/mixBatches'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faIndustry, faLink } from "@fal"
@@ -25,6 +26,8 @@ interface FloorStep {
     state: string
     quantity_made: number
     quantity_required: number
+    unit: string | null
+    mix_batch_kg: number | null
     blocked_by_step: string | null
     worked_by: string[]
     working_on_by: string[]
@@ -247,7 +250,10 @@ function formatWorked(seconds: number) {
 }
 
 function stepStatus(step: FloorStep) {
-    const units = ctransChoice(':progress unit|:progress units', step.quantity_required, { progress: `${step.quantity_made}/${step.quantity_required}` })
+    const progress = `${step.quantity_made}/${step.quantity_required}`
+    const units = step.unit
+        ? [`${progress} ${step.unit}`, mixBatchesLabel(step.quantity_required, step.mix_batch_kg)].filter(Boolean).join(' · ')
+        : ctransChoice(':progress unit|:progress units', step.quantity_required, { progress })
     if (step.state == 'done') {
         return [ctrans('Done'), units, formatWorked(step.seconds), step.worked_by.join(', ')].filter(Boolean).join(' · ')
     }
@@ -299,9 +305,7 @@ function separate(task: FloorTask) {
 }
 
 function mixBatches(task: FloorTask): string | null {
-    if (!task.mix_batch_kg) return null
-    const batches = Math.ceil(Math.max(0, task.quantity_required - task.quantity_made) / task.mix_batch_kg - 1e-9)
-    return ctrans(':batches × :size kg batches = :kg kg', { batches, size: task.mix_batch_kg, kg: batches * task.mix_batch_kg })
+    return mixBatchesLabel(task.quantity_required - task.quantity_made, task.mix_batch_kg)
 }
 
 function startTask(task: FloorTask) {

@@ -6694,7 +6694,12 @@ test('a mix with a batch size is asked and recorded in whole batches, rounded on
     \Pest\Laravel\post(route('grp.models.production.combined_task.store', ['production' => $this->production->id]), ['job_order_item_task_ids' => [$mixA->id, $mixB->id]])->assertSessionHasNoErrors();
     $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
         ->first(fn (array $task) => in_array($mixA->id, array_column($task['combined'] ?? [], 'id')));
-    expect($floorTask)->toMatchArray(['mix_batch_kg' => 50, 'quantity_required' => 94.1]);
+    expect($floorTask)->toMatchArray(['mix_batch_kg' => 50, 'quantity_required' => 94.1])
+        ->and($floorTask['steps'][0])->toMatchArray(['unit' => 'kg', 'mix_batch_kg' => 50]);
+
+    $jobOrderMix = collect(get(route('grp.org.productions.show.operations.job-orders.show', [$this->organisation->slug, $this->production->slug, $mixA->jobOrder->slug]))
+        ->viewData('page')['props']['items'])->first()['tasks'][0];
+    expect($jobOrderMix)->toMatchArray(['quantity_required' => 54.1, 'unit' => 'kg', 'mix_batch_kg' => 50]);
 
     $session = StartManufactureTaskSession::make()->action($user, $mixA->refresh());
     expect(fn () => CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 94.1]))->toThrow(ValidationException::class, 'whole batches of 50 kg');

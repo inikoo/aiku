@@ -250,6 +250,8 @@ class ShowOperationsDashboard extends OrgAction
                             'job_order_slug'      => $task->jobOrder->slug,
                             'quantity_made'       => (float)$task->quantity_made,
                             'quantity_required'   => (float)$task->quantity_required,
+                            'unit'                => $task->unit(),
+                            'mix_batch_kg'        => $task->mixBatchKg(),
                             'blocked_by_step'     => $task->blockingStep($task->jobOrderItem->tasks)?->manufactureTask->name,
                             'start_route'         => [
                                 'name'       => 'grp.models.job-order-item-task.session.store',

@@ -147,6 +147,11 @@ class JobOrderItemTask extends Model
         return (bool) $this->manufactureTask?->is_recorded_in_kg;
     }
 
+    public function unit(): ?string
+    {
+        return $this->isRecordedInKg() ? 'kg' : null;
+    }
+
     public function packSize(): ?int
     {
         return $this->isRecordedInKg() ? null : ArtefactManufactureTask::packSize($this->unitsPerArtefact());

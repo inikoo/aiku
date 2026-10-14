@@ -226,6 +226,8 @@ class ShowJobOrder extends OrgAction
                     'quantity_required' => (float)$tasks->sum('quantity_required'),
                     'quantity_made'     => (float)$tasks->sum('quantity_made'),
                     'quantity_rejected' => (float)$tasks->sum('quantity_rejected'),
+                    'unit'              => $task->unit(),
+                    'mix_batch_kg'      => $task->mixBatchKg(),
                     'combined_with'     => $this->combinedWith($tasks),
                 ];
             })

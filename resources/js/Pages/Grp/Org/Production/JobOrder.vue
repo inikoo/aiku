@@ -10,6 +10,7 @@ import { ref, computed, watch } from "vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
+import { mixBatchesLabel } from "@/Composables/mixBatches"
 import Modal from "@/Components/Utils/Modal.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -43,6 +44,8 @@ interface ItemTask {
     quantity_required: number
     quantity_made: number
     quantity_rejected: number
+    unit: string | null
+    mix_batch_kg: number | null
     combined_with: string | null
 }
 
@@ -468,7 +471,8 @@ function receiveIntoStock() {
                         </span>
                     </div>
                     <div class="tabular-nums text-gray-600">
-                        {{ task.quantity_made }} / {{ task.quantity_required }}
+                        {{ task.quantity_made }} / {{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template>
+                        <span v-if="mixBatchesLabel(task.quantity_required, task.mix_batch_kg)" class="ml-1 text-gray-500">· {{ mixBatchesLabel(task.quantity_required, task.mix_batch_kg) }}</span>
                         <span v-if="task.quantity_rejected" class="text-red-500 ml-1">({{ task.quantity_rejected }} {{ ctrans('rejected') }})</span>
                     </div>
                 </div>
