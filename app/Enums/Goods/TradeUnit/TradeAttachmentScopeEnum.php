@@ -73,4 +73,25 @@ enum TradeAttachmentScopeEnum: string
             self::HOW_TO_USE->value,
         ];
     }
+
+    /**
+     * Documents about the substance itself, the same for every size of it, so a trade unit can take them from another one.
+     *
+     * @return list<string>
+     */
+    public static function substanceScopes(): array
+    {
+        return [
+            self::IFRA->value,
+            self::SDS->value,
+            self::MSDS->value,
+            self::CLP->value,
+            self::ALLERGEN_DECLARATIONS->value,
+            self::IFRA_PRIVATE->value,
+            self::SDS_PRIVATE->value,
+            self::MSDS_PRIVATE->value,
+            self::CLP_PRIVATE->value,
+            self::ALLERGEN_DECLARATIONS_PRIVATE->value,
+        ];
+    }
 }

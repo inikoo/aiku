@@ -103,6 +103,10 @@ class DeleteTradeUnit
                 }
             }
 
+            foreach (TradeUnit::where('documents_trade_unit_id', $tradeUnit->id)->get() as $sharer) {
+                StopSharingTradeUnitDocuments::make()->action($sharer);
+            }
+
             if ($hard) {
 
                 DB::table('model_has_trade_units')->where('trade_unit_id', $tradeUnit->id)->delete();

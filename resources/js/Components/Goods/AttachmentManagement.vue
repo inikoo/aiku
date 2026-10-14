@@ -11,6 +11,7 @@ import { routeType } from "@/types/route"
 import { router } from "@inertiajs/vue3"
 import { Link } from "@inertiajs/vue3"
 import TradeUnitDocuments from "@/Components/Goods/TradeUnitDocuments.vue"
+import TradeUnitDocumentsSharing, { type TradeUnitDocumentsSharingData } from "@/Components/Goods/TradeUnitDocumentsSharing.vue"
 
 const props = defineProps<{
     data: {
@@ -21,6 +22,7 @@ const props = defineProps<{
         attachRoute: routeType
         detachRoute: routeType
         family_documents?: any[]
+        documents_sharing?: TradeUnitDocumentsSharingData
         attachments: {
             label: string
             type: string
@@ -81,13 +83,15 @@ async function uploadFiles(files: FileList, categoryBox: Record<string, any>) {
 
 function onDropFile(event: DragEvent, categoryBox: any) {
     event.preventDefault()
+    activeCategory.value = null
+    if (!editable.value || categoryBox.shared_from) return
     const files = event.dataTransfer?.files
     if (files?.length) uploadFiles(files, categoryBox)
     activeCategory.value = null
 }
 
 function onClickBox(categoryBox: any) {
-    if (!editable.value) return
+    if (!editable.value || categoryBox.shared_from) return
     const input = document.createElement("input")
     input.type = "file"
     input.multiple = true
@@ -157,6 +161,8 @@ const getIcon = (type: string) => {
         </Message>
     </div>
 
+    <TradeUnitDocumentsSharing v-if="props.data.documents_sharing" :data="props.data.documents_sharing" :editable="editable" />
+
     <div class="px-10">
         <div v-if="props.data.attachment_category_box?.public?.length" class="rounded-xl bg-white p-5 lg:col-span-2">
             <div class="text-base font-semibold text-gray-700">
@@ -172,7 +178,7 @@ const getIcon = (type: string) => {
                 <li v-for="categoryBox in props.data.attachment_category_box?.public" :key="categoryBox.scope"
                     class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
                     :class="{
-                        'border-blue-500 ring-2 ring-blue-300 bg-blue-50 shadow-md': activeCategory === categoryBox.scope,
+                        'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
                         'cursor-pointer': editable,
                         'cursor-not-allowed': !editable,
                     }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
@@ -185,7 +191,10 @@ const getIcon = (type: string) => {
                         <div class="flex items-center gap-2">
                             <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
                                 icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
-                            <FontAwesomeIcon v-if="categoryBox.attachment && editable" :icon="faUnlink"
+                            <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
+                                {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
+                            </span>
+                            <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
                                 @click.stop="() => onDeletefilesInBox(categoryBox)"
                                 class="text-red-600 cursor-pointer text-xs" fixed-width />
                         </div>
@@ -214,7 +223,7 @@ const getIcon = (type: string) => {
                                 class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
                                 <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
                                 <span class="text-[12px] font-medium">
-                                    {{ ctrans("Drop or click to upload") }}
+                                    {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
                                 </span>
                             </div>
                         </template>
@@ -245,7 +254,7 @@ const getIcon = (type: string) => {
                 <li v-for="categoryBox in props.data.attachment_category_box.private" :key="categoryBox.scope"
                     class="relative flex flex-col overflow-hidden rounded-xl border bg-gray-50 transition duration-300 ease-in-out"
                     :class="{
-                        'border-blue-500 ring-2 ring-blue-300 bg-blue-50 shadow-md': activeCategory === categoryBox.scope,
+                        'border-[--app-accent] ring-2 ring-[--app-accent-muted] bg-[--app-accent-soft] shadow-md': activeCategory === categoryBox.scope,
                         'cursor-pointer': editable,
                         'cursor-not-allowed': !editable,
                     }" @dragover.prevent @dragenter.prevent="activeCategory = categoryBox.scope"
@@ -258,7 +267,10 @@ const getIcon = (type: string) => {
                         <div class="flex items-center gap-2">
                             <FontAwesomeIcon v-if="categoryBox.information" v-tooltip="categoryBox.information"
                                 icon="fal fa-info-circle" class="text-gray-400 hover:text-gray-600" fixed-width />
-                            <FontAwesomeIcon v-if="categoryBox.attachment && editable" :icon="faUnlink"
+                            <span v-if="categoryBox.shared_from" class="text-[11px] text-gray-500" v-tooltip="ctrans('Shared from :code, change it there', { code: categoryBox.shared_from })">
+                                {{ ctrans("from :code", { code: categoryBox.shared_from }) }}
+                            </span>
+                            <FontAwesomeIcon v-if="categoryBox.attachment && editable && !categoryBox.shared_from" :icon="faUnlink"
                                 @click.stop="() => onDeletefilesInBox(categoryBox)"
                                 class="text-red-600 cursor-pointer text-xs" fixed-width />
                         </div>
@@ -287,7 +299,7 @@ const getIcon = (type: string) => {
                                 class="flex flex-col items-center justify-center text-gray-400 h-full bg-gray-50  rounded-md hover:bg-gray-100 transition cursor-pointer p-3">
                                 <FontAwesomeIcon :icon="faFile" class="mb-2 text-2xl" fixed-width />
                                 <span class="text-[12px] font-medium">
-                                    {{ ctrans("Drop or click to upload") }}
+                                    {{ categoryBox.shared_from ? ctrans("Not on :code yet", { code: categoryBox.shared_from }) : ctrans("Drop or click to upload") }}
                                 </span>
                             </div>
                         </template>

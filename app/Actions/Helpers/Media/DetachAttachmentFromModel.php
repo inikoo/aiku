@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Actions\Catalogue\Product\CloneProductAttachmentsFromTradeUnits;
 use App\Actions\OrgAction;
+use App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -35,11 +36,17 @@ class DetachAttachmentFromModel extends OrgAction
 
     public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|TradeUnitFamily|Product|ProductCategory $model, Media $attachment): Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|TradeUnitFamily|Product|ProductCategory
     {
+        $scope = $model->attachments()->where('media.id', $attachment->id)->first()?->pivot->scope;
         $model->attachments()->detach($attachment->id);
         $model->refresh();
         if ($model instanceof TradeUnit) {
             foreach ($model->products as $product) {
                 CloneProductAttachmentsFromTradeUnits::run($product);
+            }
+            if (in_array($scope, TradeAttachmentScopeEnum::substanceScopes())) {
+                foreach ($model->productsOfDocumentsSharers() as $product) {
+                    CloneProductAttachmentsFromTradeUnits::dispatch($product);
+                }
             }
         }
         if ($model instanceof TradeUnitFamily) {

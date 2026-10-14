@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Product\Hydrators\ProductHydrateTagsFromTradeUnits;
 use App\Actions\Masters\MasterAsset\Hydrators\MasterAssetHydrateTagsFromTradeUnits;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\Catalogue\Product\SyncProductOrgStocksFromTradeUnits;
+use App\Actions\Catalogue\Product\CloneProductAttachmentsFromTradeUnits;
 use App\Models\Goods\TradeUnit;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -63,11 +64,19 @@ class MergeDuplicateTradeUnit
                 ->where('trade_unit_id', $from->id)
                 ->update(['trade_unit_id' => $to->id]);
 
+            if (!$to->documents_trade_unit_id) {
+                TradeUnit::where('documents_trade_unit_id', $from->id)->whereNot('id', $to->id)->update(['documents_trade_unit_id' => $to->id]);
+            }
+
             $deleted = DeleteTradeUnit::run($from, ['force' => true, 'reason' => "merged into trade unit $to->id"]);
             if (!$deleted['ok']) {
                 throw new \RuntimeException($deleted['error'] ?? 'Could not retire the duplicate trade unit');
             }
         });
+
+        foreach ($to->productsShowingItsDocuments() as $product) {
+            CloneProductAttachmentsFromTradeUnits::dispatch($product);
+        }
 
         foreach ($to->products()->get() as $product) {
             ProductHydrateAvailableQuantity::run(SyncProductOrgStocksFromTradeUnits::run($product));

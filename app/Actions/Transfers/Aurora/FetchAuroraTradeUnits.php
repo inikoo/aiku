@@ -246,7 +246,7 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                 ]
             );
 
-            foreach ($tradeUnit->products as $product) {
+            foreach ($tradeUnit->productsShowingItsDocuments() as $product) {
                 CloneProductAttachmentsFromTradeUnits::run($product);
             }
         }

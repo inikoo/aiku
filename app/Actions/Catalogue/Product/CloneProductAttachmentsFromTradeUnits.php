@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Helpers\Media;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -36,10 +37,8 @@ class CloneProductAttachmentsFromTradeUnits implements ShouldBeUnique
         if (!$tradeUnit) {
             return;
         }
-        /** @var \App\Models\Helpers\Media $publicAttachments */
-        $publicAttachments = $tradeUnit->attachments()
-            ->wherePivotIn('scope', TradeAttachmentScopeEnum::publicScopes())
-            ->get();
+        $publicAttachments = $tradeUnit->attachmentsWithSharedDocuments()
+            ->filter(fn (Media $attachment) => in_array($attachment->pivot->scope, TradeAttachmentScopeEnum::publicScopes()));
 
         foreach ($publicAttachments as $publicAttachment) {
             $checksum                      = $publicAttachment->checksum;

@@ -12,7 +12,9 @@ trait HasBucketAttachment
 {
     public function getAttachmentData(MasterAsset|Product|TradeUnit|TradeUnitFamily $model): array
     {
-        $attachments = $model->attachments()->get()->keyBy(fn ($att) => $att->pivot->scope);
+        $attachments = ($model instanceof TradeUnit ? $model->attachmentsWithSharedDocuments() : $model->attachments()->get())->keyBy(fn ($att) => $att->pivot->scope);
+
+        $documentsTradeUnit = $model instanceof TradeUnit ? $model->documentsTradeUnit : null;
 
         $attachmentConfigs = [
             'public'  => [
@@ -34,14 +36,15 @@ trait HasBucketAttachment
             ],
         ];
 
-        $mapAttachments = function ($configs) use ($attachments) {
-            return array_map(function ($config) use ($attachments) {
+        $mapAttachments = function ($configs) use ($attachments, $documentsTradeUnit) {
+            return array_map(function ($config) use ($attachments, $documentsTradeUnit) {
                 $attachment = $attachments->get($config['enum']->value ?? $config['enum']);
 
                 return [
                     'label'          => $config['label'],
                     'scope'          => $config['scope'],
                     'attachment'     => $attachment ?? null,
+                    'shared_from'    => $documentsTradeUnit && in_array($config['scope'], TradeAttachmentScopeEnum::substanceScopes()) ? $documentsTradeUnit->code : null,
                     'download_route' => [
                         'name'       => 'grp.media.download',
                         'parameters' => [

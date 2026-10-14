@@ -7,6 +7,8 @@
  */
 
 use App\Actions\Goods\TradeUnit\DeleteImageFromTradeUnit;
+use App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments;
+use App\Actions\Goods\TradeUnit\StopSharingTradeUnitDocuments;
 use App\Actions\Goods\TradeUnit\UpdateBulkTradeUnitGpsr;
 use App\Actions\Goods\TradeUnit\UpdateBulkTradeUnitLabelInfo;
 use App\Actions\Goods\TradeUnit\UpdateBulkTradeUnitWeightDimensions;
@@ -37,4 +39,7 @@ Route::name('trade-unit.')->prefix('trade-unit/{tradeUnit:id}')->group(function 
         Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inTradeUnit'])->name('attach');
         Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inTradeUnit'])->name('detach')->withoutScopedBindings();
     });
+
+    Route::post('share-documents', ShareTradeUnitDocuments::class)->name('share_documents');
+    Route::delete('share-documents', StopSharingTradeUnitDocuments::class)->name('stop_sharing_documents');
 });

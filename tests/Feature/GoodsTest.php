@@ -1895,3 +1895,89 @@ test('products get their trade unit family documents when their trade unit joins
 
     expect($product->attachments()->where('media.id', $familyDocument->id)->count())->toBe(1);
 });
+
+test('sizes sharing documents show the source trade unit IFRA, SDS and allergen documents instead of their own', function () {
+    [, $fixtureProduct] = createProduct($this->shop);
+    $number             = (string) random_int(100000, 999999);
+    $sizeOf             = function (string $code) use ($fixtureProduct) {
+        $tradeUnit = \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), ['code' => $code]));
+        $tradeUnit->update(['status' => \App\Enums\Goods\TradeUnit\TradeUnitStatusEnum::ACTIVE]);
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($fixtureProduct->family, array_merge(\App\Models\Catalogue\Product::factory()->definition(), [
+            'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
+            'price'       => 100,
+        ]));
+
+        return [$tradeUnit->fresh(), $product];
+    };
+    [$sourceTradeUnit, $sourceProduct] = $sizeOf('EOKGT-'.$number);
+    [$sizeTradeUnit, $sizeProduct]     = $sizeOf('EOT-'.$number);
+
+    $pdf = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n% ".uniqid()."\n%%EOF");
+
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit, ['attachments' => [$pdf('old-sds.pdf')], 'scope' => 'sds']);
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit, ['attachments' => [$pdf('how-to-use.pdf')], 'scope' => 'how_to_use']);
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('new-sds.pdf')], 'scope' => 'sds']);
+    $oldSds    = $sizeTradeUnit->attachments()->wherePivot('scope', 'sds')->first();
+    $howToUse  = $sizeTradeUnit->attachments()->wherePivot('scope', 'how_to_use')->first();
+    $newSds    = $sourceTradeUnit->attachments()->wherePivot('scope', 'sds')->first();
+    $sizeMedia = fn () => $sizeProduct->attachments()->pluck('media.id')->sort()->values()->all();
+
+    $attachmentsTab = fn (TradeUnit $tradeUnit) => get(route('grp.trade_units.units.show', [$tradeUnit->slug, 'tab' => 'attachments']))->viewData('page')['props']['attachments'];
+
+    $suggestions = collect($attachmentsTab($sourceTradeUnit)['documents_sharing']['suggestions']);
+    expect($suggestions->pluck('id'))->toContain($sizeTradeUnit->id);
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->post(route('grp.models.trade-unit.share_documents', $sourceTradeUnit->id), ['trade_units' => [$sizeTradeUnit->id]])->assertRedirect();
+    $this->flushHeaders();
+
+    expect($sizeMedia())->toBe(collect([$newSds->id, $howToUse->id])->sort()->values()->all())
+        ->and($sizeTradeUnit->fresh()->attachments()->where('media.id', $oldSds->id)->exists())->toBeTrue()
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($oldSds))->toBeFalse()
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($newSds))->toBeTrue();
+
+    $sizeTab   = $attachmentsTab($sizeTradeUnit);
+    $sizeBoxes = collect($sizeTab['attachment_category_box']['public'])->keyBy('scope');
+    expect($sizeBoxes['sds']['attachment']['id'])->toBe($newSds->id)
+        ->and($sizeTab['documents_sharing']['source']['code'])->toBe($sourceTradeUnit->code)
+        ->and(collect($attachmentsTab($sourceTradeUnit)['documents_sharing']['sharers'])->pluck('id')->all())->toBe([$sizeTradeUnit->id])
+        ->and($sizeBoxes['sds']['shared_from'])->toBe($sourceTradeUnit->code)
+        ->and($sizeBoxes['how_to_use']['shared_from'])->toBeNull();
+
+    $documentSources = collect(\App\Actions\Goods\TradeUnit\UI\GetTradeUnitDocuments::run(collect([$sizeTradeUnit->fresh()])))->pluck('source.label', 'media_id');
+    expect($documentSources[$newSds->id])->toContain($sourceTradeUnit->code)
+        ->and($documentSources->has($oldSds->id))->toBeFalse();
+
+    \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sourceTradeUnit, ['attachments' => [$pdf('ifra.pdf')], 'scope' => 'ifra']);
+    $ifra = $sourceTradeUnit->attachments()->wherePivot('scope', 'ifra')->first();
+    expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeTrue();
+
+    expect(fn () => \App\Actions\Helpers\Media\AttachAttachmentToModel::make()->action($sizeTradeUnit->fresh(), ['attachments' => [$pdf('stray-ifra.pdf')], 'scope' => 'ifra']))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    [$otherTradeUnit] = $sizeOf('EOOT-'.$number);
+    expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($sizeTradeUnit->fresh(), ['trade_units' => [$otherTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($otherTradeUnit, ['trade_units' => [$sourceTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    \App\Actions\Helpers\Media\DetachAttachmentFromModel::make()->action($sourceTradeUnit, $ifra);
+    expect($sizeProduct->attachments()->where('media.id', $ifra->id)->exists())->toBeFalse();
+
+    [$secondSourceTradeUnit] = $sizeOf('EOST-'.$number);
+    expect(fn () => \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($secondSourceTradeUnit, ['trade_units' => [$sizeTradeUnit->id]]))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])->delete(route('grp.models.trade-unit.stop_sharing_documents', $sizeTradeUnit->id))->assertRedirect();
+    $this->flushHeaders();
+
+    expect($sizeMedia())->toBe(collect([$oldSds->id, $howToUse->id])->sort()->values()->all())
+        ->and(\App\Actions\Iris\Media\DownloadIrisAttachment::isPublic($oldSds))->toBeTrue();
+
+    \App\Actions\Goods\TradeUnit\ShareTradeUnitDocuments::make()->action($sourceTradeUnit, ['trade_units' => [$sizeTradeUnit->id]]);
+    expect($sizeMedia())->toContain($newSds->id);
+
+    \App\Actions\Goods\TradeUnit\DeleteTradeUnit::run($sourceTradeUnit->fresh(), ['force' => true]);
+
+    expect($sizeTradeUnit->fresh()->documents_trade_unit_id)->toBeNull()
+        ->and($sizeMedia())->toBe(collect([$oldSds->id, $howToUse->id])->sort()->values()->all());
+});
