@@ -32,6 +32,7 @@ use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateTotalWeight;
 use App\Actions\Helpers\CreateSortCode;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelInformation;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocksInLocation;
 use Illuminate\Routing\Route;
 use App\Actions\Inventory\Location\UpdateLocation;
@@ -2307,7 +2308,7 @@ test('UI Show org stock labels and compliance tabs', function () {
             ->where('labels.abilities.edit', false)
             ->where('pageHead.actions.0.route.name', 'grp.goods.stocks.show.labels')
             ->where('pageHead.actions.0.route.parameters.stock', $orgStock->stock->slug)
-            ->has('labels.information_options', 24)
+            ->has('labels.information_options', count(GetOrgStockLabelInformation::run($orgStock)))
             ->has('labels.labels');
     });
     get($route('compliance'))->assertInertia(function (AssertableInertia $page) {
@@ -2315,12 +2316,12 @@ test('UI Show org stock labels and compliance tabs', function () {
             ->where('compliance.routes.store.name', 'grp.models.org_stock.compliance-item.store');
     });
 
-    get(route('grp.goods.stocks.show.labels', [$orgStock->stock->slug, 'tab' => 'labels']))->assertInertia(function (AssertableInertia $page) {
+    get(route('grp.goods.stocks.show.labels', [$orgStock->stock->slug, 'tab' => 'labels']))->assertInertia(function (AssertableInertia $page) use ($orgStock) {
         $page->component('Org/Inventory/OrgStockLabels')
             ->where('pageHead.model', 'Master SKO')
             ->where('labels.store_route.name', 'grp.models.org_stock.labels.store')
             ->where('labels.abilities.edit', true)
-            ->has('labels.information_options', 24);
+            ->has('labels.information_options', count(GetOrgStockLabelInformation::run($orgStock)));
     });
 })->depends('create warehouse', 'create org stock');
 
