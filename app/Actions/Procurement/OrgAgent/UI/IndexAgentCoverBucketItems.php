@@ -93,8 +93,44 @@ class IndexAgentCoverBucketItems extends OrgAction
         $this->prefix     = $prefix;
 
         InertiaTable::updateQueryBuilderParameters($prefix);
+        $this->readOrderingFilters($prefix);
 
-        return $this->handle($orgAgent, null, null, $supplierId);
+        return $this->handle($orgAgent, $this->bucket, $this->rank, $supplierId);
+    }
+
+    private function readOrderingFilters(string $prefix): void
+    {
+        $cover             = request()->input($prefix.'_filter.cover');
+        $rank              = request()->input($prefix.'_filter.rank');
+        $this->bucket      = array_key_exists((string) $cover, GetAgentStockCoverBuckets::BUCKETS) ? $cover : null;
+        $this->rank        = in_array($rank, ['A', 'B', 'C', 'D', 'Z'], true) ? $rank : null;
+        $this->hideOnOrder = request()->boolean($prefix.'_filter.hide_ordered');
+    }
+
+    /**
+     * The stock group and rank capsules above a supplier's products on an agent purchase order, in the
+     * shape the supplier purchase order uses.
+     *
+     * @return array{currency: string, cover: array<int, array{value: string, label: string, title: string, tone: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, active: array{cover: string|null, rank: string|null, hide_ordered: bool}}
+     */
+    public function orderingFilters(OrgAgent $orgAgent, int $supplierId, string $currency, string $prefix): array
+    {
+        $this->orgAgent   = $orgAgent;
+        $this->supplierId = $supplierId;
+        $this->readOrderingFilters($prefix);
+
+        $options = $this->filterOptions(request()->input($prefix.'_filter.global', ''));
+
+        return [
+            'currency' => $currency,
+            'cover'    => collect($options['cover'])->map(fn (array $option) => [
+                ...$option,
+                'title' => GetAgentStockCoverBuckets::make()->bucketLabel($option['value']),
+                'tone'  => GetAgentStockCoverBuckets::BUCKETS[$option['value']]['tone'],
+            ])->all(),
+            'rank'     => $options['rank'],
+            'active'   => ['cover' => $this->bucket, 'rank' => $this->rank, 'hide_ordered' => $this->hideOnOrder],
+        ];
     }
 
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
@@ -170,7 +206,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                     $sortBy('name', 'sp.name'),
                     $sortBy('supplier_code', 'sup.code collate "C"'),
                 ])
-                ->allowedFilters([$globalSearch, $supplierFilter])
+                ->allowedFilters([$globalSearch, $supplierFilter, ...array_map(fn (string $applied) => AllowedFilter::callback($applied, fn () => null), ['cover', 'rank', 'hide_ordered'])])
                 ->orderBy('osp.id')
                 ->withPaginator($this->prefix, tableName: request()->route()?->getName())
                 ->withQueryString()
@@ -368,11 +404,11 @@ class IndexAgentCoverBucketItems extends OrgAction
      *
      * @return array{cover: array<int, array{value: string, label: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, supplier: array<int, array{value: int, label: string}>}
      */
-    private function filterOptions(ActionRequest $request): array
+    private function filterOptions(?string $search): array
     {
         $buckets = GetAgentStockCoverBuckets::make();
 
-        $search = trim((string) $request->input('filter.global', ''));
+        $search = trim((string) $search);
         $like   = '%'.addcslashes($search, '%_\\').'%';
 
         $counts = $buckets->scopedQuery($this->orgAgent)
@@ -454,7 +490,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucket'      => $this->bucket,
                 'bucketLabel' => $this->bucketLabel(),
                 'bucketLabels' => collect(GetAgentStockCoverBuckets::BUCKETS)->map(fn (array $meta) => ['label' => __($meta['label']), 'tone' => $meta['tone']])->all(),
-                'filterOptions' => fn () => $this->filterOptions($request),
+                'filterOptions' => fn () => $this->filterOptions($request->input('filter.global')),
                 'active'      => [
                     'cover'    => $this->bucket,
                     'rank'     => $this->rank,

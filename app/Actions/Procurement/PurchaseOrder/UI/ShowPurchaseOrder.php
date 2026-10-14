@@ -140,7 +140,8 @@ class ShowPurchaseOrder extends OrgAction
         $draftOrgAgent = $this->draftOrgAgent($purchaseOrder);
         $products = fn () => match (true) {
             !$showProductsTab        => null,
-            $draftOrgAgent !== null => JsonResource::collection(IndexAgentCoverBucketItems::make()->onSupplier($draftOrgAgent, $purchaseOrder->supplier_id, PurchaseOrderTabsEnum::PRODUCTS->value)),
+            $draftOrgAgent !== null => JsonResource::collection(IndexAgentCoverBucketItems::make()->onSupplier($draftOrgAgent, $purchaseOrder->supplier_id, PurchaseOrderTabsEnum::PRODUCTS->value))
+                ->additional(['ordering' => IndexAgentCoverBucketItems::make()->orderingFilters($draftOrgAgent, $purchaseOrder->supplier_id, $purchaseOrder->organisation->currency->code, PurchaseOrderTabsEnum::PRODUCTS->value)]),
             default                  => PurchaseOrderOrgSupplierProductsResource::collection(IndexPurchaseOrderOrgSupplierProducts::run($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value))
                 ->additional(['ordering' => IndexPurchaseOrderOrgSupplierProducts::make()->orderingFilters($purchaseOrder->parent, $purchaseOrder, PurchaseOrderTabsEnum::PRODUCTS->value)]),
         };

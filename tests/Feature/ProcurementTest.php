@@ -10353,6 +10353,18 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->where('products.data', fn ($products) => collect($products)->pluck('code')->contains($supplierProduct->code)
                 && array_key_exists('stock_cover', $products[0])
                 && array_key_exists('other_organisations_drafts', $products[0]))
+            ->has('products.ordering.cover')
+            ->where('products.ordering.active.cover', null)
+            ->etc());
+
+    $productsUrl = route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $ourDraft->slug]).'?tab=products';
+    $bucket      = collect($this->get($productsUrl)->viewData('page')['props']['products']['data'])->firstWhere('code', $supplierProduct->code)['bucket'];
+    $otherBucket = collect(array_keys(App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::BUCKETS))->first(fn ($cover) => $cover !== $bucket);
+
+    $this->get($productsUrl.'&'.http_build_query(['products_filter' => ['cover' => $otherBucket]]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('products.ordering.active.cover', $otherBucket)
+            ->where('products.data', fn ($products) => !collect($products)->pluck('code')->contains($supplierProduct->code))
             ->etc());
 });
 
