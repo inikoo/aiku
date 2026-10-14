@@ -40,3 +40,15 @@ it('claims no pack size for a discovery pack of one of each', function () use ($
 it('falls back to one when there are no trade units', function () use ($resolver) {
     expect($resolver->getUnitsFromTradeUnits([]))->toBe(['units' => 1.0, 'unit' => null]);
 });
+
+it('claims no units for an assortment of many designs sharing a quantity', function () use ($resolver) {
+    expect($resolver->getUnitsFromTradeUnits(
+        array_map(fn (int $id) => ['id' => $id, 'quantity' => 6, 'type' => 'piece'], range(1, 18))
+    ))->toBe(['units' => null, 'unit' => 'bundle']);
+});
+
+it('still takes the shared quantity of a small component set', function () use ($resolver) {
+    expect($resolver->getSharedTradeUnitQuantity(
+        array_map(fn (int $id) => ['id' => $id, 'quantity' => 6], range(1, 3))
+    ))->toBe(6.0);
+});
