@@ -61,6 +61,7 @@ const submitOffline = async () => {
             language_id: 68,
 
             message: form.message,
+            page_url: window.location.href,
         }
 
         if (!props.isLoggedIn) {

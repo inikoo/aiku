@@ -63,7 +63,9 @@ use App\Actions\Chat\MetaChatSession\StoreMetaChatSession;
 use App\Actions\Chat\MetaChatSession\UI\GetMetaChatSessions;
 use App\Actions\Comms\WhatsappCampaign\SendWhatsappDeliveryChannel;
 use App\Actions\Chat\MetaChatSession\UpdateMetaChatSession;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopPermissions;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Enums\CRM\Livechat\ChatActorTypeEnum;
 use App\Enums\CRM\Livechat\ChatAgentPresenceStatusEnum;
@@ -1199,6 +1201,49 @@ test('StoreOfflineMessage creates a new session with the offline message', funct
 
     expect($chatMessage->message_text)->toBe('I need help offline')
         ->and($chatMessage->metadata['is_offline_message'])->toBeTrue();
+});
+
+test('a customer message keeps the page they were on, with the product code of a product page', function () {
+    [, $product] = createProduct($this->shop);
+    $webpage = $product->webpage ?: StoreProductWebpage::make()->action($product);
+    $webpage->update(['state' => WebpageStateEnum::LIVE]);
+
+    $session = StoreOfflineMessage::make()->handle($this->shop, [
+        'name'        => 'Page Viewer',
+        'email'       => 'page-viewer-'.Str::random(6).'@example.com',
+        'message'     => 'What is in this?',
+        'language_id' => 68,
+        'sender_type' => ChatSenderTypeEnum::GUEST->value,
+        'web_user_id' => null,
+        'page_url'    => 'https://shop.test/department/family/'.$webpage->url.'?ref=x',
+    ]);
+
+    $offline = ChatMessage::where('chat_session_id', $session->id)->latest('id')->first();
+
+    expect($offline->metadata)->toMatchArray([
+        'is_offline_message' => true,
+        'page_url'           => 'https://shop.test/department/family/'.$webpage->url.'?ref=x',
+        'page_code'          => $product->code,
+        'page_title'         => $webpage->title,
+    ]);
+
+    $other = SendChatMessage::make()->handle($session, [
+        'message_text' => 'And the delivery?',
+        'message_type' => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'  => ChatSenderTypeEnum::GUEST->value,
+        'page_url'     => 'https://shop.test/no-such-page-'.Str::random(6),
+    ]);
+
+    expect($other->metadata)->toHaveKey('page_url')->not->toHaveKey('page_code');
+
+    $agentReply = SendChatMessage::make()->handle($session, [
+        'message_text' => 'Here you go',
+        'message_type' => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'  => ChatSenderTypeEnum::AGENT->value,
+        'page_url'     => 'https://shop.test/'.$webpage->url,
+    ]);
+
+    expect($agentReply->metadata)->toBeNull();
 });
 
 test('StoreOfflineMessage puts a closed session back in the waiting queue, not with the agent who closed it', function () {

@@ -2,7 +2,7 @@
 import { inject, computed, ref, onMounted, onUnmounted, watch } from "vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faCheck, faCheckDouble, faExclamationCircle, faLanguage, faRobot, faShieldCheck } from "@far"
+import { faCheck, faCheckDouble, faExclamationCircle, faLanguage, faRobot, faShieldCheck, faEye } from "@far"
 import { faShare, faFaceSmile, faReply, faLocationDot, faPhone, faCopy, faCircleExclamation, faBullhorn } from "@fortawesome/free-solid-svg-icons"
 import axios from "axios"
 import { useChatLanguages } from "@/Composables/useLanguages"
@@ -532,6 +532,17 @@ const showEmailBody = computed(() => shouldShowEmailBody(props.message))
 
 const summaryFlagQuestion = ctrans("Why is this summary wrong? We use this to improve the summaries.")
 const summaryFlagPlaceholder = ctrans("e.g. longer than the email itself, or it missed what the customer asked")
+const customerPage = computed(() => {
+    const url = props.message.metadata?.page_url
+    if (!url || props.viewerType !== "agent") return null
+    const label = [props.message.metadata?.page_code, props.message.metadata?.page_title].filter(Boolean).join(" · ")
+    let path = url
+    try {
+        path = new URL(url).pathname
+    } catch {}
+    return { url, label: label || path }
+})
+
 const emailSummary = computed<string | null>(() => (props.message.metadata as any)?.ai_summary ?? null)
 const showFullEmail = ref(false)
 
@@ -920,7 +931,7 @@ watch(selectedLanguage, async (val) => {
                     type="button"
                     v-tooltip.top="ctrans('React')"
                     class="w-[33px] h-[33px] flex items-center justify-center text-lg rounded-full hover:bg-gray-100 hover:scale-110 transition-all"
-                    :class="myReactedEmojis.has(emoji) ? 'bg-indigo-50 ring-1 ring-indigo-200' : ''"
+                    :class="myReactedEmojis.has(emoji) ? 'bg-[--app-accent-soft] ring-1 ring-[--app-accent-muted]' : ''"
                     @click="toggleReaction(emoji)"
                 >
                     {{ emoji }}
@@ -929,14 +940,14 @@ watch(selectedLanguage, async (val) => {
                 <span class="w-px h-5 bg-gray-200 mx-0.5"></span>
 
                 <button v-if="canReplyToMessage" type="button" v-tooltip.top="ctrans('Reply')"
-                    class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-indigo-600 hover:scale-110 transition-all"
+                    class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-[--app-accent] hover:scale-110 transition-all"
                     @click="emit('reply', message)">
                     <FontAwesomeIcon :icon="faReply" class="text-sm" fixed-width />
                 </button>
 
                 <div class="relative" ref="emojiPickerRef">
                     <button type="button" v-tooltip.top="ctrans('Add reaction')"
-                        class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-indigo-600 hover:scale-110 transition-all"
+                        class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-[--app-accent] hover:scale-110 transition-all"
                         @click="isEmojiPickerOpen = !isEmojiPickerOpen">
                         <FontAwesomeIcon :icon="faFaceSmile" class="text-sm" fixed-width />
                     </button>
@@ -949,7 +960,7 @@ watch(selectedLanguage, async (val) => {
                             :key="emoji"
                             type="button"
                             class="w-6 h-6 flex items-center justify-center text-base rounded hover:bg-gray-100 transition-colors"
-                            :class="myReactedEmojis.has(emoji) ? 'bg-indigo-50' : ''"
+                            :class="myReactedEmojis.has(emoji) ? 'bg-[--app-accent-soft]' : ''"
                             @click="selectEmoji(emoji)"
                         >
                             {{ emoji }}
@@ -958,7 +969,7 @@ watch(selectedLanguage, async (val) => {
                 </div>
 
                 <button v-if="canForwardToSlack" type="button" v-tooltip.top="ctrans('Forward message…')"
-                    class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-indigo-600 hover:scale-110 transition-all"
+                    class="w-[33px] h-[33px] flex items-center justify-center text-gray-500 rounded-full hover:bg-gray-100 hover:!text-[--app-accent] hover:scale-110 transition-all"
                     @click="isForwardModalOpen = true">
                     <FontAwesomeIcon :icon="faShare" class="text-sm" fixed-width />
                 </button>
@@ -1153,10 +1164,10 @@ watch(selectedLanguage, async (val) => {
             </div>
 
             <div v-else-if="emailSummary && !showFullEmail" class="text-sm">
-                <div class="mb-1 text-[10px] font-medium uppercase tracking-wide text-indigo-500">{{ ctrans("Summary") }}</div>
+                <div class="mb-1 text-[10px] font-medium uppercase tracking-wide text-[--app-accent]">{{ ctrans("Summary") }}</div>
                 <p class="whitespace-pre-wrap break-words">{{ emailSummary }}</p>
                 <div class="mt-1.5 flex items-start gap-3">
-                    <button type="button" class="text-xs font-medium text-indigo-600 hover:underline" @click="showFullEmail = true">
+                    <button type="button" class="text-xs font-medium text-gray-500 hover:underline" @click="showFullEmail = true">
                         {{ ctrans("Show full email") }}
                     </button>
                     <FlagWrongButton v-if="viewerType === 'agent' && message.id" :url="route('grp.chat.ai.summaries.message.flag', [message.id])"
@@ -1176,7 +1187,7 @@ watch(selectedLanguage, async (val) => {
                 {{ displayText }}
             </p>
 
-            <button v-if="emailSummary && showFullEmail" type="button" class="mt-1 w-fit text-xs font-medium text-indigo-600 hover:underline" @click="showFullEmail = false">
+            <button v-if="emailSummary && showFullEmail" type="button" class="mt-1 w-fit text-xs font-medium text-gray-500 hover:underline" @click="showFullEmail = false">
                 {{ ctrans("Show summary") }}
             </button>
 
@@ -1186,6 +1197,13 @@ watch(selectedLanguage, async (val) => {
             " class="text-[10px] text-amber-600 mb-1 font-medium">
                 {{ ctrans('Offline message') }}
             </div>
+
+            <a v-if="customerPage" :href="customerPage.url" target="_blank" rel="noopener noreferrer"
+                class="mb-1 flex w-fit max-w-full items-center gap-1 text-[10px] text-gray-500 hover:underline"
+                v-tooltip="customerPage.url">
+                <FontAwesomeIcon :icon="faEye" class="shrink-0" fixed-width />
+                <span class="truncate">{{ ctrans("Viewing") }}: {{ customerPage.label }}</span>
+            </a>
 
             <!-- Nobody wrote this: a mailbox answered by itself. Said plainly so an out of
                  office is not read as the customer coming back with something to say. -->
@@ -1291,7 +1309,7 @@ watch(selectedLanguage, async (val) => {
                 type="button"
                 class="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full border transition-colors"
                 :class="myReactedEmojis.has(group.emoji)
-                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                    ? 'border-[--app-accent-muted] bg-[--app-accent-soft] text-[--app-accent-strong] hover:bg-[--app-accent-muted]'
                     : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100'"
                 @click="toggleReaction(group.emoji)"
             >
