@@ -4,6 +4,7 @@ import {
 	applyLinkColor,
 	buttonLinkStyle,
 	createRenderContext,
+	imageDisplayWidth,
 	isLinkUnderlined,
 	renderModuleHtml,
 } from "../../resources/js/Components/CMS/Website/Outboxes/EmailWorkshop/renderEmailHtml.ts"
@@ -121,4 +122,23 @@ test("the button being edited on the mobile canvas uses its mobile font size", (
 
 	assert.match(buttonLinkStyle(button), /font-size:16px/)
 	assert.match(buttonLinkStyle(button, true), /font-size:20px/)
+})
+
+test("an image imported with its own pixel width keeps that width instead of filling the column", () => {
+	const image = createModule(MODULE_TYPES.image)
+	image.descriptor.image = { src: "https://img.aiku.test/aromatherapy.jpg", alt: "Aromatherapy", width: "200px" }
+	image.descriptor.computedStyle = { class: "center autowidth", width: "200.000px" }
+
+	assert.equal(imageDisplayWidth(image, 325), 200)
+	assert.equal(imageDisplayWidth(image, 150), 150)
+	assert.match(renderModuleHtml(image, createRenderContext(emailWithBody(), 325)), /<div style="max-width:200px">/)
+})
+
+test("a new image block still fills the column by its width percentage", () => {
+	const image = createModule(MODULE_TYPES.image)
+
+	assert.equal(imageDisplayWidth(image, 600), 600)
+
+	image.descriptor.image.percWidth = 50
+	assert.equal(imageDisplayWidth(image, 600), 300)
 })

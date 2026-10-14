@@ -167,6 +167,9 @@ export const imageDisplayWidth = (module: EmailModule, columnWidth: number): num
     if (String(descriptor.computedStyle?.class ?? '').includes('fixedwidth')) {
         return Math.min(Math.round(pixels(descriptor.computedStyle?.width, availableWidth)), Math.round(availableWidth))
     }
+    if (/^\s*[\d.]+px\s*$/i.test(String(descriptor.computedStyle?.width ?? ''))) {
+        return Math.min(Math.round(pixels(descriptor.computedStyle.width)), Math.round(availableWidth))
+    }
 
     return Math.round(availableWidth)
 }
