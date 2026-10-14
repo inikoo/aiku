@@ -35,6 +35,7 @@ const props = defineProps<{
         interval: string
         assignee: string | null
         days: number
+        weekdays: number
         bucket: "day" | "week" | "month"
         from: string
         created: number
@@ -130,7 +131,7 @@ const HOURLY_SERIES: { key: "created" | "started" | "done" | "closed"; label: st
     { key: "closed", label: ctrans("Closed"), color: "#d97706" },
 ]
 
-const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.days, 1)) * 100) / 100
+const averagePerDay = (total: number) => Math.round((total / Math.max(props.stats.weekdays, 1)) * 100) / 100
 
 type SlotMinutes = "15" | "30" | "60"
 
@@ -691,7 +692,7 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
 
         <template v-if="reportTab === 'time_of_day'">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-xs text-gray-400">{{ ctrans("Tickets per time slot, averaged over the :days days of this period", { days: stats.days }) }} · {{ stats.timezone }}</span>
+                <span class="text-xs text-gray-400">{{ ctrans("Tickets per time slot, averaged over the :days weekdays of this period, weekends left out", { days: stats.weekdays }) }} · {{ stats.timezone }}</span>
                 <SegmentedToggle v-model="slotMinutes" :options="slotOptions" :ariaLabel="ctrans('Time slot')" />
             </div>
             <DashboardWidgetBox storageKey="tickets_reports_by_hour_collapsed">
@@ -718,7 +719,7 @@ const dashboardBoxes = computed(() => (props.stats.interval === "all" ? (["peopl
                             </dt>
                             <dd class="mt-0.5 flex items-baseline gap-2">
                                 <span class="text-2xl font-semibold tabular-nums text-gray-800">{{ stat.average }}</span>
-                                <span class="text-xs tabular-nums text-gray-400">{{ ctrans(":total in :days days", { total: stat.total, days: stats.days }) }}</span>
+                                <span class="text-xs tabular-nums text-gray-400">{{ ctrans(":total in :days weekdays", { total: stat.total, days: stats.weekdays }) }}</span>
                             </dd>
                         </div>
                     </dl>

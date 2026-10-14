@@ -17,6 +17,7 @@ use App\Models\Helpers\Ticket;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -136,6 +137,7 @@ class ShowTicketsReports extends OrgAction
             $localTime = "tickets.$column at time zone $zone";
 
             return (clone $tickets)->whereBetween("tickets.$column", [$from, $to])
+                ->whereRaw("extract(isodow from $localTime) < 6")
                 ->selectRaw("(extract(hour from $localTime) * 4 + floor(extract(minute from $localTime) / 15))::int as slot, count(*) as total")
                 ->groupBy('slot')
                 ->toBase()
@@ -172,6 +174,7 @@ class ShowTicketsReports extends OrgAction
             'daily'         => $daily->values()->all(),
             'timezone'      => $timezone,
             'by_quarter_hour' => $byQuarterHour->all(),
+            'weekdays'        => collect(CarbonPeriod::create($from->copy()->setTimezone($timezone)->startOfDay(), $to->copy()->setTimezone($timezone)->startOfDay()))->reject(fn ($day) => $day->isWeekend())->count(),
             'breakdown'     => $breakdown->values()->all(),
             'modules'       => $labelled(TicketModuleEnum::labels() + ['none' => __('No module')], 1),
             'kinds'         => $labelled(TicketKindEnum::labels() + ['none' => __('No kind')], 2),
