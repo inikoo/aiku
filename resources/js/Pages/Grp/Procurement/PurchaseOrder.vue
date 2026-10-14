@@ -16,6 +16,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
+import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
@@ -137,6 +138,7 @@ const props = defineProps < {
     }[]
     submit_problems?: SubmitProblem[]
 	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
+	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
     tabs: {
         current: string
         navigation: {}
@@ -503,6 +505,15 @@ const submitPurchaseOrder = (action: any) => {
 		notify({
 			title: ctrans("Read the critical notes first"),
 			text: ctrans("Tick that you have read them, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
+	if (props.agreed_term_differences?.flags.some((flag) => !flag.accepted)) {
+		notify({
+			title: ctrans("Different from what was agreed"),
+			text: ctrans("Accept each difference with a reason, above the lines, and submit again."),
 			type: "warn",
 		})
 		return
@@ -1193,6 +1204,10 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			<Checkbox v-model="criticalNotesAcknowledged" binary />
 			<span>{{ ctrans("I have read the critical notes for this order") }}</span>
 		</label>
+	</div>
+
+	<div v-if="agreed_term_differences" class="px-4 pt-4">
+		<AgreedTermDifferences :differences="agreed_term_differences" />
 	</div>
 
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />

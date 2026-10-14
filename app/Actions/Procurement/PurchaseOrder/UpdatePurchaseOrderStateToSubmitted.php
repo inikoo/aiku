@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
@@ -54,6 +55,10 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
         if (!$this->asAction && !$this->get('critical_notes_acknowledged') && GetPurchaseOrderAgreement::make()->hasCriticalNotes($this->purchaseOrder)) {
             $validator->errors()->add('critical_notes', __('This order has critical notes. Read them and tick that you have before submitting.'));
+        }
+
+        if (!$this->asAction && CheckAgainstAgreedTerms::hasUnaccepted(CheckAgainstAgreedTerms::make()->purchaseOrder($this->purchaseOrder))) {
+            $validator->errors()->add('agreed_terms', __('This order differs from what was agreed with the supplier. Accept each difference with a reason before submitting.'));
         }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {

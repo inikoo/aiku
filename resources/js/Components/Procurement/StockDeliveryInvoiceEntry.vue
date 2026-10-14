@@ -13,7 +13,8 @@ import InputText from "primevue/inputtext"
 import InputNumber from "primevue/inputnumber"
 import FileUpload from "primevue/fileupload"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import Select from "primevue/select"
+import { InvoiceChargeType, invoiceChargeTypeOptions } from "@/Components/Procurement/invoiceChargeTypes"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
@@ -25,7 +26,7 @@ library.add(faFileInvoice, faPlus, faTrashAlt, faTimes, faCheck)
 
 interface Charge {
 	description: string
-	type: "freight" | "other"
+	type: InvoiceChargeType
 	amount: number | null
 }
 
@@ -38,7 +39,7 @@ const props = defineProps<{
 		reference: string | null
 		date: string
 		goods: number
-		charges_list: { description: string; type?: "freight" | "other"; amount: number }[]
+		charges_list: { description: string; type?: InvoiceChargeType; amount: number }[]
 	} | null
 }>()
 
@@ -54,10 +55,7 @@ const goodsAmount = ref<number | null>(null)
 const charges = ref<Charge[]>([])
 const files = ref<File[]>([])
 
-const chargeTypes = [
-	{ label: ctrans("Freight"), value: "freight" },
-	{ label: ctrans("Other"), value: "other" },
-]
+const chargeTypes = invoiceChargeTypeOptions()
 
 const isActual = computed(() => props.invoice?.source === "actual")
 
@@ -134,7 +132,7 @@ const save = () => {
 				<div class="mb-2 text-gray-600">{{ isAgent ? ctrans("Agent charges") : ctrans("Supplier charges") }}</div>
 				<div v-for="(charge, index) in charges" :key="index" class="mb-2 flex items-center gap-2">
 					<InputText v-model="charge.description" :placeholder="ctrans('Description')" size="small" class="flex-1" :class="fieldFocusClass" />
-					<SegmentedToggle v-model="charge.type" :options="chargeTypes" />
+					<Select v-model="charge.type" :options="chargeTypes" optionLabel="label" optionValue="value" class="w-56" :aria-label="ctrans('Charge type')" />
 					<InputNumber v-model="charge.amount" mode="currency" :currency="currencyCode" :min="0" size="small" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-32 !text-right' } } }" :aria-label="ctrans('Amount')" />
 					<Button type="negative" size="xs" icon="fal fa-trash-alt" :aria-label="ctrans('Remove')" @click="charges.splice(index, 1)" />
 				</div>

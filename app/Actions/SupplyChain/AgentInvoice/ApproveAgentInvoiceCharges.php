@@ -9,6 +9,7 @@
 namespace App\Actions\SupplyChain\AgentInvoice;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\SupplyChain\AgentInvoice;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +72,10 @@ class ApproveAgentInvoiceCharges extends OrgAction
     {
         abort_unless($stockDelivery->agent_id, 404);
         $this->initialisation($stockDelivery->organisation, $request);
+
+        if (CheckAgainstAgreedTerms::hasUnaccepted(CheckAgainstAgreedTerms::make()->stockDelivery($stockDelivery))) {
+            throw ValidationException::withMessages(['agreed_terms' => __('The agent charges more than was agreed. Accept each difference with a reason first.')]);
+        }
 
         return $this->handle($stockDelivery, $request->user()->id);
     }

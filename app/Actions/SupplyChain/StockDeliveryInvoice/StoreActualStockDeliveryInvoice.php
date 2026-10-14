@@ -23,6 +23,7 @@ use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -133,7 +134,7 @@ class StoreActualStockDeliveryInvoice extends OrgAction
             'goods_amount'          => ['required', 'numeric', 'min:0', 'max:999999999999'],
             'charges'               => ['present', 'array', 'max:50'],
             'charges.*.description' => ['required', 'string', 'max:255'],
-            'charges.*.type'        => ['sometimes', 'string', 'in:'.UpdateAgentInvoiceCharges::CHARGE_FREIGHT.','.UpdateAgentInvoiceCharges::CHARGE_OTHER],
+            'charges.*.type'        => ['sometimes', 'string', Rule::in(UpdateAgentInvoiceCharges::chargeTypes())],
             'charges.*.amount'      => ['required', 'numeric', 'min:0', 'max:999999999999'],
             'attachments'           => ['sometimes', 'array', 'max:10'],
             'attachments.*'         => ['file', 'max:50000'],

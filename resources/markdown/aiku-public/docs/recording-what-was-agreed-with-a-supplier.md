@@ -95,6 +95,19 @@ An agent that works in aiku sees, on its own pages, only the terms and notes mar
 
 On the supplier, press **Handover sheet** in the **What was agreed** panel. It opens a PDF with every term in force and every open note, to give to the person taking the supplier over.
 
+## When an order or an invoice differs from what was agreed
+
+aiku compares what is ordered and invoiced with the agreed terms, for every supplier or agent with at least one agreed term recorded. A supplier or an agent cannot raise a price or add a charge on its own: every difference waits for purchasing to accept it.
+
+- **On a purchase order:** a line that costs more than the supplier product's cost, or an order in another currency than the agreed payment currency.
+- **On the supplier's or agent's invoice of a delivery:** a charge whose term is Included or Not allowed, a charge above the agreed amount, a charge with no agreed term, or freight when the agreed Incoterm (CFR, CIF, CPT, CIP, DAP, DPU, DDP) has the supplier pay it.
+
+When you enter the invoice, give each charge its type (Packing charge, Label charge, Freight and so on) so it is checked against the right term.
+
+Each difference is listed in red in a **Different from what was agreed** panel at the top of the order or the delivery, next to what was agreed. Type why you accept it and press **Accept**. Until every difference is accepted the order cannot be submitted, the delivery cannot be paid and the agent's charges cannot be approved. If the order or invoice changes afterwards, the new difference must be accepted again.
+
+Every accepted difference becomes an open **Incident** note on the supplier or agent, with the amount and your reason, and the procurement supervisor and the buyer of the order are notified. The supplier lists show the number of open incidents next to the supplier's code.
+
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
 <li><b>See what was agreed with a supplier:</b> your organisation → <b>Procurement → Suppliers</b> → the supplier → the <b>What was agreed</b> panel.</li>
@@ -105,9 +118,10 @@ On the supplier, press **Handover sheet** in the **What was agreed** panel. It o
 <li><b>A term or a note for one product:</b> the supplier → its products → the product → <b>Agreed terms</b> or <b>Notes</b>.</li>
 <li><b>Acknowledge critical notes:</b> the purchase order → tick <b>I have read the critical notes for this order</b> → <b>Submit</b>.</li>
 <li><b>Print the handover sheet:</b> the supplier → <b>What was agreed</b> panel → <b>Handover sheet</b>.</li>
+<li><b>Accept a difference:</b> the purchase order or stock delivery → <b>Different from what was agreed</b> → type the reason → <b>Accept</b>.</li>
 </ul>
 </aside>
 
 <aside class="permissions"><strong>Permissions you need</strong>
-You need permission to view procurement for the organisation to see terms and notes, and permission to edit procurement to add a note or a term. Changing or withdrawing a term agreed by someone else, and pinning or resolving a note written by someone else, need the procurement supervisor position.
+You need permission to view procurement for the organisation to see terms and notes, and permission to edit procurement to add a note or a term. Changing or withdrawing a term agreed by someone else, and pinning or resolving a note written by someone else, need the procurement supervisor position. Accepting a difference from the agreed terms needs permission to edit procurement for the organisation that pays.
 </aside>

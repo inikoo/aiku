@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Helpers\History\UI\IndexHistory;
@@ -374,6 +375,8 @@ class ShowPurchaseOrder extends OrgAction
                 'showcase' => GetPurchaseOrderData::run($purchaseOrder),
 
                 'agreement' => GetPurchaseOrderAgreement::run($purchaseOrder, $purchaseOrder->organisation_id !== $this->organisation->id),
+
+                'agreed_term_differences' => $purchaseOrder->organisation_id === $this->organisation->id ? CheckAgainstAgreedTerms::make()->forPage($purchaseOrder) : null,
 
                 PurchaseOrderTabsEnum::NOTES->value => $this->tab == PurchaseOrderTabsEnum::NOTES->value ?
                     fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($purchaseOrder, PurchaseOrderTabsEnum::NOTES->value, forAgent: $purchaseOrder->organisation_id !== $this->organisation->id))

@@ -137,4 +137,19 @@ class ProcurementNote extends Model implements HasMedia, Auditable
             ->whereNull('procurement_notes.organisation_id')
             ->when($organisation, fn (Builder $query) => $query->orWhere('procurement_notes.organisation_id', $organisation->id)));
     }
+
+    /**
+     * The open incidents of the supplier in the outer query's `suppliers` row, as a sub-select for lists.
+     */
+    public static function openIncidentsOfSupplierQuery(?Organisation $organisation = null): Builder
+    {
+        return static::query()
+            ->selectRaw('count(*)')
+            ->where('procurement_notes.subject_type', 'Supplier')
+            ->whereColumn('procurement_notes.subject_id', 'suppliers.id')
+            ->where('procurement_notes.category', ProcurementNoteCategoryEnum::INCIDENT)
+            ->where('procurement_notes.incident_outcome', ProcurementNoteIncidentOutcomeEnum::OPEN)
+            ->active()
+            ->when($organisation, fn (Builder $query) => $query->forOrganisation($organisation));
+    }
 }
