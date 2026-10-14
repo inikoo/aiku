@@ -156,6 +156,7 @@ use App\Models\Production\Artefact;
 use App\Actions\Ordering\Order\UpdateState\CancelOrder;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
+use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Actions\Ordering\Order\UpdateState\DispatchOrder;
 use App\Models\Production\JobOrder;
@@ -7279,7 +7280,31 @@ describe('partner shopping list', function () {
             ->and($through('grp.models.order.update', ['order' => $order], ['internal_notes' => 'fragile']))->toBe('passed');
 
         $seller->update(['is_manufacturing_hub' => false]);
-        expect($through('grp.models.order.transaction.store', ['order' => $order->refresh()]))->toBe('passed');
+        expect(fn () => $through('grp.models.order.transaction.store', ['order' => $order->refresh()]))->toThrow(ValidationException::class);
+        $seller->update(['is_manufacturing_hub' => true]);
+    });
+
+    test('an order keyed by hand on the partner old customer is refused, and one already dispatched gets its stock delivery', function () {
+        $seller = $this->orgPartner->partner;
+        if (!$seller->warehouses()->exists()) {
+            StoreWarehouse::make()->action($seller, Warehouse::factory()->definition());
+        }
+        $seller->update(['is_manufacturing_hub' => false]);
+
+        $item         = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 2]);
+        $order        = CherryPickPartnerShoppingListItems::make()->action($seller, [['id' => $item->id]])['orders'][0];
+        $oldCustomer  = $order->customer->replicate(['ulid', 'slug', 'reference']);
+        $oldCustomer->as_organisation_id = $this->orgPartner->organisation_id;
+        $oldCustomer->save();
+
+        expect(StoreOrder::isPartnerBuyingFromHub($oldCustomer, $oldCustomer->shop))->toBeTrue();
+
+        SubmitOrder::make()->action($order->refresh());
+        $deliveryNote = SendOrderToWarehouse::make()->action($order->refresh(), [], releaseFromGate: true);
+        $order->update(['customer_id' => $oldCustomer->id]);
+
+        expect(StorePartnerStockDeliveryFromDeliveryNote::make()->resolveOrgPartner($deliveryNote->refresh())?->id)->toBe($this->orgPartner->id);
+
         $seller->update(['is_manufacturing_hub' => true]);
     });
 
