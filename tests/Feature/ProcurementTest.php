@@ -5111,6 +5111,7 @@ describe('shopping list', function () {
 
     test('cherry pick full quantity_units creates or reuses purchase order and marks item ordered', function () {
         $item = StoreShoppingListItem::make()->action($this->orgSupplierProduct, ['quantity_units' => 60]);
+        $quantityOrderedBefore = \App\Models\Procurement\PurchaseOrderTransaction::where('org_supplier_product_id', $this->orgSupplierProduct->id)->pluck('quantity_ordered', 'id');
 
         $result = CherryPickShoppingListItems::make()->action($this->agent, [
             ['id' => $item->id],
@@ -5136,7 +5137,7 @@ describe('shopping list', function () {
             ? \App\Models\Procurement\PurchaseOrderTransaction::find($item->purchase_order_transaction_id)
             : null;
         expect($transaction)->not->toBeNull()
-            ->and((float) $transaction->quantity_ordered)->toBe(60.0);
+            ->and((float) $transaction->quantity_ordered - (float) ($quantityOrderedBefore[$transaction->id] ?? 0))->toBe(60.0);
     });
 
     test('cherry pick partial quantity_units splits the line and keeps parent created_at', function () {
