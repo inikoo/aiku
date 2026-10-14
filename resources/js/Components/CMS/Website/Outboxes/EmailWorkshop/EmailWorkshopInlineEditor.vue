@@ -2,11 +2,13 @@
 import { computed } from 'vue'
 import EditorV2 from '@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue'
 import { EmailModule, MODULE_TYPES, getModuleText, moduleTextToggles, setModuleText } from './emailWorkshopBlocks'
-import { modulePaddingStyle, styleToString } from './renderEmailHtml'
+import { isLinkUnderlined, modulePaddingStyle, responsiveContentStyle, styleToString } from './renderEmailHtml'
 
 const props = defineProps<{
     module: EmailModule
     linkColor: string
+    isLinkUnderlined?: boolean
+    isMobile?: boolean
     mergeTags?: Array<{ name: string, value: string }>
 }>()
 
@@ -15,7 +17,10 @@ const emits = defineEmits<{
 }>()
 
 const descriptor = computed(() => props.module.descriptor)
-const paddingStyle = computed(() => modulePaddingStyle(props.module))
+const paddingStyle = computed(() => modulePaddingStyle(props.module, props.isMobile))
+const textDescriptor = computed(() => descriptor.value.heading ?? descriptor.value.paragraph ?? descriptor.value.text ?? descriptor.value.list ?? {})
+const linkDecoration = computed(() => isLinkUnderlined(textDescriptor.value.computedStyle?.linkUnderline, props.isLinkUnderlined) ? 'underline' : 'none')
+const headingStyle = computed(() => `margin:0;${styleToString(responsiveContentStyle(props.module, descriptor.value.heading?.style, !!props.isMobile))}`)
 const toggles = computed(() => moduleTextToggles(props.module))
 
 const text = computed({
@@ -28,10 +33,12 @@ const text = computed({
 
 const textBlockStyle = computed(() => {
     const textDescriptor = descriptor.value.paragraph ?? descriptor.value.text ?? descriptor.value.list ?? {}
+    const hasMobileStyle = props.module.type === MODULE_TYPES.paragraph && !!props.isMobile
 
     return [
-        styleToString(textDescriptor.style),
+        styleToString(responsiveContentStyle(props.module, textDescriptor.style, hasMobileStyle)),
         {
+            '--email-link-decoration': linkDecoration.value,
             '--email-link-color': textDescriptor.computedStyle?.linkColor ?? props.linkColor,
             '--email-paragraph-spacing': textDescriptor.computedStyle?.paragraphSpacing ?? '0px',
             '--email-list-indent': textDescriptor.computedStyle?.liIndent ?? '24px',
@@ -43,12 +50,12 @@ const textBlockStyle = computed(() => {
 })
 
 const buttonAlign = computed(() => descriptor.value.style?.['text-align'] ?? 'center')
-const buttonStyle = computed(() => `display:inline-block;text-align:center;${styleToString(descriptor.value.button?.style, ['width', 'max-width'])}`)
+const buttonStyle = computed(() => `display:inline-block;text-align:center;${styleToString(responsiveContentStyle(props.module, descriptor.value.button?.style, !!props.isMobile), ['width', 'max-width'])}`)
 </script>
 
 <template>
     <div class="email-inline-editor" :style="paddingStyle" @click.stop>
-        <div v-if="module.type === MODULE_TYPES.heading" :style="`margin:0;${styleToString(descriptor.heading.style)}`" class="email-inline-text">
+        <div v-if="module.type === MODULE_TYPES.heading" :style="[headingStyle, { '--email-link-decoration': linkDecoration }]" class="email-inline-text">
             <EditorV2 v-model="text" :toggle="toggles" :mergeTags="mergeTags" />
         </div>
 
@@ -79,7 +86,7 @@ const buttonStyle = computed(() => `display:inline-block;text-align:center;${sty
 
 .email-inline-text :deep(a) {
     color: var(--email-link-color, #0068A5);
-    text-decoration: underline;
+    text-decoration: var(--email-link-decoration, underline);
 }
 
 .email-inline-text :deep(ul),

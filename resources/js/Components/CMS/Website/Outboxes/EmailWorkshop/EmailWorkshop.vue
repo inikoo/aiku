@@ -73,7 +73,8 @@ const AUTOSAVE_DEBOUNCE_MS = 3000
 const AUTOSAVE_MAX_WAIT_MS = 20000
 const HISTORY_DEBOUNCE_MS = 400
 const HISTORY_LIMIT = 50
-const MOBILE_CANVAS_WIDTH = 375
+const MOBILE_CANVAS_WIDTH = 320
+const MOBILE_CANVAS_BACKDROP = '#8C8C8C'
 
 setSocialIconSources(props.socialIcons)
 
@@ -200,7 +201,7 @@ const stripUnsafePreviewTags = (html: string): string =>
     html.replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<script[\s\S]*?<\/script>/gi, '')
 
 const modulePreviewHtml = (row: EmailRow, column: EmailColumn, module: EmailModule): string => {
-    const context = createRenderContext(email.value, columnWidth(email.value, row, column), true)
+    const context = createRenderContext(email.value, columnWidth(email.value, row, column), true, device.value === 'mobile')
     return stripUnsafePreviewTags(renderModuleHtml(module, context))
 }
 
@@ -221,11 +222,16 @@ const isHiddenOnCurrentDevice = (computedStyle: Record<string, any> | undefined)
     device.value === 'mobile' ? !!computedStyle?.hideContentOnMobile : !!computedStyle?.hideContentOnDesktop
 
 const bodyLinkColor = computed(() => email.value.page.body.content?.computedStyle?.linkColor ?? '#0068A5')
+const isBodyLinkUnderlined = computed(() => email.value.page.body.content?.computedStyle?.linkUnderline !== false)
 const isInlineEditing = (module: EmailModule): boolean =>
     selectedModuleUuid.value === module.uuid && INLINE_EDITABLE_TYPES.includes(module.type)
 
 const bodyStyle = computed(() => styleToString(email.value.page.body.content?.style))
 const bodyBackground = computed(() => email.value.page.body.container?.style?.['background-color'] ?? '#FFFFFF')
+const canvasBackground = computed(() => device.value === 'mobile' ? MOBILE_CANVAS_BACKDROP : bodyBackground.value)
+const emailFrameStyle = computed(() => device.value === 'mobile'
+    ? [bodyStyle.value, { width: `${MOBILE_CANVAS_WIDTH}px`, maxWidth: '100%', margin: '0 auto', minHeight: '100%', backgroundColor: bodyBackground.value }]
+    : bodyStyle.value)
 
 const addRow = (gridColumns: number[]) => {
     const row = createRow(gridColumns, `${contentWidth.value}px`)
@@ -898,8 +904,8 @@ defineExpose({
             </div>
 
             <div class="flex min-h-0 flex-1">
-                <main class="min-h-0 flex-1 overflow-auto py-1" :class="{ 'show-structure': isStructureVisible, 'mobile-canvas': device === 'mobile', 'desktop-canvas': device === 'desktop' }" :style="{ backgroundColor: bodyBackground }" @click.self="clearSelection">
-                    <div :style="bodyStyle">
+                <main class="min-h-0 flex-1 overflow-auto py-1" :class="{ 'show-structure': isStructureVisible, 'mobile-canvas': device === 'mobile', 'desktop-canvas': device === 'desktop' }" :style="{ backgroundColor: canvasBackground }" @click.self="clearSelection">
+                    <div :style="emailFrameStyle">
                         <draggable v-model="email.page.rows" item-key="uuid" group="email-rows" handle=".row-handle" ghost-class="opacity-40" class="min-h-[200px]">
                             <template #item="{ element: row }">
                                 <div class="email-row group/row relative"
@@ -940,7 +946,7 @@ defineExpose({
                                                         </div>
                                                         <EmailWorkshopTableEditor v-else-if="selectedModuleUuid === module.uuid && isTableModule(module)" :module="module" />
                                                         <EmailWorkshopInlineEditor v-else-if="isInlineEditing(module)" :key="`${module.uuid}-${editorRevision}-${canvasTextRevision}`"
-                                                            :module="module" :linkColor="bodyLinkColor" :mergeTags="editorMergeTags"
+                                                            :module="module" :linkColor="bodyLinkColor" :isLinkUnderlined="isBodyLinkUnderlined" :isMobile="device === 'mobile'" :mergeTags="editorMergeTags"
                                                             @edited="scheduleTextSync('panel')" />
                                                         <EmailWorkshopPlaceholder v-else-if="modulePlaceholder(module)" :placeholder="modulePlaceholder(module)!" />
                                                         <div v-else class="pointer-events-none" v-html="modulePreviewHtml(row, column, module)" />

@@ -16,6 +16,7 @@ import {
     createIconItem, createSocialIcon, getModuleText, isTableModule, isUnsubscribeModule, moduleTextToggles, removeTableColumn, removeTableRow, setModuleText,
     socialIconSetOf, socialIconSrc, tableColumnCount, videoThumbnailFromUrl, vimeoVideoId, isVideoPageUrl, dynamicContentSource,
 } from './emailWorkshopBlocks'
+import { isLinkUnderlined, moduleMobileStyle } from './renderEmailHtml'
 
 library.add(faArrowUp, faArrowDown, faTrashAlt, faPlus, faImage, faLock)
 
@@ -357,6 +358,44 @@ const rowContainerStyle = computed(() => props.row ? ensureObject(props.row.cont
 
 const bodyContentStyle = computed(() => ensureObject(props.body.content, 'style'))
 const bodyComputedStyle = computed(() => ensureObject(props.body.content, 'computedStyle'))
+
+const bodyLinkUnderline = computed({
+    get: () => bodyComputedStyle.value.linkUnderline !== false,
+    set: (isUnderlined: boolean) => {
+        bodyComputedStyle.value.linkUnderline = isUnderlined
+    },
+})
+
+const TEXT_DESCRIPTOR_KEYS: Record<string, string> = {
+    [MODULE_TYPES.heading]: 'heading',
+    [MODULE_TYPES.paragraph]: 'paragraph',
+    [MODULE_TYPES.text]: 'text',
+    [MODULE_TYPES.list]: 'list',
+}
+
+const moduleLinkUnderline = computed({
+    get: () => isLinkUnderlined(descriptor.value[TEXT_DESCRIPTOR_KEYS[moduleType.value]]?.computedStyle?.linkUnderline, bodyComputedStyle.value.linkUnderline),
+    set: (isUnderlined: boolean) => {
+        ensureObject(descriptor.value[TEXT_DESCRIPTOR_KEYS[moduleType.value]], 'computedStyle').linkUnderline = isUnderlined
+    },
+})
+
+const MOBILE_FONT_SIZE_DESCRIPTOR_KEYS: Record<string, string> = {
+    [MODULE_TYPES.heading]: 'heading',
+    [MODULE_TYPES.paragraph]: 'paragraph',
+    [MODULE_TYPES.button]: 'button',
+}
+
+const hasMobileFontSizeOption = computed(() => !!descriptor.value[MOBILE_FONT_SIZE_DESCRIPTOR_KEYS[moduleType.value]])
+
+const mobileFontSize = computed({
+    get: () => props.module
+        ? moduleMobileStyle(props.module)['font-size'] ?? descriptor.value[MOBILE_FONT_SIZE_DESCRIPTOR_KEYS[moduleType.value]]?.style?.['font-size']
+        : undefined,
+    set: (fontSize: string) => {
+        ensureObject(descriptor.value, 'mobileStyle')['font-size'] = fontSize
+    },
+})
 const bodyContainerStyle = computed(() => ensureObject(props.body.container, 'style'))
 
 const dynamicContentChooseLabel = computed(() => ({
@@ -395,6 +434,7 @@ const contentSectionTitle = computed(() => ({
                     <EmailWorkshopField v-model="descriptor.heading.style['font-weight']" type="select" :options="fontWeightOptions" :label="ctrans('Font weight')" />
                     <EmailWorkshopField v-model="descriptor.heading.style.color" type="color" :label="ctrans('Text color')" />
                     <EmailWorkshopField v-model="descriptor.heading.style['link-color']" type="color" :label="ctrans('Link color')" />
+                    <EmailWorkshopField v-model="moduleLinkUnderline" type="toggle" :label="ctrans('Underline links')" />
                     <EmailWorkshopField v-model="descriptor.heading.style['text-align']" type="align" :label="ctrans('Align')" />
                     <EmailWorkshopField v-model="descriptor.heading.style['letter-spacing']" type="px" :label="ctrans('Letter spacing')" />
                 </template>
@@ -408,6 +448,7 @@ const contentSectionTitle = computed(() => ({
                     <EmailWorkshopField v-model="descriptor.paragraph.style['font-weight']" type="select" :options="fontWeightOptions" :label="ctrans('Font weight')" />
                     <EmailWorkshopField v-model="descriptor.paragraph.style.color" type="color" :label="ctrans('Text color')" />
                     <EmailWorkshopField v-if="descriptor.paragraph.computedStyle" v-model="descriptor.paragraph.computedStyle.linkColor" type="color" :label="ctrans('Link color')" />
+                    <EmailWorkshopField v-model="moduleLinkUnderline" type="toggle" :label="ctrans('Underline links')" />
                     <EmailWorkshopField v-model="descriptor.paragraph.style['text-align']" type="align" :label="ctrans('Align')" />
                     <EmailWorkshopField v-model="descriptor.paragraph.style['line-height']" type="select"
                         :options="['100%', '120%', '150%', '180%', '200%'].map((value) => ({ label: value, value }))" :label="ctrans('Line height')" />
@@ -423,6 +464,7 @@ const contentSectionTitle = computed(() => ({
                     <EmailWorkshopField v-model="descriptor.text.style['font-weight']" type="select" :options="fontWeightOptions" :label="ctrans('Font weight')" />
                     <EmailWorkshopField v-model="descriptor.text.style.color" type="color" :label="ctrans('Text color')" />
                     <EmailWorkshopField v-model="textComputedStyle.linkColor" type="color" :label="ctrans('Link color')" />
+                    <EmailWorkshopField v-model="moduleLinkUnderline" type="toggle" :label="ctrans('Underline links')" />
                     <EmailWorkshopField v-model="descriptor.text.style['text-align']" type="align" :label="ctrans('Align')" />
                     <EmailWorkshopField v-model="descriptor.text.style['line-height']" type="select"
                         :options="['100%', '120%', '150%', '180%', '200%'].map((value) => ({ label: value, value }))" :label="ctrans('Line height')" />
@@ -444,6 +486,7 @@ const contentSectionTitle = computed(() => ({
                         :options="['100%', '120%', '150%', '180%', '200%'].map((value) => ({ label: value, value }))" :label="ctrans('Line height')" />
                     <EmailWorkshopField v-model="descriptor.list.style.color" type="color" :label="ctrans('Text color')" />
                     <EmailWorkshopField v-model="listComputedStyle.linkColor" type="color" :label="ctrans('Link color')" />
+                    <EmailWorkshopField v-model="moduleLinkUnderline" type="toggle" :label="ctrans('Underline links')" />
                 </template>
 
                 <template v-else-if="moduleType === MODULE_TYPES.image">
@@ -678,6 +721,7 @@ const contentSectionTitle = computed(() => ({
             </EmailWorkshopSection>
 
             <EmailWorkshopSection :title="ctrans('Responsive design')">
+                <EmailWorkshopField v-if="hasMobileFontSizeOption" v-model="mobileFontSize" type="px" :label="ctrans('Font size on mobile')" />
                 <EmailWorkshopField v-model="moduleComputedStyle.hideContentOnMobile" type="toggle" :label="ctrans('Hide on mobile')" />
                 <EmailWorkshopField v-model="moduleComputedStyle.hideContentOnDesktop" type="toggle" :label="ctrans('Hide on desktop')" />
             </EmailWorkshopSection>
@@ -710,6 +754,7 @@ const contentSectionTitle = computed(() => ({
                 <EmailWorkshopField v-model="bodyContentStyle['font-family']" type="select" :options="fontFamilyOptions" :label="ctrans('Default font')" />
                 <EmailWorkshopField v-model="bodyContentStyle.color" type="color" :label="ctrans('Text color')" />
                 <EmailWorkshopField v-model="bodyComputedStyle.linkColor" type="color" :label="ctrans('Link color')" />
+                <EmailWorkshopField v-model="bodyLinkUnderline" type="toggle" :label="ctrans('Underline links')" />
             </EmailWorkshopSection>
         </template>
 
