@@ -55,21 +55,21 @@ class GetPartnerStockCoverBuckets
     }
 
     /**
-     * Per-row lead time: the seller item's own measured or estimated days, partner-level fallback.
+     * The lead time is the partner's own, from our order to it being booked in here: the partner's
+     * stock carries how long the partner waits for its own supplier, which is not how long it takes
+     * to send to us.
      */
     private function bucketExpression(int $leadDays): string
     {
-        $lead       = "coalesce(p.measured_lead_time_days, p.estimated_lead_time_days, $leadDays)";
+        $lead       = (string) $leadDays;
         $understock = "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * $lead)";
+        $overstock  = "coalesce((select (sf.data->'stock_cover'->>'overstock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), ".GetOrganisationStockCoverBuckets::EXCESS_DAYS.')';
 
         return "case
             when os.id is null then 'never'
             when os.quantity_available <= 0 then 'out'
             else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
-                when cover.days <= $lead then 'w1'
-                when cover.days <= $understock then 'w2'
-                when cover.days <= 3 * $lead then 'w3'
-                when cover.days <= 4 * $lead then 'w4'
+                ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, $overstock, "4 * $lead")."
                 when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
                 else 'ok'", $this->onShoppingListSkosExpression()).' end';
     }
@@ -485,7 +485,7 @@ class GetPartnerStockCoverBuckets
 
     private function criticalDaysSql(int $leadDays): string
     {
-        return "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * coalesce(p.measured_lead_time_days, p.estimated_lead_time_days, $leadDays))";
+        return "coalesce((select (sf.data->'stock_cover'->>'understock_days')::int from stock_families sf where sf.id = stocks.stock_family_id), 2 * $leadDays)";
     }
 
     /**

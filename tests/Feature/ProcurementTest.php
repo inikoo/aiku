@@ -7526,11 +7526,19 @@ describe('partner shopping list', function () {
 
         $buckets  = App\Actions\Procurement\OrgPartner\GetPartnerStockCoverBuckets::make();
         $inDoomed = fn () => in_array($orgStock->stock_id, $buckets->stockIdsInBucket($this->orgPartner->refresh(), 'w1'));
-        $orgStock->stats->update(['days_of_cover' => 30, 'predicted_daily_usage' => 0.01]);
+        DB::table('stock_delivery_items')->where('org_stock_id', $orgStock->id)->whereNull('deleted_at')->update(['deleted_at' => now()]);
+        DB::table('purchase_order_transactions')->where('org_stock_id', $orgStock->id)->where('id', '!=', $onOrder->id)->whereNull('deleted_at')->update(['deleted_at' => now()]);
+        $partnerLeadDays = App\Actions\Procurement\OrgPartner\GetPartnerLeadTime::run($this->orgPartner->refresh())['days'];
+        $orgStock->stats->update(['days_of_cover' => max(1, intdiv($partnerLeadDays, 2)), 'predicted_daily_usage' => 0.01]);
         expect($inDoomed())->toBeFalse();
 
         DB::table('partner_shopping_list_items')->where('org_stock_id', $orgStock->id)->update(['deleted_at' => now()]);
         expect($inDoomed())->toBeTrue();
+
+        $partnerOwnLead = DB::table('org_stocks')->where('organisation_id', $this->orgPartner->partner_id)->where('stock_id', $orgStock->stock_id)
+            ->update(['measured_lead_time_days' => null, 'estimated_lead_time_days' => 5]);
+        expect($partnerOwnLead)->toBeGreaterThanOrEqual(1)
+            ->and($inDoomed())->toBeTrue();
 
         $onOrder->delete();
     });
@@ -8884,6 +8892,7 @@ describe('partner browse', function () {
                 ->has('latePurchaseOrders')
                 ->has('leadTime.days')
                 ->where('leadTime.source', 'estimate')
+                ->has('canEditLeadTime')
                 ->has('coverBuckets.0.ranks')
                 ->where('orgPartner.currency', $this->organisation->currency->code);
         });
@@ -9647,6 +9656,43 @@ test('agent catalogue leaves out dead codes: every SKO discontinued, or the SKO 
         ->and($newCode->fresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value);
 });
 
+test('agent stock groups read the lead time the ordering card reads and are never at risk past the overstock edge', function () {
+    $buckets = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
+    $stock   = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $orgSupplierProduct->supplierProduct->update(['measured_lead_time_days' => null, 'estimated_lead_time_days' => 10]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+    $orgStock  = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 100, 'measured_lead_time_days' => null, 'estimated_lead_time_days' => 60]);
+    OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $orgStock->id,
+        'org_supplier_product_id'       => $orgSupplierProduct->id,
+        'stock_has_supplier_product_id' => $stockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+
+    $bucketFor = function (float $days) use ($orgStock, $buckets, $orgSupplierProduct) {
+        $orgStock->stats()->updateOrCreate([], ['days_of_cover' => $days, 'predicted_daily_usage' => 1, 'stock_value' => 100]);
+
+        return collect(['w1', 'w2', 'w3', 'w4', 'ok'])->first(fn (string $bucket) => in_array($orgSupplierProduct->id, $buckets->orgSupplierProductIdsInBucket($this->orgAgent, $bucket), true));
+    };
+
+    expect($bucketFor(100))->toBe('w2')
+        ->and($bucketFor(150))->toBe('ok');
+
+    $signals = App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals::run($orgStock->fresh(), $orgSupplierProduct->supplierProduct, fallbackLeadTimeDays: 45);
+    expect($signals['lead_time_days'])->toBe(60);
+
+    $orgStock->update(['estimated_lead_time_days' => null]);
+    $orgSupplierProduct->supplierProduct->update(['estimated_lead_time_days' => null]);
+    $signals = App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals::run($orgStock->fresh(), $orgSupplierProduct->supplierProduct->fresh(), fallbackLeadTimeDays: 45);
+    expect($signals['lead_time_days'])->toBe(45);
+});
+
 test('agent round budget is a usual month of orders plus restocking, in the organisation currency', function () {
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, []);
@@ -10366,6 +10412,11 @@ test('organisation stock cover buckets judge each active sko against its lead ti
         ->and($bucketFor(['days_of_cover' => 60, 'predicted_daily_usage' => 1, 'stock_value' => 100]))->toBe('ok')
         ->and($bucketFor(['days_of_cover' => 300, 'predicted_daily_usage' => 0.2, 'stock_value' => 100]))->toBe('excess')
         ->and($bucketFor(['days_of_cover' => null, 'predicted_daily_usage' => 0, 'stock_value' => 100]))->toBe('dead');
+
+    $orgStock->update(['measured_lead_time_days' => null, 'estimated_lead_time_days' => 60]);
+    expect($bucketFor(['days_of_cover' => 100, 'predicted_daily_usage' => 1, 'stock_value' => 100]))->toBe('w2')
+        ->and($bucketFor(['days_of_cover' => 150, 'predicted_daily_usage' => 1, 'stock_value' => 100]))->toBe('excess');
+    $orgStock->update(['estimated_lead_time_days' => 10]);
 
     $comingDelivery = createStockDeliveryWithItems($this, 'COVER-COMING-'.uniqid(), [600 * max(1, (int) $orgStock->packed_in)]);
     expect($bucketFor(['days_of_cover' => 5, 'predicted_daily_usage' => 10, 'stock_value' => 100]))->toBe('ok');

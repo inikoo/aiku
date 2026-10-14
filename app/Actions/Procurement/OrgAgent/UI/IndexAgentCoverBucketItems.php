@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrderOrgSupplierProducts;
 use App\InertiaTable\InertiaTable;
+use App\Actions\Procurement\OrgAgent\GetAgentLeadTimes;
 use App\Actions\Procurement\OrgAgent\GetAgentOrderCapacity;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\WithAgentShoppingSubNavigation;
@@ -60,6 +61,8 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     private ?string $prefix = null;
 
+    private int $agentLeadDays = 0;
+
     /**
      * The Ordering rows of one supplier, kept to the products any organisation of the group has on a
      * draft: a supplier goes to the agent as one job, so a draft is read next to what the others stack on it.
@@ -96,8 +99,9 @@ class IndexAgentCoverBucketItems extends OrgAction
 
     public function handle(OrgAgent $orgAgent, ?string $bucket, ?string $rank, ?int $supplierId): LengthAwarePaginator
     {
-        $buckets   = GetAgentStockCoverBuckets::make();
-        $bucketSql = $buckets->bucketSql($orgAgent);
+        $buckets             = GetAgentStockCoverBuckets::make();
+        $bucketSql           = $buckets->bucketSql($orgAgent);
+        $this->agentLeadDays = GetAgentLeadTimes::run($orgAgent)['agent']['days'];
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $like = '%'.addcslashes((string) $value, '%_\\').'%';
@@ -134,8 +138,6 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'sp.units_per_pack',
                 'sp.units_per_carton',
                 'sp.minimum_carton_order',
-                'sp.measured_lead_time_days',
-                'sp.estimated_lead_time_days',
                 'sup.code as supplier_code',
                 'sup.slug as supplier_slug',
                 'cur.code as currency',
@@ -145,7 +147,9 @@ class IndexAgentCoverBucketItems extends OrgAction
                 's.days_of_cover',
                 's.recommended_order_quantity',
             ])
-            ->selectRaw("$bucketSql as bucket");
+            ->selectRaw("$bucketSql as bucket")
+            ->selectRaw(GetAgentStockCoverBuckets::leadTimeExpression($this->agentLeadDays).' as lead_time_days')
+            ->selectRaw(GetAgentStockCoverBuckets::leadTimeMeasuredExpression().' as lead_time_measured');
 
         if (!request()->filled(($this->prefix ? $this->prefix.'_' : '').'sort')) {
             $queryBuilder
@@ -230,8 +234,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'bucket'               => $row->bucket,
                 'supplier_code'        => $row->supplier_code,
                 'supplier_slug'        => $row->supplier_slug,
-                'lead_time_days'       => $row->measured_lead_time_days ?? $row->estimated_lead_time_days,
-                'lead_time_measured'   => $row->measured_lead_time_days !== null,
+                'lead_time_days'       => (int) $row->lead_time_days,
+                'lead_time_measured'   => (bool) $row->lead_time_measured,
                 'our_stock'            => $row->quantity_available !== null ? (float) $row->quantity_available : null,
                 'our_days_of_cover'    => $row->days_of_cover !== null ? (int) $row->days_of_cover : null,
                 'recommended_quantity' => $row->recommended_order_quantity !== null ? (int) ceil((float) $row->recommended_order_quantity) : null,
@@ -248,7 +252,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'discontinue_suggestions' => $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0],
                 'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
                 'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],
-                'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
+                'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id), fallbackLeadTimeDays: $this->agentLeadDays),
                 'stock_deliveries'     => $stockDeliveries->get($row->org_stock_id),
                 'other_open_purchase_orders' => $row->other_open_purchase_orders ?? [],
                 'other_organisations_drafts' => ($otherOrganisationsDrafts->get($row->supplier_product_id) ?? collect())->map(fn ($draft) => [

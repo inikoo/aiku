@@ -33,7 +33,7 @@ Zem diagrammas grozi sadalīti divās grupās. **Needs ordering** (Jāpasūta) s
 
 - **Out of stock** (Nav krājumā) — plauktā nekas nav palicis.
 - **Doomed** (Lemts trūkumam) — krājums vēl ir, bet tas beigsies, pirms varētu pienākt piegāde, pat ja pasūtītu tūlīt. Krājums, kas jau ir ceļā, atvērtajās piegādēs un iesniegtajos pirkuma pasūtījumos, tiek ieskaitīts katrā grupā: produkts, kuram ceļā ir pietiekami daudz, netiek rādīts kā apdraudēts.
-- **Critical / Danger / Watch** (Kritisks / Bīstams / Vērojams) — beigsies divu, trīs vai četru piegādes laiku robežās.
+- **Critical / Danger / Watch** (Kritisks / Bīstams / Vērojams) — beigsies divu, trīs vai četru piegādes laiku robežās. Produkts, kas jau pietiek ilgāk par pārkrājuma robežu, šajās grupās nekad nav: nav ko pasūtīt.
 
 **Not for ordering** (Nav jāpasūta) satur pārējos trīs:
 
@@ -71,7 +71,7 @@ Tas pats noteikums attiecas visur, kur pievieno — ar roku, masveidā vai no au
 
 ## Izmērīts, vai godīgi apzīmēts kā minējums
 
-Divi skaitļi virza lielāko daļu šī ekrāna: piegādes laiks un budžets. Noteikums abiem ir vienāds. **Ja ir vēsture, skaitlis ir izmērīts un to nevar rediģēt.** Ja vēstures nav, kartīte to pasaka, un minējumu var rediģēt — bet iestatījumos, nevis tieši panelī: katram produktam atsevišķi **estimated delivery time** (aplēstais piegādes laiks) piegādātāja produktā vai paša SKO iestatījumos. Tiklīdz uzkrājas pietiekami daudz reālu piegāžu, izmērījums pārņem, un aplēses lauks pazūd. Neviens nedrīkst pārrakstīt to, kas patiešām noticis.
+Divi skaitļi virza lielāko daļu šī ekrāna: piegādes laiks un budžets. Noteikums abiem ir vienāds. **Ja ir vēsture, skaitlis ir izmērīts un to nevar rediģēt.** Piegādes laiks ir viens skaitlis visam partnerim: dienas no mūsu pasūtījuma viņam līdz pieņemšanai mūsu noliktavā. Tas nekad nav laiks, ko partneris pats gaida uz saviem piegādātājiem. Kamēr nav pieņemtas piecas mūsu piegādes no šī partnera, kartīte norāda, ka tā ir aplēse, un izmanto 14 dienas. Neviens nedrīkst pārrakstīt to, kas patiešām noticis.
 
 <aside class="wayfinder"><strong>Kur klikšķināt aiku sistēmā</strong>
 <ul>
@@ -79,6 +79,6 @@ Divi skaitļi virza lielāko daļu šī ekrāna: piegādes laiks un budžets. No
 <li><b>Pāriet no donuta:</b> klikšķini uz šķēles vai rindas leģendā, lai pārlūkotu šo grozu katalogā.</li>
 <li><b>Strādāt ar grozu:</b> klikšķini uz kartītes skaitļa vienību tabulai, uz ranga burta, lai pārlūkotu šos produktus, vai <b>Fill</b> iezīmētam automātiskās aizpildes priekšlikumam.</li>
 <li><b>Iztīrīt sarakstu:</b> <b>remove</b> uz Covered vai Dead stock kartītes.</li>
-<li><b>Labot piegādes laika aplēsi:</b> SKO iestatījumos vai piegādātāja produkta iestatījumos — tikai kamēr tur vēl rakstīts <i>estimate</i>.</li>
+<li><b>Piegādes laiks:</b> mērīts pēc mūsu pašu pasūtījumiem šim partnerim; tas aizstāj 14 dienu <i>estimate</i>, tiklīdz pieņemtas piecas piegādes.</li>
 </ul>
 </aside>

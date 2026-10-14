@@ -33,7 +33,7 @@ Below the chart the buckets sit in two groups. **Needs ordering** holds the five
 
 - **Out of stock** — nothing left on the shelf.
 - **Doomed** — you still have stock, but it will run out before a delivery could arrive, even if you ordered right now. Stock already on its way, in open deliveries and submitted purchase orders, is counted in every group: a product with enough coming is not shown as at risk.
-- **Critical / Danger / Watch** — will run out within two, three or four lead times.
+- **Critical / Danger / Watch** — will run out within two, three or four lead times. A product that already lasts past the overstock limit is never in these groups: there is nothing to order.
 
 **Not for ordering** holds the other three:
 
@@ -71,7 +71,7 @@ The same rule applies everywhere you add — by hand, in bulk, or from Auto-fill
 
 ## Measured, or honestly labelled a guess
 
-Two numbers drive most of this screen: the lead time and the budget. The rule is the same for both. **If we have the history, the number is measured and can't be edited.** If we don't, the card says so, and the guess can be edited — but in settings, never directly on the dashboard: a per-product **estimated delivery time** on the supplier product or on the SKO's own settings. Once enough real deliveries exist, the measurement takes over and the estimate field disappears. Nobody gets to overwrite what actually happened.
+Two numbers drive most of this screen: the lead time and the budget. The rule is the same for both. **If we have the history, the number is measured and can't be edited.** The lead time is one number for the whole partner: the days from our purchase order to them until it is booked in at our warehouse. It is never the time the partner itself waits on its own suppliers. Until five of our deliveries from this partner are booked in, the card says it is an estimate and uses 14 days. Nobody gets to overwrite what actually happened.
 
 <aside class="wayfinder"><strong>Where to click in aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Two numbers drive most of this screen: the lead time and the budget. The rule is
 <li><b>Jump from the donut:</b> click a slice, or a row in the legend, to browse that bucket in the catalogue.</li>
 <li><b>Work a bucket:</b> click the tile's number for the item table, a rank letter to browse those products, or <b>Fill</b> for a scoped Auto-fill proposal.</li>
 <li><b>Clean the list:</b> <b>remove</b> on the Covered or Dead stock tile.</li>
-<li><b>Fix a lead-time estimate:</b> the SKO's settings, or the supplier product's settings — only while it still says <i>estimate</i>.</li>
+<li><b>Lead time:</b> measured on our own orders to this partner; it replaces the 14-day <i>estimate</i> once five deliveries are booked in.</li>
 </ul>
 </aside>

@@ -10,6 +10,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Procurement\OrgPartner\GetPartnerSellingShopIds;
+use App\Actions\Procurement\OrgAgent\GetAgentLeadTimes;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
 use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
@@ -369,19 +370,24 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
         $orgStocks = OrgStock::with('tradeUnits.image', 'stats', 'stock.stockFamily')->whereIn('id', $orgStockIds)->get()->keyBy('id');
         $supplierProducts    = SupplierProduct::whereIn('id', $paginator->getCollection()->pluck('supplier_product_id')->filter()->unique())->get()->keyBy('id');
         $partnerLeadTimeDays = $purchaseOrder?->parent instanceof OrgPartner ? GetPartnerLeadTime::run($purchaseOrder->parent)['days'] : null;
+        $fallbackLeadTimeDays = match (true) {
+            $purchaseOrder?->parent instanceof OrgSupplier => GetSupplierLeadTime::run($purchaseOrder->parent)['days'],
+            $purchaseOrder?->parent instanceof OrgAgent    => GetAgentLeadTimes::run($purchaseOrder->parent)['agent']['days'],
+            default                                         => null,
+        };
 
         $quarterlyUsage  = GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries = GetOrgStocksStockDeliveries::run($orgStockIds);
         $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
-        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays) {
+        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays, $fallbackLeadTimeDays) {
             $orgStock  = $orgStocks->get($row->org_stock_id);
             $tradeUnit = $orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
 
             $row->image_sources      = $tradeUnit?->imageSources(240, 240);
             $row->stock_in_locations = $orgStock?->quantity_in_locations;
             $row->quarterly_usage    = $quarterlyUsage->get($row->org_stock_id) ?? collect();
-            $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays);
+            $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays, $fallbackLeadTimeDays);
             $row->stock_deliveries   = $stockDeliveries->get($row->org_stock_id);
             $row->discontinue_suggestions = $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0];
 

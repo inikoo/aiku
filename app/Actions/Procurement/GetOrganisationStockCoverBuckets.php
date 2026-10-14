@@ -235,6 +235,18 @@ class GetOrganisationStockCoverBuckets
             else $stats.days_of_cover end as days offset 0) as cover)";
     }
 
+    /**
+     * The at-risk groups of a SKO from the days it lasts. A SKO past its overstock edge is never at
+     * risk, the ordering card calls it not needed; doomed still comes first, as the card's order now.
+     */
+    public static function atRiskCases(string $lead, string $understock, string $overstock, string $watchDays): string
+    {
+        return "when cover.days <= $lead then 'w1'
+                when cover.days <= least($understock, $overstock) then 'w2'
+                when cover.days <= least(3 * $lead, $overstock) then 'w3'
+                when cover.days <= least($watchDays, $overstock) then 'w4'";
+    }
+
     public function bucketExpression(): string
     {
         $lead       = $this->leadTimeExpression();
@@ -244,10 +256,7 @@ class GetOrganisationStockCoverBuckets
         return "case
             when org_stocks.quantity_available <= 0 then 'out'
             else ".self::bucketOnCoverDaysExpression('org_stocks', 'org_stock_stats', "greatest(4 * $lead, $understock)", "
-                when cover.days <= $lead then 'w1'
-                when cover.days <= $understock then 'w2'
-                when cover.days <= 3 * $lead then 'w3'
-                when cover.days <= 4 * $lead then 'w4'
+                ".self::atRiskCases($lead, $understock, $overstock, "4 * $lead")."
                 when coalesce(org_stock_stats.predicted_daily_usage, 0) = 0 and org_stock_stats.stock_value > 0 then 'dead'
                 when cover.days >= $overstock then 'excess'
                 else 'ok'").' end';

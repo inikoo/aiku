@@ -33,7 +33,7 @@ Sub grafic, găletile stau în două grupuri. **Needs ordering** (necesită coma
 
 - **Out of stock** (fără stoc) — nu mai e nimic pe raft.
 - **Doomed** (sortit) — mai ai stoc, dar se va termina înainte să poată ajunge o livrare, chiar dacă ai comanda chiar acum. Stocul aflat deja pe drum, în livrări deschise și comenzi de achiziție trimise, este luat în calcul în fiecare grup: un produs cu suficient stoc pe drum nu apare ca fiind în pericol.
-- **Critical / Danger / Watch** (critic / pericol / atenție) — se va termina în două, trei sau patru timpi de livrare.
+- **Critical / Danger / Watch** (critic / pericol / atenție) — se va termina în două, trei sau patru timpi de livrare. Un produs care ține deja peste limita de suprastoc nu e niciodată în aceste grupe: nu e nimic de comandat.
 
 **Not for ordering** (nu pentru comandă) ține celelalte trei:
 
@@ -71,7 +71,7 @@ Aceeași regulă se aplică peste tot unde adaugi — manual, în bloc, sau din 
 
 ## Măsurat, sau etichetat cinstit ca o estimare
 
-Două numere conduc mare parte din acest ecran: timpul de livrare și bugetul. Regula e aceeași pentru amândouă. **Dacă avem istoricul, numărul e măsurat și nu poate fi editat.** Dacă nu-l avem, placa spune asta, iar estimarea poate fi editată — dar în setări, niciodată direct pe dashboard: un **estimated delivery time** (timp de livrare estimat) per produs, pe produsul de furnizor sau pe propriile setări ale SKO-ului. Odată ce există suficiente livrări reale, măsurătoarea preia controlul și câmpul de estimare dispare. Nimeni nu poate suprascrie ce s-a întâmplat efectiv.
+Două numere conduc mare parte din acest ecran: timpul de livrare și bugetul. Regula e aceeași pentru amândouă. **Dacă avem istoricul, numărul e măsurat și nu poate fi editat.** Timpul de livrare e un singur număr pentru tot partenerul: zilele de la comanda noastră către el până la recepția în depozitul nostru. Nu e niciodată timpul pe care partenerul însuși îl așteaptă de la furnizorii lui. Până când cinci dintre livrările noastre de la acest partener sunt recepționate, placa spune că e o estimare și folosește 14 zile. Nimeni nu poate suprascrie ce s-a întâmplat efectiv.
 
 <aside class="wayfinder"><strong>Unde apeși în aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Două numere conduc mare parte din acest ecran: timpul de livrare și bugetul. R
 <li><b>Sari din donut:</b> click pe o felie, sau pe un rând din legendă, ca să răsfoiești acea găleată în catalog.</li>
 <li><b>Lucrează o găleată:</b> click pe numărul de pe placă pentru tabelul de articole, o literă de rang ca să răsfoiești acele produse, sau <b>Fill</b> pentru o propunere Auto-fill limitată.</li>
 <li><b>Curăță lista:</b> <b>remove</b> pe placa Covered sau Dead stock.</li>
-<li><b>Corectează o estimare de timp de livrare:</b> setările SKO-ului, sau setările produsului de furnizor — doar cât timp încă spune <i>estimate</i>.</li>
+<li><b>Timpul de livrare:</b> măsurat pe propriile noastre comenzi către acest partener; înlocuiește <i>estimate</i> de 14 zile odată ce cinci livrări sunt recepționate.</li>
 </ul>
 </aside>

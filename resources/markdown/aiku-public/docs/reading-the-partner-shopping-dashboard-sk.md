@@ -33,7 +33,7 @@ Pod grafom sú koše rozdelené do dvoch skupín. **Needs ordering** (potrebuje 
 
 - **Out of stock** - na regáli nič nie je.
 - **Doomed** - stále máte sklad, ale minie sa skôr, než by mohla doraziť dodávka, aj keby ste objednali práve teraz. Tovar, ktorý je už na ceste, v otvorených dodávkach a odoslaných nákupných objednávkach, sa počíta v každej skupine: produkt s dostatkom tovaru na ceste sa nezobrazí ako ohrozený.
-- **Critical / Danger / Watch** - dôjde do dvoch, troch alebo štyroch časov dodania.
+- **Critical / Danger / Watch** - dôjde do dvoch, troch alebo štyroch časov dodania. Produkt, ktorý už vydrží dlhšie ako limit nadmernej zásoby, v týchto skupinách nikdy nie je: nie je čo objednať.
 
 **Not for ordering** (neobjednávať) obsahuje ostatné tri:
 
@@ -71,7 +71,7 @@ Rovnaké pravidlo platí všade, kde pridávate - ručne, hromadne, alebo z Auto
 
 ## Namerané, alebo čestne označené ako odhad
 
-Dve čísla poháňajú väčšinu tejto obrazovky: čas dodania a rozpočet. Pravidlo je pre obe rovnaké. **Ak máme históriu, číslo je namerané a nedá sa upraviť.** Ak ju nemáme, karta to povie a odhad sa dá upraviť - ale v nastaveniach, nikdy priamo na paneli: **estimated delivery time** (odhadovaný čas dodania) na produkte dodávateľa, alebo v nastaveniach samotného SKO. Akonáhle existuje dosť skutočných dodávok, meranie preberá vládu a pole s odhadom zmizne. Nikto nemôže prepísať to, čo sa naozaj stalo.
+Dve čísla poháňajú väčšinu tejto obrazovky: čas dodania a rozpočet. Pravidlo je pre obe rovnaké. **Ak máme históriu, číslo je namerané a nedá sa upraviť.** Čas dodania je jedno číslo pre celého partnera: dni od našej objednávky u neho po naskladnenie v našom sklade. Nikdy to nie je čas, ktorý partner sám čaká na svojich dodávateľov. Kým nie je naskladnených päť našich dodávok od tohto partnera, karta uvádza, že ide o odhad, a počíta so 14 dňami. Nikto nemôže prepísať to, čo sa naozaj stalo.
 
 <aside class="wayfinder"><strong>Kam kliknúť v aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Dve čísla poháňajú väčšinu tejto obrazovky: čas dodania a rozpočet. Pr
 <li><b>Preskočiť z grafu:</b> kliknite na výsek, alebo na riadok v legende, pre prezretie daného koša v katalógu.</li>
 <li><b>Pracovať s košom:</b> kliknite na číslo dlaždice pre tabuľku položiek, na písmeno rank pre prezretie tých produktov, alebo na <b>Fill</b> pre zúžený návrh Auto-fill.</li>
 <li><b>Vyčistiť zoznam:</b> <b>remove</b> na dlaždici Covered alebo Dead stock.</li>
-<li><b>Opraviť odhad času dodania:</b> nastavenia SKO, alebo nastavenia produktu dodávateľa - len kým ešte hovorí <i>estimate</i>.</li>
+<li><b>Čas dodania:</b> meria sa z našich vlastných objednávok u tohto partnera; keď je naskladnených päť dodávok, nahradí <i>estimate</i> 14 dní.</li>
 </ul>
 </aside>

@@ -33,7 +33,7 @@ Pod grafem jsou kategorie rozdělené do dvou skupin. **Needs ordering** (Vyžad
 
 - **Out of stock** (Bez skladu) — na polici nezbylo nic.
 - **Doomed** (Odsouzeno) — sklad ještě máte, ale dojde dřív, než by mohla dorazit dodávka, i kdybyste objednali hned teď. Zboží, které je už na cestě, v otevřených dodávkách a odeslaných nákupních objednávkách, se počítá v každé skupině: produkt s dostatkem zboží na cestě se nezobrazí jako ohrožený.
-- **Critical / Danger / Watch** (Kritické / Nebezpečné / Sledovat) — dojde do dvou, tří nebo čtyř dodacích lhůt.
+- **Critical / Danger / Watch** (Kritické / Nebezpečné / Sledovat) — dojde do dvou, tří nebo čtyř dodacích lhůt. Produkt, který už vydrží déle než limit předzásobení, v těchto skupinách nikdy není: není co objednat.
 
 **Not for ordering** (Neobjednávat) obsahuje další tři:
 
@@ -71,7 +71,7 @@ Stejné pravidlo platí všude, kde přidáváte — ručně, hromadně nebo z a
 
 ## Naměřeno, nebo poctivě označeno jako odhad
 
-Dvě čísla řídí většinu této obrazovky: dodací lhůta a rozpočet. Pravidlo je pro obě stejné. **Pokud máme historii, číslo je naměřené a nelze ho upravit.** Pokud ji nemáme, karta to řekne a odhad lze upravit — ale v nastavení, nikdy přímo na dashboardu: pole **estimated delivery time** (odhadovaná dodací doba) na produktu dodavatele nebo ve vlastním nastavení SKO. Jakmile existuje dost skutečných dodávek, měření to převezme a pole s odhadem zmizí. Nikdo nemá přepsat to, co se skutečně stalo.
+Dvě čísla řídí většinu této obrazovky: dodací lhůta a rozpočet. Pravidlo je pro obě stejné. **Pokud máme historii, číslo je naměřené a nelze ho upravit.** Dodací lhůta je jedno číslo pro celého partnera: dny od naší objednávky u něj do naskladnění v našem skladu. Nikdy to není doba, kterou partner sám čeká na své dodavatele. Dokud nejsou naskladněny pět našich dodávek od tohoto partnera, karta uvádí, že jde o odhad, a počítá se 14 dny. Nikdo nemá přepsat to, co se skutečně stalo.
 
 <aside class="wayfinder"><strong>Kam kliknout v aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Dvě čísla řídí většinu této obrazovky: dodací lhůta a rozpočet. Prav
 <li><b>Přejít z koláčového grafu:</b> kliknout na výseč nebo na řádek v legendě a procházet danou kategorii v katalogu.</li>
 <li><b>Zpracovat kategorii:</b> kliknout na číslo dlaždice pro tabulku položek, na písmeno ranku pro procházení daných produktů, nebo na <b>Fill</b> (Doplnit) pro zaměřený návrh automatického doplnění.</li>
 <li><b>Vyčistit seznam:</b> <b>remove</b> (odstranit) na dlaždici Covered nebo Dead stock.</li>
-<li><b>Opravit odhad dodací lhůty:</b> nastavení SKO, nebo nastavení produktu dodavatele — jen dokud stále říká <i>estimate</i> (odhad).</li>
+<li><b>Dodací lhůta:</b> měří se z našich vlastních objednávek u tohoto partnera; jakmile je naskladněno pět dodávek, nahradí <i>estimate</i> (odhad) 14 dnů.</li>
 </ul>
 </aside>

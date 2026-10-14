@@ -33,7 +33,7 @@ Poniżej wykresu kubełki są ułożone w dwóch grupach. **Needs ordering** (Wy
 
 - **Out of stock** (Brak w magazynie) - nic nie zostało na półce.
 - **Doomed** (Skazane) - masz jeszcze stan, ale skończy się, zanim mogłaby dotrzeć dostawa, nawet gdybyś zamówił właśnie teraz. Towar, który jest już w drodze, w otwartych dostawach i wysłanych zamówieniach zakupu, liczy się w każdej grupie: produkt z wystarczającą ilością w drodze nie jest pokazywany jako zagrożony.
-- **Critical / Danger / Watch** (Krytyczne / Niebezpieczne / Do obserwacji) - skończy się w ciągu dwóch, trzech albo czterech czasów realizacji.
+- **Critical / Danger / Watch** (Krytyczne / Niebezpieczne / Do obserwacji) - skończy się w ciągu dwóch, trzech albo czterech czasów realizacji. Produkt, którego zapas już wystarcza dłużej niż limit nadmiaru, nigdy nie trafia do tych grup: nie ma czego zamawiać.
 
 **Not for ordering** (Nie do zamawiania) zawiera pozostałe trzy:
 
@@ -71,7 +71,7 @@ Ta sama zasada obowiązuje wszędzie, gdzie dodajesz - ręcznie, hurtowo albo z 
 
 ## Zmierzone, albo uczciwie oznaczone jako szacunek
 
-Dwie liczby napędzają większość tego ekranu: czas realizacji i budżet. Zasada jest taka sama dla obu. **Jeśli mamy historię, liczba jest zmierzona i nie da się jej edytować.** Jeśli nie mamy, karta o tym informuje, a szacunek można edytować - ale w ustawieniach, nigdy bezpośrednio na pulpicie: **estimated delivery time** (szacowany czas dostawy) dla danego produktu, na produkcie dostawcy albo we własnych ustawieniach SKO. Gdy pojawi się wystarczająco dużo rzeczywistych dostaw, pomiar przejmuje kontrolę, a pole szacunku znika. Nikt nie może nadpisać tego, co faktycznie się wydarzyło.
+Dwie liczby napędzają większość tego ekranu: czas realizacji i budżet. Zasada jest taka sama dla obu. **Jeśli mamy historię, liczba jest zmierzona i nie da się jej edytować.** Czas realizacji to jedna liczba dla całego partnera: dni od naszego zamówienia u niego do przyjęcia w naszym magazynie. Nigdy nie jest to czas, który partner sam czeka na swoich dostawców. Dopóki nie zostanie przyjętych pięć naszych dostaw od tego partnera, karta informuje, że to szacunek, i przyjmuje 14 dni. Nikt nie może nadpisać tego, co faktycznie się wydarzyło.
 
 <aside class="wayfinder"><strong>Gdzie kliknąć w aiku</strong>
 <ul>
@@ -79,6 +79,6 @@ Dwie liczby napędzają większość tego ekranu: czas realizacji i budżet. Zas
 <li><b>Przejdź z pączka:</b> kliknij wycinkę albo wiersz w legendzie, aby przejrzeć ten kubełek w katalogu.</li>
 <li><b>Pracuj nad kubełkiem:</b> kliknij liczbę na kafelku, aby zobaczyć tabelę pozycji, literę rangi, aby przejrzeć te produkty, albo <b>Fill</b> (Uzupełnij) po zawężoną propozycję Auto-fill.</li>
 <li><b>Wyczyść listę:</b> <b>remove</b> (usuń) na kafelku Covered albo Dead stock.</li>
-<li><b>Popraw szacunek czasu realizacji:</b> ustawienia SKO albo ustawienia produktu dostawcy - tylko dopóki nadal widnieje <i>estimate</i> (szacunek).</li>
+<li><b>Czas realizacji:</b> mierzony na naszych własnych zamówieniach u tego partnera; zastępuje <i>estimate</i> (szacunek) 14 dni, gdy przyjęto pięć dostaw.</li>
 </ul>
 </aside>

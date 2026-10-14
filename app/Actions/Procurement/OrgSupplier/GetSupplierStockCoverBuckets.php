@@ -41,11 +41,11 @@ class GetSupplierStockCoverBuckets
     }
 
     /**
-     * Per-row lead time: the supplier product's own measured or estimated days, supplier median fallback.
+     * Per-row lead time, the same order the ordering card reads it: the SKO's own, the supplier product's, then the supplier median.
      */
     private function bucketExpression(int $leadDays): string
     {
-        $lead       = "coalesce(sp.measured_lead_time_days, sp.estimated_lead_time_days, $leadDays)";
+        $lead       = "coalesce(os.measured_lead_time_days, os.estimated_lead_time_days, sp.measured_lead_time_days, sp.estimated_lead_time_days, $leadDays)";
         $understock = "coalesce((stock_families.data->'stock_cover'->>'understock_days')::int, 2 * $lead)";
 
         $stocking = "'".OrgStockStateEnum::ACTIVE->value."','".OrgStockStateEnum::DISCONTINUING->value."'";
@@ -55,10 +55,7 @@ class GetSupplierStockCoverBuckets
             when os.state not in ($stocking) then 'dead'
             when os.quantity_available <= 0 then 'out'
             else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
-                when cover.days <= $lead then 'w1'
-                when cover.days <= $understock then 'w2'
-                when cover.days <= 3 * $lead then 'w3'
-                when cover.days <= 4 * $lead then 'w4'
+                ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, GetOrganisationStockCoverBuckets::make()->overstockDaysExpression(), "4 * $lead")."
                 when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
                 else 'ok'").' end';
     }

@@ -218,6 +218,7 @@ class ShowPartnerShoppingDashboard extends OrgAction
                     'name'       => 'grp.org.procurement.org_partners.show.shopping.lead_time.update',
                     'parameters' => [$this->orgPartner->organisation->slug, $this->orgPartner->id],
                 ],
+                'canEditLeadTime'   => $request->user()->authTo("org-supervisor.{$this->organisation->id}.procurement"),
                 'latePurchaseOrders' => $data['late_purchase_orders'],
             ]
         );
