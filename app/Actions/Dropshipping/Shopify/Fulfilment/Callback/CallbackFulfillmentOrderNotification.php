@@ -9,6 +9,7 @@
 namespace App\Actions\Dropshipping\Shopify\Fulfilment\Callback;
 
 use App\Actions\WebhookAction;
+use App\Enums\Dropshipping\CustomerSalesChannelStatusEnum;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,13 @@ class CallbackFulfillmentOrderNotification extends WebhookAction
 {
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        [$status, $message] = match (Arr::get($modelData, 'kind')) {
+        $kind = Arr::get($modelData, 'kind');
+
+        if ($kind === 'FULFILLMENT_REQUEST' && $shopifyUser->customerSalesChannel?->status !== CustomerSalesChannelStatusEnum::OPEN) {
+            return;
+        }
+
+        [$status, $message] = match ($kind) {
             'FULFILLMENT_REQUEST' => RetrieveShopifyAssignedOrders::run($shopifyUser),
             'CANCELLATION_REQUEST' => RetrieveShopifyCancelledOrders::run($shopifyUser),
             default => [true, ''],
