@@ -2341,6 +2341,35 @@ test('ab test creates version B with its own email, excludes the 2nd wave and is
     expect($mailshot->refresh()->abTestVariant)->toBeNull();
 })->depends('outbox seeded when shop created');
 
+test('ab test switched back on restores the same version B refreshed from the latest version A', function (Shop $shop) {
+    $mailshot = createMarketingMailshotWithAbTest($shop);
+    $variant  = $mailshot->abTestVariant;
+    $variant->update(['subject' => 'Winter offers, B', 'sender_name' => 'Anna at the shop']);
+
+    SetMailshotAbTest::make()->action($mailshot, ['enabled' => false]);
+
+    $mailshot->update(['subject' => 'Spring offers']);
+    PublishMailShot::make()->action($mailshot, [
+        'layout'          => ['body' => 'Spring body'],
+        'compiled_layout' => '<div>Spring {{unsubscribe}}</div>',
+    ]);
+
+    SetMailshotAbTest::make()->action($mailshot->refresh(), ['enabled' => false]);
+    $restoredVariant = SetMailshotAbTest::make()->action($mailshot, ['enabled' => true])->abTestVariant;
+    $email           = $restoredVariant->email;
+
+    expect($restoredVariant->id)->toBe($variant->id)
+        ->and($restoredVariant->subject)->toBe('Spring offers')
+        ->and($restoredVariant->sender_name)->toBe($mailshot->sender_name)
+        ->and($restoredVariant->state)->toBe(MailshotStateEnum::READY)
+        ->and($email->id)->toBe($variant->email->id)
+        ->and($email->subject)->toBe('Spring offers')
+        ->and($email->liveSnapshot->layout)->toBe(['body' => 'Spring body'])
+        ->and($email->liveSnapshot->compiled_layout)->toBe('<div>Spring {{unsubscribe}}</div>')
+        ->and($email->unpublishedSnapshot->layout)->toBe(['body' => 'Spring body'])
+        ->and(Mailshot::withTrashed()->where('ab_test_variant_of_id', $mailshot->id)->count())->toBe(1);
+})->depends('outbox seeded when shop created');
+
 test('ab test route needs the mailshot of the route shop and saves the test size', function (Shop $shop) {
     $mailshot  = createMarketingMailshotWithAbTest($shop);
     $otherShop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
