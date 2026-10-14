@@ -380,6 +380,12 @@ class StaffTask extends Model implements Auditable, HasMedia
 
     public const array SEE_ALL_DEPARTMENTS = [self::EXCLUDED_DEPARTMENT, 'group admin'];
 
+    /**
+     * Departments too big to tell everyone: a new task is announced to its supervisors and these job positions only.
+     * Everyone in the department still sees the task in the department queue.
+     */
+    public const array ANNOUNCED_TO_POSITIONS = ['warehouse' => ['wah-sc']];
+
     public static function seesEveryTask(User $user): bool
     {
         if (self::isSupervisor($user)) {
@@ -458,6 +464,18 @@ class StaffTask extends Model implements Auditable, HasMedia
     }
 
     /**
+     * Who is told that a task is waiting in a department: everyone, or for the departments in
+     * ANNOUNCED_TO_POSITIONS the supervisors and those positions. Falls back to everyone when that leaves nobody.
+     */
+    public static function departmentAnnouncedTo(User $requester, string $department, ?int $organisationId = null): Collection
+    {
+        $positionCodes = self::ANNOUNCED_TO_POSITIONS[$department] ?? null;
+        $announcedTo   = $positionCodes === null ? collect() : self::departmentPeople($requester, $department, true, $organisationId, $positionCodes);
+
+        return $announcedTo->isNotEmpty() ? $announcedTo : self::departmentMembers($requester, $department, $organisationId);
+    }
+
+    /**
      * @return array<int, int>
      */
     public static function organisationIdsOf(User $user): array
@@ -474,14 +492,14 @@ class StaffTask extends Model implements Auditable, HasMedia
     /**
      * A task raised for one organisation, such as an automatic task of a shop, reaches that organisation's department.
      */
-    private static function departmentPeople(User $requester, string $department, bool $supervisorsOnly, ?int $organisationId = null): Collection
+    private static function departmentPeople(User $requester, string $department, bool $supervisorsOnly, ?int $organisationId = null, array $alsoPositionCodes = []): Collection
     {
         $organisationIds = $organisationId ? [$organisationId] : self::organisationIdsOf($requester);
 
         $jobPositionIds = DB::table('job_positions')
             ->where('group_id', $requester->group_id)
             ->where('department', $department)
-            ->when($supervisorsOnly, fn ($query) => $query->where('code', 'like', '%-m'))
+            ->when($supervisorsOnly, fn ($query) => $query->where(fn ($query) => $query->where('code', 'like', '%-m')->orWhereIn('code', $alsoPositionCodes)))
             ->where(fn ($query) => $query->whereNull('organisation_id')->orWhereIn('organisation_id', $organisationIds))
             ->select('id');
 

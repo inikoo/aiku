@@ -13805,6 +13805,7 @@ test('a flagged line is closed by a recount, a unit correction that uncovers a s
     expect(StaffTask::count())->toBe($tasksBefore + 1)
         ->and($task->department)->toBe('warehouse')
         ->and($task->model_id)->toBe($hiddenShortage->org_stock_id)
+        ->and($task->data['organisation_id'])->toBe($hiddenShortage->stockDelivery->organisation_id)
         ->and($hiddenShortage->discrepancy_outcome)->toBe(StockDeliveryItemDiscrepancyOutcomeEnum::RECOUNT_REQUESTED)
         ->and($hiddenShortage->discrepancy_resolved_at)->toBeNull();
 

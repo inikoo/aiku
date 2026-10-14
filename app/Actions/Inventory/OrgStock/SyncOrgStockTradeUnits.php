@@ -159,6 +159,7 @@ class SyncOrgStockTradeUnits
                 'department'  => 'warehouse',
                 'model_type'  => 'OrgStock',
                 'model_id'    => $orgStock->id,
+                'data'        => ['organisation_id' => $warehouseLocations->first()->location->warehouse->organisation_id],
             ]);
         }
     }

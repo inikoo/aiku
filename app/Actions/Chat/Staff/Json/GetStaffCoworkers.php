@@ -26,7 +26,7 @@ class GetStaffCoworkers
     {
         return [
             'q'          => ['sometimes', 'nullable', 'string', 'max:64'],
-            'model_type' => ['sometimes', 'nullable', Rule::in(StaffTask::PEOPLE_SCOPED_MODELS)],
+            'model_type' => ['sometimes', 'nullable', Rule::in(StaffTask::LINKABLE_MODELS)],
             'model_id'   => ['required_with:model_type', 'nullable', 'integer'],
         ];
     }
@@ -147,7 +147,7 @@ class GetStaffCoworkers
 
         $rows = array_values(array_filter($rows, fn (array $row) => $row['id'] !== $me->id));
 
-        if ($modelType = $request->validated('model_type')) {
+        if (in_array($modelType = $request->validated('model_type'), StaffTask::PEOPLE_SCOPED_MODELS, true)) {
             $ableIds = $this->userIdsAbleTo($me->group_id, StaffTask::viewPermissionsOf($modelType, (int) $request->validated('model_id'), $me->group_id));
             $rows    = array_values(array_filter($rows, fn (array $row) => in_array($row['id'], $ableIds)));
         }

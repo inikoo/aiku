@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Notification;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * A task sent to a department rather than a person is told to everyone in that department, so somebody picks it up.
+ * A task sent to a department rather than a person is told to the people in it, so somebody picks it up:
+ * everyone, or in a big department its supervisors and the positions in StaffTask::ANNOUNCED_TO_POSITIONS.
  */
 class NotifyStaffTaskDepartment
 {
@@ -27,7 +28,7 @@ class NotifyStaffTaskDepartment
             return 0;
         }
 
-        $members = StaffTask::departmentMembers($task->requester ?? $actor, $task->department, $task->data['organisation_id'] ?? null)
+        $members = StaffTask::departmentAnnouncedTo($task->requester ?? $actor, $task->department, $task->data['organisation_id'] ?? null)
             ->reject(fn (User $member) => in_array($member->id, [$actor->id, $task->requester_id], true))
             ->filter(fn (User $member) => StaffTask::canBeAssigned($member))
             ->values();

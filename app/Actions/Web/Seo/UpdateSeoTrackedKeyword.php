@@ -21,9 +21,9 @@ class UpdateSeoTrackedKeyword extends OrgAction
 
     public function handle(SeoTrackedKeyword $trackedKeyword, array $modelData): SeoTrackedKeyword
     {
-        $trackedKeyword->update($modelData);
+        $trackedKeyword->onEveryDevice()->update($modelData);
 
-        return $trackedKeyword;
+        return $trackedKeyword->refresh();
     }
 
     public function rules(): array
