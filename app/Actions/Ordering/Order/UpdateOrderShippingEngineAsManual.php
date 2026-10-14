@@ -150,12 +150,12 @@ class UpdateOrderShippingEngineAsManual extends OrgAction
         ];
     }
 
-    public function afterValidator(Validator $validator): void
+    public function afterValidator(Validator $validator, ActionRequest $request): void
     {
         $isFaire = $this->order->shop->engine == ShopEngineEnum::FAIRE;
-        if ($isFaire && $this->order->is_shipping_by_external) {
-            $validator->errors()->add('message', __('This order is sent with a Faire label, so Faire pays no shipping for it and none can be added.'));
-        } elseif ($isFaire && $this->order->deliveryNotes()->where('state', '!=', DeliveryNoteStateEnum::CANCELLED)->whereHas('shipments')->exists()) {
+        if ($isFaire && $this->order->is_shipping_by_external && !$request->user()->authTo("accounting.{$this->order->organisation_id}.edit")) {
+            $validator->errors()->add('message', __('This order is sent with a Faire label. Its shipping can only be entered by accounts.'));
+        } elseif ($isFaire && !$this->order->is_shipping_by_external && $this->order->deliveryNotes()->where('state', '!=', DeliveryNoteStateEnum::CANCELLED)->whereHas('shipments')->exists()) {
             $validator->errors()->add('message', __('The tracking of this order was already sent to Faire. Enter the shipping cost on Faire and it is copied here.'));
         } elseif ($this->order->state == OrderStateEnum::CANCELLED) {
             $validator->errors()->add('message', __('Shipping can not be changed once order is cancelled.'));

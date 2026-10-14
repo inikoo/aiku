@@ -52,6 +52,7 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Masters\MasterAsset;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\User;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
 use App\Models\Dispatching\Shipper;
@@ -496,8 +497,8 @@ test('a faire line moved to a re-order leaves the original order unless it alrea
     expect($movedLine->order_id)->toBe($reOrder->id);
 });
 
-/** HELP-3906: shipping is typed in Aiku only on a Faire order we ship ourselves, and before its tracking goes to Faire. */
-test('manual shipping on a faire order is refused with a faire label and allowed when we ship it ourselves', function () {
+/** HELP-3906, HELP-3989: Faire does not say what it charged for its own label, so only accounts type it; an order we ship ourselves takes it before its tracking goes to Faire. */
+test('manual shipping on a faire label order is for accounts only and on our own shipping is allowed before the tracking', function () {
     $order = StoreOrder::make()->action($this->customer, []);
     StoreTransaction::make()->action($order->refresh(), $this->standardProduct->historicAsset, ['quantity_ordered' => 1]);
     createWarehouse();
@@ -507,10 +508,37 @@ test('manual shipping on a faire order is refused with a faire label and allowed
 
     $this->shop->updateQuietly(['type' => ShopTypeEnum::EXTERNAL, 'engine' => ShopEngineEnum::FAIRE]);
 
+    $withoutAccounting = new class () extends User {
+        protected $table = 'users';
+
+        public function getMorphClass(): string
+        {
+            return 'User';
+        }
+
+        public function getForeignKey(): string
+        {
+            return 'user_id';
+        }
+
+        public function authTo(string|array $permission): bool
+        {
+            return !str_starts_with(implode('|', (array)$permission), 'accounting.');
+        }
+    };
+    $withoutAccounting->setRawAttributes($this->user->getAttributes(), true);
+    $withoutAccounting->exists = true;
+
     try {
-        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 4.95])
+        actingAs($withoutAccounting);
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 5.03])
             ->assertSessionHasErrors('message');
         expect((float)$order->refresh()->shipping_amount)->toBe(0.0);
+
+        actingAs($this->user);
+        patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 5.03])
+            ->assertSessionHasNoErrors();
+        expect((float)$order->refresh()->shipping_amount)->toBe(5.03);
 
         $order->update(['is_shipping_by_external' => false]);
         patch(route('grp.models.order.set_shipping_engine_manual', $order->id), ['shipping_amount' => 4.95])

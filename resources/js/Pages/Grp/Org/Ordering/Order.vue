@@ -336,6 +336,7 @@ const props = defineProps<{
         icon: string
     }
     is_faire_order: boolean
+    can_edit_faire_label_shipping?: boolean
     allow_order_modification: boolean
 }>()
 
@@ -990,7 +991,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value)) {
+    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value && !props.can_edit_faire_label_shipping)) {
         return false
     }
 
@@ -3025,7 +3026,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 </div>
                 <div>
                     <dt class="font-semibold">{{ ctrans("Sent with a Faire label") }}</dt>
-                    <dd>{{ ctrans("Faire pays no shipping for the order, so there is no shipping amount and none can be added.") }}</dd>
+                    <dd>{{ ctrans("Faire charges the retailer for shipping but does not say how much, so accounts type the shipping Faire invoiced before the order is invoiced. It is not sent to Faire.") }}</dd>
                 </div>
             </dl>
             <p class="mt-4 text-gray-500">
