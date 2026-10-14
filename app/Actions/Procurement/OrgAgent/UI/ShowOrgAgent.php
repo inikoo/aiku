@@ -74,6 +74,11 @@ class ShowOrgAgent extends OrgAction
                     'previous' => $this->getPrevious($orgAgent, $request),
                     'next'     => $this->getNext($orgAgent, $request),
                 ],
+                'suspended_alert' => $orgAgent->status ? null : [
+                    'status'      => 'warning',
+                    'title'       => __('Suspended agent'),
+                    'description' => __('We no longer work with this agent. Its suppliers, orders and deliveries stay here for reference.'),
+                ],
                 'pageHead'    => [
                     'model'         => __('Agent'),
                     'icon'          =>

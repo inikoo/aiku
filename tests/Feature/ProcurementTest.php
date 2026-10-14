@@ -2900,6 +2900,29 @@ test('UI Index org agents', function () {
     });
 });
 
+test('suspended agents leave the agents page for their own list and say so on their page', function () {
+    $orgAgent = $this->orgAgent;
+    $orgAgent->update(['status' => false]);
+
+    $this->get(route('grp.org.procurement.org_agents.index', [$this->organisation->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('agents', fn ($agents) => !collect($agents)->contains('slug', $orgAgent->slug))
+            ->where('suspended_count', fn ($count) => $count >= 1));
+
+    $this->get(route('grp.org.procurement.org_agents.suspended', [$this->organisation->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/SuspendedOrgAgents')
+            ->where('data.data', fn ($rows) => collect($rows)->contains('slug', $orgAgent->slug)));
+
+    $this->get(route('grp.org.procurement.org_agents.show', [$this->organisation->slug, $orgAgent->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('suspended_alert.title', __('Suspended agent')));
+
+    $orgAgent->update(['status' => true]);
+
+    $this->get(route('grp.org.procurement.org_agents.show', [$this->organisation->slug, $orgAgent->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('suspended_alert', null));
+});
+
 test('agent card sections stay open or closed per user', function () {
     $user = auth()->user();
     $user->update(['settings' => array_merge($user->settings ?? [], ['tickets_list_mine' => 'assigned'])]);

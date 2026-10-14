@@ -1598,6 +1598,7 @@ test('UI show agent', function () {
     $response->assertInertia(function (AssertableInertia $page) use ($agent) {
         $page
             ->component('SupplyChain/Agent')
+            ->where('suspended_alert', fn ($alert) => $agent->status ? $alert === null : $alert['title'] === __('Suspended agent'))
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(

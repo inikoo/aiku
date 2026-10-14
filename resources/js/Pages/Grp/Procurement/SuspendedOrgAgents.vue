@@ -1,0 +1,23 @@
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3"
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import TableSuspendedOrgAgents from "@/Components/Tables/Grp/Org/Procurement/TableSuspendedOrgAgents.vue"
+import { capitalize } from "@/Composables/capitalize"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faPeopleArrows } from "@fal"
+library.add(faPeopleArrows)
+
+defineProps<{
+	pageHead: object
+	title: string
+	data: object
+}>()
+</script>
+
+<template>
+	<div>
+		<Head :title="capitalize(title)" />
+		<PageHeading :data="pageHead" />
+		<TableSuspendedOrgAgents :data="data" />
+	</div>
+</template>

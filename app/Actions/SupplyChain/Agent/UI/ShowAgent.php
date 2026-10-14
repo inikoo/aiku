@@ -86,6 +86,11 @@ class ShowAgent extends OrgAction
                         ),
                     ],
                 ],
+                'suspended_alert'              => $agent->status ? null : [
+                    'status'      => 'warning',
+                    'title'       => __('Suspended agent'),
+                    'description' => __('We no longer work with this agent. Its suppliers, orders and deliveries stay here for reference.'),
+                ],
                 'tabs'                         => [
                     'current'    => $this->tab,
                     'navigation' => AgentTabsEnum::navigation()

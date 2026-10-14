@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
+import AlertMessage from "@/Components/Utils/AlertMessage.vue"
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
     faInventory,
@@ -41,6 +42,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
+    suspended_alert?: { status: string, title: string, description: string } | null,
     pageHead: object,
     tabs: {
         current: string;
@@ -125,6 +127,9 @@ const getErrors = () => {
             <Button v-if="currentTab === 'attachments'" :label="ctrans('Attach')" icon="upload" @click="() => (isModalUploadAttachmentOpen = true)" />
         </template>
     </PageHeading>
+    <div v-if="suspended_alert" class="px-4 pt-4">
+        <AlertMessage :alert="suspended_alert" />
+    </div>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">

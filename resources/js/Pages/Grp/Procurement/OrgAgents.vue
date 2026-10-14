@@ -57,7 +57,6 @@ interface AgentCard {
 	slug: string
 	code: string
 	name: string
-	status: boolean
 	country_code: string | null
 	country_name: string | null
 	currency_code: string | null
@@ -88,6 +87,7 @@ const props = defineProps<{
 	agents: AgentCard[]
 	cover?: Record<number, CoverBucket[]>
 	card_sections: Record<string, boolean>
+	suspended_count: number
 }>()
 
 const locale = useLocaleStore()
@@ -192,8 +192,7 @@ const toggle = (agent: AgentCard, section: string) => {
 		<div
 			v-for="agent in agents"
 			:key="agent.id"
-			class="flex flex-col rounded-lg border border-gray-200 bg-white shadow-sm"
-			:class="{ 'opacity-60': !agent.status }">
+			class="flex flex-col rounded-lg border border-gray-200 bg-white shadow-sm">
 			<div class="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
 				<img
 					v-if="agent.country_code"
@@ -227,15 +226,10 @@ const toggle = (agent: AgentCard, section: string) => {
 						</Link>
 					</div>
 				</div>
-				<span
-					v-if="!agent.status"
-					class="shrink-0 rounded bg-gray-100 px-1.5 text-xs text-gray-600"
-					>{{ ctrans("Inactive") }}</span
-				>
 			</div>
 
 			<div class="flex-1 space-y-3 px-4 py-3">
-				<section v-if="agent.status">
+				<section>
 					<Deferred data="cover">
 						<template #fallback>
 							<div class="h-32 animate-pulse rounded-md bg-gray-100" />
@@ -531,5 +525,13 @@ const toggle = (agent: AgentCard, section: string) => {
 		</div>
 
 		<p v-if="!agents.length" class="text-gray-500">{{ ctrans("No agents found") }}</p>
+	</div>
+
+	<div v-if="suspended_count" class="max-w-[120rem] px-4 pb-4 text-right text-xs">
+		<Link
+			:href="route('grp.org.procurement.org_agents.suspended', [organisation])"
+			class="text-gray-400 hover:text-gray-600 hover:underline"
+			>{{ ctrans("Suspended agents (:count)", { count: suspended_count }) }}</Link
+		>
 	</div>
 </template>

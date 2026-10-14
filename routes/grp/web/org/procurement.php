@@ -22,6 +22,7 @@ use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
+use App\Actions\Procurement\OrgAgent\UI\IndexSuspendedOrgAgents;
 use App\Actions\Procurement\OrgAgent\PrepareAgentPurchaseOrders;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\OrgAgent\SetAgentDraftLine;
@@ -142,6 +143,7 @@ Route::prefix('emails')->as('supplier_messages.')->group(function () {
 Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('', IndexOrgAgents::class)->name('index');
     Route::get('export', ExportOrgAgents::class)->name('export');
+    Route::get('suspended', IndexSuspendedOrgAgents::class)->name('suspended');
 
     Route::prefix('{orgAgent}')->as('show')->group(function () {
         Route::get('', ShowOrgAgent::class);
