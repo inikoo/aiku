@@ -7302,8 +7302,10 @@ describe('partner shopping list', function () {
         $item         = submittedPartnerShoppingListItem($this->orgPartner, $this->buyerOrgStock, ['quantity' => 2]);
         $order        = CherryPickPartnerShoppingListItems::make()->action($seller, [['id' => $item->id]])['orders'][0];
         $oldCustomer  = $order->customer->replicate(['ulid', 'slug', 'reference']);
-        $oldCustomer->as_organisation_id = $this->orgPartner->organisation_id;
+        $oldCustomer->as_organisation_id = null;
         $oldCustomer->save();
+        $orgPartnerDataBefore = $this->orgPartner->data;
+        $this->orgPartner->update(['data' => array_merge((array) $orgPartnerDataBefore, ['intercompany_customers' => [$oldCustomer->id]])]);
 
         expect(StoreOrder::isPartnerBuyingFromHub($oldCustomer, $oldCustomer->shop))->toBeTrue();
 
@@ -7313,6 +7315,7 @@ describe('partner shopping list', function () {
 
         expect(StorePartnerStockDeliveryFromDeliveryNote::make()->resolveOrgPartner($deliveryNote->refresh())?->id)->toBe($this->orgPartner->id);
 
+        $this->orgPartner->update(['data' => $orgPartnerDataBefore]);
         $seller->update(['is_manufacturing_hub' => true]);
     });
 
@@ -9921,10 +9924,10 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
             ->from('purchase_order_transactions')
             ->whereColumn('purchase_order_transactions.org_stock_id', 'org_stocks.id'))
         ->firstOrFail();
-    $orgStockBefore = $orgStock->only(['state', 'quantity_available', 'is_excluded_from_auto_ordering']);
+    $orgStockBefore = $orgStock->only(['state', 'quantity_available', 'is_excluded_from_auto_ordering', 'measured_lead_time_days', 'estimated_lead_time_days']);
 
     try {
-        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0.5, 'is_excluded_from_auto_ordering' => false]);
+        $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0.5, 'is_excluded_from_auto_ordering' => false, 'measured_lead_time_days' => null, 'estimated_lead_time_days' => null]);
         $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
         DB::table('supplier_products')->where('id', $orgSupplierProduct->supplier_product_id)->update(['currency_id' => $this->organisation->currency_id]);
 

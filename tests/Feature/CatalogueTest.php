@@ -1105,7 +1105,7 @@ test('staff choose who a product is sold to from its edit page', function () {
 });
 
 test('repair repoints products from a discontinued org stock to its active twin', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $product = UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1131,7 +1131,7 @@ test('repair repoints products from a discontinued org stock to its active twin'
 });
 
 test('product ingredients and origin stop reflecting a trade unit once it is removed', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1166,7 +1166,7 @@ test('product ingredients and origin stop reflecting a trade unit once it is rem
 });
 
 test('a multi part product declares only its main part to customs', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1203,7 +1203,7 @@ test('a multi part product declares only its main part to customs', function () 
 });
 
 test('repair command resyncs product ingredients and origin from trade units', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1235,7 +1235,7 @@ test('repair command resyncs product ingredients and origin from trade units', f
 });
 
 test('a bundle combines its trade unit ingredients and shows no component dimensions', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1269,7 +1269,7 @@ test('a bundle combines its trade unit ingredients and shows no component dimens
 });
 
 test('a starter spec block lists its components with a link to each one sold on its own', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createWebsite($shop);
 
     $storeTradeUnit = fn (string $ingredients) => \App\Actions\Goods\TradeUnit\StoreTradeUnit::make()->action(
@@ -1323,7 +1323,7 @@ test('a starter spec block lists its components with a link to each one sold on 
 });
 
 test('product detail carries the public documents of the selected variant', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1339,7 +1339,7 @@ test('product detail carries the public documents of the selected variant', func
 });
 
 test('product detail carries the incoming stock only while the shop lets customers see it', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
     $request = \Lorisleiva\Actions\ActionRequest::createFrom(request());
@@ -1371,7 +1371,7 @@ test('product detail carries the incoming stock only while the shop lets custome
 });
 
 test('bulk update product unit is scoped to shop', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -1657,7 +1657,7 @@ test('iris collection lists the product that owns a member product webpage', fun
 });
 
 test('shop products json carries the outer size from the stock, not the product units', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $product = UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1690,7 +1690,7 @@ test('shop products json carries the outer size from the stock, not the product 
 });
 
 test('an on-demand stock never caps a product, and the shop products json reports what is on the shelf', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $product = UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1741,7 +1741,7 @@ test('an on-demand stock never caps a product, and the shop products json report
 });
 
 test('first availability is stamped once, when the product is for sale, in stock and on a live webpage', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $product = UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1767,7 +1767,7 @@ test('first availability is stamped once, when the product is for sale, in stock
 });
 
 test('repair backfills first availability on launched products only, and leaves existing dates alone', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $newProduct = fn (): Product => UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1796,7 +1796,7 @@ test('repair backfills first availability on launched products only, and leaves 
 });
 
 test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     $product = UpdateProduct::make()->action(
         StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
         ['state' => ProductStateEnum::ACTIVE]
@@ -1835,7 +1835,7 @@ test('the out of stock date is set when stock runs out and is kept while the pro
 });
 
 test('faire case size change flags the product for units review until its trade units are saved', function () {
-    $seederShop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $seederShop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     [, $seederProduct] = createProduct($seederShop);
     SyncProductTradeUnits::run($seederProduct, [['id' => $this->tradeUnit1->id, 'quantity' => 1]]);
 
@@ -1874,7 +1874,7 @@ test('faire case size change flags the product for units review until its trade 
 });
 
 test('remodelling a seeder product sends its faire copies to case size review', function () {
-    $seederShop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $seederShop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     [, $seederProduct] = createProduct($seederShop);
     SyncProductTradeUnits::run($seederProduct, [['id' => $this->tradeUnit1->id, 'quantity' => 12]]);
     $seederProduct->updateQuietly(['units' => 12]);
@@ -2106,7 +2106,7 @@ test('product webpage replaces characters not allowed in webpage urls', function
 })->depends('create shop');
 
 test('product barcode is left alone when it stops being a single trade unit', function () {
-    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
     createProduct($shop);
     $product = $shop->products()->orderBy('id')->first();
 
@@ -2134,7 +2134,7 @@ test('product barcode is left alone when it stops being a single trade unit', fu
 
 test('customer service gets one stock notification for all their shops, new apart from back', function () {
     \Illuminate\Support\Facades\Notification::fake();
-    $shop = Shop::first();
+    $shop = Shop::orderBy('id')->first();
     createProduct($shop);
     $product = $shop->products()->orderByDesc('id')->first();
     $shop->updateQuietly(['is_aiku' => true, 'state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN]);

@@ -135,6 +135,13 @@ class JobOrderItemTask extends Model
 
     private ?ArtefactManufactureTask $recipeStep = null;
 
+    public function refresh()
+    {
+        $this->recipeStep = null;
+
+        return parent::refresh();
+    }
+
     private function recipeStep(): ?ArtefactManufactureTask
     {
         return $this->recipeStep ??= ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
