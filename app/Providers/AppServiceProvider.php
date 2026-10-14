@@ -16,6 +16,7 @@ use Gnikyt\BasicShopifyAPI\Options;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Vite;
@@ -125,6 +126,12 @@ class AppServiceProvider extends ServiceProvider
     {
         ini_set('pcre.backtrack_limit', '10000000');
         ini_set('pcre.recursion_limit', '10000000');
+
+        Paginator::queryStringResolver(function (): array {
+            parse_str((string) request()->server('QUERY_STRING'), $queryString);
+
+            return $queryString;
+        });
 
         Event::listen(fn (Audited $event) => BroadcastPurchaseOrderLastEdited::fromAudited($event));
 

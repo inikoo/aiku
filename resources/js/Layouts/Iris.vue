@@ -5,11 +5,12 @@ import { set } from 'lodash-es'
 import "@/../css/iris_styling.css"
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
-import { usePage } from '@inertiajs/vue3'
+import { Head, usePage } from '@inertiajs/vue3'
 import { provide, ref, onMounted, onBeforeUnmount, watch, computed, defineAsyncComponent } from 'vue'
 import { initialiseIrisApp } from '@/Composables/initialiseIris'
 import { useIrisLayoutStore } from "@/Stores/irisLayout"
 import { ctrans } from '@/Composables/useTrans'
+const page = usePage()
 const ScreenWarning = defineAsyncComponent(() => import('@/Components/Utils/ScreenWarning.vue'))
 const Modal = defineAsyncComponent(() => import('@/Components/Utils/Modal.vue'))
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -254,6 +255,9 @@ watch(() => layout.iris?.is_logged_in, syncLoggedInClass)
 
 <template>
     <div class="editor-class">
+        <Head v-if="page.component !== 'IrisWebpage'">
+            <link rel="canonical" head-key="canonical" :href="page.props.canonical_url" />
+        </Head>
         <component :is="'style'" v-if="containerPaddingCss">{{ containerPaddingCss }}</component>
 
         <ScreenWarning v-if="layout.app.environment === 'staging'">
