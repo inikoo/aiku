@@ -35,7 +35,7 @@ class EndManufactureBreak extends OrgAction
                 return $break;
             }
 
-            $endedAt = now()->min($break->plannedEndAt());
+            $endedAt = now()->min($break->plannedEndAt() ?? now());
             $break->update([
                 'ended_at'             => $endedAt,
                 'minutes'              => (int) round($break->started_at->diffInSeconds($endedAt) / 60),
@@ -54,10 +54,14 @@ class EndManufactureBreak extends OrgAction
     }
 
     /**
-     * Clocks back in only while the break's own clock-out is still the latest clocking: anyone who clocked in or out themselves since is left as they are.
+     * A kiosk clock-out is only ended by a kiosk clock-in. Clocks back in only while the break's own clock-out is still the latest clocking: anyone who clocked in or out themselves since is left as they are.
      */
     private function clockIn(ManufactureBreak $break, Carbon $clockedAt): ?Clocking
     {
+        if ($break->planned_minutes === null) {
+            return null;
+        }
+
         $clockOut = $break->clock_out_clocking_id ? Clocking::find($break->clock_out_clocking_id) : null;
         if (!$clockOut || !$break->employee || $break->employee->clockings()->latest('clocked_at')->latest('id')->value('id') != $clockOut->id) {
             return null;

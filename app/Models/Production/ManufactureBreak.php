@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int $production_id
  * @property int $user_id
  * @property int|null $employee_id
- * @property int $planned_minutes
+ * @property int|null $planned_minutes
  * @property int|null $minutes
  * @property Carbon $started_at
  * @property Carbon|null $ended_at
@@ -68,15 +68,18 @@ class ManufactureBreak extends Model
         return $this->belongsTo(Employee::class);
     }
 
-    public function plannedEndAt(): Carbon
+    /**
+     * A break without planned minutes is an hourly artisan clocked out at the kiosk: it lasts until they clock back in.
+     */
+    public function plannedEndAt(): ?Carbon
     {
-        return $this->started_at->copy()->addMinutes($this->planned_minutes);
+        return $this->planned_minutes === null ? null : $this->started_at->copy()->addMinutes($this->planned_minutes);
     }
 
     public function secondsWithin(Carbon $from, Carbon $to): int
     {
         $start = $this->started_at->max($from);
-        $end   = ($this->ended_at ?? now()->min($this->plannedEndAt()))->min($to);
+        $end   = ($this->ended_at ?? now()->min($this->plannedEndAt() ?? now()))->min($to);
 
         return max(0, (int) $start->diffInSeconds($end, false));
     }

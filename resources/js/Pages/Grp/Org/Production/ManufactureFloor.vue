@@ -79,7 +79,7 @@ const props = defineProps<{
     break_route: { name: string, parameters: object }
     open_break: null | {
         id: number
-        planned_minutes: number
+        planned_minutes: number | null
         started_at: string
         is_clocked_out: boolean
         end_route: { name: string, parameters: object }
@@ -158,14 +158,16 @@ let clock: ReturnType<typeof setInterval>
 onMounted(() => clock = setInterval(() => now.value = Date.now() + deviceClockOffset.value, 1000))
 onUnmounted(() => clearInterval(clock))
 
+const isKioskBreak = computed(() => props.open_break !== null && props.open_break.planned_minutes === null)
+const breakSecondsElapsed = computed(() => props.open_break ? Math.max(0, Math.floor((now.value - new Date(props.open_break.started_at).getTime()) / 1000)) : 0)
 const breakSecondsLeft = computed(() => {
-    if (!props.open_break) return 0
-    const elapsed = Math.floor((now.value - new Date(props.open_break.started_at).getTime()) / 1000)
-    return Math.max(0, props.open_break.planned_minutes * 60 - elapsed)
+    if (!props.open_break || props.open_break.planned_minutes === null) return 0
+    return Math.max(0, props.open_break.planned_minutes * 60 - breakSecondsElapsed.value)
 })
 const breakCountdown = computed(() => {
-    const m = Math.floor(breakSecondsLeft.value / 60)
-    const s = breakSecondsLeft.value % 60
+    const seconds = isKioskBreak.value ? breakSecondsElapsed.value : breakSecondsLeft.value
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
 
@@ -193,7 +195,7 @@ function endBreak() {
 }
 
 watch(breakSecondsLeft, left => {
-    if (props.open_break && left <= 0) endBreak()
+    if (props.open_break && !isKioskBreak.value && left <= 0) endBreak()
 })
 
 const selectedTaskId = ref<number | null>(props.open_session?.task.id ?? props.tasks.find(task => task.is_mine)?.id ?? props.tasks[0]?.id ?? null)
@@ -379,11 +381,13 @@ function startTask(task: FloorTask) {
 
             <div v-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
                 <div>
-                    <div class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
+                    <div v-if="isKioskBreak" class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('Clocked out') }} · {{ ctrans('Job paused') }}</div>
+                    <div v-else class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
                     <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
-                    <div v-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+                    <div v-if="isKioskBreak" class="mt-2 text-amber-700">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
+                    <div v-else-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
                 </div>
-                <button type="button"
+                <button v-if="!isKioskBreak" type="button"
                     class="rounded-xl bg-amber-600 text-white text-2xl font-semibold px-10 py-5 disabled:opacity-40"
                     :disabled="breakProcessing" @click="endBreak">
                     {{ ctrans('End break') }}
@@ -404,7 +408,7 @@ function startTask(task: FloorTask) {
                 </div>
             </div>
 
-            <div v-else class="w-full max-w-5xl flex items-center gap-3">
+            <div v-else-if="break_options.length" class="w-full max-w-5xl flex items-center gap-3">
                 <span class="text-lg text-gray-600">{{ ctrans('Break') }}:</span>
                 <button v-for="minutes in break_options" :key="minutes" type="button"
                     class="rounded-lg border-2 border-amber-300 bg-white text-amber-800 text-xl font-semibold px-6 py-3 hover:bg-amber-50"
@@ -444,7 +448,7 @@ function startTask(task: FloorTask) {
                 </div>
             </template>
 
-            <div v-if="open_break" class="flex-1 flex items-center text-gray-400 text-lg">{{ ctrans('Finish your break to continue working') }}</div>
+            <div v-if="open_break" class="flex-1 flex items-center text-gray-400 text-lg">{{ isKioskBreak ? ctrans('Clock back in to continue working') : ctrans('Finish your break to continue working') }}</div>
 
             <ManufactureWorkingCard v-else-if="open_session" :session="open_session" :server-time="server_time" class="w-full max-w-5xl" />
 

@@ -24,6 +24,7 @@ use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufacturePayBand;
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Models\Production\ManufactureBreak;
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\User;
@@ -221,7 +222,7 @@ class ShowManufactureFloor extends OrgAction
                     'title' => __('My tasks'),
                 ],
                 'production_id' => $this->production->id,
-                'break_options' => StartManufactureBreak::ALLOWED_MINUTES,
+                'break_options' => $this->employee?->artisan_pay_type === ArtisanPayTypeEnum::HOURLY ? [] : StartManufactureBreak::ALLOWED_MINUTES,
                 'break_route'   => [
                     'name'       => 'grp.models.production.break.store',
                     'parameters' => ['production' => $this->production->id],

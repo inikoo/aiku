@@ -5502,6 +5502,78 @@ test('a break clocks a clocked in artisan out and back in, and leaves one who is
     $this->travelBack();
 });
 
+test('an hourly artisan clocking out at the kiosk pauses their job until they clock back in, and gets no timed breaks', function () {
+    $this->travelTo(now($this->organisation->timezone?->name ?? 'UTC')->setTime(9, 0));
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+    ]);
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 10]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    $employee = StoreEmployee::make()->action($this->organisation, array_merge(Employee::factory()->definition(), [
+        'worker_number'   => 'HRL-'.uniqid(),
+        'alias'           => 'hrl'.uniqid(),
+        'username'        => 'hrl'.uniqid(),
+        'password'        => 'secret-password',
+        'state'           => \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING,
+        'type'            => \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME,
+    ]));
+    $employee->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+    $task->update(['employee_id' => $employee->id]);
+    $user      = $employee->getUser();
+    $workplace = \App\Actions\HumanResources\Workplace\StoreWorkplace::make()->action($this->organisation, [
+        'name' => 'Floor '.uniqid(),
+        'type' => \App\Enums\HumanResources\Workplace\WorkplaceTypeEnum::HQ,
+    ]);
+    $kiosk = \App\Actions\HumanResources\ClockingMachine\StoreClockingMachine::make()->action($workplace, [
+        'name' => 'Kiosk '.uniqid(),
+        'type' => \App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum::QR_CODE->value,
+    ]);
+    $scan   = fn () => \App\Actions\HumanResources\Clocking\StoreClocking::make()->action($user, $kiosk, $employee, []);
+    $breaks = fn () => \App\Models\Production\ManufactureBreak::where('user_id', $user->id);
+
+    $scan();
+    expect($breaks()->count())->toBe(0);
+
+    expect(fn () => \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 20]))
+        ->toThrow(ValidationException::class);
+
+    $session = StartManufactureTaskSession::make()->action($user, $task);
+    $this->travel(30)->minutes();
+    $clockOut = $scan();
+    $pause    = $breaks()->open()->first();
+    expect($pause->planned_minutes)->toBeNull()
+        ->and($pause->clock_out_clocking_id)->toBe($clockOut->id);
+
+    $this->travel(15)->minutes();
+    $clockIn = $scan();
+    expect($pause->refresh()->ended_at)->not->toBeNull()
+        ->and($pause->minutes)->toBe(15)
+        ->and($pause->clock_in_clocking_id)->toBe($clockIn->id)
+        ->and($session->refresh()->break_minutes)->toBe(15);
+
+    $this->travel(10)->minutes();
+    $session = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 4]);
+    expect($session->break_minutes)->toBe(15)
+        ->and(round($session->paidHours(), 4))->toBe(round(40 / 60, 4));
+
+    $this->travel(5)->minutes();
+    $scan();
+    expect($breaks()->count())->toBe(1);
+
+    $employee->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::PIECE_RATE]);
+    $this->travel(5)->minutes();
+    $scan();
+    StartManufactureTaskSession::make()->action($user, $task);
+    $this->travel(5)->minutes();
+    $scan();
+    expect($breaks()->count())->toBe(1);
+    $this->travelBack();
+});
+
 test('a batch size change flags open jobs raised with the old one and their quantity can be corrected', function () {
     $stocks   = createStocks($this->group);
     $orgStock = createOrgStocks($this->organisation, [$stocks[0]])[0];
