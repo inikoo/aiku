@@ -7466,6 +7466,14 @@ describe('partner shopping list', function () {
         $orgStock->update(['quantity_available' => 200]);
         expect($recommendation())->toBe(0.0);
 
+        $buckets  = App\Actions\Procurement\OrgPartner\GetPartnerStockCoverBuckets::make();
+        $inDoomed = fn () => in_array($orgStock->stock_id, $buckets->stockIdsInBucket($this->orgPartner->refresh(), 'w1'));
+        $orgStock->stats->update(['days_of_cover' => 30, 'predicted_daily_usage' => 0.01]);
+        expect($inDoomed())->toBeFalse();
+
+        DB::table('partner_shopping_list_items')->where('org_stock_id', $orgStock->id)->update(['deleted_at' => now()]);
+        expect($inDoomed())->toBeTrue();
+
         $onOrder->delete();
     });
 
@@ -10285,6 +10293,8 @@ test('organisation stock cover buckets judge each active sko against its lead ti
     $orgStock = $this->orgStocks[0];
     $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'is_on_demand' => false, 'estimated_lead_time_days' => 10, 'quantity_available' => 50]);
     $orgStock->stock->update(['state' => StockStateEnum::ACTIVE]);
+    DB::table('stock_delivery_items')->where('org_stock_id', $orgStock->id)->whereNull('deleted_at')->update(['deleted_at' => now()]);
+    DB::table('purchase_order_transactions')->where('org_stock_id', $orgStock->id)->whereNull('deleted_at')->update(['deleted_at' => now()]);
     $buckets = App\Actions\Procurement\GetOrganisationStockCoverBuckets::make();
 
     $bucketFor = function (array $stats) use ($orgStock, $buckets) {
@@ -10298,6 +10308,12 @@ test('organisation stock cover buckets judge each active sko against its lead ti
         ->and($bucketFor(['days_of_cover' => 60, 'predicted_daily_usage' => 1, 'stock_value' => 100]))->toBe('ok')
         ->and($bucketFor(['days_of_cover' => 300, 'predicted_daily_usage' => 0.2, 'stock_value' => 100]))->toBe('excess')
         ->and($bucketFor(['days_of_cover' => null, 'predicted_daily_usage' => 0, 'stock_value' => 100]))->toBe('dead');
+
+    $comingDelivery = createStockDeliveryWithItems($this, 'COVER-COMING-'.uniqid(), [600 * max(1, (int) $orgStock->packed_in)]);
+    expect($bucketFor(['days_of_cover' => 5, 'predicted_daily_usage' => 10, 'stock_value' => 100]))->toBe('ok');
+
+    $comingDelivery->update(['state' => App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum::CANCELLED]);
+    expect($buckets->bucketOf($orgStock->fresh()))->toBe('w1');
 
     $orgStock->update(['quantity_available' => 0]);
     expect($buckets->bucketOf($orgStock->fresh()))->toBeNull();

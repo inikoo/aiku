@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\Procurement\ProjectOrganisationStockOuts;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
@@ -66,12 +67,13 @@ class GetAgentStockCoverBuckets
             when os.id is null then 'never'
             when os.state <> '".OrgStockStateEnum::ACTIVE->value."' then 'gone'
             when os.quantity_available < 1 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS.")) then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS."))", "
+                when cover.days <= $lead then 'w1'
+                when cover.days <= $understock then 'w2'
+                when cover.days <= 3 * $lead then 'w3'
+                when cover.days <= greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS.")) then 'w4'
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'").' end';
     }
 
     /**
@@ -91,7 +93,7 @@ class GetAgentStockCoverBuckets
             ->whereRaw('link.status')
             ->orderByDesc('link.local_priority')
             ->orderByRaw("(org_stocks.state = '".OrgStockStateEnum::ACTIVE->value."') desc, org_stocks.quantity_available desc nulls last")
-            ->select(['org_stocks.id', 'org_stocks.stock_id', 'org_stocks.state', 'org_stocks.quantity_available', 'org_stocks.health_rank', 'org_stocks.is_excluded_from_auto_ordering'])
+            ->select(['org_stocks.id', 'org_stocks.stock_id', 'org_stocks.state', 'org_stocks.quantity_available', 'org_stocks.health_rank', 'org_stocks.is_excluded_from_auto_ordering', 'org_stocks.packed_in'])
             ->limit(1);
     }
 

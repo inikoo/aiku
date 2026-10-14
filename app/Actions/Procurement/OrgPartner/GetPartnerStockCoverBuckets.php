@@ -8,10 +8,12 @@
 
 namespace App\Actions\Procurement\OrgPartner;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Actions\Procurement\PartnerShoppingListItem\RoundPartnerQuantityToBatches;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
@@ -63,12 +65,28 @@ class GetPartnerStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.quantity_available <= 0 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
+                when cover.days <= $lead then 'w1'
+                when cover.days <= $understock then 'w2'
+                when cover.days <= 3 * $lead then 'w3'
+                when cover.days <= 4 * $lead then 'w4'
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'", $this->onShoppingListSkosExpression()).' end';
+    }
+
+    /**
+     * SKOs already asked of a partner and not on a purchase order yet: open shopping list lines and
+     * lines on an order the partner has not dispatched, as the recommended order quantity counts them.
+     */
+    private function onShoppingListSkosExpression(): string
+    {
+        return "coalesce((select sum(asked.quantity) from partner_shopping_list_items asked
+                left join transactions asked_transactions on asked_transactions.id = asked.transaction_id
+                left join orders asked_orders on asked_orders.id = asked_transactions.order_id
+                where asked.org_stock_id = os.id and asked.deleted_at is null
+                    and (asked.state = '".ShoppingListItemStateEnum::OPEN->value."'
+                        or (asked.state = '".ShoppingListItemStateEnum::ORDERED->value."' and asked_transactions.deleted_at is null
+                            and asked_orders.state in ('".OrderStateEnum::CREATING->value."', '".OrderStateEnum::SUBMITTED->value."')))), 0)";
     }
 
     /**
