@@ -351,8 +351,7 @@ class ShowRetinaEcomOrderReview extends RetinaAction
 
     public function getOrderBoxStats(Order $order): array
     {
-        $payAmount   = $order->total_amount - $order->payment_amount;
-        $roundedDiff = round($payAmount, 2);
+        $roundedDiff = $order->amountStillToPay();
 
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 

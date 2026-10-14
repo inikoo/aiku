@@ -20,6 +20,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use Illuminate\Support\Arr;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Enums\Ordering\Order\OrderToBePaidByEnum;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrderPaymentApiPoint;
 use App\Models\Accounting\Payment;
@@ -724,6 +725,13 @@ class Order extends Model implements HasMedia, Auditable
     public function isDropshipping(): bool
     {
         return $this->customer_sales_channel_id !== null;
+    }
+
+    public function amountStillToPay(): float
+    {
+        $refunded = $this->invoices()->where('type', InvoiceTypeEnum::REFUND)->where('in_process', false)->sum('total_amount');
+
+        return round($this->total_amount + $refunded - $this->payment_amount, 2);
     }
 
     public function scopePaySettled(Builder $query): Builder

@@ -3083,6 +3083,59 @@ test('paid then refunded order reads refunded not unpaid', function () {
         ->and((float)$order->payment_amount)->toBe(0.0);
 });
 
+test('dispatched order credited for part of its total has nothing left to pay', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $orderData = Order::factory()->definition();
+    data_set($orderData, 'billing_address', $billingAddress);
+    data_set($orderData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action($this->customer, $orderData);
+
+    StoreTransaction::make()->action($order, $this->product->historicAsset, [
+        'quantity_ordered' => 2,
+    ]);
+
+    $order->refresh();
+    $total  = (float)$order->total_amount;
+    $credit = round($total / 2, 2);
+
+    $paymentAccount = StoreOrgPaymentServiceProviderAccount::make()->action(
+        $this->organisation,
+        PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first(),
+        [
+            'code' => 'CR'.mt_rand(1000, 9999),
+            'name' => 'Cash Account',
+        ]
+    );
+
+    PayOrder::make()->action($order, $paymentAccount, [
+        'amount'    => $total,
+        'reference' => 'PAY-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+
+    StoreInvoice::make()->action($order, array_merge(Invoice::factory()->definition(), [
+        'type'         => InvoiceTypeEnum::REFUND,
+        'in_process'   => false,
+        'total_amount' => -$credit,
+        'net_amount'   => -$credit,
+    ]));
+
+    PayOrder::make()->action($order->refresh(), $paymentAccount, [
+        'amount'    => -$credit,
+        'reference' => 'REFUND-'.uniqid(),
+        'status'    => PaymentStatusEnum::SUCCESS,
+        'state'     => PaymentStateEnum::COMPLETED,
+    ]);
+    $order->refresh();
+
+    expect(round($total - (float)$order->payment_amount, 2))->toBe($credit)
+        ->and($order->amountStillToPay())->toBe(0.0);
+});
+
 test('paid order whose total drops to zero with nothing refunded reads overpaid not refunded', function () {
     $billingAddress  = new Address(Address::factory()->definition());
     $deliveryAddress = new Address(Address::factory()->definition());
