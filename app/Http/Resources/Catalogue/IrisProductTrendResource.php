@@ -5,6 +5,7 @@ namespace App\Http\Resources\Catalogue;
 use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Http\Resources\HasSelfCall;
 use App\Http\Resources\Traits\HasPriceMetrics;
+use App\Http\Resources\Traits\HasProductBadge;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -30,6 +31,7 @@ class IrisProductTrendResource extends JsonResource
 {
     use HasSelfCall;
     use HasPriceMetrics;
+    use HasProductBadge;
 
     public function toArray($request): array
     {
@@ -73,6 +75,7 @@ class IrisProductTrendResource extends JsonResource
             'discounted_percentage'      => percentage($bestPercentageOff, 1),
             'product_offers_data'        => $productOffersData,
             'top_seller'                 => $this->top_seller,
+            ...$this->getProductBadgeData(),
             'trend_sales'                => round((float) $this->trend_sales, 2),
         ];
     }

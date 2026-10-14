@@ -47,6 +47,10 @@ export interface ProductResource {
 	is_golden_product?: boolean
 	is_variant?: boolean
 	top_seller: number | null
+	badge?: 'new_in' | 'bestseller' | null
+	first_available_at?: string | null
+	back_in_stock_since?: string | null
+	out_of_stock_since?: string | null
 	web_images: {
 		main: {
 			original: ImageTS

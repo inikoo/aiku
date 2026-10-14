@@ -8,7 +8,7 @@ import { notify } from '@kyvg/vue3-notification'
 import { ctrans } from '@/Composables/useTrans'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { faHeart } from '@far'
-import { faHeart as fasHeart, faMedal } from '@fas'
+import { faHeart as fasHeart, faCrown } from '@fas'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faQuestionCircle } from "@fal"
@@ -195,14 +195,10 @@ const onUnselectBackInStock = (product: ProductResource) => {
         <!-- Top Section: Stock, Images, Title, Code, Price -->
         <div class=" text-gray-800 isolate">
             <div v-if="product?.top_seller"
-                class="z-10 absolute top-2 left-2 border text-xs font-bold px-2 py-0.5 rounded" :class="{
-                    'text-[#FFD700] bg-[#584b015] border-[#FFD700]': product.top_seller == 1, // Gold
-                    'text-[#C0C0C0] bg-[#C0C0C033] border-[#C0C0C0]': product.top_seller === 2, // Silver
-                    'text-[#CD7F32] bg-[#CD7F3222] border-[#CD7F32]': product.top_seller === 3  // Bronze
-                }">
-                <FontAwesomeIcon :icon="faMedal" class=" mr-0 md:mr-2" fixed-width s />
+                class="z-10 absolute top-2 left-2 border text-xs font-bold px-2 py-0.5 rounded text-[#8A6A1F] bg-[#DDB86233] border-[#DDB862]">
+                <FontAwesomeIcon :icon="faCrown" class=" mr-0 md:mr-2" fixed-width />
 
-                <span class="hidden md:inline">{{ ctrans("BESTSELLER") }}</span>
+                <span class="hidden md:inline">{{ ctrans("Bestseller") }}</span>
             </div>
 
 

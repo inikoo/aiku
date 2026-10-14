@@ -19,7 +19,8 @@ import { ProductResource } from '@/types/Iris/Products'
 import NewAddToCartButton from '@/Components/CMS/Webpage/Products/NewAddToCartButton.vue'
 import { faEnvelopeCircleCheck } from '@fortawesome/free-solid-svg-icons'
 import LinkIris from '@/Iris/Components/LinkIris.vue'
-import BestsellerBadge from '@/Components/CMS/Webpage/Products/BestsellerBadge.vue'
+import ProductBadge from '@/Components/CMS/Webpage/Products/ProductBadge.vue'
+import { resolveProductBadge } from '@/Composables/useProductBadge'
 import { routeType } from '@/types/route'
 /* import LabelComingSoon from '@/Components/Iris/Products/LabelComingSoon.vue' */
 import Prices4 from '@/Iris/Components/BlocksUtils/Prices4.vue'
@@ -198,8 +199,7 @@ defineExpose({
 
         <!-- Top Section: Stock, Images, Title, Code, Price -->
         <div class="text-gray-800 isolate">
-            <BestsellerBadge v-if="product?.top_seller && (product.stock > 0 || product.is_coming_soon)" :topSeller="product?.top_seller" :data="bestSeller"
-                :screenType="screenType" />
+            <ProductBadge :product="product" :data="bestSeller" :screenType="screenType" bestsellerNeedsStock />
             
 
             <!-- Section: Product Image, Add to Cart button, Email out of stock, Favourite -->
@@ -279,7 +279,7 @@ defineExpose({
                     </slot>
                 </div>
 
-                <ProductSoundButton v-if="product.audio" :src="product.audio" :topSeller="product.top_seller" />
+                <ProductSoundButton v-if="product.audio" :src="product.audio" :topSeller="resolveProductBadge(product)" />
 
                 <!-- Section: Golden product, Favourite -->
                 <div v-if="product.is_golden_product || (layout?.iris?.is_logged_in && basketButton && !product.is_variant)"

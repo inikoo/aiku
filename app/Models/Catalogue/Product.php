@@ -170,6 +170,7 @@ use Spatie\Translatable\HasTranslations;
  * @property string|null $out_of_stock_since
  * @property string|null $back_in_stock_since
  * @property string|null $estimated_back_in_stock_at
+ * @property Carbon|null $first_available_at
  * @property int|null $estimated_to_be_delivered_quantity
  * @property int|null $origin_country_id
  * @property string|null $ufi_number
@@ -338,6 +339,7 @@ class Product extends Model implements Auditable, HasMedia
         'scpn_number'                   => 'string',
         'offers_data'                   => 'array',
         'not_for_sale_since'            => 'datetime',
+        'first_available_at'            => 'datetime',
         'is_for_sale'                   => 'boolean',
         'not_for_sale_from_master'      => 'boolean',
         'mismatch_with_master_detected' => 'boolean',

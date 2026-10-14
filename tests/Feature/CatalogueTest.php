@@ -23,6 +23,7 @@ use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\Json\GetIrisProductsInProductCategory;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateFirstAvailableAt;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\StoreProductVariant;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
@@ -51,6 +52,7 @@ use App\Actions\Catalogue\Product\RetireProductIntoReplacement;
 use App\Actions\Catalogue\Product\KeepRetiredProductAsSeparate;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
+use App\Actions\Maintenance\Catalogue\RepairProductsFirstAvailableAt;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -1735,6 +1737,100 @@ test('an on-demand stock never caps a product, and the shop products json report
         $product->update(['is_for_sale' => $originalIsForSale]);
         $product->orgStocks()->sync($originalStockLinks);
         ProductHydrateAvailableQuantity::run($product->refresh());
+    }
+});
+
+test('first availability is stamped once, when the product is for sale, in stock and on a live webpage', function () {
+    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $product = UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
+
+    $orderable = ['is_for_sale' => true, 'has_live_webpage' => true, 'status' => ProductStatusEnum::FOR_SALE, 'first_available_at' => null];
+
+    foreach ([['is_for_sale' => false], ['has_live_webpage' => false], ['status' => ProductStatusEnum::OUT_OF_STOCK], ['status' => ProductStatusEnum::COMING_SOON]] as $notOrderable) {
+        $product->updateQuietly(array_merge($orderable, $notOrderable));
+        expect(ProductHydrateFirstAvailableAt::run($product->refresh())->first_available_at)->toBeNull();
+    }
+
+    $product->updateQuietly($orderable);
+    $firstAvailableAt = ProductHydrateFirstAvailableAt::run($product->refresh())->first_available_at;
+    expect($firstAvailableAt)->not->toBeNull();
+
+    $this->travel(5)->days();
+    $product->updateQuietly(['status' => ProductStatusEnum::OUT_OF_STOCK]);
+    ProductHydrateFirstAvailableAt::run($product->refresh());
+    $product->updateQuietly(['status' => ProductStatusEnum::FOR_SALE]);
+    expect(ProductHydrateFirstAvailableAt::run($product->refresh())->first_available_at->equalTo($firstAvailableAt))->toBeTrue();
+    $this->travelBack();
+});
+
+test('repair backfills first availability on launched products only, and leaves existing dates alone', function () {
+    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $newProduct = fn (): Product => UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
+
+    $launched       = $newProduct();
+    $launchedStock  = $newProduct();
+    $comingSoon     = $newProduct();
+    $alreadyStamped = $newProduct();
+    $stampedAt      = now()->subDays(3)->startOfSecond();
+    $firstInStockAt = now()->subDays(90)->startOfSecond();
+
+    $launched->updateQuietly(['status' => ProductStatusEnum::OUT_OF_STOCK, 'first_available_at' => null, 'first_in_stock_at' => null]);
+    $launchedStock->updateQuietly(['status' => ProductStatusEnum::FOR_SALE, 'first_available_at' => null, 'first_in_stock_at' => $firstInStockAt]);
+    $comingSoon->updateQuietly(['status' => ProductStatusEnum::COMING_SOON, 'first_available_at' => null]);
+    $alreadyStamped->updateQuietly(['status' => ProductStatusEnum::FOR_SALE, 'first_available_at' => $stampedAt]);
+
+    foreach ([$launched, $launchedStock, $comingSoon, $alreadyStamped] as $product) {
+        RepairProductsFirstAvailableAt::run($product->refresh());
+    }
+
+    expect($launched->refresh()->first_available_at->equalTo($launched->created_at->startOfSecond()))->toBeTrue()
+        ->and($launchedStock->refresh()->first_available_at->equalTo($firstInStockAt))->toBeTrue()
+        ->and($comingSoon->refresh()->first_available_at)->toBeNull()
+        ->and($alreadyStamped->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
+});
+
+test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
+    $shop = Shop::first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $product = UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
+
+    $stock           = $this->orgStock2;
+    $stockAttributes = ['is_on_demand', 'has_been_in_warehouse', 'quantity_available'];
+    $originalStock   = $stock->only($stockAttributes);
+
+    $hydrateWithStock = function (int $quantity) use ($product, $stock): Product {
+        $stock->update(['is_on_demand' => false, 'has_been_in_warehouse' => true, 'quantity_available' => $quantity]);
+        $product->updateQuietly(['is_for_sale' => true]);
+
+        return ProductHydrateAvailableQuantity::run($product->refresh())->refresh();
+    };
+
+    try {
+        $product->orgStocks()->sync([$stock->id => ['quantity' => 1]]);
+
+        $hydrateWithStock(7);
+        $product->updateQuietly(['out_of_stock_since' => now()->subDays(40)]);
+
+        $wentOut = $hydrateWithStock(0);
+        expect(Carbon\Carbon::parse($wentOut->out_of_stock_since)->diffInMinutes(now()))->toBeLessThan(5);
+
+        $product->updateQuietly(['out_of_stock_since' => now()->subHours(30)]);
+        $stillOut = $hydrateWithStock(0);
+        expect(Carbon\Carbon::parse($stillOut->out_of_stock_since)->diffInHours(now()))->toBeGreaterThanOrEqual(29);
+
+        $back = $hydrateWithStock(7);
+        expect(Carbon\Carbon::parse($back->back_in_stock_since)->diffInMinutes(now()))->toBeLessThan(5)
+            ->and(Carbon\Carbon::parse($back->out_of_stock_since)->diffInHours(now()))->toBeGreaterThanOrEqual(29);
+    } finally {
+        $stock->update($originalStock);
     }
 });
 

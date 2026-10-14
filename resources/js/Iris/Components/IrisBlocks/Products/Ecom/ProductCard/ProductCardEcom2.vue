@@ -9,7 +9,8 @@ import { faQuestionCircle } from "@fal"
 import Image from "@common/Components/Image.vue"
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import NewAddToCartButton from '@/Components/CMS/Webpage/Products/NewAddToCartButton.vue'
-import BestsellerBadge from '@/Components/CMS/Webpage/Products/BestsellerBadge.vue'
+import ProductBadge from '@/Components/CMS/Webpage/Products/ProductBadge.vue'
+import { resolveProductBadge } from '@/Composables/useProductBadge'
 import GoldenProductBadge from '@/Components/CMS/Webpage/Products/GoldenProductBadge.vue'
 import LinkIris from '@/Iris/Components/LinkIris.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -107,7 +108,7 @@ defineExpose({
             <!-- TOP AREA (GROWS) -->
             <div class="flex-grow">
 
-                <BestsellerBadge v-if="product?.top_seller" :topSeller="product?.top_seller" :data="bestSeller" :screen-type="screenType"/>
+                <ProductBadge :product="product" :data="bestSeller" :screenType="screenType" />
 
                 <!-- IMAGE -->
                 <component :is="product.url ? LinkIris : 'div'" :href="product.url" :id="product?.url?.id"
@@ -152,7 +153,7 @@ defineExpose({
                          <DiscountByType :offers_data="product?.product_offers_data" template="max_discount" />
                     </div>
 
-                    <ProductSoundButton v-if="product.audio" :src="product.audio" :topSeller="product.top_seller" />
+                    <ProductSoundButton v-if="product.audio" :src="product.audio" :topSeller="resolveProductBadge(product)" />
 
                     <!-- GOLDEN PRODUCT + FAVOURITE -->
                     <div v-if="product.is_golden_product || (layout?.iris?.is_logged_in && !product.variant)"
