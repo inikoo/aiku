@@ -34,6 +34,7 @@ use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Models\Goods\TradeUnit;
 use Inertia\Testing\AssertableInertia;
 use Illuminate\Validation\ValidationException;
@@ -652,9 +653,15 @@ test("UI Edit Trade Unit", function () {
                     expect($language['label'])->toBe('('.strtoupper($language['code']).') '.$language['name']);
                 }
 
+                $nameTranslationsField = collect($blueprint)->pluck('fields.name_i8n')->filter()->first();
+                expect($nameTranslationsField['type'])->toBe('input_translation_use_option');
+
                 return true;
             });
     });
+
+    $tradeUnit = UpdateTradeUnit::make()->action($tradeUnit, ['name_i8n' => ['es' => 'Camiseta', 'sk' => 'Tričko']]);
+    expect($tradeUnit->refresh()->getTranslations('name_i8n'))->toMatchArray(['es' => 'Camiseta', 'sk' => 'Tričko']);
 });
 
 test("UI Show Trade Units Dashboard", function () {

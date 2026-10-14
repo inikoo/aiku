@@ -20,6 +20,7 @@ use Inertia\Response;
 use App\Actions\Traits\Authorisations\WithComplianceEditing;
 use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
+use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 
 class EditTradeUnit extends OrgAction
 {
@@ -176,6 +177,14 @@ class EditTradeUnit extends OrgAction
                                     'type'  => 'input',
                                     'label' => __('Name'),
                                     'value' => $tradeUnit->name
+                                ],
+                                'name_i8n' => [
+                                    'type'          => 'input_translation_use_option',
+                                    'label'         => __('Name translations'),
+                                    'information'   => __('The unified label needs the name in Spanish (ES) and Slovak (SK)'),
+                                    'language_from' => 'en',
+                                    'languages'     => GetLanguagesOptions::make()->all(),
+                                    'value'         => $tradeUnit->getTranslations('name_i8n')
                                 ],
                                 'description_title' => [
                                     'type'  => 'input',
