@@ -423,6 +423,56 @@ test('an eBay order mixing a known and an unknown listing imports only the known
         ->and($aikuOrder->transactions()->first()->platform_transaction_id)->toBe('1000000001');
 });
 
+test('a multi-variation eBay listing sends each line to the product of its own sku, and an ambiguous line is kept aside', function () {
+    $ebayUser       = ebayChannel($this);
+    $firstVariation = listedEbayPortfolio($this, $ebayUser);
+    $otherProduct   = secondProduct($this);
+    $otherVariation = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, []);
+    $otherVariation->update(['platform_product_variant_id' => '123456789012', 'platform_status' => true, 'sku' => 'amethyst-1kg']);
+    $firstVariation->update(['sku' => 'rose-quartz-1kg']);
+
+    $order              = ebayOrder();
+    $order['lineItems'] = [
+        ['lineItemId' => '1000000001', 'legacyItemId' => '123456789012', 'sku' => 'amethyst-1kg', 'title' => 'Amethyst', 'quantity' => 1],
+        ['lineItemId' => '1000000002', 'legacyItemId' => '123456789012', 'sku' => 'rose-quartz-1kg', 'title' => 'Rose quartz', 'quantity' => 3],
+        ['lineItemId' => '1000000003', 'legacyItemId' => '123456789012', 'sku' => 'renamed-on-ebay', 'title' => 'Jasper', 'quantity' => 1],
+    ];
+
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    $aikuOrder    = Order::where('platform_order_id', $order['orderId'])->firstOrFail();
+    $transactions = $aikuOrder->transactions()->get()->keyBy('platform_transaction_id');
+
+    expect($transactions)->toHaveCount(2)
+        ->and($transactions['1000000001']->model_id)->toBe($otherProduct->id)
+        ->and($transactions['1000000002']->model_id)->toBe($this->product->id)
+        ->and(Arr::pluck($aikuOrder->data['ebay_unmatched_line_items'], 'lineItemId'))->toBe(['1000000003']);
+});
+
+test('an eBay listing id left on an old unlisted portfolio still imports to the live one', function () {
+    $ebayUser     = ebayChannel($this);
+    $otherProduct = secondProduct($this);
+    StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, [])
+        ->update(['platform_product_variant_id' => '123456789012', 'platform_status' => false, 'sku' => 'old-listing-sku']);
+    listedEbayPortfolio($this, $ebayUser);
+
+    $order = ebayOrder(['lineItems' => [['sku' => 'not-a-portfolio-sku']]]);
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    $aikuOrder = Order::where('platform_order_id', $order['orderId'])->firstOrFail();
+
+    expect($aikuOrder->transactions()->first()->model_id)->toBe($this->product->id)
+        ->and(Arr::has($aikuOrder->data, 'ebay_unmatched_line_items'))->toBeFalse();
+});
+
 test('an eBay orders page that answers with an error imports nothing and does not throw', function () {
     $ebayUser = ebayChannel($this);
     listedEbayPortfolio($this, $ebayUser);
