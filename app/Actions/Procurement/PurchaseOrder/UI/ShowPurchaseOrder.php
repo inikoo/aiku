@@ -209,6 +209,7 @@ class ShowPurchaseOrder extends OrgAction
                             'type'    => 'button',
                             'style'   => 'tertiary',
                             'icon'    => 'fal fa-boxes',
+                            'key'     => 'whole_agent_order',
                             'label'   => __('Whole agent order'),
                             'tooltip' => __('See :reference with the orders to all its suppliers', ['reference' => $purchaseOrder->agent_order_reference]),
                             'route'   => [
@@ -219,6 +220,7 @@ class ShowPurchaseOrder extends OrgAction
                         $this->canEdit || $this->agentCanEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
+                            'key'   => 'edit',
                             'label' => __('Edit'),
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase_orders.edit',
