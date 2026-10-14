@@ -219,6 +219,9 @@ class StoreWebpage extends OrgAction
                         $this->createWebBlock($webpage, 'luigi-trends-1');
                         $this->createWebBlock($webpage, 'recommendation-customer-recently-bought-1');
                         $this->createWebBlock($webpage, 'luigi-last-seen-1');
+
+                        EnforceFamilyWebBlocksOrder::run($webpage);
+                        UpdateWebpageContent::run($webpage->refresh());
                     }
                 }
 

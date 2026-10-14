@@ -50,3 +50,25 @@ test('family template blocks stay on top in a fixed order after a reorder', func
     'family-2' => ['family-2', 'family-2-extra-description'],
     'family-3' => ['family-3', 'family-3-extra-description'],
 ]);
+
+test('a new family webpage gets its template blocks in the fixed order on distinct positions', function (string $familyCode, string $extraDescriptionCode) {
+    $snapshot = StoreWebsiteSnapshot::make()->action($this->website, [
+        'scope'  => SnapshotScopeEnum::FAMILY_DESCRIPTION,
+        'layout' => array_fill_keys([$familyCode, $extraDescriptionCode], ['data' => ['fieldValue' => []]]),
+    ]);
+    $this->website->update(['live_family_description_snapshot_id' => $snapshot->id]);
+
+    [, $product] = createProduct($this->shop);
+    $webpage     = StoreProductCategoryWebpage::make()->action($product->family);
+
+    $positions = $webpage->modelHasWebBlocks()->pluck('position');
+    $codes     = orderedWebBlockCodes($webpage->refresh());
+
+    expect($positions->unique()->count())->toBe($positions->count())
+        ->and($codes[0])->toBe($familyCode)
+        ->and($codes[1])->toStartWith('products-')
+        ->and($codes[2])->toBe($extraDescriptionCode);
+})->with([
+    'family-2' => ['family-2', 'family-2-extra-description'],
+    'family-3' => ['family-3', 'family-3-extra-description'],
+]);
