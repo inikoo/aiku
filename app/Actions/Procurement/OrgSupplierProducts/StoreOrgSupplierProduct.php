@@ -18,6 +18,7 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgSupplierProduct extends OrgAction
@@ -26,6 +27,10 @@ class StoreOrgSupplierProduct extends OrgAction
 
     public function handle(OrgSupplier $orgSupplier, SupplierProduct $supplierProduct, $modelData = []): OrgSupplierProduct
     {
+        if ($supplierProduct->supplier_id != $orgSupplier->supplier_id) {
+            throw new InvalidArgumentException("Supplier product $supplierProduct->id belongs to supplier $supplierProduct->supplier_id, not to org supplier $orgSupplier->id");
+        }
+
         data_set($modelData, 'group_id', $orgSupplier->group_id);
         data_set($modelData, 'organisation_id', $orgSupplier->organisation_id);
 

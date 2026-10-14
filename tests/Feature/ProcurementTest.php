@@ -14580,3 +14580,19 @@ test('a purchase order line costing more than the supplier product cannot be sub
     expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
         ->and(App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('purchase_order_id', $purchaseOrder->id)->count())->toBe(1);
 });
+
+test('purchase order product list only offers products of the supplier being ordered from', function () {
+    [$orgSupplier, $ownProduct]           = createAgentOrgSupplierWithProduct($this);
+    [$otherOrgSupplier, $foreignProduct] = createAgentOrgSupplierWithProduct($this);
+
+    expect(fn () => StoreOrgSupplierProduct::make()->action($orgSupplier, $foreignProduct->supplierProduct))
+        ->toThrow(InvalidArgumentException::class);
+
+    $foreignProduct->updateQuietly(['org_supplier_id' => $orgSupplier->id]);
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $rowIds        = collect(IndexPurchaseOrderOrgSupplierProducts::make()->handle($orgSupplier, $purchaseOrder)->items())->pluck('id');
+
+    expect($rowIds)->toContain($ownProduct->id)
+        ->not->toContain($foreignProduct->id);
+});

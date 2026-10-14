@@ -188,6 +188,7 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             $query->where(fn ($query) => $query->where('org_supplier_products.state', OrgSupplierProductStateEnum::ACTIVE)
                 ->where('org_supplier_products.is_available', true)
                 ->where('supplier_products.is_available', true)
+                ->whereColumn('supplier_products.supplier_id', 'org_suppliers.supplier_id')
                 ->whereRaw("not $hasDiscontinuingSko"))
                 ->orWhereNotNull('purchase_order_transactions.id');
         });
