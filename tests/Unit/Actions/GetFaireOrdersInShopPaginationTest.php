@@ -53,7 +53,7 @@ test('also pulls recently cancelled faire orders so cancellations on faire reach
     });
 });
 
-test('also pulls recently shipped faire orders so backorders that ship directly reach aiku', function () {
+test('also pulls faire orders on their way so backorders that ship directly reach aiku, but never delivered ones', function () {
     Http::fake(fn () => Http::response(['orders' => [], 'cursor' => null]));
 
     $shop           = new Shop();
@@ -68,7 +68,7 @@ test('also pulls recently shipped faire orders so backorders that ship directly 
         return isset($query['updated_at_min'])
             && !in_array('PRE_TRANSIT', $excludedStates)
             && !in_array('IN_TRANSIT', $excludedStates)
-            && !in_array('DELIVERED', $excludedStates);
+            && in_array('DELIVERED', $excludedStates);
     });
 });
 

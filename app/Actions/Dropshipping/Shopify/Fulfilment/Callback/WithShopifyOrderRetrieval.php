@@ -91,6 +91,10 @@ trait WithShopifyOrderRetrieval
             list($status, $response) = $this->doPost($shopifyUser, $query, $variables);
 
             if (!$status) {
+                if ($this->fulfilmentServiceIsLost($response)) {
+                    $shopifyUser->customerSalesChannel?->update(['platform_status' => false]);
+                }
+
                 return [false, $response];
             }
 
@@ -117,9 +121,19 @@ trait WithShopifyOrderRetrieval
     /**
      * @throws \Throwable
      */
-    public function executeCommand(Command $command, string $argumentName): void
+    public function executeCommand(Command $command, string $argumentName): int
     {
-        $customerSalesChanel = CustomerSalesChannel::where('slug', $command->argument($argumentName))->first();
-        $this->handle($customerSalesChanel->user);
+        $customerSalesChanel = CustomerSalesChannel::where('slug', $command->argument($argumentName))->firstOrFail();
+        [$status, $message] = $this->handle($customerSalesChanel->user);
+
+        if (!$status) {
+            $command->error($message);
+
+            return 1;
+        }
+
+        $command->info($message);
+
+        return 0;
     }
 }

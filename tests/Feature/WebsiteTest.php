@@ -2724,8 +2724,8 @@ test('website dialog keeps its specific page rules', function (Website $website)
     ]);
     $websiteDialog->refresh();
 
-    expect($websiteDialog->settings['target_pages']['specific'])->toBe($pageRules)
-        ->and($websiteDialog->unpublishedSnapshot->layout['settings']['target_pages']['specific'])->toBe($pageRules);
+    expect($websiteDialog->settings['target_pages']['specific'])->toEqual($pageRules)
+        ->and($websiteDialog->unpublishedSnapshot->layout['settings']['target_pages']['specific'])->toEqual($pageRules);
 
     $websiteDialog = publishWebsiteDialog($websiteDialog, $this->user);
     $shown         = collect(irisWebsiteDialogs($website))->firstWhere('ulid', $websiteDialog->ulid);

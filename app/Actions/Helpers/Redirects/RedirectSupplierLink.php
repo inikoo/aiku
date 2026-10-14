@@ -11,6 +11,7 @@ namespace App\Actions\Helpers\Redirects;
 use App\Actions\OrgAction;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -20,8 +21,14 @@ class RedirectSupplierLink extends OrgAction
 {
     use WithAgentOrganisationRedirect;
 
-    public function handle(Supplier $supplier, ?User $user = null): RedirectResponse
+    public function handle(Supplier $supplier, ?User $user = null, ?Organisation $searchedOrganisation = null): RedirectResponse
     {
+        $searchedOrgSupplier = $searchedOrganisation ? $supplier->orgSuppliers()->where('organisation_id', $searchedOrganisation->id)->first() : null;
+
+        if ($searchedOrgSupplier) {
+            return Redirect::to(route('grp.org.procurement.org_suppliers.show', [$searchedOrganisation->slug, $searchedOrgSupplier->slug]));
+        }
+
         if ($user && !$user->authTo('supply-chain.view')) {
             $orgSupplier = $supplier->orgSuppliers()->with('organisation')->get()
                 ->first(fn (OrgSupplier $orgSupplier) => $user->authTo("procurement.{$orgSupplier->organisation_id}.view"));
@@ -49,6 +56,6 @@ class RedirectSupplierLink extends OrgAction
     {
         $this->initialisationFromGroup(group(), $request);
 
-        return $this->handle($supplier, $request->user());
+        return $this->handle($supplier, $request->user(), $this->getSearchedOrganisationForUser($request->user(), $request->query('organisation')));
     }
 }

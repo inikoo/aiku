@@ -319,12 +319,12 @@ const leaderboardRows = computed(() =>
                     </span>
                 </button>
             </div>
-            <ul class="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
-                <li v-for="person in floorPeople" :key="person.id" class="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-gray-50">
-                    <span class="h-2 w-2 shrink-0 rounded-full" :class="statusMeta[person.status].dot" aria-hidden="true" />
-                    <span class="truncate font-medium">{{ person.name }}</span>
-                    <span class="truncate text-xs text-gray-400">{{ person.positions.join(", ") }}</span>
-                    <span class="ml-auto shrink-0 text-xs text-gray-500 tabular-nums">{{ sinceText(person) }}</span>
+            <ul class="mt-2 grid grid-cols-1 gap-x-8 xl:grid-cols-2">
+                <li v-for="person in floorPeople" :key="person.id" class="grid grid-cols-[0.5rem_minmax(0,13rem)_minmax(0,1fr)_8.5rem_1.75rem] items-center gap-3 border-b border-gray-100 px-2 py-1.5 text-sm hover:bg-gray-50">
+                    <span class="h-2 w-2 rounded-full" :class="statusMeta[person.status].dot" aria-hidden="true" />
+                    <span class="truncate font-medium" v-tooltip="person.name">{{ person.name }}</span>
+                    <span class="truncate text-xs text-gray-400" v-tooltip="person.positions.join(', ')">{{ person.positions.join(", ") }}</span>
+                    <span class="text-right text-xs text-gray-500 tabular-nums">{{ sinceText(person) }}</span>
                     <Button type="transparent" size="xs" :icon="faPlus" v-tooltip="ctrans('Add clocking')" @click="emit('add-clocking', person.id)" />
                 </li>
                 <li v-if="!floorPeople.length" class="col-span-full py-3 text-center text-sm text-gray-500">{{ ctrans("Nobody in this state") }}</li>

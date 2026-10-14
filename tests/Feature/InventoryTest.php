@@ -148,6 +148,17 @@ use App\Enums\SysAdmin\Authorisation\GroupPermissionsEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use Illuminate\Support\Facades\Cache;
+use App\Actions\Inventory\OrgStock\RedoOrgStockTimeSeries;
+use App\Actions\Accounting\InvoiceTransaction\ProcessInvoiceTransactionTimeSeries;
+use App\Actions\Inventory\OrgStock\ProcessOrgStockTimeSeriesRecords;
+use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Models\Accounting\InvoiceTransaction;
+use Illuminate\Support\Facades\Queue;
+use App\Actions\Accounting\InvoiceTransaction\DeleteInvoiceTransaction;
+use App\Actions\Catalogue\CollectionTimeSeries\ProcessCollectionTimeSeriesRecords;
+use App\Actions\Catalogue\Collection\StoreCollection;
+use App\Actions\Catalogue\Collection\AttachModelToCollection;
+use App\Actions\Catalogue\CollectionTimeSeries\RedoCollectionTimeSeries;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\PermissionRegistrar;
@@ -160,6 +171,8 @@ use App\Actions\Inventory\OrgStock\ApplyScheduledOrgStockStateChanges;
 use App\Actions\Inventory\OrgStock\DiscontinueGroupOrgStocks;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\GetOrgStockDiscontinuePreview;
+use App\Actions\Inventory\OrgStock\SuggestOrgStockDiscontinue;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -4225,6 +4238,52 @@ describe('discontinue confirm', function () {
         expect(StockHydrateStateFromOrgStocks::make()->getStockStateFromOrgStocks($stock->refresh()))->toBe(StockStateEnum::DISCONTINUED);
     });
 
+    test('discontinue suggestions pile up per stock across the group and show on product command control', function () {
+        $orgStock      = $this->orgStocks[0];
+        $otherOrgStock = $this->otherOrgStocks[0];
+        $stock         = $orgStock->stock;
+        $url           = route('grp.models.org_stock.discontinue_suggestion.store', [$orgStock->id]);
+        $state         = $orgStock->state;
+
+        $this->from(route('grp.goods.dashboard'))->post($url, ['reasons' => [], 'note' => ''])->assertSessionHasErrors(['source', 'reasons', 'note']);
+        $this->from(route('grp.goods.dashboard'))->post($url, ['source' => 'buying', 'reasons' => ['not_a_reason'], 'note' => 'Customers keep sending it back'])->assertSessionHasErrors(['reasons.0']);
+        expect(OrgStockDiscontinueSuggestion::where('stock_id', $stock->id)->count())->toBe(0);
+
+        $this->post($url, ['source' => 'buying', 'reasons' => ['high_complaints', 'slow_seller'], 'note' => 'Customers keep sending it back'])->assertRedirect()->assertSessionHasNoErrors();
+        SuggestOrgStockDiscontinue::make()->action($otherOrgStock, auth()->user(), ['source' => 'goods_in', 'reasons' => ['slow_seller', 'arrived_broken'], 'note' => 'Half the carton arrived in pieces']);
+
+        expect(OrgStockDiscontinueSuggestion::tallyForOrgStocks([$orgStock->id, $otherOrgStock->id])->all())->toBe([
+            $orgStock->id      => ['times' => 2, 'people' => 1],
+            $otherOrgStock->id => ['times' => 2, 'people' => 1],
+        ])->and($orgStock->refresh()->state)->toBe($state);
+
+        $props = [];
+        $this->get(route('grp.goods.dashboard', ['condition' => 'suggested', 'sort' => '-suggestions']))->assertOk()
+            ->assertInertia(function (AssertableInertia $page) use (&$props) {
+                $page->loadDeferredProps('dashboard', function (AssertableInertia $reload) use (&$props) {
+                    $props = $reload->toArray()['props'];
+                });
+            });
+
+        $row = collect($props['rows']['data'])->firstWhere('id', $stock->id);
+
+        expect(collect($props['rows']['data'])->every(fn (array $row) => $row['suggestions'] > 0))->toBeTrue()
+            ->and($props['kpis']['suggested'])->toBeGreaterThanOrEqual(1)
+            ->and($row['suggestions'])->toBe(2)
+            ->and($row['suggestion_people'])->toBe(1)
+            ->and($row['suggestion_evidence']['reasons'][0])->toBe(['label' => 'Slow seller', 'times' => 2])
+            ->and(array_column($row['suggestion_evidence']['sources'], 'times', 'label'))->toBe(['Goods in' => 1, 'Buying' => 1])
+            ->and(array_column($row['suggestion_evidence']['notes'], 'note'))->toBe(['Half the carton arrived in pieces', 'Customers keep sending it back'])
+            ->and($row)->toHaveKeys(['complaints', 'complaint_customers', 'refunds', 'replacements', 'next_order', 'supplier_claims', 'orders', 'complaint_rate']);
+
+        expect($row['complaint_customers'])->toBe(0)
+            ->and($row['feedback_level'])->toBeNull()
+            ->and($props['kpis']['feedback_levels'])->toHaveKeys(['mild', 'bad', 'severe', 'disaster']);
+
+        $this->get(route('grp.goods.dashboard', ['feedback' => 'mild', 'sort' => '-feedback', 'search' => $stock->code]))->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->loadDeferredProps('dashboard', fn (AssertableInertia $reload) => $reload->where('rows.total', 0)));
+    });
+
     test('group routes preview and change org stocks picked across organisations in one request', function () {
         $orgStock      = $this->orgStocks[1];
         $otherOrgStock = $this->otherOrgStocks[2];
@@ -4368,7 +4427,7 @@ describe('discontinue confirm', function () {
             $this->get(route('grp.goods.dashboard', ['search' => $stock->code]))->assertOk()
                 ->assertInertia(function (AssertableInertia $page) use (&$rows) {
                     $page->loadDeferredProps('dashboard', function (AssertableInertia $reload) use (&$rows) {
-                        $rows = $reload->toArray()['props']['rows'];
+                        $rows = $reload->toArray()['props']['rows']['data'];
                     });
                 });
 
@@ -4938,4 +4997,172 @@ test('the skos tab of a location filters by its search box and sorts by referenc
 
     $ascending = $codesShown(['org_stocks_sort' => 'code']);
     expect($codesShown(['org_stocks_sort' => '-code']))->toBe(array_reverse($ascending));
+});
+
+test('rebuilding the sales history of an sko drops the periods its invoice lines no longer fall in', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $orgStock->timeSeries()->get()->each(function ($series) {
+        $series->records()->delete();
+        $series->delete();
+    });
+
+    $seriesId   = DB::table('org_stock_time_series')->insertGetId(['org_stock_id' => $orgStock->id, 'frequency' => 'monthly']);
+    $leftBehind = fn (): array => DB::table('org_stock_time_series_records')->where('org_stock_time_series_id', $seriesId)->orderBy('period')->pluck('period')->all();
+    $fetchMonth = fn () => DB::table('org_stock_time_series_records')->insert([
+        'org_stock_time_series_id'    => $seriesId,
+        'frequency'                   => 'M',
+        'period'                      => '2025-01',
+        'from'                        => '2025-01-01 00:00:00',
+        'to'                          => '2025-01-31 23:59:59',
+        'sales_grp_currency_external' => 3714,
+        'invoices'                    => 338,
+    ]);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id);
+    expect($leftBehind())->toBe([]);
+
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => '2013-06-11 10:00:00',
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_org_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'org_stock_id'           => $orgStock->id,
+        'net_amount'             => 12,
+        'org_net_amount'         => 12,
+        'grp_net_amount'         => 12,
+    ]);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id);
+    expect($leftBehind())->toBe(['2013-06']);
+
+    $fetchMonth();
+    RedoOrgStockTimeSeries::run($orgStock->id, '2013-06-01', '2013-06-30');
+    expect($leftBehind())->toBe(['2013-06', '2025-01']);
+});
+
+test('an invoice line stored with an earlier date reaches the sales history of its sko', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $storeLine = function (string $date) use ($shop, $customer, $orgStock): InvoiceTransaction {
+        $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+            'group_id'        => $this->group->id,
+            'organisation_id' => $this->organisation->id,
+            'shop_id'         => $shop->id,
+            'customer_id'     => $customer->id,
+            'date'            => $date,
+            'tax_category_id' => DB::table('tax_categories')->value('id'),
+            'net_amount'      => 12,
+            'data'            => '{}',
+        ]);
+        DB::table('invoice_transaction_has_org_stocks')->insert([
+            'invoice_transaction_id' => $invoiceTransactionId,
+            'org_stock_id'           => $orgStock->id,
+            'net_amount'             => 12,
+            'org_net_amount'         => 12,
+            'grp_net_amount'         => 12,
+        ]);
+
+        return InvoiceTransaction::find($invoiceTransactionId);
+    };
+
+    $lateDate = now()->subDays(10);
+    $forSko   = fn ($action, array $arguments) => $arguments[0] === $orgStock->id;
+
+    Queue::fake();
+    ProcessInvoiceTransactionTimeSeries::run($storeLine(now()->toDateTimeString()));
+    ProcessOrgStockTimeSeriesRecords::assertNotPushed($forSko);
+
+    ProcessInvoiceTransactionTimeSeries::run($storeLine($lateDate->toDateTimeString()));
+    ProcessOrgStockTimeSeriesRecords::assertPushed(5, $forSko);
+    ProcessOrgStockTimeSeriesRecords::assertPushed(
+        1,
+        fn ($action, array $arguments) => $forSko($action, $arguments) && $arguments[1] === TimeSeriesFrequencyEnum::MONTHLY
+            && $arguments[2] === $lateDate->copy()->startOfMonth()->toDateString()
+            && $arguments[3] === $lateDate->toDateString()
+    );
+});
+
+test('deleting an invoice line with an earlier date takes it out of the sales history of its sko', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    [$orgStock]     = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1));
+
+    $invoiceTransactionId = DB::table('invoice_transactions')->insertGetId([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'date'            => now()->subDays(10)->toDateTimeString(),
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'data'            => '{}',
+    ]);
+    DB::table('invoice_transaction_has_org_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransactionId,
+        'org_stock_id'           => $orgStock->id,
+        'net_amount'             => 12,
+        'org_net_amount'         => 12,
+        'grp_net_amount'         => 12,
+    ]);
+
+    Queue::fake();
+    DeleteInvoiceTransaction::make()->action(InvoiceTransaction::find($invoiceTransactionId));
+
+    expect(DB::table('invoice_transaction_has_org_stocks')->where('invoice_transaction_id', $invoiceTransactionId)->exists())->toBeFalse();
+    ProcessOrgStockTimeSeriesRecords::assertPushed(5, fn ($action, array $arguments) => $arguments[0] === $orgStock->id);
+});
+
+test('the sales history of a collection adds up the invoice lines of its products', function () {
+    list(, , $shop) = createShop();
+    $customer       = createCustomer($shop);
+    list(, $product) = createProduct($shop);
+
+    $collection = StoreCollection::make()->action($shop, ['code' => 'TsColl', 'name' => 'Time series collection', 'description' => 'Time series collection']);
+    AttachModelToCollection::make()->action($collection, $product);
+
+    $date = now()->subMonth()->startOfMonth()->addDays(3);
+    DB::table('invoice_transactions')->insert([
+        'group_id'        => $this->group->id,
+        'organisation_id' => $this->organisation->id,
+        'shop_id'         => $shop->id,
+        'customer_id'     => $customer->id,
+        'asset_id'        => $product->asset_id,
+        'date'            => $date->toDateTimeString(),
+        'tax_category_id' => DB::table('tax_categories')->value('id'),
+        'net_amount'      => 12,
+        'org_net_amount'  => 12,
+        'grp_net_amount'  => 12,
+        'data'            => '{}',
+    ]);
+
+    ProcessCollectionTimeSeriesRecords::run($collection->id, TimeSeriesFrequencyEnum::MONTHLY, $date->toDateString(), $date->toDateString());
+
+    $recorded = DB::table('collection_time_series_records')
+        ->join('collection_time_series', 'collection_time_series.id', '=', 'collection_time_series_records.collection_time_series_id')
+        ->where('collection_time_series.collection_id', $collection->id)
+        ->where('collection_time_series_records.period', $date->format('Y-m'))
+        ->value('sales_grp_currency_external');
+
+    expect($product->id)->not->toBe($product->asset_id)
+        ->and((float) $recorded)->toBe(12.0)
+        ->and($collection->source_id)->toBeNull();
+
+    DB::table('collection_time_series_records')->whereIn('collection_time_series_id', $collection->timeSeries()->pluck('id'))->delete();
+    RedoCollectionTimeSeries::run($collection->id);
+
+    expect(DB::table('collection_time_series_records')->whereIn('collection_time_series_id', $collection->timeSeries()->pluck('id'))->where('frequency', 'M')->sum('sales_grp_currency_external'))->toEqual(12);
 });

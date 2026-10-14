@@ -46,3 +46,40 @@ test('an image leaflet becomes one A6 page in its own orientation', function (in
 test('an unreadable leaflet image is refused with a message', function () {
     leafletImagePdf('not an image');
 })->throws(ValidationException::class);
+
+test('the leaflet job names the A6 paper of the printer', function (array $papers, ?string $expected) {
+    $printer = new class () {
+        use WithPrintNode;
+        use WithPrintDeliveryNoteLeaflet;
+
+        public function paper(array $papers): ?string
+        {
+            return $this->a6PaperName($papers);
+        }
+    };
+
+    expect($printer->paper($papers))->toBe($expected);
+})->with([
+    'epson'        => [['A4 210 x 297 mm' => [2100, 2970], 'A6 105 x 148 mm' => [1050, 1480]], 'A6 105 x 148 mm'],
+    'no A6'        => [['A4' => [2100, 2970], 'Custom' => [null, null]], null],
+    'sizes not reported' => [['A4' => [null, null], 'A6' => [null, null]], 'A6'],
+    'no papers'    => [[], null],
+]);
+
+test('a printer without A6 gets its nearest paper', function (array $papers, ?string $expected) {
+    $printer = new class () {
+        use WithPrintNode;
+        use WithPrintDeliveryNoteLeaflet;
+
+        public function paper(array $papers): ?string
+        {
+            return $this->nearA6PaperName($papers);
+        }
+    };
+
+    expect($printer->paper($papers))->toBe($expected);
+})->with([
+    'postcard'     => [['102 x 152 mm (4 x 6 in)' => [1016, 1524], 'A4' => [2100, 2970], 'Postcard' => [999, 1480]], 'Postcard'],
+    'only 4 x 6'   => [['102 x 152 mm (4 x 6 in)' => [1016, 1524], 'A4' => [2100, 2970]], '102 x 152 mm (4 x 6 in)'],
+    'nothing near' => [['A4' => [2100, 2970], 'A5' => [1480, 2100], 'Custom' => [null, null]], null],
+]);

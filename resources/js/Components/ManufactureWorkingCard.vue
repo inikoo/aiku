@@ -30,6 +30,8 @@ const props = defineProps<{
             quantity_made: number
             quantity_required: number
             pack_size?: number | null
+            unit?: string | null
+            kg_per_unit?: number | null
             continued_from?: string | null
         }
         carry?: null | { reference: string, units_per_artefact: number, quantity: number }
@@ -57,6 +59,8 @@ const quantityMade = ref<number | null>(null)
 const remaining = computed(() => Math.max(0, props.session.task.quantity_required - props.session.task.quantity_made))
 const quantityRejected = ref(0)
 const packSize = computed(() => props.session.task.pack_size ?? null)
+const unit = computed(() => props.session.task.unit ?? null)
+const kgInUnits = computed(() => unit.value && props.session.task.kg_per_unit && quantityMade.value !== null ? Math.floor(quantityMade.value / props.session.task.kg_per_unit + 1e-6).toLocaleString() : null)
 const inPieces = (packs: number) => Math.round(packs * (packSize.value ?? 1)).toLocaleString()
 const notWholePacks = computed(() => packSize.value !== null && quantityMade.value !== null && !Number.isInteger(quantityMade.value) && quantityMade.value !== remaining.value)
 
@@ -108,12 +112,12 @@ const nextBand = computed(() => {
 
 const askOutcome = ref(false)
 const confirmingMove = ref(false)
-const closedAt = computed(() => props.session.carry ? Math.floor((props.session.task.quantity_made + (quantityMade.value ?? 0)) / props.session.carry.units_per_artefact) : 0)
+const closedAt = computed(() => props.session.carry ? Math.floor((props.session.task.quantity_made + (quantityMade.value ?? 0)) / props.session.carry.units_per_artefact + 1e-6) : 0)
 const movedOn = computed(() => props.session.carry ? Math.max(0, props.session.carry.quantity - closedAt.value) : 0)
 const canMove = computed(() => !props.session.carry || (closedAt.value >= 1 && movedOn.value > 0))
 const confirming = ref(false)
 const isShort = computed(() => quantityMade.value !== null && quantityMade.value < remaining.value)
-const surplus = computed(() => quantityMade.value === null ? 0 : Math.max(0, quantityMade.value - remaining.value))
+const surplus = computed(() => quantityMade.value === null || unit.value ? 0 : Math.max(0, quantityMade.value - remaining.value))
 
 const askManager = ref(false)
 const usePin = ref(false)
@@ -262,7 +266,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     @click="quantityMade = remaining"
                 >
                     <span class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
-                    <span class="ml-3 text-xl text-gray-500">{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
+                    <span class="ml-3 text-xl text-gray-500"><template v-if="unit">{{ unit }} </template>{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
                 </button>
                 <div v-if="packSize" class="mt-2 text-2xl font-semibold text-amber-700">
                     {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}
@@ -281,7 +285,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             <div class="mt-2 flex flex-wrap gap-x-6 text-lg text-gray-700">
                 <span>{{ ctrans('Step') }}: <b>{{ session.task.task_name }}</b></span>
                 <span>{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></span>
-                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}</b>
+                <span>{{ ctrans('Quantity made') }}: <b class="tabular-nums">{{ quantityMade }}<template v-if="unit"> {{ unit }}</template></b>
                     <b v-if="packSize" class="text-amber-700"> {{ ctrans('packs of :size = :pieces × :code', { size: packSize, pieces: inPieces(quantityMade ?? 0), code: session.task.artefact_code ?? '' }) }}</b>
                 </span>
             </div>
@@ -299,7 +303,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
 
         <div v-else-if="!askOutcome" class="mt-6 flex items-end gap-4">
             <div>
-                <label class="block text-lg text-gray-600 mb-1">{{ packSize ? ctrans('Packs of :size made', { size: packSize }) : ctrans('Quantity made') }}</label>
+                <label class="block text-lg text-gray-600 mb-1">{{ packSize ? ctrans('Packs of :size made', { size: packSize }) : unit ? ctrans('Kg made') : ctrans('Quantity made') }}</label>
                 <input
                     type="number" min="0" inputmode="numeric" :step="packSize ? 1 : 'any'"
                     v-model.number="quantityMade"
@@ -328,6 +332,10 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
             {{ notWholePacks
                 ? ctrans('Whole packs only: enter how many full packs of :size, not single pieces', { size: packSize })
                 : ctrans(':packs packs of :size = :pieces × :code', { packs: quantityMade, size: packSize, pieces: inPieces(quantityMade), code: session.task.artefact_code ?? '' }) }}
+        </div>
+
+        <div v-if="kgInUnits !== null && !confirming && !askOutcome" class="mt-4 text-2xl text-gray-700">
+            {{ ctrans(':kg kg of mix = :units × :code', { kg: quantityMade ?? 0, units: kgInUnits, code: session.task.artefact_code ?? '' }) }}
         </div>
 
         <div v-if="surplus > 0 && !askManager" class="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-lg text-amber-800">

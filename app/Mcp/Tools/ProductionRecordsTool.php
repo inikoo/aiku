@@ -56,7 +56,7 @@ class ProductionRecordsTool extends Tool
     private const array FIELDS = [
         'artefact'         => ['code', 'name', 'state', 'recommended_batch_size', 'shelf_life_days', 'family', 'department', 'sko', 'trade_unit'],
         'raw_material'     => ['code', 'description', 'type', 'state', 'unit', 'unit_cost', 'sko', 'trade_unit'],
-        'manufacture_task' => ['code', 'name', 'description', 'status', 'is_piece_rate'],
+        'manufacture_task' => ['code', 'name', 'description', 'status', 'is_piece_rate', 'is_recorded_in_kg'],
     ];
 
     public function handle(Request $request): Response
@@ -391,7 +391,7 @@ class ProductionRecordsTool extends Tool
             'code'         => $schema->string()->description('Code of the record to show, edit or create. Omit to list'),
             'search'       => $schema->string()->description('When listing: text in code or name/description'),
             'family'       => $schema->string()->description('When listing artefacts: only those in this family (code or slug)'),
-            'fields'       => $schema->object()->description('Fields to set. artefact: code, name, state (in_process, active, dormant, discontinued), recommended_batch_size, shelf_life_days, family (artefact family code), department, sko (SKO code), trade_unit. raw_material: code, description, type (stock, consumable, intermediate), state, unit (unit, pack, carton, liter, kilogram), unit_cost (organisation currency, per unit), sko, trade_unit (unit_cost only when not linked to a SKO). manufacture_task: code, name, description, status (true = active), is_piece_rate. Null clears a link'),
+            'fields'       => $schema->object()->description('Fields to set. artefact: code, name, state (in_process, active, dormant, discontinued), recommended_batch_size, shelf_life_days, family (artefact family code), department, sko (SKO code), trade_unit. raw_material: code, description, type (stock, consumable, intermediate), state, unit (unit, pack, carton, liter, kilogram), unit_cost (organisation currency, per unit), sko, trade_unit (unit_cost only when not linked to a SKO). manufacture_task: code, name, description, status (true = active), is_piece_rate (false = hourly work such as mixing: base hourly rate, no target or bonus), is_recorded_in_kg (true = quantity made is entered in kg and the recipe step\'s units_per_artefact is the kg one artefact takes). Null clears a link'),
             'create'       => $schema->boolean()->description('true to create the record with this code'),
             'new_sko'      => $schema->object()->description('New artefact only, when its SKO does not exist yet: {units: trade units per SKO, name?: SKO name, description?: trade unit description}. Creates the stock and trade unit (group-wide, with the artefact code) and the SKO in this organisation'),
             'request_text' => $schema->string()->description('The user\'s request, verbatim; required when writing'),

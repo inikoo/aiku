@@ -52,6 +52,7 @@ class JobOrderPlanItemsResource extends JsonResource
                 'quantity_made'     => (float) $task->quantity_made,
                 'quantity_required' => (float) $task->quantity_required,
                 'employee_id'       => $task->employee_id,
+                'only_for'          => $task->manufactureTask->artisans->pluck('id')->all(),
                 'operator'          => $task->assignee()?->contact_name,
                 'working_on_by'     => $task->sessions->map(fn (ManufactureTaskSession $session) => $session->user->contact_name ?: $session->user->username)->values()->all(),
             ])->values()->all(),

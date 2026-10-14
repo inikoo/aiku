@@ -72,8 +72,15 @@ class CreateManufactureTask extends OrgAction
                                 'is_piece_rate' => [
                                     'type'        => 'toggle',
                                     'label'       => __('Paid by piece rate'),
-                                    'information' => __('Turn off for salaried work such as preparing mixes. Sessions are still recorded, but payroll and rewards count them at zero.'),
+                                    'information' => __('Turn off for hourly work such as mixing. Sessions are paid at the base hourly rate, with no target, no bonus band and no piece reward, and the time still counts in the labour cost of the product.'),
                                     'value'       => true,
+                                    'required'    => true
+                                ],
+                                'is_recorded_in_kg' => [
+                                    'type'        => 'toggle',
+                                    'label'       => __('Recorded in kg'),
+                                    'information' => __('Turn on for steps such as mixing: the artisan enters the kg made, and the quantity on each recipe step is the kg of mix one unit takes.'),
+                                    'value'       => false,
                                     'required'    => true
                                 ],
                                 'status' => [

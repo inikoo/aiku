@@ -39,6 +39,7 @@ enum RolesEnum: string
     case SUPPLY_CHAIN_WORKER = 'supply-chain-worker';
 
     case GOODS_MANAGER = 'goods-manager';
+    case GOODS_VIEWER = 'goods-viewer';
 
     case MASTERS_MANAGER = 'masters-manager';
     case MASTERS_MEDIA = 'masters-media';
@@ -111,6 +112,7 @@ enum RolesEnum: string
     case DISPATCH_VIEWER = 'dispatch-viewer';
     case ACCOUNTING_VIEWER = 'accounting-viewer';
     case PROCUREMENT_VIEWER = 'procurement-viewer';
+    case REPORTS_VIEWER = 'reports-viewer';
     case MANUFACTURING_VIEWER = 'production-viewer';
     case FULFILMENT_SHOP_VIEWER = 'fulfilment-shop-viewer';
     case STOCK_CONTROLLER = 'stock-controller';
@@ -171,6 +173,7 @@ enum RolesEnum: string
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => __('Customer service supervisor'),
             RolesEnum::ORGANISATIONS_MANAGER => __('Organisations manager'),
             RolesEnum::GOODS_MANAGER => __('Goods manager'),
+            RolesEnum::GOODS_VIEWER => __('Goods viewer'),
             RolesEnum::MASTERS_MANAGER => __('Masters manager'),
             RolesEnum::MASTERS_MEDIA => __('Masters media'),
             RolesEnum::MASTERS_CLERK => __('Masters clerk'),
@@ -210,6 +213,7 @@ enum RolesEnum: string
             RolesEnum::DISPATCH_VIEWER => __('Dispatching viewer'),
             RolesEnum::ACCOUNTING_VIEWER => __('Accounting viewer'),
             RolesEnum::PROCUREMENT_VIEWER => __('Procurement viewer'),
+            RolesEnum::REPORTS_VIEWER => __('Reports'),
             RolesEnum::MANUFACTURING_VIEWER => __('Production viewer'),
             RolesEnum::FULFILMENT_SHOP_VIEWER => __('Fulfilment viewer'),
         };
@@ -258,6 +262,9 @@ enum RolesEnum: string
             ],
             RolesEnum::GOODS_MANAGER => [
                 GroupPermissionsEnum::GOODS
+            ],
+            RolesEnum::GOODS_VIEWER => [
+                GroupPermissionsEnum::GOODS_VIEW
             ],
             RolesEnum::MASTERS_MANAGER => [
                 GroupPermissionsEnum::MASTERS
@@ -448,6 +455,9 @@ enum RolesEnum: string
             RolesEnum::PROCUREMENT_VIEWER => [
                 OrganisationPermissionsEnum::PROCUREMENT_VIEW,
                 OrganisationPermissionsEnum::INVENTORY_VIEW,
+            ],
+            RolesEnum::REPORTS_VIEWER => [
+                OrganisationPermissionsEnum::ORG_REPORTS,
             ],
             RolesEnum::MANUFACTURING_VIEWER => [
                 ProductionPermissionsEnum::PRODUCTION_OPERATIONS_VIEW,
@@ -648,6 +658,7 @@ enum RolesEnum: string
             RolesEnum::SUPPLY_CHAIN,
             RolesEnum::SUPPLY_CHAIN_WORKER,
             RolesEnum::GOODS_MANAGER,
+            RolesEnum::GOODS_VIEWER,
             RolesEnum::MASTERS_MANAGER,
             RolesEnum::MASTERS_MEDIA,
             RolesEnum::MASTERS_CLERK,

@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Seo;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Models\SysAdmin\User;
 use App\Models\Web\SeoTrackedKeyword;
 use Illuminate\Http\RedirectResponse;
@@ -18,14 +19,11 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ToggleSeoKeywordWatch extends OrgAction
 {
+    use WithShopPpcPermissions;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo([
-            "websites-view.{$this->shop->organisation_id}",
-            "web.{$this->shop->id}",
-            "web.{$this->shop->id}.view",
-            'group-webmaster.view',
-        ]);
+        return $this->canViewSeo($request->user(), $this->shop);
     }
 
     public function handle(SeoTrackedKeyword $trackedKeyword, User $user): bool

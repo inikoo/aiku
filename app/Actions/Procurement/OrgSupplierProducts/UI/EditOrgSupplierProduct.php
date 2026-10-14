@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
@@ -91,6 +92,15 @@ class EditOrgSupplierProduct extends OrgAction
                             'type'  => 'toggle',
                             'label' => __('Available'),
                             'value' => $orgSupplierProduct->is_available,
+                        ],
+                        'state' => [
+                            'type'        => 'select',
+                            'label'       => __('State'),
+                            'information' => __('For this organisation only. A discontinued product is left out when preparing an order.'),
+                            'options'     => collect(OrgSupplierProductStateEnum::labels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
+                            'value'       => $orgSupplierProduct->state,
+                            'required'    => true,
+                            'mode'        => 'single',
                         ],
                     ]
                 ],

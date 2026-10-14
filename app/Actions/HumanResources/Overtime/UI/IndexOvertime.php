@@ -3,7 +3,7 @@
 namespace App\Actions\HumanResources\Overtime\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Overtime\OvertimeRequestStatusEnum;
 use App\InertiaTable\InertiaTable;
@@ -22,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOvertime extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
     use WithOvertimeSubNavigation;
 
     /**
@@ -53,7 +53,6 @@ class IndexOvertime extends OrgAction
             ->leftJoin('employees as approver', 'approver.id', '=', 'overtime_requests.approved_by_employee_id')
             ->leftJoin('employees as recorder', 'recorder.id', '=', 'overtime_requests.recorded_by_employee_id')
             ->join('overtime_types', 'overtime_types.id', '=', 'overtime_requests.overtime_type_id')
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('overtime_requests.employee_id', $this->sectionEmployeeIds))
             ->when($status, fn ($query) => $query->where('overtime_requests.status', $status))
             ->when($from, fn ($query) => $query->whereDate('overtime_requests.requested_date', '>=', $from))
             ->when($to, fn ($query) => $query->whereDate('overtime_requests.requested_date', '<=', $to))
@@ -248,7 +247,7 @@ class IndexOvertime extends OrgAction
                         'title' => __('Overtime')
                     ],
                     'title'         => __('Overtime'),
-                    'actions'       => $this->isRestrictedToSection() ? [] : [
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -257,7 +256,7 @@ class IndexOvertime extends OrgAction
                             'icon'  => ['fal', 'fa-plus'],
                         ],
                     ],
-                    'subNavigation' => $this->isRestrictedToSection() ? [] : $this->getOvertimeSubNavigation($request),
+                    'subNavigation' => $this->getOvertimeSubNavigation($request),
                 ],
                 'data'               => $overtimeRequests,
                 'filters'            => [
@@ -270,7 +269,6 @@ class IndexOvertime extends OrgAction
                 'employeeOptions'    => $this->organisation->employees()
                     ->orderBy('contact_name')
                     ->where('state', 'working')
-                    ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employees.id', $this->sectionEmployeeIds))
                     ->get()
                     ->map(fn (Employee $employee) => [
                         'value' => $employee->id,

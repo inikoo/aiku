@@ -31,6 +31,7 @@ type Step = {
     quantity_made: number
     quantity_required: number
     employee_id: number | null
+    only_for: number[]
     operator: string | null
     working_on_by: string[]
 }
@@ -157,7 +158,7 @@ function setPosition(item: PlanItem, position: number | null) {
                     <Select
                         v-if="can_edit && step.state !== 'done'"
                         :modelValue="step.employee_id"
-                        :options="operators"
+                        :options="step.only_for.length ? operators.filter((operator) => step.only_for.includes(operator.id)) : operators"
                         optionLabel="name"
                         optionValue="id"
                         filter

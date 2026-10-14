@@ -4,7 +4,7 @@ namespace App\Actions\HumanResources\Leave\UI;
 
 use App\Actions\HumanResources\Leave\UpdateLeaveCover;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -33,8 +33,8 @@ use App\Services\HumanResources\LeaveTypeResolver;
 class IndexLeavesAdmin extends OrgAction
 {
     use WithLeaveSubNavigation;
-    use WithHumanResourcesSectionAuthorisation {
-        authorize as authorizeHumanResourcesSection;
+    use WithHumanResourcesAuthorisation {
+        authorize as authorizeHumanResources;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -43,14 +43,14 @@ class IndexLeavesAdmin extends OrgAction
             return true;
         }
 
-        return $this->authorizeHumanResourcesSection($request);
+        return $this->authorizeHumanResources($request);
     }
 
     private function isActiveLeaveApprover(ActionRequest $request): bool
     {
         return LeaveApprover::query()
             ->where('organisation_id', $this->organisation->id)
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $request->user()->permissionsHolder()->id)
             ->where('is_active', true)
             ->exists();
     }
@@ -81,7 +81,6 @@ class IndexLeavesAdmin extends OrgAction
 
         return QueryBuilder::for(Leave::class)
             ->where('leaves.organisation_id', $organisation->id)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('leaves.employee_id', $this->sectionEmployeeIds))
             ->when($status, fn ($query) => $query->where('leaves.status', $status))
             ->when($type, fn ($query) => $query->where('leaves.type', $type))
             ->when($to, fn ($query) => $query->whereDate('leaves.start_date', '<=', $to))
@@ -137,7 +136,6 @@ class IndexLeavesAdmin extends OrgAction
     {
         $employees = Employee::where('organisation_id', $this->organisation->id)
             ->where('state', EmployeeStateEnum::WORKING)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('id', $this->sectionEmployeeIds))
             ->with([
                 'jobPositions:job_positions.id,job_positions.name,job_positions.department',
                 'users' => fn ($query) => $query->wherePivot('status', true)->where('users.status', true),
@@ -165,7 +163,7 @@ class IndexLeavesAdmin extends OrgAction
                         'title' => __('Leave')
                     ],
                     'title'         => __('Leave Requests'),
-                    'subNavigation' => $this->isRestrictedToSection() ? [] : $this->getLeaveSubNavigation($request),
+                    'subNavigation' => $this->getLeaveSubNavigation($request),
                 ],
                 'leaves' => $leaves->through(fn (Leave $leave) => LeaveResource::make($leave)->resolve($request)),
                 'filters' => [

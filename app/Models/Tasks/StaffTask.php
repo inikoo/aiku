@@ -389,9 +389,9 @@ class StaffTask extends Model implements Auditable, HasMedia
         return DB::table('job_positions')
             ->whereIn('department', self::SEE_ALL_DEPARTMENTS)
             ->where(fn ($query) => $query
-                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->select('job_position_id'))
+                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->select('job_position_id'))
                 ->orWhereIn('id', DB::table('employee_has_job_positions')
-                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                     ->select('job_position_id')))
             ->exists();
     }
@@ -431,9 +431,9 @@ class StaffTask extends Model implements Auditable, HasMedia
             ->whereNotNull('department')
             ->where('department', '!=', self::EXCLUDED_DEPARTMENT)
             ->where(fn ($query) => $query
-                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->select('job_position_id'))
+                ->whereIn('id', DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->select('job_position_id'))
                 ->orWhereIn('id', DB::table('employee_has_job_positions')
-                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                    ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                     ->select('job_position_id')))
             ->distinct()
             ->pluck('department')
@@ -465,9 +465,9 @@ class StaffTask extends Model implements Auditable, HasMedia
         return DB::table('user_has_models')
             ->join('employees', 'employees.id', '=', 'user_has_models.model_id')
             ->where('user_has_models.model_type', 'Employee')
-            ->where('user_has_models.user_id', $user->id)
+            ->where('user_has_models.user_id', $user->permissionsHolder()->id)
             ->pluck('employees.organisation_id')
-            ->merge(DB::table('user_has_authorised_models')->where('model_type', 'Organisation')->where('user_id', $user->id)->pluck('model_id'))
+            ->merge(DB::table('user_has_authorised_models')->where('model_type', 'Organisation')->where('user_id', $user->permissionsHolder()->id)->pluck('model_id'))
             ->filter()->map(fn ($id) => (int) $id)->unique()->values()->all();
     }
 
@@ -503,9 +503,9 @@ class StaffTask extends Model implements Auditable, HasMedia
     {
         $supervisorPositions = DB::table('job_positions')->where('group_id', $user->group_id)->where('code', 'like', '%-m')->where(fn ($query) => $query->whereNull('department')->orWhere('department', '!=', self::EXCLUDED_DEPARTMENT))->select('id');
 
-        return DB::table('user_has_pseudo_job_positions')->where('user_id', $user->id)->whereIn('job_position_id', $supervisorPositions)->exists()
+        return DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->whereIn('job_position_id', $supervisorPositions)->exists()
             || DB::table('employee_has_job_positions')
-                ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->id)->where('model_type', 'Employee')->select('model_id'))
+                ->whereIn('employee_id', DB::table('user_has_models')->where('user_id', $user->permissionsHolder()->id)->where('model_type', 'Employee')->select('model_id'))
                 ->whereIn('job_position_id', $supervisorPositions)->exists();
     }
 }

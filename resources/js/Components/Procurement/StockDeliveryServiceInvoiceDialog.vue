@@ -12,6 +12,7 @@ import ToggleSwitch from "primevue/toggleswitch"
 import Textarea from "primevue/textarea"
 import FileUpload from "primevue/fileupload"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import StockDeliveryHandTypedCostWarning, { type HandTypedCost } from "@/Components/Procurement/StockDeliveryHandTypedCostWarning.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
@@ -45,6 +46,9 @@ const props = defineProps<{
 	stockDeliveries: { id: number; reference: string }[]
 	stockDeliveryId: number
 	storeRoute: routeType
+	handTyped?: HandTypedCost[]
+	costKinds?: Record<string, string | null>
+	orgCurrency?: string
 }>()
 
 const visible = defineModel<boolean>("visible", { required: true })
@@ -119,6 +123,17 @@ const isForeignCurrency = computed(() => form.value.currency_id !== props.orgCur
 const isHandSplit = computed(() => form.value.stock_delivery_ids.length > 1 && !form.value.split_by_value)
 const handSplitTotal = computed(() => form.value.stock_delivery_ids.reduce((sum, id) => sum + (form.value.amounts[id] ?? 0), 0))
 const handSplitBalanced = computed(() => !isHandSplit.value || Math.abs(handSplitTotal.value - (form.value.total_amount ?? 0)) < 0.005)
+
+const billed = computed<Record<string, number | null>>(() => {
+	const kind = props.costKinds?.[form.value.type]
+	const hereOnly = form.value.stock_delivery_ids.length === 1 && form.value.stock_delivery_ids[0] === props.stockDeliveryId
+	if (props.invoice || !kind || !form.value.stock_delivery_ids.includes(props.stockDeliveryId)) {
+		return {}
+	}
+
+	const exchange = isForeignCurrency.value ? form.value.exchange : 1
+	return { [kind]: hereOnly && form.value.total_amount && exchange ? Math.round(form.value.total_amount * exchange * 100) / 100 : null }
+})
 
 const canSave = computed(() =>
 	form.value.issuer.trim() && form.value.date && form.value.total_amount && form.value.stock_delivery_ids.length && handSplitBalanced.value && (!form.value.is_paid || form.value.paid_at)
@@ -231,6 +246,8 @@ const save = () => {
 				</div>
 			</div>
 		</div>
+
+		<StockDeliveryHandTypedCostWarning v-if="handTyped?.length" class="mt-4" :handTyped="handTyped" :billed="billed" :orgCurrency="orgCurrency ?? ''" />
 
 		<template #footer>
 			<Button type="tertiary" :label="ctrans('Cancel')" @click="visible = false" />

@@ -36,7 +36,7 @@ class SettleShortJobOrderItemTask
             $item             = $jobOrderItemTask->jobOrderItem;
             $unitsPerArtefact = $this->unitsPerArtefact($item, $jobOrderItemTask);
 
-            $madeArtefacts      = (int) floor($jobOrderItemTask->quantity_made / $unitsPerArtefact);
+            $madeArtefacts      = (int) ArtefactManufactureTask::artefactsIn($jobOrderItemTask->quantity_made, $unitsPerArtefact);
             $remainingArtefacts = max(0, $item->quantity - $madeArtefacts);
 
             if ($madeArtefacts < 1) {
@@ -52,7 +52,7 @@ class SettleShortJobOrderItemTask
             $item->update(['quantity' => $madeArtefacts]);
             foreach ($item->tasks as $task) {
                 $units    = $this->unitsPerArtefact($item, $task);
-                $required = min((float) $task->quantity_required, $madeArtefacts * $units);
+                $required = min((float) $task->quantity_required, ArtefactManufactureTask::stepQuantity($madeArtefacts, $units));
                 $task->update(['quantity_required' => $required]);
                 CalculateJobOrderItemTaskQuantities::run($task);
                 $excessUnitsByTask[$task->manufacture_task_id] = max(0, (float) $task->quantity_made - $required);
@@ -166,7 +166,7 @@ class SettleShortJobOrderItemTask
             ->get();
 
         foreach ($lines as $line) {
-            $wantedSkos  = (float) ($line->quantity_to_produce ?? $line->quantity);
+            $wantedSkos  = $line->claimedSkos();
             $coveredSkos = round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3);
 
             if ($coveredSkos <= 0) {
@@ -209,8 +209,8 @@ class SettleShortJobOrderItemTask
 
     public function unitsPerArtefact(JobOrderItem $item, JobOrderItemTask $task): float
     {
-        return (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
+        return ArtefactManufactureTask::exactUnits(ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
             ->where('manufacture_task_id', $task->manufacture_task_id)
-            ->value('units_per_artefact') ?: 1;
+            ->value('units_per_artefact')) ?: 1;
     }
 }

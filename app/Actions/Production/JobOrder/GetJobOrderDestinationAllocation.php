@@ -24,7 +24,8 @@ class GetJobOrderDestinationAllocation
      * Splits what the artisan has made across the destinations the to-produce lines ask for.
      * Destinations are filled whole, biggest first, so the warehouse walks to a bay once with a
      * complete quantity instead of dribbling partials into every bay; only the leftover is short.
-     * Anything made beyond what the lines asked for goes to normal stock.
+     * Anything made beyond what the lines asked for goes to normal stock: a partner asking for 50
+     * out of a batch of 280 gets 50 in its bay, the other 230 are ours.
      *
      * A line carries the buyer's org stock and the artefact the maker's, so they only meet on the stock.
      *
@@ -60,7 +61,7 @@ class GetJobOrderDestinationAllocation
 
             $itemLines = $lines->get($item->artefact->orgStock?->stock_id, collect());
             foreach ($itemLines as $line) {
-                $remainingUnitsByLine[$line->id] ??= round((float) ($line->quantity_to_produce ?? $line->quantity) * $packedIn);
+                $remainingUnitsByLine[$line->id] ??= round($line->claimedSkos() * $packedIn);
             }
 
             $itemLines = $itemLines->sortByDesc(fn (PartnerShoppingListItem $line) => $remainingUnitsByLine[$line->id]);
@@ -152,6 +153,6 @@ class GetJobOrderDestinationAllocation
             ->where('manufacture_task_id', $lastTask->manufacture_task_id)
             ->value('units_per_artefact') ?: 1;
 
-        return floor((float) $lastTask->quantity_made / $unitsPerArtefact);
+        return ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact);
     }
 }

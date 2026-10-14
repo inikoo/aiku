@@ -1,8 +1,8 @@
 ---
 title: Calcular el coste de una entrega de stock
 summary: Introduce lo que costó realmente una entrega - la factura del agente o del proveedor y las facturas pagadas en destino por transporte, aduanas y portes - para que el stock se valore a su coste puesto en almacén.
-date: 2026-10-12
-source_date: 2026-10-12
+date: 2026-10-13
+source_date: 2026-10-13
 tags: procurement, stock deliveries, costing, landed cost, service invoices, customs
 category: procurement
 ---
@@ -68,6 +68,29 @@ El transporte se reparte por valor en vez de por peso cuando algún producto de 
 
 Cada factura rellena el coste por sí sola, y un coste rellenado por una factura solo se puede cambiar cambiando la factura. Todas las facturas de tu organización aparecen en **Service invoices**, a la que se llega desde el encabezado de esa lista, donde puedes filtrarlas por tipo, remitente, pagadas o sin pagar, y periodo.
 
+Si un coste ya se escribió a mano, aiku te avisa antes de que guardes una factura del mismo tipo, tanto si escribes la factura como si la haces leer desde su archivo. Una factura de transporte o de aranceles sustituye al importe escrito a mano, y el aviso muestra los dos importes cuando no son iguales. Una factura de cualquier otro tipo de coste cuenta junto al escrito a mano, así que quita el que escribiste si es el mismo coste. Un importe escrito como estimación simplemente lo sustituye la factura.
+
+## Leer una factura desde su archivo
+
+En lugar de escribir una factura, aiku puede leerla. Abre la fila **Landed costs** y, bajo **Read from a document**, pulsa **Read an invoice** y elige el PDF, la hoja de cálculo o una foto de la factura. Muestra **Reading…** durante un minuto o dos como máximo; después pulsa **Review**.
+
+La revisión muestra quién emitió la factura, su referencia, fecha y moneda, y cada línea con su importe y el tipo de coste que aiku cree que es. Compáralos con la factura y cambia el tipo de una línea si está mal. Los importes no se pueden cambiar: son los que están impresos en la factura. Pulsa **Add to the service invoices**. Las líneas del mismo tipo se convierten en una sola factura de servicio, así que la factura de un transitario con flete marítimo y despacho de aduanas se convierte en dos, cada una repartida entre los artículos a su manera, y cada una conserva el archivo.
+
+No se calcula ningún coste hasta que pulsas ese botón. La factura se lee dos veces, por dos modelos de IA distintos, y después aiku comprueba la lectura por su cuenta. Rechaza la lectura, y dice por qué, cuando:
+
+- las dos lecturas no coinciden en un importe, la referencia, la fecha o la moneda,
+- un importe, la referencia o la moneda que se leyó no está impreso en el documento,
+- el documento no menciona la entrega, o menciona también otra entrega, incluso una que ya está calculada o que pertenece a otra organización,
+- las líneas no suman el total de la factura,
+- la factura no tiene referencia, fecha o moneda,
+- ya hay introducida una factura con la misma referencia, o ya hay en la entrega una del mismo importe,
+- la factura es mayor que el valor de la mercancía,
+- la entrega está calculada, cancelada o es una entrega de un socio.
+
+Una factura rechazada muestra **Enter it by hand**: añádela con **Add**, como en la sección anterior. Un escaneo o una foto no tiene texto que aiku pueda comprobar, así que te pide que marques que has comprobado tú mismo cada importe.
+
+El IVA de la factura se deja fuera del coste y se escribe en las notas de la factura de servicio.
+
 ## Escribir un coste sin factura
 
 Pulsa **Edit landed costs** para abrir los costes como una tabla. Cada coste tiene:
@@ -116,6 +139,7 @@ Las personas que calculan el coste de las entregas pueden pedir a su asistente d
 <li><b>Introducir la factura:</b> abre la fila de la factura → <b>Invoice</b> → <b>Save invoice</b>.</li>
 <li><b>Aprobar los cargos de un agente o registrar un pago:</b> abre la fila de la factura → <b>Agent payments</b>.</li>
 <li><b>Añadir una factura:</b> abre <b>Landed costs</b> → <b>Add</b> junto a <b>Service invoices</b>.</li>
+<li><b>Hacer que se lea una factura desde su archivo:</b> abre <b>Landed costs</b> → <b>Read an invoice</b> bajo <b>Read from a document</b> → <b>Review</b> → <b>Add to the service invoices</b>.</li>
 <li><b>Escribir un coste, marcarlo como N/A o en espera:</b> abre <b>Landed costs</b> → <b>Edit landed costs</b>.</li>
 <li><b>Corregir una entrega ya calculada (responsables de contabilidad):</b> <b>Update costing</b> en la parte superior de la entrega, y luego <b>Finish costing</b>.</li>
 <li><b>Ver lo que está pendiente:</b> dashboard de <b>Procurement</b>, la barra de arriba; o el filtro <b>Costing</b> de la lista de entregas de stock.</li>

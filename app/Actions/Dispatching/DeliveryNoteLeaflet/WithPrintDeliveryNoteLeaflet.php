@@ -10,6 +10,7 @@ namespace App\Actions\Dispatching\DeliveryNoteLeaflet;
 
 use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
 use App\Models\Dispatching\DeliveryNoteLeaflet;
+use Exception;
 use Illuminate\Support\Arr;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +18,7 @@ use Illuminate\Validation\ValidationException;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Mccarlosen\LaravelMpdf\LaravelMpdf;
 use Rawilk\Printing\Api\PrintNode\Enums\PrintJobOption;
+use Rawilk\Printing\Api\PrintNode\Resources\Printer;
 use Rawilk\Printing\Api\PrintNode\Resources\PrintJob;
 
 trait WithPrintDeliveryNoteLeaflet
@@ -56,7 +58,7 @@ trait WithPrintDeliveryNoteLeaflet
             title: $deliveryNoteLeaflet->name,
             printId: $printerId,
             pdfBase64: $pdfBase64,
-            options: [PrintJobOption::FitToPage->value => false]
+            options: ($media ? $this->leafletPaperOption($printerId) : []) + [PrintJobOption::FitToPage->value => false]
         );
 
         $deliveryNoteLeaflet->update([
@@ -66,6 +68,67 @@ trait WithPrintDeliveryNoteLeaflet
         ]);
 
         return $result;
+    }
+
+    /**
+     * Names the printer's own A6 paper for the job. Without it the printer uses its default paper,
+     * usually A4, and lays the A6 page in the middle of that sheet, half off the card.
+     * A driver that offers no A6 gets its nearest paper (Postcard, 100 x 148 mm) and the page fitted to it.
+     *
+     * @return array<string, string|bool>
+     */
+    protected function leafletPaperOption(int $printerId): array
+    {
+        $this->ensureClientInitialized();
+
+        try {
+            $papers = Printer::retrieve($printerId)->capabilities?->papers;
+        } catch (Exception) {
+            return [];
+        }
+
+        $papers = json_decode(json_encode($papers ?? []), true) ?: [];
+        $paper  = $this->a6PaperName($papers);
+
+        if ($paper !== null) {
+            return [PrintJobOption::Paper->value => $paper];
+        }
+
+        $paper = $this->nearA6PaperName($papers);
+
+        return $paper === null ? [] : [PrintJobOption::Paper->value => $paper, PrintJobOption::FitToPage->value => true];
+    }
+
+    /**
+     * @param  array<string, array{0: int|null, 1: int|null}>  $papers  paper name => [width, height] in tenths of a millimetre
+     */
+    protected function nearA6PaperName(array $papers): ?string
+    {
+        $distances = [];
+        foreach ($papers as $name => $size) {
+            $widthGap  = abs((int) Arr::get($size, 0) - 1050);
+            $heightGap = abs((int) Arr::get($size, 1) - 1480);
+            if (max($widthGap, $heightGap) <= 60) {
+                $distances[(string) $name] = $widthGap + $heightGap;
+            }
+        }
+        asort($distances);
+
+        return array_key_first($distances);
+    }
+
+    /**
+     * @param  array<string, array{0: int|null, 1: int|null}>  $papers  paper name => [width, height] in tenths of a millimetre
+     */
+    protected function a6PaperName(array $papers): ?string
+    {
+        foreach ($papers as $name => $size) {
+            if (abs((int) Arr::get($size, 0) - 1050) <= 20 && abs((int) Arr::get($size, 1) - 1480) <= 20) {
+                return (string) $name;
+            }
+        }
+
+        return Arr::first(array_map('strval', array_keys($papers)), fn (string $name) => preg_match('/\bA6\b/i', $name) === 1);
     }
 
     /**

@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { ctrans } from "@/Composables/useTrans"
-import Dialog from "primevue/dialog"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPencil, faTruck, faShip, faFileContract, faCreditCard, faHashtag, faCalendarAlt, faInfoCircle } from "@fal"
-import FieldForm from "@/Components/Forms/FieldForm.vue"
-import { routeType } from "@/types/route"
+import { faTruck, faShip, faFileContract, faCreditCard, faHashtag, faCalendarAlt, faInfoCircle } from "@fal"
 
-library.add(faPencil, faTruck, faShip, faFileContract, faCreditCard, faHashtag, faCalendarAlt, faInfoCircle)
+library.add(faTruck, faShip, faFileContract, faCreditCard, faHashtag, faCalendarAlt, faInfoCircle)
 
 defineOptions({ inheritAttrs: false })
 
@@ -29,22 +26,12 @@ type Section = {
 const props = defineProps<{
 	data: {
 		blueprint: Section[]
-		updateRoute: routeType
 	}
-	bare?: boolean
 	isOwnWarehouse?: boolean
 }>()
 
-const fieldForm = ref()
-const selectedSectionIndex = ref<number | null>(null)
-const selectedSection = computed(() =>
-	selectedSectionIndex.value === null ? null : props.data.blueprint[selectedSectionIndex.value]
-)
-
 const visibleFields = (section: Section) =>
 	Object.entries(section.fields).filter(([, field]) => !field.hidden)
-const hasEditableFields = (section: Section) =>
-	visibleFields(section).some(([, field]) => field.type !== "readonly")
 
 const fieldValue = (field: FieldData): string => {
 	if (field.value === null || field.value === undefined || field.value === "") {
@@ -98,7 +85,7 @@ const isEmpty = (field: FieldData) =>
 
 <template>
 	<div>
-		<div v-if="bare" class="flex flex-col gap-2 text-sm text-gray-500">
+		<div class="flex flex-col gap-2 text-sm text-gray-500">
 			<div
 				v-for="[fieldName, field] in filledFields"
 				:key="fieldName"
@@ -117,72 +104,5 @@ const isEmpty = (field: FieldData) =>
 			</div>
 		</div>
 
-		<dl v-else
-			class="divide-y divide-gray-100"
-			:class="bare ? 'text-xs' : 'mx-4 my-4 rounded-lg border border-gray-200 bg-white text-sm'">
-			<div
-				v-for="(section, sectionIndex) in data.blueprint"
-				:key="section.title"
-				class="flex items-start gap-3"
-				:class="bare ? 'py-1.5' : 'px-3 py-2'">
-				<dt
-					class="shrink-0 pt-px font-medium uppercase tracking-wide text-gray-400"
-					:class="bare ? 'w-24 text-[10px]' : 'w-32 text-xs'">
-					{{ section.title }}
-				</dt>
-				<dd class="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-1">
-					<span v-for="[fieldName, field] in visibleFields(section)" :key="fieldName" class="min-w-0">
-						<span class="text-gray-400">{{ field.label }}:</span>
-						<span
-							class="ml-1 whitespace-pre-line"
-							:class="isEmpty(field) ? 'text-gray-300' : 'text-gray-700'"
-							:title="fieldValue(field)">
-							{{ isEmpty(field) ? "—" : fieldValue(field) }}
-						</span>
-					</span>
-				</dd>
-				<button
-					v-if="hasEditableFields(section)"
-					type="button"
-					v-tooltip="ctrans('Edit')"
-					:aria-label="`${ctrans('Edit')} ${section.title}`"
-					class="shrink-0 rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-					@click="selectedSectionIndex = sectionIndex">
-					<FontAwesomeIcon icon="fal fa-pencil" fixed-width aria-hidden="true" />
-				</button>
-			</div>
-		</dl>
-
-		<Dialog
-			:visible="selectedSectionIndex !== null"
-			modal
-			:header="selectedSection?.title"
-			:style="{ width: '42rem', maxWidth: 'calc(100vw - 2rem)' }"
-			:draggable="false"
-			@update:visible="
-				(visible) => {
-					if (!visible) selectedSectionIndex = null
-				}
-			">
-			<div v-if="selectedSection" class="flex flex-col gap-3">
-				<template
-					v-for="[fieldName, field] in visibleFields(selectedSection)"
-					:key="fieldName">
-					<dl
-						v-if="field.type === 'readonly'"
-						class="grid grid-cols-3 gap-4 py-2 text-sm">
-						<dt class="text-gray-400">{{ field.label }}</dt>
-						<dd class="col-span-2 text-gray-700">{{ fieldValue(field) }}</dd>
-					</dl>
-					<FieldForm
-						v-else
-						ref="fieldForm"
-						:field="fieldName"
-						:fieldData="field"
-						:args="{ updateRoute: data.updateRoute }"
-						:refForms="fieldForm" />
-				</template>
-			</div>
-		</Dialog>
 	</div>
 </template>

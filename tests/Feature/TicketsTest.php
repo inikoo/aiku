@@ -750,9 +750,21 @@ test('tickets dashboard counts created, done, status and assignees', function ()
         ->and($stats['reporters'])->toBeArray()
         ->and($stats['assignees_total']['created'])->toBe($stats['created'])
         ->and(collect($stats['by_status'])->sum('total'))->toBe($stats['created'])
-        ->and(collect($stats['by_time_of_day'])->sum(2))->toBe($stats['created'])
-        ->and(ShowTicketsReports::make()->handle($this->group, '1w', timezone: 'Asia/Kuala_Lumpur')['by_time_of_day'])->not->toBe($stats['by_time_of_day'])
+        ->and($stats)->not->toHaveKey('by_time_of_day')
+        ->and($stats)->not->toHaveKey('by_hour')
+        ->and($stats['by_quarter_hour'])->toHaveCount(96)
+        ->and(collect($stats['by_quarter_hour'])->pluck('slot')->all())->toBe(range(0, 95))
+        ->and(collect($stats['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
+        ->and(collect($stats['by_quarter_hour'])->sum('done'))->toBe($stats['done'])
+        ->and(ShowTicketsReports::make()->handle($this->group, '1w', timezone: 'Asia/Kuala_Lumpur')['by_quarter_hour'])->not->toBe($stats['by_quarter_hour'])
         ->and($stats['resolvers_total']['done'])->toBe($before['resolvers_total']['done']);
+
+    $forSomeoneWithNoTickets = ShowTicketsReports::make()->handle($this->group, '1w', assignee: User::factory()->create(['group_id' => $this->group->id]));
+
+    expect($forSomeoneWithNoTickets['created'])->toBe(0)
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('created'))->toBe($stats['created'])
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('started'))->toBe(0)
+        ->and(collect($forSomeoneWithNoTickets['by_quarter_hour'])->sum('done'))->toBe(0);
 
     $oldTicket = StoreTicket::make()->action($this->group, ['subject' => 'Old but resolved now', 'assignee_id' => $this->user->id]);
     $oldTicket->update(['created_at' => now()->subMonths(3)]);
@@ -764,12 +776,12 @@ test('tickets dashboard counts created, done, status and assignees', function ()
         ->and($after['resolvers_total']['done'])->toBe($stats['resolvers_total']['done'] + 1);
 
     get(route('grp.tickets.reports', ['created' => 'lm']))->assertInertia(
-        fn (AssertableInertia $page) => $page->component('Tickets/TicketsReports')->where('stats.interval', 'lm')->has('stats.daily', now()->subMonth()->daysInMonth)
+        fn (AssertableInertia $page) => $page->component('Tickets/TicketsReports')->where('stats.interval', 'lm')->where('stats.timezone', $this->user->timezone_name)->has('stats.daily', now()->subMonth()->daysInMonth)
     );
 });
 
-test('tickets dashboard counts created, started and resolved tickets by the hour of the day in the viewer timezone', function () {
-    $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_hour'])->keyBy('hour');
+test('tickets dashboard counts created, started and resolved tickets by the quarter hour of the day in the viewer timezone', function () {
+    $hourly = fn (string $timezone = 'UTC') => collect(ShowTicketsReports::make()->handle($this->group, '1w', timezone: $timezone)['by_quarter_hour'])->keyBy('slot');
     $before = $hourly();
     $day    = now('UTC')->subDay()->startOfDay();
 
@@ -778,22 +790,25 @@ test('tickets dashboard counts created, started and resolved tickets by the hour
         'created_at'  => $day->copy()->setTime(5, 10),
         'started_at'  => $day->copy()->setTime(9, 40),
         'resolved_at' => $day->copy()->setTime(14, 5),
+        'closed_at'   => $day->copy()->setTime(16, 20),
     ]);
 
     $after = $hourly();
 
-    expect($after->keys()->all())->toBe(range(0, 23))
-        ->and($after[5]['created'])->toBe($before[5]['created'] + 1)
-        ->and($after[9]['started'])->toBe($before[9]['started'] + 1)
-        ->and($after[14]['done'])->toBe($before[14]['done'] + 1)
-        ->and($after[5]['started'])->toBe($before[5]['started'])
-        ->and($after[5]['done'])->toBe($before[5]['done'])
+    expect($after->keys()->all())->toBe(range(0, 95))
+        ->and($after[20]['created'])->toBe($before[20]['created'] + 1)
+        ->and($after[38]['started'])->toBe($before[38]['started'] + 1)
+        ->and($after[56]['done'])->toBe($before[56]['done'] + 1)
+        ->and($after[65]['closed'])->toBe($before[65]['closed'] + 1)
+        ->and($after[56]['closed'])->toBe($before[56]['closed'])
+        ->and($after[20]['started'])->toBe($before[20]['started'])
+        ->and($after[20]['done'])->toBe($before[20]['done'])
         ->and($after->sum('created'))->toBe($before->sum('created') + 1);
 
     $kualaLumpurBefore = $before->sum('created');
     $kualaLumpur       = $hourly('Asia/Kuala_Lumpur');
 
-    expect($kualaLumpur[13]['created'])->toBeGreaterThanOrEqual(1)
+    expect($kualaLumpur[52]['created'])->toBeGreaterThanOrEqual(1)
         ->and($kualaLumpur->sum('created'))->toBeGreaterThanOrEqual($kualaLumpurBefore);
 });
 
@@ -1686,6 +1701,67 @@ test('the QA list shows at a glance how far QA is behind on the tickets done', f
     ]);
 
     get(route('grp.tickets.list'))->assertInertia(fn (AssertableInertia $page) => $page->where('listSummary', null));
+});
+
+test('the next page of the ticket and QA lists keeps the filters that were cleared', function () {
+    $qa = User::factory()->create(['group_id' => $this->group->id]);
+    setPermissionsTeamId($this->group->id);
+    $qa->assignRole('qa');
+    actingAs($qa);
+
+    foreach (range(1, 11) as $number) {
+        $ticket = StoreTicket::make()->action($this->group, ['subject' => 'QA passed pagination '.$number]);
+        Ticket::whereKey($ticket->id)->update(['status' => TicketStatusEnum::RESOLVED, 'qa_status' => TicketQaStatusEnum::PASSED]);
+    }
+
+    $firstPage = get(route('grp.tickets.qa_list', [
+        'filter'   => ['qa_state' => 'passed'],
+        'elements' => ['qa_status' => '', 'qa_checker' => ''],
+        'perPage'  => 10,
+    ]))->assertOk()->viewData('page')['props']['data'];
+
+    $firstPageIds = collect($firstPage['data'])->pluck('id');
+
+    $nextPageUrl = urldecode($firstPage['links']['next']);
+
+    expect($nextPageUrl)->toContain('elements[qa_status]=', 'elements[qa_checker]=', 'filter[qa_state]=passed', 'page=2');
+
+    $secondPage = get($firstPage['links']['next'])->assertOk()->viewData('page')['props']['data'];
+
+    expect($secondPage['data'])->not->toBeEmpty()
+        ->and(collect($secondPage['data'])->pluck('qa_status')->unique()->all())->toBe([TicketQaStatusEnum::PASSED->value])
+        ->and(collect($secondPage['data'])->pluck('id')->intersect($firstPageIds)->all())->toBe([])
+        ->and($secondPage['meta']['total'])->toBe($firstPage['meta']['total']);
+
+    $ticketList = get(route('grp.tickets.list', ['elements' => ['mine' => '', 'status' => ''], 'perPage' => 10]))
+        ->assertOk()->viewData('page')['props']['data'];
+
+    expect(urldecode($ticketList['links']['next']))->toContain('elements[mine]=', 'elements[status]=', 'page=2');
+});
+
+test('a page past the last one of the ticket and QA lists goes back to the first page', function () {
+    $qa = User::factory()->create(['group_id' => $this->group->id]);
+    setPermissionsTeamId($this->group->id);
+    $qa->assignRole('qa');
+    actingAs($qa);
+
+    $ticket = StoreTicket::make()->action($this->group, ['subject' => 'QA skipped out of range page']);
+    Ticket::whereKey($ticket->id)->update(['status' => TicketStatusEnum::RESOLVED, 'qa_status' => TicketQaStatusEnum::SKIPPED]);
+
+    foreach (['grp.tickets.list', 'grp.tickets.qa_list'] as $routeName) {
+        $query = ['elements' => ['mine' => '', 'status' => '', 'qa_status' => 'skipped'], 'perPage' => 1000];
+
+        $redirect = get(route($routeName, [...$query, 'page' => 7]))->assertRedirect();
+
+        expect(urldecode($redirect->headers->get('Location')))
+            ->toContain(route($routeName), 'elements[mine]=', 'elements[status]=', 'elements[qa_status]=skipped', 'page=1')
+            ->not->toContain('page=7');
+
+        get($redirect->headers->get('Location'))->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => expect(collect($page->toArray()['props']['data']['data'])->pluck('reference')->all())->toContain($ticket->reference));
+
+        get(route($routeName, [...$query, 'filter' => ['global' => 'nothing-matches-this-'.uniqid()], 'page' => 1]))->assertOk();
+    }
 });
 
 test('the dashboard shows QA details to QA, and the urgent check lands on requested tickets only', function () {

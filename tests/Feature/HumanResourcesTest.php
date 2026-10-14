@@ -4075,14 +4075,25 @@ test('every non-shop department has a view-only position that gives way to a hig
     expect($scopes)->toBe(['hr-v' => [], 'wah-sc' => ['Warehouse' => [1]], 'wah-v' => ['Warehouse' => [2]]]);
 });
 
-test('a section supervisor sees, read only, only the HR pages of the employees in their section', function () {
+test('the reports position gives the organisation reports and nothing else', function () {
+    setPermissionsTeamId($this->group->id);
+    \App\Actions\SysAdmin\Group\Seeders\SeedJobPositionCategories::run($this->group);
+    \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($this->organisation);
+
+    $position = JobPosition::where('organisation_id', $this->organisation->id)->where('code', 'rep')->firstOrFail();
+
+    expect($position->roles->pluck('name')->all())->toBe(['reports-viewer-'.$this->organisation->id])
+        ->and($position->roles->first()->permissions->pluck('name')->all())->toBe(['org-reports.'.$this->organisation->id]);
+});
+
+test('human resources is closed to a section supervisor, who follows the team from the warehouse team section', function () {
     $warehouse    = createWarehouse();
     $organisation = $warehouse->organisation;
     setPermissionsTeamId($warehouse->group_id);
     \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
     \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($organisation);
 
-    $positions = JobPosition::where('organisation_id', $organisation->id)->whereIn('code', ['wah-m', 'wah-sc', 'acc-c'])->get()->keyBy('code');
+    $positions = JobPosition::where('organisation_id', $organisation->id)->whereIn('code', ['wah-m', 'wah-sc'])->get()->keyBy('code');
 
     $newEmployee = function () use ($organisation) {
         $employee = Employee::factory()->create([
@@ -4098,33 +4109,27 @@ test('a section supervisor sees, read only, only the HR pages of the employees i
     $warehouseClerk = $newEmployee();
     SyncEmployeeJobPositions::make()->handle($warehouseClerk, [$positions['wah-sc']->id => ['Warehouse' => [$warehouse->id]]]);
 
-    $accountingClerk = $newEmployee();
-    SyncEmployeeJobPositions::make()->handle($accountingClerk, [$positions['acc-c']->id => []]);
-
     $supervisor = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
     \App\Actions\SysAdmin\User\SyncUserPseudoOrganisationJobPositions::make()->handle($supervisor, $organisation, [$positions['wah-m']->id => ['Warehouse' => [$warehouse->id]]]);
     $supervisor->refresh();
 
-    $visibleEmployeeIds = \App\Actions\HumanResources\Employee\GetSectionSupervisedEmployeeIds::run($supervisor, $organisation);
-
-    expect($visibleEmployeeIds)->toContain($warehouseClerk->id)
-        ->not->toContain($accountingClerk->id);
-
     actingAs($supervisor);
 
-    get(route('grp.org.hr.dashboard', $organisation->slug))->assertOk();
-    get(route('grp.org.hr.employees.index', $organisation->slug))->assertOk();
-    get(route('grp.org.hr.employees.show', [$organisation->slug, $warehouseClerk->slug]))->assertOk();
-    get(route('grp.org.hr.employees.show', [$organisation->slug, $accountingClerk->slug]))->assertForbidden();
+    foreach (['dashboard', 'employees.index', 'timesheets.index', 'timesheets.export', 'clockings.index', 'leaves.index', 'overtime.index', 'workplaces.index', 'job_positions.index'] as $page) {
+        expect(get(route("grp.org.hr.$page", $organisation->slug))->status())->toBe(403, $page);
+    }
+    get(route('grp.org.hr.employees.show', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();
     get(route('grp.org.hr.employees.edit', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();
-    get(route('grp.org.hr.timesheets.index', $organisation->slug))->assertOk();
-    get(route('grp.org.hr.clockings.index', $organisation->slug))->assertOk();
-    get(route('grp.org.hr.workplaces.index', $organisation->slug))->assertForbidden();
-    get(route('grp.org.hr.job_positions.index', $organisation->slug))->assertForbidden();
+    get(route('grp.org.hr.employees.show.timesheets.index', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();
 
-    $outsider = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    $navigationBuilder = new class () {
+        use \App\Actions\UI\Grp\Layout\WithLayoutNavigation;
+    };
 
-    expect(\App\Actions\HumanResources\Employee\GetSectionSupervisedEmployeeIds::run($outsider, $organisation))->toBe([]);
+    expect($navigationBuilder->getHumanResourcesNavs($supervisor, $organisation, []))->not->toHaveKey('hr')
+        ->and(\App\Actions\Inventory\WarehouseTeam\UI\ShowWarehouseTeam::canManageWarehouseTeam($supervisor, $warehouse))->toBeTrue();
+
+    get(route('grp.org.warehouses.show.team.dashboard', [$organisation->slug, $warehouse->slug]))->assertOk();
 
     $goodsInSupervisor = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
     \App\Actions\SysAdmin\User\SyncUserPseudoOrganisationJobPositions::make()->handle(
@@ -4133,13 +4138,10 @@ test('a section supervisor sees, read only, only the HR pages of the employees i
         [JobPosition::where('organisation_id', $organisation->id)->where('code', 'gi-m')->value('id') => ['Warehouse' => [$warehouse->id]]]
     );
 
-    expect(\App\Actions\HumanResources\Employee\GetSectionSupervisedEmployeeIds::run($goodsInSupervisor->refresh(), $organisation))->toBe([]);
+    actingAs($goodsInSupervisor->refresh());
 
-    actingAs($goodsInSupervisor);
-
-    get(route('grp.org.hr.employees.index', $organisation->slug))->assertOk();
+    get(route('grp.org.hr.timesheets.index', $organisation->slug))->assertForbidden();
     get(route('grp.org.hr.employees.show', [$organisation->slug, $warehouseClerk->slug]))->assertForbidden();
-    get(route('grp.org.hr.workplaces.index', $organisation->slug))->assertForbidden();
 });
 
 test('warehouse supervisors see their warehouse team and add clockings from the warehouse', function () {
@@ -4148,6 +4150,7 @@ test('warehouse supervisors see their warehouse team and add clockings from the 
     \App\Actions\Inventory\Warehouse\SeedWarehousePermissions::run($warehouse);
     \App\Actions\SysAdmin\Organisation\Seeders\SeedJobPositions::run($warehouse->organisation);
     $organisation = $warehouse->organisation;
+    $this->travelTo(now($organisation->timezone->name)->setTime(12, 0));
 
     if (!$organisation->workplaces()->exists()) {
         StoreWorkplace::make()->action($organisation, [
@@ -5384,7 +5387,7 @@ test('the employee page leave tab counts that employee leave by status and year,
     $leaveTab(['organisation' => $otherOrganisation->slug])->assertNotFound();
 });
 
-test('a section supervisor opens the leave tab of an employee in their section only', function () {
+test('a section supervisor cannot open the leave tab of any employee, in their section or not', function () {
     $warehouse    = createWarehouse();
     $organisation = $warehouse->organisation;
     setPermissionsTeamId($warehouse->group_id);
@@ -5410,23 +5413,14 @@ test('a section supervisor opens the leave tab of an employee in their section o
     $accountingClerk = $newEmployee();
     SyncEmployeeJobPositions::make()->handle($accountingClerk, [$positions['acc-c']->id => []]);
 
-    $clerkLeave = createEmployeeLeaveTabLeave($warehouseClerk, now()->year.'-03-02', 2, LeaveStatusEnum::APPROVED);
+    createEmployeeLeaveTabLeave($warehouseClerk, now()->year.'-03-02', 2, LeaveStatusEnum::APPROVED);
     createEmployeeLeaveTabLeave($accountingClerk, now()->year.'-03-02', 2, LeaveStatusEnum::APPROVED);
 
     $supervisor = User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
     \App\Actions\SysAdmin\User\SyncUserPseudoOrganisationJobPositions::make()->handle($supervisor, $organisation, [$positions['wah-m']->id => ['Warehouse' => [$warehouse->id]]]);
     actingAs($supervisor->refresh());
 
-    get(route('grp.org.hr.employees.show', ['organisation' => $organisation->slug, 'employee' => $warehouseClerk->slug, 'tab' => 'leaves']))
-        ->assertOk()
-        ->assertInertia(
-            fn (AssertableInertia $page) => $page
-                ->where('tabs.navigation', fn ($navigation) => collect($navigation)->has('leaves') && !collect($navigation)->has('requests'))
-                ->where('leaves.summary.approved', 1)
-                ->where('leaves.leaves.data', fn ($rows) => collect($rows)->pluck('id')->all() === [$clerkLeave->id])
-                ->etc()
-        );
-
+    get(route('grp.org.hr.employees.show', ['organisation' => $organisation->slug, 'employee' => $warehouseClerk->slug, 'tab' => 'leaves']))->assertForbidden();
     get(route('grp.org.hr.employees.show', ['organisation' => $organisation->slug, 'employee' => $accountingClerk->slug, 'tab' => 'leaves']))->assertForbidden();
 });
 

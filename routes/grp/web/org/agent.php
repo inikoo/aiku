@@ -62,6 +62,7 @@ use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderPipeline;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgAgentSuppliers;
@@ -90,6 +91,8 @@ Route::prefix('supplier-products')->as('org_supplier_products.')->group(function
     Route::get('{orgSupplierProduct}/edit', EditOrgSupplierProduct::class)->name('edit');
 });
 
+Route::get('sales', ShowAgentSales::class)->name('sales.dashboard');
+
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');
     Route::get('list', IndexPurchaseOrders::class)->name('index');
@@ -98,7 +101,7 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('export', ExportPurchaseOrders::class)->name('export');
     Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
     Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
-    Route::get('{purchaseOrder}/pdf', PdfPurchaseOrder::class)->name('pdf');
+    Route::get('{purchaseOrder}/pdf/{filename?}', PdfPurchaseOrder::class)->name('pdf');
     Route::get('{purchaseOrder}/transactions-export', ExportPurchaseOrderTransactions::class)->name('transactions.export');
 });
 
@@ -113,7 +116,7 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('board', ShowAgentContainersBoard::class)->name('board');
     Route::get('export', ExportStockDeliveries::class)->name('export');
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
-    Route::get('{stockDelivery}/pdf', PdfStockDelivery::class)->name('pdf');
+    Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
 });
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
@@ -171,7 +174,7 @@ Route::prefix('agents/{orgAgent}')->as('org_agents.show')->group(function () {
     Route::get('purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgAgent'])->name('.purchase-orders.show');
     Route::get('order-pipeline', ShowAgentOrderPipeline::class)->name('.order_pipeline');
     Route::get('agent-orders', IndexAgentOrders::class)->name('.agent_orders.index');
-    Route::get('agent-orders/{agentOrderReference}/pdf', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
+    Route::get('agent-orders/{agentOrderReference}/pdf/{filename?}', [PdfPurchaseOrder::class, 'inAgentOrder'])->name('.agent_orders.pdf')->where('agentOrderReference', '.*');
     Route::get('agent-orders/{agentOrderReference}', ShowAgentOrder::class)->name('.agent_orders.show')->where('agentOrderReference', '.*');
     Route::get('org-stocks', [IndexOrgStocks::class, 'inOrgAgent'])->name('.org-stocks.index');
     Route::get('containers', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');

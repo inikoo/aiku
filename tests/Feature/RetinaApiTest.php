@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -17,6 +18,9 @@ use App\Actions\CRM\Customer\ApproveCustomer;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerSalesChannel\StoreCustomerSalesChannel;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -264,6 +268,45 @@ test('retina api dropshipping orders flow', function () {
     ]);
     $response->assertOk();
 
+    $premiumCharge = StoreCharge::make()->action($this->dropshippingShop, [
+        'code'        => 'PREMIUM-API',
+        'name'        => 'Premium dispatch',
+        'type'        => ChargeTypeEnum::PREMIUM,
+        'trigger'     => ChargeTriggerEnum::SELECTED_BY_CUSTOMER,
+        'description' => 'Same day dispatch',
+        'state'       => ChargeStateEnum::ACTIVE,
+        'settings'    => ['amount' => 5],
+    ]);
+
+    $response = patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'is_premium_dispatch' => true,
+        'shipping_notes'      => 'Leave with neighbour',
+    ]);
+    $response->assertOk();
+    $response->assertJsonPath('data.is_premium_dispatch', true);
+    $response->assertJsonPath('data.shipping_notes', 'Leave with neighbour');
+    $response->assertJsonPath('data.public_notes', 'Please ship fast');
+    expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->exists())->toBeTrue();
+
+    $response = patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'is_premium_dispatch' => false,
+    ]);
+    $response->assertOk();
+    $response->assertJsonPath('data.is_premium_dispatch', false);
+    expect($order->transactions()->where('model_type', 'Charge')->where('model_id', $premiumCharge->id)->exists())->toBeFalse();
+
+    $this->dropshippingShop->charges()->where('type', ChargeTypeEnum::INSURANCE)->update(['state' => ChargeStateEnum::DISCONTINUED]);
+    patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'has_insurance' => true,
+    ])->assertStatus(422);
+    expect($order->refresh()->has_insurance)->not->toBeTrue();
+
+    $this->dropshippingShop->charges()->where('type', ChargeTypeEnum::GIFT_MESSAGE)->update(['state' => ChargeStateEnum::DISCONTINUED]);
+    patchJson(route('retina.api.dropshipping.order.update', $order), [
+        'gift_message' => 'Happy birthday',
+    ])->assertStatus(422);
+    expect($order->refresh()->gift_message)->toBeNull();
+
     $response = deleteJson(route('retina.api.dropshipping.order.delete', $order));
     $response->assertOk();
 });
@@ -304,7 +347,9 @@ test('retina api dropshipping order submit', function () {
      * assert the order actually left the basket. */
     $order->refresh();
     expect($order->submitted_at)->not->toBeNull()
-        ->and($order->state)->not->toBe(OrderStateEnum::CREATING);
+        ->and($order->state)->not->toBe(OrderStateEnum::CREATING)
+        ->and($order->pay_status)->not->toBeNull()
+        ->and($response->json('data.pay_status'))->toBe($order->pay_status->value);
 });
 
 // ---- Dropshipping: products & portfolios ----

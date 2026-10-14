@@ -329,7 +329,7 @@ const neededAfterPipeline = computed(() => Math.max(0, (target.value ?? 0) - per
 
 const breakdown = computed(() => [
     { key: "invoiced", label: ctrans("Invoiced"), amount: periodData.value.sales_so_far, color: COLORS.invoiced, count: ctrans(":count invoices", { count: (periodData.value.invoices ?? 0).toLocaleString() }) },
-    { key: "pipeline", label: ctrans("In the warehouse pipeline"), amount: periodData.value.pipeline.amount, color: COLORS.pipeline, count: ctrans(":count orders", { count: (periodData.value.pipeline.orders ?? 0).toLocaleString() }) },
+    { key: "pipeline", label: ctrans("In Process"), amount: periodData.value.pipeline.amount, color: COLORS.pipeline, count: ctrans(":count orders", { count: (periodData.value.pipeline.orders ?? 0).toLocaleString() }) },
     { key: "needed", label: ctrans("Still needed"), amount: neededAfterPipeline.value, color: COLORS.needed },
 ])
 
@@ -451,7 +451,7 @@ const donutOptions = {
                     </div>
                 </div>
 
-                <div v-if="target" class="flex flex-wrap items-center gap-4">
+                <div v-if="target" class="flex flex-wrap items-center gap-4 sm:flex-nowrap">
                     <div class="relative h-32 w-32 shrink-0">
                         <Chart type="doughnut" :data="donutData" :options="donutOptions" class="relative z-10 h-full" />
                         <div class="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center">
@@ -462,14 +462,14 @@ const donutOptions = {
                     <table class="text-sm tabular-nums">
                         <tbody>
                             <tr v-for="row in breakdown" :key="row.key">
-                                <td class="py-1 pr-5">
+                                <td class="py-1 pr-3">
                                     <span class="flex items-center gap-2">
                                         <span class="h-3 w-3 shrink-0 rounded-sm" :style="{ backgroundColor: row.color }" />
                                         {{ row.label }}
                                     </span>
                                 </td>
-                                <td class="py-1 pr-5 text-right text-xs text-gray-500">{{ row.count }}</td>
-                                <td class="py-1 pr-5 text-right font-medium">{{ money(row.amount) }}</td>
+                                <td class="py-1 pr-3 whitespace-nowrap text-right text-xs text-gray-500">{{ row.count }}</td>
+                                <td class="py-1 pr-3 text-right font-medium">{{ money(row.amount) }}</td>
                                 <td class="py-1 text-right text-gray-500">{{ percentOf(row.amount, target).toFixed(0) }}%</td>
                             </tr>
                         </tbody>

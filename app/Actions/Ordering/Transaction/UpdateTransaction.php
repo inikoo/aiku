@@ -13,6 +13,7 @@ use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\LogBasketEvent;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateCategoriesData;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PartnerShoppingListItem\ReturnLoweredQuantityToPartnerShoppingList;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -96,6 +97,10 @@ class UpdateTransaction extends OrgAction
 
         $quantityBefore = (float) $transaction->quantity_ordered;
         $this->update($transaction, $modelData, ['data']);
+
+        if ((float) $transaction->quantity_ordered < $quantityBefore) {
+            ReturnLoweredQuantityToPartnerShoppingList::run($transaction);
+        }
 
         if ($this->strict) {
             $changes = Arr::except($transaction->getChanges(), ['updated_at', 'last_fetched_at']);

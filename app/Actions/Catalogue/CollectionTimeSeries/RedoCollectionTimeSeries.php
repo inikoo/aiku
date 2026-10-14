@@ -66,7 +66,7 @@ class RedoCollectionTimeSeries implements ShouldBeUnique
             return;
         }
 
-        if ($collection->state == CollectionStateEnum::IN_PROCESS || !$collection->source_id) {
+        if ($collection->state == CollectionStateEnum::IN_PROCESS) {
             return;
         }
 

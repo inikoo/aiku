@@ -76,7 +76,7 @@ class UpdateStockDeliveryServiceInvoice extends OrgAction
     public function rules(): array
     {
         return array_merge($this->allocationRules(), [
-            'type'         => ['sometimes', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)],
+            'type'         => ['sometimes', Rule::enum(StockDeliveryServiceInvoiceTypeEnum::class)->except([StockDeliveryServiceInvoiceTypeEnum::NOT_IN_DELIVERY])],
             'issuer'       => ['sometimes', 'string', 'max:255'],
             'reference'    => ['sometimes', 'nullable', 'string', 'max:255'],
             'date'         => ['sometimes', 'date'],

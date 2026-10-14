@@ -3035,6 +3035,24 @@ test('cancel delivery note', function () {
     expect($cancelled->state)->toBe(DeliveryNoteStateEnum::CANCELLED);
 });
 
+test('cancelling the delivery note of a finalised order rolls the order back unless it is invoiced (HELP-3920)', function () {
+    [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $order = $deliveryNote->orders->first();
+    $order->update(['state' => OrderStateEnum::FINALISED]);
+    $order->invoices()->delete();
+
+    \App\Actions\Dispatching\DeliveryNote\UpdateState\CancelDeliveryNote::run($deliveryNote, $this->user, true);
+    expect($order->refresh()->state)->toBe(OrderStateEnum::SUBMITTED);
+
+    [$invoicedDeliveryNote] = handlingDeliveryNoteWithPicking($this);
+    $invoicedOrder = $invoicedDeliveryNote->orders->first();
+    \App\Actions\Ordering\Order\GenerateInvoiceFromOrder::make()->action($invoicedOrder);
+    $invoicedOrder->update(['state' => OrderStateEnum::FINALISED]);
+
+    \App\Actions\Dispatching\DeliveryNote\UpdateState\CancelDeliveryNote::run($invoicedDeliveryNote, $this->user, true);
+    expect($invoicedOrder->refresh()->state)->toBe(OrderStateEnum::FINALISED);
+});
+
 test('only dispatch supervisors can cancel a delivery note', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
 

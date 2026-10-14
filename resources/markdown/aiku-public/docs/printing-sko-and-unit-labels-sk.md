@@ -1,8 +1,8 @@
 ---
 title: Tlač SKO a jednotkových štítkov
 summary: Vytlačte štítok, ktorý ide na produkt, aj ten, ktorý ide na škatuľu, priamo zo stránky SKO alebo z riadku dodacieho listu, na kotúč, ktorý už kupujete, alebo 27 na hárok A4.
-date: 2026-09-23
-source_date: 2026-09-23
+date: 2026-10-13
+source_date: 2026-10-13
 tags: warehouse, inventory, labels, barcodes, printing
 category: warehouse
 ---
@@ -11,7 +11,34 @@ category: warehouse
 SKO vie vytlačiť <b>dva rôzne štítky</b>. <b>Jednotkový štítok</b> (unit label) ide na produkt, ktorý napokon drží zákazník, takže nesie pôvod, výrobcu, hmotnosť a adresu vašej firmy a je postavený okolo jednotkového EAN13. <b>SKO štítok</b> (SKO label) ide na vonkajšiu škatuľu, takže hovorí, čo je v škatuli a koľko kusov v nej je, písmom čitateľným z niekoľkých metrov v uličke. Ktorýkoľvek z nich otvoríte zo stránky SKO alebo z riadku dodacieho listu, zaškrtnete, čo na ňom chcete, vyberiete veľkosť štítka a vytlačíte jeden alebo hárok s 27 kusmi.
 </aside>
 
-## Dva štítky
+## Jednotný štítok
+
+Panel štítka sa otvorí na voľbe **Unified**: jeden štítok jednotky, SKO a kartónu, ktorý je vo všetkých centrách rovnaký, takže sa zásoby presúvajú medzi Spojeným kráľovstvom, Španielskom a Slovenskom bez prelepovania. Prepínač **Unified / Localised** v hornej časti panela vás vráti k štítkom opísaným v zvyšku tejto stránky, pre zopár prípadov, ktoré potrebujú štítok len jednej organizácie.
+
+| | Jednotka | SKO | Kartón |
+| --- | --- | --- | --- |
+| Veľkosť | 100 × 60 mm | 100 × 50 mm | 100 × 70 mm |
+| Čiarový kód | jednotkový EAN-13 | GS1-128 (štandard čiarových kódov GS1) s GTIN-14 začínajúcim 1, potom šarža | GS1-128 s GTIN-14 začínajúcim 2, potom šarža |
+| Tlačí sa | vždy | len keď SKO obsahuje viac ako jednu jednotku | vždy |
+
+Všetky tri sa tlačia po jednom štítku na stranu pre kotúč širokú 100 mm. Nič sa nezaškrtáva: štítok jednotky nesie názov vo všetkých jazykoch, v ktorých ho trade unit má, krajinu pôvodu, materiál, šaržu, upozornenia a troch dovozcov; štítok SKO uvádza, koľko jednotiek je v balení; štítok kartónu pridáva počet jednotiek v balení, počet balení a jednotiek v kartóne, hmotnosti, pôvod a HS kód (colný kód tovaru).
+
+Balenie a kartón dostanú vlastné číslo odvodené z jednotkového EAN-13, takže balenie sa už neskenuje ako jedna jednotka. Stránka skenera čiarových kódov tieto nové kódy číta a naďalej číta aj čísla, ktoré sú už na policiach.
+
+**Šarža je jediné, čo píšete.** Navrhne sa ako kód dodávateľa a mesiac (napríklad `PKS202610`) a má najviac 20 znakov: A až Z, 0 až 9 a spojovník.
+
+**Jednotný štítok, ktorému niečo chýba, sa nevytlačí.** Panel vypíše, čo chýba, a tlačidlo PDF zostane vypnuté, kým sa záznam neopraví:
+
+- jednotka nemá platný EAN-13;
+- na trade unit chýba názov v španielčine alebo slovenčine;
+- chýba krajina pôvodu;
+- produkt má upozornenia, ale žiadne v angličtine, španielčine ani slovenčine;
+- štítok kartónu potrebuje počet jednotiek v kartóne z produktu dodávateľa;
+- texty sa na štítok nezmestia.
+
+Hmotnosť kartónu sa vytlačí, len keď produkt dodávateľa má čistú aj hrubú hmotnosť a čistá nie je vyššia ako hrubá.
+
+## Dva lokalizované štítky
 
 Nie sú to tie isté štítky v dvoch veľkostiach. Sú pre dvoch rôznych čitateľov.
 

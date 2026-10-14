@@ -25,6 +25,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class SetArtefactsRecipe extends OrgAction
 {
+    /** @var array<int, string> */
+    private array $jobsKeepingTheirCount = [];
+
     /**
      * Gives every selected artefact exactly the steps sent: steps they already have are updated, new ones are added,
      * and steps missing from the list are removed together with their raw materials. A step's raw materials go to every
@@ -70,7 +73,9 @@ class SetArtefactsRecipe extends OrgAction
             ],
         ])->all();
 
-        $previousPositions = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->position]);
+        $previousSteps     = $artefact->manufactureTasks()->get();
+        $previousPositions = $previousSteps->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->position]);
+        $previousUnits     = $previousSteps->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
         $removedTaskIds    = $previousPositions->keys()->diff(array_keys($recipe));
         $lastPosition      = $steps->max('position');
         $replacedSteps     = $steps
@@ -94,7 +99,9 @@ class SetArtefactsRecipe extends OrgAction
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
-            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, $replacedSteps));
+            ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, $replacedSteps, $previousUnits));
+
+        $this->jobsKeepingTheirCount = [...$this->jobsKeepingTheirCount, ...GenerateJobOrderItemTasks::make()->jobsKeepingTheirCount($artefact, $previousUnits)];
 
         ManufactureTask::whereIn('id', $removedTaskIds)
             ->each(fn (ManufactureTask $manufactureTask) => DetachManufactureTaskFromArtefact::make()->handle($artefact, $manufactureTask));
@@ -176,6 +183,16 @@ class SetArtefactsRecipe extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return back();
+        if (!$this->jobsKeepingTheirCount) {
+            return back();
+        }
+
+        return back()->with('notification', [
+            'status'      => 'warning',
+            'title'       => __('Jobs already worked on keep their old count'),
+            'description' => __('Work is already recorded on these with the previous units, check them on the job order: :jobs', [
+                'jobs' => implode(', ', $this->jobsKeepingTheirCount),
+            ]),
+        ]);
     }
 }

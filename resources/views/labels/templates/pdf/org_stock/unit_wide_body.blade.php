@@ -41,13 +41,15 @@
                     </tr>
                 @endif
 
-                @if ($show['signature'] && $label['signature'])
-                    @foreach (explode("\n", $label['signature']) as $index => $signatureLine)
-                        <tr>
-                            <td style="font-size: {{ $scale['signature'] }}pt; padding-bottom: {{ $scale['line_gap'] }}mm;@if ($index === 0) padding-top: {{ $scale['gap'] * 1.5 }}mm;@endif">{{ $signatureLine }}</td>
-                        </tr>
-                    @endforeach
-                @endif
+                @foreach (['signature', 'eu_responsible_person', 'es_importer'] as $addressBlock)
+                    @if ($show[$addressBlock] && $label[$addressBlock])
+                        @foreach (explode("\n", $label[$addressBlock]) as $index => $addressLine)
+                            <tr>
+                                <td style="font-size: {{ $scale['signature'] }}pt; padding-bottom: {{ $scale['line_gap'] }}mm;@if ($index === 0) padding-top: {{ $scale['gap'] * 1.5 }}mm;@endif">{{ $addressLine }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                @endforeach
 
                 @if ($show['weight'] && $label['weight'])
                     <tr>

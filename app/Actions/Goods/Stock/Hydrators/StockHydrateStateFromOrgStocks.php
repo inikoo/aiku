@@ -9,6 +9,7 @@
 namespace App\Actions\Goods\Stock\Hydrators;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
+use App\Actions\Procurement\OrgSupplierProducts\DiscontinueDeadOrgSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\Hydrators\WithWeightFromTradeUnits;
 use App\Enums\Goods\Stock\StockStateEnum;
@@ -51,6 +52,10 @@ class StockHydrateStateFromOrgStocks implements ShouldBeUnique
 
             if ($stock->stockFamily) {
                 StockFamilyHydrateStocks::dispatch($stock->stockFamily);
+            }
+
+            if ($state === StockStateEnum::DISCONTINUED) {
+                DiscontinueDeadOrgSupplierProducts::dispatch(null, $stock->id);
             }
 
         }

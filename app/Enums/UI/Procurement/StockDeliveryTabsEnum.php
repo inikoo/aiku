@@ -22,7 +22,6 @@ enum StockDeliveryTabsEnum: string
     case UNDER_OVER_DELIVERED = 'under_over_delivered';
     case CUSTOMS              = 'customs';
     case PURCHASE_ORDERS      = 'purchase_orders';
-    case SHOWCASE             = 'showcase';
     case ATTACHMENTS          = 'attachments';
     case NOTES = 'notes';
     case HISTORY              = 'history';
@@ -53,10 +52,6 @@ enum StockDeliveryTabsEnum: string
             StockDeliveryTabsEnum::PURCHASE_ORDERS      => [
                 'title' => __('Purchase Orders'),
                 'icon'  => 'fal fa-clipboard-list',
-            ],
-            StockDeliveryTabsEnum::SHOWCASE             => [
-                'title' => __('Settings'),
-                'icon'  => 'fal fa-sliders-h',
             ],
             StockDeliveryTabsEnum::ATTACHMENTS          => [
                 'title' => __('Attachments'),

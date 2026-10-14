@@ -10,13 +10,19 @@ namespace App\Actions\Web\Seo;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithWebAuthorisation;
 use App\Actions\Traits\Dashboards\WithPerformanceDateResolution;
+use App\Actions\Web\Crawl\UI\IndexSiteAuditIssuePages;
+use App\Actions\Web\SearchConsole\UI\IndexSearchConsoleQueries;
 use App\Actions\Web\Seo\UI\IndexSeoBacklinks;
+use App\Actions\Web\Seo\UI\IndexSeoContentSuggestions;
 use App\Actions\Web\Seo\UI\IndexSeoRankings;
 use App\Actions\Web\Seo\UI\IndexSeoReferringDomains;
 use App\Actions\Web\Seo\UI\IndexSeoTrackedKeywords;
 use App\Actions\Web\Webpage\UI\IndexWebpagesPerformance;
 use App\Actions\Web\WebsiteNotFoundPath\UI\IndexWebsiteNotFoundPaths;
 use App\Enums\DateIntervals\DateIntervalEnum;
+use App\Enums\UI\Web\SeoDashboardTabsEnum;
+use App\Enums\Web\Crawl\CrawlIssueTypeEnum;
+use App\Exports\Web\Sheets\SiteAuditPagesSheet;
 use App\Exports\Web\SeoTableExport;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -43,7 +49,7 @@ class ExportSeoTable extends OrgAction
 
     public const int MAX_ROWS = 20000;
 
-    public const array TABLES = ['rankings', 'tracked_keywords', 'top_pages', 'missing_pages', 'referring_domains', 'backlinks', 'keyword_gap'];
+    public const array TABLES = ['rankings', 'tracked_keywords', 'top_pages', 'missing_pages', 'referring_domains', 'backlinks', 'keyword_gap', 'search_queries', 'search_opportunities', 'site_audit_issue_pages', 'content_suggestions'];
 
     private const int PAGE_SIZE = 2000;
 
@@ -61,6 +67,10 @@ class ExportSeoTable extends OrgAction
             'referring_domains' => $this->referringDomains($website),
             'backlinks'         => $this->backlinks($website),
             'keyword_gap'       => $this->keywordGap($shop, $request),
+            'search_queries'    => $this->searchQueries($website, $request, false),
+            'search_opportunities' => $this->searchQueries($website, $request, true),
+            'site_audit_issue_pages' => $this->siteAuditIssuePages($website, $request),
+            'content_suggestions' => $this->contentSuggestions($website),
         };
 
         return Excel::download(new SeoTableExport($headings, $rows), now()->format('Y-m-d').'-seo-'.str_replace('_', '-', $table).'-'.$shop->slug.'.xlsx');
@@ -77,7 +87,9 @@ class ExportSeoTable extends OrgAction
         config(['ui.table.max_records_per_page' => self::PAGE_SIZE]);
 
         do {
-            request()->merge([$prefix.'_perPage' => self::PAGE_SIZE, $prefix.'Page' => $pageNumber]);
+            request()->merge($prefix === ''
+                ? ['perPage' => self::PAGE_SIZE, 'page' => $pageNumber]
+                : [$prefix.'_perPage' => self::PAGE_SIZE, $prefix.'Page' => $pageNumber]);
 
             $paginator = $page();
             $rows->push(...$paginator->items());
@@ -234,6 +246,72 @@ class ExportSeoTable extends OrgAction
                 self::date($row->first_seen),
                 self::date($row->last_seen),
                 self::date($row->lost_at),
+            ])->all(),
+        ];
+    }
+
+    private function searchQueries(Website $website, ActionRequest $request, bool $lowCtrOnly): array
+    {
+        $userSettings = $request->user()->settings;
+        $interval     = DateIntervalEnum::tryFrom(Arr::get($userSettings, 'selected_interval', 'all')) ?? DateIntervalEnum::ALL;
+
+        [$fromDate, $toDate] = $this->resolvePerformanceDates($interval, $userSettings);
+
+        $prefix = $lowCtrOnly ? SeoDashboardTabsEnum::SEARCH_OPPORTUNITIES->value : SeoDashboardTabsEnum::SEARCH_QUERIES->value;
+        $rows   = $this->allRows($prefix, fn () => IndexSearchConsoleQueries::make()->handle($website, $fromDate, $toDate, $prefix, $lowCtrOnly));
+
+        return [
+            ['Query', 'Clicks', 'Impressions', 'CTR %', 'Position', 'Pages', 'Pages shown (most clicks first)'],
+            $rows->map(fn ($row) => [
+                $row->query,
+                (int) $row->clicks,
+                (int) $row->impressions,
+                (float) $row->ctr,
+                $row->position !== null ? (float) $row->position : null,
+                (int) $row->pages,
+                implode('; ', $row->page_urls ?? []),
+            ])->all(),
+        ];
+    }
+
+    private function siteAuditIssuePages(Website $website, ActionRequest $request): array
+    {
+        $issueType = CrawlIssueTypeEnum::tryFrom((string) $request->query('issue_type')) ?? abort(404);
+        $audit     = IndexSiteAuditIssuePages::make()->latestAudit($website) ?? abort(404);
+
+        $rows = $this->allRows('', fn () => IndexSiteAuditIssuePages::make()->handle($audit, $issueType));
+
+        return [
+            ['URL', 'Webpage', 'Status code', 'Internal links in', 'Response (ms)', 'Title', 'In sitemap', 'Details'],
+            $rows->map(fn ($row) => [
+                $row->url,
+                $row->webpage_code,
+                $row->status_code,
+                (int) $row->inlinks,
+                $row->response_ms,
+                $row->title,
+                $row->is_in_sitemap ? 'yes' : 'no',
+                SiteAuditPagesSheet::detailsText($row->details ?? []),
+            ])->all(),
+        ];
+    }
+
+    private function contentSuggestions(Website $website): array
+    {
+        $rows = $this->allRows('', fn () => IndexSeoContentSuggestions::make()->handle($website));
+
+        return [
+            ['Webpage', 'Field', 'Current value', 'Suggestion', 'Why', 'State', 'Written', 'Decided', 'Decided by'],
+            $rows->map(fn ($row) => [
+                $row->webpage_code,
+                $row->field,
+                $row->current_value,
+                $row->suggestion,
+                $row->reason,
+                $row->state->value,
+                self::date($row->created_at),
+                self::date($row->decided_at),
+                $row->decided_by,
             ])->all(),
         ];
     }

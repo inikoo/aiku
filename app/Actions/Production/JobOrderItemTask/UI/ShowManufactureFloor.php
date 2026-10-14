@@ -36,6 +36,10 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowManufactureFloor extends OrgAction
 {
+    private const string RESTRICTED_SQL = "exists (select 1 from artisan_assignments where artisanable_type = 'ManufactureTask' and artisanable_id = job_order_item_tasks.manufacture_task_id)";
+
+    private const string ALLOWED_SQL = "exists (select 1 from artisan_assignments where artisanable_type = 'ManufactureTask' and artisanable_id = job_order_item_tasks.manufacture_task_id and employee_id = ?)";
+
     private ?Employee $employee = null;
 
     /** @var array<int, string[]> */
@@ -111,19 +115,23 @@ class ShowManufactureFloor extends OrgAction
 
         $openTasks = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
             ->where('job_order_item_tasks.state', '!=', JobOrderItemTaskStateEnum::DONE)
-            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask', 'employee'])
+            ->with(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask.artisans', 'employee'])
             ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
             ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->live()
+            ->when(!$this->canCombine, fn ($query) => $query->whereRaw('(not '.self::RESTRICTED_SQL.' or '.self::ALLOWED_SQL.')', [$this->employee?->id ?? 0]))
             ->where(function ($query) {
                 $query->where('job_orders.state', JobOrderStateEnum::CONFIRMED)
                     ->orWhere(function ($query) {
                         $query->where('job_orders.state', JobOrderStateEnum::IN_PROCESS)
-                            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0]);
+                            ->where(fn ($query) => $query
+                                ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0])
+                                ->orWhereRaw('(job_order_item_tasks.employee_id is null and '.self::ALLOWED_SQL.')', [$this->employee?->id ?? 0]));
                     });
             })
             ->when(!$canPickOpenJobs, fn ($query) => $query->where(function ($query) {
                 $query->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' = ?', [$this->employee?->id ?? 0])
+                    ->orWhereRaw('(job_order_item_tasks.employee_id is null and '.self::ALLOWED_SQL.')', [$this->employee?->id ?? 0])
                     ->orWhereIn('job_order_item_tasks.combined_task_id', $this->combinedTaskIdsOf($this->employee));
             }))
             ->orderByRaw('job_orders.planned_for nulls last')
@@ -164,7 +172,7 @@ class ShowManufactureFloor extends OrgAction
                 return $this->serializeTask($task) + [
                     'working_on_by'   => $workingOn,
                     'blocked_by_step' => $blockingStep?->manufactureTask->name,
-                    'can_start'       => !$blockingStep && !$workingOn,
+                    'can_start'       => !$blockingStep && !$workingOn && $task->isAllowedFor($this->employee),
                     'steps'           => $serializedSteps[$task->job_order_item_id] ??= $this->serializeSteps($stepsByJobOrderItem->get($task->job_order_item_id), $task),
                 ];
             })
@@ -423,11 +431,14 @@ class ShowManufactureFloor extends OrgAction
             'continued_from'      => Arr::has($task->jobOrder->data, 'carried_from') ? SettleShortJobOrderItemTask::baseReference($task->jobOrder) : null,
             'continued_in'        => $this->continuedIn($task),
             'artisan'             => $task->assignee()?->contact_name,
-            'is_mine'             => $this->employee && $members->contains(fn (JobOrderItemTask $member) => $member->assigneeId() == $this->employee->id),
+            'is_mine'             => $members->contains(fn (JobOrderItemTask $member) => $member->isFor($this->employee)),
             'waiting_for'         => $members->flatMap(fn (JobOrderItemTask $member) => $this->missingMixes[$member->job_order_item_id] ??= array_column(GetJobOrderItemMissingMixes::run($member->jobOrderItem), 'code'))->unique()->values()->all(),
             'quantity_required'   => (float)$members->sum('quantity_required'),
             'quantity_made'       => (float)$members->sum('quantity_made'),
             'pack_size'           => $this->packSize($members),
+            'unit'                => $task->isRecordedInKg() ? 'kg' : null,
+            'kg_per_unit'         => $task->isRecordedInKg() ? $this->kgPerUnit($members) : null,
+            'only_for'            => $task->manufactureTask->artisans->pluck('contact_name')->all(),
             'combined'            => $isCombined ? $members->map(fn (JobOrderItemTask $member) => [
                 'id'                  => $member->id,
                 'artefact_code'       => $member->jobOrderItem->artefact->code,
@@ -461,6 +472,16 @@ class ShowManufactureFloor extends OrgAction
         return $sizes->count() == 1 ? $sizes->first() : null;
     }
 
+    /**
+     * @param Collection<int, JobOrderItemTask> $members
+     */
+    private function kgPerUnit(Collection $members): ?float
+    {
+        $kgPerUnit = $members->map(fn (JobOrderItemTask $member) => $member->unitsPerArtefact())->unique();
+
+        return $kgPerUnit->count() == 1 ? $kgPerUnit->first() : null;
+    }
+
     private function continuedIn(JobOrderItemTask $task): ?string
     {
         $carriedToId = Arr::get($task->jobOrderItem->data, 'carried_to');
@@ -483,7 +504,7 @@ class ShowManufactureFloor extends OrgAction
             if ($group->count() < 2) {
                 continue;
             }
-            $group->load(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.tasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask']);
+            $group->load(['jobOrderItem.artefact.manufactureTasks', 'jobOrderItem.tasks', 'jobOrderItem.employee', 'jobOrder.employee', 'manufactureTask.artisans']);
 
             $standsFor = $group->first(fn (JobOrderItemTask $member) => $member->state != JobOrderItemTaskStateEnum::DONE);
             $openTask  = $openTasks->firstWhere('id', $standsFor?->id);

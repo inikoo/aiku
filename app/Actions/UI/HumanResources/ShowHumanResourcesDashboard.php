@@ -11,7 +11,7 @@ namespace App\Actions\UI\HumanResources;
 use App\Actions\Dashboard\ShowOrganisationDashboard;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\GetStaffChatAnalytics;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Leave\LeaveCategoryEnum;
 use App\Enums\HumanResources\Leave\LeaveStatusEnum;
@@ -31,7 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowHumanResourcesDashboard extends OrgAction
 {
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
@@ -58,11 +58,9 @@ class ShowHumanResourcesDashboard extends OrgAction
         $sickLeaveCount   = $this->getLeaveCountByCategory($attendanceDate, [LeaveCategoryEnum::MEDICAL->value]);
         $presentCount     = $attendance->count();
         $lateCount       = $attendance->where('is_late', true)->count();
-        $workingCount    = $this->isRestrictedToSection()
-            ? $this->organisation->employees()->where('state', EmployeeStateEnum::WORKING->value)->whereIn('id', $this->sectionEmployeeIds)->count()
-            : $this->organisation->humanResourcesStats->number_employees_state_working;
+        $workingCount    = $this->organisation->humanResourcesStats->number_employees_state_working;
         $absentCount     = max(0, $workingCount - $presentCount - $onLeaveCount);
-        $staffChatInsights = $this->isRestrictedToSection() ? null : GetStaffChatAnalytics::run($this->organisation->group, 30, $this->organisation);
+        $staffChatInsights = GetStaffChatAnalytics::run($this->organisation->group, 30, $this->organisation);
 
         $show = in_array($request->input('show'), ['present', 'annual', 'sick', 'late', 'absent'], true) ? $request->input('show') : null;
         $showRoute = fn (string $show): array => [
@@ -86,7 +84,7 @@ class ShowHumanResourcesDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-user-hard-hat'],
                         'title' => $title
                     ],
-                    'iconRight' => $this->isRestrictedToSection() ? null : [
+                    'iconRight' => [
                         'icon'    => ['fal', 'fa-chart-network'],
                         'tooltip' => __('Org chart'),
                         'url'     => [
@@ -96,7 +94,7 @@ class ShowHumanResourcesDashboard extends OrgAction
                     ],
                     'title'     => $title,
                 ],
-                'stats'         => $this->isRestrictedToSection() ? $this->getSectionStats($workingCount, $routeParameters) : [
+                'stats'         => [
                     [
                         'name'  => __('Employees'),
                         'stat'  => $workingCount,
@@ -207,16 +205,7 @@ class ShowHumanResourcesDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-user-slash'],
                     ],
                 ],
-                'quickActions'  => $this->isRestrictedToSection() ? [
-                    [
-                        'label' => __('Leave requests'),
-                        'icon'  => ['fal', 'fa-calendar-minus'],
-                        'route' => [
-                            'name'       => 'grp.org.hr.leaves.index',
-                            'parameters' => $routeParameters,
-                        ],
-                    ],
-                ] : [
+                'quickActions'  => [
                     [
                         'label' => __('New employee'),
                         'icon'  => ['fal', 'fa-user-plus'],
@@ -315,10 +304,6 @@ class ShowHumanResourcesDashboard extends OrgAction
      */
     private function leaveCalendarRoute(array $routeParameters, array $query): array
     {
-        if ($this->isRestrictedToSection()) {
-            return $this->approvedLeavesRoute($routeParameters, null);
-        }
-
         return [
             'name'       => 'grp.org.hr.leaves.dashboard',
             'parameters' => array_merge($routeParameters, ['_query' => $query]),
@@ -338,37 +323,6 @@ class ShowHumanResourcesDashboard extends OrgAction
                     'type'   => $type,
                 ]),
             ]),
-        ];
-    }
-
-    private function getSectionStats(int $workingCount, array $routeParameters): array
-    {
-        $timesheetsCount = Timesheet::where('organisation_id', $this->organisation->id)
-            ->where('subject_type', 'Employee')
-            ->whereIn('subject_id', $this->sectionEmployeeIds)
-            ->count();
-
-        return [
-            [
-                'name'  => __('Employees'),
-                'stat'  => $workingCount,
-                'color' => 'indigo',
-                'icon'  => ['fal', 'fa-users'],
-                'route' => [
-                    'name'       => 'grp.org.hr.employees.index',
-                    'parameters' => array_merge(['_query' => ['elements[state]' => 'working']], $routeParameters),
-                ],
-            ],
-            [
-                'name'  => __('Timesheets'),
-                'stat'  => $timesheetsCount,
-                'color' => 'amber',
-                'icon'  => ['fal', 'fa-stopwatch'],
-                'route' => [
-                    'name'       => 'grp.org.hr.timesheets.index',
-                    'parameters' => $routeParameters,
-                ],
-            ],
         ];
     }
 
@@ -397,7 +351,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->where('status', LeaveStatusEnum::APPROVED)
             ->whereDate('start_date', '<=', $day->toDateString())
             ->whereDate('end_date', '>=', $day->toDateString())
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employee_id', $this->sectionEmployeeIds))
             ->distinct('employee_id')
             ->count('employee_id');
     }
@@ -407,7 +360,6 @@ class ShowHumanResourcesDashboard extends OrgAction
         $leaves = Leave::where('organisation_id', $this->organisation->id)
             ->where('status', LeaveStatusEnum::APPROVED)
             ->whereDate('end_date', '>=', $today->toDateString())
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employee_id', $this->sectionEmployeeIds))
             ->with(['employee' => fn ($query) => $query->with('image'), 'leaveType'])
             ->orderBy('start_date')
             ->limit(20)
@@ -434,7 +386,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->where('status', LeaveStatusEnum::APPROVED)
             ->whereDate('start_date', '<=', $endMonth)
             ->whereDate('end_date', '>=', $startMonth)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employee_id', $this->sectionEmployeeIds))
             ->with('leaveType:id,name,color')
             ->get(['id', 'employee_id', 'leave_type_id', 'type']);
 
@@ -575,7 +526,6 @@ class ShowHumanResourcesDashboard extends OrgAction
         $timesheets = Timesheet::where('timesheets.organisation_id', $this->organisation->id)
             ->where('subject_type', 'Employee')
             ->whereDate('date', $date->toDateString())
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('subject_id', $this->sectionEmployeeIds))
             ->with(['subject' => function ($query) {
                 $query->select(['id', 'contact_name', 'alias', 'job_title', 'slug', 'image_id'])->with('image');
             }])
@@ -635,7 +585,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->whereDate('leaves.start_date', '<=', $date->toDateString())
             ->whereDate('leaves.end_date', '>=', $date->toDateString())
             ->whereIn('leave_types.category', $categories)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('leaves.employee_id', $this->sectionEmployeeIds))
             ->with(['employee.image', 'leaveType'])
             ->orderBy('leaves.start_date')
             ->get(['leaves.*'])
@@ -665,7 +614,6 @@ class ShowHumanResourcesDashboard extends OrgAction
         return $this->organisation->employees()
             ->where('state', EmployeeStateEnum::WORKING->value)
             ->whereNotIn('id', $onLeaveIds->merge($presentIds))
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employees.id', $this->sectionEmployeeIds))
             ->with('image')
             ->orderBy('contact_name')
             ->get()
@@ -697,7 +645,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->where('status', LeaveStatusEnum::APPROVED)
             ->whereDate('start_date', '<=', $date->toDateString())
             ->whereDate('end_date', '>=', $date->toDateString())
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employee_id', $this->sectionEmployeeIds))
             ->distinct('employee_id')
             ->count('employee_id');
     }
@@ -714,7 +661,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->whereDate('leaves.start_date', '<=', $date->toDateString())
             ->whereDate('leaves.end_date', '>=', $date->toDateString())
             ->whereIn('leave_types.category', $categories)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('leaves.employee_id', $this->sectionEmployeeIds))
             ->distinct('leaves.employee_id')
             ->count('leaves.employee_id');
     }
@@ -725,7 +671,6 @@ class ShowHumanResourcesDashboard extends OrgAction
             ->where('state', '!=', EmployeeStateEnum::LEFT->value)
             ->whereNotNull('date_of_birth')
             ->whereRaw('EXTRACT(MONTH FROM date_of_birth) = ?', [$today->month])
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('employees.id', $this->sectionEmployeeIds))
             ->orderByRaw('EXTRACT(DAY FROM date_of_birth)')
             ->with('image')
             ->get();

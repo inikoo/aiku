@@ -87,6 +87,15 @@ class GetSupplierStockCoverBuckets
             ->whereNull('sp.deleted_at');
     }
 
+    /**
+     * One row per product this supplier can sell us, with the stock group and rank it sits in.
+     */
+    public function bucketsQuery(OrgSupplier $orgSupplier): Builder
+    {
+        return $this->scopedQuery($orgSupplier)
+            ->selectRaw('p.id, os.health_rank, '.$this->bucketExpression(GetSupplierLeadTime::run($orgSupplier)['days']).' as bucket');
+    }
+
     private function onShoppingListExpression(): string
     {
         return "exists (select 1 from shopping_list_items sli

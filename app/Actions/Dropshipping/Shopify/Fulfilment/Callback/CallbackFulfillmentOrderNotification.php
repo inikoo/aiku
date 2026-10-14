@@ -11,18 +11,21 @@ namespace App\Actions\Dropshipping\Shopify\Fulfilment\Callback;
 use App\Actions\WebhookAction;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\ActionRequest;
 
 class CallbackFulfillmentOrderNotification extends WebhookAction
 {
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        if (Arr::get($modelData, 'kind') === "FULFILLMENT_REQUEST") {
-            RetrieveShopifyAssignedOrders::run($shopifyUser);
-        }
+        [$status, $message] = match (Arr::get($modelData, 'kind')) {
+            'FULFILLMENT_REQUEST' => RetrieveShopifyAssignedOrders::run($shopifyUser),
+            'CANCELLATION_REQUEST' => RetrieveShopifyCancelledOrders::run($shopifyUser),
+            default => [true, ''],
+        };
 
-        if (Arr::get($modelData, 'kind') === "CANCELLATION_REQUEST") {
-            RetrieveShopifyCancelledOrders::run($shopifyUser);
+        if (!$status) {
+            Log::warning('Shopify order pickup failed for '.$shopifyUser->customerSalesChannel?->slug.' ('.$shopifyUser->name.'): '.$message);
         }
     }
 

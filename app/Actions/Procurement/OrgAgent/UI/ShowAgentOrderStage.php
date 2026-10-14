@@ -144,6 +144,7 @@ class ShowAgentOrderStage extends OrgAction
             $like = '%'.addcslashes((string) $value, '%_\\').'%';
             $query->where(fn ($query) => $query
                 ->whereRaw("$alias.reference ilike ?", [$like])
+                ->when($stage !== self::ORDERED, fn ($query) => $query->orWhereRaw("sd.data->>'shipper_reference' ilike ? or sd.data->>'tracking_number' ilike ?", [$like, $like]))
                 ->when($stage === self::ORDERED, fn ($query) => $query->orWhereRaw('sup.code ilike ? or sup.name ilike ?', [$like, $like])));
         });
 
@@ -209,6 +210,9 @@ class ShowAgentOrderStage extends OrgAction
                 'cbm'               => $cbm !== null ? round((float) $cbm, 2) : null,
                 'date'              => $row->date,
                 'eta'               => $eta?->toDateString(),
+                'shipper_reference' => $row->shipper_reference ?? null,
+                'tracking_number'   => $row->tracking_number ?? null,
+                'shipping_agent'    => $row->shipping_agent ?? null,
                 'agent_invoice'     => match (true) {
                     !in_array($stage, self::AGENT_INVOICE_STAGES, true) => null,
                     !$row->has_agent_invoice                              => 'missing',
@@ -243,6 +247,10 @@ class ShowAgentOrderStage extends OrgAction
                 $table->column(key: 'eta', label: __('Expected'), canBeHidden: false, sortable: true);
             }
 
+            if ($stage === self::ON_THE_WAY) {
+                $table->column(key: 'tracking_number', label: __('Tracking'), canBeHidden: false);
+            }
+
             if (in_array($stage, self::AGENT_INVOICE_STAGES, true)) {
                 $table->column(key: 'agent_invoice', label: __('Agent invoice'), canBeHidden: false);
             }
@@ -272,6 +280,7 @@ class ShowAgentOrderStage extends OrgAction
             ->leftJoin('currencies as cur', 'cur.id', 'sd.currency_id')
             ->selectRaw("sd.id, sd.slug, sd.reference, sd.state, sd.number_purchase_orders, $dateColumn as date, sd.cbm as cbm_recorded,
                 sd.data->>'estimated_receiving_date' as eta,
+                sd.data->>'shipper_reference' as shipper_reference, sd.data->>'tracking_number' as tracking_number, sd.data->>'shipping_agent' as shipping_agent,
                 ".self::AGENT_INVOICE_EXISTS_SQL.' as has_agent_invoice, '.self::AGENT_INVOICE_BALANCE_SQL." as agent_invoice_balance,
                 cur.code as currency, cur.id as currency_id");
     }

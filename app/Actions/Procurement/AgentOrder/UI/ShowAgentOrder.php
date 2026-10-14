@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\AgentOrder\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\AgentOrder\ResolveAgentOrderReference;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\PurchaseOrder\SendPurchaseOrderToSupplier;
@@ -87,7 +88,7 @@ class ShowAgentOrder extends OrgAction
                             'target' => '_blank',
                             'route'  => [
                                 'name'       => 'grp.org.procurement.org_agents.show.agent_orders.pdf',
-                                'parameters' => [$this->organisation->slug, $this->orgAgent->slug, $reference],
+                                'parameters' => [$this->organisation->slug, $this->orgAgent->slug, $reference, PdfPurchaseOrder::make()->filenameFor($reference)],
                             ],
                         ] : null,
                     ])),

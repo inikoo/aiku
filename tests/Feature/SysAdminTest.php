@@ -141,7 +141,7 @@ test('create group', function () {
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
-        ->and($group->roles()->count())->toBe(17)
+        ->and($group->roles()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -149,14 +149,14 @@ test('create group', function () {
 
 test('group scoped job positions', function (Group $group) {
     $jobPositions = collect(config("blueprint.job_positions.positions"));
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     $this->artisan('group:seed-job-positions', [
         'group' => $group->slug,
     ])->assertSuccessful();
 
-    expect($group->jobPositions()->count())->toBe(16)
+    expect($group->jobPositions()->count())->toBe(17)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 })->depends('create group');
 
@@ -208,8 +208,8 @@ test('create organisation type shop', function (Group $group) {
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
         ->and($organisation->address)->toBeInstanceOf(Address::class)
-        ->and($organisation->roles()->count())->toBe(10)
-        ->and($group->roles()->count())->toBe(27)
+        ->and($organisation->roles()->count())->toBe(11)
+        ->and($group->roles()->count())->toBe(29)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
@@ -2138,6 +2138,21 @@ test('supply chain job positions: the worker views and edits, only the manager d
     expect($user->refresh()->authTo('supply-chain.view'))->toBeFalse();
 })->depends('SetUserAuthorisedModels command');
 
+test('goods viewer job position sees goods and edits nothing', function (User $user) {
+    app()->instance('group', $user->group);
+    setPermissionsTeamId($user->group->id);
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => ['gp-g-v']]);
+    $user->refresh();
+
+    expect($user->authTo('goods.view'))->toBeTrue()
+        ->and($user->authTo('goods.edit'))->toBeFalse()
+        ->and($user->authTo('goods'))->toBeFalse();
+
+    UpdateUserGroupPseudoJobPositions::make()->action($user, ['permissions' => []]);
+    expect($user->refresh()->authTo('goods.view'))->toBeFalse();
+})->depends('SetUserAuthorisedModels command');
+
 test('changing group permissions leaves the cached ui props in sync with the menu', function (User $admin) {
     $this->withoutExceptionHandling();
     config()->set('ui.cache.layout', true);
@@ -2613,6 +2628,54 @@ test('supervisors borrow another user\'s permissions and give them back', functi
 
     actingAs($groupLender);
     post(route('grp.models.user.borrow_permissions', ['user' => $groupAdmin->id]))->assertForbidden();
+})->depends('create guest');
+
+test('borrowing shows what the lender gets through job positions and approver lists, not only permissions', function (Guest $guest) {
+    $group        = $guest->group;
+    $organisation = $guest->getUser()->authorisedOrganisations()->first();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $makeUser = function (string $username) use ($group): User {
+        $guestData = Guest::factory()->definition();
+        data_set($guestData, 'user.username', $username);
+
+        return StoreGuest::make()->action($group, $guestData)->getUser();
+    };
+
+    $borrower = $makeUser('borrower-blind-spots');
+    $lender   = $makeUser('lender-blind-spots');
+
+    $supervisorPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->whereNotNull('department')->where('department', '!=', \App\Models\Tasks\StaffTask::EXCLUDED_DEPARTMENT)->firstOrFail();
+    \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $lender->id, 'job_position_id' => $supervisorPosition->id, 'scopes' => '{}']);
+    \App\Models\HumanResources\LeaveApprover::query()->create([
+        'organisation_id' => $organisation->id,
+        'user_id'         => $lender->id,
+        'name'            => 'Lender',
+        'sequence_number' => 1,
+        'is_active'       => true,
+    ]);
+    $lender->assignRole(Role::where('name', RolesEnum::HELP_DESK_SUPERVISOR->value)->firstOrFail());
+    $lender->assignRole(Role::where('name', RolesEnum::PROCUREMENT_VIEWER->value.'-'.$organisation->id)->firstOrFail());
+    SetUserAuthorisedModels::run($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([]);
+
+    $borrower->borrowPermissionsFrom($lender);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::seesEveryTask($borrower))->toBeTrue()
+        ->and(\App\Models\Tasks\StaffTask::departmentsOf($borrower))->toBe([$supervisorPosition->department])
+        ->and($borrower->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value))->toBeTrue();
+
+    $borrower->borrowPermissionsFrom(null);
+    $borrower->assignRole(RolesEnum::GROUP_ADMIN->value);
+
+    actingAs($borrower);
+    post(route('grp.models.user.borrow_permissions', ['user' => $lender->id]))->assertRedirect();
+    get(route('grp.org.hr.leaves.index', $organisation->slug))->assertOk();
+    get(route('grp.org.hr.employees.index', $organisation->slug))->assertForbidden();
 })->depends('create guest');
 
 test('only users with group access get the devops servers in the footer', function (Guest $guest) {

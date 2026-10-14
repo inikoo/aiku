@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faAd, faPhone, faEye, faBullhorn, faCashRegister, faChessQueen, faCube, faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from "@fal"
+import { faAd, faPhone, faEye, faBullhorn, faCashRegister, faChessQueen, faCube, faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faChartLine, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from "@fal"
 import { faBoxUsd, faHelmetBattle, faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { get, set } from "lodash-es"
@@ -11,7 +11,7 @@ import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification"
 
 
-library.add(faAd, faPhone, faEye, faBoxUsd, faHelmetBattle, faChessQueen, faCube, faStore, faCashRegister, faBullhorn, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle, fasCrown)
+library.add(faAd, faPhone, faEye, faBoxUsd, faHelmetBattle, faChessQueen, faCube, faStore, faCashRegister, faBullhorn, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faChartLine, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle, fasCrown)
 
 interface TypeShop {
     id: number;
@@ -399,6 +399,19 @@ const optionsJob = reactive<optionsJob>({
         isHide: shopsLength < 1
     },
 
+    rep: {
+        key: "rep",
+        department: ctrans("Reports"),
+        icon: "fal fa-chart-line",
+        subDepartment: [
+            {
+                slug: "rep",
+                label: ctrans("Reports"),
+                number_employees: props.options.positions.data.find(position => position.slug == "rep")?.number_employees || 0
+            }
+        ]
+    },
+
     buy: {
         key: "buy",
         department: ctrans("Buyer"),
@@ -669,7 +682,10 @@ const onClickJobFineTune = (departmentName: string, shopSlug: string, subDepartm
 
     // If 'uk' is exist in mrk-m then delete it
     if (get(newForm[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopSlug)) {
-        if (newForm[props.fieldName][subDepartmentSlug][optionType].length === 1) {
+        const isLastVisibleOption = !newForm[props.fieldName][subDepartmentSlug][optionType].some(
+            (slug: string) => slug !== shopSlug && optionsList[optionType]?.some(option => option.slug === slug)
+        )
+        if (isLastVisibleOption) {
             // if mrk-m.shops: ['uk'] (only 1 length), then delete mrk-m
             delete newForm[props.fieldName][subDepartmentSlug][optionType]
 

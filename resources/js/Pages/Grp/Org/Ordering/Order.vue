@@ -78,6 +78,9 @@ import {
     faPercentage,
     faSackDollar,
     faUndo as falUndo,
+    faTimes,
+    faCheck,
+    faHandHoldingUsd,
     faInfoCircle,
 } from "@fal"
 import { Currency } from "@/types/LayoutRules"
@@ -278,6 +281,7 @@ const props = defineProps<{
         delivery_note: routeType
         rollback_dispatch: routeType | null
         redispatch?: routeType
+        change_to_cash_on_delivery?: routeType | null
     }
     // nonProductItems: {}
     transactions?: {}
@@ -409,6 +413,7 @@ const errorPaymentMethod = ref<null | unknown>(null)
 const _refComponents = ref(null)
 
 const isOpenModalAddVoucher = ref(false)
+const isOpenModalFaireShipping = ref(false)
 const isLoadingAddVoucher = ref(false)
 const isLoadingRemoveVoucher = ref(false)
 const addVoucherError = ref("")
@@ -659,6 +664,46 @@ const onSubmitSendUnpaid = () => {
             }
         }
     )
+}
+
+const changeToCashOnDeliveryLoading = ref(false)
+const confirmChangeToCashOnDelivery = () => {
+    const changeRoute = props.routes.change_to_cash_on_delivery
+    if (!changeRoute) {
+        return
+    }
+    confirm.require({
+        message: ctrans('The customer will pay the courier. The cash on delivery charge is added to the order and the order goes to the warehouse now, without waiting for a payment.'),
+        header: ctrans('Change to cash on delivery'),
+        rejectProps: {
+            label: ctrans('No')
+        },
+        acceptProps: {
+            label: ctrans('Yes, cash on delivery')
+        },
+        accept: () => {
+            router[changeRoute.method || 'patch'](
+                route(changeRoute.name, changeRoute.parameters),
+                {},
+                {
+                    preserveScroll: true,
+                    onStart: () => {
+                        changeToCashOnDeliveryLoading.value = true
+                    },
+                    onFinish: () => {
+                        changeToCashOnDeliveryLoading.value = false
+                    },
+                    onError: (errors) => {
+                        notify({
+                            title: ctrans("Error"),
+                            text: Object.values(errors ?? {})[0] as string || ctrans("Failed to change the order to cash on delivery"),
+                            type: "error",
+                        })
+                    }
+                }
+            )
+        },
+    })
 }
 
 const invoiceOnlyLoading = ref(false)
@@ -945,7 +990,7 @@ const isEditLocked = computed(() => isPreOrderLocked.value || !props.can_edit)
 const isChargeEditable = computed(() => !['finalised', 'dispatched', 'cancelled'].includes(props.data?.data?.state || '') && !isEditLocked.value)
 
 const isShippingEditable = computed(() => {
-    if (props.state === 'cancelled' || isEditLocked.value || props.is_faire_order) {
+    if (props.state === 'cancelled' || isEditLocked.value || (props.is_faire_order && isShippingExternal.value)) {
         return false
     }
 
@@ -1631,9 +1676,27 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <ConfirmDialog>
-        <template #icon>
-            <FontAwesomeIcon :icon="faExclamationTriangle" class="text-xl text-orange-500" fixed-width />
+    <ConfirmDialog :style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="rounded-lg bg-white p-5">
+                <div class="flex items-center gap-2 font-semibold text-gray-900">
+                    <FontAwesomeIcon :icon="faExclamationTriangle" class="text-orange-500" fixed-width aria-hidden="true" />
+                    {{ message.header }}
+                </div>
+                <p class="mt-3 text-sm text-gray-600">{{ message.message }}</p>
+                <div class="mt-5 flex justify-end gap-2">
+                    <Button type="tertiary" :label="message.rejectProps?.label ?? ctrans('Cancel')" @click="rejectCallback">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button type="tertiary" :label="message.acceptProps?.label ?? ctrans('Confirm')" @click="acceptCallback">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                </div>
+            </div>
         </template>
     </ConfirmDialog>
 
@@ -2287,6 +2350,15 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                             xicon="far fa-ellipsis-v" :label="ctrans('Pay')" size="sm"
                                             xclass="rounded-l-none !border-l-0" />
                                     </div>
+                                    <div v-if="routes.change_to_cash_on_delivery" class="mx-auto mt-2 w-fit">
+                                        <Button @click.prevent="confirmChangeToCashOnDelivery" type="tertiary" size="xs"
+                                            :label="ctrans('Change to cash on delivery')"
+                                            :loading="changeToCashOnDeliveryLoading">
+                                            <template #icon>
+                                                <FontAwesomeIcon :icon="faHandHoldingUsd" class="text-gray-500" fixed-width aria-hidden="true" />
+                                            </template>
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <!-- Pay: excesses balance -->
@@ -2740,6 +2812,11 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                         v-tooltip="fieldSummary.information_icon"
                                         class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width
                                         aria-hidden='true' />
+                                    <FontAwesomeIcon v-if="is_faire_order" icon='fal fa-question-circle'
+                                        @click="isOpenModalFaireShipping = true"
+                                        v-tooltip="ctrans('How shipping works on a Faire order')"
+                                        class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width
+                                        aria-hidden='true' />
 
                                     <span
                                         v-if="isShippingEditable"
@@ -2930,6 +3007,31 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             :address="box_stats?.customer.addresses.billing" :title="ctrans('Billing address')"
             :updateRoute="billing_address_update_route" @submitted="() => (isModalBillingAddress = false)"
             closeButton />
+    </Modal>
+
+    <Modal :isOpen="isOpenModalFaireShipping" @onClose="isOpenModalFaireShipping = false" width="w-full max-w-xl">
+        <div class="bg-white px-2 text-sm text-gray-700">
+            <h2 class="text-lg font-bold tracking-tight mb-4">
+                {{ ctrans("Shipping on a Faire order") }}
+            </h2>
+            <dl class="space-y-4">
+                <div>
+                    <dt class="font-semibold">{{ ctrans("Sent with our own carrier") }}</dt>
+                    <dd>{{ ctrans("Type the shipping here before the label or tracking is made. When the label is made, Aiku sends that amount to Faire, so it does not have to be entered on Faire.") }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">{{ ctrans("The label or tracking is already made") }}</dt>
+                    <dd>{{ ctrans("The shipping can no longer be typed here. Enter the shipping cost on Faire, then press Refresh Faire data and it is copied to this order.") }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">{{ ctrans("Sent with a Faire label") }}</dt>
+                    <dd>{{ ctrans("Faire pays no shipping for the order, so there is no shipping amount and none can be added.") }}</dd>
+                </div>
+            </dl>
+            <p class="mt-4 text-gray-500">
+                {{ ctrans("Every other amount on the order comes from Faire and can not be changed here.") }}
+            </p>
+        </div>
     </Modal>
 
     <!-- Modal: Add Voucher -->

@@ -17,6 +17,9 @@ import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
+import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import qs from "qs"
 import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -55,7 +58,7 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
@@ -205,7 +208,16 @@ const props = defineProps < {
 		addRoute: { name: string, parameters: (string | number)[] }
 		bucketLabels: Record<string, { label: string, tone: string }>
 	} | null
-	products?: {}
+	products?: {
+		data: { id: number }[]
+		links: { prev: string | null, next: string | null }
+		ordering?: {
+			currency: string
+			cover: { value: string, label: string, title: string, tone: string, count: number }[]
+			rank: { value: string, label: string, count: number }[]
+			active: { cover: string | null, rank: string | null, hide_ordered: boolean }
+		}
+	}
 	showcase?: { blueprint: any[]; updateRoute: routeType }
 	notes?: {}
 	note_store_route?: routeType
@@ -725,6 +737,28 @@ function openSupplierEmail(action: { mailto?: string, pdfUrl: string }) {
 
 const isModalUploadAttachmentOpen = ref(false)
 
+const productsView = ref<"cards" | "list">("list")
+const productsViewOptions = [
+	{ label: ctrans("Cards"), value: "cards", icon: faThLarge },
+	{ label: ctrans("List"), value: "list", icon: faList },
+]
+
+const productBucketLabels = computed(() =>
+	Object.fromEntries((props.products?.ordering?.cover ?? []).map((bucket) => [bucket.value, { label: bucket.title, tone: bucket.tone }]))
+)
+
+const filterProducts = (key: "cover" | "rank" | "hide_ordered", value: string | null) => {
+	const query = qs.parse(location.search.substring(1))
+	const filters = { ...((query.products_filter as Record<string, unknown>) ?? {}), [key]: value }
+	delete query.productsPage
+
+	router.get(
+		location.pathname + "?" + qs.stringify({ ...query, tab: "products", products_filter: filters }, { encodeValuesOnly: true, skipNulls: true }),
+		{},
+		{ only: ["products"], preserveState: true, preserveScroll: true, replace: true }
+	)
+}
+
 const component = computed(() => {
 	const components: Component = {
 		items: TablePurchaseOrderTransactions,
@@ -1000,7 +1034,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<FontAwesomeIcon icon="fal fa-shopping-cart" aria-hidden="true" fixed-width />
 					<span class="italic">{{ ctrans("Their order is created when you submit") }}</span>
 				</div>
-				<ProcurementOrderData v-if="showcase" :data="showcase" bare :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
+				<ProcurementOrderData v-if="showcase" :data="showcase" :isOwnWarehouse="box_stats.first_block.delivery.is_own_warehouse" />
 			</div>
 		</BoxStatPallet>
 
@@ -1143,6 +1177,32 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<div class="pb-12">
 		<AgentOrderingItems v-if="agent_ordering && isOrderingLevelTab && props[currentTab as keyof typeof props]" :key="currentTab" :items="props[currentTab as keyof typeof props]" v-bind="agent_ordering" :tableName="currentTab" />
+		<div v-else-if="currentTab === 'products' && products?.ordering" class="mt-4">
+			<div class="mx-4 mb-3 flex flex-wrap items-center gap-2">
+				<PillFilterBar :label="ctrans('Stock group')" :options="products.ordering.cover" :selected="products.ordering.active.cover" @select="(value) => filterProducts('cover', value)" />
+				<PillFilterBar :label="ctrans('Rank')" :options="products.ordering.rank" :selected="products.ordering.active.rank" @select="(value) => filterProducts('rank', value)" />
+				<label class="inline-flex cursor-pointer items-center gap-2 rounded-md border px-2.5 py-1 text-xs" :class="products.ordering.active.hide_ordered ? 'border-gray-400 bg-gray-100 text-gray-800' : 'border-gray-200 bg-white text-gray-600'">
+					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
+					{{ ctrans("Hide what is already on order") }}
+				</label>
+				<SegmentedToggle v-model="productsView" class="ml-auto" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
+			</div>
+			<AgentOrderingItems
+				:key="`${products.ordering.active.cover}-${products.ordering.active.rank}-${products.ordering.active.hide_ordered}`"
+				:class="productsView === 'cards' ? 'mx-4' : ''"
+				:items="products"
+				:currency="products.ordering.currency"
+				:bucketLabels="productBucketLabels"
+				:view="productsView"
+				:reloadOnly="['products', 'box_stats', 'pageHead']"
+				tableName="products"
+			/>
+			<div v-if="productsView === 'cards' && (products.links.prev || products.links.next)" class="mx-4 mt-3 flex justify-between text-sm">
+				<Link v-if="products.links.prev" :href="products.links.prev" preserve-scroll class="secondaryLink">{{ ctrans("Previous") }}</Link>
+				<span v-else />
+				<Link v-if="products.links.next" :href="products.links.next" preserve-scroll class="secondaryLink">{{ ctrans("Next") }}</Link>
+			</div>
+		</div>
 		<component
 			v-else
 			:is="component"

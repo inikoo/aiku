@@ -81,7 +81,7 @@ class SiteAuditPagesSheet implements FromQuery, WithHeadings, WithMapping, WithT
             $row->response_ms,
             $row->title,
             $row->is_in_sitemap ? 'yes' : 'no',
-            $this->details($row->details ?? []),
+            self::detailsText($row->details ?? []),
         ];
     }
 
@@ -93,12 +93,14 @@ class SiteAuditPagesSheet implements FromQuery, WithHeadings, WithMapping, WithT
     /**
      * @param  array<string, mixed>  $details
      */
-    private function details(array $details): string
+    public static function detailsText(array $details): string
     {
         return collect($details)
             ->map(fn (mixed $value, string $key) => str_replace('_', ' ', $key).': '.match (true) {
                 is_bool($value)  => $value ? 'yes' : 'no',
-                is_array($value) => implode(' > ', Arr::flatten($value)),
+                is_array($value) => collect($value)
+                    ->map(fn (mixed $item) => is_array($item) ? implode(' ', Arr::flatten($item)) : (string) $item)
+                    ->implode($key === 'chain' ? ' > ' : ', '),
                 default          => (string) $value,
             })
             ->implode('; ');

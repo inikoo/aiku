@@ -16,6 +16,7 @@ library.add(faFileExport)
 const props = defineProps<{
     table?: string
     routeName?: string
+    routeParameters?: string[]
     tooltip?: string
     extra?: Record<string, string | number | null | undefined>
 }>()
@@ -24,7 +25,7 @@ const href = computed(() => {
     const params = route().params as Record<string, string>
     const base = props.table
         ? route("grp.org.shops.show.seo.export", [params.organisation, params.shop, props.table])
-        : route(props.routeName!)
+        : route(props.routeName!, props.routeParameters)
 
     const query = new URLSearchParams(window.location.search)
 

@@ -91,8 +91,14 @@ export function usePurchaseOrderStockCover(getItem: () => any, getIsPartner: () 
 			return 0
 		}
 		const wholeCartons = Math.ceil(need / cartonSkos.value) * cartonSkos.value
-		if (getIsPartner() && !getItem().whole_cartons_only && coverDays(stock.value + incoming.value + wholeCartons) > overstockDays.value) {
-			return Math.ceil(need)
+		if (coverDays(stock.value + incoming.value + wholeCartons) > overstockDays.value) {
+			if (getIsPartner() && !getItem().whole_cartons_only) {
+				return Math.ceil(need)
+			}
+			const oneCartonLess = wholeCartons - cartonSkos.value
+			if (oneCartonLess > 0 && coverDays(stock.value + incoming.value + oneCartonLess) >= leadDays.value) {
+				return oneCartonLess
+			}
 		}
 
 		return wholeCartons

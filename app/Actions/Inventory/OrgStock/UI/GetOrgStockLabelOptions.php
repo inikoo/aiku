@@ -10,6 +10,7 @@
 namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Models\Inventory\OrgStock;
+use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -22,6 +23,12 @@ use Lorisleiva\Actions\Concerns\AsObject;
 class GetOrgStockLabelOptions
 {
     use AsObject;
+
+    private const PREVIEWED_FIELDS = [
+        'with_account_signature'     => 'signature',
+        'with_eu_responsible_person' => 'eu_responsible_person',
+        'with_es_importer'           => 'es_importer',
+    ];
 
     /**
      * @return array<string, mixed>
@@ -43,6 +50,37 @@ class GetOrgStockLabelOptions
             'fields'        => $this->getFields($labels),
             'levels'        => $this->getLevels($labels),
             'custom_text_max_length' => 255,
+            'unified'       => $this->getUnified($orgStock, $supplierProduct),
+        ];
+    }
+
+    /**
+     * The unified label has no tick boxes: per level it either prints or says what is missing. The
+     * batch is the one thing typed, so the reasons are worked out with a batch in place and the
+     * modal checks what is typed against the same pattern.
+     *
+     * @return array<string, mixed>
+     */
+    private function getUnified(OrgStock $orgStock, ?SupplierProduct $supplierProduct): array
+    {
+        $batch  = GetOrgStockUnifiedLabelData::run($orgStock, 'unit', $supplierProduct)['batch'];
+        $levels = [];
+
+        foreach (GetOrgStockUnifiedLabelData::SIZES as $level => $size) {
+            if ($level === 'sko' && (int) ($orgStock->packed_in ?? 1) <= 1) {
+                continue;
+            }
+
+            $levels[$level] = [
+                'size'     => trimDecimalZeros($size['width']).' x '.trimDecimalZeros($size['height']),
+                'blockers' => GetOrgStockUnifiedLabelData::run($orgStock, $level, $supplierProduct, $batch ?? 'BATCH')['blockers'],
+            ];
+        }
+
+        return [
+            'batch'         => $batch,
+            'batch_pattern' => trim(GetOrgStockUnifiedLabelData::BATCH_PATTERN, '/'),
+            'levels'        => $levels,
         ];
     }
 
@@ -134,6 +172,8 @@ class GetOrgStockLabelOptions
             'with_weight'            => [__('With weight'), 'weight', __('This item has no weight'), true],
             'with_custom_text'       => [__('With custom text'), null, null, false],
             'with_account_signature' => [__('With account signature'), 'signature', __('This organisation has no address'), false],
+            'with_eu_responsible_person' => [__('With EU responsible person'), 'eu_responsible_person', null, true],
+            'with_es_importer'       => [__('With ES importer'), 'es_importer', null, false],
             'with_ingredients'       => [__('With ingredients/materials'), 'materials', __('This item has no materials'), true],
         ];
 
@@ -148,7 +188,8 @@ class GetOrgStockLabelOptions
                     $fieldLabel,
                     $source === null ? true : $label[$source],
                     $reason,
-                    $default
+                    $default,
+                    isset(self::PREVIEWED_FIELDS[$key]) ? $label[self::PREVIEWED_FIELDS[$key]] : null
                 );
             }
         }
@@ -157,9 +198,12 @@ class GetOrgStockLabelOptions
     }
 
     /**
+     * The signature, the EU responsible person and the ES importer are names and addresses nobody can
+     * guess from the tick box, so their text comes along for the modal to show what will be printed.
+     *
      * @return array<string, mixed>
      */
-    private function getField(string $key, string $label, mixed $value, ?string $reason = null, bool $default = true): array
+    private function getField(string $key, string $label, mixed $value, ?string $reason = null, bool $default = true, ?string $preview = null): array
     {
         $available = filled($value);
 
@@ -169,6 +213,7 @@ class GetOrgStockLabelOptions
             'available' => $available,
             'checked'   => $available && $default,
             'reason'    => $available ? null : $reason,
+            'preview'   => $available ? $preview : null,
         ];
     }
 }

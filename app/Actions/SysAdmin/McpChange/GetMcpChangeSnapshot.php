@@ -45,7 +45,7 @@ class GetMcpChangeSnapshot
     public const array PRODUCTION_RECORD_FIELDS = [
         'artefact'         => ['id', 'code', 'name', 'state', 'recommended_batch_size', 'shelf_life_days', 'artefact_family_id', 'artefact_department_id', 'org_stock_id', 'trade_unit_id'],
         'raw_material'     => ['id', 'code', 'description', 'type', 'state', 'unit', 'unit_cost', 'org_stock_id', 'trade_unit_id'],
-        'manufacture_task' => ['id', 'code', 'name', 'description', 'status', 'is_piece_rate'],
+        'manufacture_task' => ['id', 'code', 'name', 'description', 'status', 'is_piece_rate', 'is_recorded_in_kg'],
     ];
 
     public function handle(McpChangeTypeEnum $type, array $target): array

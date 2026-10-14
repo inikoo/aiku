@@ -25,6 +25,9 @@ import TradeUnitDocuments from "@/Components/Goods/TradeUnitDocuments.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Dialog from "primevue/dialog"
 import EditProductPriceAllShop from "@/Components/EditProductPriceAllShop.vue";
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import CopyMasterProductToMasterShop from "@/Components/Masters/CopyMasterProductToMasterShop.vue"
+import { faCopy } from "@fal"
 import { cloneDeep } from "lodash-es";
 import { ctrans } from "@/Composables/useTrans"
 import ProductCategoryTimeSeriesTable from "@/Components/Product/ProductCategoryTimeSeriesTable.vue"
@@ -61,7 +64,11 @@ const props = defineProps<{
     mini_breadcrumbs?: any[]
     attachments?: {}
     shopsData: any[]
-    masterAsset: {}
+    masterAsset: { id: number }
+    copyToMasterShop?: {
+        products: string[]
+        master_shops: { id: number, slug: string, code: string, name: string, existing_codes: string[], blockers: string[] }[]
+    } | null
     tradeUnits : {}
     is_single_trade_unit?: boolean
     indivisible_set?: {
@@ -91,6 +98,11 @@ let currentTab = ref(props.tabs.current)
 const deferredPropsOfTab: Record<string, string[]> = { showcase: ["sales_analysis_teaser"], sales_analysis: ["sales_analysis"] }
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab, deferredPropsOfTab[tabSlug] ?? [])
 const showDialog = ref(false)
+const showCopyDialog = ref(false)
+const openCopyDialog = () => {
+    showCopyDialog.value = true
+    router.reload({ only: ["copyToMasterShop"] })
+}
 const tableData = ref(cloneDeep(props.shopsData))
 const currency = props.masterCurrency ?? layout.group.currency;
 
@@ -217,6 +229,10 @@ onMounted(() => {
         <template #button-assign="{ action }">
             <Button :disabled="tableData.data.length == 0" v-tooltip="tableData.data.length == 0 ? ctrans('Product already exists on all shops under this master shop') : ''" :icon="action.icon" :label="action.label" @click="openModal()" :style="action.style"/>
         </template>
+
+        <template #button-copy-to-master-shop="{ action }">
+            <Button type="tertiary" :icon="faCopy" :label="action.label" @click="openCopyDialog()" />
+        </template>
     </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <div  class="bg-white pt-2 w-full border-gray-200 border-b overflow-x-auto breadcrumbs-container">
@@ -259,6 +275,25 @@ onMounted(() => {
             :currency="currency"
             @saved="showDialog = false"
         />
+    </Dialog>
+
+    <Dialog
+        v-model:visible="showCopyDialog"
+        modal
+        :header="ctrans('Copy to master shop')"
+        :closable="true"
+        :style="{ width: '36rem' }"
+        contentClass="!overflow-visible"
+    >
+        <CopyMasterProductToMasterShop
+            v-if="copyToMasterShop"
+            :master-asset-id="props.masterAsset.id"
+            :products="copyToMasterShop.products"
+            :master-shops="copyToMasterShop.master_shops"
+        />
+        <div v-else class="flex justify-center py-6 text-gray-400">
+            <LoadingIcon />
+        </div>
     </Dialog>
 </template>
 

@@ -88,6 +88,16 @@ Dažreiz viena partija kalpo vairākiem darbiem. Piemēram, 100 HCS-48 klaipi un
 
 Izgatavot vairāk, nekā visas rindas kopā prasīja, var tikai ar vadītāja karti vai PIN, kā iepriekš; pārpalikums arī tiek sadalīts starp rindām. Vadītājs var rindas atkal atdalīt (**Separate**), kad pie tām neviens nestrādā. Tas, kas jau izgatavots kopā, paliek katrai rindai.
 
+## Maisīšana un citi soļi, ko sver kilogramos
+
+Maisīšana ir atsevišķs solis receptes sākumā, un to skaita kilogramos, nevis gabalos. Ekrāns pie skaitļiem rāda **kg**, un lauks saucas **Kg made** (Izgatavotie kg): 50 kg maisījumam raksti 50. Zem lauka ekrāns rāda, kas no tā sanāk, *50 kg of mix = 500 × ABB-06a*. Maisījumu, kas sanāk nedaudz vairāk, nekā darbs prasīja, pieņem tādu, kāds tas ir, bez vadītāja.
+
+Soli redz un var sākt tikai pie tā norādītie amatnieki; neviena cita sarakstā tā nav. Par to maksā pēc stundām pēc pamatlikmes: bez mērķa, bez algas pakāpes un bez piezīmes par nesasniegtu mērķi, un laiks joprojām tiek ieskaitīts produkta izmaksās.
+
+Nākamais solis paliek bloķēts ar **Waiting for** (Gaida) un maisīšanas soļa nosaukumu, līdz ir ierakstīts kāds maisījums, un atveras, tiklīdz ievadīts pirmais. Viens maisījums vairākām rindām darbojas kā iepriekšējā sadaļā: vadītājs apvieno maisīšanas rindas, maisītājs ieraksta kg vienreiz, un katra rinda saņem savu daļu.
+
+**Iestatīšana (vadītājiem).** Ražošanas uzdevuma lapā **Only these artisans can do it** (To var darīt tikai šie amatnieki) rāda, kas to drīkst darīt; tur pievieno vai noņem cilvēkus. Rediģēšanas formā ir **Paid by piece rate** (Maksā par gabalu; izslēgts stundu darbam) un **Recorded in kg** (Pieraksta kilogramos). Cik kg maisījuma vajag vienam gabalam, norāda katra produkta receptes solī.
+
 ## Noderīgi zināt
 
 - **Viens darbs vienlaikus.** Kamēr tev ir atvērts darbs, START pogas ir neaktīvas. Vispirms aizver to.

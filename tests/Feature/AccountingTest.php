@@ -4056,3 +4056,32 @@ test('categorise invoices command dry run shows changes without saving them', fu
         ->assertOk();
     expect($invoice->refresh()->invoice_category_id)->toBe($invoiceCategory->id);
 });
+
+test('an issued invoice whose net changes later refreshes the sales figures of its own day', function () {
+    GetCurrencyExchange::shouldRun()->andReturn(1);
+
+    $customer = createCustomer($this->shop);
+    [, $product] = createProduct($this->shop);
+
+    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    $invoice->update(['date' => now()->subDays(5), 'in_process' => false]);
+
+    StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+        'date'            => $invoice->date,
+        'tax_category_id' => $invoice->tax_category_id,
+        'quantity'        => 1,
+        'gross_amount'    => 15,
+        'net_amount'      => 15,
+    ]);
+
+    \Illuminate\Support\Facades\Queue::fake();
+    CalculateInvoiceTotals::make()->action($invoice->refresh());
+
+    $invoiceDay = now()->subDays(5)->toDateString();
+    ProcessShopTimeSeriesRecords::assertPushed(
+        fn ($action, array $arguments) => $arguments[0] === $this->shop->id
+            && $arguments[1] === TimeSeriesFrequencyEnum::DAILY
+            && $arguments[2] === $invoiceDay
+            && $arguments[3] === $invoiceDay
+    );
+});

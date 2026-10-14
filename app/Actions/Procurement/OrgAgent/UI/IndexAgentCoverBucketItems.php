@@ -22,6 +22,7 @@ use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgAgent;
@@ -207,6 +208,7 @@ class IndexAgentCoverBucketItems extends OrgAction
         $supplierProducts = SupplierProduct::whereIn('id', $rows->pluck('supplier_product_id')->unique())->get()->keyBy('id');
         $quarterlyUsage   = $orgStockIds->isEmpty() ? collect() : GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries  = $orgStockIds->isEmpty() ? collect() : GetOrgStocksStockDeliveries::run($orgStockIds);
+        $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
         IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $this->orgAgent->organisation_id);
 
@@ -215,7 +217,7 @@ class IndexAgentCoverBucketItems extends OrgAction
             $currencyId => GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
         ]);
 
-        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $otherOrganisationsDrafts, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $exchanges) {
+        $paginator->getCollection()->transform(function (OrgSupplierProduct $row) use ($draftQuantities, $otherOrganisationsDrafts, $webImages, $orgStocks, $supplierProducts, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $exchanges) {
             $images   = json_decode($webImages->get($row->org_stock_id) ?? 'null', true);
             $orgStock = $orgStocks->get($row->org_stock_id);
 
@@ -242,6 +244,8 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'quantity_ordered'     => (float) ($draftQuantities[$row->id] ?? 0),
                 'units_per_pack'       => $row->units_per_pack ? (float) $row->units_per_pack : 1,
                 'has_org_stock'        => $row->org_stock_id !== null,
+                'org_stock_id'         => $row->org_stock_id,
+                'discontinue_suggestions' => $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0],
                 'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
                 'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],
                 'stock_cover'          => GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id)),
@@ -330,7 +334,7 @@ class IndexAgentCoverBucketItems extends OrgAction
      * stock delivery that is not booked in yet. It is wider than the rows shown under the stepper,
      * which drop a purchase order line once its delivery exists and a delivery once it is all placed.
      */
-    private function onOrderSql(): string
+    public static function onOrderSql(string $product = 'osp', string $orgStockId = 'os.id'): string
     {
         $openOrders       = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
         $finishedDelivery = "'".implode("', '", [
@@ -342,15 +346,15 @@ class IndexAgentCoverBucketItems extends OrgAction
 
         return "(exists (select 1 from purchase_order_transactions pot
                 join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
-                where pot.supplier_product_id = osp.supplier_product_id and pot.deleted_at is null
-                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+                where pot.supplier_product_id = $product.supplier_product_id and pot.deleted_at is null
+                    and po.organisation_id = $product.organisation_id and po.state in ($openOrders))
             or exists (select 1 from purchase_order_transactions pot
                 join purchase_orders po on po.id = pot.purchase_order_id and po.deleted_at is null
-                where pot.org_stock_id = os.id and pot.deleted_at is null
-                    and po.organisation_id = osp.organisation_id and po.state in ($openOrders))
+                where pot.org_stock_id = $orgStockId and pot.deleted_at is null
+                    and po.organisation_id = $product.organisation_id and po.state in ($openOrders))
             or exists (select 1 from stock_delivery_items sdi
                 join stock_deliveries sd on sd.id = sdi.stock_delivery_id and sd.deleted_at is null
-                where sdi.org_stock_id = os.id and sdi.deleted_at is null and sd.state not in ($finishedDelivery)))";
+                where sdi.org_stock_id = $orgStockId and sdi.deleted_at is null and sd.state not in ($finishedDelivery)))";
     }
 
     /**

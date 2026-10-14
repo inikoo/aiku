@@ -115,7 +115,7 @@ class IndexSiteAuditIssuePages extends OrgAction
         return $this->handle($this->audit, $this->issueType);
     }
 
-    private function latestAudit(Website $website): ?Crawl
+    public function latestAudit(Website $website): ?Crawl
     {
         return Crawl::where('website_id', $website->id)
             ->where('type', CrawlTypeEnum::AUDIT)

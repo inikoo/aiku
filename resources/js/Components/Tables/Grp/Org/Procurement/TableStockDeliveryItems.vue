@@ -30,6 +30,7 @@ import { ctrans } from '@/Composables/useTrans'
 
 library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, falExclamationCircle)
 
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 const props = defineProps<{
     data: { data?: any[] },
     tab?: string,
@@ -426,6 +427,7 @@ async function saveAllCosts() {
                     </div>
                 </div>
                 <div v-else-if="item.org_stock_id" class="mt-1 text-xs italic text-red-500">{{ ctrans('No location yet') }}</div>
+                <DiscontinueSuggestion v-if="item.org_stock_id" :orgStockId="item.org_stock_id" :code="item.org_stock_code ?? item.code" source="goods_in" :label="ctrans('Report a bad product')" />
             </div>
         </template>
 

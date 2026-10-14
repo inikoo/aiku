@@ -18,6 +18,7 @@ class DeleteInvoiceTransaction extends OrgAction
 {
     public function handle(InvoiceTransaction $invoiceTransaction): InvoiceTransaction
     {
+        ProcessInvoiceTransactionTimeSeries::make()->dispatchStockBridgeTimeSeries($invoiceTransaction, $invoiceTransaction->date->toDateString());
 
         InvoiceTransactionHasTradeUnit::where('invoice_transaction_id', $invoiceTransaction->id)->delete();
         InvoiceTransactionHasOrgStock::where('invoice_transaction_id', $invoiceTransaction->id)->delete();
@@ -25,7 +26,7 @@ class DeleteInvoiceTransaction extends OrgAction
 
         $invoiceTransaction->delete();
 
-        ProcessInvoiceTransactionTimeSeries::dispatch($invoiceTransaction)->delay(120);
+        ProcessInvoiceTransactionTimeSeries::dispatch(invoiceTransaction: $invoiceTransaction, withStocks: false)->delay(120);
 
         return $invoiceTransaction;
     }

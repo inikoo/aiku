@@ -53,7 +53,8 @@ class PublishMailShot extends OrgAction
 
         // update the unpublished layout
         $updateData = [
-            'layout' => Arr::get($modelData, 'layout'),
+            'layout'          => Arr::get($modelData, 'layout'),
+            'compiled_layout' => Arr::get($modelData, 'compiled_layout'),
         ];
         $this->update($unpublishedSnapshot, $updateData);
 

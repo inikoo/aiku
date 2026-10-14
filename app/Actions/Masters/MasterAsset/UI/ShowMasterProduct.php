@@ -20,6 +20,7 @@ use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnitsInMasterProduct;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop;
 use App\Actions\Masters\MasterAsset\GetMasterProductImages;
 use App\Actions\Masters\MasterAsset\WithMasterProductSubNavigation;
 use App\Actions\Masters\MasterProductCategory\UI\ShowMasterDepartment;
@@ -257,11 +258,17 @@ class ShowMasterProduct extends OrgAction
                             'style'     => 'create',
                             'label'     => __('Add to Other Shop'),
                         ] : false,
+                        $this->canEdit ? [
+                            'key'   => 'copy-to-master-shop',
+                            'type'  => 'button',
+                            'label' => __('Copy to master shop'),
+                        ] : false,
                     ],
                     'subNavigation'        => $this->getMasterProductsSubNavigation($masterAsset),
                 ],
                 'anomalies'            => EditMasterProductComposition::make()->getAnomalies($masterAsset),
                 'masterAsset'          => $masterAsset,
+                'copyToMasterShop'     => Inertia::optional(fn () => $this->canEdit ? CopyMasterAssetToMasterShop::make()->getDialogData($masterAsset) : null),
                 'currency'             => $masterAsset->group->currency,
                 'shopsData'            => OpenShopsInMasterShopResource::collection(IndexOpenShopsInMasterShop::run($masterAsset->masterShop, 'shops')),
                 'tradeUnits'           => TradeUnitsResource::collection(IndexTradeUnitsInMasterProduct::run($masterAsset)),

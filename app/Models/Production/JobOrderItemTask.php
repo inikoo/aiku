@@ -111,23 +111,63 @@ class JobOrderItemTask extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function unitsPerArtefact(): float
+    {
+        return (float) (ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
+            ->where('manufacture_task_id', $this->manufacture_task_id)
+            ->value('units_per_artefact') ?: 1);
+    }
+
+    public function isRecordedInKg(): bool
+    {
+        return (bool) $this->manufactureTask?->is_recorded_in_kg;
+    }
+
     public function packSize(): ?int
     {
-        return ArtefactManufactureTask::packSize(
-            ArtefactManufactureTask::where('artefact_id', $this->jobOrderItem->artefact_id)
-                ->where('manufacture_task_id', $this->manufacture_task_id)
-                ->value('units_per_artefact')
-        );
+        return $this->isRecordedInKg() ? null : ArtefactManufactureTask::packSize($this->unitsPerArtefact());
+    }
+
+    /**
+     * A step limited to named artisans is open to all of them until it is given to one: the
+     * operator of the job or the sub-job does not inherit it.
+     */
+    public function isRestricted(): bool
+    {
+        return (bool) $this->manufactureTask?->artisans->isNotEmpty();
+    }
+
+    public function isAllowedFor(?Employee $employee): bool
+    {
+        return !$this->isRestricted() || ($employee && $this->manufactureTask->artisans->contains('id', $employee->id));
+    }
+
+    /**
+     * Addressed to this employee: named on the step or inherited from the job, or one of the
+     * allowed artisans of a restricted step nobody has been given yet.
+     */
+    public function isFor(?Employee $employee): bool
+    {
+        if (!$employee) {
+            return false;
+        }
+
+        return $this->assigneeId() == $employee->id
+            || ($this->employee_id === null && $this->isRestricted() && $this->isAllowedFor($employee));
     }
 
     public function assigneeId(): ?int
     {
-        return $this->employee_id ?? $this->jobOrderItem->artisanId();
+        return $this->employee_id ?? ($this->isRestricted() ? null : $this->jobOrderItem->artisanId());
     }
 
     public function assignee(): ?Employee
     {
-        return $this->employee_id ? $this->employee : $this->jobOrderItem->artisan();
+        if ($this->employee_id) {
+            return $this->employee;
+        }
+
+        return $this->isRestricted() ? null : $this->jobOrderItem->artisan();
     }
 
     public function scopeLive(Builder $query): Builder
@@ -149,7 +189,8 @@ class JobOrderItemTask extends Model
         $firstUnfinished = $siblings
             ->filter(fn (JobOrderItemTask $sibling) => $sibling->id == $this->id || $recipeTaskIds->contains($sibling->manufacture_task_id))
             ->sortBy([['position', 'asc'], ['id', 'asc']])
-            ->first(fn (JobOrderItemTask $sibling) => $sibling->state != JobOrderItemTaskStateEnum::DONE);
+            ->first(fn (JobOrderItemTask $sibling) => $sibling->state != JobOrderItemTaskStateEnum::DONE
+                && ($sibling->id == $this->id || !$sibling->isRecordedInKg() || (float) $sibling->quantity_made <= 0));
 
         return $firstUnfinished && $firstUnfinished->id != $this->id ? $firstUnfinished : null;
     }

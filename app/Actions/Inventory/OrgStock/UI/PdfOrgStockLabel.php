@@ -59,7 +59,7 @@ class PdfOrgStockLabel
      * origin, the manufacturer, the weight and the account signature. The SKO label is a box label.
      */
     public const LEVEL_FIELDS = [
-        'unit' => ['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature'],
+        'unit' => ['with_image', 'with_made_in', 'with_manufactured_by', 'with_weight', 'with_custom_text', 'with_account_signature', 'with_eu_responsible_person', 'with_es_importer'],
         'sko'    => ['with_image', 'with_custom_text'],
         'carton' => ['with_image', 'with_ingredients', 'with_custom_text'],
     ];
@@ -226,6 +226,11 @@ class PdfOrgStockLabel
     public function handle(OrgStock $orgStock, string $level, array $options): Response
     {
         $level = isset(self::LEVEL_FIELDS[$level]) ? $level : 'unit';
+
+        if (($options['standard'] ?? 'localised') === 'unified') {
+            return PdfOrgStockUnifiedLabel::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options), $options['batch'] ?? null);
+        }
+
         $label = GetOrgStockLabelData::run($orgStock, $level, $this->getSupplierProduct($orgStock, $options));
 
         /* The unit label is built around its barcode, so without one there is nothing to print. The
@@ -344,6 +349,8 @@ class PdfOrgStockLabel
             'with_weight'            => filled($label['weight']),
             'with_custom_text'       => filled($this->getCustomText($options)),
             'with_account_signature' => filled($label['signature']),
+            'with_eu_responsible_person' => filled($label['eu_responsible_person']),
+            'with_es_importer'       => filled($label['es_importer']),
             'with_ingredients'       => filled($label['materials']),
         ];
 
@@ -360,18 +367,21 @@ class PdfOrgStockLabel
             'weight'          => $show['with_weight'],
             'custom_text'     => $show['with_custom_text'],
             'signature'       => $show['with_account_signature'],
+            'eu_responsible_person' => $show['with_eu_responsible_person'],
+            'es_importer'     => $show['with_es_importer'],
             'materials'       => $show['with_ingredients'],
         ];
     }
 
     /**
      * Opening the label without saying what to put on it prints what Aurora printed by default,
-     * which is everything except the signature.
+     * which is everything except the signature, plus the EU responsible person. The Spanish
+     * importer is only printed when asked for.
      */
     private function wants(array $options, string $key): bool
     {
         if (!array_key_exists($key, $options)) {
-            return $key !== 'with_account_signature';
+            return !in_array($key, ['with_account_signature', 'with_es_importer'], true);
         }
 
         return filter_var($options[$key], FILTER_VALIDATE_BOOLEAN);
@@ -604,6 +614,8 @@ class PdfOrgStockLabel
     {
         return [
             'level'                  => ['sometimes', 'string', 'in:sko,unit,carton'],
+            'standard'               => ['sometimes', 'string', 'in:unified,localised'],
+            'batch'                  => ['sometimes', 'nullable', 'string', 'max:20'],
             'supplier_product'       => ['sometimes', 'nullable', 'integer'],
             'with_ingredients'       => ['sometimes', 'boolean'],
             'layout'                 => ['sometimes', 'string', 'in:single,sheet'],
@@ -614,6 +626,8 @@ class PdfOrgStockLabel
             'with_weight'            => ['sometimes', 'boolean'],
             'with_custom_text'       => ['sometimes', 'boolean'],
             'with_account_signature' => ['sometimes', 'boolean'],
+            'with_eu_responsible_person' => ['sometimes', 'boolean'],
+            'with_es_importer'       => ['sometimes', 'boolean'],
             'cut_guides'             => ['sometimes', 'boolean'],
             'custom_text'            => ['sometimes', 'nullable', 'string', 'max:255'],
         ];

@@ -10,7 +10,12 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Procurement\OrgPartner\GetPartnerSellingShopIds;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
 use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
+use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
+use App\Actions\Procurement\OrgSupplier\GetSupplierStockCoverBuckets;
+use App\Enums\Catalogue\HealthRankEnum;
+use App\Models\Inventory\OrgStockDiscontinueSuggestion;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
@@ -47,6 +52,65 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
     use WithProcurementAuthorisation;
     public function handle(Organisation|OrgSupplier|OrgAgent $parent, ?PurchaseOrder $purchaseOrder, $prefix = null, ?string $agentOrderReference = null): LengthAwarePaginator
     {
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $orgId = $purchaseOrder?->organisation_id ?? $parent->organisation_id;
+
+        $orgStockSub = $this->orgStockSql($orgId);
+
+        $queryBuilder = $this->baseQuery($parent, $purchaseOrder, $agentOrderReference);
+
+        $paginator = $queryBuilder
+            ->defaultSort('supplier_products.code')
+            ->select([
+                'org_supplier_products.id',
+                'supplier_products.code',
+                'supplier_products.slug',
+                'supplier_products.id as supplier_product_id',
+                'supplier_products.name',
+                DB::raw('coalesce(purchase_order_transactions.unit_cost, supplier_products.cost) as unit_cost'),
+                'supplier_products.units_per_pack',
+                'supplier_products.units_per_carton',
+                'supplier_products.minimum_carton_order',
+                'supplier_products.measured_lead_time_days',
+                'supplier_products.estimated_lead_time_days',
+                'supplier_products.current_historic_supplier_product_id as historic_id',
+                'supplier_currency.code as net_currency',
+                'org_currency.code as org_currency',
+                'purchase_order_transactions.quantity_ordered as quantity_ordered',
+                'purchase_order_transactions.net_amount as net_amount',
+                'purchase_order_transactions.org_net_amount as org_net_amount',
+                'purchase_order_transactions.org_exchange as org_exchange',
+                'purchase_order_transactions.id as purchase_order_transaction_id',
+                'suppliers.name as supplier_name',
+                'org_suppliers.slug as supplier_slug',
+            ])
+            ->selectRaw("{$orgStockSub} as org_stock_id")
+            ->selectRaw($parent instanceof OrgSupplier ? 'cover.bucket as bucket' : 'null as bucket')
+            ->selectRaw($purchaseOrder ? "{$purchaseOrder->id} as purchase_order_id" : 'purchase_order_transactions.purchase_order_id as purchase_order_id')
+            ->selectRaw(($purchaseOrder?->org_exchange ?: 1).' as po_org_exchange')
+            ->allowedSorts(['code', 'name'])
+            ->allowedFilters($this->filters($parent))
+            ->withPaginator($prefix, tableName: request()->route()?->getName())
+            ->withQueryString();
+
+        $this->attachOrgStockData($paginator, $purchaseOrder);
+        $this->attachOtherOpenPurchaseOrders($paginator, $orgId, $purchaseOrder?->id);
+
+        if ($parent instanceof OrgAgent) {
+            $paginator->getCollection()->each(fn ($row) => $row->agent_order = ['org_agent_id' => $parent->id, 'reference' => $agentOrderReference]);
+        }
+
+        return $paginator;
+    }
+
+    /**
+     * @return array<int, AllowedFilter>
+     */
+    private function filters(Organisation|OrgSupplier|OrgAgent $parent, bool $coverApplies = true): array
+    {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('supplier_products.code', $value)
@@ -60,17 +124,32 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             });
         });
 
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
+        if (!$parent instanceof OrgSupplier) {
+            return [$globalSearch];
         }
 
-        $orgId = $purchaseOrder?->organisation_id ?? $parent->organisation_id;
+        $onOrder = IndexAgentCoverBucketItems::onOrderSql('org_supplier_products', $this->orgStockSql($parent->organisation_id));
 
-        $orgStockSub = "(select os.id from org_stocks os
+        return [
+            $globalSearch,
+            AllowedFilter::callback('hide_ordered', fn ($query, $value) => filter_var($value, FILTER_VALIDATE_BOOLEAN) ? $query->whereRaw("not $onOrder") : $query),
+            AllowedFilter::callback('cover', fn ($query, $value) => $coverApplies ? $query->where('cover.bucket', $value) : $query),
+            AllowedFilter::callback('rank', fn ($query, $value) => $coverApplies ? $query->where('cover.health_rank', $value) : $query),
+        ];
+    }
+
+    private function orgStockSql(int $organisationId): string
+    {
+        return "(select os.id from org_stocks os
             inner join stock_has_supplier_products shsp on shsp.stock_id = os.stock_id
             where shsp.supplier_product_id = supplier_products.id
-                and os.organisation_id = {$orgId}
+                and os.organisation_id = {$organisationId}
             limit 1)";
+    }
+
+    private function baseQuery(Organisation|OrgSupplier|OrgAgent $parent, ?PurchaseOrder $purchaseOrder, ?string $agentOrderReference = null): QueryBuilder
+    {
+        $orgId = $purchaseOrder?->organisation_id ?? $parent->organisation_id;
 
         $queryBuilder = QueryBuilder::for(OrgSupplierProduct::class);
         $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id')
@@ -113,44 +192,53 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
                 ->orWhereNotNull('purchase_order_transactions.id');
         });
 
-        $paginator = $queryBuilder
-            ->defaultSort('supplier_products.code')
-            ->select([
-                'org_supplier_products.id',
-                'supplier_products.code',
-                'supplier_products.slug',
-                'supplier_products.id as supplier_product_id',
-                'supplier_products.name',
-                DB::raw('coalesce(purchase_order_transactions.unit_cost, supplier_products.cost) as unit_cost'),
-                'supplier_products.units_per_pack',
-                'supplier_products.units_per_carton',
-                'supplier_products.current_historic_supplier_product_id as historic_id',
-                'supplier_currency.code as net_currency',
-                'org_currency.code as org_currency',
-                'purchase_order_transactions.quantity_ordered as quantity_ordered',
-                'purchase_order_transactions.net_amount as net_amount',
-                'purchase_order_transactions.org_net_amount as org_net_amount',
-                'purchase_order_transactions.org_exchange as org_exchange',
-                'purchase_order_transactions.id as purchase_order_transaction_id',
-                'suppliers.name as supplier_name',
-                'org_suppliers.slug as supplier_slug',
-            ])
-            ->selectRaw("{$orgStockSub} as org_stock_id")
-            ->selectRaw($purchaseOrder ? "{$purchaseOrder->id} as purchase_order_id" : 'purchase_order_transactions.purchase_order_id as purchase_order_id')
-            ->selectRaw(($purchaseOrder?->org_exchange ?: 1).' as po_org_exchange')
-            ->allowedSorts(['code', 'name'])
-            ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix, tableName: request()->route()?->getName())
-            ->withQueryString();
-
-        $this->attachOrgStockData($paginator, $purchaseOrder);
-        $this->attachOtherOpenPurchaseOrders($paginator, $orgId, $purchaseOrder?->id);
-
-        if ($parent instanceof OrgAgent) {
-            $paginator->getCollection()->each(fn ($row) => $row->agent_order = ['org_agent_id' => $parent->id, 'reference' => $agentOrderReference]);
+        if ($parent instanceof OrgSupplier) {
+            $queryBuilder->leftJoinSub(GetSupplierStockCoverBuckets::make()->bucketsQuery($parent), 'cover', 'cover.id', 'org_supplier_products.id');
         }
 
-        return $paginator;
+        return $queryBuilder;
+    }
+
+    /**
+     * The stock group and rank capsules above the table, with how many products sit behind each one.
+     * The counts follow the search and the on order tick; the rank counts follow the stock group picked.
+     *
+     * @return array{currency: string, cover: array<int, array{value: string, label: string, title: string, tone: string, count: int}>, rank: array<int, array{value: string, label: string, count: int}>, active: array{cover: string|null, rank: string|null, hide_ordered: bool}}
+     */
+    public function orderingFilters(OrgSupplier $orgSupplier, PurchaseOrder $purchaseOrder, string $prefix): array
+    {
+        InertiaTable::updateQueryBuilderParameters($prefix);
+
+        $counts = $this->baseQuery($orgSupplier, $purchaseOrder)
+            ->allowedFilters($this->filters($orgSupplier, false))
+            ->groupBy('cover.bucket', 'cover.health_rank')
+            ->selectRaw('cover.bucket, cover.health_rank, count(*) as products')
+            ->toBase()
+            ->get();
+
+        $cover = request()->input($prefix.'_filter.cover');
+        $rank  = request()->input($prefix.'_filter.rank');
+
+        $buckets  = GetSupplierStockCoverBuckets::make();
+        $leadDays = GetSupplierLeadTime::run($orgSupplier)['days'];
+        $inGroup  = $cover ? $counts->where('bucket', $cover) : $counts;
+
+        return [
+            'currency' => $purchaseOrder->organisation->currency->code,
+            'cover'    => collect(GetSupplierStockCoverBuckets::BUCKETS)->map(fn (array $meta, string $bucket) => [
+                'value' => $bucket,
+                'label' => explode(':', __($meta['label']))[0],
+                'title' => $buckets->bucketLabel($bucket, $leadDays),
+                'tone'  => $meta['tone'],
+                'count' => (int) $counts->where('bucket', $bucket)->sum('products'),
+            ])->values()->all(),
+            'rank'     => collect(HealthRankEnum::cases())->map(fn (HealthRankEnum $healthRank) => [
+                'value' => $healthRank->value,
+                'label' => $healthRank->value,
+                'count' => (int) $inGroup->where('health_rank', $healthRank->value)->sum('products'),
+            ])->all(),
+            'active'   => ['cover' => $cover, 'rank' => $rank, 'hide_ordered' => request()->boolean($prefix.'_filter.hide_ordered')],
+        ];
     }
 
     public function tableStructure($prefix = null): Closure
@@ -164,12 +252,12 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations()
-                ->column(key: 'code', label: __('S. Code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'image_thumbnail', label: __('Image'), canBeHidden: false)
-                ->column(key: 'description', label: __('Description'), canBeHidden: false)
+                ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'image', label: __('Image'), canBeHidden: false)
+                ->column(key: 'name', label: __('Product'), canBeHidden: false, sortable: true)
+                ->column(key: 'bucket', label: __('Stock group'), canBeHidden: false)
                 ->column(key: 'subtotals', label: __('Subtotals'), canBeHidden: false)
-                ->column(key: 'quantity', label: __('Units'), canBeHidden: false, align: 'right')
-                ->column(key: 'actions', label: 'Actions', canBeHidden: false, align: 'right')
+                ->column(key: 'cartons', label: __('Cartons'), canBeHidden: false, align: 'right')
                 ->defaultSort('code');
         };
     }
@@ -283,16 +371,18 @@ class IndexPurchaseOrderOrgSupplierProducts extends OrgAction
 
         $quarterlyUsage  = GetOrgStocksQuarterlyUsage::run($orgStockIds);
         $stockDeliveries = GetOrgStocksStockDeliveries::run($orgStockIds);
+        $discontinueSuggestions = OrgStockDiscontinueSuggestion::tallyForOrgStocks($orgStockIds);
 
-        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $supplierProducts, $partnerLeadTimeDays) {
+        $paginator->getCollection()->transform(function ($row) use ($orgStocks, $quarterlyUsage, $stockDeliveries, $discontinueSuggestions, $supplierProducts, $partnerLeadTimeDays) {
             $orgStock  = $orgStocks->get($row->org_stock_id);
             $tradeUnit = $orgStock?->tradeUnits->first(fn ($tradeUnit) => $tradeUnit->image_id !== null);
 
-            $row->image_sources      = $tradeUnit?->imageSources(64, 64);
+            $row->image_sources      = $tradeUnit?->imageSources(240, 240);
             $row->stock_in_locations = $orgStock?->quantity_in_locations;
             $row->quarterly_usage    = $quarterlyUsage->get($row->org_stock_id) ?? collect();
             $row->stock_cover        = GetOrgStockBuyingSignals::run($orgStock, $supplierProducts->get($row->supplier_product_id ?? null), $partnerLeadTimeDays);
             $row->stock_deliveries   = $stockDeliveries->get($row->org_stock_id);
+            $row->discontinue_suggestions = $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0];
 
             return $row;
         });

@@ -88,6 +88,16 @@ A veces un mismo lote sirve a más de un trabajo. Por ejemplo, 100 panes HCS-48 
 
 Hacer más de lo que pidieron todas las líneas requiere la tarjeta o el PIN de un responsable, como arriba; el extra también se reparte entre las líneas. Un responsable puede **Separate** las líneas de nuevo siempre que nadie esté trabajando en ellas. Lo que ya se hizo junto se queda con cada línea.
 
+## La mezcla y otros pasos que se pesan en kg
+
+La mezcla es un paso propio al principio de la receta, y se cuenta en kg, no en piezas. La pantalla muestra **kg** junto a los números y la casilla se llama **Kg made** (Kg hechos): para una mezcla de 50 kg escribe 50. Debajo de la casilla la pantalla muestra lo que da, *50 kg of mix = 500 × ABB-06a*. Una mezcla que sale un poco por encima de lo pedido se acepta tal cual, sin encargado.
+
+Solo los artesanos nombrados en el paso lo ven y pueden empezarlo; no aparece en la lista de nadie más. Se paga por hora a la tarifa base: sin objetivo, sin tramo de pago y sin aviso de bajo objetivo, y el tiempo sigue contando en el coste del producto.
+
+El paso siguiente queda bloqueado con **Waiting for** (Esperando) y el nombre del paso de mezcla hasta que se haya registrado algo de mezcla, y se abre en cuanto se anota la primera. Una mezcla para varias líneas funciona como en la sección anterior: un encargado combina las líneas de mezcla, quien mezcla escribe los kg una vez y cada línea recibe su parte.
+
+**Configuración (encargados).** En la página de la tarea de fabricación, **Only these artisans can do it** (Solo estos artesanos pueden hacerla) lista quién puede hacerla; ahí se añade o se quita gente. Su formulario de edición tiene **Paid by piece rate** (Pago a destajo; apagado para trabajo por horas) y **Recorded in kg** (Registrado en kg). Los kg de mezcla que lleva una unidad van en el paso de la receta de cada producto.
+
 ## Cosas que conviene saber
 
 - **Un trabajo a la vez.** Mientras tienes un trabajo abierto, los botones START están desactivados. Ciérralo primero.

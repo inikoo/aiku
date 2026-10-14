@@ -14,7 +14,7 @@ use App\Actions\HumanResources\Leave\UI\IndexEmployeeLeaves;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\Authorisations\WithHumanResourcesSectionAuthorisation;
+use App\Actions\Traits\Authorisations\WithHumanResourcesAuthorisation;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -36,7 +36,7 @@ class ShowEmployee extends OrgAction
 {
     use WithActionButtons;
     use WithEmployeeSubNavigation;
-    use WithHumanResourcesSectionAuthorisation;
+    use WithHumanResourcesAuthorisation;
 
 
     public function handle(Employee $employee): Employee
@@ -54,14 +54,13 @@ class ShowEmployee extends OrgAction
         abort_unless($employee->organisation_id === $organisation->id, 404);
 
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
-        abort_unless($this->canSeeEmployee($employee->id), 403);
 
         return $this->handle($employee);
     }
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
-        $user     = $this->isRestrictedToSection() ? null : $employee->getUser();
+        $user     = $employee->getUser();
         $leaves   = fn (): array => IndexEmployeeLeaves::make()->getTabData(
             $employee,
             EmployeeTabsEnum::LEAVES->value,
@@ -117,7 +116,7 @@ class ShowEmployee extends OrgAction
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
-                'attachmentRoutes' => $this->isRestrictedToSection() ? null : [
+                'attachmentRoutes' => [
                     'attachRoute' => [
                         'name' => 'grp.models.employee.attachment.attach',
                         'parameters' => [
@@ -225,7 +224,6 @@ class ShowEmployee extends OrgAction
     {
         $previous = Employee::where('slug', '<', $employee->slug)
             ->where('organisation_id', $this->organisation->id)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('id', $this->sectionEmployeeIds))
             ->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
@@ -235,7 +233,6 @@ class ShowEmployee extends OrgAction
     {
         $next = Employee::where('slug', '>', $employee->slug)
             ->where('organisation_id', $this->organisation->id)
-            ->when($this->isRestrictedToSection(), fn ($query) => $query->whereIn('id', $this->sectionEmployeeIds))
             ->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());

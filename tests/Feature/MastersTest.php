@@ -1720,10 +1720,10 @@ test('master product page offers edit and add to other shop only to masters edit
 
     try {
         actingAsUserWithOnlyPermissions($this->user, ['masters.view', 'group-webmaster.media-edit']);
-        expect($actionKeys())->not->toContain('edit', 'assign', 'repair-mismatch');
+        expect($actionKeys())->not->toContain('edit', 'assign', 'repair-mismatch', 'copy-to-master-shop');
 
         actingAsUserWithOnlyPermissions($this->user, ['masters.edit', 'masters.view']);
-        expect($actionKeys())->toContain('edit', 'assign');
+        expect($actionKeys())->toContain('edit', 'assign', 'copy-to-master-shop');
     } finally {
         setPermissionsTeamId($this->user->group_id);
         $this->user->syncPermissions($originalPermissions);
@@ -3709,6 +3709,25 @@ test('warehouse packing change recomputes product pick quantity', function () {
         ->and((int) $row->divisor)->toBe(1);
 });
 
+test('a product whose trade unit has no group stock keeps the organisation SKO holding that trade unit', function () {
+    [, $product] = createProduct($this->shop);
+    $tradeUnit   = $product->tradeUnits()->first();
+    $product->tradeUnits()->updateExistingPivot($tradeUnit->id, ['quantity' => 2]);
+
+    $stock = $tradeUnit->stocks()->first() ?? $this->group->stocks()->first();
+    $tradeUnit->stocks()->syncWithoutDetaching([$stock->id => ['quantity' => 1]]);
+    $orgStock = $stock->orgStocks()->where('organisation_id', $product->organisation_id)->first();
+    $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 2]]);
+    $tradeUnit->stocks()->detach();
+
+    \App\Actions\Catalogue\Product\SyncProductOrgStocksFromTradeUnits::run($product->refresh());
+
+    $rows = DB::table('product_has_org_stocks')->where('product_id', $product->id)->get();
+    expect($rows)->toHaveCount(1)
+        ->and($rows->first()->org_stock_id)->toBe($orgStock->id)
+        ->and((float) $rows->first()->quantity)->toBe(1.0);
+});
+
 test('two master shops can each have a department and sub department with the same code', function () {
     $sharedDepartmentCode    = 'SHDEP'.uniqid();
     $sharedSubDepartmentCode = 'SHSUB'.uniqid();
@@ -4781,5 +4800,337 @@ test('masters write routes need the masters edit permission, INI-073', function 
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+function createMasterFamilyInFreshMasterShop(string $prefix): MasterProductCategory
+{
+    return StoreMasterFamily::make()->action(
+        StoreMasterDepartment::make()->action(createFreshMasterShop(), ['code' => $prefix.'-DEP-'.uniqid(), 'name' => $prefix.' department']),
+        ['code' => $prefix.'-FAM-'.uniqid(), 'name' => $prefix.' family']
+    );
+}
+
+/**
+ * @return array{0: \App\Models\Masters\MasterVariant, 1: MasterAsset, 2: MasterAsset}
+ */
+function createMasterVariantOfTwo(MasterProductCategory $masterFamily, string $prefix): array
+{
+    $tradeUnit = StoreTradeUnit::make()->action(group(), array_merge(TradeUnit::factory()->definition(), ['code' => $prefix.uniqid()]));
+
+    $make = fn (string $suffix, int $quantity) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'        => $prefix.'-'.$suffix.'-'.substr(uniqid(), -6),
+        'name'        => $prefix.' '.$suffix,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'unit'        => 'piece',
+        'price'       => 10,
+        'rrp'         => 20,
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => $quantity]],
+    ]);
+    $leader = $make('BIG', 6);
+    $minion = $make('SMALL', 1);
+
+    $masterVariant = \App\Models\Masters\MasterVariant::create([
+        'group_id'          => $masterFamily->group_id,
+        'master_shop_id'    => $masterFamily->master_shop_id,
+        'master_family_id'  => $masterFamily->id,
+        'code'              => $leader->code,
+        'leader_id'         => $leader->id,
+        'number_minions'    => 1,
+        'number_dimensions' => 1,
+        'number_used_slots' => 2,
+        'data'              => [
+            'groupBy'  => 'Size',
+            'variants' => [['label' => 'Size', 'options' => ['Big', 'Small']]],
+            'products' => [
+                $leader->id => ['Size' => 'Big', 'is_leader' => true, 'product' => ['id' => $leader->id, 'code' => $leader->code, 'slug' => $leader->slug]],
+                $minion->id => ['Size' => 'Small', 'is_leader' => false, 'product' => ['id' => $minion->id, 'code' => $minion->code, 'slug' => $minion->slug]],
+            ],
+        ],
+    ]);
+    $leader->updateQuietly(['master_variant_id' => $masterVariant->id, 'is_main' => true, 'is_variant_leader' => true, 'is_minion_variant' => false]);
+    $minion->updateQuietly(['master_variant_id' => $masterVariant->id, 'is_main' => false, 'is_variant_leader' => false, 'is_minion_variant' => true]);
+
+    return [$masterVariant, $leader->refresh(), $minion->refresh()];
+}
+
+test('a master product is copied to a family of another master shop as a master only', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CPS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CPT');
+
+    $tradeUnit = StoreTradeUnit::make()->action(group(), array_merge(TradeUnit::factory()->definition(), ['code' => 'CPTU'.uniqid()]));
+    $source    = StoreMasterAsset::make()->action($sourceFamily, [
+        'code'        => 'CP-'.substr(uniqid(), -8),
+        'name'        => 'Copied bottle',
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 10,
+        'rrp'         => 20,
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 12]],
+    ]);
+    $source->updateQuietly([
+        'description'      => 'A bottle worth copying',
+        'name_i8n'         => ['es' => 'Botella copiada'],
+        'master_prices'    => ['EUR' => ['value' => 11.5]],
+        'tax_category'     => ['standard' => true],
+        'is_golden_product' => true,
+        'source_id'        => 'aurora:1:999',
+    ]);
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $source->group_id,
+        'ulid'                  => (string) Str::ulid(),
+        'uuid'                  => (string) Str::uuid(),
+        'name'                  => 'bottle',
+        'file_name'             => 'bottle.jpeg',
+        'mime_type'             => 'image/jpeg',
+        'disk'                  => 'local',
+        'collection_name'       => 'images',
+        'size'                  => 4,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    $source->images()->sync([$media->id => ['group_id' => $source->group_id, 'scope' => 'photo', 'sub_scope' => 'main', 'caption' => 'The bottle', 'is_public' => true, 'position' => 1, 'data' => '{}', 'source_id' => 'aurora:1:img']]);
+    $source->updateQuietly(['image_id' => $media->id, 'follow_trade_unit_media' => false]);
+    $sourceAttributes = $source->refresh()->getAttributes();
+
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+    createProduct($this->shop);
+    $shopFamily = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+
+    try {
+        $response = post(route('grp.models.master_asset.copy_to_master_shop', $source->id), ['master_family_id' => $targetFamily->id]);
+
+        $copy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $source->code)->first();
+
+        $response->assertRedirect(route('grp.masters.master_shops.show.master_products.show', [
+            'masterShop'    => $targetFamily->masterShop->slug,
+            'masterProduct' => $copy->slug,
+        ]));
+
+        expect($copy->id)->not->toBe($source->id)
+            ->and($copy->slug)->not->toBe($source->slug)
+            ->and($copy->master_family_id)->toBe($targetFamily->id)
+            ->and($copy->master_department_id)->toBe($targetFamily->master_department_id)
+            ->and($copy->name)->toBe('Copied bottle')
+            ->and($copy->description)->toBe('A bottle worth copying')
+            ->and($copy->getTranslation('name_i8n', 'es'))->toBe('Botella copiada')
+            ->and($copy->master_prices)->toBe(['EUR' => ['value' => 11.5]])
+            ->and($copy->tax_category)->toBe(['standard' => true])
+            ->and($copy->is_golden_product)->toBeTrue()
+            ->and((float) $copy->units)->toBe((float) $source->units)
+            ->and($copy->source_id)->toBeNull()
+            ->and($copy->master_variant_id)->toBeNull()
+            ->and($copy->is_main)->toBeTrue()
+            ->and($copy->stats)->not->toBeNull()
+            ->and($copy->tradeUnits->pluck('pivot.quantity', 'id')->map(fn ($quantity) => (float) $quantity)->all())->toBe([$tradeUnit->id => 12.0])
+            ->and($copy->image_id)->toBe($media->id)
+            ->and($copy->images->pluck('pivot.caption', 'id')->all())->toBe([$media->id => 'The bottle'])
+            ->and(DB::table('model_has_media')->where('model_type', 'MasterAsset')->where('model_id', $copy->id)->value('source_id'))->toBeNull()
+            ->and($source->images()->count())->toBe(1)
+            ->and(Product::where('master_product_id', $copy->id)->count())->toBe(0)
+            ->and($source->refresh()->getAttributes())->toBe($sourceAttributes);
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+    }
+});
+
+test('copying a master product of a variant copies the whole variant, pointing at the copies', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CVS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CVT');
+    [$sourceVariant, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CV');
+    $sourceVariantData = $sourceVariant->refresh()->data;
+
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+    $leaderCopy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $leader->code)->first();
+    $variantCopy = $minionCopy->masterVariant;
+
+    expect($minionCopy->code)->toBe($minion->code)
+        ->and($leaderCopy)->not->toBeNull()
+        ->and($variantCopy->id)->not->toBe($sourceVariant->id)
+        ->and($variantCopy->slug)->not->toBe($sourceVariant->slug)
+        ->and($variantCopy->master_shop_id)->toBe($targetFamily->master_shop_id)
+        ->and($variantCopy->master_family_id)->toBe($targetFamily->id)
+        ->and($variantCopy->leader_id)->toBe($leaderCopy->id)
+        ->and(array_keys($variantCopy->data['products']))->toEqualCanonicalizing([$leaderCopy->id, $minionCopy->id])
+        ->and($variantCopy->data['products'][$leaderCopy->id]['product']['id'])->toBe($leaderCopy->id)
+        ->and($variantCopy->data['products'][$leaderCopy->id]['product']['slug'])->toBe($leaderCopy->slug)
+        ->and($variantCopy->data['products'][$leaderCopy->id]['is_leader'])->toBeTrue()
+        ->and($variantCopy->data['products'][$minionCopy->id]['Size'])->toBe('Small')
+        ->and($variantCopy->data['variants'])->toBe($sourceVariantData['variants'])
+        ->and($variantCopy->stats)->not->toBeNull()
+        ->and($variantCopy->orderingStats)->not->toBeNull()
+        ->and($variantCopy->variants()->count())->toBe(0)
+        ->and($leaderCopy->is_variant_leader)->toBeTrue()
+        ->and($leaderCopy->is_main)->toBeTrue()
+        ->and($leaderCopy->master_variant_id)->toBe($variantCopy->id)
+        ->and($minionCopy->is_minion_variant)->toBeTrue()
+        ->and($minionCopy->is_main)->toBeFalse()
+        ->and($sourceVariant->refresh()->data)->toBe($sourceVariantData)
+        ->and($sourceVariant->leader_id)->toBe($leader->id)
+        ->and($minion->refresh()->master_variant_id)->toBe($sourceVariant->id);
+});
+
+test('nothing is copied when the target master shop already has one of the codes, or is the same master shop', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CRS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CRT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CR');
+
+    StoreMasterAsset::make()->action($targetFamily, [
+        'code' => strtolower($minion->code),
+        'name' => 'Already there',
+        'type' => MasterAssetTypeEnum::PRODUCT,
+    ]);
+    $countAssets   = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count();
+    $countVariants = \App\Models\Masters\MasterVariant::where('master_shop_id', $targetFamily->master_shop_id)->count();
+
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $sourceFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->master_department_id])
+        ->assertSessionHasErrors('master_family_id');
+
+    expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe($countAssets)
+        ->and(\App\Models\Masters\MasterVariant::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe($countVariants)
+        ->and(MasterAsset::where('master_shop_id', $sourceFamily->master_shop_id)->count())->toBe(2);
+});
+
+test('the copy dialog lists the other master shops with the codes they already have, and its family picker answers', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CDS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CDT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CD');
+    StoreMasterAsset::make()->action($targetFamily, ['code' => $minion->code, 'name' => 'Already there', 'type' => MasterAssetTypeEnum::PRODUCT]);
+
+    $dialog       = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->getDialogData($leader);
+    $masterShops  = collect($dialog['master_shops'])->keyBy('id');
+
+    expect($dialog['products'])->toEqualCanonicalizing([$leader->code, $minion->code])
+        ->and($masterShops->has($sourceFamily->master_shop_id))->toBeFalse()
+        ->and($masterShops[$targetFamily->master_shop_id]['existing_codes'])->toBe([$minion->code])
+        ->and($masterShops[$targetFamily->master_shop_id]['blockers'])->toHaveCount(1);
+
+    $this->getJson(route('grp.json.master-family.all-master-family', ['masterShop' => $targetFamily->masterShop->slug]))
+        ->assertOk()
+        ->assertJsonFragment(['id' => $targetFamily->id]);
+});
+
+test('a copied variant member added to a shop before its leader waits for the leader instead of failing', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CAS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CAT');
+    [, , $minion] = createMasterVariantOfTwo($sourceFamily, 'CA');
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+
+    createProduct($this->shop);
+    $shopFamily = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+
+    try {
+        \App\Actions\Catalogue\Product\StoreProductFromMasterProduct::make()->action($minionCopy, [
+            'shop_products' => [$this->shop->id => ['price' => 10, 'rrp' => 20, 'create_webpage' => false, 'create_in_shop' => 'Yes']],
+            'is_for_sale'   => true,
+        ], ignoreCreateWebpage: true);
+
+        $product = Product::where('shop_id', $this->shop->id)->where('master_product_id', $minionCopy->id)->first();
+
+        expect($product)->not->toBeNull()
+            ->and($product->variant_id)->toBeNull()
+            ->and($minionCopy->masterVariant->variants()->count())->toBe(0);
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+    }
+});
+
+test('nothing is copied when a shop of the target master shop already sells the code, or the variant code is taken there', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CBS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CBT');
+    [$sourceVariant, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CB');
+    $copyAction = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make();
+
+    [, $product]          = createProduct($this->shop);
+    $originalMasterShopId = $this->shop->master_shop_id;
+    $originalCode         = $product->code;
+    $originalAttributes   = Arr::except($product->refresh()->getAttributes(), 'updated_at');
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+    $product->updateQuietly(['code' => strtolower($minion->code)]);
+
+    try {
+        expect($copyAction->getBlockers($leader, $targetFamily->masterShop))->toHaveCount(1)
+            ->and($copyAction->getBlockers($leader, $targetFamily->masterShop)[0])->toContain($this->shop->code.' '.strtolower($minion->code));
+
+        post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+            ->assertSessionHasErrors('master_family_id');
+
+        expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe(0);
+    } finally {
+        $product->updateQuietly(['code' => $originalCode]);
+        $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
+    }
+    expect(Arr::except($product->refresh()->getAttributes(), 'updated_at'))->toBe($originalAttributes)
+        ->and($copyAction->getBlockers($leader, $targetFamily->masterShop))->toBe([]);
+
+    $takenVariant = $sourceVariant->replicate(['slug']);
+    $takenVariant->fill(['master_shop_id' => $targetFamily->master_shop_id, 'master_family_id' => $targetFamily->id, 'code' => strtolower($sourceVariant->code)])->save();
+
+    expect($copyAction->getBlockers($leader, $targetFamily->masterShop))->toHaveCount(1);
+    post(route('grp.models.master_asset.copy_to_master_shop', $leader->id), ['master_family_id' => $targetFamily->id])
+        ->assertSessionHasErrors('master_family_id');
+    expect(MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->count())->toBe(0);
+});
+
+test('a copied variant goes into a shop leader first: a member is refused before its leader and joins the shop variant after it', function () {
+    $sourceFamily = createMasterFamilyInFreshMasterShop('CLS');
+    $targetFamily = createMasterFamilyInFreshMasterShop('CLT');
+    [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CL');
+    $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
+    $leaderCopy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $leader->code)->first();
+    $leaderCopy->updateQuietly(['is_for_sale' => true]);
+    $minionCopy->updateQuietly(['is_for_sale' => true]);
+
+    createProduct($this->shop);
+    createWebsite($this->shop);
+    $shopFamily             = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    $originalMasterFamilyId = $shopFamily->master_product_category_id;
+    $originalMasterShopId   = $this->shop->master_shop_id;
+    $shopFamily->updateQuietly(['master_product_category_id' => $targetFamily->id]);
+    $this->shop->updateQuietly(['master_shop_id' => $targetFamily->master_shop_id]);
+
+    $addToShop = fn (MasterAsset $masterAsset) => $this->postJson(
+        route('grp.models.master_family.clone_to_other_store', ['masterFamily' => $targetFamily->id, 'masterProduct' => $masterAsset->slug]),
+        ['shop_products' => [$this->shop->id => ['price' => 10, 'rrp' => 20, 'create_in_shop' => 'Yes']]]
+    );
+
+    try {
+        $addToShop($minionCopy)->assertJsonValidationErrors('shop_products');
+        expect(Product::where('master_product_id', $minionCopy->id)->count())->toBe(0);
+
+        $addToShop($leaderCopy)->assertSuccessful();
+        $leaderProduct = Product::where('shop_id', $this->shop->id)->where('master_product_id', $leaderCopy->id)->first();
+        $variant       = $minionCopy->masterVariant->variants()->where('shop_id', $this->shop->id)->first();
+
+        expect($variant)->not->toBeNull()
+            ->and($variant->leader_id)->toBe($leaderProduct->id)
+            ->and(array_keys($variant->data['products']))->toBe([$leaderProduct->id]);
+
+        $addToShop($minionCopy)->assertSuccessful();
+        $minionProduct = Product::where('shop_id', $this->shop->id)->where('master_product_id', $minionCopy->id)->first();
+        $variant->refresh();
+
+        expect(array_keys($variant->data['products']))->toEqualCanonicalizing([$leaderProduct->id, $minionProduct->id])
+            ->and($variant->number_used_slots)->toBe(2)
+            ->and($variant->leader_id)->toBe($leaderProduct->id)
+            ->and($minionProduct->variant_id)->toBe($variant->id)
+            ->and($minionProduct->is_minion_variant)->toBeTrue()
+            ->and($minionProduct->is_main)->toBeFalse()
+            ->and($leaderProduct->refresh()->is_variant_leader)->toBeTrue()
+            ->and($leaderProduct->is_main)->toBeTrue()
+            ->and($leaderProduct->webpage)->not->toBeNull()
+            ->and(\App\Models\Web\Redirect::where('shop_id', $this->shop->id)->where('from_path', strtolower($minionProduct->code))->exists())->toBeTrue();
+    } finally {
+        $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
+        $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
     }
 });

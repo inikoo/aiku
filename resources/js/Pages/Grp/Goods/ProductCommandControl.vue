@@ -7,9 +7,6 @@
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3"
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue"
-import { useElementSize } from "@vueuse/core"
-import { useScrollArrows } from "@/Composables/useScrollArrows"
-import ScrollFadeArrow from "@/Components/Utils/ScrollFadeArrow.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import OrgStockDiscontinuePreviewModal from "@/Components/Warehouse/Inventory/OrgStockDiscontinuePreviewModal.vue"
 import ProductDetailDrawer from "@/Components/Goods/ProductDetailDrawer.vue"
@@ -19,12 +16,16 @@ import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import Select from "primevue/select"
 import InputText from "primevue/inputtext"
-import Checkbox from "primevue/checkbox"
+import Popover from "primevue/popover"
+import Table from "@/Components/Table/Table.vue"
+import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
+import { useFormatTime } from "@/Composables/useFormatTime"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSlidersH, faWarehouse, faBan, faExclamationTriangle, faBoxes, faPlug, faDownload } from "@fal"
-library.add(faSlidersH, faWarehouse, faBan, faExclamationTriangle, faBoxes, faPlug, faDownload)
+import { faSlidersH, faWarehouse, faBan, faExclamationTriangle, faBoxes, faPlug, faDownload, faThumbsDown } from "@fal"
+import { faCheckCircle, faPauseCircle, faTimesCircle, faExclamationCircle } from "@fas"
+library.add(faSlidersH, faWarehouse, faBan, faExclamationTriangle, faBoxes, faPlug, faDownload, faThumbsDown, faCheckCircle, faPauseCircle, faTimesCircle, faExclamationCircle)
 
 type Condition = "ok" | "low" | "oos" | "ns" | "over" | "off" | "sell" | "hold" | "ret" | "dead"
 type Period = "30d" | "90d" | "quarter" | "year"
@@ -36,6 +37,9 @@ interface Cell {
     available: number
     allocated: number
     inbound: number
+    cover_weeks?: number | null
+    sales?: number
+    trend?: number | null
     next_expected_at: string | null
     has_po: boolean
     condition: Condition
@@ -53,6 +57,23 @@ interface Row {
     trend: number | null
     cover_weeks: number | null
     state: string
+    suggestions: number
+    suggestion_people: number
+    feedback: number
+    feedback_level: FeedbackLevel | null
+    orders: number
+    complaint_rate: number | null
+    complaints: number
+    complaint_customers: number
+    refunds: number
+    replacements: number
+    next_order: number
+    supplier_claims: number
+    suggestion_evidence: {
+        sources: { label: string; times: number }[]
+        reasons: { label: string; times: number }[]
+        notes: { user: string | null; organisation: string; source: string; reasons: string[]; note: string; date: string }[]
+    } | null
     organisations: Record<string, Cell>
     action: { org_stock_id: number; organisation: string; warehouse: string | null } | null
 }
@@ -77,6 +98,7 @@ interface Filters {
     family: string | null
     condition: string | null
     state: string | null
+    feedback: FeedbackLevel | null
     search: string | null
     sort: string
     period: Period
@@ -105,15 +127,18 @@ const props = defineProps<{
         overstock_value: number
         offline: number
         offline_value: number
+        suggested: number
+        suggestions: number
+        feedback_levels: Record<FeedbackLevel, number>
     }
-    rows?: Row[]
+    rows?: { data: Row[]; total: number }
     pagination?: { page: number; last_page: number; total: number; per_page: number }
     filters: Filters
     editable_organisations?: string[]
     can_change_group?: boolean
 }>()
 
-const dashboardProps = ["built_at", "organisations", "families", "missing_rates", "rates", "kpis", "rows", "pagination", "editable_organisations", "can_change_group", "filters", "period"]
+const dashboardProps = ["queryBuilderProps", "built_at", "organisations", "families", "missing_rates", "rates", "kpis", "rows", "pagination", "editable_organisations", "can_change_group", "filters", "period"]
 
 const conditions: Record<Condition, { label: string; tooltip: string; class: string }> = {
     ok: { label: ctrans("OK"), tooltip: ctrans("Covered"), class: "bg-green-50 text-green-700" },
@@ -135,6 +160,13 @@ const statuses: Record<string, { label: string; pill: string; class: string }> =
     discontinued: { label: ctrans("Retired"), pill: ctrans("RETIRED"), class: "bg-purple-50 text-purple-700" },
 }
 
+const stateIcons: Record<string, { icon: string[]; class: string }> = {
+    active: { icon: ["fas", "check-circle"], class: "text-green-500" },
+    suspended: { icon: ["fas", "pause-circle"], class: "text-slate-300" },
+    discontinuing: { icon: ["fas", "times-circle"], class: "text-amber-500" },
+    discontinued: { icon: ["fas", "times-circle"], class: "text-red-500" },
+}
+
 const periodLabels: Record<Period, string> = {
     "30d": ctrans("Last 30 days"),
     "90d": ctrans("Last 90 days"),
@@ -154,6 +186,7 @@ const conditionFilters = computed(() => [
     { value: "sell", label: ctrans("Sell through") },
     { value: "hold", label: ctrans("On hold") },
     { value: "ok", label: ctrans("OK") },
+    { value: "suggested", label: ctrans("Suggested to discontinue") },
 ])
 
 const filterState = reactive({ ...props.filters })
@@ -166,12 +199,6 @@ watch(
     { deep: true }
 )
 
-const pagerBar = ref<HTMLElement | null>(null)
-const { height: pagerBarHeight } = useElementSize(pagerBar, undefined, { box: "border-box" })
-const tableHead = ref<HTMLElement | null>(null)
-const { height: tableHeadHeight } = useElementSize(tableHead, undefined, { box: "border-box" })
-const tableScroller = ref<HTMLElement | null>(null)
-const { canScrollUp, canScrollDown, scrollVerticallyBy } = useScrollArrows(tableScroller)
 
 const loading = ref(false)
 let stopStart: (() => void) | undefined
@@ -211,25 +238,112 @@ function load(changes: Partial<Filters> = {}, page = 1): void {
 }
 
 function reset(): void {
-    load({ organisation: null, family: null, condition: null, state: null, search: null, sort: "-sales", period: "90d" })
+    load({ organisation: null, family: null, condition: null, state: null, feedback: null, search: null, sort: "-sales", period: "90d" })
 }
 
 function toggleCondition(condition: string): void {
-    load({ condition: filterState.condition === condition ? null : condition })
+    const isOn = filterState.condition !== condition
+    load({ condition: isOn ? condition : null, ...(condition === "suggested" ? { sort: isOn ? "-suggestions" : "-sales" } : {}) })
 }
 
-function toggleSort(key: string): void {
-    load({ sort: filterState.sort === `-${key}` ? key : `-${key}` })
+type FeedbackLevel = "mild" | "bad" | "severe" | "disaster"
+
+const feedbackLevels: Record<FeedbackLevel, { label: string; class: string }> = {
+    mild: { label: ctrans("Mild"), class: "bg-gray-100 text-gray-600" },
+    bad: { label: ctrans("Bad"), class: "bg-amber-100 text-amber-700" },
+    severe: { label: ctrans("Severe"), class: "bg-orange-100 text-orange-700" },
+    disaster: { label: ctrans("Disaster"), class: "bg-red-100 text-red-700" },
 }
 
-function sortArrow(key: string): string {
-    if (filterState.sort === key) return "▲"
-    if (filterState.sort === `-${key}`) return "▼"
-    return ""
+const feedbackOptions = computed(() =>
+    (Object.keys(feedbackLevels) as FeedbackLevel[]).map((level) => ({ value: level, label: feedbackLevels[level].label, count: props.kpis?.feedback_levels[level] }))
+)
+
+function selectFeedback(level: string | null): void {
+    load({ feedback: level as FeedbackLevel | null, sort: level ? "-feedback" : "-sales" })
+}
+
+const moneyInThousands = (amount: number): string =>
+    new Intl.NumberFormat("en-GB", { style: "currency", currency: props.currency_code, minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(amount / 1000) + "K"
+
+const conditionDots: Record<Condition, string> = {
+    ok: "bg-green-500",
+    low: "bg-amber-500",
+    oos: "bg-red-500",
+    over: "bg-purple-500",
+    off: "bg-pink-500",
+    sell: "bg-blue-500",
+    hold: "bg-orange-500",
+    ns: "bg-gray-300",
+    dead: "bg-gray-500",
+    ret: "bg-gray-300",
+}
+
+const salesPopover = ref()
+const salesRow = ref<Row | null>(null)
+
+function showSales(event: MouseEvent, row: Row): void {
+    salesRow.value = row
+    salesPopover.value?.show(event, event.currentTarget)
+}
+
+function salesDot(cell: Cell | undefined): string {
+    if (!cell) {
+        return "bg-transparent ring-1 ring-inset ring-gray-200"
+    }
+    if (!cell.sales) {
+        return "bg-gray-300"
+    }
+    if (cell.trend === null || cell.trend === undefined) {
+        return "bg-gray-500"
+    }
+
+    return cell.trend >= 0 ? "bg-green-500" : "bg-red-500"
+}
+
+const stockPopover = ref()
+const stockRow = ref<Row | null>(null)
+
+function showStock(event: MouseEvent, row: Row): void {
+    stockRow.value = row
+    stockPopover.value?.show(event, event.currentTarget)
+}
+
+function groupStock(row: Row): { available: number; inbound: number } {
+    return Object.values(row.organisations).reduce(
+        (total, cell) => ({ available: total.available + Math.max(0, cell.available), inbound: total.inbound + cell.inbound }),
+        { available: 0, inbound: 0 }
+    )
+}
+
+const SUGGESTION_PEOPLE_TO_ACT = 3
+
+const suggestionPopover = ref()
+const suggestionRow = ref<Row | null>(null)
+
+function showSuggestions(event: MouseEvent, row: Row): void {
+    suggestionRow.value = row
+    suggestionPopover.value?.show(event, event.currentTarget)
+}
+
+function complaintTooltip(row: Row): string {
+    return [
+        row.complaints ? ctrans(":customers customers compensated in :orders orders that carried it, last 12 months", { customers: quantity(row.complaint_customers), orders: quantity(row.orders) }) : "",
+        row.refunds ? ctrans(":count refunds", { count: quantity(row.refunds) }) : "",
+        row.replacements ? ctrans(":count replacements", { count: quantity(row.replacements) }) : "",
+        row.next_order ? ctrans(":count sent free in a next order", { count: quantity(row.next_order) }) : "",
+        row.supplier_claims ? ctrans(":count claims to the supplier", { count: quantity(row.supplier_claims) }) : "",
+    ]
+        .filter(Boolean)
+        .join(" · ")
+}
+
+function suggestionSummary(times: number, people: number): string {
+    return ctrans(":people staff voted to remove this product, :times reports in all. Click to read why", { times: quantity(times), people: quantity(people) })
 }
 
 const hasFilters = computed(() =>
-    ["organisation", "family", "condition", "state", "search"].some((key) => props.filters[key as keyof Filters])
+    ["organisation", "family", "condition", "state", "feedback", "search"].some((key) => props.filters[key as keyof Filters])
 )
 
 function exportCsv(): void {
@@ -269,29 +383,19 @@ const rateNotes = computed(() => {
         .join(" · ")
 })
 
-function cellLabel(cell: Cell): string {
-    return cell.inbound > 0 ? `${quantity(cell.available)}+${quantity(cell.inbound)}` : quantity(cell.available)
+const COVER_CONDITIONS: Condition[] = ["ok", "low", "over"]
+
+function hasCover(cell: Cell): boolean {
+    return COVER_CONDITIONS.includes(cell.condition) && cell.cover_weeks !== null && cell.cover_weeks !== undefined
 }
 
-function cellTooltip(cell: Cell): string {
-    const base = ctrans("On hand :on_hand · allocated :allocated · available :available", {
-        on_hand: quantity(cell.on_hand),
-        allocated: quantity(cell.allocated),
-        available: quantity(cell.available),
-    })
-
-    if (cell.inbound > 0) {
-        return (
-            base +
-            " · " +
-            ctrans(":inbound inbound, expected :expected", {
-                inbound: quantity(cell.inbound),
-                expected: cell.next_expected_at ? shortDate(cell.next_expected_at) : ctrans("unknown"),
-            })
-        )
+function cellTag(cell: Cell): string {
+    if (!hasCover(cell)) {
+        return conditions[cell.condition].label
     }
+    const weeks = cell.cover_weeks as number
 
-    return base
+    return weeks < 1 ? ctrans("<1w") : `${Math.round(weeks)}${ctrans("w")}`
 }
 
 const kpiCards = computed(() => {
@@ -306,7 +410,7 @@ const kpiCards = computed(() => {
             icon: "warehouse",
             label: ctrans("Group Stock Value"),
             value: money(kpis.stock_value, true),
-            detail: ctrans("≈ :amount potential sales at current prices, ex VAT", { amount: money(kpis.commercial_value, true) }),
+            detail: ctrans("≈ :amount potential sales", { amount: money(kpis.commercial_value, true) }),
             class: "text-gray-900",
         },
         {
@@ -342,6 +446,14 @@ const kpiCards = computed(() => {
             value: quantity(kpis.offline),
             detail: ctrans(":amount stock value", { amount: money(kpis.offline_value, true) }),
             class: "text-pink-600",
+        },
+        {
+            key: "suggested",
+            icon: "thumbs-down",
+            label: ctrans("Suggested to discontinue"),
+            value: quantity(kpis.suggested),
+            detail: ctrans(":count reports from staff", { count: quantity(kpis.suggestions) }),
+            class: kpis.suggested ? "text-red-600" : "text-gray-400",
         },
     ]
 })
@@ -395,18 +507,18 @@ const periodOptions = computed(() => props.periods.map((period) => ({ value: per
 const rowStatusOptions = (row: Row) => statusOptions.value.map((option) => ({ ...option, disabled: option.value === row.state }))
 
 const selectedIds = ref<number[]>([])
+const tableKey = ref(0)
+
+function onSelectRow(selected: Record<string, boolean>): void {
+    selectedIds.value = Object.keys(selected)
+        .filter((id) => selected[id])
+        .map(Number)
+}
 const bulkState = ref<string | null>(null)
 
-const selectableRows = computed(() => (props.rows ?? []).filter((row) => row.action))
+const selectableRows = computed(() => (props.rows?.data ?? []).filter((row) => row.action))
 
 const selectedRows = computed(() => selectableRows.value.filter((row) => selectedIds.value.includes(row.id)))
-
-const allSelected = computed({
-    get: () => selectableRows.value.length > 0 && selectedRows.value.length === selectableRows.value.length,
-    set: (checked: boolean) => {
-        selectedIds.value = checked ? selectableRows.value.map((row) => row.id) : []
-    },
-})
 
 const bulkStatusOptions = computed(() =>
     statusOptions.value.map((option) => ({ ...option, disabled: selectedRows.value.every((row) => row.state === option.value) }))
@@ -447,6 +559,7 @@ const bulkHint = computed(() => {
 function clearSelection(): void {
     selectedIds.value = []
     bulkState.value = null
+    tableKey.value++
 }
 
 watch(selectableRows, (rows) => {
@@ -457,17 +570,12 @@ watch(selectableRows, (rows) => {
     }
 })
 
-const checkboxClass =
-    "[--p-checkbox-checked-background:var(--app-accent)] [--p-checkbox-checked-border-color:var(--app-accent)] [--p-checkbox-checked-hover-background:var(--app-accent-strong)] [--p-checkbox-checked-hover-border-color:var(--app-accent-strong)] [--p-checkbox-hover-border-color:var(--app-accent)] [--p-checkbox-icon-checked-color:var(--app-accent-text)] [--p-checkbox-icon-checked-hover-color:var(--app-accent-text)] [--p-checkbox-focus-ring-color:var(--app-accent)]"
-
-const pagerButtonClass = "rounded-md border border-gray-300 bg-white px-3 py-1.5 font-medium text-gray-700 transition-colors enabled:hover:bg-gray-50 enabled:hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-40"
-
 const drawerSlug = ref<string | null>(null)
 const drawerReloadKey = ref(0)
 
-const drawerNavigation = computed(() => (props.rows ?? []).map((row) => ({ slug: row.slug, label: row.name ? `${row.code} — ${row.name}` : row.code })))
+const drawerNavigation = computed(() => (props.rows?.data ?? []).map((row) => ({ slug: row.slug, label: row.name ? `${row.code} — ${row.name}` : row.code })))
 
-const drawerRow = computed(() => (props.rows ?? []).find((row) => row.slug === drawerSlug.value) ?? null)
+const drawerRow = computed(() => (props.rows?.data ?? []).find((row) => row.slug === drawerSlug.value) ?? null)
 const drawerOpen = ref(false)
 
 function openDrawer(row: Row): void {
@@ -481,29 +589,25 @@ function openDrawer(row: Row): void {
     <PageHeading :data="pageHead" />
     <GoodsViewToggle active="command" :organisation="filters.organisation" :family="filters.family" :search="filters.search" :fetching="!rows || !kpis" />
 
-    <div class="mx-4 mt-4 space-y-1">
-        <div class="text-sm text-gray-600">{{ ctrans("Every product, every organisation, one operational view") }}</div>
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
-            <span v-if="built_at">{{ ctrans("Figures as of :time, refreshed every 10 minutes.", { time: builtAt }) }}<template v-if="rateNotes"> · {{ rateNotes }}</template></span>
-            <span v-else class="h-3 w-80 max-w-full animate-pulse rounded bg-gray-200" />
-            <span v-if="missing_rates?.length" class="text-red-600">
-                {{ ctrans("No exchange rate for :organisations, their stock value is left out", { organisations: missing_rates.join(", ") }) }}
-            </span>
-        </div>
+    <div class="mx-4 mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-gray-500">
+        <span v-if="built_at">{{ ctrans("Figures as of :time, refreshed every 10 minutes.", { time: builtAt }) }}<template v-if="rateNotes"> · {{ rateNotes }}</template></span>
+        <span v-else class="h-3 w-80 max-w-full animate-pulse rounded bg-gray-200" />
+        <span v-if="missing_rates?.length" class="text-red-600">
+            {{ ctrans("No exchange rate for :organisations, their stock value is left out", { organisations: missing_rates.join(", ") }) }}
+        </span>
     </div>
 
-    <div v-if="!kpis" class="mx-4 mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <div v-for="index in 5" :key="index" class="animate-pulse rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div v-if="!kpis" class="mx-4 mt-2 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+        <div v-for="index in 6" :key="index" class="animate-pulse rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm">
             <div class="h-3 w-24 rounded bg-gray-200" />
-            <div class="mt-3 h-7 w-20 rounded bg-gray-200" />
-            <div class="mt-3 h-3 w-32 rounded bg-gray-100" />
+            <div class="mt-2 h-5 w-32 rounded bg-gray-200" />
         </div>
     </div>
-    <div v-else class="mx-4 mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
+    <div v-else class="mx-4 mt-2 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
         <div
             v-for="card in kpiCards"
             :key="card.label"
-            class="group rounded-lg border bg-white p-4 shadow-sm transition"
+            class="group rounded-lg border bg-white px-3 py-2 shadow-sm transition"
             :class="[
                 card.key ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[--app-accent]' : '',
                 card.key && filters.condition === card.key
@@ -524,22 +628,31 @@ function openDrawer(row: Row): void {
                 <FontAwesomeIcon :icon="['fal', card.icon]" fixed-width />
                 {{ card.label }}
             </div>
-            <div class="mt-1 text-2xl font-semibold tabular-nums" :class="card.class">{{ card.value }}</div>
-            <button
-                v-if="card.detailKey"
-                type="button"
-                class="relative mt-1 rounded text-xs transition-colors hover:text-[--app-accent] hover:underline"
-                :class="filters.condition === card.detailKey ? 'font-semibold text-[--app-accent]' : 'text-gray-500'"
-                @click.stop="toggleCondition(card.detailKey)"
-                @keydown.stop
-            >
-                {{ card.detail }}
-            </button>
-            <div v-else class="mt-1 text-xs text-gray-500">{{ card.detail }}</div>
+            <div class="flex flex-wrap items-baseline gap-x-2">
+                <span class="text-lg font-semibold tabular-nums" :class="card.class">{{ card.value }}</span>
+                <button
+                    v-if="card.detailKey"
+                    type="button"
+                    class="relative rounded text-xs transition-colors hover:text-[--app-accent] hover:underline"
+                    :class="filters.condition === card.detailKey ? 'font-semibold text-[--app-accent]' : 'text-gray-500'"
+                    @click.stop="toggleCondition(card.detailKey)"
+                    @keydown.stop
+                >
+                    {{ card.detail }}
+                </button>
+                <span v-else class="text-xs text-gray-500">{{ card.detail }}</span>
+            </div>
         </div>
     </div>
 
-    <div class="mx-4 mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+    <div class="mx-4 mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
+        <PillFilterBar
+            v-tooltip="ctrans('Bad feedback against how often the product is ordered: the share of orders in the last 12 months that ended with the customer refunded or sent a replacement. Bad from 2%, severe from 5%, disaster from 10%, with at least 3 customers. What staff reported by hand is shown beside it and has its own card above')"
+            :label="ctrans('Bad feedback')"
+            :options="feedbackOptions"
+            :selected="filters.feedback"
+            @select="selectFeedback"
+        />
         <Select
             v-model="filterState.family"
             :options="families ?? []"
@@ -617,7 +730,7 @@ function openDrawer(row: Row): void {
         </button>
     </div>
 
-    <div class="mx-4 mb-3 mt-6 flex flex-wrap items-center justify-between gap-2">
+    <div class="mx-4 mb-2 mt-3 flex flex-wrap items-center justify-between gap-2">
         <div class="text-sm font-semibold text-gray-900">{{ ctrans("All products") }} <span v-if="pagination" class="ml-1 font-normal text-gray-500">{{ quantity(pagination.total) }}</span></div>
         <div class="flex items-center gap-2">
             <Select
@@ -644,13 +757,7 @@ function openDrawer(row: Row): void {
         </div>
     </div>
 
-    <div v-if="!rows || !pagination || !organisations" class="mx-4 mb-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div class="flex gap-6 border-b border-gray-200 bg-gray-50 px-3 py-3">
-            <div class="h-3 w-40 animate-pulse rounded bg-gray-200" />
-            <div class="h-3 w-16 animate-pulse rounded bg-gray-200" />
-            <div class="h-3 flex-1 animate-pulse rounded bg-gray-200" />
-            <div class="h-3 w-24 animate-pulse rounded bg-gray-200" />
-        </div>
+    <div v-if="!rows || !organisations" class="mx-4 mb-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <div class="divide-y divide-gray-100">
             <div v-for="index in 12" :key="index" class="flex animate-pulse items-center gap-6 px-3 py-3">
                 <div class="h-3 w-40 rounded bg-gray-200" />
@@ -660,27 +767,8 @@ function openDrawer(row: Row): void {
             </div>
         </div>
     </div>
-    <div v-else class="relative isolate mx-4 mb-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-    <div ref="tableScroller" class="max-h-[80vh] overflow-auto transition-opacity" :class="{ 'opacity-60': loading }">
-        <div ref="pagerBar" class="sticky left-0 top-0 z-20 border-b border-gray-200 bg-white text-xs text-gray-600">
-            <div class="flex items-center justify-between gap-3 px-4 py-2">
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span>{{ ctrans(":total products", { total: quantity(pagination.total) }) }}</span>
-                    <span v-if="selectableRows.length && !selectedRows.length" class="text-gray-400">
-                        {{ ctrans("Tick products to change their status together") }}
-                    </span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" :class="pagerButtonClass" :disabled="loading || pagination.page <= 1" @click="load({}, pagination.page - 1)">
-                        {{ ctrans("Previous") }}
-                    </button>
-                    <span>{{ ctrans("Page :page of :pages", { page: pagination.page, pages: pagination.last_page }) }}</span>
-                    <button type="button" :class="pagerButtonClass" :disabled="loading || pagination.page >= pagination.last_page" @click="load({}, pagination.page + 1)">
-                        {{ ctrans("Next") }}
-                    </button>
-                </div>
-            </div>
-            <div v-if="selectedRows.length" class="border-t border-[--app-accent-muted] bg-[--app-accent-soft] px-4 py-2.5" role="region" :aria-label="ctrans('Change status of the selected products')">
+    <div v-else class="compact-table mb-8">
+            <div v-if="selectedRows.length" class="mx-4 mb-2 rounded-lg border border-[--app-accent-muted] bg-[--app-accent-soft] px-4 py-2.5 text-xs text-gray-600" role="region" :aria-label="ctrans('Change status of the selected products')">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-sm font-semibold text-gray-900">
@@ -729,117 +817,204 @@ function openDrawer(row: Row): void {
                     {{ bulkHint }}
                 </p>
             </div>
-        </div>
-        <table class="min-w-full text-xs">
-            <thead ref="tableHead" :style="{ top: pagerBarHeight + 'px' }" class="sticky z-10 border-b border-gray-200 bg-gray-50 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+        <Table
+            :key="tableKey"
+            :resource="rows"
+            :isCheckBox="selectableRows.length > 0"
+            :disabledCheckbox="(row: Row) => !row.action"
+            :isParentLoading="loading"
+            @onSelectRow="onSelectRow"
+        >
+            <template #cell(code)="{ item: row }">
+                <button type="button" class="group grid w-full max-w-[40rem] grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-2 text-left" :title="`${row.code} — ${row.name ?? ''}${row.family_code ? ' (' + row.family_code + ')' : ''}`" @click="openDrawer(row)">
+                    <span class="truncate font-medium text-gray-900 group-hover:underline">{{ row.code }}</span>
+                    <span class="truncate">{{ row.name }}</span>
+                </button>
+            </template>
+            <template #cell(sales)="{ item: row }">
+                <span class="flex cursor-help items-center justify-end gap-1 whitespace-nowrap tabular-nums" @mouseenter="showSales($event, row)" @mouseleave="salesPopover?.hide()">
+                    <span>{{ moneyInThousands(row.sales) }}</span>
+                    <span class="w-12 text-right text-xs" :class="row.trend === null ? '' : row.trend >= 0 ? 'text-green-600' : 'text-red-600'">
+                        <template v-if="row.trend !== null">{{ row.trend >= 0 ? "↑" : "↓" }}{{ Math.abs(row.trend) }}%</template>
+                    </span>
+                    <span class="ml-1 flex gap-0.5">
+                        <span v-for="organisation in organisations" :key="organisation.code" class="h-2 w-2 rounded-full" :class="salesDot(row.organisations[organisation.code])" />
+                    </span>
+                </span>
+            </template>
+            <template #cell(stock)="{ item: row }">
+                <span class="flex cursor-help items-center justify-end gap-2 whitespace-nowrap tabular-nums" @mouseenter="showStock($event, row)" @mouseleave="stockPopover?.hide()">
+                    <span>
+                        {{ quantity(Math.round(groupStock(row).available)) }}<span v-if="groupStock(row).inbound > 0" class="text-[11px] text-emerald-700">+{{ quantity(Math.round(groupStock(row).inbound)) }}</span>
+                    </span>
+                    <span class="flex gap-0.5">
+                        <span
+                            v-for="organisation in organisations"
+                            :key="organisation.code"
+                            class="h-2 w-2 rounded-full"
+                            :class="row.organisations[organisation.code] ? conditionDots[row.organisations[organisation.code].condition] : 'bg-transparent ring-1 ring-inset ring-gray-200'"
+                        />
+                    </span>
+                </span>
+            </template>
+            <template #cell(feedback)="{ item: row }">
+                <div v-if="row.feedback_level || row.suggestions > 0" class="grid w-fit grid-cols-[4rem_3.25rem_2rem_auto_2.75rem_5rem] items-center whitespace-nowrap text-left text-xs tabular-nums">
+                    <template v-if="row.feedback_level">
+                        <span class="rounded py-0.5 text-center text-[10px] font-semibold uppercase" :class="feedbackLevels[row.feedback_level].class">{{ feedbackLevels[row.feedback_level].label }}</span>
+                        <template v-if="row.complaints > 0">
+                            <span v-tooltip="complaintTooltip(row)" class="cursor-help text-right font-semibold text-gray-800">{{ row.complaint_rate !== null ? row.complaint_rate.toFixed(1) + "%" : "" }}</span>
+                            <span class="text-right text-gray-600">{{ quantity(row.complaint_customers) }}</span>
+                            <span class="text-gray-400">/</span>
+                            <span class="text-left text-gray-500">{{ quantity(row.orders) }}</span>
+                        </template>
+                        <span v-else v-tooltip="complaintTooltip(row)" class="col-span-4 cursor-help pl-2 text-gray-500">{{ ctrans(":count supplier claims", { count: quantity(row.supplier_claims) }) }}</span>
+                    </template>
+                    <span v-else class="col-span-5" />
+                    <button
+                        v-if="row.suggestions > 0"
+                        v-tooltip="suggestionSummary(row.suggestions, row.suggestion_people)"
+                        type="button"
+                        class="rounded py-0.5 text-center text-[10px] font-semibold uppercase"
+                        :class="row.suggestion_people >= SUGGESTION_PEOPLE_TO_ACT ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'"
+                        @click="showSuggestions($event, row)"
+                    >
+                        <FontAwesomeIcon :icon="['fal', 'thumbs-down']" fixed-width aria-hidden="true" />
+                        {{ row.suggestion_people === 1 ? ctrans("1 vote") : ctrans(":count votes", { count: quantity(row.suggestion_people) }) }}
+                    </button>
+                </div>
+                <div v-else class="text-left text-gray-300">—</div>
+            </template>
+            <template #cell(state)="{ item: row }">
+                        <div class="flex items-center gap-1.5">
+                    <FontAwesomeIcon
+                        v-tooltip="statuses[row.state]?.label ?? row.state"
+                        :icon="stateIcons[row.state]?.icon ?? ['fas', 'exclamation-circle']"
+                        :class="stateIcons[row.state]?.class ?? 'text-red-500'"
+                        class="text-base"
+                        fixed-width
+                        :aria-label="statuses[row.state]?.label ?? row.state"
+                    />
+                    <template v-if="row.action">
+                        <Select
+                            v-model="newStates[row.id]"
+                            :options="rowStatusOptions(row)"
+                            optionLabel="label"
+                            optionValue="value"
+                            optionDisabled="disabled"
+                            size="small"
+                            class="w-36 text-xs"
+                            :class="fieldClass"
+                            :pt="rowSelectPt"
+                            :placeholder="ctrans('Select new')"
+                            :aria-label="ctrans('Select new status')"
+                        >
+                            <template #option="{ option }">
+                                <span class="flex w-full items-center justify-between gap-2 text-xs">
+                                    {{ option.label }}
+                                    <span v-if="option.disabled" class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-400">{{ ctrans("current") }}</span>
+                                </span>
+                            </template>
+                        </Select>
+                        <button
+                            type="button"
+                            class="rounded-md bg-[--app-accent] px-2.5 py-1 font-semibold text-[--app-accent-text] shadow-sm transition-colors enabled:hover:bg-[--app-accent-strong] disabled:cursor-not-allowed disabled:opacity-40"
+                            :disabled="!newStates[row.id] || newStates[row.id] === row.state"
+                            :aria-label="ctrans('Set')"
+                            @click="openSet(row)"
+                        >
+                            {{ ctrans("Set") }}
+                        </button>
+                    </template>
+                </div>
+            </template>
+        </Table>
+    </div>
+
+    <Popover ref="salesPopover" class="pointer-events-none">
+        <table v-if="salesRow" class="text-xs tabular-nums text-gray-700">
+            <caption class="pb-1 text-left text-sm font-semibold text-gray-900">{{ salesRow.code }} · {{ periodLabels[period] }}</caption>
+            <thead class="text-left text-[10px] uppercase tracking-wide text-gray-400">
                 <tr>
-                    <th v-if="selectableRows.length" class="w-8 p-0">
-                        <label v-tooltip="allSelected ? ctrans('Clear selection') : ctrans('Select every product on this page')" class="flex cursor-pointer items-center py-2.5 pl-3 pr-1">
-                            <Checkbox v-model="allSelected" binary size="small" :class="checkboxClass" :aria-label="ctrans('Select all products on this page')" />
-                        </label>
-                    </th>
-                    <th class="px-3 py-2.5">
-                        <button type="button" class="uppercase tracking-wide transition-colors hover:text-[--app-accent]" @click="toggleSort('code')">{{ ctrans("Code — description") }} {{ sortArrow("code") }}</button>
-                    </th>
-                    <th class="px-3 py-2.5 text-right">
-                        <button type="button" class="uppercase tracking-wide transition-colors hover:text-[--app-accent]" @click="toggleSort('sales')">{{ ctrans("Sales") }} {{ sortArrow("sales") }}</button>
-                    </th>
-                    <th v-for="organisation in organisations" :key="organisation.code" class="px-3 py-2.5" :title="organisation.name">
-                        {{ organisation.code }}
-                    </th>
-                    <th class="px-3 py-2.5 text-right">
-                        <button type="button" class="uppercase tracking-wide transition-colors hover:text-[--app-accent]" @click="toggleSort('cover')">{{ ctrans("Cover") }} {{ sortArrow("cover") }}</button>
-                    </th>
-                    <th class="px-3 py-2.5">{{ ctrans("Group product status") }}</th>
+                    <th class="pr-4 font-medium">{{ ctrans("Organisation") }}</th>
+                    <th class="pr-4 text-right font-medium">{{ ctrans("Sales") }}</th>
+                    <th class="text-right font-medium">{{ ctrans("vs period before") }}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 text-gray-700">
-                <tr v-for="row in rows" :key="row.id" class="transition-colors hover:bg-[--app-accent-soft]" :class="{ 'bg-[--app-accent-soft]': selectedIds.includes(row.id) }">
-                    <td v-if="selectableRows.length" class="w-8 p-0">
-                        <label v-if="row.action" class="flex cursor-pointer items-center py-2 pl-3 pr-1">
-                            <Checkbox v-model="selectedIds" :value="row.id" size="small" :class="checkboxClass" :aria-label="ctrans('Select :code', { code: row.code })" />
-                        </label>
+            <tbody>
+                <tr v-for="organisation in organisations" :key="organisation.code">
+                    <td class="py-0.5 pr-4" :title="organisation.name">
+                        <span class="mr-1 inline-block h-2 w-2 rounded-full" :class="salesDot(salesRow.organisations[organisation.code])" />{{ organisation.code }}
                     </td>
-                    <td class="max-w-[220px] truncate px-3 py-2" :title="`${row.code} — ${row.name ?? ''}${row.family_code ? ' (' + row.family_code + ')' : ''}`">
-                        <button type="button" class="group block w-full truncate text-left" @click="openDrawer(row)">
-                            <span class="font-medium text-gray-900 group-hover:text-[--app-accent] group-hover:underline">{{ row.code }}</span>
-                            <span> — {{ row.name }}</span>
-                        </button>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums">
-                        {{ money(row.sales) }}
-                        <span v-if="row.trend !== null" class="ml-1" :class="row.trend >= 0 ? 'text-green-600' : 'text-red-600'">
-                            {{ row.trend >= 0 ? "↑" : "↓" }}{{ Math.abs(row.trend) }}%
-                        </span>
-                    </td>
-                    <td v-for="organisation in organisations" :key="organisation.code" class="whitespace-nowrap px-3 py-2 tabular-nums">
-                        <template v-if="row.organisations[organisation.code]">
-                            {{ cellLabel(row.organisations[organisation.code]) }}
-                            <span
-                                v-tooltip="cellTooltip(row.organisations[organisation.code])"
-                                class="ml-1 rounded px-1.5 py-0.5 font-semibold"
-                                :class="conditions[row.organisations[organisation.code].condition].class"
-                            >
-                                {{ conditions[row.organisations[organisation.code].condition].label }}
-                            </span>
-                        </template>
-                        <span v-else class="text-gray-300">—</span>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-2 text-right tabular-nums">
-                        <span v-if="row.cover_weeks !== null">{{ row.cover_weeks }}{{ ctrans("w") }}</span>
-                        <span v-else v-tooltip="ctrans('No sales to measure cover')" class="text-gray-400">{{ ctrans("no sales") }}</span>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-2">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-16 rounded px-1.5 py-0.5 text-center font-semibold" :class="statuses[row.state]?.class">
-                                {{ statuses[row.state]?.pill ?? row.state }}
-                            </span>
-                            <template v-if="row.action">
-                                <Select
-                                    v-model="newStates[row.id]"
-                                    :options="rowStatusOptions(row)"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    optionDisabled="disabled"
-                                    size="small"
-                                    class="w-36 text-xs"
-                                    :class="fieldClass"
-                                    :pt="rowSelectPt"
-                                    :placeholder="ctrans('Select new')"
-                                    :aria-label="ctrans('Select new status')"
-                                >
-                                    <template #option="{ option }">
-                                        <span class="flex w-full items-center justify-between gap-2 text-xs">
-                                            {{ option.label }}
-                                            <span v-if="option.disabled" class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-gray-400">{{ ctrans("current") }}</span>
-                                        </span>
-                                    </template>
-                                </Select>
-                                <button
-                                    type="button"
-                                    class="rounded-md bg-[--app-accent] px-2.5 py-1 font-semibold text-[--app-accent-text] shadow-sm transition-colors enabled:hover:bg-[--app-accent-strong] disabled:cursor-not-allowed disabled:opacity-40"
-                                    :disabled="!newStates[row.id] || newStates[row.id] === row.state"
-                                    :aria-label="ctrans('Set')"
-                                    @click="openSet(row)"
-                                >
-                                    {{ ctrans("Set") }}
-                                </button>
+                    <template v-if="salesRow.organisations[organisation.code]">
+                        <td class="pr-4 text-right">{{ money(salesRow.organisations[organisation.code].sales ?? 0) }}</td>
+                        <td class="text-right" :class="(salesRow.organisations[organisation.code].trend ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'">
+                            <template v-if="salesRow.organisations[organisation.code].trend != null">
+                                {{ (salesRow.organisations[organisation.code].trend as number) >= 0 ? "↑" : "↓" }}{{ Math.abs(salesRow.organisations[organisation.code].trend as number) }}%
                             </template>
-                        </div>
-                    </td>
-                </tr>
-                <tr v-if="!rows.length">
-                    <td :colspan="organisations.length + 4 + (selectableRows.length ? 1 : 0)" class="py-12 text-center text-sm text-gray-500">{{ ctrans("No products match these filters.") }}</td>
+                        </td>
+                    </template>
+                    <td v-else colspan="2" class="text-gray-300">{{ ctrans("Not stocked") }}</td>
                 </tr>
             </tbody>
         </table>
-    </div>
-    <div class="pointer-events-none absolute inset-x-0 bottom-0" :style="{ top: pagerBarHeight + tableHeadHeight + 'px' }">
-        <ScrollFadeArrow direction="up" :visible="canScrollUp" @click="scrollVerticallyBy(-1)" />
-        <ScrollFadeArrow direction="down" :visible="canScrollDown" @click="scrollVerticallyBy(1)" />
-    </div>
-    </div>
-
+    </Popover>
+    <Popover ref="stockPopover" class="pointer-events-none">
+        <table v-if="stockRow" class="text-xs tabular-nums text-gray-700">
+            <caption class="pb-1 text-left text-sm font-semibold text-gray-900">{{ stockRow.code }}</caption>
+            <thead class="text-left text-[10px] uppercase tracking-wide text-gray-400">
+                <tr>
+                    <th class="pr-4 font-medium">{{ ctrans("Organisation") }}</th>
+                    <th class="pr-4 text-right font-medium">{{ ctrans("Available") }}</th>
+                    <th class="pr-4 text-right font-medium">{{ ctrans("On the way") }}</th>
+                    <th class="font-medium">{{ ctrans("Cover") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="organisation in organisations" :key="organisation.code">
+                    <td class="pr-4 py-0.5" :title="organisation.name">{{ organisation.code }}</td>
+                    <template v-if="stockRow.organisations[organisation.code]">
+                        <td class="pr-4 text-right">{{ quantity(Math.round(stockRow.organisations[organisation.code].available)) }}</td>
+                        <td class="pr-4 text-right text-emerald-700">
+                            <template v-if="stockRow.organisations[organisation.code].inbound > 0">
+                                +{{ quantity(Math.round(stockRow.organisations[organisation.code].inbound)) }}
+                                <span v-if="stockRow.organisations[organisation.code].next_expected_at" class="text-gray-400">{{ shortDate(stockRow.organisations[organisation.code].next_expected_at as string) }}</span>
+                            </template>
+                        </td>
+                        <td>
+                            <span class="inline-block w-14 rounded py-0.5 text-center text-[10px] font-semibold" :class="conditions[stockRow.organisations[organisation.code].condition].class">
+                                {{ cellTag(stockRow.organisations[organisation.code]) }}
+                            </span>
+                        </td>
+                    </template>
+                    <td v-else colspan="3" class="text-gray-300">{{ ctrans("Not stocked") }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </Popover>
+    <Popover ref="suggestionPopover">
+        <div v-if="suggestionRow?.suggestion_evidence" class="w-96 max-w-[calc(100vw-3rem)] text-xs text-gray-700">
+            <div class="text-sm font-semibold text-gray-900">{{ suggestionRow.code }}</div>
+            <div class="text-gray-500">{{ suggestionSummary(suggestionRow.suggestions, suggestionRow.suggestion_people) }}</div>
+            <div class="mt-1 text-gray-500">
+                <span v-for="(source, index) in suggestionRow.suggestion_evidence.sources" :key="source.label">{{ index ? " · " : "" }}{{ source.label }} {{ quantity(source.times) }}</span>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+                <span v-for="reason in suggestionRow.suggestion_evidence.reasons" :key="reason.label" class="rounded bg-gray-100 px-1.5 py-0.5 font-medium">
+                    {{ reason.label }} <span class="tabular-nums text-gray-500">{{ quantity(reason.times) }}</span>
+                </span>
+            </div>
+            <div class="mt-2 max-h-72 divide-y divide-gray-100 overflow-y-auto border-t border-gray-100">
+                <div v-for="(note, index) in suggestionRow.suggestion_evidence.notes" :key="index" class="py-1.5">
+                    <div class="flex items-baseline justify-between gap-2 text-gray-500">
+                        <span><span class="font-medium text-gray-800">{{ note.user ?? ctrans("Unknown") }}</span> · {{ note.source }} · {{ note.organisation }}</span>
+                        <span class="shrink-0">{{ useFormatTime(note.date) }}</span>
+                    </div>
+                    <div class="text-gray-500">{{ note.reasons.join(", ") }}</div>
+                    <div class="whitespace-pre-line text-gray-800">{{ note.note }}</div>
+                </div>
+            </div>
+        </div>
+    </Popover>
     <OrgStockDiscontinuePreviewModal
         v-if="modal"
         :isOpen="!!modal"
@@ -898,3 +1073,24 @@ function openDrawer(row: Row): void {
         </template>
     </ProductDetailDrawer>
 </template>
+
+<style scoped>
+.compact-table :deep(tbody td) {
+    padding: 0.35rem 1rem !important;
+}
+
+.compact-table :deep(thead th) {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.compact-table :deep(tbody td:first-child:has(> svg)),
+.compact-table :deep(thead th:first-child:has(svg)) {
+    width: 1.75rem;
+    padding: 0 0 0 0.4rem !important;
+}
+
+.compact-table :deep(tbody td:first-child > svg) {
+    padding: 0;
+}
+</style>

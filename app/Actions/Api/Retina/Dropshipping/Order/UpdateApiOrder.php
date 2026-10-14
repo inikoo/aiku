@@ -11,10 +11,17 @@ namespace App\Actions\Api\Retina\Dropshipping\Order;
 
 use App\Actions\Api\Retina\Dropshipping\Resource\OrderApiResource;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Actions\Ordering\Order\UpdateOrderExtraPacking;
+use App\Actions\Ordering\Order\UpdateOrderGiftMessage;
+use App\Actions\Ordering\Order\UpdateOrderInsurance;
+use App\Actions\Ordering\Order\UpdateOrderPremiumDispatch;
 use App\Actions\RetinaApiAction;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -38,15 +45,48 @@ class UpdateApiOrder extends RetinaApiAction
             ], 409);
         }
 
-        $order = UpdateOrder::make()->action($order, $modelData);
+        $checkoutOptions = [
+            'is_premium_dispatch' => [ChargeTypeEnum::PREMIUM, UpdateOrderPremiumDispatch::class],
+            'has_extra_packing'   => [ChargeTypeEnum::PACKING, UpdateOrderExtraPacking::class],
+            'has_insurance'       => [ChargeTypeEnum::INSURANCE, UpdateOrderInsurance::class],
+            'has_gift_message'    => [ChargeTypeEnum::GIFT_MESSAGE, UpdateOrderGiftMessage::class],
+        ];
 
-        return $order;
+        $requestedOptions = Arr::only($modelData, array_keys($checkoutOptions));
+
+        $optionsToCheck = $requestedOptions;
+        if (filled(Arr::get($modelData, 'gift_message'))) {
+            $optionsToCheck['has_gift_message'] = true;
+        }
+
+        foreach ($optionsToCheck as $option => $isRequested) {
+            [$chargeType] = $checkoutOptions[$option];
+            if ($isRequested && !$order->shop->charges()->where('type', $chargeType)->where('state', ChargeStateEnum::ACTIVE)->exists()) {
+                return response()->json([
+                    'message' => "The option '$option' is not available in this shop."
+                ], 422);
+            }
+        }
+
+        foreach ($requestedOptions as $option => $isRequested) {
+            [, $updateOptionAction] = $checkoutOptions[$option];
+            $updateOptionAction::make()->action($order, [$option => (bool)$isRequested]);
+        }
+
+        return UpdateOrder::make()->action($order->refresh(), Arr::except($modelData, array_keys($checkoutOptions)));
     }
 
     public function rules(): array
     {
         return [
-            'public_notes'        => ['required', 'nullable', 'string', 'max:4000'],
+            'public_notes'        => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'shipping_notes'      => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'gift_message'        => ['sometimes', 'nullable', 'string', 'max:500'],
+            'is_premium_dispatch' => ['sometimes', 'boolean'],
+            'has_extra_packing'   => ['sometimes', 'boolean'],
+            'has_insurance'       => ['sometimes', 'boolean'],
+            'has_gift_message'    => ['sometimes', 'boolean'],
         ];
     }
 

@@ -88,6 +88,16 @@ Sometimes one batch serves more than one job. For example, 100 HCS-48 loaves and
 
 Making more than all the lines asked for needs a manager's badge or PIN, as above; the extra is shared between the lines too. A manager can **Separate** the lines again whenever nobody is working on them. What was already made together stays with each line.
 
+## Mixing and other steps weighed in kg
+
+Mixing is a step of its own at the start of the recipe, and it is counted in kg, not in pieces. The screen shows **kg** beside the numbers and the box is called **Kg made**: for a 50 kg mix type 50. Under the box the screen shows what that makes, *50 kg of mix = 500 × ABB-06a*. A mix that comes out a little over what the job asked for is accepted as it is, with no manager.
+
+Only the artisans named on the step see it and can start it; it is not on anybody else's list. It is paid by the hour at the base rate: no target, no pay tier and no under-target note, and the time still counts in the cost of the product.
+
+The next step stays locked with **Waiting for** and the name of the mixing step until some mix has been recorded, and opens as soon as the first mix is entered. One mix for several lines works as in the section above: a manager combines the mixing lines, the mixer types the kg once, and each line gets its share.
+
+**Setting it up (managers).** On the page of the manufacture task, **Only these artisans can do it** lists who may do it; add or remove people there. Its edit form has **Paid by piece rate** (off for hourly work) and **Recorded in kg**. The kg of mix one unit takes goes on the recipe step of each product.
+
 ## Things worth knowing
 
 - **One job at a time.** While you have a job open the START buttons are disabled. Close it first.

@@ -157,7 +157,7 @@ class DownloadAttachment
     private function isLeaveApprover(User $user, int $organisationId): bool
     {
         return LeaveApprover::where('organisation_id', $organisationId)
-            ->where('user_id', $user->id)
+            ->where('user_id', $user->permissionsHolder()->id)
             ->where('is_active', true)
             ->exists();
     }

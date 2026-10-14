@@ -1,8 +1,8 @@
 ---
 title: Imprimir etiquetas de SKO y de unidad
 summary: Imprime la etiqueta que va en el producto y la que va en la caja, desde la página del SKO o desde una línea de un albarán, en el rollo que ya compras o 27 por hoja A4.
-date: 2026-09-23
-source_date: 2026-09-23
+date: 2026-10-13
+source_date: 2026-10-13
 tags: warehouse, inventory, labels, barcodes, printing
 category: warehouse
 ---
@@ -11,7 +11,34 @@ category: warehouse
 Un SKO puede imprimir <b>dos etiquetas distintas</b>. La <b>etiqueta de unidad</b> (unit label) va en el producto que acaba en manos del cliente, así que lleva el origen, el fabricante, el peso y la dirección de tu empresa, y se construye alrededor del EAN13 de unidad. La <b>etiqueta de SKO</b> (SKO label) va en la caja exterior, así que dice qué es la caja y cuántas unidades hay dentro, en un tamaño que se lee desde unos metros de distancia en el pasillo. Abre cualquiera de las dos desde la página del SKO o desde una línea de un albarán, marca lo que quieras que aparezca, elige el tamaño de etiqueta e imprime una o una hoja de 27.
 </aside>
 
-## Las dos etiquetas
+## La etiqueta unificada
+
+El panel de etiquetas se abre en **Unified**: una única etiqueta de unidad, de SKO y de caja (carton) que es igual en todos los centros, de modo que el stock se mueve entre el Reino Unido, España y Eslovaquia sin tener que reetiquetarlo. El selector **Unified / Localised** de la parte superior del panel te lleva de vuelta a las etiquetas descritas en el resto de esta página, para los pocos casos que necesitan una etiqueta de una sola organización.
+
+| | Unidad | SKO | Caja (carton) |
+| --- | --- | --- | --- |
+| Tamaño | 100 × 60 mm | 100 × 50 mm | 100 × 70 mm |
+| Código de barras | el EAN-13 de unidad | GS1-128 (el estándar de códigos logísticos) con un GTIN-14 que empieza por 1, y después el lote | GS1-128 con un GTIN-14 que empieza por 2, y después el lote |
+| Se imprime | siempre | solo cuando el SKO contiene más de una unidad | siempre |
+
+Las tres se imprimen una etiqueta por página en un rollo de 100 mm de ancho. No hay nada que marcar: la etiqueta de unidad lleva el nombre en todos los idiomas en los que la trade unit lo tiene, el país de origen, el material, el lote, las advertencias y los tres importadores; la etiqueta de SKO indica cuántas unidades hay en el paquete; la etiqueta de caja añade unidades por paquete, paquetes y unidades por caja, pesos, origen y código HS (código arancelario).
+
+El paquete y la caja reciben un número propio, calculado a partir del EAN-13 de unidad, de modo que un paquete ya no se escanea como si fuera una unidad. La página del escáner de códigos de barras lee estos códigos nuevos y sigue leyendo los números que ya hay en las estanterías.
+
+**El código de lote es lo único que escribes.** Se propone como el código del proveedor y el mes (por ejemplo `PKS202610`) y admite hasta 20 caracteres: de la A a la Z, del 0 al 9 y guion.
+
+**Una etiqueta unificada a la que le falta algo no se imprime.** El panel enumera lo que falta y el botón PDF permanece apagado hasta que se corrige el registro:
+
+- la unidad no tiene un EAN-13 válido;
+- falta el nombre en español o en eslovaco en la trade unit;
+- falta el país de origen;
+- el producto tiene advertencias, pero ninguna en inglés, español o eslovaco;
+- la etiqueta de caja necesita las unidades por caja del producto del proveedor;
+- los textos no caben en la etiqueta.
+
+El peso de la caja solo se imprime cuando el producto del proveedor tiene tanto el peso neto como el bruto y el neto no supera al bruto.
+
+## Las dos etiquetas localizadas
 
 No son la misma etiqueta en dos tamaños. Son para dos lectores distintos.
 

@@ -6,6 +6,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { usePurchaseOrderStockCover } from "@/Composables/usePurchaseOrderStockCover"
+import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
 
 interface QuarterUsage {
 	period: string
@@ -91,6 +92,13 @@ const verdict = computed(() => {
 					class: "text-red-600",
 					tooltip: ctrans("Stock lasts :time, less than the :lead lead time. Order now or it will run out before a new order arrives", times),
 				}
+	}
+	if (days > overstockDays.value && thisOrder.value > 0 && suggestion.value !== null && suggestion.value > 0 && thisOrder.value <= suggestion.value) {
+		return {
+			label: ctrans("OK"),
+			class: "text-green-600",
+			tooltip: ctrans("With this order the stock lasts :time, past the :overstock overstock limit, but this is the fewest whole cartons that cover the need. The quantity is right", times),
+		}
 	}
 	if (days > overstockDays.value) {
 		return thisOrder.value > 0
@@ -478,5 +486,7 @@ function purchaseOrderRoute(slug: string) {
 				</div>
 			</div>
 		</div>
+
+		<DiscontinueSuggestion v-if="!isPartner && item.org_stock_id && item.discontinue_suggestions" :orgStockId="item.org_stock_id" :code="item.code" :tally="item.discontinue_suggestions" source="buying" />
 	</div>
 </template>
