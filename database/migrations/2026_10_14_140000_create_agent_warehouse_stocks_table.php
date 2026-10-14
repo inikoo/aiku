@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups');
             $table->unsignedSmallInteger('agent_id')->index();
             $table->foreign('agent_id')->references('id')->on('agents');
+            $table->unsignedSmallInteger('organisation_id')->index();
+            $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedInteger('purchase_order_id')->nullable()->index();

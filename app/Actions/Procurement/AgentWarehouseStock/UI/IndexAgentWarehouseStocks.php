@@ -20,6 +20,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -45,6 +46,7 @@ class IndexAgentWarehouseStocks extends OrgAction
 
         $query = QueryBuilder::for(AgentWarehouseStock::class)
             ->where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
             ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')
             ->leftJoin('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
             ->leftJoin('purchase_orders', 'purchase_orders.id', 'agent_warehouse_stocks.purchase_order_id');
@@ -64,23 +66,29 @@ class IndexAgentWarehouseStocks extends OrgAction
                 'supplier_products.code',
                 'supplier_products.name',
                 'suppliers.code as supplier_code',
+                DB::raw('(select slug from org_supplier_products where supplier_product_id = agent_warehouse_stocks.supplier_product_id and organisation_id = agent_warehouse_stocks.organisation_id order by id limit 1) as org_supplier_product_slug'),
+                DB::raw('(select slug from org_suppliers where supplier_id = supplier_products.supplier_id and organisation_id = agent_warehouse_stocks.organisation_id order by id limit 1) as org_supplier_slug'),
+                'organisations.code as organisation_code',
                 'purchase_orders.reference as purchase_order_reference',
                 'purchase_orders.slug as purchase_order_slug',
             ])
             ->defaultSort('code')
-            ->allowedSorts(['code', 'name', 'supplier_code', 'quantity', 'state'])
+            ->allowedSorts(['code', 'name', 'supplier_code', 'organisation_code', 'quantity', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator(null, tableName: request()->route()?->getName())
             ->withQueryString()
             ->through(fn (AgentWarehouseStock $stock) => [
                 'id'                       => $stock->id,
                 'state'                    => $stock->state->value,
-                'state_label'              => $stock->state->label(),
+                'state_icon'               => $stock->state->icon(),
                 'quantity'                 => (float) $stock->quantity,
                 'notes'                    => $stock->notes,
                 'code'                     => $stock->code,
                 'name'                     => $stock->name,
                 'supplier_code'            => $stock->supplier_code,
+                'org_supplier_product_slug' => $stock->org_supplier_product_slug,
+                'org_supplier_slug'        => $stock->org_supplier_slug,
+                'organisation_code'        => $stock->organisation_code,
                 'purchase_order_reference' => $stock->purchase_order_reference,
                 'purchase_order_slug'      => $stock->purchase_order_slug,
             ]);
@@ -100,12 +108,13 @@ class IndexAgentWarehouseStocks extends OrgAction
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('Nothing in the warehouse')])
+                ->column(key: 'organisation_code', label: __('For'), canBeHidden: false, sortable: true)
                 ->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true)
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)
                 ->column(key: 'purchase_order_reference', label: __('Purchase order'), canBeHidden: false)
-                ->column(key: 'quantity', label: __('Quantity'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'quantity', label: __('Units'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'notes', label: __('Notes'));
         };
     }

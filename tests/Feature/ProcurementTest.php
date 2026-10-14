@@ -707,14 +707,15 @@ test('agent manager only sees their own agent organisation', function () {
     \App\Models\Procurement\AgentWarehouseStock::create([
         'group_id'            => $this->agent->group_id,
         'agent_id'            => $this->agent->id,
+        'organisation_id'     => $this->organisation->id,
         'supplier_product_id' => $warehouseSupplierProduct->id,
-        'state'               => \App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum::PACKED,
+        'state'               => \App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum::PACKED_FOR_NEXT_CONTAINER,
         'quantity'            => 12,
     ]);
-    $this->get(route('grp.org.agent.warehouse.index', [$organisation->slug, 'elements' => ['state' => 'packed']]))
+    $this->get(route('grp.org.agent.warehouse.index', [$organisation->slug, 'elements' => ['state' => 'packed_for_next_container']]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentWarehouseStocks')
-            ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed')));
+            ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed_for_next_container')));
     $this->get(route('grp.org.agent.warehouse.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.products.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
