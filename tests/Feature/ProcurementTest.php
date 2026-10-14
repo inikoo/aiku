@@ -671,9 +671,31 @@ test('agent manager only sees their own agent organisation', function () {
                 ->has('sales.organisations', OrgAgent::where('agent_id', $this->agent->id)->count())
                 ->has('sales.organisations.0.problems.out')
                 ->has('sales.top_sellers')
+                ->has('feedback.customers.reviews')
+                ->has('feedback.customers.recent')
+                ->has('feedback.purchasing')
+                ->has('feedback.warehouse.lines')
                 ->has('sales.out.rows')
                 ->where('sales.organisations.0.sold', fn ($sold) => $sold >= 0)));
     $this->get(route('grp.org.agent.sales.dashboard', $this->organisation->slug))->assertForbidden();
+    $this->get(route('grp.org.agent.sales.suppliers.index', $organisation->slug))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesSuppliers')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+    $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'elements' => ['problem' => 'out']]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesProducts')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+    $salesSupplier = Supplier::where('agent_id', $this->agent->id)->firstOrFail();
+    $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $salesSupplier->slug]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Org/Procurement/AgentSales')
+            ->where('supplier.code', $salesSupplier->code)
+            ->loadDeferredProps(fn ($reload) => $reload->has('sales.organisations')->has('feedback.warehouse.worst')));
+    $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'supplier' => $salesSupplier->id]))->assertOk();
+    $foreignSupplier = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $foreignSupplier->slug]))->assertNotFound();
+    $this->get(route('grp.org.agent.sales.suppliers.index', $this->organisation->slug))->assertForbidden();
+    $this->get(route('grp.org.agent.sales.products.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
         ->assertInertia(fn ($page) => $page->where('data.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));
 

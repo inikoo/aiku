@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Deferred, Head } from "@inertiajs/vue3"
+import { Deferred, Head, Link } from "@inertiajs/vue3"
 import { computed, inject, ref } from "vue"
 import Chart from "primevue/chart"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
@@ -35,6 +36,23 @@ interface Ranking {
 	rows: ProductRow[]
 }
 
+interface Feedback {
+	customers: {
+		rating: number | null
+		reviews: number
+		refund_percent: number | null
+		faults: number
+		recent: { code: string; rating: number; message: string; date: string }[]
+	}
+	purchasing: { title: string; body: string | null; severity: "info" | "warning" | "critical"; category: string; date: string }[]
+	warehouse: {
+		short_percent: number | null
+		short_lines: number
+		lines: number
+		worst: { code: string; name: string; short_lines: number; lines: number }[]
+	}
+}
+
 interface Sales {
 	currency: string
 	from: string
@@ -51,7 +69,10 @@ interface Sales {
 const props = defineProps<{
 	title: string
 	pageHead: PageHeadingTypes
+	supplier?: { code: string; name: string } | null
+	links: Record<"all" | Problem, string>
 	sales?: Sales
+	feedback?: Feedback
 }>()
 
 const locale = inject("locale", aikuLocaleStructure)
@@ -68,6 +89,13 @@ const money = (amount: number) =>
 const shortMoney = (amount: number) =>
 	new Intl.NumberFormat(undefined, { style: "currency", currency: props.sales?.currency ?? "GBP", notation: "compact", maximumFractionDigits: 1 }).format(amount)
 const monthName = (month: number) => new Date(props.sales?.year ?? 2000, month - 1, 1).toLocaleDateString(undefined, { month: "short" })
+const severityClass: Record<string, string> = {
+	info: "bg-gray-100 text-gray-600",
+	warning: "bg-amber-100 text-amber-700",
+	critical: "bg-red-100 text-red-700",
+}
+const stars = (rating: number) => "★".repeat(rating) + "☆".repeat(5 - rating)
+const percent = (value: number | null) => (value === null ? "—" : `${value.toFixed(1)}%`)
 const signed = (percent: number) => `${percent > 0 ? "+" : ""}${percent.toFixed(1)}%`
 
 const selected = ref("all")
@@ -240,7 +268,7 @@ const rankings = computed(() =>
 	props.sales
 		? [
 				{
-					key: "top",
+				key: "top",
 					title: ctrans("Best sellers"),
 					hint: ctrans("Goods sold in the last 12 months at cost, every organisation together"),
 					empty: ctrans("Nothing sold in the period"),
@@ -425,8 +453,11 @@ const rankings = computed(() =>
 								{{ ranking.title }}
 								<span v-if="ranking.count !== null" class="ml-1 tabular-nums" :class="ranking.tone">{{ locale.number(ranking.count) }}</span>
 							</h2>
-							<span v-if="ranking.count !== null && ranking.count > ranking.rows.length" class="text-xs text-gray-400">
-								{{ ctrans("first :shown shown", { shown: ranking.rows.length }) }}
+							<span class="flex items-baseline gap-3 text-xs">
+								<span v-if="ranking.count !== null && ranking.count > ranking.rows.length" class="text-gray-400">
+									{{ ctrans("first :shown shown", { shown: ranking.rows.length }) }}
+								</span>
+								<Link :href="links[ranking.key === 'top' ? 'all' : ranking.key]" class="text-gray-500 hover:text-gray-700">{{ ctrans("See all") }}</Link>
 							</span>
 						</div>
 						<p class="mt-0.5 text-xs text-gray-500">{{ ranking.hint }}</p>
@@ -456,7 +487,77 @@ const rankings = computed(() =>
 						</ul>
 					</section>
 				</div>
+
+				<Link v-if="supplier" :href="links.all" class="inline-block">
+					<Button type="tertiary" icon="fal fa-box-usd" :label="ctrans('All products of this supplier')" />
+				</Link>
 			</div>
+		</Deferred>
+
+		<Deferred data="feedback">
+			<template #fallback>
+		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+			<div v-for="card in 3" :key="card" class="h-64 animate-pulse rounded-lg bg-gray-100" />
+		</div>
+			</template>
+
+			<section v-if="feedback" class="space-y-2">
+		<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Feedback") }}</h2>
+		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+				<h3 class="text-sm font-semibold text-gray-700">{{ ctrans("Customers") }}</h3>
+				<dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs tabular-nums">
+					<dt class="text-gray-500">{{ ctrans("Rating") }}</dt>
+					<dd class="text-right text-gray-800">{{ feedback.customers.rating === null ? "—" : feedback.customers.rating.toFixed(2) }} <span class="text-gray-400">({{ locale.number(feedback.customers.reviews) }})</span></dd>
+					<dt class="text-gray-500">{{ ctrans("Refunds %") }}</dt>
+					<dd class="text-right text-gray-800">{{ percent(feedback.customers.refund_percent) }}</dd>
+					<dt class="text-gray-500">{{ ctrans("Supplier faults, 12 months") }}</dt>
+					<dd class="text-right" :class="feedback.customers.faults ? 'text-amber-600' : 'text-gray-800'">{{ locale.number(feedback.customers.faults) }}</dd>
+				</dl>
+				<p v-if="!feedback.customers.recent.length" class="py-4 text-center text-xs text-gray-400">{{ ctrans("No public reviews yet") }}</p>
+				<ul v-else class="mt-3 divide-y divide-gray-100 text-xs">
+					<li v-for="(review, index) in feedback.customers.recent" :key="index" class="py-1.5">
+						<div class="flex items-baseline justify-between gap-2 text-gray-500">
+							<span><span class="text-amber-500">{{ stars(review.rating) }}</span> <span class="font-medium text-gray-700">{{ review.code }}</span></span>
+							<span class="tabular-nums text-gray-400">{{ useFormatTime(review.date) }}</span>
+						</div>
+						<p class="mt-0.5 line-clamp-3 text-gray-700">{{ review.message }}</p>
+					</li>
+				</ul>
+			</div>
+
+			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+				<h3 class="text-sm font-semibold text-gray-700">{{ ctrans("Purchasing") }}</h3>
+				<p class="mt-0.5 text-xs text-gray-500">{{ ctrans("Notes purchasing shared with the agent") }}</p>
+				<p v-if="!feedback.purchasing.length" class="py-6 text-center text-xs text-gray-400">{{ ctrans("Purchasing has not shared any notes with you") }}</p>
+				<ul v-else class="mt-3 divide-y divide-gray-100 text-xs">
+					<li v-for="(note, index) in feedback.purchasing" :key="index" class="py-1.5">
+						<div class="flex items-baseline justify-between gap-2">
+							<span class="rounded px-1.5 py-0.5" :class="severityClass[note.severity]">{{ note.title }}</span>
+							<span class="tabular-nums text-gray-400">{{ useFormatTime(note.date) }}</span>
+						</div>
+						<p v-if="note.body" class="mt-0.5 line-clamp-3 text-gray-700">{{ note.body }}</p>
+					</li>
+				</ul>
+			</div>
+
+			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+				<h3 class="text-sm font-semibold text-gray-700">{{ ctrans("Warehouse") }}</h3>
+				<p class="mt-0.5 text-xs text-gray-500">{{ ctrans("Delivery lines received short in the last 12 months") }}</p>
+				<p class="mt-2 text-2xl font-bold tabular-nums">
+					{{ percent(feedback.warehouse.short_percent) }}
+					<span class="text-xs font-normal text-gray-400">{{ ctrans(":short of :lines lines", { short: locale.number(feedback.warehouse.short_lines), lines: locale.number(feedback.warehouse.lines) }) }}</span>
+				</p>
+				<p v-if="!feedback.warehouse.worst.length" class="py-4 text-center text-xs text-gray-400">{{ ctrans("No delivery line arrived short") }}</p>
+				<ul v-else class="mt-3 divide-y divide-gray-100 text-xs">
+					<li v-for="product in feedback.warehouse.worst" :key="product.code" class="flex items-center justify-between gap-2 py-1.5">
+						<span class="min-w-0 truncate text-gray-700" :title="product.name"><span class="font-medium">{{ product.code }}</span> <span class="text-gray-500">{{ product.name }}</span></span>
+						<span class="whitespace-nowrap tabular-nums text-gray-600">{{ product.short_lines }} / {{ product.lines }}</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+			</section>
 		</Deferred>
 	</div>
 </template>
