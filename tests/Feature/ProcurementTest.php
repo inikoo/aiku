@@ -652,7 +652,7 @@ test('agent manager only sees their own agent organisation', function () {
         ->and($agentUser->worksOnlyForAgents())->toBeTrue()
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetGroupNavigation::run($agentUser)))->toBe(['tickets'])
         ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)))->toBe([$organisation->slug])
-        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and(collect(\App\Actions\UI\Grp\Layout\GetOrganisationsLayout::run($agentUser)[$organisation->slug]['agent_suppliers']['topMenu']['subSections'])->pluck('root')->all())->toBe([
             'grp.org.agent.org_suppliers.',
         ]);
@@ -703,6 +703,19 @@ test('agent manager only sees their own agent organisation', function () {
     $foreignSupplier = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
     $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $foreignSupplier->slug]))->assertNotFound();
     $this->get(route('grp.org.agent.sales.suppliers.index', $this->organisation->slug))->assertForbidden();
+    $warehouseSupplierProduct = \App\Models\SupplyChain\SupplierProduct::where('agent_id', $this->agent->id)->firstOrFail();
+    \App\Models\Procurement\AgentWarehouseStock::create([
+        'group_id'            => $this->agent->group_id,
+        'agent_id'            => $this->agent->id,
+        'supplier_product_id' => $warehouseSupplierProduct->id,
+        'state'               => \App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum::PACKED,
+        'quantity'            => 12,
+    ]);
+    $this->get(route('grp.org.agent.warehouse.index', [$organisation->slug, 'elements' => ['state' => 'packed']]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentWarehouseStocks')
+            ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed')));
+    $this->get(route('grp.org.agent.warehouse.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.products.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
         ->assertInertia(fn ($page) => $page->where('data.meta.total', Supplier::where('agent_id', $this->agent->id)->where('status', true)->count()));

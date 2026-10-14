@@ -49,6 +49,9 @@ class GetAgentOrganisationNavigation
                     $this->procurementSubSection(__('Past containers'), 'fa-history', 'grp.org.agent.stock_deliveries.past', 'grp.org.agent.stock_deliveries.past', $organisation),
                     $this->procurementSubSection(__('Invoices'), 'fa-file-invoice', 'grp.org.agent.accounting.invoices.', 'grp.org.agent.accounting.invoices.index', $organisation),
                 ],
+                'agent_warehouse' => [
+                    $this->procurementSubSection(__('Warehouse'), 'fa-warehouse-alt', 'grp.org.agent.warehouse.', 'grp.org.agent.warehouse.index', $organisation),
+                ],
                 'agent_accounting' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.accounting.dashboard', 'grp.org.agent.accounting.dashboard', $organisation),
                     $this->procurementSubSection(__('Deposits'), 'fa-hand-holding-usd', 'grp.org.agent.accounting.deposits.', 'grp.org.agent.accounting.deposits.index', $organisation),
@@ -63,6 +66,7 @@ class GetAgentOrganisationNavigation
                     'agent_products'        => [__('Products'), 'fa-box-usd', 'grp.org.agent.org_supplier_products'],
                     'agent_sales'           => [__('Sales'), 'fa-chart-line', 'grp.org.agent.sales'],
                     'agent_purchase_orders' => [__('Purchase Orders'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders'],
+                    'agent_warehouse'       => [__('Warehouse'), 'fa-warehouse-alt', 'grp.org.agent.warehouse'],
                     'agent_containers'      => [__('Containers'), 'fa-truck-container', 'grp.org.agent.stock_deliveries'],
                     'agent_accounting'      => [__('Accounting'), 'fa-file-invoice-dollar', 'grp.org.agent.accounting'],
                 ] as $key => [$label, $icon, $root]

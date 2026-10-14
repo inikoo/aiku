@@ -20,6 +20,7 @@ use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
+use App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentWarehouseStocks;
 use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
@@ -123,6 +124,8 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
     Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
 });
+
+Route::get('warehouse', IndexAgentWarehouseStocks::class)->name('warehouse.index');
 
 Route::get('barcodes', IndexAgentBarcodes::class)->name('agent_barcodes.index');
 
