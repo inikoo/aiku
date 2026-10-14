@@ -378,6 +378,8 @@ class StaffTask extends Model implements Auditable, HasMedia
      */
     public const string EXCLUDED_DEPARTMENT = 'help-desk';
 
+    public const array NOT_SUPERVISING_DEPARTMENTS = [self::EXCLUDED_DEPARTMENT, 'agent'];
+
     public const array SEE_ALL_DEPARTMENTS = [self::EXCLUDED_DEPARTMENT, 'group admin'];
 
     /**
@@ -519,7 +521,7 @@ class StaffTask extends Model implements Auditable, HasMedia
      */
     public static function isSupervisor(User $user): bool
     {
-        $supervisorPositions = DB::table('job_positions')->where('group_id', $user->group_id)->where('code', 'like', '%-m')->where(fn ($query) => $query->whereNull('department')->orWhere('department', '!=', self::EXCLUDED_DEPARTMENT))->select('id');
+        $supervisorPositions = DB::table('job_positions')->where('group_id', $user->group_id)->where('code', 'like', '%-m')->where(fn ($query) => $query->whereNull('department')->orWhereNotIn('department', self::NOT_SUPERVISING_DEPARTMENTS))->select('id');
 
         return DB::table('user_has_pseudo_job_positions')->where('user_id', $user->permissionsHolder()->id)->whereIn('job_position_id', $supervisorPositions)->exists()
             || DB::table('employee_has_job_positions')

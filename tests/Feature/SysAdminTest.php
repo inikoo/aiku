@@ -2646,7 +2646,7 @@ test('borrowing shows what the lender gets through job positions and approver li
     $borrower = $makeUser('borrower-blind-spots');
     $lender   = $makeUser('lender-blind-spots');
 
-    $supervisorPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->whereNotNull('department')->where('department', '!=', \App\Models\Tasks\StaffTask::EXCLUDED_DEPARTMENT)->firstOrFail();
+    $supervisorPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->whereNotNull('department')->whereNotIn('department', \App\Models\Tasks\StaffTask::NOT_SUPERVISING_DEPARTMENTS)->firstOrFail();
     \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $lender->id, 'job_position_id' => $supervisorPosition->id, 'scopes' => '{}']);
     \App\Models\HumanResources\LeaveApprover::query()->create([
         'organisation_id' => $organisation->id,
@@ -2693,4 +2693,22 @@ test('only users with group access get the devops servers in the footer', functi
 
     expect($user->refresh()->hasGroupAccess())->toBeTrue()
         ->and(GetLayout::run($user)['can_view_devops'])->toBeTrue();
+})->depends('create guest');
+
+test('an agent manager is not a task supervisor and sees only the tasks involving them', function (Guest $guest) {
+    $group        = $guest->group;
+    $organisation = $guest->getUser()->authorisedOrganisations()->first();
+    app()->instance('group', $group);
+    setPermissionsTeamId($group->id);
+
+    $guestData = Guest::factory()->definition();
+    data_set($guestData, 'user.username', 'agent-manager-tasks');
+    $agentManager = StoreGuest::make()->action($group, $guestData)->getUser();
+
+    $agentPosition = JobPosition::where('organisation_id', $organisation->id)->where('code', 'like', '%-m')->firstOrFail()->replicate();
+    $agentPosition->forceFill(['code' => 'agt-m-tasks', 'slug' => 'agt-m-tasks', 'name' => 'Agent manager', 'department' => 'agent'])->save();
+    \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert(['group_id' => $group->id, 'organisation_id' => $organisation->id, 'user_id' => $agentManager->id, 'job_position_id' => $agentPosition->id, 'scopes' => '{}']);
+
+    expect(\App\Models\Tasks\StaffTask::isSupervisor($agentManager))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::seesEveryTask($agentManager))->toBeFalse();
 })->depends('create guest');
