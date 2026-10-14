@@ -270,6 +270,8 @@ that contain the same words (last 90 days). Every result has a Track action.
   check frequency (on request, monthly, weekly, daily), optional target webpage, active. Unique per
   shop, keyword, country, language and device. Adding a keyword stores one row per device, so every
   keyword is tracked on mobile and on desktop and nobody picks a device. A check costs twice as much.
+  The Tracked keywords tab and its Excel export list one row per keyword, country and language;
+  changing the check frequency, pausing or removing it applies to both devices.
 - `seo_competitors`: shop, domain (stored without scheme, `www.` and path), optional name.
 - SEO > Keywords, tab Tracked keywords (competitors: SEO > Competitors): add, change frequency inline,
   pause, remove.
