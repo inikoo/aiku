@@ -5087,7 +5087,7 @@ test('a copied variant goes into a shop leader first: a member is refused before
     [, $leader, $minion] = createMasterVariantOfTwo($sourceFamily, 'CL');
     $minionCopy = \App\Actions\Masters\MasterAsset\CopyMasterAssetToMasterShop::make()->action($minion, ['master_family_id' => $targetFamily->id]);
     $leaderCopy = MasterAsset::where('master_shop_id', $targetFamily->master_shop_id)->where('code', $leader->code)->first();
-    $leaderCopy->updateQuietly(['is_for_sale' => true]);
+    $leaderCopy->updateQuietly(['is_for_sale' => null]);
     $minionCopy->updateQuietly(['is_for_sale' => true]);
 
     createProduct($this->shop);
@@ -5126,6 +5126,7 @@ test('a copied variant goes into a shop leader first: a member is refused before
             ->and($minionProduct->is_minion_variant)->toBeTrue()
             ->and($minionProduct->is_main)->toBeFalse()
             ->and($leaderProduct->refresh()->is_variant_leader)->toBeTrue()
+            ->and($leaderProduct->is_for_sale)->toBeTrue()
             ->and($leaderProduct->is_main)->toBeTrue()
             ->and($leaderProduct->webpage)->not->toBeNull()
             ->and(\App\Models\Web\Redirect::where('shop_id', $this->shop->id)->where('from_path', strtolower($minionProduct->code))->exists())->toBeTrue();
