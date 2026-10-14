@@ -324,7 +324,7 @@ class Mailshot extends Model implements Auditable
     public function abTestTrackingEndsAt(): ?Carbon
     {
         $variant = $this->abTestVariant;
-        if (!$variant || !$this->sent_at || !$variant->sent_at) {
+        if (!$variant || !$this->sent_at || !$variant->sent_at || $this->ab_test_winner_sent_at) {
             return null;
         }
 

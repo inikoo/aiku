@@ -2508,6 +2508,10 @@ test('ab test winner is sent once, after both versions are sent, to everyone who
     expect($winnerCustomerIds)->toContain($untested)
         ->and($winnerCustomerIds)->not->toContain($testedWithA)
         ->and($winnerCustomerIds)->not->toContain($testedWithB);
+
+    $variant->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()]);
+
+    expect(GetMailshotAbTest::run($mailshot->refresh(), true)['tracking_ends_at'])->toBeNull();
 })->depends('outbox seeded when shop created');
 
 test('ab test set to send the winner automatically sends the suggested winner once tracking is over', function (Shop $shop) {
