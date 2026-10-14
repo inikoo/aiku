@@ -28,6 +28,9 @@ import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import TableSupplierMessages from '@/Components/Tables/Grp/Org/Procurement/TableSupplierMessages.vue'
 import SupplierDeclarations from '@/Components/SupplyChain/SupplierDeclarations.vue'
+import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/TableSupplierAgreedTerms.vue'
+import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
 import { useTabChange } from '@/Composables/tab-change'
 import { capitalize } from '@/Composables/capitalize'
 
@@ -43,6 +46,9 @@ const props = defineProps<{
     showcase?: object
     inbox?: object
     declarations?: object
+    agreed_terms?: object
+    notes?: object
+    agreement: object
     history?: object
     attachments?: object
     attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
@@ -58,6 +64,8 @@ const component = computed(() => {
         showcase: SupplierShowcase,
         inbox: TableSupplierMessages,
         declarations: SupplierDeclarations,
+        agreed_terms: TableSupplierAgreedTerms,
+        notes: TableProcurementNotes,
         attachments: TableAttachments,
         history: TableHistories
     }
@@ -74,7 +82,10 @@ const component = computed(() => {
         </template>
     </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" />
+    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
+        <AgreementSummary :agreement="agreement" />
+    </div>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}" />
 
     <UploadAttachment
         v-model="isModalUploadAttachmentOpen"

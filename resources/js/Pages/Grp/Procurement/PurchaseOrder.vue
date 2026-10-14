@@ -15,6 +15,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import ProcurementOrderData from "@/Components/Procurement/ProcurementOrderData.vue"
+import AgreementSummary from "@/Components/Procurement/AgreementSummary.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import AgentOrderingItems from "@/Components/Procurement/AgentOrderingItems.vue"
 import PillFilterBar from "@/Components/Utils/PillFilterBar.vue"
@@ -135,6 +136,7 @@ const props = defineProps < {
         image_thumbnail: object | null
     }[]
     submit_problems?: SubmitProblem[]
+	agreement: { terms: object[], notes: object[], open_incidents: number, must_acknowledge: boolean }
     tabs: {
         current: string
         navigation: {}
@@ -221,6 +223,7 @@ const props = defineProps < {
 	showcase?: { blueprint: any[]; updateRoute: routeType }
 	notes?: {}
 	note_store_route?: routeType
+	note_form?: object
 	attachments?: {}
 	attachmentRoutes: { attachRoute: routeType; detachRoute: routeType }
 	attachmentScopes: { name: string; code: string }[]
@@ -493,14 +496,25 @@ const submitDialogAction = ref<any>(null)
 const doNotSend = "none"
 const sendVia = ref<string>(doNotSend)
 
+const criticalNotesAcknowledged = ref(false)
+
 const submitPurchaseOrder = (action: any) => {
+	if (props.agreement.must_acknowledge && !criticalNotesAcknowledged.value) {
+		notify({
+			title: ctrans("Read the critical notes first"),
+			text: ctrans("Tick that you have read them, above the lines, and submit again."),
+			type: "warn",
+		})
+		return
+	}
+
 	if (action.send_channels?.length && !submitDialogAction.value) {
 		sendVia.value = action.send_channels[0].channel
 		submitDialogAction.value = action
 		return
 	}
 
-	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value }, {
+	router.patch(route(action.route.name, action.route.parameters), { send_via: sendVia.value === doNotSend ? null : sendVia.value, critical_notes_acknowledged: criticalNotesAcknowledged.value }, {
 		onStart: () => { submitLoading.value = true },
 		onFinish: () => {
 			submitLoading.value = false
@@ -1173,6 +1187,14 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 	<AspoDepositsChecklist v-if="deposits" :deposits="deposits" />
 
+	<div v-if="agreement.terms.length || agreement.notes.length || agreement.open_incidents" class="px-4 pt-4">
+		<AgreementSummary :agreement="agreement" showLevel />
+		<label v-if="agreement.must_acknowledge" class="mt-2 flex items-center gap-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+			<Checkbox v-model="criticalNotesAcknowledged" binary />
+			<span>{{ ctrans("I have read the critical notes for this order") }}</span>
+		</label>
+	</div>
+
 	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
@@ -1211,7 +1233,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:tab="currentTab"
 			:state="data.data.state"
 			:updateRoute="routes.updateOrderRoute"
-			:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+			:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
+			:agreement="currentTab === 'notes' ? note_form : undefined"
 			:detachRoute="attachmentRoutes.detachRoute"
 			v-bind="isOrderingLevelTab ? {
 				level: currentLevel,

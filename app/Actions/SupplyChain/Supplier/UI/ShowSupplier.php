@@ -9,6 +9,11 @@
 namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\IndexSupplierAgreedTerms;
+use App\Http\Resources\Procurement\ProcurementNoteResource;
+use App\Http\Resources\Procurement\SupplierAgreedTermResource;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\SupplyChain\SupplyChainAttachmentScopeEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -100,6 +105,17 @@ class ShowSupplier extends OrgAction
                     fn () => GetSupplierShowcase::run($supplier)
                     : Inertia::optional(fn () => GetSupplierShowcase::run($supplier)),
 
+                'agreement' => GetAgreement::run($supplier, null, $request->user())
+                    + ['print_route' => ['name' => 'grp.supply-chain.suppliers.agreement.pdf', 'parameters' => [$supplier->slug]]],
+
+                SupplierTabsEnum::AGREED_TERMS->value => $this->tab == SupplierTabsEnum::AGREED_TERMS->value ?
+                    fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($supplier, SupplierTabsEnum::AGREED_TERMS->value))
+                    : Inertia::optional(fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($supplier, SupplierTabsEnum::AGREED_TERMS->value))),
+
+                SupplierTabsEnum::NOTES->value => $this->tab == SupplierTabsEnum::NOTES->value ?
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($supplier, SupplierTabsEnum::NOTES->value))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($supplier, SupplierTabsEnum::NOTES->value))),
+
                 SupplierTabsEnum::INBOX->value => $this->tab == SupplierTabsEnum::INBOX->value ?
                     fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($supplier, SupplierTabsEnum::INBOX->value))
                     : Inertia::optional(fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($supplier, SupplierTabsEnum::INBOX->value))),
@@ -130,6 +146,8 @@ class ShowSupplier extends OrgAction
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($supplier, SupplierTabsEnum::HISTORY->value))),
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value))
+            ->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: SupplierTabsEnum::AGREED_TERMS->value))
+            ->table(IndexProcurementNotes::make()->tableStructure(prefix: SupplierTabsEnum::NOTES->value))
             ->table(IndexSupplierMessages::make()->tableStructure($supplier, prefix: SupplierTabsEnum::INBOX->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: SupplierTabsEnum::ATTACHMENTS->value));
     }

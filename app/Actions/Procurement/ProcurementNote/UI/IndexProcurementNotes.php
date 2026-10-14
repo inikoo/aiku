@@ -6,11 +6,15 @@
 
 namespace App\Actions\Procurement\ProcurementNote\UI;
 
-use App\Enums\Helpers\Audit\AuditEventEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteVisibilityEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\ProcurementNote;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -23,36 +27,47 @@ class IndexProcurementNotes
 {
     use AsObject;
 
-    public function handle(PurchaseOrder|StockDelivery $model, ?string $prefix = null): LengthAwarePaginator
+    /**
+     * A supplier lists the notes of its products too, and a stock delivery those of its purchase
+     * orders. With an organisation, notes written for another organisation only are left out;
+     * $forAgent keeps only what was marked as visible to the agent.
+     */
+    public function handle(Supplier|SupplierProduct|Agent|PurchaseOrder|StockDelivery $subject, ?string $prefix = null, ?Organisation $organisation = null, bool $forAgent = false): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->whereRaw("audits.new_values->>'note' ILIKE ?", ["%$value%"]);
+            $query->where(fn ($query) => $query
+                ->where('procurement_notes.body', 'ILIKE', "%$value%")
+                ->orWhere('procurement_notes.title', 'ILIKE', "%$value%"));
         });
 
         $queryBuilder = QueryBuilder::for(ProcurementNote::class)
-            ->leftJoin('users', 'users.id', 'audits.user_id')
+            ->leftJoin('users', 'users.id', 'procurement_notes.author_user_id')
             ->leftJoin('purchase_orders', function ($join) {
-                $join->on('purchase_orders.id', 'audits.auditable_id')->where('audits.auditable_type', 'PurchaseOrder');
+                $join->on('purchase_orders.id', DB::raw("coalesce(procurement_notes.purchase_order_id, case when procurement_notes.subject_type = 'PurchaseOrder' then procurement_notes.subject_id end)"));
             })
-            ->joinSub($this->distinctNotes($model), 'distinct_notes', 'distinct_notes.id', 'audits.id')
+            ->leftJoin('supplier_products', function ($join) {
+                $join->on('supplier_products.id', 'procurement_notes.subject_id')->where('procurement_notes.subject_type', 'SupplierProduct');
+            })
+            ->leftJoin('currencies', 'currencies.id', 'procurement_notes.incident_currency_id')
+            ->joinSub($this->distinctNotes($subject, $organisation, $forAgent), 'distinct_notes', 'distinct_notes.id', 'procurement_notes.id')
             ->select([
                 'distinct_notes.number_documents',
-                'audits.id',
-                'audits.auditable_type',
-                'audits.new_values',
-                'audits.data',
-                'audits.created_at',
+                'procurement_notes.*',
                 'users.contact_name as user_name',
+                'purchase_orders.reference as purchase_order_reference',
+                'supplier_products.code as supplier_product_code',
+                'currencies.code as incident_currency_code',
             ])
-            ->selectRaw($model instanceof StockDelivery ? 'purchase_orders.reference as purchase_order_reference' : 'null as purchase_order_reference');
+            ->selectRaw('? as listed_on', [$subject->getMorphClass()]);
 
         return $queryBuilder
-            ->orderByDesc('audits.created_at')
-            ->orderByDesc('audits.id')
+            ->orderByDesc('procurement_notes.is_pinned')
+            ->orderByDesc('procurement_notes.created_at')
+            ->orderByDesc('procurement_notes.id')
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()?->getName())
             ->withQueryString();
@@ -61,20 +76,28 @@ class IndexProcurementNotes
     /**
      * A note copied onto several purchase orders of a stock delivery is one note: same text, author and minute.
      */
-    private function distinctNotes(PurchaseOrder|StockDelivery $model): Builder
+    private function distinctNotes(Supplier|SupplierProduct|Agent|PurchaseOrder|StockDelivery $subject, ?Organisation $organisation, bool $forAgent): Builder
     {
-        return DB::table('audits')
-            ->where('audits.event', AuditEventEnum::NOTE->value)
-            ->where(function ($query) use ($model) {
-                $query->where(fn ($query) => $query->where('audits.auditable_type', class_basename($model))->where('audits.auditable_id', $model->id));
+        return DB::table('procurement_notes')
+            ->where(function ($query) use ($subject) {
+                $query->where(fn ($query) => $query->where('procurement_notes.subject_type', $subject->getMorphClass())->where('procurement_notes.subject_id', $subject->id));
 
-                if ($model instanceof StockDelivery) {
-                    $query->orWhere(fn ($query) => $query->where('audits.auditable_type', 'PurchaseOrder')
-                        ->whereIn('audits.auditable_id', $model->purchaseOrders()->pluck('purchase_orders.id')));
+                if ($subject instanceof StockDelivery) {
+                    $query->orWhere(fn ($query) => $query->where('procurement_notes.subject_type', 'PurchaseOrder')
+                        ->whereIn('procurement_notes.subject_id', $subject->purchaseOrders()->pluck('purchase_orders.id')));
+                }
+
+                if ($subject instanceof Supplier) {
+                    $query->orWhere(fn ($query) => $query->where('procurement_notes.subject_type', 'SupplierProduct')
+                        ->whereIn('procurement_notes.subject_id', $subject->supplierProducts()->select('supplier_products.id')));
                 }
             })
-            ->groupByRaw("audits.auditable_type, audits.new_values->>'note', audits.user_id, audits.data->>'author', date_trunc('minute', audits.created_at)")
-            ->selectRaw('min(audits.id) as id, count(*) as number_documents');
+            ->when($organisation, fn ($query) => $query->where(fn ($query) => $query
+                ->whereNull('procurement_notes.organisation_id')
+                ->orWhere('procurement_notes.organisation_id', $organisation->id)))
+            ->when($forAgent, fn ($query) => $query->where('procurement_notes.visibility', ProcurementNoteVisibilityEnum::AGENT->value))
+            ->groupByRaw("procurement_notes.subject_type, case when procurement_notes.subject_type = 'PurchaseOrder' then 0 else procurement_notes.id end, procurement_notes.title, procurement_notes.body, procurement_notes.author_user_id, procurement_notes.author_name, date_trunc('minute', procurement_notes.created_at)")
+            ->selectRaw('min(procurement_notes.id) as id, count(*) as number_documents');
     }
 
     public function tableStructure(?string $prefix = null): Closure
@@ -88,8 +111,10 @@ class IndexProcurementNotes
                 ->withGlobalSearch()
                 ->withEmptyState(['title' => __('No notes yet')])
                 ->column(key: 'created_at', label: __('Date'), canBeHidden: false)
+                ->column(key: 'category', label: __('Category'), canBeHidden: false)
+                ->column(key: 'note', label: __('Note'), canBeHidden: false)
                 ->column(key: 'author', label: __('Author'), canBeHidden: false)
-                ->column(key: 'note', label: __('Note'), canBeHidden: false);
+                ->column(key: 'actions', label: '', canBeHidden: false);
         };
     }
 }

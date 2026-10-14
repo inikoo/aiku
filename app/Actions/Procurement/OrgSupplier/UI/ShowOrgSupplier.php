@@ -9,8 +9,14 @@
 namespace App\Actions\Procurement\OrgSupplier\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\IndexSupplierAgreedTerms;
+use App\Http\Resources\Procurement\ProcurementNoteResource;
+use App\Http\Resources\Procurement\SupplierAgreedTermResource;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\SupplyChain\SupplyChainAttachmentScopeEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
@@ -66,6 +72,8 @@ class ShowOrgSupplier extends OrgAction
 
     public function htmlResponse(OrgSupplier $orgSupplier, ActionRequest $request): Response
     {
+        $forAgent = $this->organisation->type === OrganisationTypeEnum::AGENT || $orgSupplier->organisation_id !== $this->organisation->id;
+
         return Inertia::render(
             'Procurement/OrgSupplier',
             [
@@ -105,6 +113,17 @@ class ShowOrgSupplier extends OrgAction
                     fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation)
                     : Inertia::optional(fn () => GetOrgSupplierShowcase::run($orgSupplier, $this->organisation)),
 
+                'agreement' => GetAgreement::run($orgSupplier->supplier, $orgSupplier->organisation, $request->user(), $forAgent)
+                    + ['print_route' => $forAgent ? null : ['name' => 'grp.org.procurement.org_suppliers.show.agreement.pdf', 'parameters' => [$this->organisation->slug, $orgSupplier->slug]]],
+
+                SupplierTabsEnum::AGREED_TERMS->value => $this->tab == SupplierTabsEnum::AGREED_TERMS->value ?
+                    fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($orgSupplier->supplier, SupplierTabsEnum::AGREED_TERMS->value, $orgSupplier->organisation, $forAgent))
+                    : Inertia::optional(fn () => SupplierAgreedTermResource::collection(IndexSupplierAgreedTerms::run($orgSupplier->supplier, SupplierTabsEnum::AGREED_TERMS->value, $orgSupplier->organisation, $forAgent))),
+
+                SupplierTabsEnum::NOTES->value => $this->tab == SupplierTabsEnum::NOTES->value ?
+                    fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgSupplier->supplier, SupplierTabsEnum::NOTES->value, $orgSupplier->organisation, $forAgent))
+                    : Inertia::optional(fn () => ProcurementNoteResource::collection(IndexProcurementNotes::run($orgSupplier->supplier, SupplierTabsEnum::NOTES->value, $orgSupplier->organisation, $forAgent))),
+
                 SupplierTabsEnum::INBOX->value => $this->tab == SupplierTabsEnum::INBOX->value ?
                     fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($orgSupplier, SupplierTabsEnum::INBOX->value))->additional(['compose' => IndexSupplierMessages::composeData($this->organisation, $request->user(), $orgSupplier)])
                     : Inertia::optional(fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($orgSupplier, SupplierTabsEnum::INBOX->value))->additional(['compose' => IndexSupplierMessages::composeData($this->organisation, $request->user(), $orgSupplier)])),
@@ -135,6 +154,8 @@ class ShowOrgSupplier extends OrgAction
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier, SupplierTabsEnum::HISTORY->value))),
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value))
+            ->table(IndexSupplierAgreedTerms::make()->tableStructure(prefix: SupplierTabsEnum::AGREED_TERMS->value))
+            ->table(IndexProcurementNotes::make()->tableStructure(prefix: SupplierTabsEnum::NOTES->value))
             ->table(IndexSupplierMessages::make()->tableStructure($orgSupplier, prefix: SupplierTabsEnum::INBOX->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: SupplierTabsEnum::ATTACHMENTS->value));
     }

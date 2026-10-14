@@ -408,6 +408,8 @@ class AppServiceProvider extends ServiceProvider
                 'OrgSupplier'                      => 'App\Models\Procurement\OrgSupplier',
                 'OrgSupplierProduct'               => 'App\Models\Procurement\OrgSupplierProduct',
                 'PurchaseOrder'                    => 'App\Models\Procurement\PurchaseOrder',
+                'ProcurementNote'                  => 'App\Models\Procurement\ProcurementNote',
+                'SupplierAgreedTerm'               => 'App\Models\Procurement\SupplierAgreedTerm',
                 'PurchaseOrderTransaction'         => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'OrgPartner'                       => 'App\Models\Procurement\OrgPartner',
 

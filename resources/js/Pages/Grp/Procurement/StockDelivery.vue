@@ -209,6 +209,7 @@ const props = defineProps<{
 	service_invoices: InstanceType<typeof StockDeliveryServiceInvoices>["$props"]["data"] | null
 	notes?: {}
 	note_store_route?: routeType
+	note_form?: object
 	history?: {}
 }>()
 
@@ -1299,7 +1300,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:tab="currentTab"
 		:costing="currentTab === 'items' ? costing : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
-		:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+		:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
+			:agreement="currentTab === 'notes' ? note_form : undefined"
 	/>
 
 	<UploadAttachment

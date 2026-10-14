@@ -1213,15 +1213,15 @@ test('staff add notes to a purchase order and read them on its stock delivery', 
     $stockDelivery = $this->stockDelivery;
     $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
 
-    $this->post(route('grp.models.purchase-order.note.store', $purchaseOrder->id), ['note' => 'Booked on vessel, ETD 20/9'])
+    $this->post(route('grp.models.purchase-order.note.store', $purchaseOrder->id), ['body' => 'Booked on vessel, ETD 20/9'])
         ->assertSessionHasNoErrors();
-    $this->post(route('grp.models.stock-delivery.note.store', $stockDelivery->id), ['note' => 'Bill of lading received'])
+    $this->post(route('grp.models.stock-delivery.note.store', $stockDelivery->id), ['body' => 'Bill of lading received'])
         ->assertSessionHasNoErrors();
-    $this->post(route('grp.models.purchase-order.note.store', $purchaseOrder->id), ['note' => ''])
-        ->assertSessionHasErrors('note');
+    $this->post(route('grp.models.purchase-order.note.store', $purchaseOrder->id), ['body' => ''])
+        ->assertSessionHasErrors('body');
 
-    $purchaseOrderNotes = collect(IndexProcurementNotes::run($purchaseOrder)->items())->map(fn ($note) => $note->new_values['note']);
-    $stockDeliveryNotes = collect(IndexProcurementNotes::run($stockDelivery)->items())->map(fn ($note) => $note->new_values['note']);
+    $purchaseOrderNotes = collect(IndexProcurementNotes::run($purchaseOrder)->items())->map(fn ($note) => $note->body);
+    $stockDeliveryNotes = collect(IndexProcurementNotes::run($stockDelivery)->items())->map(fn ($note) => $note->body);
 
     expect($purchaseOrderNotes->all())->toContain('Booked on vessel, ETD 20/9')
         ->not->toContain('Bill of lading received')
@@ -1231,7 +1231,18 @@ test('staff add notes to a purchase order and read them on its stock delivery', 
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Procurement/PurchaseOrder')
             ->has('notes.data')
+            ->where('note_form.can_write', true)
+            ->has('note_form.options.categories', 8)
             ->where('note_store_route.name', 'grp.models.purchase-order.note.store'));
+
+    $this->post(route('grp.models.purchase-order.note.store', $purchaseOrder->id), ['title' => 'Charged 40 packing', 'category' => 'incident', 'severity' => 'warning', 'incident_amount' => 40, 'incident_currency_id' => $purchaseOrder->currency_id])
+        ->assertSessionHasNoErrors();
+    $incident = App\Models\Procurement\ProcurementNote::where('subject_type', 'PurchaseOrder')->where('subject_id', $purchaseOrder->id)->where('category', 'incident')->latest('id')->firstOrFail();
+
+    expect($incident->incident_outcome->value)->toBe('open')
+        ->and($incident->purchase_order_id)->toBe($purchaseOrder->id)
+        ->and($incident->organisation_id)->toBe($purchaseOrder->organisation_id)
+        ->and(collect(IndexProcurementNotes::run($purchaseOrder, forAgent: true)->items())->pluck('id')->all())->not->toContain($incident->id);
 });
 
 test('purchase order pdf downloads', function () {
@@ -14094,15 +14105,15 @@ test('a note copied onto several purchase orders of a stock delivery is listed o
     foreach (range(1, 3) as $ignored) {
         $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
         $stockDelivery->purchaseOrders()->syncWithoutDetaching([$purchaseOrder->id]);
-        App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['note' => $note, 'author' => 'Buyer', 'created_at' => '2026-09-21 17:58:00'], strict: false);
+        App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['body' => $note, 'author_name' => 'Buyer', 'created_at' => '2026-09-21 17:58:00'], strict: false);
     }
-    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['note' => 'Only on the last one', 'author' => 'Buyer', 'created_at' => '2026-09-22 09:00:00'], strict: false);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($purchaseOrder, ['body' => 'Only on the last one', 'author_name' => 'Buyer', 'created_at' => '2026-09-22 09:00:00'], strict: false);
 
     $notes = collect(IndexProcurementNotes::run($stockDelivery)->items());
 
     expect($notes)->toHaveCount(2)
-        ->and((int) $notes->firstWhere(fn ($row) => $row->new_values['note'] === $note)->number_documents)->toBe(3)
-        ->and((int) $notes->firstWhere(fn ($row) => $row->new_values['note'] === 'Only on the last one')->number_documents)->toBe(1)
+        ->and((int) $notes->firstWhere(fn ($row) => $row->body === $note)->number_documents)->toBe(3)
+        ->and((int) $notes->firstWhere(fn ($row) => $row->body === 'Only on the last one')->number_documents)->toBe(1)
         ->and(IndexProcurementNotes::run($purchaseOrder)->total())->toBe(2);
 });
 
@@ -14188,4 +14199,233 @@ test('a delivery from a supplier in the organisation country starts with shippin
     expect(SupplierInvoice::where('stock_delivery_id', $stockDelivery->id)->count())->toBe(1)
         ->and((float) $stockDelivery->supplierInvoice()->first()->goods_amount)->toBe(100.0)
         ->and($stockDelivery->costs()->count())->toBe(2);
+});
+
+test('a buyer records the terms agreed with a supplier and they are the terms in force for its products (HELP-3953)', function () {
+    $supplier = StoreSupplier::make()->action($this->agent, Supplier::factory()->definition());
+    $product  = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+    $eur      = App\Models\Helpers\Currency::where('code', 'EUR')->firstOrFail();
+    $store    = route('grp.models.supplier.agreed_term.store', $supplier->id);
+
+    $this->post($store, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString(), 'show_on_po' => true, 'visibility' => 'supplier'])
+        ->assertSessionHasNoErrors();
+    $this->post($store, ['term_type' => 'packing_charge', 'value_type' => 'included', 'agreed_on' => today()->toDateString()])
+        ->assertSessionHasNoErrors();
+    $this->post($store, ['term_type' => 'payment_currency', 'value_type' => 'text', 'value_text' => 'USD', 'agreed_on' => today()->toDateString()])
+        ->assertSessionHasNoErrors();
+
+    $label = ['term_type' => 'label_charge', 'value_type' => 'per_unit', 'amount' => 0.02, 'currency_id' => $eur->id, 'agreed_on' => today()->toDateString()];
+    $this->post($store, $label)->assertSessionHasErrors('evidence_message_id');
+    $this->post($store, array_merge($label, ['attachments' => [Illuminate\Http\UploadedFile::fake()->create('labels-email.pdf', 20, 'application/pdf')]]))
+        ->assertSessionHasNoErrors();
+    $this->post($store, ['term_type' => 'incoterm', 'value_type' => 'text', 'agreed_on' => today()->toDateString()])
+        ->assertSessionHasErrors('value_text');
+
+    $terms = App\Actions\Procurement\SupplierAgreedTerm\GetEffectiveSupplierAgreedTerms::run($product, $this->organisation);
+
+    expect($terms->map(fn ($term) => $term->term_type->value)->all())->toBe(['incoterm', 'packing_charge', 'label_charge', 'payment_currency'])
+        ->and($terms->pluck('level')->unique()->all())->toBe(['supplier'])
+        ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->valueLabel())->toBe('EUR 0.02 per unit')
+        ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->attachments()->count())->toBe(1)
+        ->and($terms->first()->agreed_by_user_id)->toBe($this->adminGuest->getUser()->id);
+});
+
+test('a changed term supersedes the old one, and a product or organisation term beats the supplier one (HELP-3953)', function () {
+    $supplier = StoreSupplier::make()->action($this->agent, Supplier::factory()->definition());
+    $product  = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+    $storeTerm = fn ($subject, array $data) => App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($subject, array_merge(['value_type' => 'text', 'agreed_on' => today()->toDateString()], $data));
+    $inForce   = fn ($subject, $organisation) => App\Actions\Procurement\SupplierAgreedTerm\GetEffectiveSupplierAgreedTerms::run($subject, $organisation)->mapWithKeys(fn ($term) => [$term->term_type->value => $term->value_text.'@'.$term->level]);
+
+    $first  = $storeTerm($supplier, ['term_type' => 'incoterm', 'value_text' => 'EXW Yiwu']);
+    $second = $storeTerm($supplier, ['term_type' => 'incoterm', 'value_text' => 'FOB Ningbo']);
+    $storeTerm($supplier, ['term_type' => 'lead_time_days', 'value_text' => '45']);
+    $storeTerm($supplier, ['term_type' => 'lead_time_days', 'value_text' => '60', 'organisation_id' => $otherOrganisation->id]);
+    $storeTerm($product, ['term_type' => 'incoterm', 'value_text' => 'DDP Sheffield']);
+
+    expect($first->refresh()->state->value)->toBe('superseded')
+        ->and($first->superseded_by_id)->toBe($second->id)
+        ->and($first->valid_to->isToday())->toBeTrue()
+        ->and($inForce($supplier, $this->organisation)->all())->toBe(['incoterm' => 'FOB Ningbo@supplier', 'lead_time_days' => '45@supplier'])
+        ->and($inForce($supplier, $otherOrganisation)->all())->toBe(['incoterm' => 'FOB Ningbo@supplier', 'lead_time_days' => '60@supplier'])
+        ->and($inForce($product, $this->organisation)->all())->toBe(['incoterm' => 'DDP Sheffield@supplier_product', 'lead_time_days' => '45@supplier']);
+
+    $this->patch(route('grp.models.supplier_agreed_term.withdraw', $second->id))->assertSessionHasNoErrors();
+    expect($second->refresh()->state->value)->toBe('withdrawn')
+        ->and($inForce($supplier, $this->organisation)->has('incoterm'))->toBeFalse()
+        ->and(App\Models\Procurement\SupplierAgreedTerm::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->count())->toBe(4);
+});
+
+test('notes on a supplier are categorised, can be pinned and resolved, and internal ones never reach the agent (HELP-3953)', function () {
+    $supplier = StoreSupplier::make()->action($this->agent, Supplier::factory()->definition());
+    $product  = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+
+    $otherOrganisation = Organisation::where('code', 'prc2')->first()
+        ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
+
+    $this->post(route('grp.models.supplier.procurement_note.store', $supplier->id), ['title' => 'Packing is included in FOB', 'category' => 'charges', 'severity' => 'critical', 'is_pinned' => true])
+        ->assertSessionHasNoErrors();
+    $this->post(route('grp.models.supplier.procurement_note.store', $supplier->id), ['title' => 'Check carton marks before loading', 'category' => 'agent', 'visibility' => 'agent'])
+        ->assertSessionHasNoErrors();
+    $this->post(route('grp.models.supplier-product.procurement_note.store', $product->id), ['title' => 'Glass must be 3 mm', 'category' => 'product'])
+        ->assertSessionHasNoErrors();
+    $this->post(route('grp.models.supplier.procurement_note.store', $supplier->id), ['title' => 'Only for the other organisation', 'organisation_id' => $otherOrganisation->id])
+        ->assertSessionHasNoErrors();
+    $this->post(route('grp.models.supplier.procurement_note.store', $supplier->id), ['category' => 'charges'])
+        ->assertSessionHasErrors('body');
+
+    $titles = fn (...$arguments) => collect(IndexProcurementNotes::run($supplier, ...$arguments)->items())->pluck('title')->all();
+
+    expect($titles(organisation: $this->organisation))->toBe(['Packing is included in FOB', 'Glass must be 3 mm', 'Check carton marks before loading'])
+        ->and($titles())->toContain('Only for the other organisation')
+        ->and($titles(organisation: $this->organisation, forAgent: true))->toBe(['Check carton marks before loading']);
+
+    $pinned = App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('is_pinned', true)->firstOrFail();
+    expect($pinned->category->colour())->toBe('red')
+        ->and($pinned->organisation_id)->toBeNull()
+        ->and($pinned->author_user_id)->toBe($this->adminGuest->getUser()->id);
+
+    $this->patch(route('grp.models.procurement_note.update', $pinned->id), ['state' => 'resolved'])->assertSessionHasNoErrors();
+    expect($pinned->refresh()->state->value)->toBe('resolved')
+        ->and($pinned->is_pinned)->toBeFalse()
+        ->and($pinned->resolved_by_user_id)->toBe($this->adminGuest->getUser()->id);
+});
+
+test('the purchase order document prints the agreed terms marked for it and never an internal one (HELP-3953)', function () {
+    $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $product     = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+    $orgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, ['reference' => 'TERMS'.Str::upper(Str::random(8))], strict: false);
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $product->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+
+    $storeTerm = fn ($subject, array $data) => App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($subject, array_merge(['value_type' => 'text', 'agreed_on' => today()->toDateString()], $data));
+    $storeTerm($supplier, ['term_type' => 'incoterm', 'value_text' => 'FOB Ningbo', 'show_on_po' => true, 'visibility' => 'supplier']);
+    $storeTerm($supplier, ['term_type' => 'packing_charge', 'value_type' => 'included', 'show_on_po' => true, 'visibility' => 'supplier']);
+    $storeTerm($supplier, ['term_type' => 'payment_terms', 'value_text' => 'We could go to 40% deposit if pushed', 'show_on_po' => true, 'visibility' => 'internal']);
+    $storeTerm($supplier, ['term_type' => 'lead_time_days', 'value_text' => '45', 'show_on_po' => true, 'visibility' => 'agent']);
+    $storeTerm($supplier, ['term_type' => 'minimum_order', 'value_text' => '500 units', 'visibility' => 'supplier']);
+    $storeTerm($product, ['term_type' => 'packing_charge', 'value_type' => 'not_allowed', 'show_on_po' => true, 'visibility' => 'supplier']);
+
+    $terms    = App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms::class;
+    $describe = fn ($terms) => $terms->map(fn ($term) => trim($term->term_type->value.' '.$term->valueLabel().' '.$term->product_code))->all();
+
+    expect($describe($terms::run($purchaseOrder->refresh(), forDocument: true)))->toBe(['incoterm FOB Ningbo', 'packing_charge Included', 'packing_charge Not allowed '.$product->code])
+        ->and($terms::run($purchaseOrder))->toHaveCount(6);
+
+    $response = $this->get(route('grp.org.procurement.purchase_orders.pdf', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]));
+    $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
+});
+
+test('the supplier page shows what was agreed, with its terms and notes tabs (HELP-3953)', function () {
+    $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $orgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($this->organisation, $supplier);
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString()]);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, ['title' => 'Pays in USD only', 'category' => 'currency_payment', 'is_pinned' => true]);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, ['title' => 'Not pinned', 'category' => 'delivery']);
+
+    $show = route('grp.org.procurement.org_suppliers.show', [$this->organisation->slug, $orgSupplier->slug]);
+
+    $this->get($show)->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/OrgSupplier')
+        ->where('agreement.terms.0.value', 'FOB Ningbo')
+        ->where('agreement.terms.0.level', 'supplier')
+        ->has('agreement.notes', 1)
+        ->where('agreement.notes.0.category.colour', 'yellow')
+        ->where('agreement.can_write', true)
+        ->where('agreement.routes.store_term.name', 'grp.models.supplier.agreed_term.store'));
+
+    $this->get($show.'?tab=agreed_terms')->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('agreed_terms.data', 1)
+        ->where('agreed_terms.data.0.in_force', true));
+
+    $this->get($show.'?tab=notes')->assertInertia(fn (AssertableInertia $page) => $page->has('notes.data', 2));
+
+    $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]).'?tab=agreed_terms')->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('SupplyChain/Supplier')
+        ->has('agreed_terms.data', 1)
+        ->where('agreement.terms.0.term_type', 'incoterm'));
+});
+
+test('a purchase order shows what was agreed and cannot be submitted before its critical notes are acknowledged (HELP-3953)', function () {
+    $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $product     = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id]));
+    $orgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, ['reference' => 'ACK'.Str::upper(Str::random(8))], strict: false);
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $product->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'packing_charge', 'value_type' => 'included', 'agreed_on' => today()->toDateString()]);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($product, ['title' => 'Glass must be 3 mm, not 2 mm', 'category' => 'product', 'severity' => 'critical']);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, ['title' => 'Slow before Chinese New Year', 'category' => 'delivery']);
+
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('agreement.terms.0.value', 'Included')
+            ->has('agreement.notes', 1)
+            ->where('agreement.notes.0.title', 'Glass must be 3 mm, not 2 mm')
+            ->where('agreement.must_acknowledge', true));
+
+    $this->patch(route('grp.models.purchase-order.submit', $purchaseOrder->id))->assertSessionHasErrors('critical_notes');
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $this->patch(route('grp.models.purchase-order.submit', $purchaseOrder->id), ['critical_notes_acknowledged' => true])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED);
+
+    $this->get(route('grp.supply-chain.supplier_products.show', [$product->slug]).'?tab=notes')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('SupplyChain/SupplierProduct')
+            ->where('agreement.terms.0.level', 'supplier')
+            ->has('notes.data', 1));
+});
+
+test('the agent page lists its suppliers that carry warnings (HELP-3953)', function () {
+    $agent    = $this->orgAgent->agent;
+    $supplier = StoreSupplier::make()->action($agent, Supplier::factory()->definition());
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, ['title' => 'Added a packing fee last order', 'category' => 'incident', 'severity' => 'warning']);
+    App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($agent, ['title' => 'Check carton marks before loading', 'category' => 'agent', 'is_pinned' => true]);
+
+    $this->get(route('grp.org.procurement.org_agents.show', [$this->organisation->slug, $this->orgAgent->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Procurement/OrgAgent')
+            ->where('agreement.suppliers', fn ($suppliers) => collect($suppliers)->contains(fn ($row) => $row['code'] === $supplier->code && $row['warnings'] === 1 && $row['open_incidents'] === 1))
+            ->where('agreement.notes', fn ($notes) => collect($notes)->contains(fn ($note) => $note['title'] === 'Check carton marks before loading')));
+
+    $this->get(route('grp.supply-chain.agents.show', [$agent->slug]).'?tab=notes')
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('SupplyChain/Agent')->has('notes.data'));
+});
+
+test('the handover sheet prints, and an order through an agent carries the notes marked for the agent (HELP-3953)', function () {
+    $supplier    = StoreSupplier::make()->action($this->orgAgent->agent, Supplier::factory()->definition());
+    $orgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('org_agent_id', $this->orgAgent->id)->firstOrFail();
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString()]);
+    $storeNote = fn (array $data) => App\Actions\Procurement\ProcurementNote\StoreProcurementNote::make()->action($supplier, $data);
+    $storeNote(['title' => 'Check carton marks before loading', 'category' => 'agent', 'visibility' => 'agent']);
+    $storeNote(['title' => 'Labels in English and Spanish', 'category' => 'packaging', 'visibility' => 'supplier']);
+    $storeNote(['title' => 'They overcharged us twice', 'category' => 'charges']);
+
+    $documentNotes = App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement::make()->documentNotes($purchaseOrder->refresh())->pluck('title');
+
+    expect($purchaseOrder->isAgentOrder())->toBeTrue()
+        ->and($documentNotes->sort()->values()->all())->toBe(['Check carton marks before loading', 'Labels in English and Spanish']);
+
+    $this->get(route('grp.org.procurement.purchase_orders.pdf', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
+        ->assertOk()->assertHeader('Content-Type', 'application/pdf');
+
+    $response = $this->get(route('grp.org.procurement.org_suppliers.show.agreement.pdf', [$orgSupplier->organisation->slug, $orgSupplier->slug]));
+    $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    expect(str_starts_with($response->getContent(), '%PDF'))->toBeTrue();
+
+    $this->get(route('grp.org.procurement.org_suppliers.show', [$orgSupplier->organisation->slug, $orgSupplier->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('agreement.print_route.name', 'grp.org.procurement.org_suppliers.show.agreement.pdf'));
+
+    $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('agreement.print_route.name', 'grp.supply-chain.suppliers.agreement.pdf'));
+    $this->get(route('grp.supply-chain.suppliers.agreement.pdf', [$supplier->slug]))
+        ->assertOk()->assertHeader('Content-Type', 'application/pdf');
 });
