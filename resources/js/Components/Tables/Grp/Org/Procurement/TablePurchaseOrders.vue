@@ -13,10 +13,21 @@ import Icon from "@/Components/Icon.vue"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 import { asProcurementRouteName, isAgentOrganisation } from "@/Composables/useAgentRoutes"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTrashAlt } from "@fal"
+
+library.add(faTrashAlt)
 
 defineProps<{
 	data: {}
 	tab?: string
+	removablePurchaseOrderIds?: number[]
+}>()
+
+const emit = defineEmits<{
+	(e: "removePurchaseOrder", purchaseOrderId: number): void
 }>()
 
 const isInAgentOrganisation = isAgentOrganisation(route().params.organisation as string | undefined)
@@ -67,6 +78,13 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 				purchaseOrder.slug,
 			])
 		default:
+			if (isInAgentOrganisation) {
+				return route("grp.org.procurement.purchase_orders.show", [
+					route().params["organisation"],
+					purchaseOrder.slug,
+				])
+			}
+
 			if (!purchaseOrder.organisation_slug) {
 				return null
 			}
@@ -215,6 +233,23 @@ function AgentOrderRoute(purchaseOrder: PurchaseOrder) {
 		<template #cell(date)="{ item: purchaseOrder }">
 			<div class="text-right">
 				{{ useFormatTime(purchaseOrder.date, { formatTime: "EEE, do MMM yy" }) }}
+			</div>
+		</template>
+
+		<template #cell(actions)="{ item: purchaseOrder }">
+			<div class="flex justify-end">
+				<Button
+					v-if="removablePurchaseOrderIds?.includes(purchaseOrder.id)"
+					type="tertiary"
+					size="xs"
+					:label="ctrans('Remove')"
+					:tooltip="ctrans('Remove this purchase order from the container')"
+					@click="emit('removePurchaseOrder', purchaseOrder.id)"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-trash-alt" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
 			</div>
 		</template>
 

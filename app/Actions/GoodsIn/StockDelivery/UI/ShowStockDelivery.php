@@ -16,6 +16,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
 use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDelivery\GetStockDeliveryHandTypedCosts;
@@ -59,6 +60,7 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Models\GoodsIn\StockDelivery;
+use App\Models\GoodsIn\StockDeliveryItem;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\GoodsIn\StockDeliveryCost;
 use App\Models\GoodsIn\StockDeliveryServiceInvoice;
@@ -96,6 +98,7 @@ class ShowStockDelivery extends OrgAction
     private bool $viewedByAgent = false;
     private bool $goodsIn = false;
     private bool $canAddPurchaseOrders = false;
+    private bool $canRemovePurchaseOrders = false;
 
     private const array BOOKING_IN_TABS = [
         StockDeliveryTabsEnum::PENDING_ITEMS,
@@ -125,8 +128,9 @@ class ShowStockDelivery extends OrgAction
         $this->canBookIn        = $this->authToBookIn($request, 'incoming.%d.edit');
         $this->canUnreceive     = $this->authToBookIn($request, 'supervisor-incoming.%d');
 
-        $this->canAddPurchaseOrders = AddPurchaseOrdersToStockDelivery::acceptsPurchaseOrders($this->stockDelivery)
-            && AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDelivery, $request->user());
+        $canChangePurchaseOrders       = AddPurchaseOrdersToStockDelivery::userCanAdd($this->stockDelivery, $request->user());
+        $this->canAddPurchaseOrders    = $canChangePurchaseOrders && AddPurchaseOrdersToStockDelivery::acceptsPurchaseOrders($this->stockDelivery);
+        $this->canRemovePurchaseOrders = $canChangePurchaseOrders && RemovePurchaseOrderFromStockDelivery::acceptsRemovals($this->stockDelivery);
 
         return true;
     }
@@ -178,6 +182,7 @@ class ShowStockDelivery extends OrgAction
         $this->canBookIn        = false;
         $this->canUnreceive     = false;
         $this->canAddPurchaseOrders = false;
+        $this->canRemovePurchaseOrders = false;
 
         return $this->handle($stockDelivery);
     }
@@ -219,6 +224,7 @@ class ShowStockDelivery extends OrgAction
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
+                'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
                 'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
                 'service_invoices' => $this->getServiceInvoices($stockDelivery),
@@ -286,7 +292,7 @@ class ShowStockDelivery extends OrgAction
             ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PENDING_ITEMS->value, withCosting: false))
             ->table(IndexStockDeliveryItems::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::DONE_ITEMS->value, withCosting: false))
             ->table(IndexStockDeliveryUnderOverDeliveredItems::make()->tableStructure(prefix: StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value))
-            ->table(IndexPurchaseOrders::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PURCHASE_ORDERS->value))
+            ->table(IndexPurchaseOrders::make()->tableStructure($stockDelivery, prefix: StockDeliveryTabsEnum::PURCHASE_ORDERS->value, withRemoveFromContainer: $this->canRemovePurchaseOrders))
             ->table(IndexAttachments::make()->tableStructure(prefix: StockDeliveryTabsEnum::ATTACHMENTS->value))
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: StockDeliveryTabsEnum::NOTES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: StockDeliveryTabsEnum::HISTORY->value));
@@ -1340,6 +1346,36 @@ class ShowStockDelivery extends OrgAction
                 ])
                 ->values(),
         ];
+    }
+
+    private function getRemovePurchaseOrders(StockDelivery $stockDelivery): array
+    {
+        return $stockDelivery->purchaseOrders()->get()
+            ->mapWithKeys(fn (PurchaseOrder $purchaseOrder) => [
+                $purchaseOrder->id => [
+                    'reference' => $purchaseOrder->reference,
+                    'route'     => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.stock-delivery.purchase_orders.remove',
+                        'parameters' => [
+                            'stockDelivery' => $stockDelivery->id,
+                            'purchaseOrder' => $purchaseOrder->id,
+                        ],
+                    ],
+                    'items'     => RemovePurchaseOrderFromStockDelivery::itemsOfPurchaseOrder($stockDelivery, $purchaseOrder)
+                        ->with(['supplierProduct:id,code,name', 'orgStock:id,code,name'])
+                        ->orderBy('id')
+                        ->get()
+                        ->map(fn (StockDeliveryItem $item) => [
+                            'id'            => $item->id,
+                            'code'          => $item->supplierProduct?->code ?? $item->orgStock?->code,
+                            'name'          => $item->supplierProduct?->name ?? $item->orgStock?->name,
+                            'unit_quantity' => (float) $item->unit_quantity,
+                        ])
+                        ->values(),
+                ],
+            ])
+            ->all();
     }
 
     private function getTabsNavigation(StockDelivery $stockDelivery): array

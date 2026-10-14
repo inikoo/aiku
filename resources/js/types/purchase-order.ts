@@ -5,6 +5,7 @@
  */
 
 export interface PurchaseOrder {
+    id: number,
     slug: string,
     provider_id: string,
     provider_type: string,

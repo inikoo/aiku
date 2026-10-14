@@ -112,6 +112,11 @@ const props = defineProps<{
 			in_this_container: boolean
 		}[]
 	} | null
+	remove_purchase_orders: Record<number, {
+		reference: string
+		route: routeType
+		items: { id: number; code: string | null; name: string | null; unit_quantity: number }[]
+	}> | null
 	box_stats: {
 		first_block: {
 			orderer: {
@@ -300,6 +305,35 @@ const addPurchaseOrders = () => {
 		onError: (errors: Record<string, string>) => {
 			notify({
 				title: ctrans("Failed to add purchase orders"),
+				text: Object.values(errors)[0] ?? ctrans("Something went wrong"),
+				type: "error",
+			})
+		},
+	})
+}
+
+const purchaseOrderToRemoveId = ref<number | null>(null)
+const removePurchaseOrderLoading = ref(false)
+const removablePurchaseOrderIds = computed(() => Object.keys(props.remove_purchase_orders ?? {}).map(Number))
+const purchaseOrderToRemove = computed(() =>
+	purchaseOrderToRemoveId.value === null ? null : props.remove_purchase_orders?.[purchaseOrderToRemoveId.value] ?? null
+)
+
+const removePurchaseOrder = () => {
+	const removal = purchaseOrderToRemove.value
+
+	if (!removal) {
+		return
+	}
+
+	router.delete(route(removal.route.name, removal.route.parameters), {
+		preserveScroll: true,
+		onStart: () => { removePurchaseOrderLoading.value = true },
+		onSuccess: () => { purchaseOrderToRemoveId.value = null },
+		onFinish: () => { removePurchaseOrderLoading.value = false },
+		onError: (errors: Record<string, string>) => {
+			notify({
+				title: ctrans("Failed to remove purchase order"),
 				text: Object.values(errors)[0] ?? ctrans("Something went wrong"),
 				type: "error",
 			})
@@ -1387,6 +1421,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:costing="currentTab === 'items' ? costing : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
 		:storeRoute="currentTab === 'notes' ? note_store_route : undefined"
+		:removablePurchaseOrderIds="currentTab === 'purchase_orders' ? removablePurchaseOrderIds : undefined"
+		@removePurchaseOrder="(purchaseOrderId: number) => (purchaseOrderToRemoveId = purchaseOrderId)"
 	/>
 
 	<UploadAttachment
@@ -1526,6 +1562,61 @@ const confirmDeleteStockDelivery = (action: any) => {
 			>
 				<template #icon>
 					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</template>
+	</Dialog>
+
+	<Dialog
+		:visible="!!purchaseOrderToRemove"
+		modal
+		:closable="false"
+		:style="{ width: '36rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
+		@update:visible="(visible: boolean) => { if (!visible) purchaseOrderToRemoveId = null }"
+	>
+		<template #header>
+			<div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+				<FontAwesomeIcon :icon="faExclamationTriangle" class="text-amber-500" fixed-width aria-hidden="true" />
+				{{ ctrans("Remove :reference from this container", { reference: purchaseOrderToRemove?.reference ?? "" }) }}
+			</div>
+		</template>
+		<template v-if="purchaseOrderToRemove">
+			<p class="mb-3 text-sm text-gray-700">
+				{{ purchaseOrderToRemove.items.length === 0
+					? ctrans("This purchase order has no items in this container, only its link to the container is removed.")
+					: purchaseOrderToRemove.items.length === 1
+						? ctrans("This item is taken out of the container. It goes back to the purchase order as awaiting delivery, ready for another container.")
+						: ctrans("These :count items are taken out of the container. They go back to the purchase order as awaiting delivery, ready for another container.", { count: purchaseOrderToRemove.items.length }) }}
+			</p>
+			<div v-if="purchaseOrderToRemove.items.length" class="max-h-[50vh] overflow-y-auto rounded-lg border border-gray-200">
+				<table class="w-full text-sm">
+					<thead class="sticky top-0 bg-gray-50 text-left text-xs text-gray-500">
+						<tr>
+							<th class="px-3 py-2 font-medium">{{ ctrans("Code") }}</th>
+							<th class="px-3 py-2 font-medium">{{ ctrans("Name") }}</th>
+							<th class="px-3 py-2 text-right font-medium">{{ ctrans("Units") }}</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-100">
+						<tr v-for="item in purchaseOrderToRemove.items" :key="item.id">
+							<td class="whitespace-nowrap px-3 py-1.5 font-medium text-gray-800">{{ item.code ?? "-" }}</td>
+							<td class="px-3 py-1.5 text-gray-600">{{ item.name ?? "-" }}</td>
+							<td class="whitespace-nowrap px-3 py-1.5 text-right tabular-nums text-gray-800">{{ locale.number(item.unit_quantity) }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</template>
+		<template #footer>
+			<Button type="tertiary" :label="ctrans('Cancel')" @click="purchaseOrderToRemoveId = null">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button type="tertiary" :label="ctrans('Remove from container')" :loading="removePurchaseOrderLoading" @click="removePurchaseOrder">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-exclamation-triangle" class="text-amber-500" fixed-width aria-hidden="true" />
 				</template>
 			</Button>
 		</template>
