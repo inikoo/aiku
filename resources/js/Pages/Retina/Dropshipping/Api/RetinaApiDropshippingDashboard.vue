@@ -30,6 +30,9 @@ library.add()
 const props = defineProps<{
 	title: string
 	pageHead: PageHeadingTypes
+	showcase?: {
+		staging_url: string
+	}
 	api_tokens?: TSTable
 	api_requests?: TSTable
 	history?: TSTable
