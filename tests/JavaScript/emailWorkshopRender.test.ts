@@ -7,6 +7,7 @@ import {
 	imageDisplayWidth,
 	isLinkUnderlined,
 	renderModuleHtml,
+	withoutLinkUnderlineChoices,
 } from "../../resources/js/Components/CMS/Website/Outboxes/EmailWorkshop/renderEmailHtml.ts"
 import {
 	MODULE_TYPES,
@@ -38,13 +39,25 @@ test("a link without its own style gets the link colour and the chosen underline
 	)
 })
 
-test("turning the underline off overrides the underline a link carries in its own style", () => {
-	const html = '<a href="https://aiku.test" style="color:#123456;text-decoration: underline">Shop</a>'
+test("a link's own underline choice wins over the block setting", () => {
+	const notUnderlined = '<a href="https://aiku.test" style="text-decoration:none">Shop</a>'
+	const underlined = '<a href="https://aiku.test" style="text-decoration:underline">Shop</a>'
 
-	assert.equal(applyLinkColor(html, "#ff0000"), html)
+	assert.equal(applyLinkColor(notUnderlined, "#ff0000", true), '<a href="https://aiku.test" style="color:#ff0000;text-decoration:none">Shop</a>')
+	assert.equal(applyLinkColor(underlined, "#ff0000", false), '<a href="https://aiku.test" style="color:#ff0000;text-decoration:underline">Shop</a>')
+})
+
+test("a link with a style of its own keeps its colour and gets the block underline when it has none", () => {
+	const html = '<a href="https://aiku.test" style="color:#123456">Shop</a>'
+
+	assert.equal(applyLinkColor(html, "#ff0000", false), '<a href="https://aiku.test" style="text-decoration:none;color:#123456">Shop</a>')
+	assert.equal(applyLinkColor('<a href="https://aiku.test" style="color:#123456;text-decoration:none">Shop</a>', "#ff0000"), '<a href="https://aiku.test" style="color:#123456;text-decoration:none">Shop</a>')
+})
+
+test("changing the block underline setting clears the underline each link chose", () => {
 	assert.equal(
-		applyLinkColor(html, "#ff0000", false),
-		'<a href="https://aiku.test" style="color:#123456;text-decoration:none">Shop</a>',
+		withoutLinkUnderlineChoices('<p><a href="https://aiku.test" style="text-decoration:underline">Shop</a> <a href="https://aiku.test/b" style="color:#123456; text-decoration: none">Bath</a></p>'),
+		'<p><a href="https://aiku.test">Shop</a> <a href="https://aiku.test/b" style="color:#123456">Bath</a></p>',
 	)
 })
 

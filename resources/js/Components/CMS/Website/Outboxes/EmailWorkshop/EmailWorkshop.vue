@@ -1053,7 +1053,7 @@ defineExpose({
                             </div>
                         </div>
                         <div class="min-h-0 flex-1 overflow-y-auto">
-                            <EmailWorkshopProperties :module="selectedModule" :row="selectedModule ? null : selectedRow" :body="email.page.body"
+                            <EmailWorkshopProperties :module="selectedModule" :row="selectedModule ? null : selectedRow" :body="email.page.body" :rows="email.page.rows"
                                 :imagesUploadRoute="imagesUploadRoute" :imageCategories="imageCategories" :mergeTags="editorMergeTags" :textRevision="editorRevision + panelTextRevision"
                                 :videoThumbnailState="selectedModule ? videoThumbnailStates[selectedModule.uuid!] : undefined"
                                 @textEdited="scheduleTextSync('canvas')"

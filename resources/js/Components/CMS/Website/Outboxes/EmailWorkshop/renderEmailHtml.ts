@@ -69,11 +69,25 @@ const horizontalPadding = (style: CssStyle | undefined | null): number =>
 export const isLinkUnderlined = (blockSetting: unknown, bodySetting: unknown): boolean =>
     (blockSetting ?? bodySetting) !== false
 
+const TEXT_DECORATION_DECLARATION = /(^|;)\s*text-decoration(-line)?\s*:/i
+const COLOR_DECLARATION = /(^|;)\s*color\s*:/i
+
 const withoutTextDecoration = (style: string): string =>
     style
         .split(';')
-        .filter((declaration) => declaration.trim() && !/^\s*text-decoration(-line)?\s*:/i.test(declaration))
+        .filter((declaration) => declaration.trim() && !TEXT_DECORATION_DECLARATION.test(declaration))
         .join(';')
+
+export const withoutLinkUnderlineChoices = (html: string): string =>
+    html.replace(/<a\b([^>]*)>/gi, (tag, attributes: string) => {
+        const styleMatch = attributes.match(/\sstyle="([^"]*)"/i)
+        if (!styleMatch || !TEXT_DECORATION_DECLARATION.test(styleMatch[1])) {
+            return tag
+        }
+        const style = withoutTextDecoration(styleMatch[1])
+
+        return `<a${attributes.replace(styleMatch[0], style ? ` style="${style}"` : '')}>`
+    })
 
 export const applyLinkColor = (html: string, linkColor: string | undefined, isUnderlined = true): string =>
     html.replace(/<a\b([^>]*)>/gi, (tag, attributes: string) => {
@@ -86,11 +100,15 @@ export const applyLinkColor = (html: string, linkColor: string | undefined, isUn
 
             return `<a style="text-decoration:${isUnderlined ? 'underline' : 'none'}${color}"${attributes}>`
         }
-        if (isUnderlined) {
+        const additions = [
+            TEXT_DECORATION_DECLARATION.test(styleMatch[1]) ? '' : `text-decoration:${isUnderlined ? 'underline' : 'none'}`,
+            linkColor && !COLOR_DECLARATION.test(styleMatch[1]) ? `color:${escapeAttribute(linkColor)}` : '',
+        ].filter(Boolean)
+        if (additions.length === 0) {
             return tag
         }
 
-        return `<a${attributes.replace(styleMatch[0], ` style="${[withoutTextDecoration(styleMatch[1]), 'text-decoration:none'].filter(Boolean).join(';')}"`)}>`
+        return `<a${attributes.replace(styleMatch[0], ` style="${[...additions, styleMatch[1]].filter(Boolean).join(';')}"`)}>`
     })
 
 const paragraphSpacingHtml = (html: string, spacing: string | undefined): string => {

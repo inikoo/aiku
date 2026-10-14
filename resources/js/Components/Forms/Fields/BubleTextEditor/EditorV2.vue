@@ -101,6 +101,7 @@ const props = withDefaults(defineProps<{
     uploadImageRoute?: routeType
     routeGetInternalLink?: routeType
     mergeTags?: Array<{ name: string, value: string }>
+    linkUnderline?: boolean
 }>(), {
     editable: true,
     type: 'Bubble',
@@ -122,6 +123,7 @@ const _bubbleMenu = ref(null)
 const showDialog = ref(false)
 const contentResult = ref<string>()
 const currentLinkInDialog = ref<string | undefined>()
+const currentLinkUnderlineInDialog = ref<boolean | undefined>()
 const showLinkDialogCustom = ref<boolean>()
 const showAddYoutubeDialog = ref<boolean>(false)
 const showAddTableDialog = ref<boolean>(false)
@@ -182,7 +184,28 @@ const editorInstance = useEditor({
         FontFamily.configure({
             types: ['textStyle'],
         }),
-        Link.configure({
+        Link.extend({
+            addAttributes() {
+                return {
+                    ...this.parent?.(),
+                    underline: {
+                        default: null,
+                        parseHTML: (element: HTMLElement) => {
+                            const decoration = element.style.textDecorationLine || element.style.textDecoration
+                            if (decoration.includes('underline')) {
+                                return true
+                            }
+
+                            return decoration.includes('none') ? false : null
+                        },
+                        renderHTML: (attributes: Record<string, any>) =>
+                            typeof attributes.underline === 'boolean'
+                                ? { style: `text-decoration:${attributes.underline ? 'underline' : 'none'}` }
+                                : {},
+                    },
+                }
+            },
+        }).configure({
             openOnClick: false
         }),
         customLink.extend({
@@ -402,12 +425,14 @@ function updateLinkCustom(value) {
 
 
 function openLinkDialog() {
-    currentLinkInDialog.value = editorInstance.value?.getAttributes("link").href
+    const linkAttributes = editorInstance.value?.getAttributes("link") ?? {}
+    currentLinkInDialog.value = linkAttributes.href
+    currentLinkUnderlineInDialog.value = typeof linkAttributes.underline === 'boolean' ? linkAttributes.underline : props.linkUnderline
     showLinkDialog.value = true
     showDialog.value = true;
 }
 
-function updateLink(value?: string) {
+function updateLink(value?: string, underline?: boolean) {
     if (!value) {
         editorInstance.value
             ?.chain()
@@ -423,21 +448,23 @@ function updateLink(value?: string) {
         return
     }
 
+    const linkAttributes = { href: value, ...(typeof underline === 'boolean' ? { underline } : {}) } as { href: string }
+
     if (!editor.state.selection.empty || editor.isActive("link")) {
-        editor.chain().focus().extendMarkRange("link").setLink({ href: value }).run()
+        editor.chain().focus().extendMarkRange("link").setLink(linkAttributes).run()
         return
     }
 
     const wordRange = getWordRangeAtCursor()
     if (wordRange) {
-        editor.chain().focus().setTextSelection(wordRange).setLink({ href: value }).run()
+        editor.chain().focus().setTextSelection(wordRange).setLink(linkAttributes).run()
         return
     }
 
     editor
         .chain()
         .focus()
-        .insertContent({ type: "text", text: value, marks: [{ type: "link", attrs: { href: value } }] })
+        .insertContent({ type: "text", text: value, marks: [{ type: "link", attrs: linkAttributes }] })
         .run()
 }
 
@@ -1394,6 +1421,8 @@ onMounted(async () => {
             v-if="showLinkDialog"
             :show="showLinkDialog"
             :current-url="currentLinkInDialog"
+            :underline="currentLinkUnderlineInDialog"
+            :showUnderlineOption="typeof linkUnderline === 'boolean'"
             @close="() => { showLinkDialog = false; showDialog = false; }"
             @update="updateLink"
         />

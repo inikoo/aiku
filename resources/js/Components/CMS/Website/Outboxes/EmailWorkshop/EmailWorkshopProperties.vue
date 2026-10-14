@@ -16,7 +16,7 @@ import {
     createIconItem, createSocialIcon, getModuleText, isTableModule, isUnsubscribeModule, moduleTextToggles, removeTableColumn, removeTableRow, setModuleText,
     socialIconSetOf, socialIconSrc, tableColumnCount, videoThumbnailFromUrl, vimeoVideoId, isVideoPageUrl, dynamicContentSource,
 } from './emailWorkshopBlocks'
-import { isLinkUnderlined, moduleMobileStyle } from './renderEmailHtml'
+import { isLinkUnderlined, moduleMobileStyle, withoutLinkUnderlineChoices } from './renderEmailHtml'
 
 library.add(faArrowUp, faArrowDown, faTrashAlt, faPlus, faImage, faLock)
 
@@ -24,6 +24,7 @@ const props = defineProps<{
     module?: EmailModule | null
     row?: EmailRow | null
     body: EmailBody
+    rows?: EmailRow[]
     imagesUploadRoute?: routeType
     imageCategories?: Array<{ key: string, label: string, route: routeType }>
     mergeTags?: Array<{ name: string, value: string }>
@@ -359,10 +360,26 @@ const rowContainerStyle = computed(() => props.row ? ensureObject(props.row.cont
 const bodyContentStyle = computed(() => ensureObject(props.body.content, 'style'))
 const bodyComputedStyle = computed(() => ensureObject(props.body.content, 'computedStyle'))
 
+const clearLinkUnderlineChoices = (module: EmailModule) => {
+    const html = getModuleText(module)
+    const cleared = withoutLinkUnderlineChoices(html)
+    if (cleared !== html) {
+        setModuleText(module, cleared)
+    }
+}
+
 const bodyLinkUnderline = computed({
     get: () => bodyComputedStyle.value.linkUnderline !== false,
     set: (isUnderlined: boolean) => {
         bodyComputedStyle.value.linkUnderline = isUnderlined
+        for (const module of (props.rows ?? []).flatMap((row) => row.columns.flatMap((column) => column.modules))) {
+            const textDescriptor = module.descriptor?.[TEXT_DESCRIPTOR_KEYS[module.type]]
+            if (textDescriptor) {
+                delete textDescriptor.computedStyle?.linkUnderline
+                clearLinkUnderlineChoices(module)
+            }
+        }
+        emits('textEdited')
     },
 })
 
@@ -377,6 +394,11 @@ const moduleLinkUnderline = computed({
     get: () => isLinkUnderlined(descriptor.value[TEXT_DESCRIPTOR_KEYS[moduleType.value]]?.computedStyle?.linkUnderline, bodyComputedStyle.value.linkUnderline),
     set: (isUnderlined: boolean) => {
         ensureObject(descriptor.value[TEXT_DESCRIPTOR_KEYS[moduleType.value]], 'computedStyle').linkUnderline = isUnderlined
+        if (props.module) {
+            clearLinkUnderlineChoices(props.module)
+            localTextRevision.value += 1
+            emits('textEdited')
+        }
     },
 })
 
@@ -426,7 +448,7 @@ const contentSectionTitle = computed(() => ({
             <EmailWorkshopSection :title="contentSectionTitle">
                 <template v-if="moduleType === MODULE_TYPES.heading">
                     <div class="my-2 rounded border border-gray-300 px-2 py-1.5 text-[13px]">
-                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" />
+                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" :linkUnderline="moduleLinkUnderline" />
                     </div>
                     <EmailWorkshopField v-model="descriptor.heading.title" type="select" :options="headingLevelOptions" :label="ctrans('Title')" />
                     <EmailWorkshopField v-model="descriptor.heading.style['font-family']" type="select" :options="inheritableFontOptions" :label="ctrans('Font')" />
@@ -441,7 +463,7 @@ const contentSectionTitle = computed(() => ({
 
                 <template v-else-if="moduleType === MODULE_TYPES.paragraph">
                     <div class="my-2 rounded border border-gray-300 px-2 py-1.5 text-[13px]">
-                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" />
+                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" :linkUnderline="moduleLinkUnderline" />
                     </div>
                     <EmailWorkshopField v-model="descriptor.paragraph.style['font-family']" type="select" :options="inheritableFontOptions" :label="ctrans('Font')" />
                     <EmailWorkshopField v-model="descriptor.paragraph.style['font-size']" type="px" :label="ctrans('Font size')" />
@@ -457,7 +479,7 @@ const contentSectionTitle = computed(() => ({
 
                 <template v-else-if="moduleType === MODULE_TYPES.text">
                     <div class="my-2 rounded border border-gray-300 px-2 py-1.5 text-[13px]">
-                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" />
+                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" :linkUnderline="moduleLinkUnderline" />
                     </div>
                     <EmailWorkshopField v-model="descriptor.text.style['font-family']" type="select" :options="inheritableFontOptions" :label="ctrans('Font')" />
                     <EmailWorkshopField v-model="descriptor.text.style['font-size']" type="px" :label="ctrans('Font size')" />
@@ -473,7 +495,7 @@ const contentSectionTitle = computed(() => ({
 
                 <template v-else-if="moduleType === MODULE_TYPES.list">
                     <div class="my-2 rounded border border-gray-300 px-2 py-1.5 text-[13px]">
-                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" />
+                        <EditorV2 :key="`${module.uuid}-${textRevision}-${localTextRevision}`" v-model="moduleText" :toggle="moduleTextToggles(module)" :mergeTags="mergeTags" :linkUnderline="moduleLinkUnderline" />
                     </div>
                     <EmailWorkshopField v-model="listType" type="select" :options="listTypeOptions" :label="ctrans('List type')" />
                     <EmailWorkshopField v-model="listMarkerType" type="select" :options="listMarkerOptions" :label="ctrans('Marker style')" />

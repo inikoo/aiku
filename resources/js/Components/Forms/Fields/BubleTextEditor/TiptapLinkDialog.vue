@@ -2,12 +2,15 @@
 import { ref, watch } from "vue"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
+import Checkbox from "primevue/checkbox"
+import { ctrans } from "@/Composables/useTrans"
 import Button from "@/Components/Elements/Buttons/Button.vue";
 
-const props = defineProps<{ show: boolean; currentUrl?: string }>()
+const props = defineProps<{ show: boolean; currentUrl?: string; underline?: boolean; showUnderlineOption?: boolean }>()
 const emit = defineEmits(["close", "update"])
 
 const inputLinkRef = ref<string>(props.currentUrl)
+const isUnderlined = ref<boolean>(props.underline ?? true)
 const visible = ref(props.show)
 
 watch(
@@ -20,13 +23,18 @@ watch(
   (url) => (inputLinkRef.value = url ?? "")
 )
 
+watch(
+  () => props.underline,
+  (underline) => (isUnderlined.value = underline ?? true)
+)
+
 function closeDialog() {
   visible.value = false
   emit("close")
 }
 
 function update() {
-  emit("update", inputLinkRef.value)
+  emit("update", inputLinkRef.value, props.showUnderlineOption ? isUnderlined.value : undefined)
   closeDialog()
 }
 </script>
@@ -53,6 +61,13 @@ function update() {
           class="w-full"
           placeholder="https://example.com"
         />
+      </div>
+
+      <div v-if="showUnderlineOption" class="flex items-center gap-2">
+        <Checkbox v-model="isUnderlined" inputId="input-link-underline" binary />
+        <label for="input-link-underline" class="text-sm text-gray-600 select-none">
+          {{ ctrans("Underline link") }}
+        </label>
       </div>
 
       <div class="flex justify-end gap-3">
