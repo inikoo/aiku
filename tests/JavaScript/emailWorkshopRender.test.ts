@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import {
 	applyLinkColor,
+	buttonLinkStyle,
 	createRenderContext,
 	isLinkUnderlined,
 	renderModuleHtml,
@@ -95,4 +96,29 @@ test("mobile styles saved as an empty list by older layouts are ignored", () => 
 	const context = createRenderContext(emailWithBody(), 375, true, true)
 
 	assert.match(renderModuleHtml(heading, context), /font-size:32px/)
+})
+
+test("the button being edited uses the same style as the button in the email, width included", () => {
+	const button = createModule(MODULE_TYPES.button)
+	button.descriptor.button.style.width = "100%"
+	button.descriptor.button.style["font-family"] = "Georgia, serif"
+
+	const style = buttonLinkStyle(button)
+	const html = renderModuleHtml(button, createRenderContext(emailWithBody(), 600))
+
+	assert.match(style, /;width:100%$/)
+	assert.match(style, /font-family:Georgia, serif/)
+	assert.ok(html.includes(`<a class="button" href="https://" target="_blank" style="${style}">`))
+})
+
+test("a button with automatic width has no width rule, so it fits its label", () => {
+	assert.doesNotMatch(buttonLinkStyle(createModule(MODULE_TYPES.button)), /(^|;)width:/)
+})
+
+test("the button being edited on the mobile canvas uses its mobile font size", () => {
+	const button = createModule(MODULE_TYPES.button)
+	button.descriptor.mobileStyle = { "font-size": "20px" }
+
+	assert.match(buttonLinkStyle(button), /font-size:16px/)
+	assert.match(buttonLinkStyle(button, true), /font-size:20px/)
 })

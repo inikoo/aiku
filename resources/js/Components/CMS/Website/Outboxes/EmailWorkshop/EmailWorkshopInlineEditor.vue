@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import EditorV2 from '@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue'
 import { EmailModule, MODULE_TYPES, getModuleText, moduleTextToggles, setModuleText } from './emailWorkshopBlocks'
-import { isLinkUnderlined, modulePaddingStyle, responsiveContentStyle, styleToString } from './renderEmailHtml'
+import { buttonLinkStyle, isLinkUnderlined, modulePaddingStyle, responsiveContentStyle, styleToString } from './renderEmailHtml'
 
 const props = defineProps<{
     module: EmailModule
@@ -50,7 +50,7 @@ const textBlockStyle = computed(() => {
 })
 
 const buttonAlign = computed(() => descriptor.value.style?.['text-align'] ?? 'center')
-const buttonStyle = computed(() => `display:inline-block;text-align:center;${styleToString(responsiveContentStyle(props.module, descriptor.value.button?.style, !!props.isMobile), ['width', 'max-width'])}`)
+const buttonStyle = computed(() => buttonLinkStyle(props.module, props.isMobile))
 </script>
 
 <template>
@@ -78,6 +78,10 @@ const buttonStyle = computed(() => `display:inline-block;text-align:center;${sty
 
 .email-inline-text :deep(.ProseMirror) {
     min-height: 1em;
+}
+
+.email-inline-text :deep(.editor-class p) {
+    text-shadow: none;
 }
 
 .email-inline-text :deep(p:not(:last-child)) {

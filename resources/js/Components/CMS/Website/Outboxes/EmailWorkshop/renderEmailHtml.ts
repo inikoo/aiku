@@ -255,19 +255,24 @@ const renderList = (module: EmailModule, context: RenderContext): string => {
     return blockTable('list_block', module, context, `<div style="${styleToString(list.style)}">${html}</div>`)
 }
 
+export const buttonLinkStyle = (module: EmailModule, isMobile = false): string => {
+    const responsiveButtonStyle = responsiveContentStyle(module, module.descriptor?.button?.style, isMobile)
+    const buttonStyle = styleToString(responsiveButtonStyle, ['width', 'max-width'])
+    const widthStyle = responsiveButtonStyle.width && responsiveButtonStyle.width !== 'auto' ? `;width:${responsiveButtonStyle.width}` : ''
+
+    return `display:inline-block;text-decoration:none;text-align:center;mso-border-alt:none;word-break:keep-all;${buttonStyle}${widthStyle}`
+}
+
 const renderButton = (module: EmailModule, context: RenderContext): string => {
     const button = module.descriptor?.button ?? {}
     const align = module.descriptor?.style?.['text-align'] ?? 'center'
-    const responsiveButtonStyle = responsiveContentStyle(module, button.style, context.isMobile)
-    const buttonStyle = styleToString(responsiveButtonStyle, ['width', 'max-width'])
-    const widthStyle = responsiveButtonStyle.width && responsiveButtonStyle.width !== 'auto' ? `;width:${responsiveButtonStyle.width}` : ''
     registerMobileStyle(module, context, 'a.button')
 
     return blockTable(
         'button_block',
         module,
         context,
-        `<div class="alignment" align="${escapeAttribute(align)}"><a class="button" href="${escapeAttribute(button.href)}" target="${escapeAttribute(button.target ?? '_blank')}" style="display:inline-block;text-decoration:none;text-align:center;mso-border-alt:none;word-break:keep-all;${buttonStyle}${widthStyle}"><span style="word-break:break-word">${button.label ?? ''}</span></a></div>`,
+        `<div class="alignment" align="${escapeAttribute(align)}"><a class="button" href="${escapeAttribute(button.href)}" target="${escapeAttribute(button.target ?? '_blank')}" style="${buttonLinkStyle(module, context.isMobile)}"><span style="word-break:break-word">${button.label ?? ''}</span></a></div>`,
         `text-align:${escapeAttribute(align)}`,
     )
 }
