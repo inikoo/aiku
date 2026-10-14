@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletStoredItem\PalletStoredItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
@@ -69,6 +70,12 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                     $quantityOrdered = (float) ($palletReturnItem->quantity_ordered ?? 0);
                     $quantityPicked = (float) ($palletReturnItem->quantity_picked ?? 0);
                     $quantityNotPicked = (float) ($palletReturnItem->quantity_not_picked ?? 0);
+                    $stockReservations = $palletStoredItem->getStockReservations($this->pallet_return_id);
+                    $maxQuantity = PalletStoredItem::calculateMaxQuantityForReturn(
+                        (float) $palletStoredItem->quantity,
+                        (float) $stockReservations['reserved_quantity'],
+                        $quantityOrdered
+                    );
 
                     return [
                         'ordered_quantity'              => (int) $palletStoredItem->quantity_ordered,
@@ -76,8 +83,10 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
                         'reference'                  => $palletStoredItem->pallet->reference ?? null,
                         'pallet_slug'                => $palletStoredItem->pallet?->slug ?? null,
                         'selected_quantity'          => (int) ($palletReturnItem->quantity_ordered ?? 0),
-                        'available_quantity'         => (int) $palletStoredItem->quantity,
-                        'max_quantity'               => (int) $palletStoredItem->quantity,
+                        'available_quantity'         => $stockReservations['available_quantity'],
+                        'reserved_quantity'          => $stockReservations['reserved_quantity'],
+                        'reserved_in_other_returns'  => $stockReservations['reserved_in_other_returns'],
+                        'max_quantity'               => (int) $maxQuantity,
                         'quantity_in_pallet'         => (int) $palletStoredItem->quantity,
                         'available_to_pick_quantity' => (int) max(0, $quantityOrdered - $quantityPicked - $quantityNotPicked),
                         'picked_quantity'            => (int) ($palletReturnItem->quantity_picked ?? 0),
@@ -163,7 +172,7 @@ class PalletReturnItemsWithStoredItemsResource extends JsonResource
         )->get();
     }
 
-    public const PALLET_STORED_ITEM_RELATIONS = ['palletReturnItems', 'pallet.location', 'pallet.palletStoredItems'];
+    public const PALLET_STORED_ITEM_RELATIONS = ['palletReturnItems', 'reservingPalletReturnItems.palletReturn', 'pallet.location', 'pallet.palletStoredItems'];
 
     /**
      * Keeps the index eager load and the per row query filtering the same rows.

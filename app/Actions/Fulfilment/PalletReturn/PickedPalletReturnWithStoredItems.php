@@ -28,6 +28,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class PickedPalletReturnWithStoredItems extends OrgAction
@@ -40,6 +41,9 @@ class PickedPalletReturnWithStoredItems extends OrgAction
         if ($palletReturn->type != PalletReturnTypeEnum::STORED_ITEM) {
             abort(419);
         }
+
+        $this->ensurePalletsHoldTheStockLeftToPick($palletReturn);
+
         return DB::transaction(function () use ($palletReturn, $modelData) {
             $modelData[PalletReturnStateEnum::PICKED->value . '_at'] = now();
             $modelData['state'] = PalletReturnStateEnum::PICKED;
@@ -79,6 +83,29 @@ class PickedPalletReturnWithStoredItems extends OrgAction
 
             return $palletReturn;
         });
+    }
+
+    private function ensurePalletsHoldTheStockLeftToPick(PalletReturn $palletReturn): void
+    {
+        $shortItems = $palletReturn->items()
+            ->where('state', PalletReturnItemStateEnum::PICKING)
+            ->whereNotNull('pallet_stored_item_id')
+            ->with(['palletStoredItem.pallet', 'storedItem'])
+            ->get()
+            ->filter(fn (PalletReturnItem $palletReturnItem) => (float) $palletReturnItem->quantity_ordered > max(0, (float) $palletReturnItem->palletStoredItem?->quantity));
+
+        if ($shortItems->isEmpty()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'message' => $shortItems->map(fn (PalletReturnItem $palletReturnItem) => __('Not enough stock of :reference in pallet :pallet: :stock left, :quantity to pick. Pick what is there and set the rest as not picked.', [
+                'reference' => $palletReturnItem->storedItem?->reference,
+                'pallet'    => $palletReturnItem->palletStoredItem?->pallet?->reference,
+                'stock'     => max(0, (float) $palletReturnItem->palletStoredItem?->quantity) + 0,
+                'quantity'  => (float) $palletReturnItem->quantity_ordered + 0,
+            ]))->values()->all(),
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool

@@ -25,6 +25,8 @@ class AttachStoredItemToReturn extends OrgAction
 {
     use WithFulfilmentWarehouseEditAuthorisation;
 
+    private PalletReturn $palletReturn;
+
     private PalletStoredItem $palletStoredItem;
 
     public function handle(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, array $modelData)
@@ -81,13 +83,21 @@ class AttachStoredItemToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'quantity_ordered' => ['required', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->quantity],
+            'quantity_ordered' => ['required', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->getMaxQuantityForReturn($this->palletReturn)],
             'picking_session_id' => ['sometimes', 'nullable', 'integer'],
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'quantity_ordered.max' => __('Only :max available on this pallet, the rest is already reserved by other open returns.'),
         ];
     }
 
     public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request)
     {
+        $this->palletReturn = $palletReturn;
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromWarehouse($palletReturn->warehouse, $request);
 
@@ -104,6 +114,7 @@ class AttachStoredItemToReturn extends OrgAction
             $palletStoredItem = $this->resolvePalletStoredItemFromImport($palletReturn, $modelData);
         }
 
+        $this->palletReturn = $palletReturn;
         $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
