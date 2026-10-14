@@ -21,6 +21,7 @@ use App\Actions\Retina\Fulfilment\Pallet\StoreRetinaPalletFromDelivery;
 use App\Actions\Retina\SysAdmin\StoreRetinaWebUser;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Billables\Rental\RentalTypeEnum;
@@ -34,7 +35,9 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveriesTabsEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Web\Webpage;
 use App\Models\Billables\Rental;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\Pallet;
@@ -233,6 +236,33 @@ test('show log in', function () {
 test('show redirect if not logged in', function () {
     $response = $this->get(route('retina.dashboard.show'));
     $response->assertRedirect('app/login');
+});
+
+test('an already logged in web user opening login goes back to the webpage they came from', function () {
+    $webpage = Webpage::where('website_id', $this->website->id)
+        ->where('state', WebpageStateEnum::LIVE)
+        ->firstOrFail();
+
+    actingAs($this->webUser, 'retina');
+
+    $this->get(route('retina.login.show', ['ref' => $webpage->id]))
+        ->assertRedirect(ShowIrisWebpage::make()->getEnvironmentUrl($webpage->canonical_url));
+});
+
+test('an already logged in web user opening login with a path on the website goes to that path', function () {
+    actingAs($this->webUser, 'retina');
+
+    $this->get(route('retina.login.show', ['ref' => '/app/dropshipping/sale-channels/create?shop=acme']))
+        ->assertRedirect('/app/dropshipping/sale-channels/create?shop=acme');
+});
+
+test('an already logged in web user opening login with an unknown or off site ref goes to the dashboard', function () {
+    actingAs($this->webUser, 'retina');
+
+    foreach ([999999999, 'https://evil.example', '//evil.example', '/\\evil.example', "/\t/evil.example", 'app/dashboard'] as $ref) {
+        $this->get(route('retina.login.show', ['ref' => $ref]))->assertRedirect('/app/dashboard');
+    }
+    $this->get(route('retina.login.show'))->assertRedirect('/app/dashboard');
 });
 
 test('show dashboard', function () {
@@ -1236,7 +1266,46 @@ test('logging in flags the browser so the storefront can paint logged in before 
         ->first(fn ($cookie) => $cookie->getName() === 'iris_vua');
 
     expect($authCookie)->not->toBeNull()
-        ->and($authCookie->isHttpOnly())->toBeFalse();
+        ->and($authCookie->isHttpOnly())->toBeFalse()
+        ->and($authCookie->getExpiresTime())->toBeLessThanOrEqual(now()->addMinutes(config('session.lifetime') + 1)->timestamp);
+});
+
+test('logging in with remember me keeps the storefront flag as long as the remember me cookie', function () {
+    $this->webUser->update(['password' => \Illuminate\Support\Facades\Hash::make('test')]);
+
+    $response = $this->post(route('retina.login.store'), [
+        'username' => $this->webUser->username,
+        'password' => 'test',
+        'remember' => true,
+    ]);
+
+    $response->assertSuccessful();
+
+    $authCookie = collect($response->headers->getCookies())
+        ->first(fn ($cookie) => $cookie->getName() === 'iris_vua');
+
+    expect($authCookie)->not->toBeNull()
+        ->and($authCookie->getExpiresTime())->toBeGreaterThan(now()->addDays(399)->timestamp);
+});
+
+test('resetting the password signs out every remembered device and remembers this one', function () {
+    $this->webUser->updateQuietly(['remember_token' => 'remembered-on-another-device']);
+    $token = Str::random(26);
+    $reset = \App\Models\CRM\WebUserPasswordReset::create([
+        'website_id'  => $this->website->id,
+        'web_user_id' => $this->webUser->id,
+        'token'       => \Illuminate\Support\Facades\Hash::make($token),
+    ]);
+
+    $response = $this->patch(route('retina.reset-password.update'), [
+        'token'                      => $token,
+        'web_user_password_reset_id' => $reset->id,
+        'password'                   => 'new-password',
+    ]);
+
+    $response->assertRedirect(route('retina.dashboard.show'));
+    expect($this->webUser->fresh()->remember_token)->not->toBe('remembered-on-another-device')
+        ->and(collect($response->headers->getCookies())->first(fn ($cookie) => str_starts_with($cookie->getName(), 'remember_retina_')))->not->toBeNull();
 });
 
 test('only the main user manages the customer web users, and the main user can not be disabled or deleted', function () {
