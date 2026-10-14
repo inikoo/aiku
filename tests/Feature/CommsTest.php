@@ -4376,6 +4376,16 @@ describe('email retention', function () {
             ['email_address' => 'archiver-only-old@example.com']
         );
 
+        $fullyArchivedBulkRun = StoreEmailBulkRun::make()->action(
+            createOutboxDirectly($this->shop, OutboxCode::PRICE_CHANGE_NOTIFICATION)->emailOngoingRun,
+            ['subject' => 'Archiver bulk run', 'state' => \App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum::SENT],
+            strict: false
+        );
+        DB::table('email_bulk_run_has_dispatched_emails')->insert([
+            'email_bulk_run_id'   => $fullyArchivedBulkRun->id,
+            'dispatched_email_id' => $fullyArchivedEmail->id,
+        ]);
+
         $oldDate = now()->subDays(config('archive.email_retention_days') + 30);
         DB::table('dispatched_emails')->where('id', $fullyArchivedEmail->id)->update(['created_at' => $oldDate]);
         DB::table('dispatched_emails')->where('id', $oldEmail->id)->update([
@@ -4409,7 +4419,9 @@ describe('email retention', function () {
         expect($mailshotBaseline['number_dispatched_emails'])->toBe(1)
             ->and($mailshotBaseline['number_dispatched_emails_state_opened'])->toBe(1)
             ->and($mailshotBaseline['number_delivered_open_success'])->toBe(1)
-            ->and($outbox->stats->refresh()->archived_dispatched_emails['number_dispatched_emails'])->toBe(2);
+            ->and($outbox->stats->refresh()->archived_dispatched_emails['number_dispatched_emails'])->toBe(2)
+            ->and($fullyArchivedMailshot->stats->refresh()->number_dispatched_emails)->toBe(1)
+            ->and($fullyArchivedBulkRun->stats->refresh()->number_dispatched_emails)->toBe(1);
 
         \App\Actions\Comms\Mailshot\Hydrators\MailshotHydrateDispatchedEmails::run($mailshot->id);
 

@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
+use App\Actions\Procurement\SupplierAgreedTerm\PdfSupplierAgreement;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
 use App\Actions\Procurement\AgentLabel\PdfAgentOrgStockBarcodeLabel;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
@@ -191,6 +192,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('create', CreateOrgSupplier::class)->name('create');
     Route::get('create-new', [CreateSupplier::class, 'inOrganisation'])->name('create_new');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
+    Route::get('{orgSupplier}/agreement/pdf', PdfSupplierAgreement::class)->name('show.agreement.pdf');
     Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
     Route::get('{orgSupplier}/purchase-order/{purchaseOrder}', [ShowPurchaseOrder::class, 'inOrgSupplier'])->name('show.purchase-orders.show');
     Route::get('{orgSupplier}/supplier-products', [IndexOrgSupplierProducts::class, 'inOrgSupplier'])->name('show.supplier_products.index');

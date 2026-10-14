@@ -32,7 +32,7 @@ Tā sākas ar **donuta diagrammu**: katrs produkts katalogā, viena šķēle kat
 Zem diagrammas grozi sadalīti divās grupās. **Needs ordering** (Jāpasūta) satur piecus, kas prasa uzmanību:
 
 - **Out of stock** (Nav krājumā) — plauktā nekas nav palicis.
-- **Doomed** (Lemts trūkumam) — krājums vēl ir, bet tas beigsies, pirms varētu pienākt piegāde, pat ja pasūtītu tūlīt.
+- **Doomed** (Lemts trūkumam) — krājums vēl ir, bet tas beigsies, pirms varētu pienākt piegāde, pat ja pasūtītu tūlīt. Krājums, kas jau ir ceļā, atvērtajās piegādēs un iesniegtajos pirkuma pasūtījumos, tiek ieskaitīts katrā grupā: produkts, kuram ceļā ir pietiekami daudz, netiek rādīts kā apdraudēts.
 - **Critical / Danger / Watch** (Kritisks / Bīstams / Vērojams) — beigsies divu, trīs vai četru piegādes laiku robežās.
 
 **Not for ordering** (Nav jāpasūta) satur pārējos trīs:

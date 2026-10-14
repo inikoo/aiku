@@ -32,7 +32,7 @@ Empieza con un **gráfico de donut**: todos los productos del catálogo, una por
 Debajo del gráfico, los cubos se agrupan en dos. **Needs ordering** (necesitan pedido) reúne los cinco que piden tu atención:
 
 - **Out of stock** — nada en la estantería.
-- **Doomed** — todavía tienes stock, pero se agotará antes de que pudiera llegar una entrega, aunque pidieras ahora mismo.
+- **Doomed** — todavía tienes stock, pero se agotará antes de que pudiera llegar una entrega, aunque pidieras ahora mismo. El stock que ya está en camino, en entregas abiertas y pedidos de compra enviados, cuenta en todos los grupos: un producto con suficiente en camino no aparece como en riesgo.
 - **Critical / Danger / Watch** — se agota dentro de dos, tres o cuatro plazos de entrega.
 
 **Not for ordering** (no necesitan pedido) reúne los otros tres:

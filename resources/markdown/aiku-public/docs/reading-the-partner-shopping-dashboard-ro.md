@@ -32,7 +32,7 @@ Se deschide cu un **donut chart** (grafic gogoașă): fiecare produs din catalog
 Sub grafic, găletile stau în două grupuri. **Needs ordering** (necesită comandă) ține cele cinci care cer atenția ta:
 
 - **Out of stock** (fără stoc) — nu mai e nimic pe raft.
-- **Doomed** (sortit) — mai ai stoc, dar se va termina înainte să poată ajunge o livrare, chiar dacă ai comanda chiar acum.
+- **Doomed** (sortit) — mai ai stoc, dar se va termina înainte să poată ajunge o livrare, chiar dacă ai comanda chiar acum. Stocul aflat deja pe drum, în livrări deschise și comenzi de achiziție trimise, este luat în calcul în fiecare grup: un produs cu suficient stoc pe drum nu apare ca fiind în pericol.
 - **Critical / Danger / Watch** (critic / pericol / atenție) — se va termina în două, trei sau patru timpi de livrare.
 
 **Not for ordering** (nu pentru comandă) ține celelalte trei:

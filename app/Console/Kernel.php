@@ -1386,6 +1386,17 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('google_tag_manager:fetch')
+                    ->dailyAt('02:50')
+                    ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                        monitorSlug: 'FetchGoogleTagManagerContainers',
+                    ),
+                name: 'FetchGoogleTagManagerContainers',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('crawl:audit --async')
                     ->weeklyOn(0, '03:00')
                     ->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(

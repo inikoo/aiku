@@ -481,6 +481,9 @@ use App\Actions\Procurement\PurchaseOrder\UndoPurchaseOrderPayment;
 use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
+use App\Actions\Procurement\ProcurementNote\UpdateProcurementNote;
+use App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm;
+use App\Actions\Procurement\SupplierAgreedTerm\WithdrawSupplierAgreedTerm;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderJourneyStage;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
@@ -1666,6 +1669,15 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 
 Route::delete('agent-payment/{agentPayment:id}', DeleteAgentPayment::class)->name('agent_payment.delete');
 Route::delete('supplier-payment/{supplierPayment:id}', DeleteSupplierPayment::class)->name('supplier_payment.delete');
+
+Route::post('supplier/{supplier:id}/procurement-note', [StoreProcurementNote::class, 'inSupplier'])->name('supplier.procurement_note.store');
+Route::post('supplier-product/{supplierProduct:id}/procurement-note', [StoreProcurementNote::class, 'inSupplierProduct'])->name('supplier-product.procurement_note.store');
+Route::post('agent/{agent:id}/procurement-note', [StoreProcurementNote::class, 'inAgent'])->name('agent.procurement_note.store');
+Route::patch('procurement-note/{procurementNote:id}', [UpdateProcurementNote::class, 'update'])->name('procurement_note.update');
+Route::post('supplier/{supplier:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplier'])->name('supplier.agreed_term.store');
+Route::post('supplier-product/{supplierProduct:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inSupplierProduct'])->name('supplier-product.agreed_term.store');
+Route::post('agent/{agent:id}/agreed-term', [StoreSupplierAgreedTerm::class, 'inAgent'])->name('agent.agreed_term.store');
+Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawSupplierAgreedTerm::class, 'withdraw'])->name('supplier_agreed_term.withdraw');
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');

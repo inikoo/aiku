@@ -62,6 +62,8 @@ use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\AgentOrder\UI\IndexAgentOrders;
 use App\Actions\Procurement\AgentOrder\UI\ShowAgentOrder;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesProducts;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgentSalesSuppliers;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentSales;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\ShowAgentOrderPipeline;
@@ -92,6 +94,9 @@ Route::prefix('supplier-products')->as('org_supplier_products.')->group(function
 });
 
 Route::get('sales', ShowAgentSales::class)->name('sales.dashboard');
+Route::get('sales/suppliers', IndexAgentSalesSuppliers::class)->name('sales.suppliers.index');
+Route::get('sales/suppliers/{supplier}', [ShowAgentSales::class, 'inSupplier'])->name('sales.suppliers.show');
+Route::get('sales/products', IndexAgentSalesProducts::class)->name('sales.products.index');
 
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
     Route::get('', ShowAgentPurchaseOrdersDashboard::class)->name('dashboard');

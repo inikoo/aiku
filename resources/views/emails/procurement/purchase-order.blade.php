@@ -23,6 +23,14 @@
                     @endforeach
                 </table>
             @endif
+            @if(!empty($agreedTerms))
+                <p style="margin:0 0 8px;">{{ __('This order is placed on the terms we agreed:') }}</p>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;font-size:14px;">
+                    @foreach($agreedTerms as $agreedTerm)
+                        <tr><td style="padding:2px 16px 2px 0;font-weight:600;">{{ $agreedTerm['term'] }}</td><td style="padding:2px 0;">{{ $agreedTerm['value'] }}</td></tr>
+                    @endforeach
+                </table>
+            @endif
             <p style="margin:0 0 16px;">{{ __('Please confirm the order, prices and the expected dispatch date by replying to this email.') }}</p>
             <p style="margin:0;">{{ __('Kind regards,') }}<br>{{ $organisationName }}</p>
         </td>

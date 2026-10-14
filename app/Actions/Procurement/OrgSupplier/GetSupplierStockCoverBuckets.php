@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgSupplier;
 
+use App\Actions\Procurement\GetOrganisationStockCoverBuckets;
 use App\Enums\Catalogue\HealthRankEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
@@ -53,12 +54,13 @@ class GetSupplierStockCoverBuckets
             when os.id is null then 'never'
             when os.state not in ($stocking) then 'dead'
             when os.quantity_available <= 0 then 'out'
-            when s.days_of_cover <= $lead then 'w1'
-            when s.days_of_cover <= $understock then 'w2'
-            when s.days_of_cover <= 3 * $lead then 'w3'
-            when s.days_of_cover <= 4 * $lead then 'w4'
-            when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
-            else 'ok' end";
+            else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
+                when cover.days <= $lead then 'w1'
+                when cover.days <= $understock then 'w2'
+                when cover.days <= 3 * $lead then 'w3'
+                when cover.days <= 4 * $lead then 'w4'
+                when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'
+                else 'ok'").' end';
     }
 
     /**

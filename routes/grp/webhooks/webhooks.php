@@ -35,6 +35,7 @@ use App\Actions\Helpers\Ticket\ReceiveSlackInteraction;
 use App\Actions\Helpers\Ticket\ReceiveSlackTicketCommand;
 use App\Actions\Helpers\Ticket\ReceiveSlackTicketReaction;
 use App\Actions\DevOps\CiRun\ReceiveGitHubWorkflowWebhook;
+use App\Actions\Web\GoogleTagManager\CallbackGoogleTagManager;
 use Laravel\Nightwatch\Http\Middleware\Sample;
 
 Route::name('webhooks.')->group(function () {
@@ -53,6 +54,7 @@ Route::name('webhooks.')->group(function () {
 });
 
 Route::get('google-ads/callback', CallbackShopGoogleAds::class)->name('google_ads.callback');
+Route::get('google-tag-manager/callback', CallbackGoogleTagManager::class)->name('google_tag_manager.callback');
 
 Route::middleware('verify.shopify.webhook')->prefix('shopify/{shopifyUser:id}')->name('webhooks.shopify.')->group(function () {
     Route::any('fulfillment_order_notification', CallbackFulfillmentOrderNotification::class)->name('fulfillment_order_notification');

@@ -9,6 +9,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
@@ -49,6 +50,10 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
         if (!$this->asAction && $waiting = SendAgentDraftsToAgent::organisationsNotReady($this->purchaseOrder)) {
             $validator->errors()->add('purchase_order', __(':organisations are also ordering from this supplier and have not said they are ready. Submit it from POs to submit.', ['organisations' => implode(', ', $waiting)]));
+        }
+
+        if (!$this->asAction && !$this->get('critical_notes_acknowledged') && GetPurchaseOrderAgreement::make()->hasCriticalNotes($this->purchaseOrder)) {
+            $validator->errors()->add('critical_notes', __('This order has critical notes. Read them and tick that you have before submitting.'));
         }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {
@@ -116,6 +121,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     {
         return [
             'send_via' => ['sometimes', 'nullable', 'string', 'in:email,whatsapp'],
+            'critical_notes_acknowledged' => ['sometimes', 'boolean'],
         ];
     }
 

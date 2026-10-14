@@ -32,7 +32,11 @@ class GetAgentOrganisationNavigation
                     $this->procurementSubSection(__('Labels'), 'fa-tags', 'grp.org.agent.agent_labels.', 'grp.org.agent.agent_labels.index', $organisation),
                     $this->procurementSubSection(__('Barcodes'), 'fa-barcode', 'grp.org.agent.agent_barcodes.', 'grp.org.agent.agent_barcodes.index', $organisation),
                 ],
-                'agent_sales' => [],
+                'agent_sales' => [
+                    $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.sales.dashboard', 'grp.org.agent.sales.dashboard', $organisation),
+                    $this->procurementSubSection(__('Suppliers'), 'fa-person-dolly', 'grp.org.agent.sales.suppliers.', 'grp.org.agent.sales.suppliers.index', $organisation),
+                    $this->procurementSubSection(__('Products'), 'fa-box-usd', 'grp.org.agent.sales.products.', 'grp.org.agent.sales.products.index', $organisation),
+                ],
                 'agent_purchase_orders' => [
                     $this->procurementSubSection(__('Dashboard'), 'fa-chart-network', 'grp.org.agent.purchase_orders.dashboard', 'grp.org.agent.purchase_orders.dashboard', $organisation),
                     $this->procurementSubSection(__('List'), 'fa-clipboard-list', 'grp.org.agent.purchase_orders.index', 'grp.org.agent.purchase_orders.index', $organisation),

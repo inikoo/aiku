@@ -17,6 +17,8 @@ enum OrgSupplierProductTabsEnum: string
     use HasTabs;
 
     case SHOWCASE = 'showcase';
+    case AGREED_TERMS = 'agreed_terms';
+    case NOTES = 'notes';
     case PURCHASE_SALES = 'purchase_sales';
     case SUPPLIER_PRODUCTS = 'supplier_products';
     case PURCHASE_ORDERS = 'purchase_orders';
@@ -30,6 +32,14 @@ enum OrgSupplierProductTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
+            OrgSupplierProductTabsEnum::AGREED_TERMS => [
+                'title' => __('Agreed terms'),
+                'icon'  => 'fal fa-handshake',
+            ],
+            OrgSupplierProductTabsEnum::NOTES => [
+                'title' => __('Notes'),
+                'icon'  => 'fal fa-sticky-note',
+            ],
             OrgSupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('Supplier product'),
                 'icon'  => 'fas fa-info-circle',
