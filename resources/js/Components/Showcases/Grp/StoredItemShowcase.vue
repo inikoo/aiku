@@ -137,10 +137,6 @@ const generateLinkPalletShow = (pallet: { slug?: string }): string | undefined =
                 fulfilmentCustomer: params.fulfilmentCustomer,
                 pallet: pallet.slug,
             })
-        case 'retina.fulfilment.itemised_storage.stored_items.show':
-            return route().has('retina.fulfilment.storage.pallets.show')
-                ? route('retina.fulfilment.storage.pallets.show', [pallet.slug])
-                : undefined
         default:
             return undefined
     }
