@@ -61,7 +61,7 @@ const suggestedQuantityHint = computed(() => {
 		return ctrans("Stock in hand and coming is already enough, so no order is needed.")
 	}
 
-	return ctrans("Suggested quantity: :quantity SKOs.", { quantity: formatNumber(suggestion.value) })
+	return ctrans("Suggested quantity: :quantity.", { quantity: formatQuantity(suggestion.value) })
 })
 
 const verdict = computed(() => {
@@ -216,6 +216,7 @@ const formatSales = (skos: number) => {
 	return locale.number(Math.round(cartons * (cartons < 1 ? 100 : 10)) / (cartons < 1 ? 100 : 10))
 }
 const formatSkos = (skos: number) => ctrans(":quantity SKOs", { quantity: formatNumber(skos) })
+const formatQuantity = (skos: number) => (props.inCartons ? ctrans(":quantity cartons", { quantity: formatSales(skos) }) : formatSkos(skos))
 
 const currentQuarter = (() => {
 	const now = new Date()
@@ -291,10 +292,10 @@ const stockTooltip = computed(() => {
 	const lastReceived = props.item.stock_deliveries?.last_received
 	if (lastReceived) {
 		lines.push(
-			ctrans("Last received: :reference, :date (:quantity SKOs)", {
+			ctrans("Last received: :reference, :date (:quantity)", {
 				reference: lastReceived.reference,
 				date: useFormatTime(lastReceived.received_at),
-				quantity: formatNumber(Number(lastReceived.quantity) / pack.value),
+				quantity: formatQuantity(Number(lastReceived.quantity) / pack.value),
 			})
 		)
 	}
@@ -316,9 +317,9 @@ function purchaseOrderRoute(slug: string) {
 		<div class="flex flex-wrap items-center gap-x-2 text-gray-600">
 			<span v-tooltip="stockTooltip" class="cursor-help">
 				<span v-if="isOrderClosed" class="text-gray-500">{{ ctrans("Stock today") }}: </span>
-				<span class="font-semibold text-gray-800">{{ formatNumber(stock) }}</span> {{ ctrans("in stock") }}
+				<span class="font-semibold text-gray-800">{{ formatSales(stock) }}</span> {{ inCartons ? ctrans("cartons in stock") : ctrans("in stock") }}
 				<template v-if="incoming > 0">
-					+ <span class="font-semibold text-gray-800">{{ formatNumber(incoming) }}</span> {{ ctrans("coming") }}
+					+ <span class="font-semibold text-gray-800">{{ formatSales(incoming) }}</span> {{ ctrans("coming") }}
 				</template>
 				<template v-if="hasHistory">
 					· {{ ctrans("lasts") }} <span class="font-semibold text-gray-800">{{ weeksLabel(daysNow) }}</span>
