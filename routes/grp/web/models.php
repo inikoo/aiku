@@ -529,6 +529,7 @@ use App\Actions\Production\Artefact\UpdateArtefactComplianceItem;
 use App\Actions\Production\ArtefactDepartment\StoreArtefactDepartment;
 use App\Actions\Production\ArtefactDepartment\UpdateArtefactDepartment;
 use App\Actions\Production\JobOrder\ConfirmJobOrder;
+use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock;
 use App\Actions\Production\JobOrder\StoreJobOrder;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
@@ -1589,6 +1590,7 @@ Route::patch('/job-order-item/{jobOrderItem:id}', UpdateJobOrderItem::class)->na
 Route::patch('/job-order-item/{jobOrderItem:id}/split', SplitJobOrderItem::class)->name('job-order-item.split')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/confirm', ConfirmJobOrder::class)->name('job-order.confirm')->withoutScopedBindings();
 Route::patch('/job-order/{jobOrder:id}/receive', ReceiveJobOrderIntoStock::class)->name('job-order.receive')->withoutScopedBindings();
+Route::patch('/job-order/{jobOrder:id}/hold', HoldJobOrder::class)->name('job-order.hold')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/void', VoidManufactureTaskSession::class)->name('manufacture-task-session.void')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/correct', CorrectManufactureTaskSessionQuantity::class)->name('manufacture-task-session.correct')->withoutScopedBindings();
 Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/under-target-review', ReviewUnderTargetManufactureTaskSession::class)->name('manufacture-task-session.under_target_review')->withoutScopedBindings();

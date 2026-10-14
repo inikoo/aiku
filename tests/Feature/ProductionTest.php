@@ -2113,6 +2113,18 @@ test('completed job order is received into stock with a batch code', function ()
     $session = StartManufactureTaskSession::make()->action($user, $task);
     CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 10]);
 
+    \App\Actions\Production\JobOrder\HoldJobOrder::make()->action($jobOrder, ['on_hold' => true, 'kind' => 'missing_label', 'reason' => 'Labels out of stock'], $user);
+
+    expect(fn () => \App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock::make()->action($jobOrder->refresh(), ['location_id' => $location->id]))
+        ->toThrow(ValidationException::class, 'On hold: Labels out of stock. Clear the hold before receiving.')
+        ->and(\App\Actions\Production\JobOrder\UI\IndexJobOrders::make()->getElementGroups($this->production)['hold']['elements']['on_hold'][1])->toBeGreaterThanOrEqual(1);
+
+    \App\Actions\Production\JobOrder\HoldJobOrder::make()->action($jobOrder->refresh(), ['on_hold' => false], $user);
+
+    expect($jobOrder->refresh()->data)->not->toHaveKey('hold')
+        ->and($jobOrder->data['holds'])->toHaveCount(1)
+        ->and($jobOrder->data['holds'][0])->toMatchArray(['reason' => 'Labels out of stock', 'kind' => 'missing_label', 'cleared_user_id' => $user->id]);
+
     $jobOrder = \App\Actions\Production\JobOrder\ReceiveJobOrderIntoStock::make()->action($jobOrder, [
         'location_id' => $location->id,
     ]);

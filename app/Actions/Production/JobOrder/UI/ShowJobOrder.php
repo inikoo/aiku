@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\JobOrder\UI;
 
+use App\Actions\Production\JobOrder\HoldJobOrder;
 use App\Actions\Production\JobOrderItem\GetOpenJobOrderItemsOffBatch;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
@@ -31,11 +32,18 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowJobOrder extends OrgAction
 {
+    private bool $canHold = false;
+
     public function authorize(ActionRequest $request): bool
     {
         $jobOrder      = $request->route('jobOrder');
         $isOwnJobOrder = $jobOrder instanceof JobOrder && $jobOrder->employee_id
             && $jobOrder->employee_id == GetUserCurrentEmployee::run($request->user(), $this->organisation->id)?->id;
+
+        $this->canHold = $request->user()->authTo([
+            'org-supervisor.'.$this->organisation->id,
+            "productions_operations.{$this->production->id}.orchestrate",
+        ]);
 
         $this->canEdit = $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
@@ -142,7 +150,14 @@ class ShowJobOrder extends OrgAction
                     'overproductions' => $jobOrder->data['overproductions'] ?? [],
                     'corrections'     => $jobOrder->data['corrections'] ?? [],
                     'non_productive'  => $this->nonProductive($jobOrder, $currencySymbol),
+                    'hold'            => $this->holdWithLabel($jobOrder->data['hold'] ?? null),
+                    'holds'           => array_map(fn (array $hold) => $this->holdWithLabel($hold), $jobOrder->data['holds'] ?? []),
                 ],
+                'hold_route'        => $this->canHold && ($isOpen || isset($jobOrder->data['hold'])) ? [
+                    'name'       => 'grp.models.job-order.hold',
+                    'parameters' => ['jobOrder' => $jobOrder->id],
+                ] : null,
+                'hold_kind_options' => collect(HoldJobOrder::kindLabels())->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 'artisan_options' => $this->canEdit ? Employee::where('organisation_id', $this->organisation->id)
                     ->where('state', EmployeeStateEnum::WORKING)
                     ->orderBy('contact_name')
@@ -177,6 +192,11 @@ class ShowJobOrder extends OrgAction
                 ] : null,
             ]
         );
+    }
+
+    private function holdWithLabel(?array $hold): ?array
+    {
+        return $hold ? array_merge($hold, ['kind_label' => HoldJobOrder::kindLabels()[$hold['kind'] ?? 'other'] ?? null]) : null;
     }
 
     /**
