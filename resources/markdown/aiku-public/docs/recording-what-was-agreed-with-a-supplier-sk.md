@@ -95,6 +95,19 @@ Agent, ktorý pracuje v aiku, vidí na svojich stránkach len podmienky a pozná
 
 Pri dodávateľovi stlačte **Handover sheet** v paneli **What was agreed**. Otvorí sa PDF so všetkými platnými podmienkami a všetkými otvorenými poznámkami, určené osobe, ktorá dodávateľa preberá.
 
+## Keď sa objednávka alebo faktúra líši od dohodnutého
+
+aiku porovnáva objednané a fakturované s dohodnutými podmienkami pri každom dodávateľovi alebo agentovi, ktorý má zaznamenanú aspoň jednu dohodnutú podmienku. Dodávateľ ani agent nemôže sám zvýšiť cenu ani pridať poplatok: každý rozdiel čaká, kým ho nákup prijme.
+
+- **Na nákupnej objednávke:** riadok, ktorý stojí viac ako náklad produktu dodávateľa, alebo objednávka v inej mene, ako je dohodnutá mena platby.
+- **Na faktúre dodávateľa alebo agenta k dodávke:** poplatok, ktorého podmienka je Zahrnuté alebo Nepovolené, poplatok nad dohodnutou sumou, poplatok bez dohodnutej podmienky, alebo doprava, keď dohodnutý Incoterm (CFR, CIF, CPT, CIP, DAP, DPU, DDP) ukladá zaplatiť ju dodávateľovi.
+
+Pri zadávaní faktúry zvoľte typ každého poplatku (poplatok za balenie, poplatok za etikety, doprava a pod.), aby sa porovnal so správnou podmienkou.
+
+Každý rozdiel je červeno uvedený v paneli **Iné, ako bolo dohodnuté** hore na objednávke alebo dodávke, vedľa toho, čo bolo dohodnuté. Napíšte, prečo ho prijímate, a stlačte **Prijať**. Kým nie sú prijaté všetky, objednávku nemožno odoslať, dodávku nemožno zaplatiť a poplatky agenta nemožno schváliť. Ak sa objednávka alebo faktúra neskôr zmení, nový rozdiel treba prijať znova.
+
+Každý prijatý rozdiel sa stane otvorenou poznámkou **Incident** na dodávateľovi alebo agentovi so sumou a vaším dôvodom a dostane o ňom upozornenie vedúci nákupu a nákupca objednávky. Zoznamy dodávateľov ukazujú počet otvorených incidentov vedľa kódu dodávateľa.
+
 <aside class="wayfinder"><strong>Kde klikať v aiku</strong>
 <ul>
 <li><b>Pozrieť, čo sa s dodávateľom dohodlo:</b> vaša organizácia → <b>Procurement → Suppliers</b> → dodávateľ → panel <b>What was agreed</b>.</li>
@@ -105,9 +118,10 @@ Pri dodávateľovi stlačte **Handover sheet** v paneli **What was agreed**. Otv
 <li><b>Podmienka alebo poznámka pre jeden produkt:</b> dodávateľ → jeho produkty → produkt → <b>Agreed terms</b> alebo <b>Notes</b>.</li>
 <li><b>Potvrdiť kritické poznámky:</b> objednávka → zaškrtnite <b>I have read the critical notes for this order</b> → <b>Submit</b>.</li>
 <li><b>Vytlačiť odovzdávací list:</b> dodávateľ → panel <b>What was agreed</b> → <b>Handover sheet</b>.</li>
+<li><b>Prijať rozdiel:</b> nákupná objednávka alebo dodávka → <b>Iné, ako bolo dohodnuté</b> → napíšte dôvod → <b>Prijať</b>.</li>
 </ul>
 </aside>
 
 <aside class="permissions"><strong>Oprávnenia, ktoré potrebujete</strong>
-Na zobrazenie podmienok a poznámok potrebujete oprávnenie zobrazovať obstarávanie organizácie a na pridanie poznámky alebo podmienky oprávnenie upravovať obstarávanie. Zmena alebo odvolanie podmienky, ktorú dohodol niekto iný, a pripnutie alebo vyriešenie poznámky napísanej niekým iným vyžadujú pozíciu vedúceho obstarávania.
+Na zobrazenie podmienok a poznámok potrebujete oprávnenie zobrazovať obstarávanie organizácie a na pridanie poznámky alebo podmienky oprávnenie upravovať obstarávanie. Zmena alebo odvolanie podmienky, ktorú dohodol niekto iný, a pripnutie alebo vyriešenie poznámky napísanej niekým iným vyžadujú pozíciu vedúceho obstarávania. Prijatie rozdielu oproti dohodnutému vyžaduje oprávnenie upravovať nákup v organizácii, ktorá platí.
 </aside>

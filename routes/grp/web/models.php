@@ -482,6 +482,7 @@ use App\Actions\Procurement\PurchaseOrder\RevertPurchaseOrderToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
 use App\Actions\Procurement\ProcurementNote\UpdateProcurementNote;
+use App\Actions\Procurement\SupplierAgreedTerm\AcceptAgreedTermDifferences;
 use App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm;
 use App\Actions\Procurement\SupplierAgreedTerm\WithdrawSupplierAgreedTerm;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
@@ -1681,6 +1682,7 @@ Route::patch('supplier-agreed-term/{supplierAgreedTerm:id}/withdraw', [WithdrawS
 
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('note', [StoreProcurementNote::class, 'inStockDelivery'])->name('note.store');
+    Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inStockDelivery'])->name('agreed_terms.accept');
     Route::post('invoice', StoreActualStockDeliveryInvoice::class)->name('invoice.store');
     Route::post('agent-payment', StoreAgentPayment::class)->name('agent_payment.store');
     Route::post('supplier-payment', StoreSupplierPayment::class)->name('supplier_payment.store');
@@ -1768,6 +1770,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('ready-to-send', SetPurchaseOrderReadyToSend::class)->name('ready_to_send');
     Route::patch('undo-submit', UpdatePurchaseOrderStateToInProcess::class)->name('undo-submit');
     Route::post('note', [StoreProcurementNote::class, 'inPurchaseOrder'])->name('note.store');
+    Route::post('agreed-terms/accept', [AcceptAgreedTermDifferences::class, 'inPurchaseOrder'])->name('agreed_terms.accept');
     Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
     Route::patch('undo-confirm', RevertPurchaseOrderToSubmitted::class)->name('undo-confirm');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');

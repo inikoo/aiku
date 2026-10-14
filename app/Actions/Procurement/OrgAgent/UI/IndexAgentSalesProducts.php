@@ -75,7 +75,7 @@ class IndexAgentSalesProducts extends OrgAction
         });
         $supplierFilter = AllowedFilter::callback('supplier', fn ($query, $value) => $query->where('supplier_id', (int) $value));
 
-        $query = QueryBuilder::for(SupplierProduct::withoutGlobalScopes()->fromSub(GetAgentSalesProducts::make()->products($agent, $supplierId), 'products')->selectRaw('products.*, '.GetAgentSalesProducts::DERIVED));
+        $query = QueryBuilder::for(SupplierProduct::withoutGlobalScopes()->fromSub(GetAgentSalesProducts::make()->products($agent, $supplierId, interval: $this->dateInterval), 'products')->selectRaw('products.*, '.GetAgentSalesProducts::DERIVED));
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             $query->whereElementGroup(key: $key, allowedElements: array_keys($elementGroup['elements']), engine: $elementGroup['engine']);
@@ -83,7 +83,7 @@ class IndexAgentSalesProducts extends OrgAction
 
         return $query
             ->defaultSort('-sold')
-            ->allowedSorts(['code', 'name', 'supplier_code', 'sold', 'this_year', 'stock_value', 'faults', ...GetAgentSalesProducts::make()->derivedSorts()])
+            ->allowedSorts(['code', 'name', 'supplier_code', 'sold', 'stock_value', ...GetAgentSalesProducts::make()->derivedSorts()])
             ->allowedFilters([$globalSearch, $supplierFilter])
             ->orderBy('id')
             ->withPaginator(null, tableName: request()->route()?->getName())
@@ -94,6 +94,7 @@ class IndexAgentSalesProducts extends OrgAction
     {
         return function (InertiaTable $table) {
             $table
+                ->dateInterval($this->dateInterval)
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('No products found')]);
@@ -106,13 +107,11 @@ class IndexAgentSalesProducts extends OrgAction
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'supplier_code', label: __('Supplier'), canBeHidden: false, sortable: true)
-                ->column(key: 'sold', label: __('Sold, 12 months, at cost'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'this_year', label: __('This year, at cost'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'last_year', label: __('Same months last year'), canBeHidden: false, align: 'right')
+                ->column(key: 'sold', label: __('Sold, at cost'), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'last_year', label: __('Same period last year, at cost'), canBeHidden: false, align: 'right')
                 ->column(key: 'change_percent', label: __('Change'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'rating', label: __('Rating'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'refund_percent', label: __('Refunds %'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'faults', label: __('Supplier faults'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'short_percent', label: __('Short deliveries %'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'stock_value', label: __('Stock, at cost'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'organisations', label: __('Organisations'), canBeHidden: false);
@@ -122,6 +121,7 @@ class IndexAgentSalesProducts extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Agent
     {
         $this->initialisation($organisation, $request);
+        $this->dateInterval = GetAgentSalesProducts::make()->interval($request->input('dateInterval'));
         $agent = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
 

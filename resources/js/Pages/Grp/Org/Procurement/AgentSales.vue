@@ -41,7 +41,6 @@ interface Feedback {
 		rating: number | null
 		reviews: number
 		refund_percent: number | null
-		faults: number
 		recent: { code: string; rating: number; message: string; date: string }[]
 	}
 	purchasing: { title: string; body: string | null; severity: "info" | "warning" | "critical"; category: string; date: string }[]
@@ -511,8 +510,6 @@ const rankings = computed(() =>
 					<dd class="text-right text-gray-800">{{ feedback.customers.rating === null ? "—" : feedback.customers.rating.toFixed(2) }} <span class="text-gray-400">({{ locale.number(feedback.customers.reviews) }})</span></dd>
 					<dt class="text-gray-500">{{ ctrans("Refunds %") }}</dt>
 					<dd class="text-right text-gray-800">{{ percent(feedback.customers.refund_percent) }}</dd>
-					<dt class="text-gray-500">{{ ctrans("Supplier faults, 12 months") }}</dt>
-					<dd class="text-right" :class="feedback.customers.faults ? 'text-amber-600' : 'text-gray-800'">{{ locale.number(feedback.customers.faults) }}</dd>
 				</dl>
 				<p v-if="!feedback.customers.recent.length" class="py-4 text-center text-xs text-gray-400">{{ ctrans("No public reviews yet") }}</p>
 				<ul v-else class="mt-3 divide-y divide-gray-100 text-xs">

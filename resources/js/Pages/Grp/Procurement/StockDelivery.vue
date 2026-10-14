@@ -28,6 +28,7 @@ import StockDeliveryAgentPayments from "@/Components/Procurement/StockDeliveryAg
 import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliverySupplierPayments.vue"
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
+import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
@@ -172,7 +173,7 @@ const props = defineProps<{
 			source: "agent" | "actual" | "estimated"
 			reference: string | null
 			date: string
-			charges_list: { description: string; type?: "freight" | "other"; amount: number }[]
+			charges_list: { description: string; type?: string; amount: number }[]
 			currency: string
 			org_currency: string
 			org_exchange: number | null
@@ -226,6 +227,7 @@ const props = defineProps<{
 	invoice_costing: InstanceType<typeof StockDeliveryInvoiceCosting>["$props"]["invoices"]
 	agentInvoice?: InstanceType<typeof AgentContainerInvoicePanel>["$props"]["data"] | null
 	service_invoices: InstanceType<typeof StockDeliveryServiceInvoices>["$props"]["data"] | null
+	agreed_term_differences?: InstanceType<typeof AgreedTermDifferences>["$props"]["differences"] | null
 	notes?: {}
 	note_store_route?: routeType
 	note_form?: object
@@ -981,6 +983,8 @@ const confirmDeleteStockDelivery = (action: any) => {
 			:format-time="'MMMM d yyyy, HH:mm'"
 		/>
 	</div>
+
+	<AgreedTermDifferences v-if="agreed_term_differences" :differences="agreed_term_differences" class="m-4" />
 
 	<AgentContainerInvoicePanel v-if="agentInvoice" :data="agentInvoice" :currencyCode="box_stats.third_block.currency ?? ''" class="mb-4" />
 

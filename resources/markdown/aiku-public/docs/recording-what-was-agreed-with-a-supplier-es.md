@@ -95,6 +95,19 @@ Un agente que trabaja en aiku ve, en sus propias páginas, solo las condiciones 
 
 En el proveedor, pulsa **Handover sheet** en el panel **What was agreed**. Se abre un PDF con todas las condiciones vigentes y todas las notas abiertas, para dárselo a la persona que se hace cargo del proveedor.
 
+## Cuando un pedido o una factura no coincide con lo acordado
+
+aiku compara lo pedido y lo facturado con las condiciones acordadas, en cada proveedor o agente con al menos una condición acordada registrada. Un proveedor o un agente no puede subir un precio ni añadir un cargo por su cuenta: cada diferencia espera a que compras la acepte.
+
+- **En una orden de compra:** una línea que cuesta más que el coste del producto del proveedor, o un pedido en otra moneda que la moneda de pago acordada.
+- **En la factura del proveedor o del agente de una entrega:** un cargo cuya condición es Incluido o No permitido, un cargo por encima del importe acordado, un cargo sin condición acordada, o el flete cuando el Incoterm acordado (CFR, CIF, CPT, CIP, DAP, DPU, DDP) hace que lo pague el proveedor.
+
+Al introducir la factura, indica el tipo de cada cargo (cargo de embalaje, cargo de etiquetas, flete, etc.) para que se compare con la condición correcta.
+
+Cada diferencia aparece en rojo en el panel **Diferente de lo acordado**, arriba de la orden o de la entrega, junto a lo acordado. Escribe por qué la aceptas y pulsa **Aceptar**. Hasta que se aceptan todas, la orden no se puede enviar, la entrega no se puede pagar y los cargos del agente no se pueden aprobar. Si la orden o la factura cambia después, la nueva diferencia se tiene que aceptar otra vez.
+
+Cada diferencia aceptada queda como una nota de **Incidencia** abierta en el proveedor o el agente, con el importe y tu motivo, y se avisa al supervisor de compras y al comprador de la orden. Las listas de proveedores muestran el número de incidencias abiertas junto al código del proveedor.
+
 <aside class="wayfinder"><strong>Dónde pulsar en aiku</strong>
 <ul>
 <li><b>Ver lo acordado con un proveedor:</b> tu organización → <b>Procurement → Suppliers</b> → el proveedor → el panel <b>What was agreed</b>.</li>
@@ -105,9 +118,10 @@ En el proveedor, pulsa **Handover sheet** en el panel **What was agreed**. Se ab
 <li><b>Una condición o una nota para un solo producto:</b> el proveedor → sus productos → el producto → <b>Agreed terms</b> o <b>Notes</b>.</li>
 <li><b>Confirmar la lectura de las notas críticas:</b> la orden de compra → marca <b>I have read the critical notes for this order</b> → <b>Submit</b>.</li>
 <li><b>Imprimir la hoja de traspaso:</b> el proveedor → panel <b>What was agreed</b> → <b>Handover sheet</b>.</li>
+<li><b>Aceptar una diferencia:</b> la orden de compra o la entrega → <b>Diferente de lo acordado</b> → escribe el motivo → <b>Aceptar</b>.</li>
 </ul>
 </aside>
 
 <aside class="permissions"><strong>Permisos que necesitas</strong>
-Necesitas permiso para ver compras (procurement) de la organización para ver condiciones y notas, y permiso para editar compras para añadir una nota o una condición. Cambiar o retirar una condición acordada por otra persona, y fijar o resolver una nota escrita por otra persona, requieren el puesto de supervisor de compras.
+Necesitas permiso para ver compras (procurement) de la organización para ver condiciones y notas, y permiso para editar compras para añadir una nota o una condición. Cambiar o retirar una condición acordada por otra persona, y fijar o resolver una nota escrita por otra persona, requieren el puesto de supervisor de compras. Aceptar una diferencia con lo acordado requiere permiso para editar compras en la organización que paga.
 </aside>

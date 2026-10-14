@@ -29,7 +29,6 @@ const supplierRoute = (supplier: { slug: string }) => route("grp.org.agent.sales
 			<Link :href="supplierRoute(supplier)" class="font-medium text-gray-500 hover:text-gray-700">{{ supplier.code }}</Link>
 		</template>
 		<template #cell(sold)="{ item: supplier }"><span class="tabular-nums">{{ money(supplier.sold) }}</span></template>
-		<template #cell(this_year)="{ item: supplier }"><span class="tabular-nums">{{ money(supplier.this_year) }}</span></template>
 		<template #cell(last_year)="{ item: supplier }"><span class="tabular-nums text-gray-500">{{ money(supplier.last_year) }}</span></template>
 		<template #cell(change_percent)="{ item: supplier }">
 			<span v-if="supplier.change_percent !== null" class="tabular-nums" :class="supplier.change_percent < 0 ? 'text-red-600' : 'text-green-600'">{{ signed(supplier.change_percent) }}</span>
@@ -51,9 +50,6 @@ const supplierRoute = (supplier: { slug: string }) => route("grp.org.agent.sales
 		</template>
 		<template #cell(refund_percent)="{ item: row }">
 			<span v-if="row.refund_percent !== null" class="tabular-nums" :class="row.refund_percent >= REFUND_BAD ? 'text-red-600' : 'text-gray-700'">{{ row.refund_percent.toFixed(1) }}%</span>
-		</template>
-		<template #cell(faults)="{ item: row }">
-			<span class="tabular-nums" :class="row.faults ? 'text-amber-600' : 'text-gray-400'">{{ row.faults }}</span>
 		</template>
 		<template #cell(short_percent)="{ item: row }">
 			<span v-if="row.short_percent !== null" class="tabular-nums" :class="row.short_percent >= SHORT_BAD ? 'text-red-600' : 'text-gray-700'">{{ row.short_percent.toFixed(1) }}% <span class="text-gray-400">({{ row.short_lines }})</span></span>

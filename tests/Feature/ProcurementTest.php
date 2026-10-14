@@ -680,10 +680,18 @@ test('agent manager only sees their own agent organisation', function () {
     $this->get(route('grp.org.agent.sales.dashboard', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.suppliers.index', $organisation->slug))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesSuppliers')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesSuppliers')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'short_percent'])->count() === 3)->has('data.meta.total')->has('currency'));
     $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'elements' => ['problem' => 'out']]))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesProducts')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'faults', 'short_percent'])->count() === 4)->has('data.meta.total')->has('currency'));
+        ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentSalesProducts')->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->pluck('key')->intersect(['rating', 'refund_percent', 'short_percent'])->count() === 3)->has('data.meta.total')->has('currency'));
+    $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'dateInterval' => 'ytd']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', 'ytd')->has('data.meta.total'));
+    $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'dateInterval' => 'all']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', 'all')->has('data.meta.total'));
+    $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'dateInterval' => 'nonsense']))
+        ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', '1y'));
     $salesSupplier = Supplier::where('agent_id', $this->agent->id)->firstOrFail();
     $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $salesSupplier->slug]))
         ->assertOk()
@@ -14466,4 +14474,95 @@ test('the handover sheet prints, and an order through an agent carries the notes
         ->assertInertia(fn (AssertableInertia $page) => $page->where('agreement.print_route.name', 'grp.supply-chain.suppliers.agreement.pdf'));
     $this->get(route('grp.supply-chain.suppliers.agreement.pdf', [$supplier->slug]))
         ->assertOk()->assertHeader('Content-Type', 'application/pdf');
+});
+
+test('an invoice charging for packing that was agreed included is flagged, blocks payment until purchasing accepts it with a reason, and opens an incident on the supplier (INI-103)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'TERMS-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null, 'cost_shipping' => 0, 'cost_extra' => 0]);
+    $supplier = $stockDelivery->parent->supplier;
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'packing_charge', 'value_type' => 'included', 'agreed_on' => today()->toDateString()]);
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString()]);
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
+        'reference'    => 'TERMS-INV',
+        'date'         => '2026-03-02',
+        'goods_amount' => 1000,
+        'charges'      => [
+            ['description' => 'Packing', 'type' => 'packing_charge', 'amount' => 40],
+            ['description' => 'Sea freight', 'type' => 'freight', 'amount' => 300],
+            ['description' => 'Bank fee', 'type' => 'other', 'amount' => 15],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $flags = App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms::make()->stockDelivery($stockDelivery->refresh());
+    expect(collect($flags)->pluck('title')->all())->toBe(['Packing', 'Bank fee'])
+        ->and($flags[0]['agreed'])->toBe('Included')
+        ->and($flags[1]['agreed'])->toBe('Not agreed');
+
+    $paymentRoute = route('grp.models.stock-delivery.supplier_payment.store', $stockDelivery->id);
+    $this->post($paymentRoute, ['date' => date('Y-m-d'), 'amount' => 100, 'method' => 'cash'])->assertSessionHasErrors('agreed_terms');
+
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('agreed_term_differences.flags', 2)
+            ->where('agreed_term_differences.flags.0.accepted', null));
+
+    $acceptRoute = route('grp.models.stock-delivery.agreed_terms.accept', $stockDelivery->id);
+    $this->post($acceptRoute, ['reasons' => [$flags[0]['key'] => 'no']])->assertSessionHasErrors('reasons.'.$flags[0]['key']);
+    $this->post($acceptRoute, ['reasons' => [$flags[0]['key'] => 'Rush order, agreed by phone']])->assertSessionHasNoErrors();
+    $this->post($paymentRoute, ['date' => date('Y-m-d'), 'amount' => 100, 'method' => 'cash'])->assertSessionHasErrors('agreed_terms');
+
+    $this->post($acceptRoute, ['reasons' => [$flags[1]['key'] => 'Bank fee on this transfer only']])->assertSessionHasNoErrors();
+    $this->post($paymentRoute, ['date' => date('Y-m-d'), 'amount' => 100, 'method' => 'cash'])->assertSessionHasNoErrors();
+
+    $incident = App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('category', 'incident')->orderBy('id')->first();
+    expect($incident->incident_outcome->value)->toBe('open')
+        ->and((float) $incident->incident_amount)->toBe(40.0)
+        ->and($incident->body)->toContain('Rush order, agreed by phone');
+
+    $this->get(route('grp.org.procurement.org_suppliers.index', [$this->organisation->slug]).'?filter[global]='.$supplier->code)
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', fn ($rows) => collect($rows)->firstWhere('code', $supplier->code)['open_incidents'] === 2));
+});
+
+test('freight on an invoice is flagged when the agreed Incoterm leaves it to the supplier (INI-103)', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'CIF-'.Str::random(6), [10]);
+    $stockDelivery->updateQuietly(['source_id' => '1:'.Str::random(8), 'agent_id' => null]);
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($stockDelivery->parent->supplier, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'CIF Felixstowe', 'agreed_on' => today()->toDateString()]);
+
+    $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
+        'reference'    => 'CIF-INV',
+        'date'         => '2026-03-02',
+        'goods_amount' => 1000,
+        'charges'      => [['description' => 'Sea freight', 'type' => 'freight', 'amount' => 300]],
+    ])->assertSessionHasNoErrors();
+
+    $flags = App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms::make()->stockDelivery($stockDelivery->refresh());
+    expect($flags)->toHaveCount(1)
+        ->and($flags[0]['agreed'])->toContain('CIF Felixstowe');
+});
+
+test('a purchase order line costing more than the supplier product cannot be submitted until purchasing accepts it with a reason (INI-103)', function () {
+    $supplier    = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $product     = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['stock_id' => $this->stock->id, 'cost' => 2]));
+    $orgSupplier = OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, ['reference' => 'DIF'.Str::upper(Str::random(8))], strict: false);
+    $purchaseOrder->update(['currency_id' => $product->currency_id]);
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $product->historicSupplierProduct, $this->orgStocks[0], array_merge(PurchaseOrderTransaction::factory()->definition(), ['quantity_ordered' => 10]));
+    $purchaseOrder->purchaseOrderTransactions()->update(['unit_cost' => 2.5]);
+    expect(App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms::make()->purchaseOrder($purchaseOrder->refresh()))->toBe([]);
+
+    App\Actions\Procurement\SupplierAgreedTerm\StoreSupplierAgreedTerm::make()->action($supplier, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString()]);
+    $flags = App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms::make()->purchaseOrder($purchaseOrder->refresh());
+    expect($flags)->toHaveCount(1)
+        ->and($flags[0]['amount'])->toBe(5.0);
+
+    $this->patch(route('grp.models.purchase-order.submit', $purchaseOrder->id))->assertSessionHasErrors('agreed_terms');
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+
+    $this->post(route('grp.models.purchase-order.agreed_terms.accept', $purchaseOrder->id), ['reasons' => [$flags[0]['key'] => 'New price list from March']])->assertSessionHasNoErrors();
+    $this->patch(route('grp.models.purchase-order.submit', $purchaseOrder->id))->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and(App\Models\Procurement\ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->where('purchase_order_id', $purchaseOrder->id)->count())->toBe(1);
 });
