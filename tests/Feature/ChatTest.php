@@ -3969,6 +3969,31 @@ test('a task sent to a department tells the people in it', function () {
     expect($member->notifications()->where('data', 'like', '%'.$task->reference.' is waiting for someone from%')->exists())->toBeTrue();
 });
 
+test('a warehouse task tells its supervisors and stock controllers, not every picker and packer (HELP-3954)', function () {
+    $withPosition = function (string $code) {
+        $user = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action($this->organisation->group, array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []]))->getUser();
+        \Illuminate\Support\Facades\DB::table('user_has_pseudo_job_positions')->insert([
+            'user_id'         => $user->id,
+            'job_position_id' => \Illuminate\Support\Facades\DB::table('job_positions')->where('organisation_id', $this->organisation->id)->where('code', $code)->value('id'),
+            'group_id'        => $user->group_id,
+            'scopes'          => '{}',
+        ]);
+
+        return $user;
+    };
+    $supervisor      = $withPosition('wah-m');
+    $stockController = $withPosition('wah-sc');
+    $packer          = $withPosition('dist-pak');
+
+    $task     = \App\Actions\Tasks\StoreStaffTask::run($this->user, ['subject' => 'Recount shelf 12', 'department' => 'warehouse', 'data' => ['organisation_id' => $this->organisation->id]]);
+    $wasTold  = fn ($user) => $user->notifications()->where('data', 'like', '%'.$task->reference.' is waiting for someone from%')->exists();
+
+    expect($wasTold($supervisor))->toBeTrue()
+        ->and($wasTold($stockController))->toBeTrue()
+        ->and($wasTold($packer))->toBeFalse()
+        ->and(\App\Models\Tasks\StaffTask::departmentMembers($this->user, 'warehouse', $this->organisation->id)->pluck('id'))->toContain($packer->id);
+});
+
 test('a task goes to a person and a department at once, and only the department takes itself off with a reason', function () {
     $groupPosition = \Illuminate\Support\Facades\DB::table('job_positions')->where('group_id', $this->user->group_id)->whereNull('organisation_id')->whereNotNull('department')
         ->where('department', '!=', \App\Models\Tasks\StaffTask::EXCLUDED_DEPARTMENT)
@@ -4381,7 +4406,10 @@ test('people offered for a task on a record are the colleagues who can open it',
         ->and($scoped)->not->toContain($outsider->id)
         ->and($scoped)->not->toContain($this->user->id);
 
-    getJson(route('grp.chat.staff.coworkers.index', ['model_type' => 'Location', 'model_id' => 1]))->assertUnprocessable();
+    $onStock = collect(getJson(route('grp.chat.staff.coworkers.index', ['model_type' => 'OrgStock', 'model_id' => 1]))->assertOk()->json('data'))->pluck('id');
+    expect($onStock)->toContain($crmColleague->id)->toContain($outsider->id);
+
+    getJson(route('grp.chat.staff.coworkers.index', ['model_type' => 'Invoice', 'model_id' => 1]))->assertUnprocessable();
 });
 
 test('stale staff task nudges its assignee once per window', function () {

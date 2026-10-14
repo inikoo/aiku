@@ -135,12 +135,11 @@ class ExportSeoTable extends OrgAction
         $rows = $this->allRows('tracked_keywords', fn () => IndexSeoTrackedKeywords::make()->handle($shop, 'tracked_keywords'));
 
         return [
-            ['Keyword', 'Country', 'Language', 'Device', 'Check', 'Active', 'Monthly searches', 'Target webpage', 'Added'],
+            ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Target webpage', 'Added'],
             $rows->map(fn ($row) => [
                 $row->keyword,
                 $row->country_code,
                 $row->language_code,
-                $row->device?->value,
                 $row->frequency?->value,
                 $row->is_active ? 'yes' : 'no',
                 $row->avg_monthly_searches,

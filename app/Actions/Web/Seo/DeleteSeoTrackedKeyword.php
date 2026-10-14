@@ -19,7 +19,7 @@ class DeleteSeoTrackedKeyword extends OrgAction
 
     public function handle(SeoTrackedKeyword $trackedKeyword): void
     {
-        $trackedKeyword->delete();
+        $trackedKeyword->onEveryDevice()->get()->each->delete();
     }
 
     public function asController(SeoTrackedKeyword $seoTrackedKeyword, ActionRequest $request): void

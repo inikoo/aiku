@@ -12,6 +12,8 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import Icon from "@/Components/Icon.vue"
 import Tag from "@/Components/Tag.vue"
 import { ctrans } from '@/Composables/useTrans'
+import PalletStoredItemAvailableStock from '@/Components/Fulfilment/PalletReturns/PalletStoredItemAvailableStock.vue'
+import ModalPalletStoredItemReservedStock from '@/Components/Fulfilment/PalletReturns/ModalPalletStoredItemReservedStock.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShare, faSeedling, faInventory, faSignOutAlt, faGhost } from "@fal"
 
@@ -24,6 +26,53 @@ const props = defineProps<{
     tableKey?: string
 }>()
 const isLoading = ref<string | boolean>(false)
+const _modalReservedStock = ref<InstanceType<typeof ModalPalletStoredItemReservedStock> | null>(null)
+
+const storedItemInPalletRoute = (palletStoredItem: { stored_item_slug?: string, fulfilment_customer_slug?: string }): string | undefined => {
+    if (!palletStoredItem.stored_item_slug) {
+        return undefined
+    }
+
+    const params = route().params as Record<string, string | undefined>
+    const currentRoute = route().current() ?? ''
+
+    if (currentRoute.startsWith('retina.')) {
+        return route().has('retina.fulfilment.itemised_storage.stored_items.show')
+            ? route('retina.fulfilment.itemised_storage.stored_items.show', [palletStoredItem.stored_item_slug])
+            : undefined
+    }
+
+    if (params.organisation && params.warehouse) {
+        return route('grp.org.warehouses.show.inventory.stored_items.current.show', {
+            organisation: params.organisation,
+            warehouse: params.warehouse,
+            storedItem: palletStoredItem.stored_item_slug,
+        })
+    }
+
+    const fulfilmentCustomer = params.fulfilmentCustomer ?? palletStoredItem.fulfilment_customer_slug
+    if (params.organisation && params.fulfilment && fulfilmentCustomer) {
+        return route('grp.org.fulfilments.show.crm.customers.show.stored-items.show', {
+            organisation: params.organisation,
+            fulfilment: params.fulfilment,
+            fulfilmentCustomer: fulfilmentCustomer,
+            storedItem: palletStoredItem.stored_item_slug,
+        })
+    }
+
+    return undefined
+}
+
+const openModalReservedStock = (palletStoredItem: any) => {
+    _modalReservedStock.value?.open(
+        { reference: palletStoredItem.stored_item_reference },
+        {
+            ...palletStoredItem,
+            reference: palletStoredItem.pallet_reference,
+            location: { code: palletStoredItem.location_code },
+        }
+    )
+}
 function storedItemRoute(storedItem) {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
@@ -117,6 +166,24 @@ const generateLinkAudits = (storedItem: {}) => {
                 {{ value.reference }}
             </Link>
         </template>
+        <template #cell(stored_item_reference)="{ item: palletStoredItem }">
+            <Link v-if="storedItemInPalletRoute(palletStoredItem)" :href="storedItemInPalletRoute(palletStoredItem)" class="primaryLink">
+                {{ palletStoredItem.stored_item_reference }}
+            </Link>
+            <span v-else>{{ palletStoredItem.stored_item_reference }}</span>
+        </template>
+
+        <template #cell(quantity)="{ item: palletStoredItem }">
+            <PalletStoredItemAvailableStock
+                v-if="palletStoredItem.quantity_in_pallet !== undefined"
+                :quantityInPallet="palletStoredItem.quantity_in_pallet"
+                :availableQuantity="palletStoredItem.available_quantity"
+                :reservedQuantity="palletStoredItem.reserved_quantity"
+                @showReservations="openModalReservedStock(palletStoredItem)"
+            />
+            <span v-else>{{ palletStoredItem.quantity }}</span>
+        </template>
+
         <template #cell(state)="{ item: palletDelivery }">
                 <Icon  :data="palletDelivery['state_icon']" class="px-1" />
         </template>
@@ -133,4 +200,6 @@ const generateLinkAudits = (storedItem: {}) => {
             </Link>
         </template>
     </Table>
+
+    <ModalPalletStoredItemReservedStock ref="_modalReservedStock" :title="ctrans('Stock reserved by open returns')" />
 </template>

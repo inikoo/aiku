@@ -8,7 +8,6 @@
 
 namespace App\Http\Resources\Web;
 
-use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,7 +17,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $keyword
  * @property string $country_code
  * @property string $language_code
- * @property SeoKeywordDeviceEnum $device
  * @property SeoKeywordFrequencyEnum $frequency
  * @property bool $is_active
  * @property int|null $avg_monthly_searches
@@ -35,7 +33,6 @@ class SeoTrackedKeywordResource extends JsonResource
             'keyword'              => $this->keyword,
             'country_code'         => $this->country_code,
             'language_code'        => $this->language_code,
-            'device'               => $this->device->value,
             'frequency'            => $this->frequency->value,
             'is_active'            => $this->is_active,
             'avg_monthly_searches' => $this->avg_monthly_searches !== null ? (int) $this->avg_monthly_searches : null,

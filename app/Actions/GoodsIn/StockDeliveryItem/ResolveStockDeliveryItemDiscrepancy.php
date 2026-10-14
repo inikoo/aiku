@@ -87,6 +87,7 @@ class ResolveStockDeliveryItemDiscrepancy extends OrgAction
             'department'  => 'warehouse',
             'model_type'  => $orgStock ? 'OrgStock' : null,
             'model_id'    => $orgStock?->id,
+            'data'        => ['organisation_id' => $stockDelivery->organisation_id],
         ]);
 
         $this->setOutcome($stockDeliveryItem, $user, StockDeliveryItemDiscrepancyOutcomeEnum::RECOUNT_REQUESTED, ['recount_staff_task_id' => $task->id]);

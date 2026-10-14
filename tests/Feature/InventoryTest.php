@@ -3482,6 +3482,7 @@ describe('packing change guard', function () {
             ->and($locationOrgStock->audited_at)->toBeNull()
             ->and($recountTask->department)->toBe('warehouse')
             ->and($recountTask->requester_id)->toBe($this->user->id)
+            ->and($recountTask->data['organisation_id'])->toBe($warehouse->organisation_id)
             ->and($recountTask->subject)->toContain($warehouse->name)
             ->and($recountTask->description)->toContain($location->code.': 2');
     });
@@ -5165,4 +5166,22 @@ test('the sales history of a collection adds up the invoice lines of its product
     RedoCollectionTimeSeries::run($collection->id);
 
     expect(DB::table('collection_time_series_records')->whereIn('collection_time_series_id', $collection->timeSeries()->pluck('id'))->where('frequency', 'M')->sum('sales_grp_currency_external'))->toEqual(12);
+
+    $monthlySeriesId = $collection->timeSeries()->where('frequency', 'monthly')->value('id');
+    DB::table('collection_time_series_records')->insert([
+        'collection_time_series_id'   => $monthlySeriesId,
+        'frequency'                   => 'M',
+        'period'                      => '2019-03',
+        'from'                        => '2019-03-01 00:00:00',
+        'to'                          => '2019-03-31 23:59:59',
+        'sales_grp_currency_external' => 500,
+    ]);
+    RedoCollectionTimeSeries::run($collection->id);
+
+    expect(DB::table('collection_time_series_records')->where('collection_time_series_id', $monthlySeriesId)->pluck('period')->all())->toBe([$date->format('Y-m')]);
+
+    $collection->products()->detach();
+    RedoCollectionTimeSeries::run($collection->id);
+
+    expect(DB::table('collection_time_series_records')->where('collection_time_series_id', $monthlySeriesId)->count())->toBe(0);
 });
