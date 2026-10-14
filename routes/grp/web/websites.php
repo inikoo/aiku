@@ -7,6 +7,8 @@
  */
 
 use App\Actions\UI\Websites\WebsitesDashboard;
+use App\Actions\Web\GoogleTagManager\ConnectGoogleTagManager;
+use App\Actions\Web\GoogleTagManager\UI\ShowGoogleTagManager;
 use App\Actions\Web\Seo\ExportSeoPortfolio;
 use App\Actions\Web\Seo\UI\ShowSeoApiUsage;
 use App\Actions\Web\Seo\UI\ShowSeoPortfolio;
@@ -20,6 +22,8 @@ Route::get('/', WebsitesDashboard::class)->name('index');
 Route::get('seo/portfolio', ShowSeoPortfolio::class)->name('seo.portfolio');
 Route::get('seo/portfolio/export', ExportSeoPortfolio::class)->name('seo.portfolio.export');
 Route::get('seo/api-usage', ShowSeoApiUsage::class)->name('seo.api_usage');
+Route::get('google-tag-manager', ShowGoogleTagManager::class)->name('google_tag_manager.index');
+Route::get('google-tag-manager/connect', ConnectGoogleTagManager::class)->name('google_tag_manager.connect');
 Route::get('{website}/webpages/{webpage}/workshop/preview', [ShowWebpageWorkshopPreview::class, 'inWebsite'])->name('webpage.preview');
 Route::get('{website}/webpages/{webpage}/website/preview', ShowWebsitePreview::class)->name('preview');
 Route::get('{website}/footer/preview', ShowFooterPreview::class)->name('footer.preview');
