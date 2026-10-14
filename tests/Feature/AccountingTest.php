@@ -1715,6 +1715,25 @@ test('Store invoice refund transaction', function (Invoice $refund) {
     return $refund;
 })->depends('Store invoice refund');
 
+test('refund keeps the tax number of the original invoice', function () {
+    $invoice = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    $invoice->update([
+        'tax_number'        => 'GB123456789',
+        'tax_number_status' => 'valid',
+        'tax_number_valid'  => true,
+        'identity_document_number' => '12345678Z',
+        'fiscal_name'       => 'Fiscal Name SL',
+    ]);
+
+    $refund = StoreRefund::make()->action($invoice, []);
+
+    expect($refund->tax_number)->toBe('GB123456789')
+        ->and($refund->getRawOriginal('tax_number_status'))->toBe('valid')
+        ->and($refund->tax_number_valid)->toBeTrue()
+        ->and($refund->identity_document_number)->toBe('12345678Z')
+        ->and($refund->fiscal_name)->toBe('Fiscal Name SL');
+});
+
 test('refund pdf lines include shipping and charge refunds', function () {
     $this->withoutExceptionHandling();
     $customer = createCustomer($this->shop);
