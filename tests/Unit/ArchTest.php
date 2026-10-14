@@ -30,7 +30,7 @@
 //    ]);
 
 test('feature test files that write to the database restore it first, so they never inherit rows from the file that ran before them in the same worker', function () {
-    $writesToDatabase = '/factory\(|::create\(|createShop|createGroup|createOrganisation|->save\(|::make\(\)->action/';
+    $writesToDatabase = '/factory\(|(?<!Request)::create\(|createShop|createGroup|createOrganisation|->save\(|::make\(\)->action/';
 
     $missing = collect(\Illuminate\Support\Facades\File::allFiles(base_path('tests/Feature')))
         ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Test.php'))
