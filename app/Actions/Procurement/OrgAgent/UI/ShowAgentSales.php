@@ -28,10 +28,12 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * How an agent's products sell in the organisations that buy them: what the organisations sold of them to their own
- * customers each month, and the products in trouble there (out of stock, about to run out, not selling). Goods one
- * organisation passes to another are not a sale, the organisation that receives them sells them. Amounts are in the
- * agent's currency.
+ * How an agent's products sell in the organisations that buy them, valued at what the goods cost and never at what
+ * the organisations charged their customers: an agent sees the worth of its goods leaving the shelves, the
+ * organisations' revenue and margin are not its to see. Month by month, plus the products in trouble (out of stock,
+ * about to run out, not selling). Goods one organisation passes to another are not a sale, the organisation that
+ * receives them sells them, so a month's cost is kept in the proportion its sales went to its own customers.
+ * Amounts are in the agent's currency.
  */
 class ShowAgentSales extends OrgAction
 {
@@ -48,6 +50,11 @@ class ShowAgentSales extends OrgAction
         'w2'   => 'low',
         'dead' => 'dead',
     ];
+
+    private const string COST_OF_SALES = 'r.cogs_grp_currency * case
+        when r.sales_grp_currency_external + r.sales_grp_currency_internal > 0
+            then r.sales_grp_currency_external / (r.sales_grp_currency_external + r.sales_grp_currency_internal)
+        else 1 end';
 
     private function monthlySales(Agent $agent, CarbonInterface $from): Builder
     {
@@ -82,7 +89,7 @@ class ShowAgentSales extends OrgAction
         $year = now()->year;
 
         $byMonth = $this->monthlySales($agent, now()->subYear()->startOfYear())
-            ->selectRaw('sold_stock.organisation_id, r.period as month, sum(r.sales_grp_currency_external) as sales')
+            ->selectRaw('sold_stock.organisation_id, r.period as month, sum('.self::COST_OF_SALES.') as sales')
             ->groupBy('sold_stock.organisation_id', 'r.period')
             ->get()
             ->groupBy('organisation_id')
@@ -154,7 +161,7 @@ class ShowAgentSales extends OrgAction
                 $this->monthlySales($agent, $from)
                     ->where('sold_stock.organisation_id', $orgAgent->organisation_id)
                     ->groupBy('ts.org_stock_id')
-                    ->selectRaw('ts.org_stock_id, sum(r.sales_grp_currency_external) as sold'),
+                    ->selectRaw('ts.org_stock_id, sum('.self::COST_OF_SALES.') as sold'),
                 'sold',
                 'sold.org_stock_id',
                 '=',

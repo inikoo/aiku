@@ -42,7 +42,8 @@ class PickPalletReturnItemInPalletReturnWithStoredItem extends OrgAction
             $quantity = (float) Arr::get($modelData, 'quantity_picked', 0);
             $palletStoredItemQuantity = $palletReturnItem->palletStoredItem->quantity;
             $maxPickableQuantity = max(0, (float) $palletReturnItem->quantity_ordered - (float) ($palletReturnItem->quantity_not_picked ?? 0));
-            $quantity = min(max(0, $quantity), $maxPickableQuantity);
+            $maxQuantityInPallet = $previousPickedQuantity + max(0, (float) $palletStoredItemQuantity);
+            $quantity = min(max(0, $quantity), $maxPickableQuantity, $maxQuantityInPallet);
             $movementQuantity = max(0, $quantity - $previousPickedQuantity);
             data_set($modelData, 'quantity_picked', $quantity);
 

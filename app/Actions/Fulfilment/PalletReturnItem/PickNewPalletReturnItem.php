@@ -24,6 +24,10 @@ class PickNewPalletReturnItem extends OrgAction
     use WithFulfilmentWarehouseEditAuthorisation;
     use WithActionUpdate;
 
+    private PalletReturn $palletReturn;
+
+    private PalletStoredItem $palletStoredItem;
+
     /**
      * @throws \Throwable
      */
@@ -55,7 +59,14 @@ class PickNewPalletReturnItem extends OrgAction
     public function rules(): array
     {
         return [
-            'quantity_ordered'       => ['sometimes', 'numeric', 'min:0'],
+            'quantity_ordered'       => ['sometimes', 'numeric', 'min:0', 'max:'.$this->palletStoredItem->getMaxQuantityForReturn($this->palletReturn)],
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'quantity_ordered.max' => __('Only :max available on this pallet, the rest is already reserved by other open returns.'),
         ];
     }
 
@@ -64,6 +75,8 @@ class PickNewPalletReturnItem extends OrgAction
      */
     public function asController(PalletReturn $palletReturn, PalletStoredItem $palletStoredItem, ActionRequest $request): void
     {
+        $this->palletReturn     = $palletReturn;
+        $this->palletStoredItem = $palletStoredItem;
         $this->initialisationFromWarehouse($palletReturn->warehouse, $request);
 
         $this->handle($palletReturn, $palletStoredItem, $this->validatedData);

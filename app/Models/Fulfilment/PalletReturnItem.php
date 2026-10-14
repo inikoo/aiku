@@ -74,6 +74,11 @@ class PalletReturnItem extends Model
         return $this->belongsTo(PalletReturn::class);
     }
 
+    public function getQuantityLeftToPick(): float
+    {
+        return max(0, (float) $this->quantity_ordered - (float) $this->quantity_picked - (float) $this->quantity_not_picked);
+    }
+
     public function palletStoredItem(): BelongsTo
     {
         return $this->belongsTo(PalletStoredItem::class);

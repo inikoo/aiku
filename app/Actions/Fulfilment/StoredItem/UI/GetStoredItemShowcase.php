@@ -21,6 +21,11 @@ class GetStoredItemShowcase
     {
 
         $lastAudit = $storedItem->fulfilmentCustomer->storedItemAudits->last();
+        $palletStoredItems = $storedItem->palletStoredItems()
+            ->with('reservingPalletReturnItems.palletReturn')
+            ->get()
+            ->keyBy('pallet_id');
+
         return [
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
             'barcode'             => $storedItem->barcode,
@@ -31,7 +36,7 @@ class GetStoredItemShowcase
                 ],
                 'method'     => 'patch'
             ],
-            'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) {
+            'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) use ($palletStoredItems) {
                 return [
                     'id'          => $pallet->id,
                     'slug'        => $pallet->slug,
@@ -44,7 +49,11 @@ class GetStoredItemShowcase
                         'code'   => $pallet->location?->code,
                         'slug'   => $pallet->location?->slug,
                     ],
-                    'quantity' => (int) $pallet->pivot->quantity
+                    'quantity' => (int) $pallet->pivot->quantity,
+                    'reserved_quantity'         => 0,
+                    'available_quantity'        => (int) $pallet->pivot->quantity,
+                    'reserved_in_other_returns' => [],
+                    ...($palletStoredItems->get($pallet->id)?->getStockReservations() ?? []),
                 ];
             }),
             'pieData'             => $this->getDashboardData($storedItem),

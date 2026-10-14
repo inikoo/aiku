@@ -242,7 +242,7 @@ const rankings = computed(() =>
 				{
 					key: "top",
 					title: ctrans("Best sellers"),
-					hint: ctrans("Sales in the last 12 months, every organisation together"),
+					hint: ctrans("Goods sold in the last 12 months at cost, every organisation together"),
 					empty: ctrans("Nothing sold in the period"),
 					rows: props.sales.top_sellers,
 					count: null,
@@ -302,14 +302,14 @@ const rankings = computed(() =>
 			<div v-if="sales" class="space-y-4">
 				<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 					<div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2">
-						<h2 class="text-sm font-semibold text-gray-600">{{ ctrans(":year sales, year to date", { year: String(sales.year) }) }}</h2>
+						<h2 class="text-sm font-semibold text-gray-600">{{ ctrans(":year goods sold at cost, year to date", { year: String(sales.year) }) }}</h2>
 						<span class="flex items-center gap-3 text-xs text-gray-500">
 							<span class="flex items-center gap-1.5"><span class="w-4 border-t-2" :style="{ borderColor: COLORS.thisYear }" />{{ sales.year }}</span>
 							<span v-if="forecast" class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm" :style="{ backgroundColor: COLORS.forecastBand }" />{{ ctrans("Forecast") }}</span>
 							<span class="flex items-center gap-1.5"><span class="w-4 border-t-2 border-dashed" :style="{ borderColor: COLORS.lastYear }" />{{ sales.year - 1 }}</span>
 						</span>
 						<span class="ml-auto text-xs text-gray-400">
-							{{ ctrans("What each organisation sold of your products to its own customers, in :currency", { currency: sales.currency }) }}
+							{{ ctrans("What each organisation sold of your products to its own customers, at the cost of the goods, in :currency", { currency: sales.currency }) }}
 						</span>
 					</div>
 
@@ -332,7 +332,7 @@ const rankings = computed(() =>
 							<div class="flex flex-wrap items-start justify-between gap-2">
 								<div>
 									<p class="text-2xl font-bold tabular-nums">{{ money(yearSoFar) }}</p>
-									<p class="text-xs text-gray-400">{{ ctrans("Sold in :year so far", { year: String(sales.year) }) }}</p>
+									<p class="text-xs text-gray-400">{{ ctrans("Cost of the goods sold in :year so far", { year: String(sales.year) }) }}</p>
 								</div>
 								<div v-if="yearEnd" class="text-right">
 									<p class="text-xs text-gray-500">{{ ctrans("Expected by year end") }}</p>
@@ -375,13 +375,13 @@ const rankings = computed(() =>
 
 				<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Per organisation") }}</h2>
-					<p class="mt-0.5 text-xs text-gray-500">{{ ctrans("Sales in the last 12 months, from :date, and the state of the stock today", { date: useFormatTime(sales.from) }) }}</p>
+					<p class="mt-0.5 text-xs text-gray-500">{{ ctrans("Goods sold in the last 12 months, from :date, at cost, and the state of the stock today", { date: useFormatTime(sales.from) }) }}</p>
 					<p v-if="!sales.organisations.length" class="py-6 text-center text-xs text-gray-400">{{ ctrans("No organisation buys from this agent yet") }}</p>
 					<table v-else class="mt-3 w-full text-sm">
 						<thead class="text-xs uppercase tracking-wide text-gray-400">
 							<tr>
 								<th class="pb-1 text-left font-medium">{{ ctrans("Organisation") }}</th>
-								<th class="pb-1 text-right font-medium">{{ ctrans("Sales") }}</th>
+								<th class="pb-1 text-right font-medium">{{ ctrans("Sold, at cost") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("Products that sold") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("Out of stock") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("About to run out") }}</th>
