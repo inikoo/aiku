@@ -69,6 +69,7 @@ class UpdateSupplierProduct extends OrgAction
 
         $modelData = $this->pullSupplierProductJsonColumns($modelData);
         $modelData = $this->fillUnitsPerSupplierUnitFromWeight($supplierProduct, $modelData);
+        $modelData['currency_id'] = $supplierProduct->supplier?->currency_id ?? $supplierProduct->currency_id;
 
         $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings']);
 

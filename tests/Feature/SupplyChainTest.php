@@ -31,6 +31,7 @@ use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\UI\GetOrgSupplierProductShowcase;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\SysAdmin\GetSectionRoute;
@@ -282,6 +283,15 @@ test('create supplier product independent supplier', function ($supplier) {
 
     return $supplierProduct;
 })->depends('create independent supplier');
+
+test('a supplier product saved in another currency takes its supplier currency back', function (SupplierProduct $supplierProduct) {
+    $otherCurrency = Currency::where('id', '!=', $supplierProduct->supplier->currency_id)->firstOrFail();
+    $supplierProduct->updateQuietly(['currency_id' => $otherCurrency->id]);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['cost' => 12.5]);
+
+    expect($supplierProduct->currency_id)->toBe($supplierProduct->supplier->currency_id);
+})->depends('create supplier product independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
     $supplierProductData = SupplierProduct::factory()->definition();
