@@ -3064,7 +3064,7 @@ test('UI show org supplier product', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                    ->where('title', $this->orgSupplierProduct->supplierProduct->name)
+                    ->where('title', $this->orgSupplierProduct->supplierProduct->code)
                     ->where('actions', fn ($actions) => collect($actions)->filter()->contains(
                         fn (array $action) => $action['route']['name'] === 'grp.supply-chain.supplier_products.edit'
                             && $action['route']['parameters']['supplierProduct'] === $this->orgSupplierProduct->supplierProduct->slug
