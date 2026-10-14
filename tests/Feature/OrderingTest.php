@@ -4740,6 +4740,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     $lowStock->update(['status' => ProductStatusEnum::FOR_SALE]);
     $lowStockData                     = Transaction::factory()->definition();
     $lowStockData['quantity_ordered'] = 3;
+    $lowStockData['quantity_bonus']   = 0;
     $lowStockData['order_id']         = $basket->id;
     $lowStockLine                     = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, $lowStockData);
     DB::table('products')->where('id', $lowStock->id)->update(['available_quantity' => 5]);
@@ -4804,6 +4805,7 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
     ));
     $goneData                     = Transaction::factory()->definition();
     $goneData['quantity_ordered'] = 4;
+    $goneData['quantity_bonus']   = 0;
     $goneData['order_id']         = $basket->id;
     $goneLine                     = StoreTransaction::make()->action($basket, $goneProduct->currentHistoricProduct, $goneData);
     DB::table('products')->where('id', $goneProduct->id)->update(['available_quantity' => 0]);
@@ -4811,11 +4813,18 @@ test('a basket line may exceed stock, is zeroed while out of stock and restored 
 
     expect($basket->fresh()->stats->number_item_transactions)->toBe(1);
 
+    $goneLine->update(['quantity_bonus' => 1]);
+    $lowStockLine->update(['quantity_bonus' => 2]);
+    $giftLine = StoreTransaction::make()->action($basket, $lowStock->currentHistoricProduct, ['quantity_ordered' => 0, 'quantity_bonus' => 1, 'is_gift' => true]);
+
     $submitted = SubmitOrder::run($basket->fresh());
 
     expect($submitted->state)->toBe(OrderStateEnum::SUBMITTED)
         ->and($goneLine->fresh()->trashed())->toBeTrue()
-        ->and($submitted->transactions()->where('model_type', 'Product')->count())->toBe(1);
+        ->and((float) $lowStockLine->fresh()->quantity_bonus)->toBe(0.0)
+        ->and($giftLine->fresh()->trashed())->toBeFalse()
+        ->and((float) $giftLine->fresh()->quantity_bonus)->toBe(1.0)
+        ->and($submitted->transactions()->where('model_type', 'Product')->where('is_gift', false)->count())->toBe(1);
 });
 
 test('a customer cannot raise a basket line of an out of stock product, nor change an order after it is submitted', function () {
