@@ -212,6 +212,9 @@ const formatSales = (skos: number) => {
 		return formatNumber(skos)
 	}
 	const cartons = (Number(skos) || 0) / salesFactor.value
+	if (cartons > 0 && cartons < 0.005) {
+		return "~0"
+	}
 
 	return locale.number(Math.round(cartons * (cartons < 1 ? 100 : 10)) / (cartons < 1 ? 100 : 10))
 }
@@ -317,9 +320,9 @@ function purchaseOrderRoute(slug: string) {
 		<div class="flex flex-wrap items-center gap-x-2 text-gray-600">
 			<span v-tooltip="stockTooltip" class="cursor-help">
 				<span v-if="isOrderClosed" class="text-gray-500">{{ ctrans("Stock today") }}: </span>
-				<span class="font-semibold text-gray-800">{{ formatSales(stock) }}</span> {{ inCartons ? ctrans("cartons in stock") : ctrans("in stock") }}
+				<span v-tooltip="inCartons ? formatSkos(stock) : undefined" class="font-semibold text-gray-800">{{ formatSales(stock) }}</span> {{ inCartons ? ctrans("cartons in stock") : ctrans("in stock") }}
 				<template v-if="incoming > 0">
-					+ <span class="font-semibold text-gray-800">{{ formatSales(incoming) }}</span> {{ ctrans("coming") }}
+					+ <span v-tooltip="inCartons ? formatSkos(incoming) : undefined" class="font-semibold text-gray-800">{{ formatSales(incoming) }}</span> {{ ctrans("coming") }}
 				</template>
 				<template v-if="hasHistory">
 					· {{ ctrans("lasts") }} <span class="font-semibold text-gray-800">{{ weeksLabel(daysNow) }}</span>
