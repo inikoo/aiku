@@ -13122,6 +13122,15 @@ test('email reply attaches files while they fit in 18MB and links the rest', fun
         ->and($linked->pluck('ulid')->all())->toBe(['b']);
 });
 
+test('a chat file linked from an email opens in the browser under the name the agent gave it', function () {
+    $media = new \App\Models\Helpers\Media(['name' => 'EO-CLP-NEW', 'file_name' => 'b21bdd7a.pdf']);
+
+    expect(\App\Actions\Chat\ChatSession\DownloadChatAttachment::make()->fileName($media))->toBe('EO-CLP-NEW.pdf');
+
+    $media->name = 'EO-CLP-NEW.pdf';
+    expect(\App\Actions\Chat\ChatSession\DownloadChatAttachment::make()->fileName($media))->toBe('EO-CLP-NEW.pdf');
+});
+
 test('customer uploads are capped at 10MB a file and 100MB a day per IP', function () {
     $ip = '203.0.113.'.random_int(1, 254);
     \Illuminate\Support\Facades\RateLimiter::clear('chat-customer-upload-bytes:'.$ip);

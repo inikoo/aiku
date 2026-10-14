@@ -9,8 +9,10 @@
 namespace App\Actions\Chat\ChatSession;
 
 use App\Models\Helpers\Media;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class DownloadChatAttachment
 {
@@ -39,18 +41,28 @@ class DownloadChatAttachment
             abort(403);
         }
 
+        $headers = [
+            'Content-Type'        => $media->mime_type,
+            'Content-Disposition' => HeaderUtils::makeDisposition($inline ? 'inline' : 'attachment', $this->fileName($media), Str::ascii($media->file_name)),
+        ];
+
         if ($media->getCustomProperty('archived_at')) {
-            return response(GetChatMediaContents::run($media), 200, [
-                'Content-Type'        => $media->mime_type,
-                'Content-Disposition' => ($inline ? 'inline' : 'attachment').'; filename="'.str_replace('"', '', $media->file_name).'"',
-            ]);
+            return response(GetChatMediaContents::run($media), 200, $headers);
         }
 
-        if ($inline) {
-            return response()->file($media->getPath(), ['Content-Type' => $media->mime_type]);
+        return response()->file($media->getPath(), $headers);
+    }
+
+    public function fileName(Media $media): string
+    {
+        $name      = str_replace(['/', '\\'], '-', $media->name ?: $media->file_name);
+        $extension = pathinfo($media->file_name, PATHINFO_EXTENSION);
+
+        if ($extension && !str_ends_with(strtolower($name), '.'.strtolower($extension))) {
+            $name .= '.'.$extension;
         }
 
-        return response()->download($media->getPath(), $media->file_name);
+        return $name;
     }
 
     public function asController(string $ulid, ActionRequest $request)
