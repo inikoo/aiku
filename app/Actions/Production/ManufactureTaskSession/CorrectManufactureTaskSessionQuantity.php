@@ -59,6 +59,10 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
             if ($packSize && $quantity != floor($quantity)) {
                 $this->refuse(__('This step is counted in whole packs of :size, enter a whole number', ['size' => $packSize]));
             }
+            $mixBatchKg = $task->mixBatchKg();
+            if ($mixBatchKg && fmod($quantity, $mixBatchKg) != 0) {
+                $this->refuse(__('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]));
+            }
 
             $data       = $jobOrder->data ?? [];
             $authorised = collect($data['overproductions'] ?? [])->where('session_id', $session->id);

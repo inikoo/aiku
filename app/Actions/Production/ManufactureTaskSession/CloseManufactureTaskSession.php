@@ -81,6 +81,12 @@ class CloseManufactureTaskSession extends OrgAction
             }
 
             $isRecordedInKg = (bool) $manufactureTask->is_recorded_in_kg;
+            $mixBatchKg     = JobOrderItemTask::sharedMixBatchKg($members);
+            if ($mixBatchKg && fmod((float) $modelData['quantity_made'], $mixBatchKg) != 0) {
+                throw ValidationException::withMessages([
+                    'quantity_made' => __('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]),
+                ]);
+            }
             $overproduced   = $isRecordedInKg ? 0 : round((float) $modelData['quantity_made'] - $left, 3);
             $authorisedBy   = null;
             if ($overproduced > 0) {

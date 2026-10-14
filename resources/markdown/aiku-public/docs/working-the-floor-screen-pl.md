@@ -96,6 +96,8 @@ Krok widzą i mogą go rozpocząć tylko rzemieślnicy wskazani przy tym kroku; 
 
 Następny krok pozostaje zablokowany z napisem **Waiting for** (Oczekiwanie na) i nazwą kroku mieszania, dopóki nie zostanie zapisana jakaś mieszanka, i otwiera się zaraz po wpisaniu pierwszej. Jedna mieszanka dla kilku pozycji działa jak w części powyżej: kierownik łączy pozycje mieszania, mieszający wpisuje kg raz, a każda pozycja dostaje swoją część.
 
+**Mieszanki w pełnych partiach.** Gdy produkt ma rozmiar partii mieszanki (25 kg lub 50 kg), wymagane kg zaokrągla się w górę do pełnych partii i pokazuje jako partie: 94,1 kg w partiach po 50 kg pokazuje się jako *2 × 50 kg batches = 100 kg* (2 partie po 50 kg = 100 kg). Pole nazywa się **Batches of 50 kg made** (Zrobione partie po 50 kg) i wpisuje się liczbę partii, 2, a nie kg. Przy połączonej mieszance zaokrągla się sumę wszystkich linii. Nadwyżka ponad zlecenie nie zmienia zlecenia, ilości do formowania ani wypłaty. Kierownicy ustawiają to w kroku receptury produktu, w **Mix batch size** (Rozmiar partii mieszanki).
+
 **Ustawienie (kierownicy).** Na stronie zadania produkcyjnego **Only these artisans can do it** (Mogą je wykonywać tylko ci rzemieślnicy) pokazuje, kto może je wykonywać; tam dodaje się lub usuwa osoby. Formularz edycji ma **Paid by piece rate** (Płatne od sztuki; wyłączone dla pracy godzinowej) oraz **Recorded in kg** (Zapisywane w kg). Ile kg mieszanki przypada na jedną sztukę, wpisuje się w kroku receptury każdego produktu.
 
 ## Warto wiedzieć

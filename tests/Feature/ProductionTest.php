@@ -6647,3 +6647,58 @@ test('an hourly mixing step is for its named artisans only, is recorded in kg, p
     expect($mixTask->artisans()->count())->toBe(0)
         ->and($mixA->refresh()->assigneeId())->toBe($pieceWorker->id);
 });
+
+test('a mix with a batch size is asked and recorded in whole batches, rounded on the combined total, without growing the job', function () {
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+
+    $suffix  = rand(10000, 99999);
+    $mixTask = StoreManufactureTask::make()->action($this->production, [
+        'code'              => 'MXB'.$suffix,
+        'name'              => 'Mixing '.$suffix,
+        'is_piece_rate'     => false,
+        'is_recorded_in_kg' => true,
+    ]);
+    $artefact = StoreArtefact::make()->action($this->production, ['code' => 'BB'.$suffix, 'name' => 'Bath bomb '.$suffix]);
+    $artefact->manufactureTasks()->sync([$mixTask->id => ['position' => 1, 'units_per_artefact' => 0.1]]);
+
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 30])
+        ->assertSessionHasErrors('mix_batch_kg');
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 50])
+        ->assertSessionHasNoErrors();
+    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(50);
+
+    [$mixA, $mixB] = collect([541, 400])->map(function (int $quantity) use ($artefact) {
+        $jobOrder = StoreJobOrder::make()->action($this->production, []);
+        $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => $quantity]);
+        ConfirmJobOrder::make()->action($jobOrder);
+
+        return $item->tasks()->first();
+    })->all();
+    expect((float) $mixA->quantity_required)->toBe(54.1)
+        ->and($mixA->mixBatchKg())->toBe(50);
+
+    \Pest\Laravel\post(route('grp.models.production.combined_task.store', ['production' => $this->production->id]), ['job_order_item_task_ids' => [$mixA->id, $mixB->id]])->assertSessionHasNoErrors();
+    $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
+        ->first(fn (array $task) => in_array($mixA->id, array_column($task['combined'] ?? [], 'id')));
+    expect($floorTask)->toMatchArray(['mix_batch_kg' => 50, 'quantity_required' => 94.1]);
+
+    $session = StartManufactureTaskSession::make()->action($user, $mixA->refresh());
+    expect(fn () => CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 94.1]))->toThrow(ValidationException::class, 'whole batches of 50 kg');
+    CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 100]);
+
+    expect((float) $mixA->refresh()->quantity_made + (float) $mixB->refresh()->quantity_made)->toBe(100.0)
+        ->and($mixA->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and($mixB->state)->toBe(JobOrderItemTaskStateEnum::DONE)
+        ->and((int) $mixA->jobOrderItem->quantity)->toBe(541)
+        ->and((int) $mixB->jobOrderItem->quantity)->toBe(400);
+
+    $soloOrder = StoreJobOrder::make()->action($this->production, []);
+    $soloItem  = StoreJobOrderItem::make()->action($soloOrder, ['artefact_id' => $artefact->id, 'quantity' => 900]);
+    ConfirmJobOrder::make()->action($soloOrder);
+    $solo        = StartManufactureTaskSession::make()->action($user, $soloItem->tasks()->first());
+    $soloSession = CloseManufactureTaskSession::make()->action($solo, ['quantity_made' => 100]);
+    expect(fn () => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 75], 'Supervisor'))->toThrow(ValidationException::class, 'whole batches of 50 kg');
+    expect((float) \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 50], 'Supervisor')->quantity_made)->toBe(50.0);
+});

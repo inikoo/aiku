@@ -62,6 +62,7 @@ interface FloorTask {
     pack_size: number | null
     unit: string | null
     kg_per_unit: number | null
+    mix_batch_kg: number | null
     only_for: string[]
     quantity_required: number
     quantity_made: number
@@ -297,6 +298,12 @@ function separate(task: FloorTask) {
     )
 }
 
+function mixBatches(task: FloorTask): string | null {
+    if (!task.mix_batch_kg) return null
+    const batches = Math.ceil(Math.max(0, task.quantity_required - task.quantity_made) / task.mix_batch_kg - 1e-9)
+    return ctrans(':batches × :size kg batches = :kg kg', { batches, size: task.mix_batch_kg, kg: batches * task.mix_batch_kg })
+}
+
 function startTask(task: FloorTask) {
     processing.value = true
     router.post(
@@ -345,7 +352,7 @@ function startTask(task: FloorTask) {
                     <div class="text-sm text-gray-600 truncate">{{ task.artefact_name }}</div>
                     <div class="text-xs text-gray-500 mt-0.5 flex justify-between">
                         <span>{{ task.task_name }} · {{ task.job_order_reference }}</span>
-                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="task.pack_size"> {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
+                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="mixBatches(task)"> · {{ mixBatches(task) }}</template><template v-if="task.pack_size"> {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
                     </div>
                     <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
                         <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
@@ -461,6 +468,7 @@ function startTask(task: FloorTask) {
                 <div class="text-xl text-gray-600">{{ selectedTask.artefact_name }}</div>
                 <div class="text-5xl font-semibold tabular-nums my-6">
                     {{ selectedTask.quantity_made }} <span class="text-gray-400 text-3xl">/ {{ selectedTask.quantity_required }}<template v-if="selectedTask.unit"> {{ selectedTask.unit }}</template></span>
+                    <div v-if="mixBatches(selectedTask)" class="mt-1 text-3xl text-[--app-accent-strong]">{{ mixBatches(selectedTask) }}</div>
                     <div v-if="selectedTask.pack_size" class="mt-1 text-2xl text-amber-700">{{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: selectedTask.pack_size, code: selectedTask.artefact_code }) }}</div>
                 </div>
                 <div v-if="selectedTask.artisan && !selectedTask.is_mine" class="text-gray-500 mb-2">{{ ctrans('For') }} {{ selectedTask.artisan }}</div>

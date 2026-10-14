@@ -32,6 +32,9 @@ class AttachManufactureTaskToArtefact extends OrgAction
         if (array_key_exists('standard_rate', $modelData)) {
             $step['standard_rate'] = $modelData['standard_rate'];
         }
+        if (array_key_exists('mix_batch_kg', $modelData)) {
+            $step['mix_batch_kg'] = $modelData['mix_batch_kg'];
+        }
 
         $previousUnits = $artefact->manufactureTasks()->get()->mapWithKeys(fn (ManufactureTask $manufactureTask) => [$manufactureTask->id => $manufactureTask->pivot->units_per_artefact])->all();
 
@@ -56,6 +59,7 @@ class AttachManufactureTaskToArtefact extends OrgAction
             'position'            => ['sometimes', 'integer', 'min:1'],
             'units_per_artefact'  => ['sometimes', 'numeric', 'gt:0'],
             'standard_rate'       => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in([25, 50])],
         ];
     }
 
@@ -65,7 +69,7 @@ class AttachManufactureTaskToArtefact extends OrgAction
             return true;
         }
 
-        if ($request->has('standard_rate')) {
+        if ($request->has('standard_rate') || $request->has('mix_batch_kg')) {
             return $request->user()->authTo(["org-supervisor.{$this->organisation->id}", "productions_rd.{$this->production->id}.edit"]);
         }
 

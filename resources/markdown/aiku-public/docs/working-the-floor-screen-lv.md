@@ -96,6 +96,8 @@ Soli redz un var sākt tikai pie tā norādītie amatnieki; neviena cita sarakst
 
 Nākamais solis paliek bloķēts ar **Waiting for** (Gaida) un maisīšanas soļa nosaukumu, līdz ir ierakstīts kāds maisījums, un atveras, tiklīdz ievadīts pirmais. Viens maisījums vairākām rindām darbojas kā iepriekšējā sadaļā: vadītājs apvieno maisīšanas rindas, maisītājs ieraksta kg vienreiz, un katra rinda saņem savu daļu.
 
+**Maisījumi veselās partijās.** Ja produktam ir maisījuma partijas lielums (25 kg vai 50 kg), prasītos kg noapaļo uz augšu līdz veselām partijām un rāda kā partijas: 94,1 kg 50 kg partijās rāda *2 × 50 kg batches = 100 kg* (2 partijas pa 50 kg = 100 kg). Lauku sauc **Batches of 50 kg made** (Pagatavotās 50 kg partijas), un jāieraksta partiju skaits, 2, nevis kg. Apvienotam maisījumam noapaļo visu rindu kopsummu. Pārpalikums pret prasīto nemaina darbu, formēšanas daudzumus vai samaksu. Vadītāji to iestata produkta receptes solī, laukā **Mix batch size** (Maisījuma partijas lielums).
+
 **Iestatīšana (vadītājiem).** Ražošanas uzdevuma lapā **Only these artisans can do it** (To var darīt tikai šie amatnieki) rāda, kas to drīkst darīt; tur pievieno vai noņem cilvēkus. Rediģēšanas formā ir **Paid by piece rate** (Maksā par gabalu; izslēgts stundu darbam) un **Recorded in kg** (Pieraksta kilogramos). Cik kg maisījuma vajag vienam gabalam, norāda katra produkta receptes solī.
 
 ## Noderīgi zināt

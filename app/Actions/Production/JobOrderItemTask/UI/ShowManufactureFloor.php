@@ -439,6 +439,7 @@ class ShowManufactureFloor extends OrgAction
             'pack_size'           => $this->packSize($members),
             'unit'                => $task->isRecordedInKg() ? 'kg' : null,
             'kg_per_unit'         => $task->isRecordedInKg() ? $this->kgPerUnit($members) : null,
+            'mix_batch_kg'        => JobOrderItemTask::sharedMixBatchKg($members),
             'only_for'            => $task->manufactureTask->artisans->pluck('contact_name')->all(),
             'combined'            => $isCombined ? $members->map(fn (JobOrderItemTask $member) => [
                 'id'                  => $member->id,

@@ -48,6 +48,7 @@ class GetArtefactManufactureTasks
                 'position'           => $task->pivot->position,
                 'units_per_artefact' => $task->pivot->units_per_artefact,
                 'is_recorded_in_kg'  => (bool) $task->is_recorded_in_kg,
+                'mix_batch_kg'       => $task->pivot->mix_batch_kg,
                 'standard_rate'      => $task->pivot->standard_rate,
                 'targets'            => $this->targets($task->pivot->standard_rate ?? $task->standard_rate, $bands),
                 'raw_materials'      => $rawMaterials,

@@ -96,6 +96,8 @@ Krok vidia a môžu ho začať len remeselníci, ktorí sú pri ňom uvedení; v
 
 Ďalší krok zostáva zamknutý s **Waiting for** (Čaká sa na) a názvom kroku miešania, kým sa nezapíše nejaká zmes, a otvorí sa hneď po zadaní prvej. Jedna zmes pre viac riadkov funguje ako v časti vyššie: manažér spojí riadky miešania, miešač zadá kg raz a každý riadok dostane svoj podiel.
 
+**Zmesi v celých várkach.** Keď má výrobok nastavenú veľkosť várky zmesi (25 kg alebo 50 kg), požadované kg sa zaokrúhlia nahor na celé várky a ukážu sa ako várky: 94,1 kg vo várkach po 50 kg sa ukáže ako *2 × 50 kg batches = 100 kg* (2 várky po 50 kg = 100 kg). Políčko sa volá **Batches of 50 kg made** (Hotové várky po 50 kg) a píšete počet várok, 2, nie kg. Pri spojenej zmesi sa zaokrúhľuje celkový súčet všetkých riadkov. Navyše oproti zákazke nemení zákazku, množstvá na tvarovanie ani mzdu. Manažéri to nastavia v kroku receptúry výrobku v **Mix batch size** (Veľkosť várky zmesi).
+
 **Nastavenie (manažéri).** Na stránke výrobnej úlohy je v **Only these artisans can do it** (Môžu ju robiť len títo remeselníci) zoznam ľudí, ktorí ju smú robiť; tam ich pridáte alebo odoberiete. Formulár úprav má **Paid by piece rate** (Platené od kusu; vypnuté pri hodinovej práci) a **Recorded in kg** (Zapisuje sa v kg). Koľko kg zmesi ide na jeden kus, sa zadáva v kroku receptúry každého výrobku.
 
 ## Čo je dobré vedieť

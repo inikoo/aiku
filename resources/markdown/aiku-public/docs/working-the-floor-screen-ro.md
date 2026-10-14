@@ -96,6 +96,8 @@ Doar meșteșugarii numiți la acest pas îl văd și îl pot începe; nu apare 
 
 Pasul următor rămâne blocat cu **Waiting for** (se așteaptă) și numele pasului de amestecare până când se înregistrează ceva amestec, și se deschide imediat ce se introduce primul. Un singur amestec pentru mai multe linii funcționează ca în secțiunea de mai sus: un manager combină liniile de amestecare, cel care amestecă scrie kg o singură dată și fiecare linie își primește partea.
 
+**Amestecuri în șarje întregi.** Când produsul are o mărime de șarjă (25 kg sau 50 kg), kg cerute se rotunjesc în sus la șarje întregi și se arată ca șarje: 94,1 kg în șarje de 50 kg apare *2 × 50 kg batches = 100 kg* (2 șarje de 50 kg = 100 kg). Căsuța se numește **Batches of 50 kg made** (șarje de 50 kg făcute) și se scrie numărul de șarje, 2, nu kg. La un amestec combinat se rotunjește totalul tuturor liniilor. Surplusul față de comandă nu schimbă lucrarea, cantitățile de formare sau plata. Managerii o setează la pasul din rețeta produsului, la **Mix batch size** (mărimea șarjei).
+
 **Configurare (manageri).** Pe pagina sarcinii de fabricație, **Only these artisans can do it** (doar acești meșteșugari o pot face) arată cine o poate face; acolo se adaugă sau se scot oameni. Formularul de editare are **Paid by piece rate** (plată la bucată; oprit pentru munca la oră) și **Recorded in kg** (înregistrat în kg). Câte kg de amestec intră într-o bucată se trec la pasul din rețeta fiecărui produs.
 
 ## Lucruri bune de știut

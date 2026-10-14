@@ -96,6 +96,8 @@ Solo los artesanos nombrados en el paso lo ven y pueden empezarlo; no aparece en
 
 El paso siguiente queda bloqueado con **Waiting for** (Esperando) y el nombre del paso de mezcla hasta que se haya registrado algo de mezcla, y se abre en cuanto se anota la primera. Una mezcla para varias líneas funciona como en la sección anterior: un encargado combina las líneas de mezcla, quien mezcla escribe los kg una vez y cada línea recibe su parte.
 
+**Mezclas en lotes enteros.** Cuando el producto tiene un tamaño de lote de mezcla (25 kg o 50 kg), los kg pedidos se redondean hacia arriba a lotes enteros y se muestran como lotes: 94,1 kg en lotes de 50 kg se muestra *2 × 50 kg batches = 100 kg* (2 lotes de 50 kg = 100 kg). La casilla se llama **Batches of 50 kg made** (Lotes de 50 kg hechos) y se escribe el número de lotes, 2, no los kg. En una mezcla combinada el redondeo se hace sobre el total de todas las líneas. Lo que sobra respecto a lo pedido no cambia el trabajo, las cantidades de formado ni la paga. Los encargados lo ponen en el paso de la receta del producto, en **Mix batch size** (Tamaño de lote de mezcla).
+
 **Configuración (encargados).** En la página de la tarea de fabricación, **Only these artisans can do it** (Solo estos artesanos pueden hacerla) lista quién puede hacerla; ahí se añade o se quita gente. Su formulario de edición tiene **Paid by piece rate** (Pago a destajo; apagado para trabajo por horas) y **Recorded in kg** (Registrado en kg). Los kg de mezcla que lleva una unidad van en el paso de la receta de cada producto.
 
 ## Cosas que conviene saber
