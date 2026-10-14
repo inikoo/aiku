@@ -306,7 +306,7 @@ beforeEach(function () {
     $this->stocks    = createStocks($this->group);
     $this->orgStocks = createOrgStocks($this->organisation, $this->stocks);
 
-    $agent = Agent::first();
+    $agent = Agent::orderBy('id')->first();
     if (!$agent) {
         $modelData = Agent::factory()->definition();
         $agent     = StoreAgent::make()->action(
@@ -316,7 +316,7 @@ beforeEach(function () {
     }
     $this->agent = $agent;
 
-    $orgAgent = OrgAgent::first();
+    $orgAgent = OrgAgent::orderBy('id')->first();
     if (!$orgAgent) {
         $orgAgent = StoreOrgAgent::make()->action(
             $this->organisation,
@@ -339,7 +339,7 @@ beforeEach(function () {
 
     $this->supplier = $supplier;
 
-    $stock = Stock::first();
+    $stock = Stock::orderBy('id')->first();
     if (!$stock) {
         $storeData = Stock::factory()->definition();
         $stock     = StoreStock::make()->action(
