@@ -54,13 +54,14 @@ import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
 import { PageHeadingTypes } from "@/types/PageHeading"
+import { Action } from "@/types/Action"
 import { routeType } from "@/types/route"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
@@ -827,12 +828,53 @@ const agentRoute = computed<string>(() => {
 	return viaAgent ? route("grp.org.procurement.org_agents.show", [route().params["organisation"], viaAgent.slug]) : ""
 })
 
+const pageHeadButtonGroups: Record<string, string[]> = {
+	pdf_excel: ["pdf", "excel"],
+	upload_add_products: ["upload_products", "add_product"],
+}
+
+const pageHeadWrappedActionKeys = ["edit", "delete_purchase_order"]
+
+const pageHeadWithGroupedActions = computed<PageHeadingTypes>(() => {
+	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean)
+	const actionsByKey = Object.fromEntries(actions.map((action) => [action.key, action]))
+	const placedGroupKeys = new Set<string>()
+
+	return {
+		...props.pageHead,
+		actions: actions.flatMap((action) => {
+			if (pageHeadWrappedActionKeys.includes(action.key)) {
+				return []
+			}
+
+			const groupKey = Object.keys(pageHeadButtonGroups).find((key) => pageHeadButtonGroups[key].includes(action.key))
+			const members = groupKey ? pageHeadButtonGroups[groupKey].map((key) => actionsByKey[key]).filter(Boolean) : []
+
+			if (!groupKey || members.length < 2) {
+				return [action]
+			}
+
+			if (placedGroupKeys.has(groupKey)) {
+				return []
+			}
+
+			placedGroupKeys.add(groupKey)
+
+			return [{ type: "buttonGroup", key: groupKey, button: members } as Action]
+		}),
+		wrapped_actions: [
+			...(props.pageHead.wrapped_actions ?? []),
+			...actions.filter((action) => pageHeadWrappedActionKeys.includes(action.key)),
+		],
+	}
+})
+
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 </script>
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
+	<PageHeading :data="pageHeadWithGroupedActions">
 		<template #afterTitle2>
 			<span v-if="lastEdit" class="text-xs font-normal text-gray-500">
 				{{ ctrans("Last edited by :user on :date", { user: lastEdit.user ?? "?", date: useFormatTime(lastEdit.at, { formatTime: "short-datetime" }) }) }}
@@ -842,8 +884,75 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			<Button v-if="currentTab === 'attachments'" :label="ctrans('Attach')" icon="upload" @click="() => (isModalUploadAttachmentOpen = true)" />
 		</template>
 
+		<template #button-whole-agent-order="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button
+					type="tertiary"
+					:label="action.label"
+					icon="far fa-arrow-left"
+					:tooltip="action.tooltip"
+				/>
+			</Link>
+		</template>
+
 		<template #button-pdf="{ action }">
 			<ButtonDownloadWithOptions :action="action" />
+		</template>
+
+		<template #button-group-pdf="{ action }">
+			<ButtonDownloadWithOptions :action="action" class="[&>button]:rounded-r-none" />
+		</template>
+
+		<template #button-group-excel="{ action }">
+			<a :href="route(action.route.name, action.route.parameters)" :target="action.target" class="-ml-px">
+				<Button
+					type="tertiary"
+					:icon="faFileExcel"
+					:tooltip="`${action.label}: ${action.tooltip}`"
+					class="h-full rounded-l-none"
+				/>
+			</a>
+		</template>
+
+		<template #button-group-upload-products="{ action }">
+			<Button
+				type="tertiary"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="h-full rounded-r-none"
+				@click="() => isModalUploadExcel = true"
+			/>
+		</template>
+
+		<template #button-group-add-product="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:icon="action.icon"
+				:tooltip="action.tooltip"
+				class="-ml-px h-full rounded-l-none text-nowrap"
+				@click="() => openProductListModal(action)"
+			/>
+		</template>
+
+		<template #wrapped-edit="{ action }">
+			<Link :href="route(action.route.name, action.route.parameters)">
+				<Button type="tertiary" :label="action.label" icon="fal fa-pencil" />
+			</Link>
+		</template>
+
+		<template #wrapped-delete-purchase-order="{ action }">
+			<Button
+				type="tertiary"
+				:label="action.label"
+				:tooltip="action.tooltip"
+				:loading="deleteLoading"
+				@click="() => confirmDeletePurchaseOrder(action)"
+			>
+				<template #icon>
+					<FontAwesomeIcon :icon="action.icon" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</template>
 
 		<template #button-email-to-supplier="{ action }">
@@ -885,17 +994,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				:tooltip="action.tooltip"
 				:loading="submitLoading"
 				@click="() => submitPurchaseOrder(action)"
-			/>
-		</template>
-
-		<template #button-delete-purchase-order="{ action }">
-			<Button
-				:style="action.style"
-				:label="action.label"
-				:icon="action.icon"
-				:tooltip="action.tooltip"
-				:loading="deleteLoading"
-				@click="() => confirmDeletePurchaseOrder(action)"
 			/>
 		</template>
 
