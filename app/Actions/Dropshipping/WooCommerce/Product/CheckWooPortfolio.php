@@ -17,6 +17,8 @@ class CheckWooPortfolio
 {
     use AsAction;
 
+    public string $jobQueue = 'woo';
+
     /**
      * When the store cannot be asked (error page, timeout) the portfolio keeps whatever it had:
      * flipping a live listing to "missing" on a transient failure would drop it from stock sync
@@ -45,9 +47,12 @@ class CheckWooPortfolio
         if ($hasValidProductId) {
             $knownProduct = Arr::get($productReply, 'id') ? $productReply : null;
             $reply        = $knownProduct ?? $wooUser->getWooCommerceProduct($portfolio->platform_product_id);
-            $result = CheckIfProductExistInWoo::onlyProducts([$reply]);
+            $result = array_filter(
+                CheckIfProductExistInWoo::onlyProducts([$reply]),
+                fn (array $product) => Arr::get($product, 'status') !== 'trash'
+            );
 
-            if (blank($result) && !CheckIfProductExistInWoo::isMissingProductReply($reply)) {
+            if (blank($result) && Arr::get($reply, 'status') !== 'trash' && !CheckIfProductExistInWoo::isMissingProductReply($reply)) {
                 return $portfolio;
             }
 
