@@ -5,7 +5,7 @@ import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import { ToggleSwitch, InputNumber, RadioButton, Select } from 'primevue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faInfoCircle, faCheck, faPaperPlane } from '@fal'
+import { faInfoCircle, faCheck, faPaperPlane, faFlask } from '@fal'
 import { ctrans } from '@/Composables/useTrans'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import ModalConfirmation from '@/Components/Utils/ModalConfirmation.vue'
@@ -200,25 +200,28 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
 </script>
 
 <template>
-    <div class="mx-4 my-4 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 space-y-3">
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="text-sm font-semibold text-gray-700">{{ ctrans('A/B test') }}</span>
-
-            <template v-if="abTest.can_edit_settings">
-                <ToggleSwitch :modelValue="abTest.enabled" :disabled="isSaving || abTest.is_blocked_by_second_wave"
-                    @update:modelValue="(value: boolean) => saveSettings({ enabled: value })" />
-                <span v-if="abTest.is_blocked_by_second_wave" class="text-sm text-gray-500">
-                    {{ ctrans('Turn off the 2nd wave to run an A/B test.') }}
+    <section class="mx-4 my-4 space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-x-4">
+            <div class="flex items-start gap-x-3">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[--app-accent-soft] text-lg text-[--app-accent]">
+                    <FontAwesomeIcon :icon="faFlask" fixed-width aria-hidden="true" />
                 </span>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">{{ ctrans('A/B test') }}</h3>
+                    <p class="text-sm text-gray-500">
+                        <template v-if="abTest.is_variant">{{ ctrans('This is version B. Sending is controlled from version A.') }}</template>
+                        <template v-else-if="abTest.can_edit_settings && abTest.is_blocked_by_second_wave">{{ ctrans('Turn off the 2nd wave to run an A/B test.') }}</template>
+                        <template v-else>{{ ctrans('Send two versions to part of the list, then the winner to the rest.') }}</template>
+                    </p>
+                </div>
+            </div>
 
-            </template>
-
-            <span v-if="abTest.is_variant" class="text-sm text-gray-600">
-                {{ ctrans('This is version B. Sending is controlled from version A.') }}
-            </span>
+            <ToggleSwitch v-if="abTest.can_edit_settings" :modelValue="abTest.enabled" :aria-label="ctrans('A/B test')"
+                :disabled="isSaving || abTest.is_blocked_by_second_wave"
+                @update:modelValue="(value: boolean) => saveSettings({ enabled: value })" />
         </div>
 
-        <div v-if="abTest.enabled && abTest.can_edit_settings" class="space-y-5 rounded-md border border-gray-200 bg-white p-4">
+        <div v-if="abTest.enabled && abTest.can_edit_settings" class="space-y-5 border-t border-gray-100 pt-4">
             <fieldset>
                 <legend class="text-sm font-semibold text-gray-800">{{ ctrans('Winning metric') }}</legend>
                 <p class="text-xs text-gray-500">{{ ctrans('Select the metric that will determine the test winner.') }}</p>
@@ -327,7 +330,7 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                 : ctrans('Tracking results until :date, then the winner can be sent.', { date: formatDate(abTest.tracking_ends_at!) }) }}
         </p>
 
-        <div v-if="abTest.enabled" class="overflow-x-auto">
+        <div v-if="abTest.enabled" class="overflow-x-auto border-t border-gray-100 pt-4">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-200 text-left">
@@ -413,5 +416,5 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
         <p v-if="winner && abTest.winner_sent_at" class="text-sm text-gray-700">
             {{ ctrans('Version :label was sent to the rest of the list on :date', { label: winner.label, date: new Date(abTest.winner_sent_at).toLocaleString() }) }}
         </p>
-    </div>
+    </section>
 </template>
