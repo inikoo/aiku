@@ -40,9 +40,11 @@ class DeleteWorkplace extends OrgAction
         return $this->handle($workplace);
     }
 
-    public function htmlResponse(): RedirectResponse
+    public function htmlResponse(Workplace $workplace): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.workplaces.index');
+        return Redirect::route('grp.org.hr.workplaces.index', [
+            'organisation' => $workplace->organisation->slug
+        ]);
     }
 
 }
