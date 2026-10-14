@@ -14563,6 +14563,7 @@ test('an invoice charging for packing that was agreed included is flagged, block
         ->and((float) $incident->incident_amount)->toBe(40.0)
         ->and($incident->body)->toContain('Rush order, agreed by phone');
 
+    config(['query-builder.parameters' => (require config_path('query-builder.php'))['parameters']]);
     $this->get(route('grp.org.procurement.org_suppliers.index', [$this->organisation->slug]).'?filter[global]='.$supplier->code)
         ->assertInertia(fn (AssertableInertia $page) => $page->where('data.data', fn ($rows) => collect($rows)->firstWhere('code', $supplier->code)['open_incidents'] === 2));
 });
