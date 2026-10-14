@@ -10720,7 +10720,12 @@ test('repair supplier drift leaves rows whose correct twin already exists', func
 
     $baseline = RepairOrgSupplierProductsSupplierDrift::make()->handle();
 
-    $drifted = StoreOrgSupplierProduct::make()->action($orgSupplierA, $supplierProduct);
+    $drifted = OrgSupplierProduct::where('org_supplier_id', $orgSupplierB->id)
+        ->where('supplier_product_id', $supplierProduct->id)
+        ->first()
+        ->replicate()
+        ->fill(['org_supplier_id' => $orgSupplierA->id, 'slug' => 'drift-2-'.Str::random(6)]);
+    $drifted->saveQuietly();
 
     $result = RepairOrgSupplierProductsSupplierDrift::make()->handle(fix: true);
 
