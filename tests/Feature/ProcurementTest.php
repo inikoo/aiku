@@ -730,6 +730,14 @@ test('agent manager only sees their own agent organisation', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentWarehouseStocks')
             ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed_for_next_container')));
+    $containerList = sys_get_temp_dir().'/Slovakia AWChina-95.csv';
+    file_put_contents($containerList, "Barcode,Code,Description,RMB,Packing,Carton Qty,,ORDER\n,G14 {$warehouseSupplierProduct->code},,,,120,,3\n,NOPE-999,,,,10,,1\n,{$warehouseSupplierProduct->code},,,,120,,0\n");
+    $imported = \App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList::run($this->agent, $this->organisation, $containerList);
+    unlink($containerList);
+    expect($imported['unmatched'])->toBe(['NOPE-999'])
+        ->and(\App\Models\Procurement\AgentWarehouseStock::where('agent_id', $this->agent->id)->where('organisation_id', $this->organisation->id)->where('notes', 'AWChina-95')->get(['supplier_product_id', 'quantity', 'notes'])->map(fn ($stock) => [$stock->supplier_product_id, (float) $stock->quantity, $stock->notes])->all())
+        ->toBe([[$warehouseSupplierProduct->id, 360.0, 'AWChina-95']])
+        ->and(\App\Models\Procurement\AgentWarehouseStock::where('agent_id', $this->agent->id)->where('organisation_id', $this->organisation->id)->whereNull('notes')->exists())->toBeTrue();
     $this->get(route('grp.org.agent.warehouse.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.sales.products.index', $this->organisation->slug))->assertForbidden();
     $this->get(route('grp.org.agent.org_suppliers.index', $organisation->slug))
