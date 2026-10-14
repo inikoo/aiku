@@ -16,6 +16,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faArrowAltFromLeft, faAlignJustify, faWarehouseAlt, faSeedling, faSadCry, faFileExcel } from "@fal"
 import { Table } from "@/types/Table"
+import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 
 
 library.add(faArrowAltFromLeft, faAlignJustify, faWarehouseAlt, faSeedling, faSadCry, faFileExcel)
@@ -59,7 +60,19 @@ const component = computed(() => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #button-export="{ action }">
+            <ButtonDownloadWithOptions
+                :action="{
+                    ...action,
+                    route: {
+                        ...action.route,
+                        parameters: { ...action.route.parameters, tab: currentTab }
+                    }
+                }"
+            />
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :key="currentTab" :tab="currentTab" :data="props[currentTab as keyof typeof props]"></component>
 </template>

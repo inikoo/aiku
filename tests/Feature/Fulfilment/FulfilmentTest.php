@@ -148,6 +148,9 @@ use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Actions\Fulfilment\Pallet\ExportPalletsInCustomer;
+use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
+use App\Exports\Pallets\PalletsInCustomerExport;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletStoredItemsResource;
 use App\Models\Fulfilment\PalletReturnItem;
@@ -2732,6 +2735,46 @@ test('stored item reserved by an open return cannot be over-allocated to another
     expect($palletStoredItem->getMaxQuantityForReturn($palletReturn))->toBe($quantityInPallet);
 
     return $palletReturn;
+})->depends('create second pallet return');
+
+test('customer pallets export lists the SKO reference, follows the tab and can give one row per SKO', function (PalletReturn $palletReturn) {
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+    $palletStoredItem   = PalletStoredItem::whereHas('pallet', fn ($query) => $query
+        ->where('fulfilment_customer_id', $fulfilmentCustomer->id)
+        ->where('status', PalletStatusEnum::STORING))
+        ->where('quantity', '>', 0)
+        ->firstOrFail();
+    $storedItem = $palletStoredItem->storedItem;
+    $storedItem->update(['name' => 'Export Name '.$storedItem->id]);
+    $quantity = (int) $palletStoredItem->quantity;
+
+    $storingTab = FulfilmentCustomerPalletsTabsEnum::STORING->value;
+
+    $perPallet     = new PalletsInCustomerExport($fulfilmentCustomer, $storingTab);
+    $storingPallets = $perPallet->query()->get();
+    $palletRow     = $perPallet->map($storingPallets->firstWhere('id', $palletStoredItem->pallet_id));
+
+    expect($storingPallets->pluck('status')->unique()->all())->each->toBeIn([PalletStatusEnum::STORING, PalletStatusEnum::RETURNING])
+        ->and($palletRow)->toHaveCount(count($perPallet->headings()))
+        ->and($palletRow[1])->toBe($palletStoredItem->pallet->reference)
+        ->and($palletRow[4])->toContain($storedItem->reference.' - '.$storedItem->name.' ('.$quantity.')');
+
+    $perStoredItem = new PalletsInCustomerExport($fulfilmentCustomer, $storingTab, true);
+    $storedItemRows = collect($perStoredItem->map($perStoredItem->query()->get()->firstWhere('id', $palletStoredItem->pallet_id)));
+    $storedItemRow  = $storedItemRows->firstWhere(4, $storedItem->reference);
+
+    expect($storedItemRows)->toHaveCount($palletStoredItem->pallet->storedItems()->count())
+        ->and($storedItemRow)->toHaveCount(count($perStoredItem->headings()))
+        ->and($storedItemRow[1])->toBe($palletStoredItem->pallet->reference)
+        ->and($storedItemRow[5])->toBe($storedItem->name)
+        ->and($storedItemRow[6])->toBe((string) $quantity);
+
+    $emptyPallet = new Pallet(['reference' => 'EMPTY', 'customer_reference' => 'EMPTY-REF', 'type' => PalletTypeEnum::PALLET]);
+    $emptyPallet->setRelation('storedItems', collect());
+
+    expect($perStoredItem->map($emptyPallet))->toBe([['pallet', 'EMPTY', 'EMPTY-REF', '', '', '', '']])
+        ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, true))->toBe('customer-sko-storing')
+        ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, false))->toBe('customer-pallets-storing');
 })->depends('create second pallet return');
 
 test('submit second pallet return', function (PalletReturn $palletReturn) {
