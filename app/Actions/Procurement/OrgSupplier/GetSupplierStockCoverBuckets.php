@@ -53,7 +53,7 @@ class GetSupplierStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.state not in ($stocking) then 'dead'
-            when os.quantity_available <= 0 then 'out'
+            ".GetOrganisationStockCoverBuckets::outOfStockCase('os', 's', GetOrganisationStockCoverBuckets::make()->overstockDaysExpression())."
             else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock)", "
                 ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, GetOrganisationStockCoverBuckets::make()->overstockDaysExpression(), "4 * $lead")."
                 when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'

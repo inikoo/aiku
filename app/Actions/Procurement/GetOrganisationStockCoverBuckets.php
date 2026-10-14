@@ -236,6 +236,15 @@ class GetOrganisationStockCoverBuckets
     }
 
     /**
+     * A SKO with nothing on the shelf is out of stock, unless what is already coming lasts past its
+     * overstock edge: the ordering card calls that not needed, so it is judged on its cover instead.
+     */
+    public static function outOfStockCase(string $orgStocks, string $stats, string $overstock, string $alsoComingSkos = '0'): string
+    {
+        return "when $orgStocks.quantity_available < 1 and coalesce((".self::comingSkosExpression($orgStocks)." + $alsoComingSkos) / nullif($stats.predicted_daily_usage, 0) < $overstock, true) then 'out'";
+    }
+
+    /**
      * The at-risk groups of a SKO from the days it lasts. A SKO past its overstock edge is never at
      * risk, the ordering card calls it not needed; doomed still comes first, as the card's order now.
      */
@@ -254,7 +263,7 @@ class GetOrganisationStockCoverBuckets
         $overstock  = $this->overstockDaysExpression();
 
         return "case
-            when org_stocks.quantity_available <= 0 then 'out'
+            ".self::outOfStockCase('org_stocks', 'org_stock_stats', $overstock)."
             else ".self::bucketOnCoverDaysExpression('org_stocks', 'org_stock_stats', "greatest(4 * $lead, $understock)", "
                 ".self::atRiskCases($lead, $understock, $overstock, "4 * $lead")."
                 when coalesce(org_stock_stats.predicted_daily_usage, 0) = 0 and org_stock_stats.stock_value > 0 then 'dead'

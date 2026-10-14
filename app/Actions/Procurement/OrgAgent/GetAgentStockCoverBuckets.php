@@ -66,7 +66,7 @@ class GetAgentStockCoverBuckets
         return "case
             when os.id is null then 'never'
             when os.state <> '".OrgStockStateEnum::ACTIVE->value."' then 'gone'
-            when os.quantity_available < 1 then 'out'
+            ".GetOrganisationStockCoverBuckets::outOfStockCase('os', 's', GetOrganisationStockCoverBuckets::make()->overstockDaysExpression())."
             else ".GetOrganisationStockCoverBuckets::bucketOnCoverDaysExpression('os', 's', "greatest(4 * $lead, $understock, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS."))", "
                 ".GetOrganisationStockCoverBuckets::atRiskCases($lead, $understock, GetOrganisationStockCoverBuckets::make()->overstockDaysExpression(), "greatest(4 * $lead, least(".ProjectOrganisationStockOuts::DAYS.", $lead + ".ProjectOrganisationStockOuts::REORDER_DAYS."))")."
                 when coalesce(s.predicted_daily_usage, 0) = 0 and s.stock_value > 0 then 'dead'

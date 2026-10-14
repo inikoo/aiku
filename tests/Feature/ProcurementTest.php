@@ -9684,6 +9684,32 @@ test('agent stock groups read the lead time the ordering card reads and are neve
     expect($bucketFor(100))->toBe('w2')
         ->and($bucketFor(150))->toBe('ok');
 
+    $orgStock->update(['quantity_available' => 0, 'packed_in' => 1]);
+    $isOut = function () use ($orgStock, $buckets, $orgSupplierProduct) {
+        $orgStock->stats()->updateOrCreate([], ['days_of_cover' => 0, 'predicted_daily_usage' => 1, 'stock_value' => 0]);
+
+        return in_array($orgSupplierProduct->id, $buckets->orgSupplierProductIdsInBucket($this->orgAgent, 'out'), true);
+    };
+    expect($isOut())->toBeTrue();
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplierProduct->orgSupplier, [], strict: false);
+    DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update(['state' => PurchaseOrderStateEnum::SUBMITTED->value]);
+    DB::table('purchase_order_transactions')->insert([
+        'group_id'            => $purchaseOrder->group_id,
+        'organisation_id'     => $purchaseOrder->organisation_id,
+        'purchase_order_id'   => $purchaseOrder->id,
+        'supplier_product_id' => $orgSupplierProduct->supplier_product_id,
+        'org_stock_id'        => $orgStock->id,
+        'state'               => PurchaseOrderTransactionStateEnum::SUBMITTED->value,
+        'delivery_state'      => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+        'quantity_ordered'    => 300,
+        'data'                => '{}',
+        'created_at'          => now(),
+        'updated_at'          => now(),
+    ]);
+    expect($isOut())->toBeFalse();
+    DB::table('purchase_orders')->where('id', $purchaseOrder->id)->update(['deleted_at' => now()]);
+
     $signals = App\Actions\Procurement\PurchaseOrder\UI\GetOrgStockBuyingSignals::run($orgStock->fresh(), $orgSupplierProduct->supplierProduct, fallbackLeadTimeDays: 45);
     expect($signals['lead_time_days'])->toBe(60);
 
