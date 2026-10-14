@@ -8,6 +8,7 @@
 
 namespace App\Models\Production;
 
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
@@ -57,6 +58,7 @@ use Illuminate\Support\Collection;
  * @property int|null $under_target_reviewed_by
  * @property \Illuminate\Support\Carbon|null $under_target_reviewed_at
  * @property bool $is_combined
+ * @property ArtisanPayTypeEnum $artisan_pay_type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Employee|null $employee
@@ -93,6 +95,7 @@ class ManufactureTaskSession extends Model
         'is_combined'              => 'boolean',
         'under_target_reason'      => ManufactureTaskSessionUnderTargetReasonEnum::class,
         'under_target_reviewed_at' => 'datetime',
+        'artisan_pay_type'         => ArtisanPayTypeEnum::class,
     ];
 
     /**

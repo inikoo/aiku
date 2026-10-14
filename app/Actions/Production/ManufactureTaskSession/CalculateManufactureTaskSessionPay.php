@@ -8,6 +8,7 @@
 
 namespace App\Actions\Production\ManufactureTaskSession;
 
+use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Models\Production\ManufacturePayBand;
 use App\Models\Production\ManufactureTaskSession;
@@ -66,6 +67,10 @@ class CalculateManufactureTaskSessionPay
 
     private function selectBand(ManufactureTaskSession $session, Collection $bands, float $hours, ?float $standardRate): ?ManufacturePayBand
     {
+        if ($session->artisan_pay_type == ArtisanPayTypeEnum::HOURLY) {
+            return $bands->firstWhere('code', '0');
+        }
+
         if ($session->activity_type == ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT) {
             return $bands->firstWhere('code', 'D') ?? $bands->firstWhere('code', 'DG') ?? $bands->firstWhere('code', '0');
         }

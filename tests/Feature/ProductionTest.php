@@ -2735,6 +2735,66 @@ describe('production reward pay bands', function () {
         ]))->toThrow(\Illuminate\Validation\ValidationException::class);
     });
 
+    test('an hourly artisan gets no tier, bonus or under-target flag, and their sessions this week follow the pay type', function () {
+        AttachManufactureTaskToArtefact::make()->action($this->artefact, [
+            'manufacture_task_id' => $this->manufactureTask->id,
+            'position'            => 1,
+            'units_per_artefact'  => 1,
+            'standard_rate'       => 152,
+        ]);
+        $this->manufactureTask->update(['operative_reward_terms' => 'above_lower_limit']);
+
+        $modelData                    = Employee::factory()->make(['organisation_id' => $this->organisation->id])->toArray();
+        $modelData['worker_number']   = 'W'.rand(1000, 9999);
+        $modelData['alias']           = 'Alias '.rand(1000, 9999);
+        $modelData['type']            = \App\Enums\HumanResources\Employee\EmployeeTypeEnum::EMPLOYEE;
+        $modelData['employment_type'] = \App\Enums\HumanResources\Employee\EmploymentTypeEnum::FULL_TIME;
+        $modelData['state']           = \App\Enums\HumanResources\Employee\EmployeeStateEnum::WORKING;
+        $artisan                      = StoreEmployee::make()->action($this->organisation, $modelData);
+
+        $closeOpen = function (float $quantityMade) use ($artisan) {
+            $session = makePayBandSession($this->payBandJobOrderItemTask, 0, 1);
+            $session->update(['state' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum::OPEN, 'employee_id' => $artisan->id, 'started_at' => now()->subHour(), 'ended_at' => null]);
+
+            return CloseManufactureTaskSession::make()->action($session, ['quantity_made' => $quantityMade])->refresh();
+        };
+
+        $pieceRate = $closeOpen(40);
+        expect($artisan->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::PIECE_RATE)
+            ->and($pieceRate->is_under_target)->toBeTrue()
+            ->and($pieceRate->operative_reward_terms)->toBe('above_lower_limit');
+
+        \App\Actions\Production\Artisan\SetArtisanPayType::make()->action($this->production, $artisan, ['artisan_pay_type' => 'hourly']);
+
+        $pieceRate->refresh();
+        expect($artisan->refresh()->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($pieceRate->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($pieceRate->is_under_target)->toBeFalse()
+            ->and($pieceRate->operative_reward_terms)->toBe('never')
+            ->and((float) $pieceRate->task_work_cost)->toBe(0.0);
+
+        $fast = $closeOpen(900);
+        expect($fast->artisan_pay_type)->toBe(\App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY)
+            ->and($fast->band_code)->toBe('0')
+            ->and((float) $fast->bonus)->toBe(0.0)
+            ->and($fast->is_under_target)->toBeFalse()
+            ->and((float) $fast->standard_rate)->toBe(152.0)
+            ->and((float) $fast->units_per_hour)->toBeGreaterThan(152.0)
+            ->and($fast->operative_reward_terms)->toBe('never');
+
+        $development = makePayBandSession($this->payBandJobOrderItemTask, 0, 2, 0, \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::DEVELOPMENT->value);
+        $development->update(['artisan_pay_type' => \App\Enums\Production\Artisan\ArtisanPayTypeEnum::HOURLY]);
+        $development = \App\Actions\Production\ManufactureTaskSession\CalculateManufactureTaskSessionPay::run($development);
+        expect($development->band_code)->toBe('0')
+            ->and((float) $development->bonus)->toBe(0.0);
+
+        $artisans = collect(get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'artisan_pay_type' => 'hourly']))
+            ->viewData('page')['props']['artisans']);
+        $sessions = $artisans->pluck('jobs')->flatten(1)->pluck('steps')->flatten(1)->pluck('sessions')->flatten(1);
+        expect($sessions->pluck('id'))->toContain($fast->id)
+            ->and($sessions->every(fn (array $session) => $session['is_hourly']))->toBeTrue();
+    });
+
     test('job lines that share a step are made as one combined batch and the quantity and time are shared back to each line', function () {
         $suffix    = rand(10000, 99999);
         $artefacts = collect(['CMB-A', 'CMB-B'])->map(function (string $code) use ($suffix) {

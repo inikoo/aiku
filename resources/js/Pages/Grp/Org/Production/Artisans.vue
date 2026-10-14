@@ -15,14 +15,15 @@ import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes } from "@fal"
+import { faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
-library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes)
+library.add(faUserHardHat, faChevronDown, faChevronUp, faCheck, faTimes, faFilter)
 
 interface ArtisanSession {
     id: number
@@ -41,6 +42,7 @@ interface ArtisanSession {
     units_per_hour: number | null
     standard_rate: number | null
     is_under_target: boolean
+    is_hourly: boolean
     under_target_review: null | { reason: string, note: string | null, reviewed_by: string | null, reviewed_at: string }
     review_route: null | { name: string, parameters: object }
     void_route: null | { name: string, parameters: object }
@@ -100,11 +102,15 @@ const props = defineProps<{
     manufacture_task_id: number | null
     manufacture_tasks: { id: number, name: string }[]
     under_target: boolean
+    artisan_pay_type: string | null
+    artisan_pay_types: Record<string, string>
     under_target_reasons: Record<string, string>
     non_productive_activities: { value: string, label: string }[]
     artisans: {
         user_id: number
         worker: string
+        artisan_pay_type: string | null
+        pay_type_route: null | { name: string, parameters: object }
         number_sessions: number
         hours_worked: number
         quantity_made: number
@@ -137,6 +143,9 @@ const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!bor
 const stepOptions = computed(() => [{ id: null, name: ctrans('All steps') }, ...props.manufacture_tasks])
 const reasonOptions = computed(() => Object.entries(props.under_target_reasons).map(([value, label]) => ({ value, label })))
 const manufactureTaskId = ref<number | null>(props.manufacture_task_id)
+const payTypeFilter = ref<string | null>(props.artisan_pay_type)
+const payTypeFilterOptions = computed(() => [{ value: null, label: ctrans('All pay types') }, ...Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label }))])
+const payTypeOptions = computed(() => Object.entries(props.artisan_pay_types).map(([value, label]) => ({ value, label })))
 const underTargetOnly = ref(props.under_target)
 const reviewing = ref<number | null>(null)
 const reviewReason = ref<string | null>(null)
@@ -147,8 +156,18 @@ const processing = ref(false)
 function applyPeriod() {
     router.get(
         window.location.pathname,
-        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined },
+        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined },
         { preserveState: false }
+    )
+}
+
+function setPayType(artisan: { pay_type_route: null | { name: string, parameters: object } }, payType: string) {
+    if (!artisan.pay_type_route) return
+    processing.value = true
+    router.patch(
+        route(artisan.pay_type_route.name, artisan.pay_type_route.parameters),
+        { artisan_pay_type: payType },
+        { preserveScroll: true, onFinish: () => processing.value = false }
     )
 }
 
@@ -256,13 +275,17 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                 <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Step') }}</label>
                 <Select v-model="manufactureTaskId" :options="stepOptions" optionLabel="name" optionValue="id" filter :class="fieldFocusClass" />
             </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Pay type') }}</label>
+                <Select v-model="payTypeFilter" :options="payTypeFilterOptions" optionLabel="label" optionValue="value" :class="fieldFocusClass" />
+            </div>
             <label class="flex items-center gap-2 pb-2 text-sm text-gray-600">
                 <Checkbox v-model="underTargetOnly" binary />
                 {{ ctrans('Under target only') }}
             </label>
-            <button type="button" class="rounded bg-[--app-accent] text-[--app-accent-text] hover:bg-[--app-accent-strong] text-sm px-3 py-2" @click="applyPeriod">
-                {{ ctrans('Apply') }}
-            </button>
+            <Button type="tertiary" :label="ctrans('Apply')" @click="applyPeriod">
+                <template #icon><FontAwesomeIcon :icon="['fal', 'filter']" fixed-width aria-hidden="true" /></template>
+            </Button>
         </div>
 
         <div v-if="!artisans.length" class="text-gray-400 text-center py-16 border border-dashed border-gray-200 rounded-lg">
@@ -271,7 +294,10 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
 
         <div v-for="artisan in artisans" :key="artisan.user_id" class="mb-3 rounded-xl border border-gray-200 bg-white">
             <button type="button" class="w-full px-4 py-3 flex items-center justify-between gap-4 text-left" @click="toggle(artisan.user_id)">
-                <div class="font-semibold">{{ artisan.worker }}</div>
+                <div class="flex items-center gap-2 font-semibold">
+                    {{ artisan.worker }}
+                    <span v-if="artisan.artisan_pay_type === 'hourly'" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ artisan_pay_types.hourly }}</span>
+                </div>
                 <div class="flex items-center gap-6 text-sm text-gray-600 tabular-nums">
                     <span>{{ artisan.number_sessions }} {{ ctrans('tasks') }}</span>
                     <span>{{ artisan.hours_worked }} h</span>
@@ -287,6 +313,11 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
             </button>
 
             <div v-if="expanded.has(artisan.user_id)" class="border-t border-gray-100 px-4 py-2">
+                <div v-if="artisan.pay_type_route" class="py-2 flex items-center gap-3 border-b border-gray-100 text-sm text-gray-600">
+                    <span>{{ ctrans('Pay type') }}</span>
+                    <SegmentedToggle :modelValue="artisan.artisan_pay_type ?? 'piece_rate'" :options="payTypeOptions" :aria-label="ctrans('Pay type')" @update:modelValue="(payType: string) => setPayType(artisan, payType)" />
+                    <span class="text-xs text-gray-400">{{ ctrans('Hourly: no tiers, bonus or under-target flags. Applies to this week\'s sessions too.') }}</span>
+                </div>
                 <div v-if="artisan.non_productive.sessions.length" class="py-2 border-b border-gray-100">
                     <div class="flex items-center justify-between gap-3 text-sm font-medium text-gray-700">
                         <div>{{ ctrans('Preparation and cleaning') }} <span class="font-normal text-gray-400">· {{ ctrans('paid at base rate, not in units per hour') }}</span></div>
@@ -381,6 +412,7 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                             :class="session.state == 'voided' ? 'opacity-40 line-through' : ''">
                             <span class="flex items-center gap-2 text-gray-400">
                                 {{ useFormatTime(session.ended_at) }}
+                                <span v-if="session.is_hourly" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ artisan_pay_types.hourly }}</span>
                                 <span v-if="session.is_under_target"
                                     class="rounded px-1.5 py-0.5 text-xs font-medium"
                                     :class="session.under_target_review ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-800'">
@@ -447,9 +479,9 @@ function sessionDuration(session: { started_at: string, ended_at: string, break_
                         <div v-if="reviewing === session.id" class="mb-2 flex flex-wrap items-end gap-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm">
                             <Select v-model="reviewReason" :options="reasonOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('Reason')" :class="fieldFocusClass" />
                             <InputText v-model="reviewNote" maxlength="1000" :placeholder="ctrans('Notes (optional)')" class="min-w-0 flex-1" />
-                            <button type="button" class="rounded bg-[--app-accent] px-3 py-1.5 text-[--app-accent-text] hover:bg-[--app-accent-strong] disabled:opacity-40" :disabled="!reviewReason || processing" @click="saveReview(session)">
-                                {{ ctrans('Save') }}
-                            </button>
+                            <Button type="tertiary" :label="ctrans('Save')" :disabled="!reviewReason || processing" @click="saveReview(session)">
+                                <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                            </Button>
                             <button type="button" class="text-xs text-gray-500 hover:underline" @click="reviewing = null">
                                 {{ ctrans('Cancel') }}
                             </button>
