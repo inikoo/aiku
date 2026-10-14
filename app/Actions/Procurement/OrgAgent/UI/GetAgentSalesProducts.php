@@ -30,7 +30,8 @@ use Spatie\QueryBuilder\AllowedSort;
  * The sales lists of an agent in SQL: what each of its supplier products sold at cost in a chosen interval and in the same interval a
  * year earlier, the worth of the stock at cost and the stock cover verdict, one
  * sub-query per organisation because the verdict embeds that organisation's own lead time, then added up per product
- * and per supplier. Amounts are in the agent's currency and the sales follow ShowAgentSales::COST_OF_SALES.
+ * and per supplier. Sales are at cost (ShowAgentSales::COST_OF_SALES) or at what customers paid, in the agent's
+ * currency, GBP or EUR, as valuedBy() asks. Suppliers that log in themselves must only ever see the cost.
  */
 class GetAgentSalesProducts
 {
@@ -41,7 +42,53 @@ class GetAgentSalesProducts
         case when delivery_lines > 0 then 100.0 * short_lines / delivery_lines end as short_percent,
         case when last_year > 0 then (sold / last_year - 1) * 100 end as change_percent';
 
+    public const array CURRENCIES = ['GBP', 'EUR'];
+
+    public const string WHOLESALE = 'r.sales_grp_currency_external';
+
     private const array COLUMNS = ['supplier_product_id', 'code', 'name', 'supplier_id', 'supplier_code', 'supplier_name', 'supplier_slug', 'organisation_code', 'sold', 'last_year', 'stock_value', 'bucket', 'invoices', 'refunds', 'reviews', 'rating_sum'];
+
+    private ?string $currencyCode = null;
+
+    private bool $atWholesale = false;
+
+    public function valuedBy(?string $currencyCode, ?string $measure): static
+    {
+        $this->currencyCode = in_array($currencyCode, self::CURRENCIES, true) ? $currencyCode : null;
+        $this->atWholesale  = $measure === 'sales';
+
+        return $this;
+    }
+
+    public function amountSql(): string
+    {
+        return $this->atWholesale ? self::WHOLESALE : ShowAgentSales::COST_OF_SALES;
+    }
+
+    public function soldLabel(): string
+    {
+        return $this->atWholesale ? __('Sold, wholesale') : __('Sold, at cost');
+    }
+
+    public function lastYearLabel(): string
+    {
+        return $this->atWholesale ? __('Same period last year, wholesale') : __('Same period last year, at cost');
+    }
+
+    /**
+     * @return array{currency: string, measure: string, agent_currency: string}
+     */
+    public function valuation(Agent $agent): array
+    {
+        $agentCode = $agent->organisation->currency->code;
+        $shownCode = $this->agentCurrency($agent)[0]->code;
+
+        return [
+            'currency'       => $shownCode === $agentCode ? 'agent' : $shownCode,
+            'measure'        => $this->atWholesale ? 'sales' : 'cost',
+            'agent_currency' => $agentCode,
+        ];
+    }
 
     /**
      * @return array{0: Currency, 1: float}
@@ -49,7 +96,13 @@ class GetAgentSalesProducts
     public function agentCurrency(Agent $agent): array
     {
         $organisation = $agent->organisation;
-        $toAgent      = (float) GetCurrencyExchange::run($organisation->group->currency, $organisation->currency);
+        $requested    = $this->currencyCode ? Currency::where('code', $this->currencyCode)->first() : null;
+        $toRequested  = $requested ? (float) GetCurrencyExchange::run($organisation->group->currency, $requested) : 0.0;
+        if ($toRequested) {
+            return [$requested, $toRequested];
+        }
+
+        $toAgent = (float) GetCurrencyExchange::run($organisation->group->currency, $organisation->currency);
 
         return [$toAgent ? $organisation->currency : $organisation->group->currency, $toAgent ?: 1.0];
     }
@@ -231,7 +284,7 @@ class GetAgentSalesProducts
     {
         $buckets      = GetAgentStockCoverBuckets::make();
         $stockToAgent = (float) (GetCurrencyExchange::run($orgAgent->organisation->currency, $currency) ?: 1);
-        $cost         = ShowAgentSales::COST_OF_SALES;
+        $cost         = $this->amountSql();
 
         $currentParts  = $this->recordsParts($this->range($interval));
         $previousParts = $this->recordsParts($this->range($interval, true));

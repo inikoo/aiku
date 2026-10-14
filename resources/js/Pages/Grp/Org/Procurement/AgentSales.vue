@@ -5,6 +5,7 @@ import Chart from "primevue/chart"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import AgentSalesValuation, { Valuation } from "@/Components/Procurement/AgentSalesValuation.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { ctrans } from "@/Composables/useTrans"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
@@ -70,6 +71,7 @@ const props = defineProps<{
 	pageHead: PageHeadingTypes
 	supplier?: { code: string; name: string } | null
 	links: Record<"all" | Problem, string>
+	valuation: Valuation
 	sales?: Sales
 	feedback?: Feedback
 }>()
@@ -96,6 +98,8 @@ const severityClass: Record<string, string> = {
 const stars = (rating: number) => "★".repeat(rating) + "☆".repeat(5 - rating)
 const percent = (value: number | null) => (value === null ? "—" : `${value.toFixed(1)}%`)
 const signed = (percent: number) => `${percent > 0 ? "+" : ""}${percent.toFixed(1)}%`
+
+const atCost = computed(() => props.valuation.measure === "cost")
 
 const selected = ref("all")
 const organisationOptions = computed(() => [
@@ -269,7 +273,7 @@ const rankings = computed(() =>
 				{
 				key: "top",
 					title: ctrans("Best sellers"),
-					hint: ctrans("Goods sold in the last 12 months at cost, every organisation together"),
+					hint: atCost.value ? ctrans("Goods sold in the last 12 months at cost, every organisation together") : ctrans("Goods sold in the last 12 months at what customers paid, every organisation together"),
 					empty: ctrans("Nothing sold in the period"),
 					rows: props.sales.top_sellers,
 					count: null,
@@ -315,6 +319,7 @@ const rankings = computed(() =>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead" />
 	<div class="space-y-4 p-4">
+		<AgentSalesValuation :valuation="valuation" />
 		<Deferred data="sales">
 			<template #fallback>
 				<div class="space-y-4">
@@ -329,14 +334,14 @@ const rankings = computed(() =>
 			<div v-if="sales" class="space-y-4">
 				<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 					<div class="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2">
-						<h2 class="text-sm font-semibold text-gray-600">{{ ctrans(":year goods sold at cost, year to date", { year: String(sales.year) }) }}</h2>
+						<h2 class="text-sm font-semibold text-gray-600">{{ atCost ? ctrans(":year goods sold at cost, year to date", { year: String(sales.year) }) : ctrans(":year goods sold wholesale, year to date", { year: String(sales.year) }) }}</h2>
 						<span class="flex items-center gap-3 text-xs text-gray-500">
 							<span class="flex items-center gap-1.5"><span class="w-4 border-t-2" :style="{ borderColor: COLORS.thisYear }" />{{ sales.year }}</span>
 							<span v-if="forecast" class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm" :style="{ backgroundColor: COLORS.forecastBand }" />{{ ctrans("Forecast") }}</span>
 							<span class="flex items-center gap-1.5"><span class="w-4 border-t-2 border-dashed" :style="{ borderColor: COLORS.lastYear }" />{{ sales.year - 1 }}</span>
 						</span>
 						<span class="ml-auto text-xs text-gray-400">
-							{{ ctrans("What each organisation sold of your products to its own customers, at the cost of the goods, in :currency", { currency: sales.currency }) }}
+							{{ atCost ? ctrans("What each organisation sold of your products to its own customers, at the cost of the goods, in :currency", { currency: sales.currency }) : ctrans("What each organisation sold of your products to its own customers, at what they paid, in :currency", { currency: sales.currency }) }}
 						</span>
 					</div>
 
@@ -402,13 +407,13 @@ const rankings = computed(() =>
 
 				<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Per organisation") }}</h2>
-					<p class="mt-0.5 text-xs text-gray-500">{{ ctrans("Goods sold in the last 12 months, from :date, at cost, and the state of the stock today", { date: useFormatTime(sales.from) }) }}</p>
+					<p class="mt-0.5 text-xs text-gray-500">{{ atCost ? ctrans("Goods sold in the last 12 months, from :date, at cost, and the state of the stock today", { date: useFormatTime(sales.from) }) : ctrans("Goods sold in the last 12 months, from :date, at what customers paid, and the state of the stock today", { date: useFormatTime(sales.from) }) }}</p>
 					<p v-if="!sales.organisations.length" class="py-6 text-center text-xs text-gray-400">{{ ctrans("No organisation buys from this agent yet") }}</p>
 					<table v-else class="mt-3 w-full text-sm">
 						<thead class="text-xs uppercase tracking-wide text-gray-400">
 							<tr>
 								<th class="pb-1 text-left font-medium">{{ ctrans("Organisation") }}</th>
-								<th class="pb-1 text-right font-medium">{{ ctrans("Sold, at cost") }}</th>
+								<th class="pb-1 text-right font-medium">{{ atCost ? ctrans("Sold, at cost") : ctrans("Sold, wholesale") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("Products that sold") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("Out of stock") }}</th>
 								<th class="pb-1 text-right font-medium">{{ ctrans("About to run out") }}</th>

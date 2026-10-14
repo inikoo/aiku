@@ -30,12 +30,12 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * How an agent's products sell in the organisations that buy them, valued at what the goods cost and never at what
- * the organisations charged their customers: an agent sees the worth of its goods leaving the shelves, the
- * organisations' revenue and margin are not its to see. Month by month, plus the products in trouble (out of stock,
+ * How an agent's products sell in the organisations that buy them, valued at what the goods cost, or, on the
+ * toggle every user of the agent views has, at what the organisations' customers paid (suppliers logging in
+ * themselves must never get that toggle). Month by month, plus the products in trouble (out of stock,
  * about to run out, not selling). Goods one organisation passes to another are not a sale, the organisation that
  * receives them sells them, so a month's cost is kept in the proportion its sales went to its own customers.
- * Amounts are in the agent's currency.
+ * Amounts are in the agent's currency, GBP or EUR; agent views may switch to what customers paid instead of the cost.
  */
 class ShowAgentSales extends OrgAction
 {
@@ -59,6 +59,8 @@ class ShowAgentSales extends OrgAction
         else 1 end';
 
     private ?Supplier $supplier = null;
+
+    private ?GetAgentSalesProducts $valuation = null;
 
     /**
      * The cost-of-sales records of every org stock the agent's products are linked to, narrowed to one supplier's
@@ -95,19 +97,18 @@ class ShowAgentSales extends OrgAction
     /**
      * @return array<string, mixed>
      */
-    public function handle(Agent $agent, ?Supplier $supplier = null): array
+    public function handle(Agent $agent, ?Supplier $supplier = null, ?GetAgentSalesProducts $valuation = null): array
     {
-        $organisation = $agent->organisation;
-        $toAgent      = (float) GetCurrencyExchange::run($organisation->group->currency, $organisation->currency);
-        $currency     = $toAgent ? $organisation->currency : $organisation->group->currency;
-        $toAgent      = $toAgent ?: 1.0;
+        $valuation              = $valuation ?? GetAgentSalesProducts::make();
+        $amount                 = $valuation->amountSql();
+        [$currency, $toAgent]   = $valuation->agentCurrency($agent);
         $from         = now()->startOfMonth()->subMonths(self::MONTHS - 1);
         $orgAgents    = OrgAgent::where('agent_id', $agent->id)->with('organisation.currency')->get();
 
         $year = now()->year;
 
         $byMonth = $this->monthlySales($agent, now()->subYear()->startOfYear(), $supplier?->id)
-            ->selectRaw('sold_stock.organisation_id, r.period as month, sum('.self::COST_OF_SALES.') as sales')
+            ->selectRaw("sold_stock.organisation_id, r.period as month, sum($amount) as sales")
             ->groupBy('sold_stock.organisation_id', 'r.period')
             ->get()
             ->groupBy('organisation_id')
@@ -123,7 +124,7 @@ class ShowAgentSales extends OrgAction
         foreach ($orgAgents as $orgAgent) {
             $code        = $orgAgent->organisation->code;
             $stockToAgent = (float) (GetCurrencyExchange::run($orgAgent->organisation->currency, $currency) ?: 1);
-            $rows        = $this->productRows($agent, $orgAgent, $from, $supplier);
+            $rows        = $this->productRows($agent, $orgAgent, $from, $supplier, $amount);
 
             $organisations[] = [
                 'code'     => $code,
@@ -154,6 +155,7 @@ class ShowAgentSales extends OrgAction
 
         return [
             'currency'      => $currency->code,
+            'valuation'     => $valuation->valuation($agent),
             'from'          => $from->toDateString(),
             'year'          => $year,
             'products'      => $products->count(),
@@ -170,7 +172,7 @@ class ShowAgentSales extends OrgAction
      * One row per org stock the organisation holds of this agent's products, with what it sold in the period, in the
      * group's currency, the value of what it holds, in its own, and the stock cover verdict its own buyers see.
      */
-    private function productRows(Agent $agent, OrgAgent $orgAgent, CarbonInterface $from, ?Supplier $supplier): Collection
+    private function productRows(Agent $agent, OrgAgent $orgAgent, CarbonInterface $from, ?Supplier $supplier, string $amount): Collection
     {
         $buckets = GetAgentStockCoverBuckets::make();
 
@@ -179,7 +181,7 @@ class ShowAgentSales extends OrgAction
                 $this->monthlySales($agent, $from, $supplier?->id)
                     ->where('sold_stock.organisation_id', $orgAgent->organisation_id)
                     ->groupBy('ts.org_stock_id')
-                    ->selectRaw('ts.org_stock_id, sum('.self::COST_OF_SALES.') as sold'),
+                    ->selectRaw("ts.org_stock_id, sum($amount) as sold"),
                 'sold',
                 'sold.org_stock_id',
                 '=',
@@ -219,7 +221,8 @@ class ShowAgentSales extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Agent
     {
         $this->initialisation($organisation, $request);
-        $agent = $this->getOrganisationAgent($organisation);
+        $this->valuation = GetAgentSalesProducts::make()->valuedBy($request->input('currency'), $request->input('measure'));
+        $agent           = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
 
         return $agent;
@@ -316,7 +319,8 @@ class ShowAgentSales extends OrgAction
                 ],
                 'supplier'    => $this->supplier ? ['code' => $this->supplier->code, 'name' => $this->supplier->name] : null,
                 'links'       => $this->productLinks(),
-                'sales'       => Inertia::defer(fn () => $this->handle($agent, $this->supplier)),
+                'valuation'   => $this->valuation->valuation($agent),
+                'sales'       => Inertia::defer(fn () => $this->handle($agent, $this->supplier, $this->valuation)),
                 'feedback'    => Inertia::defer(fn () => GetAgentSalesFeedback::run($agent, $this->supplier), 'feedback'),
             ]
         );

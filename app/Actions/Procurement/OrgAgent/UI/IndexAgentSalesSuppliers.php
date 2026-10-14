@@ -33,6 +33,8 @@ class IndexAgentSalesSuppliers extends OrgAction
     use WithAgentOrganisation;
     use WithProcurementAuthorisation;
 
+    private GetAgentSalesProducts $valuation;
+
     public function handle(Agent $agent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -40,7 +42,7 @@ class IndexAgentSalesSuppliers extends OrgAction
             $query->whereRaw('(code collate "C" ilike ? or name ilike ?)', [$like, $like]);
         });
 
-        return QueryBuilder::for(Supplier::withoutGlobalScopes()->fromSub(GetAgentSalesProducts::make()->suppliers($agent, $this->dateInterval), 'suppliers')->selectRaw('suppliers.*, '.GetAgentSalesProducts::DERIVED))
+        return QueryBuilder::for(Supplier::withoutGlobalScopes()->fromSub($this->valuation->suppliers($agent, $this->dateInterval), 'suppliers')->selectRaw('suppliers.*, '.GetAgentSalesProducts::DERIVED))
             ->defaultSort('-sold')
             ->allowedSorts(['code', 'name', 'products', 'selling', 'sold', 'out_of_stock', 'low', 'dead', ...GetAgentSalesProducts::make()->derivedSorts()])
             ->allowedFilters([$globalSearch])
@@ -61,8 +63,8 @@ class IndexAgentSalesSuppliers extends OrgAction
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true)
                 ->column(key: 'products', label: __('Products'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'selling', label: __('Products that sold'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'sold', label: __('Sold, at cost'), canBeHidden: false, sortable: true, align: 'right')
-                ->column(key: 'last_year', label: __('Same period last year, at cost'), canBeHidden: false, align: 'right')
+                ->column(key: 'sold', label: $this->valuation->soldLabel(), canBeHidden: false, sortable: true, align: 'right')
+                ->column(key: 'last_year', label: $this->valuation->lastYearLabel(), canBeHidden: false, align: 'right')
                 ->column(key: 'change_percent', label: __('Change'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'rating', label: __('Rating'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'refund_percent', label: __('Refunds %'), canBeHidden: false, sortable: true, align: 'right')
@@ -77,6 +79,7 @@ class IndexAgentSalesSuppliers extends OrgAction
     {
         $this->initialisation($organisation, $request);
         $this->dateInterval = GetAgentSalesProducts::make()->interval($request->input('dateInterval'));
+        $this->valuation    = GetAgentSalesProducts::make()->valuedBy($request->input('currency'), $request->input('measure'));
         $agent = $this->getOrganisationAgent($organisation);
         abort_unless($agent, 404);
 
@@ -105,7 +108,8 @@ class IndexAgentSalesSuppliers extends OrgAction
                     'title' => __('Suppliers'),
                     'model' => __('Sales'),
                 ],
-                'currency'    => GetAgentSalesProducts::make()->agentCurrency($agent)[0]->code,
+                'currency'    => $this->valuation->agentCurrency($agent)[0]->code,
+                'valuation'   => $this->valuation->valuation($agent),
                 'data'        => AgentSalesSuppliersResource::collection($this->handle($agent)),
             ]
         )->table($this->tableStructure());

@@ -692,6 +692,19 @@ test('agent manager only sees their own agent organisation', function () {
         ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', 'all')->has('data.meta.total'));
     $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'dateInterval' => 'nonsense']))
         ->assertInertia(fn ($page) => $page->where('queryBuilderProps.default.dateInterval', '1y'));
+    $this->get(route('grp.org.agent.sales.products.index', [$organisation->slug, 'measure' => 'sales', 'currency' => 'EUR']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('valuation.measure', 'sales')
+            ->where('valuation.currency', 'EUR')
+            ->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->firstWhere('key', 'sold')['label'] === __('Sold, wholesale'))
+            ->has('data.meta.total'));
+    $this->get(route('grp.org.agent.sales.suppliers.index', [$organisation->slug, 'measure' => 'nonsense', 'currency' => 'XYZ']))
+        ->assertInertia(fn ($page) => $page->where('valuation.measure', 'cost')->where('valuation.currency', 'agent'));
+    $this->get(route('grp.org.agent.sales.dashboard', [$organisation->slug, 'measure' => 'sales', 'currency' => 'GBP']))
+        ->assertInertia(fn ($page) => $page
+            ->where('valuation.measure', 'sales')
+            ->loadDeferredProps(fn ($reload) => $reload->where('sales.valuation.currency', 'GBP')->where('sales.organisations.0.sold', fn ($sold) => $sold >= 0)));
     $salesSupplier = Supplier::where('agent_id', $this->agent->id)->firstOrFail();
     $this->get(route('grp.org.agent.sales.suppliers.show', [$organisation->slug, $salesSupplier->slug]))
         ->assertOk()

@@ -21036,5 +21036,13 @@
     "−:amount this month": "−:amount this month",
     "≈ :amount potential sales": "≈ :amount potential sales",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 This page is protected. Changes require approval from :owner."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 This page is protected. Changes require approval from :owner.",
+    ":year goods sold wholesale, year to date": ":year goods sold wholesale, year to date",
+    "At cost": "At cost",
+    "Goods sold in the last 12 months at what customers paid, every organisation together": "Goods sold in the last 12 months at what customers paid, every organisation together",
+    "Goods sold in the last 12 months, from :date, at what customers paid, and the state of the stock today": "Goods sold in the last 12 months, from :date, at what customers paid, and the state of the stock today",
+    "Same period last year, wholesale": "Same period last year, wholesale",
+    "Sold, wholesale": "Sold, wholesale",
+    "What each organisation sold of your products to its own customers, at what they paid, in :currency": "What each organisation sold of your products to its own customers, at what they paid, in :currency",
+    "Value sales": "Value sales"
 }
