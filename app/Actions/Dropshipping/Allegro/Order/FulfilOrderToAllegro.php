@@ -25,7 +25,7 @@ class FulfilOrderToAllegro extends RetinaAction
         $allegroUser = $order->customerSalesChannel->user;
 
         $carrierId = null;
-        $deliveryNote = $order->deliveryNotes->first();
+        $deliveryNote = $order->currentDeliveryNote();
         /** @var Shipment $shipment */
         $shipment = $deliveryNote->shipments()->first();
 

@@ -8,6 +8,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderChargesEngineEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderPayDetailedStatusEnum;
@@ -491,6 +492,14 @@ class Order extends Model implements HasMedia, Auditable
     public function deliveryNotes(): BelongsToMany
     {
         return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps();
+    }
+
+    public function currentDeliveryNote(): ?DeliveryNote
+    {
+        return $this->deliveryNotes->sortBy([
+            fn (DeliveryNote $a, DeliveryNote $b) => ($a->state === DeliveryNoteStateEnum::CANCELLED) <=> ($b->state === DeliveryNoteStateEnum::CANCELLED),
+            fn (DeliveryNote $a, DeliveryNote $b) => $b->id <=> $a->id,
+        ])->first();
     }
 
     public function canBeUndispatchedBy(User $user): bool
