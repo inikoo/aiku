@@ -137,22 +137,26 @@ class StoreOrderFromEbay extends OrgAction
             ->where('customer_sales_channel_id', $ebayUser->customer_sales_channel_id)
             ->whereNotNull('item_id');
 
+        $listingProductIds = (clone $portfolios)->where('platform_product_variant_id', Arr::get($lineItem, 'legacyItemId'))->distinct()->pluck('item_id');
+
         $sku = Arr::get($lineItem, 'sku');
         if (filled($sku)) {
             $productIds = (clone $portfolios)
                 ->where(fn ($query) => $query->where('sku', $sku)->orWhere('platform_sku', $sku))
                 ->distinct()->pluck('item_id');
 
+            if ($productIds->count() > 1) {
+                $productIds = $productIds->intersect($listingProductIds)->values();
+            }
+
             if ($productIds->count() === 1) {
                 return $productIds->first();
             }
         }
 
-        $listingPortfolios = $portfolios->where('platform_product_variant_id', Arr::get($lineItem, 'legacyItemId'));
-
-        $productIds = (clone $listingPortfolios)->distinct()->pluck('item_id');
+        $productIds = $listingProductIds;
         if ($productIds->count() > 1) {
-            $productIds = $listingPortfolios->where('platform_status', true)->distinct()->pluck('item_id');
+            $productIds = $portfolios->where('platform_product_variant_id', Arr::get($lineItem, 'legacyItemId'))->where('platform_status', true)->distinct()->pluck('item_id');
         }
 
         return $productIds->count() === 1 ? $productIds->first() : null;

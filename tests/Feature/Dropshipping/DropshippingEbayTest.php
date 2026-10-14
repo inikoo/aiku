@@ -473,6 +473,23 @@ test('an eBay listing id left on an old unlisted portfolio still imports to the 
         ->and(Arr::has($aikuOrder->data, 'ebay_unmatched_line_items'))->toBeFalse();
 });
 
+test('an eBay line whose sku sits on two portfolios goes to the one on its own listing', function () {
+    $ebayUser       = ebayChannel($this);
+    $otherProduct   = secondProduct($this);
+    $listed         = listedEbayPortfolio($this, $ebayUser);
+    $listed->update(['sku' => 'hbaths-04']);
+    StorePortfolio::make()->action($ebayUser->customerSalesChannel, $otherProduct, [])->update(['sku' => 'hbaths-04']);
+
+    $order = ebayOrder(['lineItems' => [['sku' => 'hbaths-04']]]);
+    fakeEbay($this, [
+        '/sell/fulfillment/v1/order' => ['orders' => [$order], 'total' => 1],
+    ]);
+
+    FetchEbayUserOrders::run($ebayUser);
+
+    expect(Order::where('platform_order_id', $order['orderId'])->firstOrFail()->transactions()->first()->model_id)->toBe($this->product->id);
+});
+
 test('an eBay orders page that answers with an error imports nothing and does not throw', function () {
     $ebayUser = ebayChannel($this);
     listedEbayPortfolio($this, $ebayUser);
