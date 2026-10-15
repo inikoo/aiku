@@ -22,6 +22,7 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\Supplier\WithSupplierSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
@@ -111,6 +112,7 @@ class IndexPurchaseOrders extends OrgAction
                     'unconfirmed_over_7_days'  => [__('Unconfirmed over 7 days'), null],
                     'unconfirmed_over_30_days' => [__('Unconfirmed over 30 days'), null],
                     'past_expected_date'       => [__('Past expected date'), null],
+                    'in_production'            => [__('In production'), null],
                 ],
                 'engine'   => function ($query, $elements) {
                     $query->where(function ($query) use ($elements) {
@@ -122,6 +124,9 @@ class IndexPurchaseOrders extends OrgAction
                         }
                         if (in_array('past_expected_date', $elements)) {
                             $query->orWhere(fn ($query) => $query->whereIn('purchase_orders.state', [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])->where('purchase_orders.estimated_received_at', '<', now()));
+                        }
+                        if (in_array('in_production', $elements)) {
+                            $query->orWhereRaw(PurchaseOrderStageEnum::inProductionSql());
                         }
                     });
                 },

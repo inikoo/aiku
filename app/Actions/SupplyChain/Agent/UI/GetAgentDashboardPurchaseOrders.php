@@ -11,6 +11,7 @@ namespace App\Actions\SupplyChain\Agent\UI;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -20,7 +21,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * What an agent's staff should act on today: orders waiting for their confirmation, orders past the date they
- * promised, confirmed orders not yet in a container, and the containers themselves. Drafts the buying
+ * promised, orders the suppliers are making, confirmed orders not yet in a container, and the containers themselves. Drafts the buying
  * organisation has not sent yet are not theirs to act on, so they are left out.
  */
 class GetAgentDashboardPurchaseOrders
@@ -44,6 +45,8 @@ class GetAgentDashboardPurchaseOrders
             ->whereNull('purchase_orders.deleted_at')
             ->whereIn('purchase_orders.state', $sent);
 
+        $inProduction = PurchaseOrderStageEnum::inProductionSql();
+
         $summary = $openPurchaseOrders()->selectRaw(
             "count(*) as open_count,
             coalesce(sum(cost_total * {$toAgentCurrency}), 0) as open_value,
@@ -53,9 +56,18 @@ class GetAgentDashboardPurchaseOrders
             count(*) filter (where estimated_received_at < now()) as overdue,
             coalesce(sum(cost_total * {$toAgentCurrency}) filter (where estimated_received_at < now()), 0) as overdue_value,
             count(*) filter (where estimated_received_at >= now() and estimated_received_at < now() + interval '14 days') as due_soon,
+            count(*) filter (where {$inProduction}) as in_production,
+            coalesce(sum(cost_total * {$toAgentCurrency}) filter (where {$inProduction}), 0) as in_production_value,
             count(*) filter (where state = 'confirmed' and delivery_state = 'in_process') as confirmed_without_container,
             coalesce(sum(cost_total * {$toAgentCurrency}) filter (where state = 'confirmed' and delivery_state = 'in_process'), 0) as confirmed_without_container_value"
         )->first();
+
+        $inProductionProducts = $openPurchaseOrders()
+            ->whereRaw($inProduction)
+            ->join('purchase_order_transactions', 'purchase_order_transactions.purchase_order_id', '=', 'purchase_orders.id')
+            ->whereNull('purchase_order_transactions.deleted_at')
+            ->distinct()
+            ->count('purchase_order_transactions.supplier_product_id');
 
         $containers = DB::table('stock_deliveries')
             ->where('agent_id', $agent->id)
@@ -88,6 +100,9 @@ class GetAgentDashboardPurchaseOrders
                 'overdue'                           => (int) $summary->overdue,
                 'overdue_value'                     => (float) $summary->overdue_value,
                 'due_soon'                          => (int) $summary->due_soon,
+                'in_production'                     => (int) $summary->in_production,
+                'in_production_value'               => (float) $summary->in_production_value,
+                'in_production_products'            => $inProductionProducts,
                 'confirmed_without_container'       => (int) $summary->confirmed_without_container,
                 'confirmed_without_container_value' => (float) $summary->confirmed_without_container_value,
                 'confirmation_days'                 => self::CONFIRMATION_DAYS,
@@ -98,6 +113,7 @@ class GetAgentDashboardPurchaseOrders
                     'unconfirmed_over_week'       => $purchaseOrdersRoute(['elements[attention]' => 'unconfirmed_over_7_days', 'sort' => 'date']),
                     'unconfirmed_stale'           => $purchaseOrdersRoute(['elements[attention]' => 'unconfirmed_over_30_days', 'sort' => 'date']),
                     'overdue'                     => $purchaseOrdersRoute(['elements[attention]' => 'past_expected_date', 'sort' => 'date']),
+                    'in_production'               => $purchaseOrdersRoute(['elements[attention]' => 'in_production', 'sort' => 'date']),
                     'confirmed_without_container' => $purchaseOrdersRoute([
                         'elements[state]'          => PurchaseOrderStateEnum::CONFIRMED->value,
                         'elements[delivery_state]' => PurchaseOrderDeliveryStateEnum::IN_PROCESS->value,

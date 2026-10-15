@@ -8,6 +8,7 @@
 
 use App\Actions\Retina\Dropshipping\Bundle\UI\RedirectIrisToRetinaBundle;
 use App\Actions\Helpers\Media\UI\ShowIrisAudio;
+use App\Actions\Iris\Appointment\ShowIrisAppointment;
 use App\Actions\Iris\Media\DownloadIrisAttachment;
 use Illuminate\Support\Facades\Route;
 use App\Actions\Web\Webpage\Iris\ShowIrisSitemap;
@@ -105,6 +106,7 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
         Route::get('/warming_products.txt', [ShowIrisWebpagesList::class, 'products'])->name('warming.products');
 
         Route::get('/invoice/{invoice:ulid}', IrisPdfInvoice::class)->name('iris_invoice');
+        Route::get('/appointment/{appointment:id}/{token}', ShowIrisAppointment::class)->name('iris_appointment')->whereNumber('appointment');
         Route::get('/attachment/{media:ulid}', DownloadIrisAttachment::class)->name('iris_attachment');
         Route::get('/blog', ShowIrisBlogDashboard::class)->name('iris_blog');
         Route::get('/david-aw-news', ShowIrisNewslettersDashboard::class)->name('iris_newsletters');
