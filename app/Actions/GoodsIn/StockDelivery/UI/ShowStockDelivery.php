@@ -154,7 +154,11 @@ class ShowStockDelivery extends OrgAction
             $this->set('tab', null);
         }
         $this->withTab($this->getTabs($stockDelivery));
+        $agentCanEdit = $this->canEdit;
         $this->authorizeProcurementRecord($stockDelivery);
+        if ($this->viewedByAgent && $this->organisationAgentSupplies($stockDelivery)) {
+            $this->canEdit = $agentCanEdit;
+        }
 
         return $this->handle($stockDelivery);
     }
