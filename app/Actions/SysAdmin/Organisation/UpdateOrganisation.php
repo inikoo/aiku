@@ -152,6 +152,10 @@ class UpdateOrganisation extends OrgAction
             data_set($modelData, 'settings.orders.allow_scan_to_pick', Arr::pull($modelData, 'allow_scan_to_pick'));
         }
 
+        if (Arr::has($modelData, 'compliance_buffer_days')) {
+            data_set($modelData, 'settings.procurement.compliance_buffer_days', Arr::pull($modelData, 'compliance_buffer_days'));
+        }
+
         if (Arr::has($modelData, 'allow_scan_to_pack')) {
             data_set($modelData, 'settings.orders.allow_scan_to_pack', Arr::pull($modelData, 'allow_scan_to_pack'));
         }
@@ -334,6 +338,7 @@ class UpdateOrganisation extends OrgAction
             'allow_picker_choose_location'          => ['sometimes', 'boolean'],
             'allow_scan_to_pick'                    => ['sometimes', 'boolean'],
             'allow_scan_to_pack'                    => ['sometimes', 'boolean'],
+            'compliance_buffer_days'                => ['sometimes', 'integer', 'min:0', 'max:120'],
             'staff_chat_crm_user_ids'               => ['sometimes', 'array'],
             'staff_chat_crm_user_ids.*'              => ['integer', Rule::exists('users', 'id')->where('group_id', $this->organisation->group_id)],
             'staff_chat_warehouse_user_ids'         => ['sometimes', 'array'],

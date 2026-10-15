@@ -141,6 +141,14 @@ class StockDelivery extends Model implements HasMedia, Auditable
 
     public const int TO_COST_ACTIVITY_DAYS = 120;
 
+    public const array STATES_RECEIVED = [
+        StockDeliveryStateEnum::RECEIVED,
+        StockDeliveryStateEnum::CHECKED,
+        StockDeliveryStateEnum::BOOKING_IN,
+        StockDeliveryStateEnum::BOOKED_IN,
+        StockDeliveryStateEnum::PLACED,
+    ];
+
     public const array STATES_PAST_PUT_AWAY = [
         StockDeliveryStateEnum::BOOKED_IN,
         StockDeliveryStateEnum::PLACED,

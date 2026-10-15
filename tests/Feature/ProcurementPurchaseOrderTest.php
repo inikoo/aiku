@@ -419,9 +419,7 @@ test('agent login can propose a ready date but not set management-only clean han
         ->and($purchaseOrder->approved_ready_at)->toBeNull()
         ->and($purchaseOrder->notes)->toBe($notes)
         ->and($purchaseOrder->sample_approved_at)->toBeNull()
-        ->and($purchaseOrder->produced_at->toDateString())->toBe('2026-09-28');
-
-    $purchaseOrder->update(['produced_at' => null]);
+        ->and($purchaseOrder->produced_at)->toBeNull();
 
     actingAs($this->adminGuest->getUser());
 })->depends('create purchase order through an agent');
@@ -678,7 +676,7 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
             ->where('stages.stages.2.current', true)
             ->where('stages.stages.2.by', $user->contact_name ?: $user->username)
             ->where('stages.stages.3.reached', false)
-            ->where('stages.stages.3.marks.0.skipped', [__('Sample approved'), __('Production photo'), __('QC report')]));
+            ->where('stages.stages.3.marks', fn ($marks) => collect($marks)->firstWhere('field', 'qc_passed_at')['skipped'] === [__('Sample approved'), __('Production photo'), __('QC report')]));
 });
 
 test('a direct order owes no deposit, an order without deliveries follows its own delivery state, and stamps follow who wrote the date', function () {
@@ -716,6 +714,47 @@ test('a direct order owes no deposit, an order without deliveries follows its ow
         ->and($stages['received']['recorded'])->toBeTrue()
         ->and($stages['received']['date']->toDateString())->toBe(now()->subDays(2)->toDateString());
 });
+
+test('the tracker records the ready date, production done, handover and compliance, agents add their own order number, and the buffer follows the organisation', function (PurchaseOrder $purchaseOrder) {
+    $purchaseOrder->refresh()->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'proposed_ready_at' => now()->addDays(30), 'approved_ready_at' => null, 'produced_at' => null]);
+    $route    = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today    = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+    $readyDay = now()->addDays(40)->toDateString();
+    $agent    = User::where('username', 'agent-clerk')->firstOrFail();
+
+    $this->patch($route, ['field' => 'approved_ready_at', 'date' => $readyDay])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->approved_ready_at->toDateString())->toBe($readyDay);
+
+    $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['handed_over_at' => $today, 'compliance_complete_at' => $today, 'balance_paid_at' => $today, 'notes' => 'dates via edit page'])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->handed_over_at)->toBeNull()
+        ->and($purchaseOrder->compliance_complete_at)->toBeNull()
+        ->and($purchaseOrder->balance_paid_at)->toBeNull();
+
+    actingAs($agent);
+    $this->patch($route, ['field' => 'produced_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'approved_ready_at', 'date' => $readyDay])->assertSessionHasErrors('field');
+    $this->patch($route, ['field' => 'handed_over_at', 'date' => $today])->assertSessionHasErrors('field');
+    $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['agent_reference' => 'AG-PO-7781'])->assertSessionHasNoErrors();
+    actingAs($this->adminGuest->getUser());
+
+    $this->patch($route, ['field' => 'compliance_complete_at', 'date' => $today])->assertSessionHasNoErrors();
+
+    $purchaseOrder->refresh();
+    expect($purchaseOrder->produced_at)->not->toBeNull()
+        ->and($purchaseOrder->stageMarkUserId('produced_at'))->toBe($agent->id)
+        ->and($purchaseOrder->agent_reference)->toBe('AG-PO-7781')
+        ->and($purchaseOrder->compliance_complete_at)->not->toBeNull()
+        ->and(collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'submitted')['note'])->toContain('AG-PO-7781');
+
+    $eta = now()->addDays(30)->toDateString();
+    $purchaseOrder->updateQuietly(['estimated_received_at' => $eta, 'data' => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => $eta])]);
+    $settings = $purchaseOrder->organisation->settings;
+    \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($purchaseOrder->organisation, ['compliance_buffer_days' => 14]);
+    expect(GetPurchaseOrderCompliance::run($purchaseOrder->refresh())['deadline'])->toBe(now()->addDays(16)->toDateString());
+    $purchaseOrder->organisation->update(['settings' => $settings]);
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'approved_ready_at' => null, 'produced_at' => null, 'compliance_complete_at' => null, 'agent_reference' => null]);
+})->depends('create purchase order through an agent');
 
 test('a purchase order with no deposit needed counts the deposit stage as done', function () {
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this);

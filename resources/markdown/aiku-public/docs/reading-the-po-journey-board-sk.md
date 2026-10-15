@@ -68,8 +68,9 @@ Počet dní pochádza, v tomto poradí, z:
 
 Systém sám vidí, kedy je objednávka odoslaná, kedy tovar odchádza a je prijatý, kedy je uložený a kedy sú produkty online. Príchod do prístavu sa zadáva na paneli colného odbavenia zásielky. Nevidí však, kedy je zaplatená záloha, začatá výroba alebo kedy tovar prejde kontrolou kvality. Toto musí niekto označiť.
 
-- **Agenti** označujú <b>Deposit paid</b> a začatie výroby na svojich vlastných objednávkach.
-- **Nákupcovia** môžu označiť každú fázu a len oni schvaľujú vzorku a kontrolu kvality (QC).
+- **Záloha** je prvá platba zaznamenaná na objednávke, s jej bankovým výpisom.
+- **Agenti** označujú začatie a dokončenie výroby na svojich vlastných objednávkach.
+- **Nákupcovia** môžu označiť každú fázu a len oni schvaľujú vzorku, dátum pripravenosti a kontrolu kvality (QC). Schválenie QC uvoľní doplatok.
 
 Kým nie je na objednávke označená ani jedna z týchto vecí, jej bunky zostávajú prázdne a objednávka sa sleduje len podľa odoslania a príchodu. Len čo je jedna označená, objednávka čaká na ďalšej neoznačenej fáze, takže začnite od prvej a pokračujte ďalej.
 

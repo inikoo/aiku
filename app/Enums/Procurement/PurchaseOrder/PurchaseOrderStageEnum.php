@@ -31,13 +31,25 @@ enum PurchaseOrderStageEnum: string
      * payment on the order, never marked.
      */
     public const array MARKABLE_FIELDS = [
-        'sample_approved_at'    => self::IN_PRODUCTION,
+        'sample_approved_at'     => self::IN_PRODUCTION,
+        'approved_ready_at'      => self::IN_PRODUCTION,
+        'produced_at'            => self::READY,
+        'handed_over_at'         => self::SHIPPED,
+        'compliance_complete_at' => self::ARRIVED,
         'production_started_at' => self::IN_PRODUCTION,
         'qc_passed_at'          => self::READY,
     ];
 
+    /**
+     * Dates that plan ahead rather than record what happened: they may be in the future.
+     */
+    public const array PLANNED_FIELDS = [
+        'approved_ready_at',
+    ];
+
     public const array AGENT_MARKABLE_FIELDS = [
         'production_started_at',
+        'produced_at',
     ];
 
     public static function ofField(string $field): ?self

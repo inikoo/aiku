@@ -110,6 +110,10 @@ class GetPurchaseOrderStages
             array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingSupplierOnly($purchaseOrder));
         }
 
+        if ($field === 'compliance_complete_at') {
+            array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingRequired($purchaseOrder));
+        }
+
         return $skipped;
     }
 
@@ -172,6 +176,7 @@ class GetPurchaseOrderStages
                 ? (int) Carbon::parse($expected[$stage->value])->diffInDays($today)
                 : 0,
             'deliveries'  => $stages[$stage->value]['deliveries'],
+            'note'        => $stage === Stage::SUBMITTED && $purchaseOrder->agent_reference ? __('Agent\'s number: :number', ['number' => $purchaseOrder->agent_reference]) : null,
             'not_required' => $stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder),
             'steps'       => collect($steps[$stage->value] ?? [])->map(fn (array $step) => [
                 'key'   => $step['key'],
@@ -195,6 +200,8 @@ class GetPurchaseOrderStages
                     'label'   => $fieldLabels[$field],
                     'date'    => $purchaseOrder->{$field},
                     'skipped' => $this->skippedBy($purchaseOrder, $field, $stages),
+                    'planned' => in_array($field, Stage::PLANNED_FIELDS),
+                    'suggested' => $field === 'approved_ready_at' ? $purchaseOrder->proposed_ready_at : null,
                 ])->values()->all(),
         ])->all();
     }

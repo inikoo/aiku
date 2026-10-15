@@ -2925,17 +2925,28 @@ describe('supplier deposits', function () {
         $this->post($confirmRoute, $payment(['paid_at' => $paidLastWeek, 'reason' => 'Bank statement arrived late']))->assertRedirect()->assertSessionHasNoErrors();
 
         $purchaseOrder->refresh();
-        expect($purchaseOrder->deposit_paid_at)->toBeNull()
+        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe($paidLastWeek)
+            ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
+            ->and($purchaseOrder->balance_paid_at)->toBeNull()
             ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0)
             ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Bank statement arrived late');
 
         $left = round($totalToPay - 300, 2);
         $this->post($confirmRoute, $payment(['amount' => $left + 1, 'bank_statement' => $statement('too-much.pdf')]))->assertSessionHasErrors('amount');
+        $this->post($confirmRoute, $payment(['amount' => $left, 'bank_statement' => $statement('early.pdf')]))->assertSessionHasErrors('reason');
+
+        \Illuminate\Support\Facades\Notification::fake();
+        actingAs($this->adminGuest->getUser());
+        $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'qc_passed_at', 'date' => now($purchaseOrder->organisation->timezone?->name)->toDateString(), 'reason' => 'QC done at the supplier'])->assertSessionHasNoErrors();
+        \Illuminate\Support\Facades\Notification::assertSentTo($accountingClerk, \App\Notifications\PurchaseOrderBalanceDueNotification::class);
+        actingAs($accountingClerk);
+
         $this->post($confirmRoute, $payment(['amount' => $left, 'bank_statement' => $statement('second.pdf')]))->assertRedirect()->assertSessionHasNoErrors();
 
         $purchaseOrder->refresh();
         $deposits = $purchaseOrder->depositPayments()->orderBy('id')->get();
-        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe(date('Y-m-d'))
+        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe($paidLastWeek)
+            ->and($purchaseOrder->balance_paid_at->toDateString())->toBe(date('Y-m-d'))
             ->and((float) $purchaseOrder->deposit_amount)->toBe($totalToPay)
             ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
             ->and($deposits)->toHaveCount(2)
@@ -2968,11 +2979,30 @@ describe('supplier deposits', function () {
         expect($undone->undo_reason)->toBe('Paid to the wrong account')
             ->and($undone->undone_by_id)->toBe(auth()->id())
             ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Paid to the wrong account')
-            ->and($purchaseOrder->refresh()->deposit_paid_at)->toBeNull()
-            ->and($purchaseOrder->deposit_paid_by_id)->toBeNull()
+            ->and($purchaseOrder->refresh()->deposit_paid_at->toDateString())->toBe($paidLastWeek)
+            ->and($purchaseOrder->balance_paid_at)->toBeNull()
             ->and($purchaseOrder->depositPayments()->count())->toBe(1)
             ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0);
     });
+});
+
+test('port arrival, customs release and a corrected received date follow the stage rules', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'CUSTOMS-STAGE-'.Str::random(6), [2]);
+    $route         = route('grp.models.stock-delivery.customs.update', $stockDelivery->id);
+    $today         = now()->toDateString();
+
+    $this->patch($route, ['arrived_at' => $today, 'customs_released_at' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['arrived_at' => now()->subDays(5)->toDateString()])->assertSessionHasErrors('reason');
+    $this->patch($route, ['arrived_at' => null])->assertSessionHasErrors('reason');
+    $this->patch($route, ['received_at' => $today])->assertSessionHasErrors('received_at');
+
+    $stockDelivery->updateQuietly(['state' => StockDeliveryStateEnum::RECEIVED, 'received_at' => now()->subDay()]);
+    $this->patch($route, ['received_at' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
+    $this->patch($route, ['received_at' => now()->subDays(3)->toDateString(), 'reason' => 'Booked in a few days late'])->assertSessionHasNoErrors();
+
+    expect($stockDelivery->refresh()->received_at->toDateString())->toBe(now()->subDays(3)->toDateString())
+        ->and($stockDelivery->arrived_at->toDateString())->toBe($today)
+        ->and(Audit::where('auditable_type', 'StockDelivery')->where('auditable_id', $stockDelivery->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Booked in a few days late');
 });
 
 test('staff rename a stock delivery public id from its settings and the url keeps working', function () {

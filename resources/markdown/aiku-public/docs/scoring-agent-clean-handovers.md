@@ -73,7 +73,7 @@ And one operational caveat: the score only exists for orders with an approved re
 
 <aside class="wayfinder">
 <b>Where to click in aiku</b><br>
-Group → <b>Supply Chain → Agents</b> → pick the agent. The showcase shows the <b>Clean Handover Score</b> panel with the hygiene strip. To record the five facts: the agent's <b>Purchase Orders</b> list → open a PO. <b>QC passed</b> is the <b>QC approved</b> button on the stages at the top of the order. The rest are under <b>Edit</b> → the <b>Clean handover</b> section (proposed/approved ready dates, handed over, compliance complete, exclusion toggle + reason). The agent sees their score, without the hygiene strip, on their own dashboard at login.
+Group → <b>Supply Chain → Agents</b> → pick the agent. The showcase shows the <b>Clean Handover Score</b> panel with the hygiene strip. To record the five facts: the agent's <b>Purchase Orders</b> list → open a PO. The <b>Approved ready date</b>, <b>QC approved</b>, <b>Handed over</b> and <b>Compliance complete</b> buttons are on the stages at the top of the order; any buyer can use them, and a past date asks for a reason. The proposed ready date and the exclusion toggle with its reason are under <b>Edit</b> → the <b>Clean handover</b> section. The agent sees their score, without the hygiene strip, on their own dashboard at login.
 </aside>
 
 <aside class="wayfinder">

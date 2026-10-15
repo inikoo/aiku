@@ -96,19 +96,12 @@ class EditPurchaseOrder extends OrgAction
                             ]
                         ],
                         ...$this->termsSections($purchaseOrder),
-                        ...$this->productionSections($purchaseOrder),
                         ...$this->cleanHandoverSections($purchaseOrder, $request),
                         [
                             'label'  => __('Payments'),
                             'title'  => __('Payments'),
                             'icon'   => 'fal fa-money-bill',
                             'fields' => [
-                                'balance_paid_at' => [
-                                    'type'        => 'date',
-                                    'label'       => __('Balance paid'),
-                                    'information' => __('The day the rest of the order was paid to the supplier.'),
-                                    'value'       => $purchaseOrder->balance_paid_at,
-                                ],
                             ]
                         ]
 
@@ -147,43 +140,17 @@ class EditPurchaseOrder extends OrgAction
                 $this->termsSections($purchaseOrder),
                 fn (array $section) => Arr::has($section, 'fields.estimated_production_date')
             )),
-            ...$this->productionSections($purchaseOrder),
             [
                 'label'  => __('Clean handover'),
                 'title'  => __('Clean handover'),
                 'icon'   => 'fal fa-clipboard-list',
                 'fields' => [
+                    'agent_reference'   => $this->agentReferenceField($purchaseOrder),
                     'proposed_ready_at' => [
                         'type'        => 'date',
                         'label'       => __('Proposed ready date'),
-                        'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. Management confirms it as the approved ready date.'),
+                        'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. A purchaser approves it as the approved ready date on the order\'s stages.'),
                         'value'       => $purchaseOrder->proposed_ready_at,
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function productionSections(PurchaseOrder $purchaseOrder): array
-    {
-        if (!$purchaseOrder->isAgentOrder()) {
-            return [];
-        }
-
-        return [
-            [
-                'label'  => __('Production'),
-                'title'  => __('Production'),
-                'icon'   => 'fal fa-industry',
-                'fields' => [
-                    'produced_at'        => [
-                        'type'        => 'date',
-                        'label'       => __('Production done'),
-                        'information' => __('The day the supplier finished making the goods. Ticks the Production step of the order journey.'),
-                        'value'       => $purchaseOrder->produced_at,
                     ],
                 ],
             ],
@@ -222,6 +189,19 @@ class EditPurchaseOrder extends OrgAction
      *
      * @return array<int, array<string, mixed>>
      */
+    /**
+     * @return array<string, mixed>
+     */
+    private function agentReferenceField(PurchaseOrder $purchaseOrder): array
+    {
+        return [
+            'type'        => 'input',
+            'label'       => __('Agent\'s order number'),
+            'information' => __('The agent\'s own number for this order, as it appears on their documents.'),
+            'value'       => $purchaseOrder->agent_reference,
+        ];
+    }
+
     private function cleanHandoverSections(PurchaseOrder $purchaseOrder, ActionRequest $request): array
     {
         if (!$purchaseOrder->isAgentOrder()) {
@@ -229,34 +209,17 @@ class EditPurchaseOrder extends OrgAction
         }
 
         $fields = [
+            'agent_reference'   => $this->agentReferenceField($purchaseOrder),
             'proposed_ready_at' => [
                 'type'        => 'date',
                 'label'       => __('Proposed ready date'),
-                'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. Management confirms it as the approved ready date.'),
+                'information' => __('The day the buyer or the agent expects the goods to be ready to hand over. A purchaser approves it as the approved ready date on the order\'s stages.'),
                 'value'       => $purchaseOrder->proposed_ready_at,
             ],
         ];
 
         if ($request->user()->authorisedShopOrganisations()->exists()) {
             $fields += [
-                'approved_ready_at'      => [
-                    'type'        => 'date',
-                    'label'       => __('Approved ready date'),
-                    'information' => __('The ready date management agreed. The handover counts as clean when it happens within 7 days of this date, and the order counts in the quarter of this date.'),
-                    'value'       => $purchaseOrder->approved_ready_at,
-                ],
-                'handed_over_at'         => [
-                    'type'        => 'date',
-                    'label'       => __('Clean handover'),
-                    'information' => __('The day the goods were handed over complete, checked and with their paperwork. Ticks the Clean handover step of the order journey.'),
-                    'value'       => $purchaseOrder->handed_over_at,
-                ],
-                'compliance_complete_at' => [
-                    'type'        => 'date',
-                    'label'       => __('Compliance complete'),
-                    'information' => __('The day every compliance document (certificates, test reports, labels) was received and checked. Needed for a clean handover.'),
-                    'value'       => $purchaseOrder->compliance_complete_at,
-                ],
                 'chs_excluded'           => [
                     'type'        => 'toggle',
                     'label'       => __('Exclude from clean handover score'),

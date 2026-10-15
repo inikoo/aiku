@@ -73,7 +73,7 @@ A ešte jedna prevádzková poznámka: skóre existuje len pre objednávky so sc
 
 <aside class="wayfinder">
 <b>Kam kliknúť v aiku</b><br>
-Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku. <b>Kontrola kvality prešla</b> je tlačidlo <b>QC approved</b> na fázach v hornej časti objednávky. Ostatné sú v <b>Edit</b> → sekcia <b>Clean handover</b> (navrhovaný/schválený dátum pripravenosti, odovzdané, súlad kompletný, prepínač výnimky + dôvod). Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
+Skupina → <b>Supply Chain → Agents</b> → vyberte agenta. Prehľad zobrazuje panel <b>Clean Handover Score</b> s hygienickým pásom. Na zaznamenanie piatich faktov: zoznam agenta <b>Purchase Orders</b> → otvorte objednávku. Tlačidlá <b>Approved ready date</b>, <b>QC approved</b>, <b>Handed over</b> a <b>Compliance complete</b> sú na fázach v hornej časti objednávky; použiť ich môže ktorýkoľvek nákupca a dátum v minulosti si vyžiada dôvod. Navrhovaný dátum pripravenosti a prepínač výnimky s dôvodom sú v <b>Edit</b> → sekcia <b>Clean handover</b>. Agent vidí svoje skóre bez hygienického pásu na svojom vlastnom prehľade po prihlásení.
 </aside>
 
 <aside class="wayfinder">

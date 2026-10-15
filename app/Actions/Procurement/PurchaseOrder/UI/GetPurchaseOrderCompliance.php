@@ -30,6 +30,11 @@ class GetPurchaseOrderCompliance
 
     public const int DEADLINE_BUFFER_DAYS = 10;
 
+    public static function bufferDays(PurchaseOrder $purchaseOrder): int
+    {
+        return (int) Arr::get($purchaseOrder->organisation->settings, 'procurement.compliance_buffer_days', self::DEADLINE_BUFFER_DAYS);
+    }
+
     public const array DOCUMENTS = [
         TradeAttachmentScopeEnum::SDS,
         TradeAttachmentScopeEnum::IFRA,
@@ -63,7 +68,7 @@ class GetPurchaseOrderCompliance
     public function handle(PurchaseOrder $purchaseOrder): array
     {
         $eta      = $this->eta($purchaseOrder);
-        $deadline = $eta?->copy()->subDays(self::DEADLINE_BUFFER_DAYS);
+        $deadline = $eta?->copy()->subDays(self::bufferDays($purchaseOrder));
 
         $products = $this->tradeUnits($purchaseOrder)->map(fn (TradeUnit $tradeUnit) => [
             'trade_unit_id' => $tradeUnit->id,
@@ -121,6 +126,22 @@ class GetPurchaseOrderCompliance
             ->flatMap(fn (TradeUnit $tradeUnit) => array_map(
                 fn (string $document) => __(':document for :code', ['document' => $document, 'code' => $tradeUnit->code]),
                 $this->documents($tradeUnit)['missing_supplier_only']
+            ))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * "SDS for ABC-01" for each required document still missing.
+     *
+     * @return string[]
+     */
+    public function missingRequired(PurchaseOrder $purchaseOrder): array
+    {
+        return $this->tradeUnits($purchaseOrder)
+            ->flatMap(fn (TradeUnit $tradeUnit) => array_map(
+                fn (string $document) => __(':document for :code', ['document' => $document, 'code' => $tradeUnit->code]),
+                $this->documents($tradeUnit)['missing']
             ))
             ->values()
             ->all();

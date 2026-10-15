@@ -792,7 +792,7 @@ class ShowPurchaseOrder extends OrgAction
         return [
             'eta'          => $compliance['eta'],
             'deadline'     => $compliance['deadline'],
-            'buffer_days'  => GetPurchaseOrderCompliance::DEADLINE_BUFFER_DAYS,
+            'buffer_days'  => GetPurchaseOrderCompliance::bufferDays($purchaseOrder),
             'missing'      => $compliance['missing'],
             'overdue'      => $compliance['overdue'],
             'upload_route' => $canUpload ? [
@@ -945,6 +945,7 @@ class ShowPurchaseOrder extends OrgAction
             'total'         => $totalToPay,
             'paid'          => $paid,
             'left'          => max(0, round($totalToPay - $paid, 2)),
+            'balance_awaits_qc' => ConfirmPurchaseOrderPayment::balanceAwaitsQc($purchaseOrder),
             'paid_at'       => $purchaseOrder->deposit_paid_at,
             'deposits'      => $purchaseOrder->depositPayments()
                 ->with(['bankStatement:id,ulid,file_name', 'createdBy:id,contact_name,username'])

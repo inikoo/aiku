@@ -41,6 +41,14 @@ class ConfirmPurchaseOrderPayment extends OrgAction
         ]));
     }
 
+    /**
+     * The first payment is the deposit; the rest is the balance, released by the QC approval.
+     */
+    public static function balanceAwaitsQc(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->qc_passed_at === null && SyncPurchaseOrderDepositPaid::paidAmount($purchaseOrder) > 0;
+    }
+
     public static function acceptsPayments(PurchaseOrder $purchaseOrder): bool
     {
         return !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CANCELLED], true);
@@ -64,6 +72,8 @@ class ConfirmPurchaseOrderPayment extends OrgAction
             'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
         ]) : null;
 
+        $isBalance = SyncPurchaseOrderDepositPaid::paidAmount($purchaseOrder) > 0;
+
         $payment = $purchaseOrder->depositPayments()->create([
             'group_id'        => $purchaseOrder->group_id,
             'organisation_id' => $purchaseOrder->organisation_id,
@@ -79,7 +89,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
         SyncPurchaseOrderDepositPaid::run($purchaseOrder);
 
         if ($reason = Arr::get($modelData, 'reason')) {
-            MarkPurchaseOrderStage::auditOverride($purchaseOrder, 'deposit_paid_at', null, $payment->date->toDateString(), $reason);
+            MarkPurchaseOrderStage::auditOverride($purchaseOrder, $isBalance ? 'balance_paid_at' : 'deposit_paid_at', null, $payment->date->toDateString(), $reason);
         }
 
         return $payment;
@@ -113,6 +123,9 @@ class ConfirmPurchaseOrderPayment extends OrgAction
             $validator->errors()->add('amount', __('The payment cannot be more than what is left to pay: :amount', ['amount' => number_format($left, 2)]));
         } elseif (!$this->asAction && $validator->errors()->isEmpty() && !trim((string) $this->get('reason'))) {
             $reasons = MarkPurchaseOrderStage::make()->reasonsNeeded($this->purchaseOrder, 'deposit_paid_at', $this->get('paid_at'));
+            if (self::balanceAwaitsQc($this->purchaseOrder)) {
+                $reasons[] = __('the balance is paid before the QC is approved');
+            }
             if ($reasons) {
                 $validator->errors()->add('reason', __('Give a reason: :reasons', ['reasons' => implode('; ', $reasons)]));
             }

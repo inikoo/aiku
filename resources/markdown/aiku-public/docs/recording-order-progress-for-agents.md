@@ -1,6 +1,6 @@
 ---
 title: Recording order progress as an agent
-summary: For agents — the dates you record on each order to a supplier (deposit paid, production started, production done, proposed ready date), when and where to record them, what the buying company records instead, and why a missing date shows as a delay.
+summary: For agents — the dates you record on each order to a supplier (deposit paid, production started, production done, proposed ready date) and your own order number, when and where to record them, what the buying company records instead, and why a missing date shows as a delay.
 date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
@@ -25,10 +25,11 @@ Once you record the first date on an order, the next ones are expected. If a sta
 
 | Date | Record it when | Where |
 |---|---|---|
-| Deposit paid | The supplier has the deposit. | The **Deposit paid** button on the stages at the top of the order. Record the deposit amount on the order's **Edit** page. |
+| Deposit paid | The supplier has the deposit. | **Pay deposit** in the order's payments panel, with the amount and the bank statement. The first payment recorded is the deposit; what is paid after it is the balance. |
 | Production started | The supplier starts making the goods. | The **Production started** button on the stages at the top of the order. |
-| Production done | The goods are finished at the supplier. Finished means all of the order, not the first batch. | The **Production** section of the order's **Edit** page. |
+| Production done | The goods are finished at the supplier. Finished means all of the order, not the first batch. | The **Production done** button on the stages at the top of the order. |
 | Proposed ready date | You know when the goods will be ready for handover. A date you believe. The buyer approves it. | The **Clean handover** section of the order's **Edit** page. |
+| Your order number | You have your own number for the order. | **Agent's order number** on the order's **Edit** page. It shows under PO submitted. |
 
 Stages go in order. Record each date on the day it happens. A date more than a day in the past, a stage recorded before the one before it, or a date you clear asks you for a reason. The reason is kept in the order's history, with your name, so the buyer can see why.
 
@@ -38,7 +39,7 @@ Some dates you cannot enter, by design:
 
 - **Sample approved.** The buyer approves the sample. New products only; reorders have no sample.
 - **Approved ready date.** The buyer approves your proposed date. From then on it is locked, and it sets the targets: quality check is due that day, and the clean handover within seven days of it.
-- **QC passed** and **clean handover.** The buyer confirms these, usually from your quality evidence and the shipping agent's receipt.
+- **QC passed** and **clean handover.** The buyer confirms these, usually from your quality evidence and the shipping agent's receipt. Approving the QC releases the balance payment: until then, paying the balance asks for a reason.
 - **Compliance pack complete.**
 
 These are the facts your <a href="/docs/your-clean-handover-score">Clean Handover Score</a> is calculated from. A score you could edit yourself would be worth nothing, including to you.
@@ -51,10 +52,10 @@ These are the facts your <a href="/docs/your-clean-handover-score">Clean Handove
 
 <aside class="wayfinder">
 <b>Where to click in aiku</b><br>
-Log in → <b>Purchase Orders</b> → open the order. Each purchase order is to one of your suppliers. The seven stages are at the top of the page: use the <b>Deposit paid</b> and <b>Production started</b> buttons there. Then open <b>Edit</b>: <b>Deposit amount</b> is in the <b>Payments</b> section, <b>Production done</b> in the <b>Production</b> section, and <b>Proposed ready date</b> in the <b>Clean handover</b> section.
+Log in → <b>Purchase Orders</b> → open the order. Each purchase order is to one of your suppliers. The seven stages are at the top of the page: use the <b>Production started</b> and <b>Production done</b> buttons there. The deposit is recorded with <b>Pay deposit</b> in the payments panel. Then open <b>Edit</b>: <b>Proposed ready date</b> and <b>Agent's order number</b> are in the <b>Clean handover</b> section.
 </aside>
 
 <aside class="wayfinder">
 <b>Permissions you need</b><br>
-A login for your agent organisation. You can mark only your own stages, on your own orders: deposit paid and production started, plus production done, proposed ready date and deposit amount on the edit page. Sample approval, the approved ready date, QC, clean handover and compliance are not open to you, because the buying company records them.
+A login for your agent organisation. You can mark only your own stages, on your own orders: production started and production done on the stages, the deposit as a payment, and your proposed ready date and order number on the edit page. Sample approval, the approved ready date, QC, clean handover and compliance are not open to you, because the buying company records them.
 </aside>
