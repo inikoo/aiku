@@ -1391,6 +1391,47 @@ test('bulk update product unit is scoped to shop', function () {
     expect($product->refresh()->unit)->toBe('од.');
 });
 
+test('bulk update unit on a variant leader is applied to its variants', function () {
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    createProduct($shop);
+    $leader = $shop->products()->orderBy('id')->first();
+
+    $minion = $leader->replicate();
+    $minion->fill([
+        'code' => $leader->code.'-MIN'.$leader->id,
+        'slug' => $leader->slug.'-min'.$leader->id,
+    ])->saveQuietly();
+
+    $masterVariant = \App\Models\Masters\MasterVariant::create([
+        'group_id' => $leader->group_id,
+        'code'     => $leader->code,
+        'data'     => ['products' => []],
+    ]);
+    $variant = \App\Models\Catalogue\Variant::create([
+        'master_variant_id' => $masterVariant->id,
+        'group_id'          => $leader->group_id,
+        'organisation_id'   => $leader->organisation_id,
+        'shop_id'           => $leader->shop_id,
+        'family_id'         => $leader->family_id,
+        'code'              => $leader->code,
+        'data'              => ['products' => []],
+    ]);
+    $leader->updateQuietly(['variant_id' => $variant->id, 'is_variant_leader' => true]);
+    $minion->updateQuietly(['variant_id' => $variant->id, 'is_variant_leader' => false]);
+
+    \App\Actions\Catalogue\Product\UpdateBulkProduct::make()->handle($shop, [
+        'products' => [
+            ['id' => $leader->id, 'unit' => 'bag'],
+        ],
+    ]);
+
+    expect($leader->refresh()->unit)->toBe('bag')
+        ->and($minion->refresh()->unit)->toBe('bag');
+
+    $leader->updateQuietly(['variant_id' => null, 'is_variant_leader' => false]);
+    $minion->forceDelete();
+});
+
 test('audit archiver moves closed shop and discontinued product audits, history falls back to archive', function () {
     config()->set(
         'database.connections.archive',
