@@ -11,6 +11,7 @@ namespace App\Actions\SupplyChain\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderJourneyStageEnum;
+use App\Models\SysAdmin\Group;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -54,9 +55,8 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
 
     public function handle(ActionRequest $request): array
     {
-        $today       = now()->startOfDay();
-        $this->rates = $this->latestRates();
-        $ribbons     = collect($this->rows())->map(fn (object $row) => $this->toRibbon($row, $today));
+        $today   = now()->startOfDay();
+        $ribbons = $this->ribbons($this->group);
 
         $active = collect(self::FILTER_GROUPS)->mapWithKeys(fn (string $group) => [$group => $request->query($group) ?: null])->all();
 
@@ -105,9 +105,21 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
     }
 
     /**
+     * Every open order of the group, or the one asked for, with its stages planned, as the board shows them.
+     */
+    public function ribbons(Group $group, ?int $purchaseOrderId = null): Collection
+    {
+        $this->group = $group;
+        $this->rates = $this->latestRates();
+        $today       = now()->startOfDay();
+
+        return collect($this->rows($purchaseOrderId))->map(fn (object $row) => $this->toRibbon($row, $today));
+    }
+
+    /**
      * @return array<int, object>
      */
-    private function rows(): array
+    private function rows(?int $purchaseOrderId = null): array
     {
         $finishedSince = now()->subDays(self::FINISHED_WINDOW_DAYS);
 
@@ -132,11 +144,12 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
             left join countries on countries.id = coalesce(addresses.country_id, partners.country_id)
             {$this->deliveryLateral()}
             {$this->linesLateral('purchase_order_transactions.purchase_order_id = po.id')}
-            where {$this->openPurchaseOrderCondition()}",
+            where {$this->openPurchaseOrderCondition()}".($purchaseOrderId ? ' and po.id = :purchase_order_id' : ''),
             [
                 'group_id'                => $this->group->id,
                 'finished_since'          => $finishedSince,
                 'finished_since_unlinked' => $finishedSince,
+                ...($purchaseOrderId ? ['purchase_order_id' => $purchaseOrderId] : []),
             ]
         );
     }

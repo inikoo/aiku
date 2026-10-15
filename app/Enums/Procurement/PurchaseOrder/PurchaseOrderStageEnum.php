@@ -143,6 +143,24 @@ enum PurchaseOrderStageEnum: string
         };
     }
 
+    /**
+     * The PO journey board stage whose planned date is this stage's expected date. Production starts once the
+     * deposit is in, and the port arrival has no plan of its own, so it shares the warehouse arrival.
+     *
+     * @return string[]
+     */
+    public function plannedFrom(): array
+    {
+        return match ($this) {
+            self::SUBMITTED     => ['po_created'],
+            self::DEPOSIT_PAID  => ['deposit_paid'],
+            self::IN_PRODUCTION => ['deposit_paid', 'spec_sample', 'po_created'],
+            self::READY         => ['qc', 'production'],
+            self::SHIPPED       => ['dispatched'],
+            self::ARRIVED, self::RECEIVED => ['in_transit'],
+        };
+    }
+
     public function isDeliveryStage(): bool
     {
         return in_array($this, [self::SHIPPED, self::ARRIVED, self::RECEIVED]);

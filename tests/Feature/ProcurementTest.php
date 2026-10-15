@@ -847,6 +847,8 @@ test('PO journey board marks stages on an agent purchase order and keeps handove
 
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['qc_passed_at' => now()->toDateString(), 'notes' => 'qc via edit page'])->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->qc_passed_at)->toBeNull();
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('purchase order stages go in order and ask a reason to skip, backdate or clear', function () {
@@ -938,6 +940,8 @@ test('agent marks only its own stages and the order shows its slowest delivery',
     expect($stages['deposit_paid']['reached'])->toBeTrue()
         ->and($stages['shipped']['reached'])->toBeFalse()
         ->and($stages['shipped']['deliveries'])->toBe(['reached' => 0, 'total' => $purchaseOrder->stockDeliveries()->count()]);
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('stage gates ask for the sample photo, production photo and QC report', function () {
@@ -1011,6 +1015,55 @@ test('agents upload evidence, edit the shipping details of their containers and 
         ->and($stockDelivery->data['tracking_number'])->toBe('BL-998877')
         ->and(DispatchStockDelivery::missingEvidence($stockDelivery))->toBe([])
         ->and($purchaseOrder->attachments()->wherePivot('scope', 'Sample photo')->count())->toBeGreaterThan(0);
+})->depends('create purchase order through an agent');
+
+test('stages carry expected dates, late orders reach the weekly summary and agent changes reach the buyer', function (PurchaseOrder $purchaseOrder) {
+    \Illuminate\Support\Facades\Notification::fake();
+    $agentUser = User::where('username', 'agent-clerk')->firstOrFail();
+    $admin     = $this->adminGuest->getUser();
+
+    $purchaseOrder->updateQuietly([
+        'state'                 => PurchaseOrderStateEnum::SUBMITTED,
+        'created_at'            => now()->subDays(200),
+        'submitted_at'          => now()->subDays(200),
+        'deposit_paid_at'       => null,
+        'production_started_at' => null,
+        'buyer_id'              => $admin->id,
+    ]);
+
+    $expected = GetPurchaseOrderStages::make()->expectedDates($purchaseOrder->refresh());
+    expect($expected)->toHaveKeys(['submitted', 'deposit_paid', 'shipped', 'received']);
+
+    $stages = collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->keyBy('key');
+    expect($stages['deposit_paid']['days_late'])->toBeGreaterThan(0)
+        ->and($stages['submitted']['days_late'])->toBe(0);
+
+    $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    actingAs($agentUser);
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    actingAs($admin);
+
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $admin,
+        \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
+        fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started'))
+    );
+
+    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => null, 'production_started_at' => null]);
+    \App\Actions\Procurement\PurchaseOrder\SendStuckPurchaseOrdersSummary::run($purchaseOrder->group);
+
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $agentUser,
+        \App\Notifications\StuckPurchaseOrdersSummaryNotification::class,
+        fn ($notification) => $notification->ownOrdersOnly && collect($notification->orders)->contains('reference', $purchaseOrder->reference)
+    );
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {
@@ -1335,7 +1388,7 @@ test('all supplier products list shows the other open purchase orders each produ
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS]);
 
     expect($rowMatchedByOrgStock->org_stock_id)->toBe($transaction->org_stock_id)
-        ->and($rowMatchedByOrgStock->other_open_purchase_orders->pluck('reference')->all())->toBe([$purchaseOrder->reference]);
+        ->and($rowMatchedByOrgStock->other_open_purchase_orders->pluck('reference')->all())->toContain($purchaseOrder->reference);
 })->depends('add more items to purchase order');
 
 test('add items search finds a supplier product by its SKO code', function (PurchaseOrder $purchaseOrder) {

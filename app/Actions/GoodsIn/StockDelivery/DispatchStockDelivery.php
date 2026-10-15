@@ -5,6 +5,7 @@ namespace App\Actions\GoodsIn\StockDelivery;
 use App\Actions\GoodsIn\StockDelivery\Traits\HasStockDeliveryHydrators;
 use App\Actions\GoodsIn\StockDeliveryItem\Traits\WithStockDeliveryItemStatePropagation;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\NotifyBuyerOfAgentStageChange;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\SupplyChain\AgentInvoice\StoreAgentInvoice;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
@@ -147,7 +148,13 @@ class DispatchStockDelivery extends OrgAction
         $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
-        return $this->handle($stockDelivery, trim((string) ($this->validatedData['reason'] ?? '')) ?: null);
+        $stockDelivery = $this->handle($stockDelivery, trim((string) ($this->validatedData['reason'] ?? '')) ?: null);
+
+        foreach ($stockDelivery->purchaseOrders()->get() as $purchaseOrder) {
+            NotifyBuyerOfAgentStageChange::run($purchaseOrder, $request->user(), __('shipped in :delivery', ['delivery' => $stockDelivery->reference]));
+        }
+
+        return $stockDelivery;
     }
 
     public function action(StockDelivery $stockDelivery): StockDelivery

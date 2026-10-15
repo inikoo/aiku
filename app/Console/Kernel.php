@@ -141,6 +141,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(fn () => \Illuminate\Support\Facades\DB::table('traffic_source_clicks')->where('created_at', '<', now()->subDays(90))->delete())
             ->name('prune-traffic-source-clicks')->dailyAt('04:30')->timezone('UTC')->onOneServer();
         $schedule->command('procurement:reprice_partner_purchase_orders')->dailyAt('01:00')->timezone('UTC')->onOneServer()->withoutOverlapping(60);
+        $schedule->command('procurement:send_stuck_purchase_orders_summary')->weeklyOn(1, '07:00')->timezone('Europe/London')->onOneServer();
         $schedule->command('search:propose-synonyms')->weeklyOn(1, '03:00')->onOneServer();
         $schedule->command('customers:product-suggestions')->weeklyOn(1, '02:00')->timezone('UTC')->onOneServer();
         $schedule->command('nightowl:prune')->dailyAt('04:00')->timezone('UTC')->onOneServer()->withoutOverlapping(180);
