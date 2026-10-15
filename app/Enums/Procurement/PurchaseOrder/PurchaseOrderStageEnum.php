@@ -41,6 +41,18 @@ enum PurchaseOrderStageEnum: string
         'production_started_at',
     ];
 
+    /**
+     * Open purchase orders whose goods the supplier is making: production recorded, quality check not passed yet
+     * and nothing ready to ship.
+     */
+    public static function inProductionSql(): string
+    {
+        return "(purchase_orders.state in ('submitted', 'confirmed')
+            and (purchase_orders.production_started_at is not null or purchase_orders.sample_approved_at is not null)
+            and purchase_orders.qc_passed_at is null
+            and purchase_orders.delivery_state in ('in_process', 'confirmed'))";
+    }
+
     public static function labels(): array
     {
         return [
