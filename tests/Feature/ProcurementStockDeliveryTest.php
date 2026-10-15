@@ -3158,3 +3158,64 @@ test('HELP-4019 purchasing leads of the buying organisations hear when a product
     expect(NotifyPurchasingOfSupplierProductAvailability::run($supplierProduct, null))->toBeGreaterThanOrEqual(1);
     Notification::assertSentTo($lead, SupplierProductAvailabilityChangedNotification::class);
 });
+
+test('HELP-4019 an agent products list opens on the data to fix, then by supplier with its families, then the products by our code', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation                  = $orgSupplierProduct->orgAgent->agent->organisation;
+    $supplierProduct                    = $orgSupplierProduct->supplierProduct;
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id]);
+    $supplierProduct->update(['cbm' => null, 'estimated_lead_time_days' => 30]);
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.agent.org_supplier_products.index', $agentOrganisation->slug))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('tabs.current', 'dashboard')
+            ->has('dashboard.fill_rates', 11)
+            ->where('dashboard.kpis.total', fn ($total) => $total >= 1)
+            ->where('dashboard.kpis.missing_cbm', fn ($missing) => $missing >= 1)
+            ->etc());
+
+    $response = $this->get(route('grp.org.agent.org_supplier_products.index', [$agentOrganisation->slug, 'tab' => 'suppliers', 'suppliers_filter[global]' => $orgSupplier->supplier->code]));
+    $row      = collect($response->viewData('page')['props']['suppliers']['data'])->firstWhere('id', $supplierProduct->supplier_id);
+    expect($row['number_products'])->toBe(1)
+        ->and($row['number_missing_cbm'])->toBe(1)
+        ->and($row['number_missing_lead_time'])->toBe(0)
+        ->and($row['families'])->toHaveCount(1)
+        ->and($row['contacts_update_route']['name'])->toBe('grp.models.org.agent_supplier.contacts.update');
+
+    $response = $this->get(route('grp.org.agent.org_supplier_products.index', [
+        $agentOrganisation->slug,
+        'tab'                     => 'index',
+        'index_filter[supplier]'  => $supplierProduct->supplier_id,
+        'index_filter[focus]'     => 'missing_cbm',
+    ]));
+    $rows = collect($response->viewData('page')['props']['index']['data']);
+    expect($rows)->toHaveCount(1)
+        ->and($rows->first()['internal_code'])->toBe($this->stocks[0]->code)
+        ->and($rows->first()['lead_time_days'])->toBe(30);
+
+    $response = $this->get(route('grp.org.agent.org_supplier_products.index', [
+        $agentOrganisation->slug,
+        'tab'                     => 'index',
+        'index_filter[supplier]'  => $supplierProduct->supplier_id,
+        'index_filter[focus]'     => 'missing_lead_time',
+    ]));
+    expect($response->viewData('page')['props']['index']['data'])->toBeEmpty();
+});
+
+test('HELP-4019 an agent fills in the contacts of its own suppliers only', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation = $orgSupplier->orgAgent->agent->organisation;
+
+    $this->patch(route('grp.models.org.agent_supplier.contacts.update', [$agentOrganisation->id, $orgSupplier->supplier_id]), [
+        'wechat' => 'agent_wx_02',
+        'email'  => 'factory@example.com',
+    ])->assertSessionHasNoErrors();
+
+    expect($orgSupplier->supplier->refresh()->wechat)->toBe('agent_wx_02');
+
+    $otherAgentOrgSupplier = createAgentOrgSupplierWithProduct($this, createFreshOrgAgent($this))[0];
+    $this->patch(route('grp.models.org.agent_supplier.contacts.update', [$agentOrganisation->id, $otherAgentOrgSupplier->supplier_id]), [
+        'wechat' => 'not_mine',
+    ])->assertNotFound();
+});

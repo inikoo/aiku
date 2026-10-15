@@ -1,0 +1,95 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 15 Oct 2026 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2026, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Procurement\OrgSupplierProducts\UI;
+
+use App\Models\SupplyChain\Agent;
+use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsObject;
+
+/**
+ * How much of the data freight costing and slotting depend on an agent has filled in.
+ */
+class GetAgentProductsDashboard
+{
+    use AsObject;
+    use WithAgentProductFacts;
+
+    public function handle(Agent $agent): array
+    {
+        $products = DB::query()->fromSub($this->agentProductFacts($agent), 'f')
+            ->selectRaw('count(*) as total')
+            ->selectRaw('count(*) filter (where f.cbm > 0 and f.lead_time_days is not null) as ready_to_cost')
+            ->selectRaw('count(*) filter (where f.cbm > 0) as with_cbm')
+            ->selectRaw('count(*) filter (where f.lead_time_days is not null) as with_lead_time')
+            ->selectRaw('count(*) filter (where f.measured_lead_time_days is not null) as with_measured_lead_time')
+            ->selectRaw('count(*) filter (where f.lead_time_confirmed_at is not null) as with_lead_time_confirmed')
+            ->selectRaw('count(*) filter (where f.moq is not null) as with_moq')
+            ->selectRaw('count(*) filter (where f.carton_weight > 0) as with_carton_gross_weight')
+            ->selectRaw('count(*) filter (where f.carton_net_weight > 0) as with_carton_net_weight')
+            ->selectRaw('count(*) filter (where f.carton_dimensions is not null) as with_carton_dimensions')
+            ->selectRaw('count(*) filter (where f.moq is not null and f.carton_weight > 0 and f.carton_net_weight > 0) as with_moq_and_weights')
+            ->selectRaw("count(*) filter (where f.availability_status <> 'available') as not_available")
+            ->selectRaw("count(*) filter (where f.availability_status = 'unavailable' and f.unavailable_reason is null) as not_available_without_reason")
+            ->selectRaw('count(*) filter (where f.is_generic) as under_generic')
+            ->selectRaw('count(*) filter (where f.stock_family_id is null) as without_family')
+            ->selectRaw('count(*) filter (where f.lead_time_days is not null and f.measured_lead_time_days is not null) as with_both_lead_times')
+            ->selectRaw('round(avg(f.lead_time_days) filter (where f.measured_lead_time_days is not null)) as average_estimated_lead_time')
+            ->selectRaw('round(avg(f.measured_lead_time_days) filter (where f.lead_time_days is not null)) as average_measured_lead_time')
+            ->selectRaw('count(*) filter (where f.measured_lead_time_days > f.lead_time_days * 1.25) as arrived_late')
+            ->first();
+
+        $suppliers = DB::table('suppliers as s')
+            ->whereIn('s.id', $this->agentProductFacts($agent)->select('sp.supplier_id'))
+            ->selectRaw('count(*) as total')
+            ->selectRaw("count(*) filter (where coalesce(s.phone, '') <> '') as with_phone")
+            ->selectRaw("count(*) filter (where coalesce(s.email, '') <> '') as with_email")
+            ->selectRaw("count(*) filter (where coalesce(s.wechat, '') <> '' or coalesce(s.whatsapp, '') <> '') as with_wechat_or_whatsapp")
+            ->selectRaw('count(*) filter (where s.is_generic) as generic')
+            ->first();
+
+        $total = (int) $products->total;
+
+        $productBar = fn (string $key, string $label, int $filled) => ['key' => $key, 'label' => $label, 'filled' => $filled, 'total' => $total, 'scope' => 'products'];
+        $supplierBar = fn (string $key, string $label, int $filled) => ['key' => $key, 'label' => $label, 'filled' => $filled, 'total' => (int) $suppliers->total, 'scope' => 'suppliers'];
+
+        return [
+            'kpis'        => [
+                'total'                        => $total,
+                'ready_to_cost'                => (int) $products->ready_to_cost,
+                'missing_cbm'                  => $total - (int) $products->with_cbm,
+                'missing_moq_or_weights'       => $total - (int) $products->with_moq_and_weights,
+                'not_available'                => (int) $products->not_available,
+                'not_available_without_reason' => (int) $products->not_available_without_reason,
+                'under_generic'                => (int) $products->under_generic,
+                'without_family'               => (int) $products->without_family,
+                'suppliers'                    => (int) $suppliers->total,
+                'generic_suppliers'            => (int) $suppliers->generic,
+                'lead_time'                    => [
+                    'products'           => (int) $products->with_both_lead_times,
+                    'average_estimated'  => $products->average_estimated_lead_time !== null ? (int) $products->average_estimated_lead_time : null,
+                    'average_measured'   => $products->average_measured_lead_time !== null ? (int) $products->average_measured_lead_time : null,
+                    'arrived_late'       => (int) $products->arrived_late,
+                ],
+            ],
+            'fill_rates'  => [
+                $productBar('cbm', __('CBM'), (int) $products->with_cbm),
+                $productBar('lead_time', __('Lead time estimated'), (int) $products->with_lead_time),
+                $productBar('measured_lead_time', __('Lead time measured'), (int) $products->with_measured_lead_time),
+                $productBar('lead_time_confirmed', __('Lead time confirmed'), (int) $products->with_lead_time_confirmed),
+                $productBar('moq', __('MOQ'), (int) $products->with_moq),
+                $productBar('carton_gross_weight', __('Carton gross weight'), (int) $products->with_carton_gross_weight),
+                $productBar('carton_net_weight', __('Carton net weight'), (int) $products->with_carton_net_weight),
+                $productBar('carton_dimensions', __('Carton dimensions'), (int) $products->with_carton_dimensions),
+                $supplierBar('phone', __('Supplier phone'), (int) $suppliers->with_phone),
+                $supplierBar('email', __('Supplier email'), (int) $suppliers->with_email),
+                $supplierBar('wechat_or_whatsapp', __('Supplier WeChat or WhatsApp'), (int) $suppliers->with_wechat_or_whatsapp),
+            ],
+        ];
+    }
+}
