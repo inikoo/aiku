@@ -1942,6 +1942,16 @@ test('UI sysadmin user show/edit/create/actions', function (User $user) {
     get(route('grp.sysadmin.users.show', [$user]))->assertOk();
     get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page->has('formData.blueprint.permissions.fields.permissions.options.'.$user->getOrganisation()->slug.'.productions'));
+
+    $user->update(['can_use_mcp' => true]);
+    get(route('grp.sysadmin.users.edit', [$user]))->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->missing('formData.blueprint.0.fields.can_use_mcp_sql.boxed')
+            ->where('formData.blueprint.0.fields.can_use_mcp_discontinue.boxed', true)
+            ->where('formData.blueprint.0.fields.can_use_mcp_customer_service.boxed', true)
+            ->missing('formData.blueprint.0.fields.can_use_mcp.boxed'));
+    $user->update(['can_use_mcp' => false]);
+
     get(route('grp.sysadmin.users.show.actions.index', [$user]))->assertOk();
     get(route('grp.sysadmin.users.show.visit_logs.index', [$user]))->assertOk();
 })->depends('SetUserAuthorisedModels command');

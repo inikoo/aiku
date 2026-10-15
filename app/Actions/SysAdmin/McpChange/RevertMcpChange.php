@@ -8,6 +8,8 @@
 
 namespace App\Actions\SysAdmin\McpChange;
 
+use App\Models\Goods\TradeUnit;
+use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Catalogue\ProductCategory\RelatedProducts\SyncProductCategoryRelatedProducts;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
@@ -92,6 +94,7 @@ class RevertMcpChange
                 McpChangeTypeEnum::PLACED_ORDER, McpChangeTypeEnum::CUSTOMER_SERVICE => null,
                 McpChangeTypeEnum::MASTER_PRICES => $this->revertMasterPrices($mcpChange->before),
                 McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->revertStockDeliveryCosts($target, $mcpChange->before),
+                McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->revertTradeUnitProperties($target, $mcpChange->before, $mcpChange->after),
             };
 
             $mcpChange->update([
@@ -147,6 +150,18 @@ class RevertMcpChange
         }
 
         EvaluateStockDeliveryCosting::run($stockDelivery);
+    }
+
+    /**
+     * A barcode once printed on a label can not be taken back from the log: a person moves it in Goods > Barcodes.
+     */
+    private function revertTradeUnitProperties(array $target, array $before, array $after): void
+    {
+        if ($before['barcode_id'] != $after['barcode_id']) {
+            throw ValidationException::withMessages(['message' => __('This change gave :code a barcode, which cannot be taken back automatically. Change it in Goods > Barcodes.', ['code' => $target['code']])]);
+        }
+
+        UpdateTradeUnit::make()->action(TradeUnit::findOrFail($target['trade_unit_id']), Arr::only($before, GetMcpChangeSnapshot::TRADE_UNIT_FIELDS), strict: false);
     }
 
     private function revertMasterPrices(array $before): void

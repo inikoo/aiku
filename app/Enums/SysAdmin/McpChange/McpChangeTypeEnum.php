@@ -24,6 +24,7 @@ enum McpChangeTypeEnum: string
     case MASTER_PRICES = 'master_prices';
     case STOCK_DELIVERY_COSTS = 'stock_delivery_costs';
     case CUSTOMER_SERVICE = 'customer_service';
+    case TRADE_UNIT_PROPERTIES = 'trade_unit_properties';
 
     public static function labels(): array
     {
@@ -38,6 +39,7 @@ enum McpChangeTypeEnum: string
             'master_prices'         => __('Master prices'),
             'stock_delivery_costs'  => __('Stock delivery costs'),
             'customer_service'      => __('Customer service'),
+            'trade_unit_properties' => __('Trade unit properties'),
         ];
     }
 
@@ -55,6 +57,7 @@ enum McpChangeTypeEnum: string
             McpChangeTypeEnum::MASTER_PRICES => 'can_use_mcp_prices',
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => 'can_use_mcp_costing',
             McpChangeTypeEnum::CUSTOMER_SERVICE => 'can_use_mcp_customer_service',
+            McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => 'can_use_mcp_goods',
         };
     }
 

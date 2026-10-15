@@ -214,10 +214,10 @@ const needsSaveConfirmation = computed(() => {
 <template>
     <form @submit.prevent="submit" class="divide-y divide-gray-200 w-full" :class="props.fieldData.full ? '' : 'max-w-2xl'">
         <!-- compact packs read-only rows as tight table lines instead of roomy form rows -->
-        <dl class="sm:grid sm:grid-cols-3 sm:gap-4" :class="fieldData.compact ? 'py-1.5 items-center' : 'pb-4 sm:pb-5'">
+        <dl :class="fieldData.boxed ? 'flex items-center justify-between gap-6 py-2.5' : ['sm:grid sm:grid-cols-3 sm:gap-4', fieldData.compact ? 'py-1.5 items-center' : 'pb-4 sm:pb-5']">
             <!-- Title -->
-            <dt v-if="!fieldData.noTitle && fieldData.label" class="qwezxctext-sm font-medium text-gray-400">
-                <div class="inline-flex items-start leading-none">
+            <dt v-if="!fieldData.noTitle && fieldData.label" :class="fieldData.boxed ? 'flex-1 text-sm text-gray-700' : 'font-medium text-gray-400'">
+                <div class="inline-flex" :class="fieldData.boxed ? 'items-center gap-x-1.5 leading-snug' : 'items-start leading-none'">
                     <FontAwesomeIcon v-if="fieldData.icon" :icon="fieldData.icon" class="mr-1" fixed-width aria-hidden="true" />
                     {{ fieldData.label }}
                     <FontAwesomeIcon v-if="fieldData.required" icon="fas fa-asterisk" class="font-light text-[12px] text-red-400 mr-1" fixed-width/>
@@ -233,8 +233,8 @@ const needsSaveConfirmation = computed(() => {
                 </div>
             </dt>
 
-            <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
-                <component :is="fieldData.readonly ? 'fieldset' : 'div'" :disabled="fieldData.readonly || undefined" class="relative w-full" :class="fieldData.readonly ? 'min-w-0' : ''">
+            <dd :class="fieldData.boxed ? 'shrink-0' : props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
+                <component :is="fieldData.readonly ? 'fieldset' : 'div'" :disabled="fieldData.readonly || undefined" class="relative" :class="[fieldData.boxed ? '' : 'w-full', fieldData.readonly ? 'min-w-0' : '']">
                     <component :is="getComponent(fieldData.type)"
                         :key="field + fieldData.type"
                         :form="form"
