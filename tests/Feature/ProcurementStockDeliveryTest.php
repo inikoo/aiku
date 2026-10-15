@@ -3185,7 +3185,13 @@ test('HELP-4019 an agent products list opens on the data to fix, then by supplie
         ->and($row['number_missing_cbm'])->toBe(1)
         ->and($row['number_missing_lead_time'])->toBe(0)
         ->and($row['families'])->toHaveCount(1)
+        ->and($row['bought_amount'])->toEqual(0)
         ->and($row['contacts_update_route']['name'])->toBe('grp.models.org.agent_supplier.contacts.update');
+
+    $this->get(route('grp.org.agent.org_supplier_products.index', [$agentOrganisation->slug, 'tab' => 'suppliers', 'suppliers_sort' => '-bought_amount']))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('suppliers.data', fn ($rows) => collect($rows)->pluck('bought_amount')->sliding(2)->every(fn ($pair) => $pair->first() >= $pair->last()))
+            ->etc());
 
     $response = $this->get(route('grp.org.agent.org_supplier_products.index', [
         $agentOrganisation->slug,

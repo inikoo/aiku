@@ -27,6 +27,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $number_missing_lead_time
  * @property int $number_not_available
  * @property int|null $completeness
+ * @property numeric $bought_amount group currency
+ * @property int $number_purchase_orders
+ * @property string $currency_code
  * @property array $families
  * @property array|null $contacts_update_route
  */
@@ -53,6 +56,9 @@ class AgentSuppliersDataQualityResource extends JsonResource
             'number_missing_lead_time' => (int) $this->number_missing_lead_time,
             'number_not_available'     => (int) $this->number_not_available,
             'completeness'             => $this->completeness !== null ? (int) $this->completeness : null,
+            'bought_amount'            => (float) $this->bought_amount,
+            'number_purchase_orders'   => (int) $this->number_purchase_orders,
+            'currency_code'            => $this->currency_code,
             'families'                 => collect($this->families)->map(fn ($family) => [
                 'id'                       => $family->stock_family_id,
                 'code'                     => $family->code,

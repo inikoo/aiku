@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -70,8 +71,21 @@ class IndexAgentSuppliersDataQuality
             };
         });
 
+        $bought = DB::table('purchase_order_transactions as pot')
+            ->join('purchase_orders as po', 'po.id', 'pot.purchase_order_id')
+            ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+            ->where('sp.agent_id', $agent->id)
+            ->whereNull('pot.deleted_at')
+            ->whereNotIn('pot.state', [PurchaseOrderTransactionStateEnum::IN_PROCESS->value, PurchaseOrderTransactionStateEnum::CANCELLED->value])
+            ->where('po.submitted_at', '>=', now()->subYear())
+            ->groupBy('sp.supplier_id')
+            ->select('sp.supplier_id')
+            ->selectRaw('sum(pot.grp_net_amount) as bought_amount')
+            ->selectRaw('count(distinct po.id) as number_purchase_orders');
+
         $paginator = QueryBuilder::for(Supplier::class)
             ->joinSub($totals, 'totals', 'totals.supplier_id', 'suppliers.id')
+            ->leftJoinSub($bought, 'bought', 'bought.supplier_id', 'suppliers.id')
             ->select([
                 'suppliers.id',
                 'suppliers.code',
@@ -90,14 +104,18 @@ class IndexAgentSuppliersDataQuality
                 'totals.number_not_available',
                 'totals.completeness',
             ])
+            ->selectRaw('coalesce(bought.bought_amount, 0) as bought_amount')
+            ->selectRaw('coalesce(bought.number_purchase_orders, 0) as number_purchase_orders')
             ->defaultSort('-number_products')
-            ->allowedSorts(['code', 'name', 'number_products', 'number_missing_cbm', 'number_missing_lead_time', 'completeness'])
+            ->allowedSorts(['code', 'name', 'number_products', 'number_missing_cbm', 'number_missing_lead_time', 'completeness', 'bought_amount'])
             ->allowedFilters([$globalSearch, $focus])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
 
         $families = $this->families($agent, $paginator->getCollection()->pluck('id')->all());
-        $paginator->getCollection()->each(function (Supplier $supplier) use ($families, $agentOrganisation) {
+        $currencyCode = $agentOrganisation->group->currency->code;
+        $paginator->getCollection()->each(function (Supplier $supplier) use ($families, $agentOrganisation, $currencyCode) {
+            $supplier->setAttribute('currency_code', $currencyCode);
             $supplier->setAttribute('families', $families->get($supplier->id, collect())->values()->map(function ($family) use ($agentOrganisation, $supplier) {
                 $family->update_route = $family->stock_family_id ? [
                     'name'       => 'grp.models.org.agent_supplier.family.update',
@@ -160,6 +178,7 @@ class IndexAgentSuppliersDataQuality
                 ], __('Show'), noFilterOptionLabel: __('All suppliers'))
                 ->column(key: 'code', label: __('Supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_products', label: __('Products'), canBeHidden: false, sortable: true, type: 'number')
+                ->column(key: 'bought_amount', label: __('Bought, last 12 months'), canBeHidden: false, sortable: true, type: 'currency')
                 ->column(key: 'number_families', label: __('Families'), canBeHidden: false, type: 'number')
                 ->column(key: 'number_missing_cbm', label: __('Missing CBM'), sortable: true, type: 'number')
                 ->column(key: 'number_missing_lead_time', label: __('Missing lead time'), sortable: true, type: 'number')

@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, inject, ref } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
@@ -22,6 +22,7 @@ import SupplierFamilyDefaultsDrawer, { FamilyDefaults } from "@/Components/Procu
 import MoveToFactoryDialog, { MoveProducts } from "@/Components/Procurement/MoveToFactoryDialog.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
 library.add(faChevronRight, faPhone, faEnvelope, faComment, faAddressCard, faSave)
 
@@ -40,6 +41,9 @@ type SupplierRow = {
     number_missing_lead_time: number
     number_not_available: number
     completeness: number | null
+    bought_amount: number
+    number_purchase_orders: number
+    currency_code: string
     families: Family[]
     contacts_update_route: routeType | null
 }
@@ -59,6 +63,7 @@ const openMoveFamily = (supplier: SupplierRow, family: Family) => {
     }
 }
 
+const locale = inject("locale", aikuLocaleStructure)
 const records = computed<SupplierRow[]>(() => props.data?.data ?? [])
 const recordAt = (rowIndex: number) => records.value[rowIndex]
 const expandedRows = ref<Record<number, boolean>>({})
@@ -131,6 +136,12 @@ const saveContacts = async () => {
                         <div class="truncate text-xs text-gray-500">{{ supplier.name }}</div>
                     </div>
                 </div>
+            </template>
+
+            <template #cell(bought_amount)="{ item: supplier }">
+                <span :class="supplier.bought_amount ? '' : 'text-gray-400'" v-tooltip="ctrans(':count purchase orders', { count: supplier.number_purchase_orders })">
+                    {{ locale.currencyFormat(supplier.currency_code, supplier.bought_amount) }}
+                </span>
             </template>
 
             <template #cell(number_families)="{ item: supplier }">
