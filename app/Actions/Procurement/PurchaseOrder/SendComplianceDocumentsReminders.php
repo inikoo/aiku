@@ -10,6 +10,8 @@ namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderCompliance;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Actions\SysAdmin\User\NotifyUserOnChosenChannels;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Notifications\ComplianceDocumentsReminderNotification;
 use Illuminate\Console\Command;
@@ -70,7 +72,14 @@ class SendComplianceDocumentsReminders
             ->flatMap(fn (array $product) => array_map(fn (string $document) => __(':document for :code', ['document' => $document, 'code' => $product['code']]), $product['missing']))
             ->all();
 
-        $purchaseOrder->buyer->notify(new ComplianceDocumentsReminderNotification($purchaseOrder, $missing, $compliance['deadline'], $occasion));
+        NotifyUserOnChosenChannels::run(
+            $purchaseOrder->buyer,
+            UserNotificationEnum::PURCHASE_ORDER_COMPLIANCE_DUE,
+            new ComplianceDocumentsReminderNotification($purchaseOrder, $missing, $compliance['deadline'], $occasion),
+            __(':reference: compliance documents due :date', ['reference' => $purchaseOrder->reference, 'date' => $compliance['deadline']]),
+            $occasion.' '.__('Still missing: :documents.', ['documents' => implode(', ', $missing)]),
+            route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]).'?tab=compliance'
+        );
 
         return true;
     }

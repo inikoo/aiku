@@ -19,13 +19,26 @@ class UndoPurchaseOrderPayment extends OrgAction
     private PurchaseOrder $purchaseOrder;
 
     /**
-     * Takes back one deposit instalment. Its bank statement stays on the Attachments tab.
+     * Takes back one deposit instalment, keeping why and who on it and in the order's history. Its bank statement
+     * stays on the Attachments tab.
      */
-    public function handle(PurchaseOrder $purchaseOrder, PurchaseOrderDepositPayment $depositPayment): PurchaseOrder
+    public function handle(PurchaseOrder $purchaseOrder, PurchaseOrderDepositPayment $depositPayment, ?string $reason = null, ?int $userId = null): PurchaseOrder
     {
+        $depositPayment->update(['undo_reason' => $reason, 'undone_by_id' => $userId]);
         $depositPayment->delete();
 
+        if ($reason) {
+            MarkPurchaseOrderStage::auditOverride($purchaseOrder, 'deposit_paid_at', $depositPayment->date->toDateString(), null, $reason);
+        }
+
         return SyncPurchaseOrderDepositPaid::run($purchaseOrder);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'reason' => [$this->asAction ? 'sometimes' : 'required', 'nullable', 'string', 'max:500'],
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -39,7 +52,7 @@ class UndoPurchaseOrderPayment extends OrgAction
         $this->purchaseOrder = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, $request);
 
-        return $this->handle($purchaseOrder, $depositPayment);
+        return $this->handle($purchaseOrder, $depositPayment, trim($this->validatedData['reason']), $request->user()->id);
     }
 
     public function action(PurchaseOrder $purchaseOrder, PurchaseOrderDepositPayment $depositPayment): PurchaseOrder

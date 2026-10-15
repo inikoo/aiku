@@ -9,12 +9,13 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney;
+use App\Actions\SysAdmin\User\NotifyUserOnChosenChannels;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use App\Notifications\StuckPurchaseOrdersSummaryNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Notification;
 use Laravel\Nightwatch\Facades\Nightwatch;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -41,18 +42,34 @@ class SendStuckPurchaseOrdersSummary
 
         setPermissionsTeamId($group->id);
         $managers = User::permission('supply-chain')->where('status', true)->get();
-        Notification::send($managers, new StuckPurchaseOrdersSummaryNotification($this->lines($stuck), false));
+        foreach ($managers as $manager) {
+            $this->send($manager, $stuck, false);
+        }
 
         $sent = $managers->count();
         foreach ($stuck->whereNotNull('buyer_id')->groupBy('buyer_id') as $buyerId => $orders) {
             $buyer = User::where('id', $buyerId)->where('status', true)->first();
             if ($buyer && !$managers->contains('id', $buyer->id)) {
-                $buyer->notify(new StuckPurchaseOrdersSummaryNotification($this->lines($orders), true));
+                $this->send($buyer, $orders, true);
                 $sent++;
             }
         }
 
         return $sent;
+    }
+
+    private function send(User $user, Collection $orders, bool $ownOrdersOnly): void
+    {
+        $notification = new StuckPurchaseOrdersSummaryNotification($this->lines($orders), $ownOrdersOnly);
+
+        NotifyUserOnChosenChannels::run(
+            $user,
+            UserNotificationEnum::PURCHASE_ORDERS_STUCK,
+            $notification,
+            $notification->title(),
+            $orders->take(10)->map(fn (array $ribbon) => $ribbon['reference'].': '.$ribbon['current_label'].', '.$ribbon['days_overdue'].'d')->implode("\n"),
+            route('grp.supply-chain.dashboard', ['status' => 'overdue'])
+        );
     }
 
     private function lines(Collection $ribbons): array

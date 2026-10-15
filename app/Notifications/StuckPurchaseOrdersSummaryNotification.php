@@ -20,15 +20,33 @@ class StuckPurchaseOrdersSummaryNotification extends Notification
     {
     }
 
+    public bool $byEmail = true;
+
     public function via($notifiable): array
     {
-        return ['mail'];
+        return $this->byEmail ? ['database', 'mail'] : ['database'];
+    }
+
+    public function toArray($notifiable): array
+    {
+        return [
+            'title' => $this->title(),
+            'body'  => collect($this->orders)->take(5)->map(fn (array $order) => $order['reference'].' ('.$order['days_overdue'].'d)')->implode(', '),
+            'type'  => 'purchase_orders_stuck',
+            'slug'  => 'stuck-'.now()->toDateString(),
+            'route' => ['name' => 'grp.supply-chain.dashboard', 'parameters' => ['status' => 'overdue']],
+        ];
+    }
+
+    public function title(): string
+    {
+        return trans_choice(':count purchase order is past its expected date|:count purchase orders are past their expected date', count($this->orders), ['count' => count($this->orders)]);
     }
 
     public function toMail($notifiable): MailMessage
     {
         $message = (new MailMessage())
-            ->subject(trans_choice(':count purchase order is past its expected date|:count purchase orders are past their expected date', count($this->orders), ['count' => count($this->orders)]))
+            ->subject($this->title())
             ->line($this->ownOrdersOnly
                 ? __('Your purchase orders that are past the expected date of their current stage, most late first:')
                 : __('Every purchase order past the expected date of its current stage, most late first:'));

@@ -116,14 +116,26 @@ const confirmPayment = () => {
 }
 
 const undoingPaymentId = ref<number | null>(null)
+const paymentToUndo = ref<DepositPayment | null>(null)
+const undoReason = ref("")
 
-const undoPayment = (payment: DepositPayment) =>
+const openUndo = (payment: DepositPayment) => {
+	undoReason.value = ""
+	paymentToUndo.value = payment
+}
+
+const undoPayment = () => {
+	const payment = paymentToUndo.value
+	if (!payment || !undoReason.value.trim()) return
 	router.delete(route(payment.undo_route.name, payment.undo_route.parameters), {
+		data: { reason: undoReason.value.trim() },
 		preserveScroll: true,
 		onStart: () => (undoingPaymentId.value = payment.id),
 		onFinish: () => (undoingPaymentId.value = null),
+		onSuccess: () => (paymentToUndo.value = null),
 		onError,
 	})
+}
 </script>
 
 <template>
@@ -170,7 +182,7 @@ const undoPayment = (payment: DepositPayment) =>
 						type="button"
 						:class="quietLinkClass"
 						:disabled="undoingPaymentId === payment.id"
-						@click="undoPayment(payment)">
+						@click="openUndo(payment)">
 						<FontAwesomeIcon icon="fal fa-undo" class="text-amber-500" aria-hidden="true" />
 						{{ ctrans("Undo") }}
 					</button>
@@ -234,6 +246,28 @@ const undoPayment = (payment: DepositPayment) =>
 				<Button type="tertiary" :label="ctrans('Confirm payment')" :disabled="!canSubmit" :loading="isLoading" @click="confirmPayment">
 					<template #icon>
 						<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</template>
+		</Dialog>
+
+		<Dialog :visible="!!paymentToUndo" modal :closable="false" :pt="dialogPt" class="w-full max-w-md" @update:visible="(visible: boolean) => !visible && (paymentToUndo = null)">
+			<template #header>
+				<span class="text-sm font-semibold text-gray-900">{{ ctrans("Undo deposit payment") }}</span>
+			</template>
+			<label class="block text-sm">
+				<span class="text-gray-600">{{ ctrans("Why is this payment taken back? (kept in the order's history)") }}</span>
+				<Textarea v-model="undoReason" rows="2" autoResize maxlength="500" autofocus class="mt-1 w-full" :class="fieldFocusClass" />
+			</label>
+			<template #footer>
+				<Button type="tertiary" :label="ctrans('Cancel')" @click="paymentToUndo = null">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+				<Button type="tertiary" :label="ctrans('Undo payment')" :disabled="!undoReason.trim()" :loading="undoingPaymentId !== null" @click="undoPayment">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-undo" class="text-amber-500" fixed-width aria-hidden="true" />
 					</template>
 				</Button>
 			</template>

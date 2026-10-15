@@ -18,9 +18,11 @@ class PurchaseOrderStageChangedByAgentNotification extends Notification
     {
     }
 
+    public bool $byEmail = true;
+
     public function via($notifiable): array
     {
-        return ['database', 'mail'];
+        return $this->byEmail ? ['database', 'mail'] : ['database'];
     }
 
     public function toArray($notifiable): array
