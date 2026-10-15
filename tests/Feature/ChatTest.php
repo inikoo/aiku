@@ -3574,6 +3574,79 @@ test('an agent replying to a waiting whatsapp chat picks it up, but cannot write
     $this->organisation->update(['settings' => $organisationSettings]);
 });
 
+test('a phone video is converted to an mp4 and sent to WhatsApp as a video, and one still over 16MB is refused', function () {
+    $this->shop->update(['settings' => array_merge($this->shop->settings ?? [], [
+        'whatsapp' => ['phone_number_id' => '111', 'waba_id' => '222'],
+    ])]);
+    $this->organisation->update(['settings' => array_merge($this->organisation->settings ?? [], [
+        'meta' => ['access_key' => 'token'],
+    ])]);
+
+    Http::fake([
+        'graph.facebook.com/*/media'    => Http::response(['id' => 'media-video-1']),
+        'graph.facebook.com/*/messages' => Http::response(['messages' => [['id' => 'wamid.VIDEO']]]),
+    ]);
+
+    $converted = tempnam(sys_get_temp_dir(), 'wa-test-').'.mp4';
+    file_put_contents($converted, str_repeat('v', 2048));
+
+    $normaliser = \App\Actions\Chat\Whatsapp\NormaliseWhatsappVideo::partialMock();
+    $normaliser->shouldReceive('transcode')->once()->andReturn($converted);
+
+    actingAs($this->user);
+    makeChatWorker($this->user, $this->shop);
+    ChatAgent::where('user_id', $this->user->id)->exists() || StoreChatAgent::make()->handle(['user_id' => $this->user->id]);
+
+    $channel = MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
+    $session = MetaChatSession::create([
+        'ulid'                   => (string)Str::ulid(),
+        'meta_channel_id'        => $channel->id,
+        'shop_id'                => $this->shop->id,
+        'phone_number'           => '+447903000123',
+        'status'                 => ChatSessionStatusEnum::WAITING,
+        'language_id'            => 68,
+        'priority'               => ChatPriorityEnum::NORMAL,
+    ]);
+    $session->messages()->create([
+        'meta_channel_id' => $channel->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT->value,
+        'sender_type'     => ChatSenderTypeEnum::GUEST->value,
+        'message_text'    => 'Can I see a video of the bowls?',
+    ]);
+
+    $this->post(route('grp.org.chat.agents.whatsapp.messages.send', [$this->organisation->slug, $session->ulid]), [
+        'message_text' => 'Here it is',
+        'video'        => \Illuminate\Http\UploadedFile::fake()->create('IMG_1348.MOV', 11890, 'video/quicktime'),
+    ], ['Accept' => 'application/json'])->assertSuccessful();
+
+    Http::assertSent(fn ($request) => str_ends_with($request->url(), '/messages')
+        && $request['type'] === 'video'
+        && $request['video'] === ['id' => 'media-video-1', 'caption' => 'Here it is']);
+
+    $sent = $session->messages()->where('sender_type', ChatSenderTypeEnum::AGENT->value)->latest('id')->first();
+
+    expect($sent->message_type)->toBe(ChatMessageTypeEnum::FILE)
+        ->and($sent->metadata['wa_type'])->toBe('video')
+        ->and($sent->attachment->name)->toBe('IMG_1348.mp4')
+        ->and(file_exists($converted))->toBeFalse();
+
+    $tooBig = tempnam(sys_get_temp_dir(), 'wa-test-').'.mp4';
+    file_put_contents($tooBig, '');
+    $handle = fopen($tooBig, 'r+');
+    ftruncate($handle, 17 * 1024 * 1024);
+    fclose($handle);
+
+    $normaliser->shouldReceive('transcode')->once()->andReturn($tooBig);
+
+    $this->post(route('grp.org.chat.agents.whatsapp.messages.send', [$this->organisation->slug, $session->ulid]), [
+        'video' => \Illuminate\Http\UploadedFile::fake()->create('long.mov', 40000, 'video/quicktime'),
+    ], ['Accept' => 'application/json'])
+        ->assertStatus(422)
+        ->assertJsonPath('message', __('This video is still over 16MB once compressed, which is the most WhatsApp takes. Send a shorter clip, or send it by email.'));
+
+    expect(file_exists($tooBig))->toBeFalse();
+});
+
 test('my chats excludes a whatsapp thread now held by another agent', function () {
     $channel = MetaChannel::firstOrCreate(['code' => 'whatsapp'], ['name' => 'WhatsApp']);
 

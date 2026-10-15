@@ -53,7 +53,7 @@ class SendChatMessage
     use WithChatAgentAuthorisation;
     use AsAction;
 
-    public const ATTACHMENT_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip'];
+    public const ATTACHMENT_TYPES = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip', 'mp4', 'mov'];
 
     public const MAX_ATTACHMENTS = 30;
 
@@ -391,7 +391,7 @@ class SendChatMessage
             'file'           => [
                 'sometimes',
                 'nullable',
-                File::types(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip'])
+                File::types(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'pptx', 'zip', 'mp4', 'mov'])
                     ->max(self::MAX_AGENT_FILE_KB)
             ],
             'attachments'    => [
