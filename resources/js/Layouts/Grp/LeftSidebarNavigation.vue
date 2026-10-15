@@ -200,6 +200,16 @@ const iconList: { [key: string]: string } = {
                     </template>
                 </template>
 
+                <template v-else-if="itemKey == 'agent_warehouse_navigation'">
+                    <NavigationScope
+                        :key="itemKey"
+                        icon="fal fa-warehouse-alt"
+                        :navs="orgNav"
+                        :scope="ctrans('Warehouse')"
+                        root="grp.org.agent.warehouse."
+                    />
+                </template>
+
                 <!-- Simple Navigation: HR, Procurement, etc -->
                 <template v-else>
                     <NavigationSimple
