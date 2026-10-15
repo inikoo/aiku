@@ -74,6 +74,8 @@ const renderedBlocksStylesheets = (renderedModules) => {
 		.map((file) => `<link rel="stylesheet" href="/iris/${file}">`)
 }
 
+const irisAppHtmlPlaceholder = "<!--iris-app-html-->"
+
 const MyPreset = definePreset(Aura, {
 	semantic: {
 		primary: {
@@ -97,16 +99,25 @@ const startServer = () => createServer(
 		const irisLocale = normalizeLocale(page.props?.iris?.locale)
 		const irisLocaleMessages = await loadLocaleMessages(irisLocale)
 
-		const renderedModules = new Set()
+		const ssrContext = {}
+		let irisApp = null
+		let irisAppHtml = Promise.resolve("")
 
 		const response = await createInertiaApp({
 			page,
-			render: async (app) => {
-				const ssrContext = {}
-				const html = await renderToString(app, ssrContext)
-				ssrContext.modules?.forEach((module) => renderedModules.add(module))
+			render: (app) => {
+				if (app === irisApp) {
+					irisAppHtml = renderToString(app, ssrContext)
+					irisAppHtml.catch(() => {})
 
-				return html
+					return irisAppHtmlPlaceholder
+				}
+
+				return renderToString(app).then(async (bodyHtml) => {
+					const html = await irisAppHtml
+
+					return bodyHtml.replace(irisAppHtmlPlaceholder, () => html)
+				})
 			},
 			title: (title) => `${title}`,
 			resolve: (name) => {
@@ -130,6 +141,7 @@ const startServer = () => createServer(
 			},
 			setup({ App, props, plugin }) {
 				const app = createSSRApp({ render: () => h(App, props) })
+				irisApp = app
 
 				app.config.globalProperties.ctrans = ctrans
 
@@ -156,7 +168,7 @@ const startServer = () => createServer(
 			},
 		})
 
-		response.head.unshift(...renderedBlocksStylesheets(renderedModules))
+		response.head.unshift(...renderedBlocksStylesheets(ssrContext.modules ?? new Set()))
 
 		return response
 	},
