@@ -18,6 +18,8 @@ import TicketUserAvatar from "@/Components/Tickets/TicketUserAvatar.vue"
 import TicketBody from "@/Components/Tickets/TicketBody.vue"
 import TicketProjectProgress from "@/Components/Tickets/TicketProjectProgress.vue"
 import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
+import StaffTaskQuickLook from "@/Components/Tasks/StaffTaskQuickLook.vue"
+import TicketQuickLook from "@/Components/Tickets/TicketQuickLook.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faProjectDiagram, faPlus, faPencil, faTimes, faCheckSquare, faSquare, faLink, faChevronDown, faChevronRight, faArrowUp, faArrowDown, faSearch, faList, faColumns, faPlusCircle, faCheckCircle, faRocket, faFlagCheckered, faCommentAltLines, faTachometerAlt, faTasks, faChartLine, faHistory, faCodeCommit, faExclamationTriangle, faClock, faCircle, faCalendarDay } from "@fal"
@@ -370,6 +372,23 @@ const toggleTimelineRow = (milestone: Milestone) => {
         expandedMilestones.value[milestone.id as number] = !expandedMilestones.value[milestone.id as number]
     }
 }
+const quickLookTicket = ref<{ id: number; reference: string; subject: string } | null>(null)
+const quickLookTask = ref<{ id: number; reference: string } | null>(null)
+
+const openQuickLook = (item: WorkItem, event: MouseEvent) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return
+    const target = event.target as HTMLElement | null
+    if (target?.closest("button, input, select, textarea, label, [role='combobox'], [role='listbox'], [role='option'], .p-select")) return
+    event.preventDefault()
+    if (item.type === "ticket") {
+        quickLookTicket.value = { id: item.id, reference: item.reference, subject: item.subject }
+    } else {
+        quickLookTask.value = { id: item.id, reference: item.reference }
+    }
+}
+
+const reloadWork = () => router.reload({ only: ["work", "milestones", "workload"] })
+
 const workOfMilestone = (milestone: Milestone) => props.work.filter((item) => item.milestone_id === milestone.id && item.state !== "cancelled")
 const openMilestoneInWork = (milestone: Milestone) => {
     milestoneFilter.value = milestone.id as number
@@ -667,12 +686,12 @@ const burnUpOptions = {
                     <span v-if="group.milestone?.due_date" class="ml-auto text-xs" :class="isOverdue(group.milestone) ? 'font-semibold text-red-600' : 'text-gray-400'">{{ ctrans("Due :date", { date: useFormatTime(group.milestone.due_date, { formatTime: "mdy" }) }) }}</span>
                 </button>
                 <ul v-show="!collapsedGroups[group.key]" class="divide-y divide-gray-100">
-                    <li v-for="item in group.items" :key="item.key" class="group flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 hover:bg-gray-50" :class="(item.state === 'done' || item.state === 'cancelled') && 'opacity-70'">
+                    <li v-for="item in group.items" :key="item.key" class="group flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 hover:bg-gray-50" :class="(item.state === 'done' || item.state === 'cancelled') && 'opacity-70'" @click="openQuickLook(item, $event)">
                         <FontAwesomeIcon v-tooltip="item.status_label" :icon="item.status_icon.icon" :class="item.status_icon.class" fixed-width />
-                        <Link :href="item.url" class="min-w-0 flex-1 basis-60 truncate">
+                        <a :href="item.url" class="min-w-0 flex-1 basis-60 truncate">
                             <span class="mr-2 font-mono text-xs text-gray-500">{{ item.reference }}</span>
                             <span :class="priorityClasses[item.priority]">{{ item.subject }}</span>
-                        </Link>
+                        </a>
                         <TicketUserAvatar v-if="item.assignee" v-tooltip="item.assignee.name" :name="item.assignee.name" :avatar="item.assignee.avatar" size="sm" />
                         <Select v-if="can_edit" :model-value="item.milestone_id" :options="milestoneOptions" option-label="label" option-value="value" show-clear size="small" class="w-44" :placeholder="ctrans('No milestone')" @update:model-value="moveItem(item, $event ?? null)" />
                         <button v-if="can_edit" v-tooltip="ctrans('Take out of the project')" class="text-gray-400 hover:text-red-600 sm:invisible sm:group-hover:visible" @click="removeItem(item)">
@@ -690,7 +709,7 @@ const burnUpOptions = {
                     <span class="tabular-nums">{{ column.items.length }}</span>
                 </h3>
                 <div class="space-y-2">
-                    <Link v-for="item in column.items" :key="item.key" :href="item.url" class="block rounded-md border border-gray-200 bg-white p-2 text-sm hover:border-gray-400">
+                    <a v-for="item in column.items" :key="item.key" :href="item.url" class="block rounded-md border border-gray-200 bg-white p-2 text-sm hover:border-gray-400" @click="openQuickLook(item, $event)">
                         <p class="mb-1 flex items-center gap-1.5 text-xs text-gray-500">
                             <FontAwesomeIcon :icon="item.status_icon.icon" :class="item.status_icon.class" fixed-width />
                             <span class="font-mono">{{ item.reference }}</span>
@@ -700,7 +719,7 @@ const burnUpOptions = {
                             <span class="truncate text-xs text-gray-400">{{ milestones.find((milestone) => milestone.id === item.milestone_id)?.name }}</span>
                             <TicketUserAvatar v-if="item.assignee" v-tooltip="item.assignee.name" :name="item.assignee.name" :avatar="item.assignee.avatar" size="xs" />
                         </div>
-                    </Link>
+                    </a>
                 </div>
             </section>
         </div>
@@ -810,12 +829,12 @@ const burnUpOptions = {
                         </div>
                         <div v-if="expandedMilestones[row.milestone.id as number]" class="border-t border-gray-100 bg-gray-50/60">
                             <ul class="divide-y divide-gray-100">
-                                <li v-for="item in workOfMilestone(row.milestone)" :key="item.key" class="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 pl-9 pr-3 text-sm" :class="item.state === 'done' && 'opacity-70'">
+                                <li v-for="item in workOfMilestone(row.milestone)" :key="item.key" class="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-1.5 pl-9 pr-3 text-sm hover:bg-gray-50" :class="item.state === 'done' && 'opacity-70'" @click="openQuickLook(item, $event)">
                                     <FontAwesomeIcon v-tooltip="item.status_label" :icon="item.status_icon.icon" :class="item.status_icon.class" fixed-width />
-                                    <Link :href="item.url" class="min-w-0 flex-1 basis-60 truncate hover:underline">
+                                    <a :href="item.url" class="min-w-0 flex-1 basis-60 truncate hover:underline">
                                         <span class="mr-2 font-mono text-xs text-gray-500">{{ item.reference }}</span>
                                         <span class="text-gray-700" :class="priorityClasses[item.priority]">{{ item.subject }}</span>
-                                    </Link>
+                                    </a>
                                     <span class="text-xs text-gray-500">{{ item.status_label }}</span>
                                     <TicketUserAvatar v-if="item.assignee" v-tooltip="item.assignee.name" :name="item.assignee.name" :avatar="item.assignee.avatar" size="sm" />
                                     <span v-else class="text-xs text-gray-500">{{ ctrans("Unassigned") }}</span>
@@ -924,4 +943,7 @@ const burnUpOptions = {
             </div>
         </form>
     </Dialog>
+
+    <TicketQuickLook v-model:ticket="quickLookTicket" @closed="reloadWork" />
+    <StaffTaskQuickLook v-model:task="quickLookTask" @closed="reloadWork" />
 </template>

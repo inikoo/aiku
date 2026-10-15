@@ -109,6 +109,7 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Toggle from "@/Components/Pure/Toggle.vue"
 import { Icon as IconTS } from "@/types/Utils/Icon"
 import ShipmentSection from "@/Components/Warehouse/DeliveryNotes/ShipmentSection.vue"
+import CustomsExportLink from "@/Components/Warehouse/DeliveryNotes/CustomsExportLink.vue"
 import { ctrans } from "@/Composables/useTrans"
 
 library.add(faParachuteBox, faEllipsisH, faSortNumericDown, fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faEdit, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip, faSpinnerThird, faMapMarkerAlt, faUndo, faStar, faShieldAlt, faPlus, faCopy, faMoneyCheckEditAlt, faSackDollar, faInfoCircle)
@@ -267,6 +268,11 @@ const props = defineProps<{
             state: string
             state_icon: IconTS
             shipments: {}
+            customs_export?: {
+                formats: { value: string, label: string }[]
+                preview_route: routeType
+                download_route: routeType
+            } | null
         },
         shipping_notes: string
     }
@@ -2525,6 +2531,10 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                     />
                                 </dd>
                             </dl>
+
+                            <div v-if="['packed', 'finalised', 'dispatched'].includes(note?.state) && !note.is_shipping_by_external && note.shipments" class="pl-6 mt-1">
+                                <CustomsExportLink :customsExport="note.customs_export" />
+                            </div>
 
                             <!--                            <div v-else class="mt-1 text-xs italic text-gray-400">
                                 {{ ctrans('No shipments') }}
