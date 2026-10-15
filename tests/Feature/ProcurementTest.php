@@ -4443,8 +4443,7 @@ test('payments to an agent carry their method and bank statement, and the agent 
     $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'cost_total' => 500]);
     expect($purchaseOrder->isAgentOrder())->toBeTrue();
 
-    $this->patch(route('grp.models.purchase-order.payment.deposit', $purchaseOrder->id), ['amount' => 150])->assertRedirect()->assertSessionHasNoErrors();
-    $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
+    $this->post(route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id), ['amount' => 500, 'paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'bank_statement' => $statement('dep.pdf')])
         ->assertRedirect()->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->deposit_paid_by_id)->toBe($agentClerk->id);
 
@@ -6032,35 +6031,23 @@ describe('supplier deposits', function () {
         actingAs($this->adminGuest->getUser());
     });
 
-    test('a deposit is set and paid on the purchase order, with its bank statement (HELP-3872)', function () {
+    test('deposits are paid on the purchase order until nothing is left of its total, each with its bank statement (HELP-3872)', function () {
         $purchaseOrder = $this->depositPurchaseOrder;
         $statement     = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
         $confirmRoute  = route('grp.models.purchase-order.payment.confirm', $purchaseOrder->id);
-        $depositRoute  = route('grp.models.purchase-order.payment.deposit', $purchaseOrder->id);
-        $payment       = fn (array $overrides = []) => array_merge(['paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'reference' => 'SWIFT-123', 'bank_statement' => $statement('deposit.pdf')], $overrides);
+        $payment       = fn (array $overrides = []) => array_merge(['amount' => 300, 'paid_at' => date('Y-m-d'), 'method' => 'bank_transfer', 'reference' => 'SWIFT-123', 'bank_statement' => $statement('deposit.pdf')], $overrides);
 
         $purchaseOrder->update(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'cost_total' => 1000, 'deposit_amount' => null, 'deposit_paid_at' => null]);
+        $totalToPay = \App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid::totalToPay($purchaseOrder);
 
-        $this->patch($depositRoute, ['amount' => 300])->assertSessionHasErrors('amount');
+        $this->post($confirmRoute, $payment())->assertSessionHasErrors('paid_at');
 
         $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
 
-        $this->post($confirmRoute, $payment())->assertSessionHasErrors('paid_at');
-
-        $this->patch($depositRoute, ['amount' => 0])->assertRedirect()->assertSessionHasNoErrors();
-        expect((float) $purchaseOrder->refresh()->deposit_amount)->toBe(0.0);
-        $this->post($confirmRoute, $payment())->assertSessionHasErrors('paid_at');
-
-        $this->patch($depositRoute, ['amount' => null])->assertRedirect()->assertSessionHasNoErrors();
-        expect($purchaseOrder->refresh()->deposit_amount)->toBeNull();
-
-        $this->patch($depositRoute, ['amount' => 1500])->assertSessionHasErrors('amount');
-        $this->patch($depositRoute, ['amount' => 1000])->assertRedirect()->assertSessionHasNoErrors();
-        $this->patch($depositRoute, ['amount' => 300])->assertRedirect()->assertSessionHasNoErrors();
-
         $this->post($confirmRoute, $payment(['bank_statement' => null]))->assertSessionHasErrors('bank_statement');
         $this->post($confirmRoute, $payment(['method' => null]))->assertSessionHasErrors('method');
-        expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
+        $this->post($confirmRoute, $payment(['amount' => $totalToPay + 1]))->assertSessionHasErrors('amount');
+        expect($purchaseOrder->depositPayments()->count())->toBe(0);
 
         setPermissionsTeamId($this->group->id);
         $accountingClerk = procurementAccountingClerk($this->organisation);
@@ -6069,20 +6056,28 @@ describe('supplier deposits', function () {
 
         $paidLastWeek = now()->subDays(5)->toDateString();
         $this->post($confirmRoute, $payment(['paid_at' => $paidLastWeek]))->assertSessionHasErrors('reason');
-        expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
-
         $this->post($confirmRoute, $payment(['paid_at' => $paidLastWeek, 'reason' => 'Bank statement arrived late']))->assertRedirect()->assertSessionHasNoErrors();
 
         $purchaseOrder->refresh();
-        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe($paidLastWeek)
-            ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Bank statement arrived late')
+        expect($purchaseOrder->deposit_paid_at)->toBeNull()
             ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0)
-            ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
-            ->and(data_get($purchaseOrder->data, 'payments.deposit.method'))->toBe('bank_transfer')
-            ->and($purchaseOrder->attachments()->wherePivot('scope', 'Bank statement')->wherePivot('sub_scope', 'deposit')->count())->toBe(1);
+            ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Bank statement arrived late');
 
-        $this->post($confirmRoute, $payment(['bank_statement' => $statement('again.pdf')]))->assertSessionHasErrors('paid_at');
-        $this->patch($depositRoute, ['amount' => 400])->assertSessionHasErrors('amount');
+        $left = round($totalToPay - 300, 2);
+        $this->post($confirmRoute, $payment(['amount' => $left + 1, 'bank_statement' => $statement('too-much.pdf')]))->assertSessionHasErrors('amount');
+        $this->post($confirmRoute, $payment(['amount' => $left, 'bank_statement' => $statement('second.pdf')]))->assertRedirect()->assertSessionHasNoErrors();
+
+        $purchaseOrder->refresh();
+        $deposits = $purchaseOrder->depositPayments()->orderBy('id')->get();
+        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe(date('Y-m-d'))
+            ->and((float) $purchaseOrder->deposit_amount)->toBe($totalToPay)
+            ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
+            ->and($deposits)->toHaveCount(2)
+            ->and($deposits[0]->method->value)->toBe('bank_transfer')
+            ->and($deposits[0]->media_id)->not->toBeNull()
+            ->and($purchaseOrder->attachments()->wherePivot('scope', 'Bank statement')->wherePivot('sub_scope', 'deposit')->count())->toBe(2);
+
+        $this->post($confirmRoute, $payment(['amount' => 10, 'bank_statement' => $statement('again.pdf')]))->assertSessionHasErrors('paid_at');
 
         actingAs($this->adminGuest->getUser());
 
@@ -6090,18 +6085,19 @@ describe('supplier deposits', function () {
         $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $purchaseOrder->slug]))
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('payments.can_confirm', true)
-                ->where('payments.deposit.amount', fn ($amount) => (float) $amount === 300.0)
-                ->where('payments.deposit.bank_statements.0.caption', 'deposit')
-                ->where('payments.deposit.method', 'Bank transfer')
-                ->where('payments.deposit.reference', 'SWIFT-123')
-                ->where('payments.deposit.paid_by', $accountingClerk->contact_name)
-                ->where('payments.balance', fn ($amount) => (float) $amount === 700.0)
+                ->where('payments.total', fn ($amount) => (float) $amount === $totalToPay)
+                ->where('payments.paid', fn ($amount) => (float) $amount === $totalToPay)
+                ->where('payments.left', fn ($amount) => (float) $amount === 0.0)
+                ->where('payments.deposits.0.method', 'Bank transfer')
+                ->where('payments.deposits.0.reference', 'SWIFT-123')
+                ->where('payments.deposits.0.paid_by', $accountingClerk->contact_name)
+                ->where('payments.deposits.0.bank_statement', fn ($statement) => $statement !== null)
                 ->etc());
 
-        $this->patch(route('grp.models.purchase-order.payment.undo', $purchaseOrder->id))->assertRedirect();
+        $this->delete(route('grp.models.purchase-order.payment.undo', [$purchaseOrder->id, $deposits[1]->id]))->assertRedirect();
         expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull()
             ->and($purchaseOrder->deposit_paid_by_id)->toBeNull()
-            ->and(data_get($purchaseOrder->data, 'payments.deposit.method'))->toBeNull()
+            ->and($purchaseOrder->depositPayments()->count())->toBe(1)
             ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0);
     });
 });

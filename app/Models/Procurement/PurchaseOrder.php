@@ -379,4 +379,9 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     {
         return $this->belongsTo(User::class, 'deposit_paid_by_id');
     }
+
+    public function depositPayments(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderDepositPayment::class);
+    }
 }

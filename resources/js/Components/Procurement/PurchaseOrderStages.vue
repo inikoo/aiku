@@ -101,9 +101,8 @@ function save() {
             :key="stage.key"
             class="bg-white p-3 text-sm"
             :class="stage.current ? 'bg-[--app-accent-soft]' : ''"
-            v-tooltip="stage.description"
         >
-            <div class="flex items-center gap-2 font-medium" :class="stage.reached ? 'text-gray-800' : 'text-gray-400'">
+            <div class="flex items-center gap-2 font-medium" :class="stage.reached ? 'text-gray-800' : 'text-gray-400'" v-tooltip="stage.description">
                 <FontAwesomeIcon v-if="stage.reached" icon="fal fa-check-circle" class="text-green-600" fixed-width aria-hidden="true" />
                 <span v-else class="w-4 text-center tabular-nums">{{ stage.number }}</span>
                 {{ stage.label }}
@@ -144,6 +143,8 @@ function save() {
                     </template>
                 </Button>
             </div>
+
+            <slot :name="`stage-${stage.key}`" :stage="stage" />
         </div>
     </div>
 

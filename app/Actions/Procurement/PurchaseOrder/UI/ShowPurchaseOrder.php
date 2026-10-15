@@ -57,6 +57,8 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\AspoDeposit;
+use App\Models\Procurement\PurchaseOrderDepositPayment;
+use App\Actions\Procurement\PurchaseOrder\SyncPurchaseOrderDepositPaid;
 use Illuminate\Support\Facades\DB;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
@@ -787,6 +789,8 @@ class ShowPurchaseOrder extends OrgAction
             default             => [],
         };
 
+        $markableFields = array_values(array_diff($markableFields, ['deposit_paid_at']));
+
         return [
             'stages' => GetPurchaseOrderStages::make()->forUi($purchaseOrder, $markableFields),
             'route'  => [
@@ -900,35 +904,40 @@ class ShowPurchaseOrder extends OrgAction
      */
     private function getPayments(PurchaseOrder $purchaseOrder, ActionRequest $request): array
     {
-        $deposit = $purchaseOrder->deposit_amount === null ? null : (float) $purchaseOrder->deposit_amount;
-        $route   = fn (string $name) => [
-            'name'       => "grp.models.purchase-order.payment.$name",
-            'parameters' => ['purchaseOrder' => $purchaseOrder->id],
-        ];
+        $totalToPay = SyncPurchaseOrderDepositPaid::totalToPay($purchaseOrder);
+        $paid       = SyncPurchaseOrderDepositPaid::paidAmount($purchaseOrder);
 
         return [
             'can_confirm'   => ConfirmPurchaseOrderPayment::canConfirm($purchaseOrder, $request->user()),
             'currency_code' => $purchaseOrder->currency?->code,
-            'total'         => (float) $purchaseOrder->cost_total,
             'methods'       => PurchaseOrderPaymentMethodEnum::options(),
-            'deposit'       => [
-                'amount'          => $deposit,
-                'paid_at'         => $purchaseOrder->deposit_paid_at,
-                'paid_by'         => $purchaseOrder->depositPaidBy?->contact_name,
-                'method'          => Arr::get(PurchaseOrderPaymentMethodEnum::labels(), (string) Arr::get($purchaseOrder->data, 'payments.deposit.method')),
-                'reference'       => Arr::get($purchaseOrder->data, 'payments.deposit.reference'),
-                'bank_statements' => $purchaseOrder->attachments()
-                    ->withPivot('sub_scope')
-                    ->wherePivot('scope', PurchaseOrderAttachmentScopeEnum::BANK_STATEMENT->value)
-                    ->wherePivot('sub_scope', 'deposit')
-                    ->get()
-                    ->map(fn ($media) => ['ulid' => $media->ulid, 'caption' => $media->pivot->caption])
-                    ->values(),
+            'total'         => $totalToPay,
+            'paid'          => $paid,
+            'left'          => max(0, round($totalToPay - $paid, 2)),
+            'paid_at'       => $purchaseOrder->deposit_paid_at,
+            'deposits'      => $purchaseOrder->depositPayments()
+                ->with(['bankStatement:id,ulid,file_name', 'createdBy:id,contact_name,username'])
+                ->orderBy('date')
+                ->orderBy('id')
+                ->get()
+                ->map(fn (PurchaseOrderDepositPayment $payment) => [
+                    'id'             => $payment->id,
+                    'date'           => $payment->date->toDateString(),
+                    'amount'         => (float) $payment->amount,
+                    'method'         => PurchaseOrderPaymentMethodEnum::labels()[$payment->method->value] ?? $payment->method->value,
+                    'reference'      => $payment->reference,
+                    'paid_by'        => $payment->createdBy?->contact_name ?: $payment->createdBy?->username,
+                    'bank_statement' => $payment->bankStatement ? ['ulid' => $payment->bankStatement->ulid, 'caption' => $payment->bankStatement->file_name] : null,
+                    'undo_route'     => [
+                        'name'       => 'grp.models.purchase-order.payment.undo',
+                        'parameters' => ['purchaseOrder' => $purchaseOrder->id, 'depositPayment' => $payment->id],
+                    ],
+                ])
+                ->values(),
+            'confirm_route' => [
+                'name'       => 'grp.models.purchase-order.payment.confirm',
+                'parameters' => ['purchaseOrder' => $purchaseOrder->id],
             ],
-            'balance'       => (float) $purchaseOrder->cost_total - (float) $deposit,
-            'confirm_route' => $route('confirm'),
-            'undo_route'    => $route('undo'),
-            'deposit_route' => $route('deposit'),
         ];
     }
 
