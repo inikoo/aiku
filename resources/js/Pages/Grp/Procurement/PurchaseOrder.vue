@@ -43,6 +43,7 @@ import Select from "primevue/select"
 import StaffTaskDialog from "@/Components/Tasks/StaffTaskDialog.vue"
 import AspoDepositsChecklist from "@/Components/Procurement/AspoDepositsChecklist.vue"
 import PurchaseOrderPayments from "@/Components/Procurement/PurchaseOrderPayments.vue"
+import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
@@ -128,6 +129,7 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
+    stages?: InstanceType<typeof PurchaseOrderStages>["$props"] | null
     deposits?: object | null
     payments?: InstanceType<typeof PurchaseOrderPayments>["$props"]["payments"] | null
     delivery_items: {
@@ -678,7 +680,7 @@ const saveEstimatedDeliveryDate = () => {
 		onStart: () => { confirmLoading.value = true },
 		onSuccess: () => {
 			estimatedDeliveryDateModalOpen.value = false
-			router.reload({ only: ["showcase", "pageHead", "timelines"] })
+			router.reload({ only: ["showcase", "pageHead", "timelines", "stages"] })
 		},
 		onFinish: () => { confirmLoading.value = false },
 		onError: () => {
@@ -1074,8 +1076,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<!-- Purchase Order Timeline -->
-	<div v-if="timelines" class="py-2 border-b border-gray-300">
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" />
+	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
 			:options="timelines"
 			:state="props.data.data.state"

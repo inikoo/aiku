@@ -26,6 +26,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
+use App\Models\Traits\HasStageMarks;
 use Eloquent;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -134,6 +135,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
     use HasAttachments;
     use HasHistory;
     use HasSearch;
+    use HasStageMarks;
 
     public const string COSTS_BEFORE_PUT_AWAY_FROM = '2026-10-12';
 
@@ -153,6 +155,8 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'state'            => StockDeliveryStateEnum::class,
         'date'             => 'datetime',
         'customs_released_at' => 'date',
+        'arrived_at'       => 'datetime',
+        'stage_marks'      => 'array',
         'confirmed_at'     => 'datetime',
         'ready_to_ship_at' => 'datetime',
         'dispatched_at'    => 'datetime',
@@ -168,8 +172,9 @@ class StockDelivery extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data'      => '{}',
-        'cost_data' => '{}',
+        'data'        => '{}',
+        'cost_data'   => '{}',
+        'stage_marks' => '{}',
     ];
 
     protected $guarded = [];
@@ -205,7 +210,20 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'is_costed',
         'customs_mrn',
         'customs_released_at',
+        'arrived_at',
     ];
+
+    public function stageMarkColumns(): array
+    {
+        return [
+            'dispatched_at',
+            'arrived_at',
+            'customs_released_at',
+            'received_at',
+            'checked_at',
+            'placed_at',
+        ];
+    }
 
     public function searchIndexShouldBeUpdated(): bool
     {

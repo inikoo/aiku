@@ -75,6 +75,7 @@ use App\Actions\GoodsIn\StockDelivery\EvaluateStockDeliveryCosting;
 use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
 use App\Actions\Inventory\OrgStock\Stock\RebuildOrgStockHistoriesSince;
 use App\Models\Helpers\Audit;
+use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
 use App\Models\Inventory\OrganisationStockHistory;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\GoodsIn\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
@@ -831,6 +832,65 @@ test('PO journey board marks stages on an agent purchase order and keeps handove
 
     $this->patch($route, ['stage' => 'clean_handover', 'date' => null])->assertRedirect();
     expect($purchaseOrder->refresh()->handed_over_at)->toBeNull();
+})->depends('create purchase order through an agent');
+
+test('purchase order stages go in order and ask a reason to skip, backdate or clear', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5)]);
+    $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+    $user  = $this->adminGuest->getUser();
+
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasErrors('reason');
+    expect($purchaseOrder->refresh()->production_started_at)->toBeNull();
+
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasErrors('reason');
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => now()->addDays(2)->toDateString()])->assertSessionHasErrors('date');
+
+    $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today, 'reason' => 'Repeat order, no sample'])->assertSessionHasNoErrors();
+
+    $purchaseOrder->refresh();
+    expect($purchaseOrder->qc_passed_at)->not->toBeNull()
+        ->and($purchaseOrder->stageMarkUserId('qc_passed_at'))->toBe($user->id)
+        ->and($purchaseOrder->stageMarkUserId('deposit_paid_at'))->toBe($user->id)
+        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Repeat order, no sample');
+
+    $this->patch($route, ['field' => 'qc_passed_at', 'date' => null])->assertSessionHasErrors('reason');
+    $this->patch($route, ['field' => 'qc_passed_at', 'date' => null, 'reason' => 'Marked by mistake'])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->qc_passed_at)->toBeNull()
+        ->and($purchaseOrder->stage_marks)->not->toHaveKey('qc_passed_at');
+
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('stages.stages.0.reached', true)
+            ->where('stages.stages.2.current', true)
+            ->where('stages.stages.2.by', $user->contact_name ?: $user->username)
+            ->where('stages.stages.3.reached', false)
+            ->where('stages.stages.3.marks.0.skipped', [__('Sample approved')]));
+});
+
+test('agent marks only its own stages and the order shows its slowest delivery', function (PurchaseOrder $purchaseOrder) {
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::CONFIRMED, 'submitted_at' => now()->subDays(5), 'deposit_paid_at' => null, 'production_started_at' => null]);
+    $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+    $agent = User::where('username', 'agent-clerk')->firstOrFail();
+
+    actingAs($agent);
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today, 'reason' => 'x'])->assertSessionHasErrors('field');
+    $this->patch($route, ['field' => 'sample_approved_at', 'date' => $today])->assertSessionHasErrors('field');
+    actingAs($this->adminGuest->getUser());
+
+    expect($purchaseOrder->refresh()->stageMarkUserId('deposit_paid_at'))->toBe($agent->id);
+
+    $stages = GetPurchaseOrderStages::run($purchaseOrder);
+    expect($stages['deposit_paid']['reached'])->toBeTrue()
+        ->and($stages['shipped']['reached'])->toBeFalse()
+        ->and($stages['shipped']['deliveries'])->toBe(['reached' => 0, 'total' => $purchaseOrder->stockDeliveries()->count()]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {

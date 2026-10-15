@@ -36,6 +36,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
@@ -265,6 +266,7 @@ class ShowPurchaseOrder extends OrgAction
                 'last_edit'                => BroadcastPurchaseOrderLastEdited::lastEdit($purchaseOrder),
                 'timelines'                => $this->getTimeline($purchaseOrder),
                 'stock_delivery_timelines' => $this->getStockDeliveryTimelines($purchaseOrder),
+                'stages'                   => $this->getStages($purchaseOrder),
                 'open_agent_deliveries'    => $purchaseOrder->state === PurchaseOrderStateEnum::CONFIRMED
                     ? StoreStockDeliveryFromPurchaseOrder::openAgentDeliveries($purchaseOrder)
                         ->map(fn (StockDelivery $stockDelivery) => [
@@ -768,6 +770,30 @@ class ShowPurchaseOrder extends OrgAction
     private function datedByItsStockDeliveries(PurchaseOrder $purchaseOrder): bool
     {
         return $purchaseOrder->isAgentOrder() && $this->hasActiveStockDelivery($purchaseOrder);
+    }
+
+    /**
+     * The seven-stage tracker replaces the state timeline once a supplier or agent order is sent.
+     */
+    public function getStages(PurchaseOrder $purchaseOrder): ?array
+    {
+        if ($purchaseOrder->parent_type === 'OrgPartner' || in_array($purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CANCELLED, PurchaseOrderStateEnum::NOT_RECEIVED])) {
+            return null;
+        }
+
+        $markableFields = match (true) {
+            $this->canEdit      => array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS),
+            $this->agentCanEdit => PurchaseOrderStageEnum::AGENT_MARKABLE_FIELDS,
+            default             => [],
+        };
+
+        return [
+            'stages' => GetPurchaseOrderStages::make()->forUi($purchaseOrder, $markableFields),
+            'route'  => [
+                'name'       => 'grp.models.purchase-order.stage',
+                'parameters' => ['purchaseOrder' => $purchaseOrder->id],
+            ],
+        ];
     }
 
     public function getTimeline(PurchaseOrder $purchaseOrder): array

@@ -34,7 +34,7 @@ class UpdateStockDeliveryCustoms extends OrgAction
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
     {
         DB::transaction(function () use ($stockDelivery, $modelData) {
-            $stockDelivery->update(Arr::only($modelData, ['customs_mrn', 'customs_released_at']));
+            $stockDelivery->update(Arr::only($modelData, ['customs_mrn', 'customs_released_at', 'arrived_at']));
 
             if (!Arr::has($modelData, 'lines')) {
                 return;
@@ -135,6 +135,7 @@ class UpdateStockDeliveryCustoms extends OrgAction
         return [
             'customs_mrn'           => ['sometimes', 'nullable', 'string', 'max:64'],
             'customs_released_at'   => ['sometimes', 'nullable', 'date'],
+            'arrived_at'            => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'lines'                 => ['sometimes', 'array'],
             'lines.*.id'            => ['sometimes', 'nullable', 'integer'],
             'lines.*.tariff_code'   => ['required', 'string', 'max:32', 'regex:/\d{4}/'],

@@ -131,6 +131,7 @@ class UpdatePurchaseOrder extends OrgAction
             'balance_paid_at'           => ['sometimes', 'nullable', 'date'],
             'sample_approved_at'        => ['sometimes', 'nullable', 'date'],
             'produced_at'               => ['sometimes', 'nullable', 'date'],
+            'production_started_at'     => ['sometimes', 'nullable', 'date'],
             'qc_passed_at'              => ['sometimes', 'nullable', 'date'],
             'handed_over_at'            => ['sometimes', 'nullable', 'date'],
             'buyer_id'                  => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
