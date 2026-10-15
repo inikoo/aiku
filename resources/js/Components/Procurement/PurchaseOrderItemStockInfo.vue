@@ -18,6 +18,8 @@ import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestio
 interface QuarterUsage {
 	period: string
 	sales: number
+	sales_amount?: number
+	currency?: string | null
 	days_out_of_stock: number
 	top_customer?: { id: number; name: string; sales: number } | null
 }
@@ -405,10 +407,13 @@ function purchaseOrderRoute(slug: string) {
 						</span>
 					</div>
 
-					<div class="flex h-36 items-end gap-2 border-b border-gray-200 px-1">
+					<div class="flex h-44 items-end gap-2 border-b border-gray-200 px-1">
 						<div v-for="record in quarters" :key="record.period" class="flex h-full flex-1 flex-col items-center justify-end">
-							<span class="font-semibold tabular-nums text-gray-700" :class="inCartons ? '' : 'mb-1'">{{ formatSales(record.sales) }}</span>
-							<span v-if="inCartons" class="mb-1 text-[10px] tabular-nums leading-none text-gray-400">{{ formatSkos(record.sales) }}</span>
+							<span v-if="record.currency" class="mb-1 rounded bg-gray-100 px-1.5 text-[10px] font-medium tabular-nums text-gray-600">{{ locale.CurrencyShort(record.currency, record.sales_amount ?? 0) }}</span>
+							<div class="mb-1 flex flex-col items-center rounded-md border border-gray-200 bg-white px-1.5 py-0.5 leading-tight">
+								<span class="font-semibold tabular-nums text-gray-700">{{ formatSales(record.sales) }}</span>
+								<span v-if="inCartons" class="text-[10px] tabular-nums text-gray-400">{{ formatSkos(record.sales) }}</span>
+							</div>
 							<div
 								class="relative flex w-full max-w-[2.75rem] flex-col rounded-t-md"
 								:class="isCurrentQuarter(record) ? 'bg-gray-200' : 'bg-gray-400'"
