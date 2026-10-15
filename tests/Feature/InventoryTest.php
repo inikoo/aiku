@@ -5232,3 +5232,56 @@ test('the sales history of a collection adds up the invoice lines of its product
 
     expect(DB::table('collection_time_series_records')->where('collection_time_series_id', $monthlySeriesId)->count())->toBe(0);
 });
+
+test('operators tick skos packed at a partner goods out location and the tick goes stale when more stock moves in', function () {
+    $warehouse = createWarehouse();
+    $bay       = StoreLocation::make()->action($warehouse, Location::factory()->definition());
+    $shelf     = StoreLocation::make()->action($warehouse, Location::factory()->definition());
+    UpdateLocation::make()->action($bay, ['is_goods_out' => true]);
+    $orgStocks = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 2));
+
+    $slots = [];
+    foreach ($orgStocks as $orgStock) {
+        $slot = StoreLocationOrgStock::make()->action($orgStock, $bay, ['type' => LocationStockTypeEnum::STORING]);
+        UpdateLocationOrgStock::make()->action($slot, ['quantity' => 5]);
+        $slots[] = $slot->refresh();
+    }
+    [$packedSlot, $otherSlot] = $slots;
+    $shelfSlot = StoreLocationOrgStock::make()->action($orgStocks[0], $shelf, ['type' => LocationStockTypeEnum::PICKING]);
+
+    $pack = fn (LocationOrgStock $slot, bool $packed) => $this->patch(route('grp.models.location_org_stock.packed', $slot->id), ['packed' => $packed]);
+
+    $pack($shelfSlot, true)->assertSessionHasErrors('packed');
+    $pack($packedSlot, true)->assertRedirect();
+
+    $packedSlot->refresh();
+    expect($packedSlot->packed_by_user_id)->toBe($this->user->id)
+        ->and($packedSlot->packed_at)->not->toBeNull()
+        ->and((float) $packedSlot->packed_quantity)->toBe(5.0);
+
+    $page = fn (array $query = []) => $this->withoutVite()->get(route('grp.org.warehouses.show.infrastructure.locations.show', array_merge(
+        [$this->organisation->slug, $warehouse->slug, $bay->slug, 'tab' => 'org_stocks'],
+        $query
+    )))->assertOk()->viewData('page')['props'];
+
+    $props = $page();
+    $rows  = collect($props['org_stocks']['data'])->keyBy('location_org_stock_id');
+    expect($rows[$packedSlot->id]['is_packed'])->toBeTrue()
+        ->and($rows[$packedSlot->id]['packed_by'])->not->toBeNull()
+        ->and($rows[$otherSlot->id]['is_packed'])->toBeFalse()
+        ->and(collect($props['packing_progress'])->firstWhere('id', $bay->id))->toMatchArray(['packed' => 1, 'total' => 2, 'is_current' => true])
+        ->and(collect($page(['org_stocks_elements' => ['packed' => 'packed']])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$packedSlot->id])
+        ->and(collect($page(['org_stocks_elements' => ['packed' => 'not_packed']])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$otherSlot->id])
+        ->and(collect($page(['org_stocks_sort' => '-packed'])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$packedSlot->id, $otherSlot->id])
+        ->and(collect($page(['org_stocks_sort' => 'packed'])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toBe([$otherSlot->id, $packedSlot->id]);
+
+    UpdateLocationOrgStock::make()->action($packedSlot, ['quantity' => 8]);
+    $row = collect($page()['org_stocks']['data'])->firstWhere('location_org_stock_id', $packedSlot->id);
+    expect($row['is_packed'])->toBeFalse()
+        ->and($row['packed_quantity'])->toBe('5')
+        ->and(collect($page(['org_stocks_elements' => ['packed' => 'not_packed']])['org_stocks']['data'])->pluck('location_org_stock_id')->all())->toContain($packedSlot->id);
+
+    $pack($packedSlot, false)->assertRedirect();
+    expect($packedSlot->refresh()->packed_at)->toBeNull()
+        ->and($packedSlot->packed_by_user_id)->toBeNull();
+});
