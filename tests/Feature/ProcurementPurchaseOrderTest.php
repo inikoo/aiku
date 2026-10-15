@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Event;
 use App\Events\BroadcastPurchaseOrderLastEdited;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
+use App\Actions\Procurement\ProcurementNote\StoreProcurementNote;
+use App\Models\Procurement\ProcurementNote;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
@@ -57,6 +59,8 @@ use App\Actions\Procurement\PurchaseOrderChase\StorePurchaseOrderChase;
 use App\Actions\SupplyChain\SupplierChangeRequest\DecideSupplierChangeRequest;
 use App\Actions\SupplyChain\SupplierChangeRequest\StoreSupplierChangeRequest;
 use App\Enums\SupplyChain\SupplierChangeRequest\SupplierChangeRequestStateEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
 use App\Models\SupplyChain\SupplierChangeRequest;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierProducts;
 use App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock;
@@ -1380,6 +1384,46 @@ test('directors approve deactivating a dormant supplier or keep it with a reason
         ->and($supplier->refresh()->status)->toBeFalse()
         ->and($supplier->archived_at)->not->toBeNull()
         ->and($orgSupplier->refresh()->status)->toBeFalse();
+});
+
+test('agent suppliers dashboard counts logged issues by type and the packing of suppliers ordered from', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    [$packagingOrgSupplier]             = createAgentOrgSupplierWithProduct($this);
+    $agent     = $orgSupplier->orgAgent->agent;
+    $supplier  = $orgSupplier->supplier;
+    $dashboard = fn () => GetAgentSuppliersDashboard::run($agent, $agent->organisation);
+    $before    = $dashboard();
+
+    tap(StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition()))
+        ->update(['state' => PurchaseOrderStateEnum::SETTLED, 'submitted_at' => now()->subMonths(2)]);
+    StoreProcurementNote::make()->action($supplier, ['body' => 'Broken on arrival', 'category' => 'incident', 'incident_type' => 'damaged', 'incident_quantity' => 12]);
+    StoreProcurementNote::make()->action($orgSupplierProduct->supplierProduct, ['body' => 'Wrong colour', 'category' => 'incident', 'incident_type' => 'wrong_item']);
+
+    expect(fn () => UpdateSupplier::make()->action($supplier, ['packing_method' => 'third_party']))->toThrow(ValidationException::class);
+    UpdateSupplier::make()->action($supplier, ['packing_method' => 'third_party', 'packing_material' => 'pap_20', 'packaging_supplier_id' => $packagingOrgSupplier->supplier_id]);
+
+    $after = $dashboard();
+    expect($after['kpis']['issues']['value'] - $before['kpis']['issues']['value'])->toBe(2)
+        ->and($after['kpis']['issues']['open'] - $before['kpis']['issues']['open'])->toBe(2)
+        ->and($after['packing']['split']['third_party'] - $before['packing']['split']['third_party'])->toBe(1)
+        ->and(collect($after['packing']['packaging'])->pluck('code'))->toContain($packagingOrgSupplier->supplier->code)
+        ->and(collect($after['packing']['unknown'])->pluck('id'))->not->toContain($supplier->id)
+        ->and($supplier->refresh()->packing_method)->toBe(SupplierPackingMethodEnum::THIRD_PARTY)
+        ->and(ProcurementNote::where('subject_type', 'Supplier')->where('subject_id', $supplier->id)->first()->incident_type)->toBe(ProcurementNoteIncidentTypeEnum::DAMAGED);
+});
+
+test('supplier score weighs on time, accuracy with logged issues and factory speed, from the minimum of received orders', function () {
+    $dashboard = GetAgentSuppliersDashboard::make();
+
+    expect($dashboard->score(received: 7, onTime: 100, linesChecked: 100, linesWrong: 0, accuracyIssues: 0, daysOver: 0))->toBeNull()
+        ->and($dashboard->score(received: 10, onTime: 100, linesChecked: 100, linesWrong: 0, accuracyIssues: 0, daysOver: 0))->toBe(100)
+        ->and($dashboard->score(received: 10, onTime: 80, linesChecked: 100, linesWrong: 1, accuracyIssues: 1, daysOver: 4))->toBe(81)
+        ->and($dashboard->score(received: 10, onTime: 60, linesChecked: 0, linesWrong: 0, accuracyIssues: 5, daysOver: 30))->toBe(30)
+        ->and($dashboard->medianFactoryDays(collect([
+            (object) ['confirmed_at' => '2026-01-01', 'handed_over_at' => '2026-01-21'],
+            (object) ['confirmed_at' => '2026-02-01', 'handed_over_at' => '2026-03-03'],
+            (object) ['confirmed_at' => '2026-03-01', 'handed_over_at' => null],
+        ])))->toBe(25);
 });
 
 test('merging a duplicate supplier moves its products and orders to the supplier kept and archives it', function () {

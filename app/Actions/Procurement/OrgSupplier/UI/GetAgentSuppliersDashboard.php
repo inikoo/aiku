@@ -11,6 +11,8 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\SupplyChain\SupplierChangeRequest\DecideSupplierChangeRequest;
 use App\Enums\Procurement\PurchaseOrderChase\PurchaseOrderChaseChannelEnum;
+use App\Enums\Procurement\ProcurementNote\ProcurementNoteIncidentTypeEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
 use App\Enums\SupplyChain\SupplierChangeRequest\SupplierChangeRequestStateEnum;
 use App\Enums\SupplyChain\SupplierChangeRequest\SupplierChangeRequestTypeEnum;
 use App\Models\SupplyChain\SupplierChangeRequest;
@@ -52,6 +54,8 @@ class GetAgentSuppliersDashboard
 
     private const int DORMANT_MONTHS = 24;
 
+    private const int SCORE_MINIMUM_RECEIVED = 8;
+
     public function handle(Agent $agent, Organisation $organisation, ?Organisation $buyer = null, ?string $currencyCode = null, ?User $user = null): array
     {
         $groupCurrency = $organisation->group->currency;
@@ -92,6 +96,9 @@ class GetAgentSuppliersDashboard
         ]);
         $supplierRoute = fn (?string $slug) => $slug ? $route('grp.org.procurement.org_suppliers.show', ['orgSupplier' => $slug]) : null;
 
+        $issues      = $this->getIssues($agent, $buyer);
+        $performance = $this->getPerformance($suppliers, $pastOrders, $deliveries, $issues, $money, $supplierRoute);
+        $packing     = $this->getPacking($suppliers, $pastOrders, $money, $supplierRoute);
         $chaseRows   = $pastEta->sortBy('estimated_received_at')->concat($unconfirmed->sortBy('submitted_at'))->take(self::CHASE_ROWS);
         $lastChases  = $this->getLastChases($chaseRows->pluck('id')->all());
 
@@ -134,6 +141,7 @@ class GetAgentSuppliersDashboard
                 ],
                 'lead_time'        => [
                     'median_days'     => $this->medianDays($received),
+                    'factory_days'    => $this->medianFactoryDays($pastOrders),
                     'on_time'         => $this->percentage($withEta->filter(fn ($order) => $this->isOnTime($order))->count(), $withEta->count()),
                     'purchase_orders' => $received->count(),
                 ],
@@ -145,6 +153,14 @@ class GetAgentSuppliersDashboard
                 'dormant'          => [
                     'value'  => $dormant->count(),
                     'active' => $suppliers->where('status', true)->count(),
+                ],
+                'issues'           => [
+                    'value' => $issues->sum('number'),
+                    'open'  => $issues->sum('open'),
+                ],
+                'extra_packing'    => [
+                    'value'  => $packing['split']['third_party'],
+                    'amount' => $packing['packaging_spend'],
                 ],
             ],
             'stages'      => collect(PurchaseOrderStageEnum::progressLabels())->map(fn ($label, $key) => [
@@ -178,7 +194,14 @@ class GetAgentSuppliersDashboard
                     ])
                     ->values(),
             ],
-            'top_spend'   => $this->getTopSpend($suppliers, $pastOrders, $deliveries, $money, $supplierRoute),
+            'performance' => [
+                'top_spend' => $performance->where('purchase_orders', '>', 0)->sortByDesc('spend')->take(self::RANKING_ROWS)->values(),
+                'best'      => $performance->whereNotNull('score')->sortByDesc('score')->take(self::RANKING_ROWS)->values(),
+                'attention' => $performance->whereNotNull('score')->sortBy('score')->take(self::RANKING_ROWS)->values(),
+                'minimum'   => self::SCORE_MINIMUM_RECEIVED,
+            ],
+            'issues'      => $performance->where('issues', '>', 0)->sortByDesc('issue_rate')->take(self::RANKING_ROWS)->values(),
+            'packing'     => $packing,
             'quantity'    => $deliveries->where('wrong', '>', 0)
                 ->sortByDesc('wrong')
                 ->take(self::RANKING_ROWS)
@@ -249,7 +272,8 @@ class GetAgentSuppliersDashboard
             ->selectRaw(
                 'suppliers.id, suppliers.code, suppliers.name, suppliers.email, suppliers.status,
                 coalesce(supplier_stats.number_current_supplier_products, 0) as products,
-                first_org_suppliers.slug as org_supplier_slug, last_orders.last_ordered_at'
+                first_org_suppliers.slug as org_supplier_slug, last_orders.last_ordered_at,
+                suppliers.packing_method, suppliers.packaging_supplier_id'
             )
             ->get()
             ->keyBy('id');
@@ -337,17 +361,29 @@ class GetAgentSuppliersDashboard
             ->get();
     }
 
-    private function getTopSpend(Collection $suppliers, Collection $pastOrders, Collection $deliveries, callable $money, callable $supplierRoute): Collection
+    /**
+     * Per supplier: spend and orders in the last 12 months, and over 24 months on-time share, days to the
+     * warehouse, factory lead time (confirmed to handed over), quantity errors, logged issues and the score.
+     */
+    private function getPerformance(Collection $suppliers, Collection $pastOrders, Collection $deliveries, Collection $issues, callable $money, callable $supplierRoute): Collection
     {
-        $since = now()->subMonths(self::SPEND_MONTHS);
+        $since                = now()->subMonths(self::SPEND_MONTHS);
+        $agentWarehouseMedian = $this->medianDays($pastOrders->whereNotNull('received_at'));
+        $agentFactoryMedian   = $this->medianFactoryDays($pastOrders);
+        $issuesBySupplier     = $issues->groupBy('supplier_id');
 
         return $pastOrders->groupBy('supplier_id')
-            ->map(function (Collection $orders, $supplierId) use ($since, $suppliers, $deliveries, $money, $supplierRoute) {
-                $lastYear = $orders->filter(fn ($order) => Carbon::parse($order->submitted_at)->gt($since));
-                $received = $orders->whereNotNull('received_at');
-                $withEta  = $received->whereNotNull('estimated_received_at');
-                $checks   = $deliveries->get($supplierId);
-                $supplier = $suppliers->get($supplierId);
+            ->map(function (Collection $orders, $supplierId) use ($since, $suppliers, $deliveries, $issuesBySupplier, $money, $supplierRoute, $agentWarehouseMedian, $agentFactoryMedian) {
+                $lastYear       = $orders->filter(fn ($order) => Carbon::parse($order->submitted_at)->gt($since));
+                $received       = $orders->whereNotNull('received_at');
+                $withEta        = $received->whereNotNull('estimated_received_at');
+                $checks         = $deliveries->get($supplierId);
+                $supplier       = $suppliers->get($supplierId);
+                $supplierIssues = $issuesBySupplier->get($supplierId, collect());
+                $onTime         = $this->percentage($withEta->filter(fn ($order) => $this->isOnTime($order))->count(), $withEta->count());
+                $warehouseDays  = $this->medianDays($received);
+                $factoryDays    = $this->medianFactoryDays($orders);
+                $issueCount     = (int) $supplierIssues->sum('number');
 
                 return [
                     'code'            => $supplier?->code,
@@ -355,16 +391,126 @@ class GetAgentSuppliersDashboard
                     'spend'           => $money($lastYear->sum('amount')),
                     'purchase_orders' => $lastYear->count(),
                     'received'        => $received->count(),
-                    'on_time'         => $this->percentage($withEta->filter(fn ($order) => $this->isOnTime($order))->count(), $withEta->count()),
-                    'median_days'     => $this->medianDays($received),
+                    'on_time'         => $onTime,
+                    'median_days'     => $warehouseDays,
+                    'factory_days'    => $factoryDays,
                     'quantity_errors' => $checks ? $this->percentage($checks->wrong, $checks->lines, 1) : null,
+                    'issues'          => $issueCount,
+                    'issue_rate'      => $received->count() ? $this->percentage($issueCount, $received->count(), 1) : null,
+                    'issue_types'     => $supplierIssues->map(fn ($issue) => [
+                        'type'   => $issue->incident_type,
+                        'label'  => $issue->incident_type ? ProcurementNoteIncidentTypeEnum::labels()[$issue->incident_type] : __('Not set'),
+                        'number' => (int) $issue->number,
+                    ])->sortByDesc('number')->values(),
+                    'score'           => $this->score(
+                        received: $received->count(),
+                        onTime: $onTime,
+                        linesChecked: (int) ($checks?->lines ?? 0),
+                        linesWrong: (int) ($checks?->wrong ?? 0),
+                        accuracyIssues: (int) $supplierIssues->where('incident_type', '!=', ProcurementNoteIncidentTypeEnum::LATE->value)->sum('number'),
+                        daysOver: $factoryDays !== null && $agentFactoryMedian !== null
+                            ? $factoryDays - $agentFactoryMedian
+                            : ($warehouseDays !== null && $agentWarehouseMedian !== null ? $warehouseDays - $agentWarehouseMedian : 0),
+                    ),
                     'route'           => $supplierRoute($supplier?->org_supplier_slug),
                 ];
             })
-            ->filter(fn ($row) => $row['purchase_orders'] > 0)
-            ->sortByDesc('spend')
-            ->take(self::RANKING_ROWS)
             ->values();
+    }
+
+    /**
+     * 0 to 100: half on time, 30% accuracy (100 less 8 points per % of checked lines counted wrong or with an
+     * issue logged, lateness aside), 20% speed (100 less 5 points per day the factory takes over the agent's
+     * median, or the order over the median days to warehouse when no hand over is recorded). Not given under
+     * the minimum of received orders.
+     */
+    public function score(int $received, ?float $onTime, int $linesChecked, int $linesWrong, int $accuracyIssues, int $daysOver): ?int
+    {
+        if ($received < self::SCORE_MINIMUM_RECEIVED || $onTime === null) {
+            return null;
+        }
+
+        $errorPercentage = $linesChecked
+            ? ($linesWrong + $accuracyIssues) / $linesChecked * 100
+            : $accuracyIssues / $received * 100;
+
+        $accuracy = max(0, min(100, 100 - 8 * $errorPercentage));
+        $speed    = max(0, min(100, 100 - 5 * max(0, $daysOver)));
+
+        return (int) round(0.5 * $onTime + 0.3 * $accuracy + 0.2 * $speed);
+    }
+
+    /**
+     * Incidents logged in the last 24 months on the agent's suppliers, their products or their purchase orders,
+     * per supplier and issue type.
+     */
+    private function getIssues(Agent $agent, ?Organisation $buyer): Collection
+    {
+        $notes = DB::table('procurement_notes')
+            ->leftJoin('supplier_products', function ($join) {
+                $join->on('supplier_products.id', '=', 'procurement_notes.subject_id')->where('procurement_notes.subject_type', 'SupplierProduct');
+            })
+            ->leftJoin('purchase_orders', 'purchase_orders.id', '=', DB::raw("coalesce(procurement_notes.purchase_order_id, case when procurement_notes.subject_type = 'PurchaseOrder' then procurement_notes.subject_id end)"))
+            ->where('procurement_notes.category', 'incident')
+            ->where('procurement_notes.state', '!=', 'superseded')
+            ->where('procurement_notes.created_at', '>', now()->subMonths(self::PERFORMANCE_MONTHS))
+            ->when($buyer, fn (Builder $query) => $query->whereRaw('coalesce(procurement_notes.organisation_id, purchase_orders.organisation_id) = ?', [$buyer->id]))
+            ->selectRaw("coalesce(case when procurement_notes.subject_type = 'Supplier' then procurement_notes.subject_id end, supplier_products.supplier_id, purchase_orders.supplier_id) as supplier_id,
+                procurement_notes.incident_type, procurement_notes.incident_outcome");
+
+        return DB::query()->fromSub($notes, 'issues')
+            ->join('suppliers', 'suppliers.id', '=', 'issues.supplier_id')
+            ->where('suppliers.agent_id', $agent->id)
+            ->selectRaw("issues.supplier_id, issues.incident_type, count(*) as number, count(*) filter (where issues.incident_outcome = 'open') as open")
+            ->groupBy('issues.supplier_id', 'issues.incident_type')
+            ->get();
+    }
+
+    /**
+     * Who packs the goods of the suppliers ordered from in the last 12 months, the packaging suppliers bought from,
+     * and the suppliers whose packing is not recorded yet.
+     */
+    private function getPacking(Collection $suppliers, Collection $pastOrders, callable $money, callable $supplierRoute): array
+    {
+        $since       = now()->subMonths(self::SPEND_MONTHS);
+        $lastYear    = $pastOrders->filter(fn ($order) => Carbon::parse($order->submitted_at)->gt($since));
+        $spend       = $lastYear->groupBy('supplier_id')->map(fn (Collection $orders) => $orders->sum('amount'));
+        $ordered     = $suppliers->only($spend->keys()->all());
+        $packagingIds = $suppliers->pluck('packaging_supplier_id')
+            ->merge(DB::table('supplier_products')->whereIn('supplier_id', $suppliers->keys())->whereNotNull('packaging_supplier_id')->pluck('packaging_supplier_id'))
+            ->filter()
+            ->unique();
+
+        $packagingSuppliers = $suppliers->only($packagingIds->all())
+            ->map(fn ($supplier) => [
+                'code'  => $supplier->code,
+                'name'  => $supplier->name,
+                'spend' => $money($spend->get($supplier->id, 0)),
+                'route' => $supplierRoute($supplier->org_supplier_slug),
+            ])
+            ->sortByDesc('spend')
+            ->values();
+
+        return [
+            'split'           => [
+                ...collect(SupplierPackingMethodEnum::values())->mapWithKeys(fn ($method) => [$method => $ordered->where('packing_method', $method)->count()])->all(),
+                'unknown' => $ordered->whereNull('packing_method')->count(),
+            ],
+            'labels'          => SupplierPackingMethodEnum::labels(),
+            'packaging'       => $packagingSuppliers,
+            'packaging_spend' => round($packagingSuppliers->sum('spend'), 2),
+            'unknown'         => $ordered->whereNull('packing_method')
+                ->map(fn ($supplier) => [
+                    'id'    => $supplier->id,
+                    'code'  => $supplier->code,
+                    'name'  => $supplier->name,
+                    'spend' => $money($spend->get($supplier->id, 0)),
+                    'route' => $supplierRoute($supplier->org_supplier_slug),
+                ])
+                ->sortByDesc('spend')
+                ->values(),
+            'candidates'      => $suppliers->where('status', true)->sortBy('code')->map(fn ($supplier) => ['value' => $supplier->id, 'label' => $supplier->code.' · '.$supplier->name])->values(),
+        ];
     }
 
     /**
@@ -470,6 +616,18 @@ class GetAgentSuppliersDashboard
     private function medianDays(Collection $receivedOrders): ?int
     {
         $median = $receivedOrders->map(fn ($order) => Carbon::parse($order->submitted_at)->diffInSeconds(Carbon::parse($order->received_at)) / 86400)->median();
+
+        return $median === null ? null : (int) round($median);
+    }
+
+    /**
+     * Median days from the supplier confirming an order to handing the goods over.
+     */
+    public function medianFactoryDays(Collection $orders): ?int
+    {
+        $median = $orders->filter(fn ($order) => $order->confirmed_at && $order->handed_over_at && $order->handed_over_at >= $order->confirmed_at)
+            ->map(fn ($order) => Carbon::parse($order->confirmed_at)->diffInSeconds(Carbon::parse($order->handed_over_at)) / 86400)
+            ->median();
 
         return $median === null ? null : (int) round($median);
     }

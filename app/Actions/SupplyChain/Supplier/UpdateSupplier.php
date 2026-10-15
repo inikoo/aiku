@@ -38,6 +38,7 @@ class UpdateSupplier extends OrgAction
     use WithActionUpdate;
     use WithNoStrictRules;
     use WithSupplierJsonColumns;
+    use WithSupplierPacking;
 
     private const CONTACT_FIELDS = ['contact_name', 'email', 'phone', 'wechat', 'whatsapp'];
 
@@ -235,7 +236,7 @@ class UpdateSupplier extends OrgAction
             ],
         ];
 
-        $rules = array_merge($rules, $this->supplierJsonFieldRules());
+        $rules = array_merge($rules, $this->supplierJsonFieldRules(), $this->packingRules($this->supplier));
 
         if (!$this->strict) {
             $rules['phone']       = ['sometimes', 'nullable', 'max:255'];

@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct;
 
+use App\Actions\SupplyChain\Supplier\WithSupplierPacking;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateCurrentSupplierSkuCost;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
@@ -37,6 +38,7 @@ class UpdateSupplierProduct extends OrgAction
     use WithNoStrictRules;
     use WithSupplierProductJsonColumns;
     use WithPackagingTermsRules;
+    use WithSupplierPacking;
 
     private const UNAVAILABLE_STATES = [
         SupplierProductStateEnum::IN_PROCESS,
@@ -236,7 +238,7 @@ class UpdateSupplierProduct extends OrgAction
             'availability_note'        => ['sometimes', 'nullable', 'string', 'max:2000'],
         ];
 
-        $rules = array_merge($rules, $this->supplierProductJsonFieldRules(), $this->packagingTermsRules());
+        $rules = array_merge($rules, $this->supplierProductJsonFieldRules(), $this->packagingTermsRules(), $this->packingRules($this->supplierProduct->supplier));
 
         if (!$this->strict) {
             $rules['data']             = ['sometimes', 'array'];

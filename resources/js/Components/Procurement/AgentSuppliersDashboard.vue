@@ -9,7 +9,7 @@ import { computed, inject, ref, watch } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt } from "@fal"
+import { faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle } from "@fal"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { ctrans } from "@/Composables/useTrans"
@@ -20,8 +20,26 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import AgentChasePanelDialog from "@/Components/Procurement/AgentChasePanelDialog.vue"
 import SuggestSupplierChangeDialog from "@/Components/Procurement/SuggestSupplierChangeDialog.vue"
 import AgentSupplierChangeRequests, { SupplierChangeRequestRow } from "@/Components/Procurement/AgentSupplierChangeRequests.vue"
+import AgentSupplierPacking from "@/Components/Procurement/AgentSupplierPacking.vue"
 
-library.add(faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt)
+library.add(faPersonDolly, faClipboardList, faBullhorn, faShip, faStopwatch, faBalanceScale, faArchive, faChevronRight, faClone, faPencil, faCompressAlt, faBoxOpen, faExclamationTriangle)
+
+type PerformanceRow = {
+	code: string
+	name: string
+	spend: number
+	purchase_orders: number
+	received: number
+	on_time: number | null
+	median_days: number | null
+	factory_days: number | null
+	quantity_errors: number | null
+	issues: number
+	issue_rate: number | null
+	issue_types: { type: string | null; label: string; number: number }[]
+	score: number | null
+	route: routeType | null
+}
 
 type SupplierLink = { id: number; code: string; name: string; pending: string | null; last_ordered_at: string | null; route: routeType | null }
 
@@ -39,9 +57,11 @@ const props = defineProps<{
 			open: { value: number; amount: number; without_eta: number; route: routeType }
 			chase: { value: number; past_eta: number; unconfirmed: number; route: routeType }
 			in_transit: { value: number; amount: number; route: routeType }
-			lead_time: { median_days: number | null; on_time: number | null; purchase_orders: number }
+			lead_time: { median_days: number | null; factory_days: number | null; on_time: number | null; purchase_orders: number }
 			quantity_errors: { value: number; checked: number; percentage: number | null }
 			dormant: { value: number; active: number }
+			issues: { value: number; open: number }
+			extra_packing: { value: number; amount: number }
 		}
 		stages: { key: string; label: string; value: number; amount: number; route: routeType | null }[]
 		ages: { label: string; value: number }[]
@@ -62,17 +82,9 @@ const props = defineProps<{
 				last_chase: { chased_at: string; channel: string; promised_at: string | null; note: string | null; by: string | null } | null
 			}[]
 		}
-		top_spend: {
-			code: string
-			name: string
-			spend: number
-			purchase_orders: number
-			received: number
-			on_time: number | null
-			median_days: number | null
-			quantity_errors: number | null
-			route: routeType | null
-		}[]
+		performance: { top_spend: PerformanceRow[]; best: PerformanceRow[]; attention: PerformanceRow[]; minimum: number }
+		issues: PerformanceRow[]
+		packing: InstanceType<typeof AgentSupplierPacking>["$props"]["packing"]
 		quantity: { supplier: string; code: string; lines: number; wrong: number; short: number; over: number; percentage: number; route: routeType | null }[]
 		cleanup: {
 			buckets: { key: string; label: string; value: number }[]
@@ -146,7 +158,10 @@ const tiles = computed(() => [
 		information: ctrans("Median days from sending the order to its first container reaching the warehouse, and the share that arrived no later than a week after the expected date. Orders sent in the last 24 months."),
 		icon: "fal fa-stopwatch",
 		value: kpis.value.lead_time.median_days === null ? "—" : ctrans(":days days", { days: kpis.value.lead_time.median_days }),
-		detail: ctrans(":on_time on time, :count orders", { on_time: percent(kpis.value.lead_time.on_time), count: number(kpis.value.lead_time.purchase_orders) }),
+		detail: [
+			ctrans(":on_time on time, :count orders", { on_time: percent(kpis.value.lead_time.on_time), count: number(kpis.value.lead_time.purchase_orders) }),
+			kpis.value.lead_time.factory_days !== null ? ctrans("factory :days days", { days: kpis.value.lead_time.factory_days }) : null,
+		].filter(Boolean).join(", "),
 		tone: kpis.value.lead_time.on_time !== null && kpis.value.lead_time.on_time < 70 ? "amber" : "neutral",
 		route: null,
 	},
@@ -171,6 +186,28 @@ const tiles = computed(() => [
 		tone: kpis.value.dormant.value ? "amber" : "neutral",
 		route: null,
 		anchor: "#cleanup",
+	},
+	{
+		key: "extra_packing",
+		label: ctrans("Extra packing"),
+		information: ctrans("Suppliers ordered from in the last 12 months whose goods are packed by a packaging supplier, and the spend with packaging suppliers."),
+		icon: "fal fa-box-open",
+		value: number(kpis.value.extra_packing.value),
+		detail: ctrans(":amount with packaging suppliers", { amount: money(kpis.value.extra_packing.amount) }),
+		tone: "neutral",
+		route: null,
+		anchor: "#packing",
+	},
+	{
+		key: "issues",
+		label: ctrans("Issues logged"),
+		information: ctrans("Incidents logged on the suppliers, their products or their purchase orders in the last 24 months."),
+		icon: "fal fa-exclamation-triangle",
+		value: number(kpis.value.issues.value),
+		detail: ctrans(":count still open", { count: number(kpis.value.issues.open) }),
+		tone: kpis.value.issues.open ? "amber" : "neutral",
+		route: null,
+		anchor: "#issues",
 	},
 	{
 		key: "active",
@@ -198,6 +235,15 @@ const suggestion = ref<InstanceType<typeof SuggestSupplierChangeDialog>["$props"
 const suggestDeactivation = (supplier: { id: number; code: string; name: string }) => (suggestion.value = { type: "deactivate", supplier })
 const suggestMerge = (supplier: SupplierLink, group: SupplierLink[]) => (suggestion.value = { type: "merge", supplier, candidates: group.filter((other) => other.id !== supplier.id) })
 
+const performanceTab = ref<"top_spend" | "best" | "attention">("top_spend")
+const performanceTabs = computed(() => [
+	{ label: ctrans("Top by spend"), value: "top_spend" },
+	{ label: ctrans("Best performers"), value: "best" },
+	{ label: ctrans("Needs attention"), value: "attention" },
+])
+const performanceRows = computed(() => props.data.performance[performanceTab.value])
+const scoreClass = (score: number | null) => (score === null ? "text-gray-400" : score >= 80 ? "text-green-700" : score < 60 ? "text-red-600" : "text-amber-700")
+
 const cleanupBucket = ref("")
 const cleanupOptions = computed(() => [
 	{ label: ctrans("All :count", { count: number(kpis.value.dormant.value) }), value: "" },
@@ -219,7 +265,7 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-9">
 			<article v-for="tile in tiles" :key="tile.key" class="group flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:border-gray-300">
 				<component :is="tile.route ? Link : 'a'" :href="tile.route ? href(tile.route) : tile.anchor" class="block">
 					<div class="flex items-center gap-2.5">
@@ -342,11 +388,18 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
 			<section class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm xl:col-span-2">
-				<header class="flex items-center gap-1.5 border-b border-gray-200 px-4 py-3">
-					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Top suppliers by spend, last 12 months") }}</h2>
-					<InformationIcon :information="ctrans('Spend and orders over the last 12 months. On time, days to warehouse and quantity errors over the last 24 months.')" class="text-xs text-gray-500" />
+				<header class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-4 py-3">
+					<h2 class="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+						{{ ctrans("Supplier performance") }}
+						<InformationIcon
+							:information="ctrans('Spend and orders over the last 12 months; the rest over 24 months. Score: half on time, 30% accuracy (quantity errors and logged issues), 20% speed (factory lead time, or days to warehouse, against the agent median). Scored from :count received orders.', { count: data.performance.minimum })"
+							class="text-xs font-normal text-gray-500" />
+					</h2>
+					<SegmentedToggle v-model="performanceTab" :options="performanceTabs" :aria-label="ctrans('Supplier performance')" />
 				</header>
-				<p v-if="!data.top_spend.length" class="px-4 py-8 text-center text-sm text-gray-400">{{ ctrans("No orders in the last 12 months") }}</p>
+				<p v-if="!performanceRows.length" class="px-4 py-8 text-center text-sm text-gray-400">
+					{{ performanceTab === "top_spend" ? ctrans("No orders in the last 12 months") : ctrans("No supplier has :count received orders yet", { count: data.performance.minimum }) }}
+				</p>
 				<div v-else class="overflow-x-auto">
 					<table class="w-full text-sm">
 						<thead class="bg-gray-50 text-xs text-gray-500">
@@ -356,11 +409,14 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Orders") }}</th>
 								<th class="px-4 py-2 text-right font-medium">{{ ctrans("On time") }}</th>
 								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Days to warehouse") }}</th>
+								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Factory days") }}</th>
 								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Quantity errors") }}</th>
+								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Issues") }}</th>
+								<th class="px-4 py-2 text-right font-medium">{{ ctrans("Score") }}</th>
 							</tr>
 						</thead>
 						<tbody class="divide-y divide-gray-100">
-							<tr v-for="supplier in data.top_spend" :key="supplier.code" class="hover:bg-gray-50">
+							<tr v-for="supplier in performanceRows" :key="supplier.code" class="hover:bg-gray-50">
 								<td class="px-4 py-2">
 									<Link v-if="supplier.route" :href="href(supplier.route)" class="font-medium text-gray-700 hover:underline">{{ supplier.name }}</Link>
 									<span v-else>{{ supplier.name }}</span>
@@ -370,7 +426,10 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 								<td class="px-4 py-2 text-right tabular-nums text-gray-700">{{ number(supplier.purchase_orders) }}</td>
 								<td class="px-4 py-2 text-right tabular-nums" :class="supplier.on_time !== null && supplier.on_time < 70 ? 'text-amber-700' : 'text-gray-700'">{{ percent(supplier.on_time) }}</td>
 								<td class="px-4 py-2 text-right tabular-nums text-gray-700">{{ supplier.median_days ?? "—" }}</td>
+								<td class="px-4 py-2 text-right tabular-nums text-gray-700">{{ supplier.factory_days ?? "—" }}</td>
 								<td class="px-4 py-2 text-right tabular-nums" :class="supplier.quantity_errors !== null && supplier.quantity_errors >= 5 ? 'text-amber-700' : 'text-gray-700'">{{ percent(supplier.quantity_errors) }}</td>
+								<td class="px-4 py-2 text-right tabular-nums" :class="supplier.issues ? 'text-amber-700' : 'text-gray-400'">{{ number(supplier.issues) }}</td>
+								<td class="px-4 py-2 text-right font-semibold tabular-nums" :class="scoreClass(supplier.score)">{{ supplier.score ?? "—" }}</td>
 							</tr>
 						</tbody>
 					</table>
@@ -398,6 +457,33 @@ const dormantSuppliers = computed(() => props.data.cleanup.dormant.filter((suppl
 					</li>
 				</ul>
 			</section>
+		</div>
+
+		<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+			<section id="issues" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+				<header class="flex items-center gap-1.5 border-b border-gray-200 px-4 py-3">
+					<FontAwesomeIcon icon="fal fa-exclamation-triangle" class="text-gray-400" fixed-width aria-hidden="true" />
+					<h2 class="text-sm font-semibold text-gray-700">{{ ctrans("Most issues") }}</h2>
+					<InformationIcon :information="ctrans('Suppliers ranked by issues logged per received order, last 24 months. Issues are logged as incident notes on the supplier, one of its products or a purchase order.')" class="text-xs text-gray-500" />
+				</header>
+				<p v-if="!data.issues.length" class="px-4 py-8 text-center text-sm text-gray-400">{{ ctrans("No issues logged in the last 24 months") }}</p>
+				<ul v-else class="divide-y divide-gray-100">
+					<li v-for="supplier in data.issues" :key="supplier.code" class="px-4 py-2.5">
+						<div class="flex items-center justify-between gap-2">
+							<Link v-if="supplier.route" :href="href(supplier.route)" class="truncate text-sm font-medium text-gray-700 hover:underline">{{ supplier.name }}</Link>
+							<span v-else class="truncate text-sm">{{ supplier.name }}</span>
+							<span class="shrink-0 text-sm tabular-nums text-gray-700">
+								{{ supplier.issue_rate !== null ? ctrans(":rate per 100 orders", { rate: supplier.issue_rate }) : ctrans(":count issues", { count: supplier.issues }) }}
+							</span>
+						</div>
+						<div class="mt-1 flex flex-wrap gap-1.5 text-xs">
+							<span v-for="issueType in supplier.issue_types" :key="issueType.type ?? 'none'" class="rounded bg-amber-50 px-1.5 text-amber-700">{{ issueType.label }} {{ issueType.number }}</span>
+						</div>
+					</li>
+				</ul>
+			</section>
+
+			<AgentSupplierPacking :packing="data.packing" :currency="data.filters.currency" :canEdit="data.permissions.can_suggest" />
 		</div>
 
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">

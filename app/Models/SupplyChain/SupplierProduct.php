@@ -8,6 +8,8 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\Goods\TradeUnit\TradeUnitPackagingMaterialEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
@@ -124,6 +126,8 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         'sources'                => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
+        'packing_method'         => SupplierPackingMethodEnum::class,
+        'packing_material'       => TradeUnitPackagingMaterialEnum::class,
         'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
         'supplier_unit'          => SupplierUnitEnum::class,
         'units_per_supplier_unit' => 'decimal:4',

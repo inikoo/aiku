@@ -2,6 +2,7 @@
 
 namespace App\Actions\SupplyChain\Supplier\UI;
 
+use App\Actions\SupplyChain\Supplier\WithSupplierPacking;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Http\Resources\Helpers\AddressResource;
@@ -11,6 +12,8 @@ use Illuminate\Support\Arr;
 
 trait WithSupplierEditFields
 {
+    use WithSupplierPacking;
+
     /**
      * @return array<int, array<string, mixed>>
      */
@@ -163,6 +166,12 @@ trait WithSupplierEditFields
                         'value' => $supplier->factory_holidays,
                     ],
                 ],
+            ],
+            [
+                'label'  => __('Packing'),
+                'title'  => __('Packing'),
+                'icon'   => 'fal fa-box-open',
+                'fields' => $this->packingEditFields($supplier, $supplier),
             ],
             [
                 'label'  => __('Pre-orders'),

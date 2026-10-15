@@ -8,6 +8,8 @@
 
 namespace App\Models\SupplyChain;
 
+use App\Enums\Goods\TradeUnit\TradeUnitPackagingMaterialEnum;
+use App\Enums\SupplyChain\Supplier\SupplierPackingMethodEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgSupplier;
@@ -69,6 +71,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $archived_at
+ * @property SupplierPackingMethodEnum|null $packing_method
+ * @property TradeUnitPackagingMaterialEnum|null $packing_material
+ * @property int|null $packaging_supplier_id
  * @property Carbon|null $fetched_at
  * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
@@ -124,6 +129,8 @@ class Supplier extends Model implements HasMedia, Auditable
         'is_generic'       => 'boolean',
         'factory_holidays' => 'array',
         'archived_at'     => 'datetime',
+        'packing_method'   => SupplierPackingMethodEnum::class,
+        'packing_material' => TradeUnitPackagingMaterialEnum::class,
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];
