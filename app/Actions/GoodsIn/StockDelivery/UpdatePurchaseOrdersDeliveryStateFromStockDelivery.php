@@ -10,7 +10,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -93,7 +93,7 @@ class UpdatePurchaseOrdersDeliveryStateFromStockDelivery
      * A line an agent split across containers is settled once all of it is in containers and none of them is still
      * on its way.
      */
-    private function whereAllArrived(HasMany $transactions): HasMany
+    private function whereAllArrived(EloquentBuilder $transactions): EloquentBuilder
     {
         $quantityOnDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery();
 

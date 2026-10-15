@@ -119,7 +119,7 @@ return [
          */
         'customers' => [
             'customers', 'customer_*', 'web_users', 'web_user_logins', 'web_user_requests', 'web_user_has_dispatched_emails',
-            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails',
+            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails', 'appointment_types', 'appointment_type_user', 'appointment_type_dates', 'appointments',
             'product_has_exclusive_customers', 'product_last_seens', 'fulfilment_customers', 'luna_clients', 'subscriptions', 'subscription_events', 'preferred_shippings', 'tax_numbers',
         ],
 
