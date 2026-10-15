@@ -6630,6 +6630,7 @@ test('mail from one of our own shops or a staff buying account never becomes a c
         'gmail.googleapis.com/gmail/v1/users/me/messages/c1*' => $colleagueMessage('c1', 'care@shop.test'),
         'gmail.googleapis.com/gmail/v1/users/me/messages/c2*' => $colleagueMessage('c2', 'care@shop.test, hola@awartisan.es'),
         'gmail.googleapis.com/gmail/v1/users/me/messages/c3*' => $colleagueMessage('c3', 'care@shop.test'),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/c4*' => $colleagueMessage('c4', 'Denisa <denisa@shop.test>'),
         'gmail.googleapis.com/gmail/v1/users/me/labels'       => \Illuminate\Support\Facades\Http::response(['labels' => [['id' => 'LF', 'name' => 'aiku/filtered'], ['id' => 'LI', 'name' => 'aiku/imported'], ['id' => 'LU', 'name' => 'aiku/unmatched']]]),
         'gmail.googleapis.com/*'                              => \Illuminate\Support\Facades\Http::response([]),
     ]);
@@ -6670,10 +6671,80 @@ test('mail from one of our own shops or a staff buying account never becomes a c
         ->and(\App\Actions\Chat\ChatSession\GetChatSessions::make()->handle(['shop_ids' => [$this->shop->id]])->pluck('id'))->not->toContain($colleagueSession->id)
         ->and(\App\Actions\Chat\ChatSession\GetChatSessions::make()->handle(['shop_ids' => [$this->shop->id], 'colleague' => 1])->pluck('id'))->toContain($colleagueSession->id);
 
-    $colleagueSession->messages()->forceDelete();
-    $colleagueSession->forceDelete();
+    $forwardedToWebmaster = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'c4')->chatSession;
+
+    expect($forwardedToWebmaster->is_colleague)->toBeTrue();
+
+    foreach ([$colleagueSession, $forwardedToWebmaster] as $session) {
+        $session->messages()->forceDelete();
+        $session->forceDelete();
+    }
     $this->customer->update($customerBefore);
     $sibling->update(['email' => $siblingEmail]);
+});
+
+test('a bounced answer is told on its conversation without reopening it, a bounce of nothing of ours is filtered', function () {
+    $settings = $this->shop->settings ?? [];
+    $settings['gmail'] = ['email' => 'care@shop.test', 'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'), 'history_id' => '1'];
+    $this->shop->update(['settings' => $settings]);
+
+    $bounce = fn (string $id, string $threadId) => \Illuminate\Support\Facades\Http::response([
+        'id'       => $id,
+        'threadId' => $threadId,
+        'payload'  => [
+            'mimeType' => 'text/plain',
+            'headers'  => [
+                ['name' => 'From', 'value' => 'Mail Delivery Subsystem <mailer-daemon@googlemail.com>'],
+                ['name' => 'To', 'value' => 'care@shop.test'],
+                ['name' => 'Subject', 'value' => 'Delivery Status Notification (Failure)'],
+                ['name' => 'X-Failed-Recipients', 'value' => 'gone@example.com'],
+            ],
+            'body'     => ['data' => rtrim(strtr(base64_encode("Address not found\n\nThe response was:\n\n550 5.1.1 The email account that you tried to reach does not exist."), '+/', '-_'), '=')],
+        ],
+    ]);
+
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token'                         => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/b1*' => $bounce('b1', 'tbounced'),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/b2*' => $bounce('b2', 'tnobody'),
+        'gmail.googleapis.com/gmail/v1/users/me/labels'       => \Illuminate\Support\Facades\Http::response(['labels' => [['id' => 'LF', 'name' => 'aiku/filtered'], ['id' => 'LI', 'name' => 'aiku/imported'], ['id' => 'LU', 'name' => 'aiku/unmatched']]]),
+        'gmail.googleapis.com/*'                              => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    $session = ChatSession::create([
+        'ulid'        => (string) \Illuminate\Support\Str::ulid(),
+        'shop_id'     => $this->shop->id,
+        'language_id' => 68,
+        'status'      => ChatSessionStatusEnum::CLOSED->value,
+        'priority'    => ChatPriorityEnum::NORMAL->value,
+        'channel'     => \App\Enums\CRM\Livechat\ChatChannelEnum::EMAIL->value,
+    ]);
+    $session->update(['metadata' => ['gmail_thread_id' => 'tbounced', 'email_from' => 'gone@example.com']]);
+
+    $sessionsBefore = ChatSession::count();
+
+    $note = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'b1');
+
+    expect($note->chat_session_id)->toBe($session->id)
+        ->and($note->sender_type)->toBe(ChatSenderTypeEnum::SYSTEM)
+        ->and($note->message_text)->toBe('Email not delivered to gone@example.com: 550 5.1.1 The email account that you tried to reach does not exist.')
+        ->and($note->metadata['email_bounce'])->toBe(['recipient' => 'gone@example.com', 'reason' => '550 5.1.1 The email account that you tried to reach does not exist.'])
+        ->and($session->fresh()->status)->toBe(ChatSessionStatusEnum::CLOSED);
+    \Illuminate\Support\Facades\Http::assertSent(fn ($request) => str_ends_with($request->url(), 'messages/b1/modify') && $request['addLabelIds'] === ['LI']);
+
+    expect(\App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'b1'))->toBeNull()
+        ->and($session->messages()->count())->toBe(1);
+
+    $this->artisan('chat:backfill-email-bodies', ['--shop' => $this->shop->id])->assertSuccessful();
+
+    expect($note->fresh()->message_text)->toBe('Email not delivered to gone@example.com: 550 5.1.1 The email account that you tried to reach does not exist.');
+
+    expect(\App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'b2'))->toBeNull()
+        ->and(ChatSession::count())->toBe($sessionsBefore);
+    \Illuminate\Support\Facades\Http::assertSent(fn ($request) => str_ends_with($request->url(), 'messages/b2/modify') && $request['addLabelIds'] === ['LF']);
+
+    $session->messages()->forceDelete();
+    $session->forceDelete();
 });
 
 test('the sweep marks email conversations already imported from our own addresses as rubbish', function () {

@@ -901,7 +901,7 @@ watch(selectedLanguage, async (val) => {
 <template>
     <div v-if="isSystemNotice" class="w-full flex justify-center">
         <div class="flex flex-col items-center gap-1">
-            <ChatTimelineEvent :event="{ description: displayText, created_at: message.created_at }" />
+            <ChatTimelineEvent :event="{ description: displayText, created_at: message.created_at, event_type: message.metadata?.email_bounce ? 'email_bounce' : null }" />
             <FlagWrongButton v-if="flagUrl" :url="flagUrl" :flagged="!!message.metadata?.flagged_wrong_at" />
         </div>
     </div>
