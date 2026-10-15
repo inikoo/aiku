@@ -17,6 +17,9 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Comms\BackInStockReminder\UI\IndexCustomerBackInStockReminders;
 use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Chat\ChatSession\StartCustomerEmailChat;
+use App\Actions\CRM\CustomerEmailTemplate\GetCustomerEmailTemplateValues;
+use App\Actions\CRM\CustomerEmailTemplate\SeedShopCustomerEmailTemplates;
+use App\Models\CRM\CustomerEmailTemplate;
 use App\Actions\CRM\Favourite\UI\IndexCustomerFavourites;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Helpers\History\UI\IndexHistory;
@@ -132,6 +135,7 @@ class ShowCustomer extends OrgAction
         $grData = $this->getGrData($customer);
         $permissions = $this->getCustomerPagePermissions($request->user(), $customer);
         $canMakeCustomProduct = $permissions['edit'] && $customer->organisation->productions()->exists();
+        $canEmailCustomer = StartCustomerEmailChat::canBeStartedBy($request->user(), $customer);
 
         return Inertia::render(
             'Org/Shop/CRM/Customer',
@@ -149,7 +153,9 @@ class ShowCustomer extends OrgAction
                 'can_add_order'    => $this->shop->type == ShopTypeEnum::B2B
                     && $request->user()->authTo("orders.{$this->shop->id}.edit")
                     && !StoreOrder::isPartnerBuyingFromHub($customer, $this->shop),
-                'can_email_customer' => StartCustomerEmailChat::canBeStartedBy($request->user(), $customer),
+                'can_email_customer' => $canEmailCustomer,
+                'email_templates'    => $canEmailCustomer ? $this->emailTemplates($customer) : [],
+                'email_template_values' => $canEmailCustomer ? GetCustomerEmailTemplateValues::run($customer, $request->user()) : [],
                 'permissions'        => $permissions,
                 'can_make_custom_product' => $canMakeCustomProduct,
                 'custom_product_artefacts' => Inertia::optional(fn () => $canMakeCustomProduct ? StoreCustomerProductFromArtefact::artefactOptions($customer) : []),
@@ -320,6 +326,26 @@ class ShowCustomer extends OrgAction
         return new CustomersResource($customer);
     }
 
+
+    /**
+     * @return array<int, array{id: int, name: string, subject: string, body: string, update_route: array{name: string, parameters: array<string, int>}}>
+     */
+    private function emailTemplates(Customer $customer): array
+    {
+        SeedShopCustomerEmailTemplates::run($customer->shop);
+
+        return $customer->shop->customerEmailTemplates()->get()
+            ->map(fn (CustomerEmailTemplate $template) => [
+                'id'           => $template->id,
+                'name'         => $template->name,
+                'subject'      => $template->subject,
+                'body'         => $template->body,
+                'update_route' => [
+                    'name'       => 'grp.models.shop.customer_email_template.update',
+                    'parameters' => ['shop' => $customer->shop_id, 'customerEmailTemplate' => $template->id],
+                ],
+            ])->all();
+    }
 
     public function getCustomerNotes(Customer $customer, bool $editable): array
     {

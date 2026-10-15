@@ -9,6 +9,7 @@ namespace App\Actions\Chat\ChatSession;
 
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Comms\Mailbox\ProcessInboundEmail;
+use App\Actions\CRM\CustomerEmailTemplate\GetCustomerEmailTemplateValues;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\OrgAction;
 use App\Enums\CRM\Livechat\ChatAssignmentAssignedByEnum;
@@ -49,6 +50,8 @@ class StartCustomerEmailChat extends OrgAction
 
     private ?Order $order = null;
 
+    private bool $isLeftToCustomerService = false;
+
     public function rules(): array
     {
         $rules = [
@@ -77,7 +80,22 @@ class StartCustomerEmailChat extends OrgAction
 
         $user = $request->user();
 
-        return $user instanceof User && $this->userCanActOnChatOnShop($user, $this->shop);
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return $this->userCanActOnChatOnShop($user, $this->shop)
+            || ($this->customer && self::userCanEmailCustomersOnShop($user, $this->shop));
+    }
+
+    /**
+     * Shopkeepers and marketing write to customers too, but do not work the chat inbox: their
+     * mail is sent and the conversation is closed, so the customer's reply comes back to the
+     * waiting queue for customer service to answer.
+     */
+    public static function userCanEmailCustomersOnShop(User $user, Shop $shop): bool
+    {
+        return $user->authTo(["orders.{$shop->id}.edit", "marketing.{$shop->id}.edit"]);
     }
 
     /**
@@ -96,6 +114,12 @@ class StartCustomerEmailChat extends OrgAction
             ]);
         }
 
+        if ($customer) {
+            $values                = GetCustomerEmailTemplateValues::run($customer, Auth::user());
+            $modelData['subject'] = strtr($modelData['subject'], $values);
+            $modelData['message'] = strtr($modelData['message'], $values);
+        }
+
         $isCustomersOwnAddress = $customer && strcasecmp($recipient, (string) $customer->email) === 0;
         $recipientName         = $isCustomersOwnAddress ? ($customer->contact_name ?? $customer->name) : Arr::get($modelData, 'contact_name');
 
@@ -103,7 +127,9 @@ class StartCustomerEmailChat extends OrgAction
             $this->saveAsProspect($shop, $recipient, $modelData);
         }
 
-        $agent = $this->chatAgentProfileFor(Auth::user());
+        $user                          = Auth::user();
+        $agent                         = $this->chatAgentProfileFor($user);
+        $this->isLeftToCustomerService = !$this->userCanActOnChatOnShop($user, $shop);
 
         $session = StoreChatSession::run([
             'shop_id'             => $shop->id,
@@ -137,13 +163,15 @@ class StartCustomerEmailChat extends OrgAction
             ConfirmSuggestedChatCustomer::auditOnCustomer($customer, 'chat_linked', $session, $agent);
         }
 
-        $session->assignments()->create([
-            'chat_agent_id' => $agent->id,
-            'status'        => ChatAssignmentStatusEnum::ACTIVE->value,
-            'assigned_by'   => ChatAssignmentAssignedByEnum::AGENT->value,
-            'note'          => $customer ? 'Email started from the customer record' : 'Email started from the inbox',
-            'assigned_at'   => now(),
-        ]);
+        if (!$this->isLeftToCustomerService) {
+            $session->assignments()->create([
+                'chat_agent_id' => $agent->id,
+                'status'        => ChatAssignmentStatusEnum::ACTIVE->value,
+                'assigned_by'   => ChatAssignmentAssignedByEnum::AGENT->value,
+                'note'          => $customer ? 'Email started from the customer record' : 'Email started from the inbox',
+                'assigned_at'   => now(),
+            ]);
+        }
 
         SendChatMessage::run($session, [
             'message_text' => $modelData['message'],
@@ -152,6 +180,10 @@ class StartCustomerEmailChat extends OrgAction
             'sender_id'    => $agent->id,
             'attachments'  => Arr::get($modelData, 'attachments', []),
         ]);
+
+        if ($this->isLeftToCustomerService) {
+            return CloseChatSession::run($session, $agent->id);
+        }
 
         return $session;
     }
@@ -244,7 +276,7 @@ class StartCustomerEmailChat extends OrgAction
 
     public function htmlResponse(ChatSession $chatSession): RedirectResponse
     {
-        if ($this->order) {
+        if ($this->order || $this->isLeftToCustomerService) {
             return back();
         }
 
@@ -276,6 +308,7 @@ class StartCustomerEmailChat extends OrgAction
 
     public static function canBeStartedBy(User $user, Customer $customer): bool
     {
-        return self::canBeStarted($customer) && self::make()->userCanActOnChatOnShop($user, $customer->shop);
+        return self::canBeStarted($customer)
+            && (self::make()->userCanActOnChatOnShop($user, $customer->shop) || self::userCanEmailCustomersOnShop($user, $customer->shop));
     }
 }

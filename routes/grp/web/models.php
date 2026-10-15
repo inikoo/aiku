@@ -36,6 +36,7 @@ use App\Actions\Billables\ShippingZone\StoreShippingZone;
 use App\Actions\Billables\ShippingZone\UpdateShippingZone;
 use App\Actions\Billables\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Chat\ChatSession\StartCustomerEmailChat;
+use App\Actions\CRM\CustomerEmailTemplate\UpdateCustomerEmailTemplate;
 use App\Actions\Catalogue\Collection\AttachCollectionToModel;
 use App\Actions\Catalogue\Collection\AttachModelsToCollection;
 use App\Actions\Catalogue\Collection\AttachMultipleParentsToACollection;
@@ -1300,6 +1301,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::patch('seo/ai-brand-names', UpdateSeoAiBrandNames::class)->name('seo.ai_brand_names.update');
     Route::post('seo/ai-visibility-run', RunSeoAiVisibility::class)->name('seo.ai_visibility_run.store');
     Route::post('email-chat', [StartCustomerEmailChat::class, 'inShop'])->name('email_chat.store');
+    Route::patch('customer-email-template/{customerEmailTemplate:id}', UpdateCustomerEmailTemplate::class)->name('customer_email_template.update');
     Route::post('prospect/upload', [ImportShopProspects::class, 'inShop'])->name('prospects.upload');
     Route::post('prospect/mailshot', StoreProspectMailshot::class)->name('prospect.mailshot.store');
     Route::post('prospect/mailshot/{mailshot:id}/send', SendProspectMailShot::class)->name('prospect.mailshot.send')->withoutScopedBindings();

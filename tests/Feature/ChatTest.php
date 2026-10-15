@@ -13786,3 +13786,123 @@ test('marking as unread a conversation the customer never wrote in changes nothi
     expect($ourOpening->refresh()->is_read)->toBeTrue();
     Event::assertNotDispatched(\App\Events\BroadcastChatListEvent::class);
 });
+
+test('a shop starts with ten customer email templates that staff edit and send with the customer filled in', function () {
+    Bus::fake([
+        \App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class,
+        TranslateChatMessage::class,
+        \App\Actions\Comms\Mailbox\SendChatMessageByGmail::class,
+        \App\Actions\CRM\CustomerEmailTemplate\TranslateShopCustomerEmailTemplates::class,
+    ]);
+
+    actingAs($this->user);
+
+    $this->shop->customerEmailTemplates()->delete();
+    \App\Actions\CRM\CustomerEmailTemplate\SeedShopCustomerEmailTemplates::run($this->shop);
+    \App\Actions\CRM\CustomerEmailTemplate\SeedShopCustomerEmailTemplates::run($this->shop);
+
+    $templates = $this->shop->customerEmailTemplates()->get();
+    expect($templates)->toHaveCount(10)
+        ->and($templates->pluck('position')->all())->toBe(range(1, 10));
+
+    $template = \App\Actions\CRM\CustomerEmailTemplate\UpdateCustomerEmailTemplate::make()->action($templates->first(), [
+        'subject' => 'Your basket at {shop_name}',
+        'body'    => "Hello {contact_name},\n{basket}\nTotal {basket_total}\n{my_name}",
+    ]);
+    expect($template->updated_by_user_id)->toBe($this->user->id);
+
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = [
+        'email'         => 'care@shop.test',
+        'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'),
+        'history_id'    => '1',
+    ];
+    $this->shop->update(['settings' => $settings]);
+    $this->customer->update(['email' => 'buyer@example.com', 'contact_name' => 'Matt Shaw']);
+
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token' => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/*'      => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    $session = \App\Actions\Chat\ChatSession\StartCustomerEmailChat::make()->action($this->customer->fresh(), [
+        'subject' => $template->subject,
+        'message' => $template->body,
+    ]);
+
+    $customer = $this->customer->fresh();
+    $this->withoutVite();
+    $this->get(route('grp.org.shops.show.crm.customers.show', [$this->shop->organisation->slug, $this->shop->slug, $customer->slug]))
+        ->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+            ->where('can_email_customer', true)
+            ->has('email_templates', 10)
+            ->where('email_templates.0.subject', 'Your basket at {shop_name}')
+            ->where('email_template_values.{contact_name}', 'Matt Shaw'));
+
+    $sent = $session->messages()->first()->message_text;
+    expect(Arr::get($session->metadata, 'email_subject'))->toBe('Your basket at '.$this->shop->name)
+        ->and($sent)->toStartWith('Hello Matt Shaw,')
+        ->and($sent)->not->toContain('{');
+
+    \App\Actions\Helpers\Translations\Translate::shouldRun()->andReturnUsing(
+        fn (string $text) => 'ES '.str_replace('{contact_name}', 'cliente', $text)
+    );
+    \App\Actions\CRM\CustomerEmailTemplate\TranslateShopCustomerEmailTemplates::run($this->shop);
+
+    $untouched = $this->shop->customerEmailTemplates()->where('position', 2)->first();
+    expect($template->fresh()->subject)->toBe('Your basket at {shop_name}')
+        ->and($untouched->name)->toStartWith('ES ')
+        ->and($untouched->body)->toStartWith('Hello {contact_name}');
+});
+
+test('shopkeepers email a customer without working chat and customer service answers the reply', function () {
+    Bus::fake([
+        \App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class,
+        TranslateChatMessage::class,
+        \App\Actions\Comms\Mailbox\SendChatMessageByGmail::class,
+        \App\Actions\Chat\ChatSession\SummarizeChatSession::class,
+    ]);
+    Event::fake([\App\Events\BroadcastRealtimeChat::class]);
+
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = [
+        'email'         => 'care@shop.test',
+        'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt'),
+        'history_id'    => '1',
+    ];
+    $this->shop->update(['settings' => $settings]);
+    $this->customer->update(['email' => 'buyer@example.com']);
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token' => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/*'      => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    setPermissionsTeamId($this->shop->group_id);
+    $shopkeeper = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action(
+        $this->shop->group,
+        array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    expect(\App\Actions\Chat\ChatSession\StartCustomerEmailChat::canBeStartedBy($shopkeeper, $this->customer->fresh()))->toBeFalse();
+
+    $shopkeeper->givePermissionTo("orders.{$this->shop->id}.edit");
+    $shopkeeper->refresh();
+    \Illuminate\Support\Facades\Cache::tags('auth-user:'.$shopkeeper->id)->flush();
+
+    expect(\App\Actions\Chat\ChatSession\StartCustomerEmailChat::canBeStartedBy($shopkeeper, $this->customer->fresh()))->toBeTrue();
+
+    $sessionsBefore = ChatSession::where('shop_id', $this->shop->id)->max('id') ?? 0;
+
+    actingAs($shopkeeper)
+        ->from('/customer-page')
+        ->post(route('grp.models.customer.email_chat.store', ['customer' => $this->customer->id]), [
+            'subject' => 'Your basket',
+            'message' => 'Can I help you finish your order?',
+        ])
+        ->assertRedirect('/customer-page');
+
+    $session = ChatSession::where('shop_id', $this->shop->id)->where('id', '>', $sessionsBefore)->sole();
+    expect($session->status)->toBe(ChatSessionStatusEnum::CLOSED)
+        ->and($session->assignments()->where('status', ChatAssignmentStatusEnum::ACTIVE->value)->exists())->toBeFalse()
+        ->and($session->messages()->where('sender_type', ChatSenderTypeEnum::AGENT->value)->value('message_text'))->toBe('Can I help you finish your order?');
+});
