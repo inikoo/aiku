@@ -124,6 +124,7 @@ trait WithAgentWarehouseProductRows
                     ]
                 ),
                 'pageHead'      => [
+                    'model' => __('Warehouse'),
                     'icon'  => ['title' => $title, 'icon' => $icon],
                     'title' => $title,
                 ],
