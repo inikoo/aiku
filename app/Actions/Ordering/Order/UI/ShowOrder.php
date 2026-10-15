@@ -40,6 +40,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\PreOrder\PreOrderStateEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Enums\UI\NotesEnum;
@@ -1175,6 +1176,9 @@ class ShowOrder extends OrgAction
             $query->where('orders.state', OrderStateEnum::SUBMITTED)->payNotSettled();
         } elseif ($bucket == OrdersBacklogTabsEnum::DISPATCHED_TODAY->value) {
             $query->whereDate('orders.dispatched_at', Carbon::today());
+        } elseif ($bucket == OrdersBacklogTabsEnum::PRE_ORDERS->value) {
+            $query->whereHas('preOrder', fn ($query) => $query->where('state', '!=', PreOrderStateEnum::CANCELLED))
+                ->whereNotIn('orders.state', [OrderStateEnum::DISPATCHED, OrderStateEnum::CANCELLED]);
         } else {
             $query->where('orders.state', $order->state);
         }
