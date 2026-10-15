@@ -362,6 +362,10 @@ function startTask(task: FloorTask) {
                         <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
                         <span v-if="task.continued_in">{{ ctrans('Continued in :reference', { reference: task.continued_in }) }}</span>
                     </div>
+                    <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
+                        <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
+                        <span v-if="task.continued_in">{{ ctrans('Continued in :reference', { reference: task.continued_in }) }}</span>
+                    </div>
                     <div v-if="task.blocked_by_step" class="text-xs text-gray-400 font-medium truncate flex items-center gap-1">
                         <FontAwesomeIcon icon="fas fa-lock" fixed-width aria-hidden="true" /> {{ ctrans('Waiting for') }} {{ task.blocked_by_step }}
                     </div>
