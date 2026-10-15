@@ -756,7 +756,7 @@ test('a direct order owes no deposit, an order without deliveries follows its ow
         ->and($stages['received']['date']->toDateString())->toBe(now()->subDays(2)->toDateString());
 });
 
-test('the tracker records the ready date, production done, handover and compliance, agents add their own order number, and the buffer follows the organisation', function (PurchaseOrder $purchaseOrder) {
+test('the tracker records the ready date, production done, handover and compliance, agents mark the handover and add their own order number, and the buffer follows the organisation', function (PurchaseOrder $purchaseOrder) {
     $purchaseOrder->refresh()->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'proposed_ready_at' => now()->addDays(30), 'approved_ready_at' => null, 'produced_at' => null]);
     $route    = route('grp.models.purchase-order.stage', $purchaseOrder->id);
     $today    = now($purchaseOrder->organisation->timezone?->name)->toDateString();
@@ -774,7 +774,7 @@ test('the tracker records the ready date, production done, handover and complian
     actingAs($agent);
     $this->patch($route, ['field' => 'produced_at', 'date' => $today])->assertSessionHasNoErrors();
     $this->patch($route, ['field' => 'approved_ready_at', 'date' => $readyDay])->assertSessionHasErrors('field');
-    $this->patch($route, ['field' => 'handed_over_at', 'date' => $today])->assertSessionHasErrors('field');
+    $this->patch($route, ['field' => 'handed_over_at', 'date' => $today])->assertSessionHasNoErrors();
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['agent_reference' => 'AG-PO-7781'])->assertSessionHasNoErrors();
     actingAs($this->adminGuest->getUser());
 
@@ -783,6 +783,7 @@ test('the tracker records the ready date, production done, handover and complian
     $purchaseOrder->refresh();
     expect($purchaseOrder->produced_at)->not->toBeNull()
         ->and($purchaseOrder->stageMarkUserId('produced_at'))->toBe($agent->id)
+        ->and($purchaseOrder->stageMarkUserId('handed_over_at'))->toBe($agent->id)
         ->and($purchaseOrder->agent_reference)->toBe('AG-PO-7781')
         ->and($purchaseOrder->compliance_complete_at)->not->toBeNull()
         ->and(collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'submitted')['note'])->toContain('AG-PO-7781');
@@ -794,7 +795,7 @@ test('the tracker records the ready date, production done, handover and complian
     expect(GetPurchaseOrderCompliance::run($purchaseOrder->refresh())['deadline'])->toBe(now()->addDays(16)->toDateString());
     $purchaseOrder->organisation->update(['settings' => $settings]);
 
-    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'approved_ready_at' => null, 'produced_at' => null, 'compliance_complete_at' => null, 'agent_reference' => null]);
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'approved_ready_at' => null, 'produced_at' => null, 'handed_over_at' => null, 'compliance_complete_at' => null, 'agent_reference' => null]);
 })->depends('create purchase order through an agent');
 
 test('a purchase order with no deposit needed counts the deposit stage as done', function () {
@@ -875,7 +876,14 @@ test('agent marks only its own stages and the order shows its slowest delivery',
         ->and($stages['shipped']['reached'])->toBeFalse()
         ->and($stages['shipped']['deliveries'])->toBe(['reached' => 0, 'total' => $purchaseOrder->stockDeliveries()->count()]);
 
-    $purchaseOrder->refresh()->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null, 'production_started_at' => null]);
+    actingAs($agent);
+    $this->patch($route, ['field' => 'handed_over_at', 'date' => $today])->assertSessionHasNoErrors();
+    actingAs($this->adminGuest->getUser());
+
+    expect($purchaseOrder->refresh()->handed_over_at)->not->toBeNull()
+        ->and($purchaseOrder->stageMarkUserId('handed_over_at'))->toBe($agent->id);
+
+    $purchaseOrder->refresh()->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null, 'production_started_at' => null, 'handed_over_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('stage gates ask for the sample photo, production photo and QC report', function () {
