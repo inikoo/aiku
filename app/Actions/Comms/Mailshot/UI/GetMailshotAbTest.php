@@ -13,6 +13,7 @@ use App\Enums\Comms\Mailshot\MailshotAbTestWinningMetricEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Comms\Mailshot;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetMailshotAbTest
@@ -55,6 +56,7 @@ class GetMailshotAbTest
             'variant_sends_at'          => $variant && !$variant->start_sending_at ? $original->abTestVariantSendsAt() : null,
             'tracking_hours'            => $original->ab_test_tracking_hours,
             'tracking_ends_at'          => $trackingEndsAt,
+            'results_tracked_until'     => Arr::get($original->data, 'AB_testing_data.tracked_until'),
             'suggested_winner_id'       => $isTrackingOver ? $this->suggestedWinnerId($versions, $original->ab_test_winning_metric) : null,
             'versions'                  => $versions,
             'update_route'              => [
@@ -83,13 +85,7 @@ class GetMailshotAbTest
             'mailshot'                  => $mailshot->slug,
         ];
 
-        $stats     = $mailshot->stats;
-        $sent      = (int)$stats->number_dispatched_emails;
-        $delivered = (int)$stats->number_deliveries_success;
-        $opened    = (int)$stats->number_delivered_open_success;
-        $clicked   = (int)$stats->number_opened_interact_success;
-        $bounced   = (int)$stats->number_dispatched_emails_state_hard_bounce + (int)$stats->number_dispatched_emails_state_soft_bounce;
-        $ordered   = (int)$stats->number_purchases;
+        $counts = Arr::get($mailshot->data, 'AB_testing_data.stats') ?? $this->currentCounts($mailshot);
 
         return [
             'label'                     => $label,
@@ -117,18 +113,39 @@ class GetMailshotAbTest
                 'method'     => 'post',
             ],
             'stats'                     => [
-                'sent'             => $sent,
-                'delivered'        => $delivered,
-                'opened'           => $opened,
-                'clicked'          => $clicked,
-                'placed_orders'    => $ordered,
-                'open_rate'        => $this->rate($opened, $delivered),
-                'click_rate'       => $this->rate($clicked, $delivered),
-                'placed_order_rate' => $this->rate($ordered, $delivered),
-                'spam_rate'        => $this->rate((int)$stats->number_dispatched_emails_state_spam, $sent),
-                'unsubscribe_rate' => $this->rate((int)$stats->number_dispatched_emails_state_unsubscribed, $sent),
-                'bounce_rate'      => $this->rate($bounced, $sent),
+                'sent'              => $counts['sent'],
+                'delivered'         => $counts['delivered'],
+                'opened'            => $counts['opened'],
+                'clicked'           => $counts['clicked'],
+                'placed_orders'     => $counts['placed_orders'],
+                'open_rate'         => $this->rate($counts['opened'], $counts['delivered']),
+                'click_rate'        => $this->rate($counts['clicked'], $counts['delivered']),
+                'placed_order_rate' => $this->rate($counts['placed_orders'], $counts['delivered']),
+                'spam_rate'         => $this->rate($counts['spam'], $counts['sent']),
+                'unsubscribe_rate'  => $this->rate($counts['unsubscribed'], $counts['sent']),
+                'bounce_rate'       => $this->rate($counts['bounced'], $counts['sent']),
             ],
+        ];
+    }
+
+    /**
+     * The mailshot's running totals, which keep counting after the test: late opens and the winner's sends.
+     *
+     * @return array{sent: int, delivered: int, opened: int, clicked: int, placed_orders: int, spam: int, unsubscribed: int, bounced: int}
+     */
+    public function currentCounts(Mailshot $mailshot): array
+    {
+        $stats = $mailshot->stats;
+
+        return [
+            'sent'          => (int)$stats->number_dispatched_emails,
+            'delivered'     => (int)$stats->number_deliveries_success,
+            'opened'        => (int)$stats->number_delivered_open_success,
+            'clicked'       => (int)$stats->number_opened_interact_success,
+            'placed_orders' => (int)$stats->number_purchases,
+            'spam'          => (int)$stats->number_dispatched_emails_state_spam,
+            'unsubscribed'  => (int)$stats->number_dispatched_emails_state_unsubscribed,
+            'bounced'       => (int)$stats->number_dispatched_emails_state_hard_bounce + (int)$stats->number_dispatched_emails_state_soft_bounce,
         ];
     }
 

@@ -52,6 +52,8 @@ class SendMailshotAbTestWinner extends OrgAction
             ]);
         }
 
+        FreezeMailshotAbTestResults::run($mailshot);
+
         $claimed = Mailshot::whereKey($mailshot->id)
             ->whereNull('ab_test_winner_sent_at')
             ->update([

@@ -14,6 +14,7 @@ use App\Models\Comms\Mailshot;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -37,12 +38,12 @@ class MailshotHydratePurchases implements ShouldBeUnique
 
     /**
      * Customers this mailshot went to who submitted an order on the website from an email visit, between
-     * the moment it started sending and the end of the shop's mailshot tracking window. Once the archiver
-     * has banked the total the recipients are gone, so the banked value is final.
+     * the moment it started sending and the end of the shop's mailshot tracking window, or $until when given.
+     * Once the archiver has banked the total the recipients are gone, so the banked value is final.
      */
-    private function purchasedRecipients(Mailshot $mailshot): Builder
+    public function purchasedRecipients(Mailshot $mailshot, ?Carbon $until = null): Builder
     {
-        $trackingEndsAt = $mailshot->start_sending_at?->copy()->addDays(Arr::get($mailshot->shop->settings, 'mailshot_tracking.after_days', 30));
+        $trackingEndsAt = $until ?? $mailshot->start_sending_at?->copy()->addDays(Arr::get($mailshot->shop->settings, 'mailshot_tracking.after_days', 30));
 
         return DB::table('mailshot_recipients')
             ->where('mailshot_recipients.mailshot_id', $mailshot->id)

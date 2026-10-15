@@ -119,6 +119,7 @@ use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Email\EmailEditorEnum;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\EmailDeliveryChannel\EmailDeliveryChannelStateEnum;
 use App\Enums\Comms\EmailTrackingEvent\EmailTrackingEventTypeEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateBuilderEnum;
@@ -2379,6 +2380,7 @@ test('ab test route needs the mailshot of the route shop and saves the test size
     $this->post($route($shop), ['size_percentage' => 5])->assertSessionHasErrors('size_percentage');
     $this->post($route($shop), ['size_percentage' => 30])->assertRedirect();
     $this->post($route($shop), ['variant_delay_seconds' => 604801, 'tracking_hours' => 0, 'winning_metric' => 'revenue'])->assertSessionHasErrors(['variant_delay_seconds', 'tracking_hours', 'winning_metric']);
+    $this->post($route($shop), ['tracking_hours' => 30 * 24 + 1])->assertSessionHasErrors('tracking_hours');
     $this->post($route($shop), ['winning_metric' => MailshotAbTestWinningMetricEnum::PLACED_ORDER_RATE->value])->assertSessionHasErrors('winning_metric');
     $this->post($route($shop), ['variant_delay_seconds' => 4 * 3600 + 30 * 60 + 15, 'tracking_hours' => 48, 'winning_metric' => 'open_rate', 'auto_send_winner' => true])->assertRedirect();
 
@@ -2520,17 +2522,28 @@ test('ab test set to send the winner automatically sends the suggested winner on
     $mailshot = SetMailshotAbTest::make()->action(createMarketingMailshotWithAbTest($shop, 20), ['auto_send_winner' => true]);
     $variant  = $mailshot->abTestVariant;
 
+    [$testedWithA, $testedWithB] = createMarketingSubscribers($shop, 'ab-auto-winner', 2);
+    ProcessSendMailshot::make()->handle($mailshot->id, [$testedWithA]);
+    ProcessSendMailshot::make()->handle($variant->id, [$testedWithB]);
+
+    $clickAt = function (Mailshot $version, $clickedAt) {
+        $dispatchedEmail = $version->dispatchedEmails()->first();
+        $dispatchedEmail->update(['state' => DispatchedEmailStateEnum::CLICKED, 'number_clicks' => 1]);
+        $dispatchedEmail->emailTrackingEvents()->create(['type' => EmailTrackingEventTypeEnum::CLICKED, 'data' => [], 'created_at' => $clickedAt]);
+    };
+
     $trackingHours = $mailshot->ab_test_tracking_hours;
     $mailshot->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()->subHours($trackingHours - 1), 'start_sending_at' => now()->subHours($trackingHours)]);
     $variant->update(['state' => MailshotStateEnum::SENT, 'sent_at' => now()->subHours($trackingHours - 1), 'start_sending_at' => now()->subHours($trackingHours)]);
-    $mailshot->stats->update(['number_deliveries_success' => 10, 'number_opened_interact_success' => 1]);
-    $variant->stats->update(['number_deliveries_success' => 10, 'number_opened_interact_success' => 3]);
 
     RunMailshotAbTestVariants::run();
-    expect($mailshot->refresh()->ab_test_winner_sent_at)->toBeNull();
+    expect($mailshot->refresh()->ab_test_winner_sent_at)->toBeNull()
+        ->and($mailshot->data)->not->toHaveKey('AB_testing_data');
 
     $mailshot->update(['sent_at' => now()->subHours($trackingHours + 1)]);
     $variant->update(['sent_at' => now()->subHours($trackingHours + 1)]);
+    $clickAt($variant, now()->subHours(2));
+    $clickAt($mailshot, now()->subMinutes(30));
 
     RunMailshotAbTestVariants::run();
     RunMailshotAbTestVariants::run();
@@ -2538,7 +2551,18 @@ test('ab test set to send the winner automatically sends the suggested winner on
     expect(Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === PrepareMailshotAbTestWinnerRecipients::class))->toHaveCount(1)
         ->and($mailshot->refresh()->ab_test_winner_mailshot_id)->toBe($variant->id)
         ->and($mailshot->ab_test_winner_sent_at)->not->toBeNull()
-        ->and($variant->refresh()->state)->toBe(MailshotStateEnum::SENDING);
+        ->and($variant->refresh()->state)->toBe(MailshotStateEnum::SENDING)
+        ->and($mailshot->data['AB_testing_data']['stats']['clicked'])->toBe(0)
+        ->and($variant->data['AB_testing_data']['stats']['clicked'])->toBe(1)
+        ->and($mailshot->stats->number_opened_interact_success)->toBe(1);
+
+    $variant->stats->update(['number_dispatched_emails' => 40, 'number_opened_interact_success' => 9]);
+    $abTest = GetMailshotAbTest::run($mailshot, true);
+
+    expect($abTest['results_tracked_until'])->toBe($mailshot->data['AB_testing_data']['tracked_until'])
+        ->and(array_column(array_column($abTest['versions'], 'stats'), 'clicked'))->toBe([0, 1])
+        ->and(array_column(array_column($abTest['versions'], 'stats'), 'sent'))->toBe([1, 1])
+        ->and(array_column(array_column($abTest['versions'], 'stats'), 'click_rate'))->toBe([0.0, 100.0]);
 })->depends('outbox seeded when shop created');
 
 test('ab test version B must be published before sending and cannot be sent on its own', function (Shop $shop) {

@@ -8,7 +8,6 @@
 
 namespace App\Actions\Comms\Mailshot;
 
-use App\Actions\Comms\Mailshot\Hydrators\MailshotHydratePurchases;
 use App\Actions\Comms\Mailshot\UI\GetMailshotAbTest;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Models\Comms\Mailshot;
@@ -51,7 +50,28 @@ class RunMailshotAbTestVariants
             }
         }
 
+        $this->freezeFinishedTests();
         $this->sendDueWinners();
+    }
+
+    /**
+     * The comparison stops at the end of the tracking window, whether or not the winner is sent automatically.
+     */
+    private function freezeFinishedTests(): void
+    {
+        $unfrozenTests = Mailshot::query()
+            ->whereNull('ab_test_winner_sent_at')
+            ->whereNull('data->AB_testing_data')
+            ->where('state', MailshotStateEnum::SENT)
+            ->whereHas('abTestVariant', fn ($query) => $query->where('state', MailshotStateEnum::SENT));
+
+        foreach ($unfrozenTests->cursor() as $mailshot) {
+            try {
+                FreezeMailshotAbTestResults::run($mailshot);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
     }
 
     /**
@@ -72,8 +92,7 @@ class RunMailshotAbTestVariants
             }
 
             try {
-                MailshotHydratePurchases::run($mailshot);
-                MailshotHydratePurchases::run($mailshot->abTestVariant);
+                FreezeMailshotAbTestResults::run($mailshot);
                 SendMailshotAbTestWinner::make()->action($mailshot, [
                     'winner_mailshot_id' => GetMailshotAbTest::run($mailshot, false)['suggested_winner_id'] ?? $mailshot->id,
                 ]);

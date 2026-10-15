@@ -44,6 +44,7 @@ export interface AbTest {
     variant_sends_at: string | null
     tracking_hours: number
     tracking_ends_at: string | null
+    results_tracked_until: string | null
     suggested_winner_id: number | null
     versions: AbTestVersion[]
     update_route: routeType
@@ -301,6 +302,7 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                             :disabled="isSaving" class="w-36" size="small" />
                     </div>
                     <p v-if="trackingHours < 1" class="mt-1 text-xs text-red-600">{{ ctrans('Track results for at least 1 hour.') }}</p>
+                    <p v-if="trackingHours > 720" class="mt-1 text-xs text-red-600">{{ ctrans('Track results for at most 30 days.') }}</p>
                 </div>
             </div>
 
@@ -314,7 +316,7 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
 
             <div v-if="isSettingsChanged" class="flex justify-end">
                 <Button type="tertiary" :label="ctrans('Save A/B test settings')" :loading="isSaving"
-                    :disabled="trackingHours < 1 || !sizePercentage || variantDelaySeconds > 604800" @click="saveAllSettings">
+                    :disabled="trackingHours < 1 || trackingHours > 720 || !sizePercentage || variantDelaySeconds > 604800" @click="saveAllSettings">
                     <template #icon>
                         <FontAwesomeIcon :icon="faCheck" class="text-green-600" fixed-width aria-hidden="true" />
                     </template>
@@ -383,6 +385,9 @@ const winner = computed(() => props.abTest.versions.find(version => version.id =
                     </tr>
                 </tbody>
             </table>
+            <p v-if="abTest.results_tracked_until" class="mt-2 text-xs text-gray-500">
+                {{ ctrans('Results counted until :date, the end of the test. Later opens, clicks and orders, and the winner sent to the rest of the list, show in each version\'s own stats.', { date: formatDate(abTest.results_tracked_until) }) }}
+            </p>
         </div>
 
         <div v-if="abTest.can_send_winner" class="flex flex-wrap items-center gap-3">
