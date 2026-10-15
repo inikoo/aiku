@@ -79,7 +79,7 @@ const replaced = ref<Term | null>(null)
 const onlyThisOrganisation = ref(false)
 const agreedOn = ref<Date | null>(new Date())
 
-const form = useForm<Record<string, any>>({
+const blankTerm = () => ({
     term_type: null,
     value_type: null,
     amount: null,
@@ -94,6 +94,9 @@ const form = useForm<Record<string, any>>({
     supersedes_id: null,
     attachments: [],
 })
+
+const form = useForm<Record<string, any>>(blankTerm())
+const formKey = ref(0)
 
 const hasAmount = computed(() => props.agreement?.options?.value_types.find((option) => option.value === form.value_type)?.has_amount ?? false)
 const textLabel = computed(() => {
@@ -113,8 +116,10 @@ function canChange(term: Term) {
 }
 
 function open(term: Term | null = null) {
+    form.defaults(blankTerm())
     form.reset()
     form.clearErrors()
+    formKey.value++
     replaced.value = term
     agreedOn.value = new Date()
     onlyThisOrganisation.value = !!term?.organisation_id
@@ -305,7 +310,7 @@ function withdraw(term: Term) {
 
                 <div class="flex flex-col gap-1">
                     <span class="font-medium text-gray-700">{{ ctrans('Evidence') }}</span>
-                    <FileUpload mode="basic" :auto="false" customUpload multiple :chooseLabel="ctrans('Attach the email, chat or document')" @select="(event) => form.attachments = event.files" />
+                    <FileUpload :key="formKey" mode="basic" :auto="false" customUpload multiple :chooseLabel="ctrans('Attach the email, chat or document')" @select="(event) => form.attachments = event.files" />
                     <span v-if="form.errors.evidence_message_id" class="text-xs text-red-600">{{ form.errors.evidence_message_id }}</span>
                 </div>
 

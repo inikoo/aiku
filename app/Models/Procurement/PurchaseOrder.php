@@ -200,6 +200,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         'compliance_complete_at' => 'datetime',
         'chs_excluded'           => 'boolean',
         'production_started_at'  => 'datetime',
+        'online_at'              => 'datetime',
         'stage_marks'            => 'array',
     ];
 

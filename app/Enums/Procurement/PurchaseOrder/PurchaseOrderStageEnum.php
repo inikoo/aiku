@@ -100,6 +100,7 @@ enum PurchaseOrderStageEnum: string
             'received_at'            => __('Received'),
             'checked_at'             => __('Checked'),
             'placed_at'              => __('Placed'),
+            'online_at'              => __('Online on website'),
         ];
     }
 
@@ -131,7 +132,7 @@ enum PurchaseOrderStageEnum: string
             self::READY         => ['produced_at', 'balance_paid_at'],
             self::SHIPPED       => ['handed_over_at'],
             self::ARRIVED       => ['customs_released_at', 'compliance_complete_at'],
-            self::RECEIVED      => ['checked_at', 'placed_at'],
+            self::RECEIVED      => ['checked_at', 'placed_at', 'online_at'],
         };
     }
 

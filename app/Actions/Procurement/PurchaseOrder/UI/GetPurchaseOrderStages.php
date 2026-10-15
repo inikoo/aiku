@@ -169,6 +169,7 @@ class GetPurchaseOrderStages
                 'label' => $step['label'],
                 'date'  => $step['date'],
                 'by'    => $names->get($step['user_id']),
+                'note'  => $this->stepNote($step, $steps[$stage->value] ?? []),
             ])->all(),
             'evidence'    => collect($stage->evidence())->map(fn (PurchaseOrderAttachmentScopeEnum $scope) => [
                 'scope' => $scope->value,
@@ -217,6 +218,21 @@ class GetPurchaseOrderStages
         return $expected;
     }
 
+    /**
+     * How long the goods took from placed in stock to online on the website.
+     */
+    private function stepNote(array $step, array $stageSteps): ?string
+    {
+        $placedAt = collect($stageSteps)->firstWhere('key', 'placed_at')['date'] ?? null;
+        if ($step['key'] !== 'online_at' || !$step['date'] || !$placedAt) {
+            return null;
+        }
+
+        $days = (int) Carbon::parse($placedAt)->startOfDay()->diffInDays(Carbon::parse($step['date'])->startOfDay());
+
+        return trans_choice(':count day after placed|:count days after placed', $days, ['count' => $days]);
+    }
+
     private function liveDeliveries(PurchaseOrder $purchaseOrder): Collection
     {
         return $purchaseOrder->stockDeliveries()
@@ -252,7 +268,7 @@ class GetPurchaseOrderStages
     {
         $step = ['key' => $column, 'label' => Stage::fieldLabels()[$column], 'date' => null, 'user_id' => null];
 
-        if (in_array($column, $purchaseOrder->stageMarkColumns())) {
+        if (in_array($column, [...$purchaseOrder->stageMarkColumns(), 'online_at'])) {
             return [...$step, 'date' => $purchaseOrder->{$column}, 'user_id' => $purchaseOrder->stageMarkUserId($column)];
         }
 

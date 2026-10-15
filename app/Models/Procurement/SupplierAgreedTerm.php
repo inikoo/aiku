@@ -146,6 +146,6 @@ class SupplierAgreedTerm extends Model implements HasMedia, Auditable
             SupplierAgreedTermValueTypeEnum::TEXT         => '',
         };
 
-        return trim($label.' '.$this->value_text);
+        return implode(' · ', array_filter([trim($label), trim((string) $this->value_text)], fn (string $part) => $part !== ''));
     }
 }

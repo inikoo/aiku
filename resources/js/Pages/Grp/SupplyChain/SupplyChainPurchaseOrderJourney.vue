@@ -14,9 +14,9 @@ import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser } from "@fal"
+import { faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser, faGlobe } from "@fal"
 
-library.add(faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser)
+library.add(faRoute, faExclamationTriangle, faStopwatch, faHourglassHalf, faCoins, faCalendarCheck, faSearch, faExpandAlt, faCompressAlt, faChevronDown, faSpinner, faCheck, faEraser, faGlobe)
 
 interface FacetOption {
     value: string
@@ -48,6 +48,7 @@ const props = defineProps<{
     blockages?: { stage: string; label: string; count: number; max_days_overdue: number }[]
     quickStats?: {
         average_lead_days: number | null
+        average_online_days?: number | null
         oldest_open_days: number | null
         open_value: number
         due_30_days: number
@@ -389,6 +390,13 @@ function saveMark(date: string | null): void {
                     <div>
                         <div class="text-xs text-gray-500">{{ ctrans("Average lead time, created to placed") }}</div>
                         <div class="font-semibold">{{ quickStats.average_lead_days !== null ? ctrans(":days days", { days: quickStats.average_lead_days }) : "—" }}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 py-1.5">
+                    <FontAwesomeIcon icon="fal fa-globe" class="text-gray-400" fixed-width aria-hidden="true" />
+                    <div>
+                        <div class="text-xs text-gray-500">{{ ctrans("Average days, placed to online") }}</div>
+                        <div class="font-semibold">{{ quickStats.average_online_days != null ? ctrans(":days days", { days: quickStats.average_online_days }) : "—" }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 py-1.5">

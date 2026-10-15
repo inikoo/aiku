@@ -153,7 +153,7 @@ class StoreSupplierAgreedTerm extends OrgAction
         }
 
         if ($termType->isCharge() && $hasAmount && !$this->get('evidence_message_id') && !$this->get('attachments')) {
-            $validator->errors()->add('evidence_message_id', __('A charge with an amount needs evidence: link a message or attach a file'));
+            $validator->errors()->add('evidence_message_id', __('A charge with an amount needs evidence: attach the email, chat or document'));
         }
 
         $superseded = $this->termToSupersede($this->subject, [

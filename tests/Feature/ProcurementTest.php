@@ -1075,7 +1075,7 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
         fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started'))
     );
 
-    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => null, 'production_started_at' => null]);
+    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => now()->subDays(190), 'production_started_at' => null, 'produced_at' => null, 'qc_passed_at' => null, 'handed_over_at' => null]);
     \App\Actions\Procurement\PurchaseOrder\SendStuckPurchaseOrdersSummary::run($purchaseOrder->group);
 
     \Illuminate\Support\Facades\Notification::assertSentTo(
@@ -1084,7 +1084,7 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
         fn ($notification) => $notification->ownOrdersOnly && collect($notification->orders)->contains('reference', $purchaseOrder->reference)
     );
 
-    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null]);
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null, 'deposit_paid_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('a purchase order lists the compliance documents of its products, due by the arrival estimate less a buffer', function (PurchaseOrder $purchaseOrder) {
@@ -1129,6 +1129,27 @@ test('a purchase order lists the compliance documents of its products, due by th
             ->where('compliance.data', fn ($rows) => collect($rows)->contains('id', $tradeUnit->id)));
 
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'buyer_id' => null]);
+})->depends('create purchase order through an agent');
+
+test('an order is stamped online once all its products are placed and live, and keeps that date', function (PurchaseOrder $purchaseOrder) {
+    $purchaseOrder->updateQuietly(['online_at' => null]);
+    $onlineDay = now()->subDays(3)->toDateString();
+    $ribbon    = fn (string $state, ?string $doneAt) => ['id' => $purchaseOrder->id, 'segments' => [['key' => 'products_online', 'state' => $state, 'done_at' => $doneAt]]];
+
+    $this->mock(\App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney::class)
+        ->shouldReceive('ribbons')->andReturn(collect([$ribbon('future', null)]), collect([$ribbon('done', $onlineDay)]), collect([$ribbon('done', now()->toDateString())]));
+
+    expect(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(0)
+        ->and($purchaseOrder->refresh()->online_at)->toBeNull()
+        ->and(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(1)
+        ->and($purchaseOrder->refresh()->online_at->toDateString())->toBe($onlineDay)
+        ->and(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(0)
+        ->and($purchaseOrder->refresh()->online_at->toDateString())->toBe($onlineDay);
+
+    $received = collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'received');
+    expect(collect($received['steps'])->firstWhere('key', 'online_at')['date']->toDateString())->toBe($onlineDay);
+
+    $purchaseOrder->updateQuietly(['online_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {
@@ -14788,7 +14809,7 @@ test('a buyer records the terms agreed with a supplier and they are the terms in
 
     $this->post($store, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString(), 'show_on_po' => true, 'visibility' => 'supplier'])
         ->assertSessionHasNoErrors();
-    $this->post($store, ['term_type' => 'packing_charge', 'value_type' => 'included', 'agreed_on' => today()->toDateString()])
+    $this->post($store, ['term_type' => 'packing_charge', 'value_type' => 'included', 'value_text' => 'in the FOB price', 'agreed_on' => today()->toDateString()])
         ->assertSessionHasNoErrors();
     $this->post($store, ['term_type' => 'payment_currency', 'value_type' => 'text', 'value_text' => 'USD', 'agreed_on' => today()->toDateString()])
         ->assertSessionHasNoErrors();
@@ -14805,6 +14826,7 @@ test('a buyer records the terms agreed with a supplier and they are the terms in
     expect($terms->map(fn ($term) => $term->term_type->value)->all())->toBe(['incoterm', 'packing_charge', 'label_charge', 'payment_currency'])
         ->and($terms->pluck('level')->unique()->all())->toBe(['supplier'])
         ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->valueLabel())->toBe('EUR 0.02 per unit')
+        ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::PACKING_CHARGE)->valueLabel())->toBe('Included · in the FOB price')
         ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->attachments()->count())->toBe(1)
         ->and($terms->first()->agreed_by_user_id)->toBe($this->adminGuest->getUser()->id);
 });
