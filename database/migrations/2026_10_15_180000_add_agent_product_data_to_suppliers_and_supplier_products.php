@@ -12,7 +12,6 @@ return new class () extends Migration {
             $table->boolean('is_generic')->default(false)->index();
             $table->string('wechat')->nullable();
             $table->string('whatsapp')->nullable();
-            $table->unsignedSmallInteger('default_lead_time_days')->nullable();
             $table->jsonb('factory_holidays')->default('[]');
         });
 
@@ -58,7 +57,7 @@ return new class () extends Migration {
         });
 
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->dropColumn(['is_generic', 'wechat', 'whatsapp', 'default_lead_time_days', 'factory_holidays']);
+            $table->dropColumn(['is_generic', 'wechat', 'whatsapp', 'factory_holidays']);
         });
     }
 };

@@ -30,6 +30,7 @@ const props = defineProps<{
     suppliers?: object
     copy_products?: object | null
     copy_targets?: { id: number, label: string }[]
+    move_products?: object | null
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -50,6 +51,6 @@ const component = computed(() => ({
         :is="component"
         :data="props[currentTab]"
         :tab="currentTab"
-        v-bind="currentTab === 'index' ? { copyProducts: copy_products, copyTargets: copy_targets } : {}"
+        v-bind="currentTab === 'index' ? { copyProducts: copy_products, copyTargets: copy_targets, moveProducts: move_products } : currentTab === 'suppliers' ? { moveProducts: move_products } : {}"
     />
 </template>

@@ -62,6 +62,13 @@ class AgentSuppliersDataQualityResource extends JsonResource
                 'number_missing_lead_time' => (int) $family->number_missing_lead_time,
                 'number_not_available'     => (int) $family->number_not_available,
                 'completeness'             => (int) $family->completeness,
+                'defaults'                 => [
+                    'minimum_carton_order'     => $family->minimum_carton_order,
+                    'estimated_lead_time_days' => $family->estimated_lead_time_days,
+                    'packaging_terms'          => json_decode($family->packaging_terms ?? '{}', true) ?: (object) [],
+                    'production_calendar'      => json_decode($family->production_calendar ?? '{}', true) ?: (object) [],
+                ],
+                'update_route'             => $family->update_route,
             ])->all(),
             'contacts_update_route'    => $this->contacts_update_route,
         ];

@@ -111,6 +111,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Testing\AssertableInertia;
+use Illuminate\Support\Carbon;
+use App\Models\Goods\StockFamily;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\SupplyChain\SupplierStockFamily\GetProductionCalendarAdvice;
 use App\Actions\Procurement\OrgSupplierProducts\NotifyPurchasingOfSupplierProductAvailability;
 use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Notifications\SupplierProductAvailabilityChangedNotification;
@@ -3218,4 +3222,80 @@ test('HELP-4019 an agent fills in the contacts of its own suppliers only', funct
     $this->patch(route('grp.models.org.agent_supplier.contacts.update', [$agentOrganisation->id, $otherAgentOrgSupplier->supplier_id]), [
         'wechat' => 'not_mine',
     ])->assertNotFound();
+});
+
+test('HELP-4019 production calendar advice: order before the factory stops, a good month, a month it can not produce', function () {
+    $today = Carbon::parse('2026-10-15');
+
+    expect(GetProductionCalendarAdvice::run([12 => 'cannot_produce'], 40, $today))
+        ->toMatchArray(['status' => GetProductionCalendarAdvice::ORDER_BEFORE_STOP, 'arrives_on' => '2026-11-24'])
+        ->and(GetProductionCalendarAdvice::run([10 => 'best_to_order'], null, $today)['status'])->toBe(GetProductionCalendarAdvice::GOOD_TIME)
+        ->and(GetProductionCalendarAdvice::run([10 => 'cannot_produce', 3 => 'best_to_order'], 30, $today))
+        ->toMatchArray(['status' => GetProductionCalendarAdvice::CANNOT_PRODUCE, 'arrives_on' => null])
+        ->and(GetProductionCalendarAdvice::run([], 30, $today)['status'])->toBe(GetProductionCalendarAdvice::NOT_SET);
+});
+
+test('HELP-4019 an agent sets a family at its supplier, and the products and the order now panel follow it', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation                  = $orgSupplier->orgAgent->agent->organisation;
+    $supplierProduct                    = $orgSupplierProduct->supplierProduct;
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id]);
+    $stockFamily = $this->stocks[0]->stockFamily ?? StoreStockFamily::make()->action($this->group, StockFamily::factory()->definition());
+    $this->stocks[0]->update(['stock_family_id' => $stockFamily->id]);
+    $supplierProduct->update(['minimum_carton_order' => null, 'estimated_lead_time_days' => null]);
+
+    $this->patch(route('grp.models.org.agent_supplier.family.update', [$agentOrganisation->id, $orgSupplier->supplier_id, $stockFamily->id]), [
+        'minimum_carton_order'     => 6,
+        'estimated_lead_time_days' => 45,
+        'production_calendar'      => [now()->month => 'best_to_order'],
+        'packaging_terms'          => ['retail_box' => 'supplier'],
+    ])->assertSessionHasNoErrors();
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.agent.org_supplier_products.show', [$agentOrganisation->slug, $orgSupplierProduct->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('showcase.agent.key.moq.cartons', 6)
+            ->where('showcase.agent.key.moq.source', 'family')
+            ->where('showcase.agent.key.lead_time.days', 45)
+            ->where('showcase.agent.packaging.terms.retail_box.source', 'family')
+            ->where('showcase.agent.production_calendar.advice.status', GetProductionCalendarAdvice::GOOD_TIME)
+            ->etc());
+
+    $this->get(route('grp.org.agent.org_supplier_products.index', $agentOrganisation->slug))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('dashboard.order_now', fn ($rows) => collect($rows)->contains(fn ($row) => $row['supplier_id'] === $orgSupplier->supplier_id && $row['stock_family_id'] === $stockFamily->id))
+            ->etc());
+});
+
+test('HELP-4019 an agent moves products from a generic record to the real factory, by family, keeping their purchase order lines', function () {
+    [$genericOrgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    [$factoryOrgSupplier]                      = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation                         = $genericOrgSupplier->orgAgent->agent->organisation;
+    $supplierProduct                           = $orgSupplierProduct->supplierProduct;
+    $generic                                   = $genericOrgSupplier->supplier;
+    $factory                                   = $factoryOrgSupplier->supplier;
+    $generic->update(['is_generic' => true]);
+    $factory->update(['currency_id' => $generic->currency_id]);
+    $supplierProduct->update(['currency_id' => $generic->currency_id]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id]);
+    $stockFamily = $this->stocks[0]->stockFamily ?? StoreStockFamily::make()->action($this->group, StockFamily::factory()->definition());
+    $this->stocks[0]->update(['stock_family_id' => $stockFamily->id]);
+
+    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $generic->id]), [
+        'from_supplier_id' => $factory->id,
+        'stock_family_id'  => $stockFamily->id,
+    ])->assertUnprocessable();
+
+    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $factory->id]), [
+        'from_supplier_id' => $generic->id,
+        'stock_family_id'  => $stockFamily->id,
+    ])->assertOk()->assertJson(['moved' => 1, 'skipped' => []]);
+
+    expect($supplierProduct->refresh()->supplier_id)->toBe($factory->id)
+        ->and($orgSupplierProduct->refresh()->org_supplier_id)->toBe($factoryOrgSupplier->id)
+        ->and($supplierProduct->id)->toBe($orgSupplierProduct->supplier_product_id);
+
+    $this->postJson(route('grp.models.org.agent_supplier.move_products', [$agentOrganisation->id, $factory->id]), [
+        'supplier_product_ids' => [$supplierProduct->id],
+    ])->assertUnprocessable();
 });

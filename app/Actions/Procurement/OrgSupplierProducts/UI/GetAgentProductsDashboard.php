@@ -8,7 +8,9 @@
 
 namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
+use App\Actions\SupplyChain\SupplierStockFamily\GetProductionCalendarAdvice;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -19,6 +21,43 @@ class GetAgentProductsDashboard
 {
     use AsObject;
     use WithAgentProductFacts;
+
+    /**
+     * Families whose production calendar says to order this month, those about to stop producing first.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function orderNow(Agent $agent): array
+    {
+        $products = DB::query()->fromSub($this->agentProductFacts($agent), 'f')
+            ->groupBy('f.supplier_id', 'f.stock_family_id')
+            ->select(['f.supplier_id', 'f.stock_family_id'])
+            ->selectRaw('count(*) as number_products');
+
+        return DB::table('supplier_stock_families as ssf')
+            ->join('suppliers as s', 's.id', 'ssf.supplier_id')
+            ->join('stock_families as sf', 'sf.id', 'ssf.stock_family_id')
+            ->joinSub($products, 'p', fn ($join) => $join->on('p.supplier_id', 'ssf.supplier_id')->on('p.stock_family_id', 'ssf.stock_family_id'))
+            ->where('s.agent_id', $agent->id)
+            ->whereRaw("ssf.production_calendar <> '{}'::jsonb")
+            ->select(['s.id as supplier_id', 's.code as supplier_code', 'sf.id as stock_family_id', 'sf.code as family_code', 'sf.name as family_name', 'ssf.production_calendar', 'p.number_products'])
+            ->selectRaw('coalesce(ssf.estimated_lead_time_days, '.Supplier::DEFAULT_LEAD_TIME_SQL.') as lead_time_days')
+            ->get()
+            ->map(fn ($row) => [
+                'supplier_id'     => $row->supplier_id,
+                'supplier_code'   => $row->supplier_code,
+                'stock_family_id' => $row->stock_family_id,
+                'family_code'     => $row->family_code,
+                'family_name'     => $row->family_name,
+                'number_products' => (int) $row->number_products,
+                'advice'          => GetProductionCalendarAdvice::run(json_decode($row->production_calendar, true) ?? [], $row->lead_time_days !== null ? (int) $row->lead_time_days : null),
+            ])
+            ->filter(fn (array $row) => in_array($row['advice']['status'], [GetProductionCalendarAdvice::ORDER_BEFORE_STOP, GetProductionCalendarAdvice::GOOD_TIME], true))
+            ->sortBy(fn (array $row) => [$row['advice']['status'] === GetProductionCalendarAdvice::ORDER_BEFORE_STOP ? 0 : 1, -$row['number_products']])
+            ->take(20)
+            ->values()
+            ->all();
+    }
 
     public function handle(Agent $agent): array
     {
@@ -59,6 +98,7 @@ class GetAgentProductsDashboard
         $supplierBar = fn (string $key, string $label, int $filled) => ['key' => $key, 'label' => $label, 'filled' => $filled, 'total' => (int) $suppliers->total, 'scope' => 'suppliers'];
 
         return [
+            'order_now'   => $this->orderNow($agent),
             'kpis'        => [
                 'total'                        => $total,
                 'ready_to_cost'                => (int) $products->ready_to_cost,

@@ -194,6 +194,8 @@ class IndexOrgSupplierProducts extends OrgAction
     {
         $queryBuilder
             ->leftJoinSub($this->agentProductFacts($agent), 'f', 'f.id', 'supplier_products.id')
+            ->addSelect('supplier_products.id as supplier_product_id')
+            ->selectRaw('bool_or(f.is_generic) as is_generic')
             ->selectRaw('max(f.internal_code) as internal_code')
             ->selectRaw('max(f.family_code) as family_code')
             ->selectRaw('max(f.cbm) as cbm')
@@ -391,6 +393,11 @@ class IndexOrgSupplierProducts extends OrgAction
                         ? fn () => AgentSuppliersDataQualityResource::collection(IndexAgentSuppliersDataQuality::run($agent, $this->parent, OrgSupplierProductsTabsEnum::SUPPLIERS->value))
                         : Inertia::optional(fn () => AgentSuppliersDataQualityResource::collection(IndexAgentSuppliersDataQuality::run($agent, $this->parent, OrgSupplierProductsTabsEnum::SUPPLIERS->value))))
                     : null,
+                'move_products' => $agent && $request->user()->authTo("procurement.{$this->organisation->id}.edit") ? [
+                    'targets'         => Supplier::where('agent_id', $agent->id)->where('is_generic', false)->where('status', true)->orderBy('code')->get(['id', 'code', 'name'])->toArray(),
+                    'route_name'      => 'grp.models.org.agent_supplier.move_products',
+                    'organisation_id' => $this->organisation->id,
+                ] : null,
                 'copy_products' => $this->getCopyProducts($request),
                 'copy_targets'  => Inertia::optional(fn () => $this->getCopyTargets($request)),
                 OrgSupplierProductsTabsEnum::HISTORY->value => $this->parent instanceof OrgSupplier && $this->tab == OrgSupplierProductsTabsEnum::HISTORY->value

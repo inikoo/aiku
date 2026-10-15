@@ -98,7 +98,14 @@ class IndexAgentSuppliersDataQuality
 
         $families = $this->families($agent, $paginator->getCollection()->pluck('id')->all());
         $paginator->getCollection()->each(function (Supplier $supplier) use ($families, $agentOrganisation) {
-            $supplier->setAttribute('families', $families->get($supplier->id, collect())->values()->all());
+            $supplier->setAttribute('families', $families->get($supplier->id, collect())->values()->map(function ($family) use ($agentOrganisation, $supplier) {
+                $family->update_route = $family->stock_family_id ? [
+                    'name'       => 'grp.models.org.agent_supplier.family.update',
+                    'parameters' => ['organisation' => $agentOrganisation->id, 'supplier' => $supplier->id, 'stockFamily' => $family->stock_family_id],
+                ] : null;
+
+                return $family;
+            })->all());
             $supplier->setAttribute('contacts_update_route', $supplier->is_generic ? null : [
                 'name'       => 'grp.models.org.agent_supplier.contacts.update',
                 'parameters' => ['organisation' => $agentOrganisation->id, 'supplier' => $supplier->id],
@@ -119,9 +126,12 @@ class IndexAgentSuppliersDataQuality
 
         return DB::query()->fromSub($this->agentProductFacts($agent)->whereIn('sp.supplier_id', $supplierIds), 'f')
             ->leftJoin('stock_families as sf', 'sf.id', 'f.stock_family_id')
-            ->groupBy('f.supplier_id', 'f.stock_family_id', 'sf.code', 'sf.name')
+            ->leftJoin('supplier_stock_families as ssf', function ($join) {
+                $join->on('ssf.supplier_id', 'f.supplier_id')->on('ssf.stock_family_id', 'f.stock_family_id');
+            })
+            ->groupBy('f.supplier_id', 'f.stock_family_id', 'sf.code', 'sf.name', 'ssf.id')
             ->orderByRaw('sf.code nulls last')
-            ->select(['f.supplier_id', 'f.stock_family_id', 'sf.code', 'sf.name'])
+            ->select(['f.supplier_id', 'f.stock_family_id', 'sf.code', 'sf.name', 'ssf.minimum_carton_order', 'ssf.estimated_lead_time_days', 'ssf.packaging_terms', 'ssf.production_calendar'])
             ->selectRaw('count(*) as number_products')
             ->selectRaw('count(*) filter (where coalesce(f.cbm, 0) = 0) as number_missing_cbm')
             ->selectRaw('count(*) filter (where f.lead_time_days is null) as number_missing_lead_time')

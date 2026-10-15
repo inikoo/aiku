@@ -209,7 +209,6 @@ class UpdateSupplier extends OrgAction
             'wechat'          => ['sometimes', 'nullable', 'string', 'max:255'],
             'whatsapp'        => ['sometimes', 'nullable', new Phone()],
             'is_generic'      => ['sometimes', 'boolean'],
-            'default_lead_time_days'   => ['sometimes', 'nullable', 'integer', 'min:1', 'max:365'],
             'factory_holidays'         => ['sometimes', 'array'],
             'factory_holidays.*.from'  => ['required', 'date'],
             'factory_holidays.*.to'    => ['required', 'date', 'after_or_equal:factory_holidays.*.from'],

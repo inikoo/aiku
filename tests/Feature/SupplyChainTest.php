@@ -362,12 +362,13 @@ test('HELP-4019 carton dimensions give the CBM, packaging terms merge, and a new
 test('HELP-4019 a generic supplier takes no new contacts, a real factory takes WeChat and WhatsApp', function (Supplier $supplier) {
     $supplier = UpdateSupplier::make()->action($supplier, [
         'wechat'                 => 'factory_wx',
-        'default_lead_time_days' => 40,
+        'production_waiting_time' => 30,
+        'delivery_time'           => 10,
         'factory_holidays'       => [['from' => '2027-01-25', 'to' => '2027-02-15', 'note' => 'Spring Festival']],
     ]);
 
     expect($supplier->wechat)->toBe('factory_wx')
-        ->and($supplier->default_lead_time_days)->toBe(40)
+        ->and($supplier->defaultLeadTimeDays())->toBe(40)
         ->and($supplier->factory_holidays)->toHaveCount(1);
 
     $supplier = UpdateSupplier::make()->action($supplier, ['is_generic' => true]);

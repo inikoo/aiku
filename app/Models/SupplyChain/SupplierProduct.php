@@ -168,6 +168,7 @@ class SupplierProduct extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
+        'supplier_id',
         'code',
         'name',
         'status',

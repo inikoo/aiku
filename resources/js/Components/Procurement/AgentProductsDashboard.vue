@@ -28,6 +28,15 @@ const props = defineProps<{
             lead_time: { products: number; average_estimated: number | null; average_measured: number | null; arrived_late: number }
         }
         fill_rates: FillRate[]
+        order_now: {
+            supplier_id: number
+            supplier_code: string
+            stock_family_id: number
+            family_code: string
+            family_name: string
+            number_products: number
+            advice: { status: string; message: string | null; arrives_on: string | null }
+        }[]
     }
 }>()
 
@@ -105,6 +114,26 @@ const leadTimeGap = computed(() =>
                 <div class="mt-0.5 text-xs text-gray-500">{{ tile.note }}</div>
             </component>
         </div>
+
+        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{{ ctrans("Order now") }}</h3>
+            <div v-if="data.order_now.length" class="divide-y divide-gray-100">
+                <Link v-for="row in data.order_now" :key="`${row.supplier_id}-${row.stock_family_id}`"
+                    :href="route('grp.org.agent.org_supplier_products.index', { organisation, tab: 'index', 'index_filter[supplier]': row.supplier_id, 'index_filter[family]': row.stock_family_id })"
+                    class="grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-3 py-2 text-sm hover:bg-gray-50 sm:grid-cols-[12rem_minmax(0,1fr)_6rem]">
+                    <span class="truncate font-medium text-gray-800">{{ row.supplier_code }} › {{ row.family_code }}
+                        <span class="block truncate text-xs font-normal text-gray-500">{{ row.family_name }}</span>
+                    </span>
+                    <span class="hidden sm:block" :class="row.advice.status === 'order_before_stop' ? 'text-amber-800' : 'text-green-700'">
+                        {{ row.advice.message }}
+                    </span>
+                    <span class="text-right tabular-nums text-gray-500">{{ ctrans(":count products", { count: row.number_products }) }}</span>
+                </Link>
+            </div>
+            <p v-else class="text-sm italic text-gray-400">
+                {{ ctrans("No family's production calendar says to order this month. Calendars are set on each family in the By supplier tab.") }}
+            </p>
+        </section>
 
         <div class="grid gap-6 lg:grid-cols-3">
             <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">

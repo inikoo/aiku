@@ -22,6 +22,7 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import CopyButton from "@/Components/Utils/CopyButton.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import ProductionCalendarStrip from "@/Components/Procurement/ProductionCalendarStrip.vue"
 import { routeType } from "@/types/route"
 
 library.add(faCheck, faCheckCircle, faCircle, faCopy, faExclamationTriangle, faAddressCard, faBoxOpen, faRulerCombined, faShippingFast, faCalculator, faSave)
@@ -60,6 +61,11 @@ const props = defineProps<{
             note: string | null
             status_options: Record<string, string>
             reason_options: Record<string, string>
+        }
+        production_calendar: {
+            months: Record<string, string | null>
+            advice: { status: string; message: string | null; arrives_on: string | null }
+            family: string | null
         }
         update_route: routeType | null
     }
@@ -458,6 +464,23 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                 </div>
             </dl>
             <p v-else class="text-sm italic text-gray-400">{{ ctrans("Needs the CBM") }}</p>
+        </section>
+
+        <section :class="[card, 'md:col-span-3']">
+            <h3 :class="sectionTitle">{{ ctrans("Production calendar") }}
+                <span v-if="panel.production_calendar.family" class="ml-auto font-normal normal-case tracking-normal text-gray-400">
+                    {{ ctrans("From family at supplier: :family", { family: panel.production_calendar.family }) }}
+                </span>
+            </h3>
+            <ProductionCalendarStrip :calendar="panel.production_calendar.months" :interactive="false" />
+            <p v-if="panel.production_calendar.advice.message" class="mt-2 text-sm"
+                :class="{ 'text-amber-800': panel.production_calendar.advice.status === 'order_before_stop', 'text-green-700': panel.production_calendar.advice.status === 'good_time', 'text-red-700': panel.production_calendar.advice.status === 'cannot_produce', 'text-gray-700': ['peak_or_slow', 'not_set'].includes(panel.production_calendar.advice.status) }">
+                {{ panel.production_calendar.advice.message }}
+                <span v-if="panel.production_calendar.advice.arrives_on" class="text-gray-500">
+                    {{ ctrans("Ordered today, it reaches the warehouse about :date.", { date: new Date(panel.production_calendar.advice.arrives_on).toLocaleDateString() }) }}
+                </span>
+            </p>
+            <p v-else class="mt-2 text-sm italic text-gray-400">{{ ctrans("No production calendar yet: set it on the family in the By supplier tab of the products list.") }}</p>
         </section>
 
         <section id="agent-packaging" :class="[card, 'md:col-span-2']">

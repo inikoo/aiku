@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
+use App\Actions\SupplyChain\SupplierStockFamily\GetProductionCalendarAdvice;
 use App\Enums\SupplyChain\SupplierProduct\PackagingTermPayerEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
@@ -45,7 +46,7 @@ class GetOrgSupplierProductAgentPanel
             : null;
 
         $moq            = $this->inherited($supplierProduct->minimum_carton_order, $familyAtSupplier?->minimum_carton_order);
-        $leadTime       = $this->inherited($supplierProduct->estimated_lead_time_days, $familyAtSupplier?->estimated_lead_time_days, $supplier->default_lead_time_days);
+        $leadTime       = $this->inherited($supplierProduct->estimated_lead_time_days, $familyAtSupplier?->estimated_lead_time_days, $supplier->defaultLeadTimeDays());
         $packagingTerms = $this->packagingTerms($supplierProduct, $familyAtSupplier);
 
         $cbm            = $supplierProduct->cbm !== null ? (float) $supplierProduct->cbm : null;
@@ -133,6 +134,11 @@ class GetOrgSupplierProductAgentPanel
             'packaging'     => [
                 'terms'   => $packagingTerms,
                 'options' => PackagingTermPayerEnum::labels(),
+            ],
+            'production_calendar' => [
+                'months' => (object) ($familyAtSupplier?->production_calendar ?? []),
+                'advice' => GetProductionCalendarAdvice::run($familyAtSupplier?->production_calendar ?? [], $leadTime['value']),
+                'family' => $family?->code,
             ],
             'availability'  => [
                 'status'          => $supplierProduct->availability_status->value,

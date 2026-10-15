@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -56,7 +57,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $wechat
  * @property string|null $whatsapp
  * @property bool $is_generic a placeholder record holding products whose real factory is not set yet
- * @property int|null $default_lead_time_days
  * @property array<int, array{from: string, to: string, note?: string|null}> $factory_holidays
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
@@ -222,7 +222,6 @@ class Supplier extends Model implements HasMedia, Auditable
         'wechat',
         'whatsapp',
         'is_generic',
-        'default_lead_time_days',
         'archived_at'
     ];
 
@@ -239,6 +238,18 @@ class Supplier extends Model implements HasMedia, Auditable
     public function supplierProducts(): HasMany
     {
         return $this->hasMany(SupplierProduct::class);
+    }
+
+    /**
+     * Production plus delivery days, as set in the supplier settings; what its products take to reach us unless they or their family say otherwise.
+     */
+    public const string DEFAULT_LEAD_TIME_SQL = "nullif(coalesce(case when s.data->>'production_waiting_time' ~ '^[0-9]+$' then (s.data->>'production_waiting_time')::int end, 0) + coalesce(case when s.data->>'delivery_time' ~ '^[0-9]+$' then (s.data->>'delivery_time')::int end, 0), 0)";
+
+    public function defaultLeadTimeDays(): ?int
+    {
+        $days = (int) Arr::get($this->data, 'production_waiting_time') + (int) Arr::get($this->data, 'delivery_time');
+
+        return $days ?: null;
     }
 
     public function supplierStockFamilies(): HasMany

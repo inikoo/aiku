@@ -20,6 +20,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCheck, faCopy, faPlus, faTimes } from "@fal"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
 import CompletenessBar from "@/Components/Procurement/CompletenessBar.vue"
+import MoveToFactoryDialog, { MoveProducts } from "@/Components/Procurement/MoveToFactoryDialog.vue"
 
 library.add(faCheck, faCopy, faPlus, faTimes)
 
@@ -32,7 +33,18 @@ const props = defineProps<{
     copy_route: routeType
   } | null
   copyTargets?: { id: number, agent_id: number, label: string, number_products: number }[]
+  moveProducts?: MoveProducts | null
 }>()
+
+const moveRequest = ref<{ description: string; payload: Record<string, unknown> } | null>(null)
+const selectedRecords = computed(() => ((props.data as any)?.data ?? []).filter((record: any) => selectedIds.value.includes(record.id)))
+const canMoveSelection = computed(() => selectedRecords.value.length > 0 && selectedRecords.value.every((record: any) => record.is_generic))
+function openMoveDialog() {
+  moveRequest.value = {
+    description: ctrans(":count products under a generic record", { count: String(selectedRecords.value.length) }),
+    payload: { supplier_product_ids: selectedRecords.value.map((record: any) => record.supplier_product_id) },
+  }
+}
 
 const _table = ref<InstanceType<typeof Table> | null>(null)
 const selectedRows = ref<Record<string, boolean>>({})
@@ -164,12 +176,23 @@ function orgSupplierRoute(orgSupplierSlug: string) {
       </div>
     </div>
   </div>
+  <div v-if="moveProducts && selectedIds.length" class="mx-4 mt-4 flex flex-wrap items-center gap-2">
+    <span class="text-sm text-gray-600">{{ ctrans(":count selected", { count: String(selectedIds.length) }) }}</span>
+    <span v-tooltip="canMoveSelection ? undefined : ctrans('Only products under a generic record can be moved')">
+      <Button type="tertiary" :label="ctrans('Move to the real factory')" :disabled="!canMoveSelection" @click="openMoveDialog">
+        <template #icon>
+          <FontAwesomeIcon icon="fal fa-truck-moving" class="text-green-600" fixed-width aria-hidden="true" />
+        </template>
+      </Button>
+    </span>
+  </div>
+  <MoveToFactoryDialog v-if="moveProducts" :moveProducts="moveProducts" :request="moveRequest" @close="moveRequest = null" @moved="_table?.clearSelection()" />
   <Table
     ref="_table"
     :resource="data"
     :name="tab"
     class="mt-5"
-    :isCheckBox="!!copyProducts"
+    :isCheckBox="!!copyProducts || !!moveProducts"
     @onSelectRow="(rows: Record<string, boolean>) => selectedRows = { ...rows }"
   >
     <template #cell(code)="{ item: supplier_product }">

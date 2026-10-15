@@ -61,6 +61,16 @@ trait WithSupplierEditFields
                         'label' => __('phone'),
                         'value' => $supplier->phone,
                     ],
+                    'whatsapp'     => [
+                        'type'  => 'phone',
+                        'label' => __('WhatsApp'),
+                        'value' => $supplier->whatsapp,
+                    ],
+                    'wechat'       => [
+                        'type'  => 'input',
+                        'label' => __('WeChat'),
+                        'value' => $supplier->wechat,
+                    ],
                     'address'      => [
                         'type'    => 'address',
                         'label'   => __('Address'),
@@ -135,6 +145,24 @@ trait WithSupplierEditFields
                         'options' => ['inputType' => 'number']
                     ],
                 ]
+            ],
+            [
+                'label'  => __('Factory'),
+                'title'  => __('Factory'),
+                'icon'   => 'fal fa-industry',
+                'fields' => [
+                    'is_generic'       => [
+                        'type'        => 'toggle',
+                        'label'       => __('Generic record'),
+                        'information' => __('A placeholder holding products whose real factory is not set yet. It takes no contacts: move its products to their real factory.'),
+                        'value'       => $supplier->is_generic,
+                    ],
+                    'factory_holidays' => [
+                        'type'  => 'factory_holidays',
+                        'label' => __('Factory holidays'),
+                        'value' => $supplier->factory_holidays,
+                    ],
+                ],
             ],
             [
                 'label'  => __('Pre-orders'),

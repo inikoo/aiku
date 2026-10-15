@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -59,7 +60,7 @@ trait WithAgentProductFacts
                 'sp.unavailable_reason',
             ])
             ->selectRaw('coalesce(sp.minimum_carton_order, ssf.minimum_carton_order) as moq')
-            ->selectRaw('coalesce(sp.estimated_lead_time_days, ssf.estimated_lead_time_days, s.default_lead_time_days) as lead_time_days');
+            ->selectRaw('coalesce(sp.estimated_lead_time_days, ssf.estimated_lead_time_days, '.Supplier::DEFAULT_LEAD_TIME_SQL.') as lead_time_days');
     }
 
     /**

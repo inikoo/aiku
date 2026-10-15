@@ -18,13 +18,15 @@ import { faWeixin, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
 import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import CompletenessBar from "@/Components/Procurement/CompletenessBar.vue"
+import SupplierFamilyDefaultsDrawer, { FamilyDefaults } from "@/Components/Procurement/SupplierFamilyDefaultsDrawer.vue"
+import MoveToFactoryDialog, { MoveProducts } from "@/Components/Procurement/MoveToFactoryDialog.vue"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 
 library.add(faChevronRight, faPhone, faEnvelope, faComment, faAddressCard, faSave)
 
 type Contacts = Record<"contact_name" | "phone" | "email" | "wechat" | "whatsapp", string | null>
-type Family = { id: number | null; code: string | null; name: string | null; number_products: number; number_missing_cbm: number; number_missing_lead_time: number; number_not_available: number; completeness: number }
+type Family = { id: number | null; code: string | null; name: string | null; number_products: number; number_missing_cbm: number; number_missing_lead_time: number; number_not_available: number; completeness: number; defaults: FamilyDefaults; update_route: routeType | null }
 type SupplierRow = {
     id: number
     code: string
@@ -45,7 +47,17 @@ type SupplierRow = {
 const props = defineProps<{
     data: { data: SupplierRow[] }
     tab?: string
+    moveProducts?: MoveProducts | null
 }>()
+
+const moveRequest = ref<{ description: string; payload: Record<string, unknown>; excludeSupplierId?: number } | null>(null)
+const openMoveFamily = (supplier: SupplierRow, family: Family) => {
+    moveRequest.value = {
+        description: ctrans(":count products of :family under :supplier", { count: family.number_products, family: family.code ?? ctrans("no family"), supplier: supplier.code }),
+        payload: { from_supplier_id: supplier.id, stock_family_id: family.id ?? "none" },
+        excludeSupplierId: supplier.id,
+    }
+}
 
 const records = computed<SupplierRow[]>(() => props.data?.data ?? [])
 const recordAt = (rowIndex: number) => records.value[rowIndex]
@@ -67,6 +79,8 @@ const contactFields = computed(() => [
     { key: "wechat", label: ctrans("WeChat") },
     { key: "whatsapp", label: ctrans("WhatsApp") },
 ] as const)
+
+const editingFamily = ref<{ supplier: SupplierRow; family: Family } | null>(null)
 
 const editing = ref<SupplierRow | null>(null)
 const contactsForm = ref<Contacts>({ contact_name: null, phone: null, email: null, wechat: null, whatsapp: null })
@@ -170,16 +184,17 @@ const saveContacts = async () => {
 
             <template #expandRow="{ item }">
                 <div v-if="recordAt(item.rowIndex) && expandedRows[recordAt(item.rowIndex).id]" class="border-y border-gray-200 bg-gray-50 px-10 py-2">
-                    <div class="grid grid-cols-[minmax(0,1fr)_repeat(4,7rem)_8rem] gap-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    <div class="grid grid-cols-[minmax(0,1fr)_repeat(4,7rem)_8rem_6rem] gap-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-gray-400">
                         <span>{{ ctrans("Family") }}</span>
                         <span class="text-right">{{ ctrans("Products") }}</span>
                         <span class="text-right">{{ ctrans("Missing CBM") }}</span>
                         <span class="text-right">{{ ctrans("Missing lead time") }}</span>
                         <span class="text-right">{{ ctrans("Not available") }}</span>
                         <span class="text-right">{{ ctrans("Complete") }}</span>
+                        <span />
                     </div>
                     <div v-for="family in recordAt(item.rowIndex).families" :key="family.id ?? 'none'"
-                        class="grid grid-cols-[minmax(0,1fr)_repeat(4,7rem)_8rem] items-center gap-2 py-1 text-xs">
+                        class="grid grid-cols-[minmax(0,1fr)_repeat(4,7rem)_8rem_6rem] items-center gap-2 py-1 text-xs">
                         <Link :href="productsRoute({ supplier: recordAt(item.rowIndex).id, family: family.id ?? 'none' })" class="truncate secondaryLink">
                             <template v-if="family.id">{{ family.code }} <span class="text-gray-500">{{ family.name }}</span></template>
                             <span v-else class="italic">{{ ctrans("No family") }}</span>
@@ -189,10 +204,23 @@ const saveContacts = async () => {
                         <span class="text-right tabular-nums" :class="family.number_missing_lead_time ? 'text-gray-700' : 'text-gray-400'">{{ family.number_missing_lead_time }}</span>
                         <span class="text-right tabular-nums" :class="family.number_not_available ? 'text-gray-700' : 'text-gray-400'">{{ family.number_not_available }}</span>
                         <CompletenessBar :value="family.completeness" />
+                        <span class="flex justify-end gap-2">
+                            <button v-if="moveProducts && recordAt(item.rowIndex).is_generic" type="button" class="text-gray-500 underline decoration-dotted hover:text-gray-900"
+                                @click="openMoveFamily(recordAt(item.rowIndex), family)">
+                                {{ ctrans("Move") }}
+                            </button>
+                            <button v-if="family.update_route && !recordAt(item.rowIndex).is_generic" type="button" class="text-gray-500 underline decoration-dotted hover:text-gray-900"
+                                @click="editingFamily = { supplier: recordAt(item.rowIndex), family }">
+                                {{ ctrans("Edit") }}
+                            </button>
+                        </span>
                     </div>
                 </div>
             </template>
         </Table>
+
+        <MoveToFactoryDialog v-if="moveProducts" :moveProducts="moveProducts" :request="moveRequest" @close="moveRequest = null" />
+        <SupplierFamilyDefaultsDrawer :supplierCode="editingFamily?.supplier.code ?? ''" :family="editingFamily?.family ?? null" @close="editingFamily = null" />
 
         <Drawer v-model:visible="isDrawerVisible" position="right" :header="editing ? `${editing.code} · ${ctrans('Contacts')}` : ''" class="!w-full sm:!w-[26rem]">
             <div v-if="editing" class="space-y-3">
