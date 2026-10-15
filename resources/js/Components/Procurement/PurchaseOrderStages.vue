@@ -37,6 +37,7 @@ interface Stage {
     date: string | null
     by: string | null
     deliveries: { reached: number, total: number } | null
+    not_required?: boolean
     steps: Step[]
     marks: Mark[]
 }
@@ -110,7 +111,8 @@ function save() {
             </div>
 
             <div class="mt-1 tabular-nums" :class="stage.date ? 'text-gray-700' : 'text-gray-400'">
-                <template v-if="stage.date">{{ formatDate(stage.date) }}</template>
+                <template v-if="stage.not_required">{{ ctrans("Not required") }}</template>
+                <template v-else-if="stage.date">{{ formatDate(stage.date) }}</template>
                 <template v-else-if="stage.reached">{{ ctrans("Not recorded") }}</template>
                 <template v-else>-</template>
                 <span v-if="stage.by" class="text-xs text-gray-500"> · {{ stage.by }}</span>

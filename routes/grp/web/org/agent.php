@@ -14,6 +14,7 @@ use App\Actions\GoodsIn\StockDelivery\ExportStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowAgentContainersBoard;
+use App\Actions\GoodsIn\StockDelivery\UI\EditStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\AgentLabel\DownloadAgentArtefactLabelPdf;
 use App\Actions\Procurement\AgentLabel\FetchAgentOrgStockBarcodeLabelOptions;
@@ -122,6 +123,7 @@ Route::prefix('containers')->as('stock_deliveries.')->group(function () {
     Route::get('board', ShowAgentContainersBoard::class)->name('board');
     Route::get('export', ExportStockDeliveries::class)->name('export');
     Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
+    Route::get('{stockDelivery}/edit', [EditStockDelivery::class, 'inAgent'])->name('edit');
     Route::get('{stockDelivery}/pdf/{filename?}', PdfStockDelivery::class)->name('pdf');
 });
 

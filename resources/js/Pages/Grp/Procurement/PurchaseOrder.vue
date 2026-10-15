@@ -129,7 +129,7 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
-    stages?: InstanceType<typeof PurchaseOrderStages>["$props"] | null
+    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
     deposits?: object | null
     payments?: InstanceType<typeof PurchaseOrderPayments>["$props"]["payments"] | null
     delivery_items: {
@@ -1076,7 +1076,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" />
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route" />
 	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
 		<Timeline
 			:options="timelines"

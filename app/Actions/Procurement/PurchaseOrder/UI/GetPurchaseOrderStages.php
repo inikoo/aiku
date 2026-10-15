@@ -56,7 +56,8 @@ class GetPurchaseOrderStages
                 ? $this->deliveryStage($stage, $deliveries)
                 : [
                     'recorded'   => $purchaseOrder->{$stage->column()} !== null
-                        || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS),
+                        || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS)
+                        || ($stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder)),
                     'date'       => $purchaseOrder->{$stage->column()},
                     'user_id'    => $purchaseOrder->stageMarkUserId($stage->column()),
                     'deliveries' => null,
@@ -103,6 +104,11 @@ class GetPurchaseOrderStages
         return $skipped;
     }
 
+    public function depositNotRequired(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->deposit_paid_at === null && $purchaseOrder->deposit_amount !== null && (float) $purchaseOrder->deposit_amount == 0;
+    }
+
     /**
      * @param string[] $markableFields
      */
@@ -137,6 +143,7 @@ class GetPurchaseOrderStages
             'date'        => $stages[$stage->value]['date'],
             'by'          => $names->get($stages[$stage->value]['user_id']),
             'deliveries'  => $stages[$stage->value]['deliveries'],
+            'not_required' => $stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder),
             'steps'       => collect($steps[$stage->value] ?? [])->map(fn (array $step) => [
                 'key'   => $step['key'],
                 'label' => $step['label'],
@@ -144,7 +151,8 @@ class GetPurchaseOrderStages
                 'by'    => $names->get($step['user_id']),
             ])->all(),
             'marks'       => collect(Stage::MARKABLE_FIELDS)
-                ->filter(fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields))
+                ->filter(fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
+                    && !($field === 'deposit_paid_at' && $this->depositNotRequired($purchaseOrder)))
                 ->keys()
                 ->map(fn (string $field) => [
                     'field'   => $field,

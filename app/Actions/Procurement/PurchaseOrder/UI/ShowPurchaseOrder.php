@@ -781,18 +781,23 @@ class ShowPurchaseOrder extends OrgAction
             return null;
         }
 
+        $buyerCanEdit   = $this->canEdit && $purchaseOrder->organisation_id === $this->organisation->id;
         $markableFields = match (true) {
-            $this->canEdit      => array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS),
             $this->agentCanEdit => PurchaseOrderStageEnum::AGENT_MARKABLE_FIELDS,
+            $buyerCanEdit       => array_keys(PurchaseOrderStageEnum::MARKABLE_FIELDS),
             default             => [],
         };
 
         return [
-            'stages' => GetPurchaseOrderStages::make()->forUi($purchaseOrder, $markableFields),
-            'route'  => [
+            'stages'       => GetPurchaseOrderStages::make()->forUi($purchaseOrder, $markableFields),
+            'route'        => [
                 'name'       => 'grp.models.purchase-order.stage',
                 'parameters' => ['purchaseOrder' => $purchaseOrder->id],
             ],
+            'upload_route' => $buyerCanEdit || $this->agentCanEdit ? [
+                'name'       => 'grp.models.purchase-order.attachment.attach',
+                'parameters' => ['purchaseOrder' => $purchaseOrder->id],
+            ] : null,
         ];
     }
 

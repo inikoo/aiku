@@ -124,13 +124,22 @@ enum PurchaseOrderStageEnum: string
     }
 
     /**
-     * A date the stage cannot be completed without; completing it anyway needs a reason.
+     * What a date cannot be recorded without, a date or an uploaded document; recording it anyway needs a reason.
      */
-    public function gate(): ?string
+    public const array FIELD_GATES = [
+        'sample_approved_at' => [PurchaseOrderAttachmentScopeEnum::SAMPLE_PHOTO],
+        'qc_passed_at'       => ['sample_approved_at', PurchaseOrderAttachmentScopeEnum::PRODUCTION_PHOTO, PurchaseOrderAttachmentScopeEnum::QC_REPORT],
+    ];
+
+    /**
+     * Documents uploaded at each stage, shown and uploaded from the stage.
+     */
+    public function evidence(): array
     {
         return match ($this) {
-            self::READY => 'sample_approved_at',
-            default     => null,
+            self::IN_PRODUCTION => [PurchaseOrderAttachmentScopeEnum::SAMPLE_PHOTO, PurchaseOrderAttachmentScopeEnum::PRODUCTION_PHOTO],
+            self::READY         => [PurchaseOrderAttachmentScopeEnum::QC_REPORT],
+            default             => [],
         };
     }
 

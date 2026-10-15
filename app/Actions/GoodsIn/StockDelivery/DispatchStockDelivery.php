@@ -2,7 +2,6 @@
 
 namespace App\Actions\GoodsIn\StockDelivery;
 
-use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\GoodsIn\StockDelivery\Traits\HasStockDeliveryHydrators;
 use App\Actions\GoodsIn\StockDeliveryItem\Traits\WithStockDeliveryItemStatePropagation;
 use App\Actions\OrgAction;
@@ -13,6 +12,10 @@ use App\Enums\SupplyChain\StockDeliveryInvoice\StockDeliveryInvoiceSourceEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryItem;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
+use OwenIt\Auditing\Events\AuditCustom;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -20,7 +23,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class DispatchStockDelivery extends OrgAction
 {
-    use WithProcurementEditAuthorisation;
     use AsAction;
     use HasStockDeliveryHydrators;
     use WithActionUpdate;
@@ -36,8 +38,51 @@ class DispatchStockDelivery extends OrgAction
         StockDeliveryStateEnum::READY_TO_SHIP,
     ];
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction || $request->user()->authTo("procurement.{$this->organisation->id}.edit")) {
+            return true;
+        }
+
+        $agentOrganisationId = $this->stockDelivery->agent?->organisation_id;
+
+        return $agentOrganisationId && $request->user()->authTo("procurement.$agentOrganisationId.edit");
+    }
+
+    /**
+     * Documents a delivery ships with: always the packing list, and the bill of lading for a container.
+     *
+     * @return string[]
+     */
+    public static function missingEvidence(StockDelivery $stockDelivery): array
+    {
+        $required = [PurchaseOrderAttachmentScopeEnum::PACKING_LIST];
+        if (Arr::get($stockDelivery->data, 'delivery_type') === 'container') {
+            $required[] = PurchaseOrderAttachmentScopeEnum::BILL_OF_LADING;
+        }
+
+        $uploaded = $stockDelivery->attachments()->get()->pluck('pivot.scope')->all();
+
+        return collect($required)
+            ->reject(fn (PurchaseOrderAttachmentScopeEnum $scope) => in_array($scope->value, $uploaded))
+            ->map(fn (PurchaseOrderAttachmentScopeEnum $scope) => PurchaseOrderAttachmentScopeEnum::labels()[$scope->value])
+            ->values()
+            ->all();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
+        ];
+    }
+
     public function afterValidator(Validator $validator): void
     {
+        if (!$this->asAction && !$this->stockDelivery->isManagedByPartner() && !trim((string) $this->get('reason'))
+            && $missing = self::missingEvidence($this->stockDelivery)) {
+            $validator->errors()->add('reason', __('Upload the :documents, or give a reason to dispatch without them', ['documents' => implode(', ', $missing)]));
+        }
         if (!$this->asAction && $this->stockDelivery->isManagedByPartner()) {
             $validator->errors()->add('state', __('This delivery is managed by the partner until you receive it'));
         }
@@ -54,12 +99,22 @@ class DispatchStockDelivery extends OrgAction
         }
     }
 
-    public function handle(StockDelivery $stockDelivery): StockDelivery
+    public function handle(StockDelivery $stockDelivery, ?string $reason = null): StockDelivery
     {
         $stockDelivery->update([
             'state'         => StockDeliveryStateEnum::DISPATCHED,
             'dispatched_at' => now(),
         ]);
+
+        if ($reason) {
+            $stockDelivery->auditEvent     = 'stage_override';
+            $stockDelivery->isCustomEvent  = true;
+            $stockDelivery->auditCustomOld = ['missing_documents' => implode(', ', self::missingEvidence($stockDelivery))];
+            $stockDelivery->auditCustomNew = ['dispatched_at' => $stockDelivery->dispatched_at->toDateString(), 'reason' => $reason];
+            Event::dispatch(new AuditCustom($stockDelivery));
+            $stockDelivery->isCustomEvent  = false;
+            $stockDelivery->auditCustomOld = $stockDelivery->auditCustomNew = [];
+        }
 
         $stockDelivery->items()
             ->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)
@@ -92,7 +147,7 @@ class DispatchStockDelivery extends OrgAction
         $this->stockDelivery = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
 
-        return $this->handle($stockDelivery);
+        return $this->handle($stockDelivery, trim((string) ($this->validatedData['reason'] ?? '')) ?: null);
     }
 
     public function action(StockDelivery $stockDelivery): StockDelivery
