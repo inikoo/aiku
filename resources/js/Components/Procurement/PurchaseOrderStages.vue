@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { router } from "@inertiajs/vue3"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
 import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -10,8 +12,8 @@ import Textarea from "primevue/textarea"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCheck, faCheckCircle, faPencil, faTimes, faTruck } from "@fal"
-library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck)
+import { faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird } from "@fal"
+library.add(faCheck, faCheckCircle, faPencil, faTimes, faTruck, faPaperclip, faUpload, faSpinnerThird)
 
 interface Step {
     key: string
@@ -27,6 +29,12 @@ interface Mark {
     skipped: string[]
 }
 
+interface Evidence {
+    scope: string
+    label: string
+    count: number
+}
+
 interface Stage {
     key: string
     number: number
@@ -36,15 +44,40 @@ interface Stage {
     current: boolean
     date: string | null
     by: string | null
+    expected: string | null
+    days_late: number
     deliveries: { reached: number, total: number } | null
+    not_required?: boolean
     steps: Step[]
+    evidence: Evidence[]
     marks: Mark[]
 }
 
 const props = defineProps<{
     stages: Stage[]
     route: routeType
+    uploadRoute?: routeType | null
 }>()
+
+const uploading = ref<string | null>(null)
+
+async function upload(evidence: Evidence, event: Event) {
+    const input = event.target as HTMLInputElement
+    const files = Array.from(input.files ?? [])
+    input.value = ""
+    if (!files.length || !props.uploadRoute) {
+        return
+    }
+    uploading.value = evidence.scope
+    try {
+        await axios.post(route(props.uploadRoute.name, props.uploadRoute.parameters), { attachments: files, scope: evidence.scope }, { headers: { "Content-Type": "multipart/form-data" } })
+        router.reload({ only: ["stages"] })
+    } catch (error: any) {
+        notify({ title: ctrans("Something went wrong"), text: error?.response?.data?.message ?? "", type: "error" })
+    } finally {
+        uploading.value = null
+    }
+}
 
 const formatDate = (date: string | null) => date ? useFormatTime(date, { formatTime: "d MMM yyyy" }) : null
 
@@ -109,10 +142,16 @@ function save() {
             </div>
 
             <div class="mt-1 tabular-nums" :class="stage.date ? 'text-gray-700' : 'text-gray-400'">
-                <template v-if="stage.date">{{ formatDate(stage.date) }}</template>
+                <template v-if="stage.not_required">{{ ctrans("Not required") }}</template>
+                <template v-else-if="stage.date">{{ formatDate(stage.date) }}</template>
                 <template v-else-if="stage.reached">{{ ctrans("Not recorded") }}</template>
                 <template v-else>-</template>
                 <span v-if="stage.by" class="text-xs text-gray-500"> · {{ stage.by }}</span>
+            </div>
+
+            <div v-if="!stage.reached && stage.expected" class="mt-0.5 text-xs tabular-nums" :class="stage.days_late ? 'text-red-600' : 'text-gray-500'">
+                {{ ctrans("Expected :date", { date: formatDate(stage.expected) as string }) }}
+                <template v-if="stage.days_late"> · {{ ctrans(":days days late", { days: stage.days_late }) }}</template>
             </div>
 
             <div v-if="stage.deliveries && stage.deliveries.total" class="mt-1 flex items-center gap-1 text-xs text-gray-500">
@@ -128,6 +167,19 @@ function save() {
                     </dd>
                 </div>
             </dl>
+
+            <div v-if="stage.evidence.length" class="mt-2 space-y-0.5 text-xs">
+                <div v-for="evidence in stage.evidence" :key="evidence.scope" class="flex items-center justify-between gap-2">
+                    <span :class="evidence.count ? 'text-gray-700' : 'text-gray-400'">
+                        <FontAwesomeIcon icon="fal fa-paperclip" fixed-width aria-hidden="true" />
+                        {{ evidence.label }}<template v-if="evidence.count"> · {{ evidence.count }}</template>
+                    </span>
+                    <label v-if="uploadRoute" class="cursor-pointer text-gray-500 hover:text-gray-800" v-tooltip="ctrans('Upload :document', { document: evidence.label })">
+                        <FontAwesomeIcon :icon="uploading === evidence.scope ? 'fal fa-spinner-third' : 'fal fa-upload'" :spin="uploading === evidence.scope" fixed-width aria-hidden="true" />
+                        <input type="file" multiple accept="image/*,.pdf" class="hidden" :disabled="!!uploading" @change="(event) => upload(evidence, event)" />
+                    </label>
+                </div>
+            </div>
 
             <div v-if="stage.marks.length" class="mt-2 flex flex-wrap gap-1">
                 <Button

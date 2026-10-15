@@ -24,6 +24,7 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import qs from "qs"
 import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue"
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
+import TablePurchaseOrderComplianceDocuments from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderComplianceDocuments.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
@@ -130,7 +131,9 @@ const props = defineProps < {
         date: string | null
         number_purchase_orders: number
     }[]
-    stages?: InstanceType<typeof PurchaseOrderStages>["$props"] | null
+    stages?: { stages: InstanceType<typeof PurchaseOrderStages>["$props"]["stages"]; route: routeType; upload_route: routeType | null } | null
+    compliance?: object
+    compliance_summary?: InstanceType<typeof TablePurchaseOrderComplianceDocuments>["$props"]["compliance"]
     deposits?: object | null
     payments?: PurchaseOrderPaymentsData | null
     delivery_items: {
@@ -793,6 +796,7 @@ const component = computed(() => {
 		items: TablePurchaseOrderTransactions,
 		products: TablePurchaseOrderTransactions,
 		notes: TableProcurementNotes,
+		compliance: TablePurchaseOrderComplianceDocuments,
 		attachments: TableAttachments,
 		dispatched_emails: TableDispatchedEmailsInOrder,
 		history: TableHistories,
@@ -1077,7 +1081,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 	</PageHeading>
 
-	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route">
+	<PurchaseOrderStages v-if="stages" :stages="stages.stages" :route="stages.route" :uploadRoute="stages.upload_route">
 		<template v-if="payments" #stage-deposit_paid>
 			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 		</template>
@@ -1368,6 +1372,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 			:updateRoute="routes.updateOrderRoute"
 			:storeRoute="currentTab === 'notes' && note_form?.can_write !== false ? note_store_route : undefined"
 			:agreement="currentTab === 'notes' ? note_form : undefined"
+			:compliance="currentTab === 'compliance' ? compliance_summary : undefined"
 			:detachRoute="attachmentRoutes.detachRoute"
 			v-bind="isOrderingLevelTab ? {
 				level: currentLevel,

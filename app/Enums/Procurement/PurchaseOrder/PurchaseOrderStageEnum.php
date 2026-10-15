@@ -136,13 +136,40 @@ enum PurchaseOrderStageEnum: string
     }
 
     /**
-     * A date the stage cannot be completed without; completing it anyway needs a reason.
+     * What a date cannot be recorded without, a date or an uploaded document; recording it anyway needs a reason.
      */
-    public function gate(): ?string
+    public const array FIELD_GATES = [
+        'sample_approved_at' => [PurchaseOrderAttachmentScopeEnum::SAMPLE_PHOTO],
+        'qc_passed_at'       => ['sample_approved_at', PurchaseOrderAttachmentScopeEnum::PRODUCTION_PHOTO, PurchaseOrderAttachmentScopeEnum::QC_REPORT],
+    ];
+
+    /**
+     * Documents uploaded at each stage, shown and uploaded from the stage.
+     */
+    public function evidence(): array
     {
         return match ($this) {
-            self::READY => 'sample_approved_at',
-            default     => null,
+            self::IN_PRODUCTION => [PurchaseOrderAttachmentScopeEnum::SAMPLE_PHOTO, PurchaseOrderAttachmentScopeEnum::PRODUCTION_PHOTO],
+            self::READY         => [PurchaseOrderAttachmentScopeEnum::QC_REPORT],
+            default             => [],
+        };
+    }
+
+    /**
+     * The PO journey board stage whose planned date is this stage's expected date. Production starts once the
+     * deposit is in, and the port arrival has no plan of its own, so it shares the warehouse arrival.
+     *
+     * @return string[]
+     */
+    public function plannedFrom(): array
+    {
+        return match ($this) {
+            self::SUBMITTED     => ['po_created'],
+            self::DEPOSIT_PAID  => ['deposit_paid'],
+            self::IN_PRODUCTION => ['deposit_paid', 'spec_sample', 'po_created'],
+            self::READY         => ['qc', 'production'],
+            self::SHIPPED       => ['dispatched'],
+            self::ARRIVED, self::RECEIVED => ['in_transit'],
         };
     }
 

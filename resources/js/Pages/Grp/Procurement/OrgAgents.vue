@@ -27,6 +27,7 @@ import {
 	faBoxes,
 	faClipboardList,
 	faWarehouse,
+	faArrowRight,
 } from "@fal"
 library.add(
 	faPeopleArrows,
@@ -37,7 +38,8 @@ library.add(
 	faChevronUp,
 	faBoxes,
 	faClipboardList,
-	faWarehouse
+	faWarehouse,
+	faArrowRight
 )
 
 interface CurrentItem {
@@ -340,9 +342,10 @@ const toggle = (agent: AgentCard, section: string) => {
 											'grp.org.procurement.org_agents.show.shopping.dashboard'
 										)
 									"
-									class="flex items-center gap-1.5 border-t border-gray-200 px-2 py-1.5 font-medium text-gray-700 hover:bg-gray-50 hover:underline">
+									class="flex items-center gap-2 border-t border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2 font-semibold text-[--app-accent-strong] transition-colors hover:bg-[--app-accent-muted]">
 									<FontAwesomeIcon icon="fal fa-shopping-basket" fixed-width />
 									{{ ctrans("Review and reorder") }}
+									<FontAwesomeIcon icon="fal fa-arrow-right" fixed-width class="ml-auto" />
 								</Link>
 							</template>
 						</div>

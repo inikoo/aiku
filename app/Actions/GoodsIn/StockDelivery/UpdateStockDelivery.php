@@ -43,7 +43,20 @@ class UpdateStockDelivery extends OrgAction
         'delivery_address',
         'shipper_reference',
         'tracking_number',
+        'container_number',
         'shipping_agent',
+    ];
+
+    /**
+     * What the agent of a container enters before it ships: references, shipping agent and dates.
+     */
+    public const array AGENT_FIELDS = [
+        'shipper_reference',
+        'tracking_number',
+        'container_number',
+        'shipping_agent',
+        'estimated_dispatched_date',
+        'estimated_receiving_date',
     ];
 
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
@@ -105,6 +118,7 @@ class UpdateStockDelivery extends OrgAction
             'delivery_address'          => ['sometimes', 'nullable', 'string'],
             'shipper_reference'         => ['sometimes', 'nullable', 'string', 'max:255'],
             'tracking_number'           => ['sometimes', 'nullable', 'string', 'max:255'],
+            'container_number'          => ['sometimes', 'nullable', 'string', 'max:64'],
             'shipping_agent'            => ['sometimes', 'nullable', 'string', 'max:255'],
             'org_exchange'              => ['sometimes', 'numeric', 'gt:0'],
         ];
@@ -150,7 +164,13 @@ class UpdateStockDelivery extends OrgAction
             return true;
         }
 
-        return array_keys($request->except(['_method', '_token'])) === ['org_exchange']
+        $keys = array_keys($request->except(['_method', '_token']));
+        if ($this->stockDelivery->agent && $keys && !array_diff($keys, self::AGENT_FIELDS)
+            && $request->user()->authTo("procurement.{$this->stockDelivery->agent->organisation_id}.edit")) {
+            return true;
+        }
+
+        return $keys === ['org_exchange']
             && $request->user()->authTo([
                 "accounting.{$this->organisation->id}.edit",
                 "org-supervisor.{$this->organisation->id}.accounting",

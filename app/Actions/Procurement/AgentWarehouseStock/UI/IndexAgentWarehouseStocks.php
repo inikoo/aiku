@@ -51,11 +51,8 @@ class IndexAgentWarehouseStocks extends OrgAction
             ->leftJoin('suppliers', 'suppliers.id', 'supplier_products.supplier_id')
             ->leftJoin('purchase_orders', 'purchase_orders.id', 'agent_warehouse_stocks.purchase_order_id');
 
-        $query->whereElementGroup(
-            key: 'state',
-            allowedElements: AgentWarehouseStockStateEnum::values(),
-            engine: fn ($query, $elements) => $query->whereIn('agent_warehouse_stocks.state', $elements),
-        );
+        $stateFilter = AllowedFilter::callback('state', fn ($query, $value) => $query->where('agent_warehouse_stocks.state', $value));
+        $organisationFilter = AllowedFilter::callback('organisation', fn ($query, $value) => $query->where('organisations.slug', $value));
 
         return $query
             ->select([
@@ -74,7 +71,7 @@ class IndexAgentWarehouseStocks extends OrgAction
             ])
             ->defaultSort('code')
             ->allowedSorts(['code', 'name', 'supplier_code', 'organisation_code', 'quantity', 'state'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, $stateFilter, $organisationFilter])
             ->withPaginator(null, tableName: request()->route()?->getName())
             ->withQueryString()
             ->through(fn (AgentWarehouseStock $stock) => [
@@ -97,14 +94,7 @@ class IndexAgentWarehouseStocks extends OrgAction
     public function tableStructure(Agent $agent): Closure
     {
         return function (InertiaTable $table) use ($agent) {
-            $counts = AgentWarehouseStock::where('agent_id', $agent->id)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
-
             $table
-                ->elementGroup(
-                    key: 'state',
-                    label: __('State'),
-                    elements: collect(AgentWarehouseStockStateEnum::labels())->map(fn ($label, $state) => [$label, $counts[$state] ?? 0])->all(),
-                )
                 ->withGlobalSearch()
                 ->withLabelRecord([__('Product'), __('Products')])
                 ->withEmptyState(['title' => __('Nothing in the warehouse')])
@@ -117,6 +107,75 @@ class IndexAgentWarehouseStocks extends OrgAction
                 ->column(key: 'quantity', label: __('Units'), canBeHidden: false, sortable: true, align: 'right')
                 ->column(key: 'notes', label: __('Notes'));
         };
+    }
+
+    /**
+     * @return array{state: array<int, array{label: string, value: string, count: int}>, organisation: array<int, array{label: string, value: string, count: int}>}
+     */
+    public function filterOptions(Agent $agent): array
+    {
+        $stateCounts = AgentWarehouseStock::where('agent_id', $agent->id)->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
+
+        $organisations = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
+            ->selectRaw('organisations.slug, organisations.code, count(*) as total')
+            ->groupBy('organisations.slug', 'organisations.code')
+            ->orderBy('organisations.code')
+            ->get();
+
+        return [
+            'state'        => collect(AgentWarehouseStockStateEnum::labels())->map(fn ($label, $state) => ['label' => $label, 'value' => $state, 'count' => (int) ($stateCounts[$state] ?? 0)])->values()->all(),
+            'organisation' => $organisations->map(fn ($organisation) => ['label' => strtoupper($organisation->code), 'value' => $organisation->slug, 'count' => (int) $organisation->total])->all(),
+        ];
+    }
+
+    /**
+     * @return array<int, array{code: string, slug: string, name: string, country_code: ?string, states: array<int, array{state: string, label: string, lines: int, units: float}>, products: array<int, array{code: string, name: string, state: string, quantity: float}>}>
+     */
+    public function organisationCards(Agent $agent, ActionRequest $request): array
+    {
+        $state        = $request->input('filter.state');
+        $organisation = $request->input('filter.organisation');
+
+        $rows = AgentWarehouseStock::where('agent_warehouse_stocks.agent_id', $agent->id)
+            ->join('organisations', 'organisations.id', 'agent_warehouse_stocks.organisation_id')
+            ->leftJoin('countries', 'countries.id', 'organisations.country_id')
+            ->join('supplier_products', 'supplier_products.id', 'agent_warehouse_stocks.supplier_product_id')
+            ->when($state, fn ($query) => $query->where('agent_warehouse_stocks.state', $state))
+            ->when($organisation, fn ($query) => $query->where('organisations.slug', $organisation))
+            ->orderBy('organisations.code')
+            ->orderBy('supplier_products.code')
+            ->get([
+                'organisations.code as organisation_code',
+                'organisations.slug as organisation_slug',
+                'organisations.name as organisation_name',
+                'countries.code as country_code',
+                'agent_warehouse_stocks.state',
+                'agent_warehouse_stocks.quantity',
+                'supplier_products.code',
+                'supplier_products.name',
+            ]);
+
+        return $rows->groupBy('organisation_code')->map(fn ($stocks) => [
+            'code'         => $stocks->first()->organisation_code,
+            'slug'         => $stocks->first()->organisation_slug,
+            'name'         => $stocks->first()->organisation_name,
+            'country_code' => $stocks->first()->country_code,
+            'states'       => collect(AgentWarehouseStockStateEnum::cases())
+                ->map(fn (AgentWarehouseStockStateEnum $stateCase) => [
+                    'state' => $stateCase->value,
+                    'label' => $stateCase->label(),
+                    'lines' => $stocks->where('state', $stateCase)->count(),
+                    'units' => (float) $stocks->where('state', $stateCase)->sum('quantity'),
+                ])
+                ->all(),
+            'products'     => $stocks->map(fn ($stock) => [
+                'code'     => $stock->code,
+                'name'     => $stock->name,
+                'state'    => $stock->state->value,
+                'quantity' => (float) $stock->quantity,
+            ])->all(),
+        ])->values()->all();
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): Agent
@@ -153,7 +212,9 @@ class IndexAgentWarehouseStocks extends OrgAction
                     'icon'  => ['title' => __('Warehouse'), 'icon' => 'fal fa-warehouse-alt'],
                     'title' => __('Warehouse'),
                 ],
-                'data'        => $this->handle($agent),
+                'data'          => $this->handle($agent),
+                'filterOptions' => $this->filterOptions($agent),
+                'cards'         => $this->organisationCards($agent, $request),
             ]
         )->table($this->tableStructure($agent));
     }

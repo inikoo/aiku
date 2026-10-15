@@ -11,6 +11,7 @@ namespace App\Actions\Dispatching\DeliveryNote\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Ordering\Order\AssignDefaultPackagingToOrderWithoutPackaging;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems;
 use App\Actions\Dispatching\DeliveryNote\DeliveryNoteBoxPackingList;
 use App\Actions\Dispatching\DeliveryNote\GetDeliveryNoteConsumables;
 use App\Actions\Catalogue\PreferredShipping\WithPreferredShipperResolver;
@@ -1031,6 +1032,7 @@ class ShowDeliveryNote extends OrgAction
             'trolleys'                     => $trolleys,
             'parcels'                      => $deliveryNote->parcels,
             'box_packing_list'             => $this->getBoxPackingList($deliveryNote),
+            'customs_export'               => GetDeliveryNoteCustomsItems::make()->exportProp($deliveryNote, request()->user()),
             'shipments'                    => $deliveryNote->shipments ? ShipmentsResource::collection($deliveryNote->shipments()->with('shipper')->get())->toArray(request()) : null,
             'shipments_routes'             => [
                 'can_work' => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeShippedBy(request()->user()),

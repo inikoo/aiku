@@ -76,6 +76,7 @@ use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
 use App\Actions\Inventory\OrgStock\Stock\RebuildOrgStockHistoriesSince;
 use App\Models\Helpers\Audit;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
+use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderCompliance;
 use App\Models\Inventory\OrganisationStockHistory;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\GoodsIn\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
@@ -539,6 +540,27 @@ function createAgentOrgSupplierWithProduct(object $test, ?OrgAgent $orgAgent = n
     return [$orgSupplier->refresh(), $orgSupplierProduct];
 }
 
+/**
+ * @param  list<array{0: string, 1: int, 2: int, 3: bool}>  $lines  code, units per carton, cartons, code filled green (in China's warehouse)
+ */
+function writeChinaContainerList(string $name, array $lines): string
+{
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet       = $spreadsheet->getActiveSheet();
+    $sheet->fromArray(['Barcode', 'Code', 'Description', 'RMB', 'Packing', 'Carton Qty', '', 'ORDER']);
+    foreach ($lines as $index => [$code, $unitsPerCarton, $cartons, $inWarehouse]) {
+        $row = $index + 2;
+        $sheet->fromArray(['', $code, '', '', '', $unitsPerCarton, '', $cartons], null, "A$row");
+        if ($inWarehouse) {
+            $sheet->getStyle("B$row")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('92D050');
+        }
+    }
+    $file = sys_get_temp_dir().'/'.$name;
+    \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx')->save($file);
+
+    return $file;
+}
+
 function createFreshOrgAgent(object $test): OrgAgent
 {
     $agent = StoreAgent::make()->action($test->group, Agent::factory()->definition());
@@ -731,8 +753,7 @@ test('agent manager only sees their own agent organisation', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentWarehouseStocks')
             ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed_for_next_container')));
-    $containerList = sys_get_temp_dir().'/Slovakia AWChina-95.csv';
-    file_put_contents($containerList, "Barcode,Code,Description,RMB,Packing,Carton Qty,,ORDER\n,G14 {$warehouseSupplierProduct->code},,,,120,,3\n,NOPE-999,,,,10,,1\n,{$warehouseSupplierProduct->code},,,,120,,0\n");
+    $containerList = writeChinaContainerList('Slovakia AWChina-95.xlsx', [["G14 {$warehouseSupplierProduct->code}", 120, 3, true], ['NOPE-999', 10, 1, true], [$warehouseSupplierProduct->code, 120, 0, true]]);
     $imported = \App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList::run($this->agent, $this->organisation, $containerList);
     unlink($containerList);
     expect($imported['unmatched'])->toBe(['NOPE-999'])
@@ -847,6 +868,8 @@ test('PO journey board marks stages on an agent purchase order and keeps handove
 
     $this->patch(route('grp.models.purchase-order.update', $purchaseOrder->id), ['qc_passed_at' => now()->toDateString(), 'notes' => 'qc via edit page'])->assertSessionHasNoErrors();
     expect($purchaseOrder->refresh()->qc_passed_at)->toBeNull();
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('purchase order stages go in order and ask a reason to skip, backdate or clear', function () {
@@ -885,7 +908,39 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
             ->where('stages.stages.2.current', true)
             ->where('stages.stages.2.by', $user->contact_name ?: $user->username)
             ->where('stages.stages.3.reached', false)
-            ->where('stages.stages.3.marks.0.skipped', [__('Sample approved')]));
+            ->where('stages.stages.3.marks.0.skipped', [__('Sample approved'), __('Production photo'), __('QC report')]));
+});
+
+test('a purchase order with no deposit needed counts the deposit stage as done', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'deposit_amount' => 0]);
+    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+
+    $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('stages.stages.1.reached', true)
+            ->where('stages.stages.1.not_required', true)
+            ->where('stages.stages.1.marks', []));
+});
+
+test('container list lines not filled green are still being made, so their purchase order is marked in production', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder                      = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5)]);
+    $code = $orgSupplierProduct->supplierProduct->code;
+
+    $containerList = writeChinaContainerList('UK AWChina-777.xlsx', [[$code, 100, 2, true], [$code, 100, 5, false]]);
+    $imported      = \App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList::run($orgSupplier->orgAgent->agent, $purchaseOrder->organisation, $containerList);
+    unlink($containerList);
+
+    expect(collect($imported['rows'])->pluck('quantity')->all())->toBe([200.0])
+        ->and($imported['in_production'])->toBe([['code' => $code, 'units' => 500.0, 'purchase_order' => $purchaseOrder->reference]])
+        ->and($purchaseOrder->refresh()->production_started_at)->not->toBeNull()
+        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toContain('AWChina-777');
 });
 
 test('agent marks only its own stages and the order shows its slowest delivery', function (PurchaseOrder $purchaseOrder) {
@@ -906,6 +961,174 @@ test('agent marks only its own stages and the order shows its slowest delivery',
     expect($stages['deposit_paid']['reached'])->toBeTrue()
         ->and($stages['shipped']['reached'])->toBeFalse()
         ->and($stages['shipped']['deliveries'])->toBe(['reached' => 0, 'total' => $purchaseOrder->stockDeliveries()->count()]);
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'deposit_paid_at' => null]);
+})->depends('create purchase order through an agent');
+
+test('stage gates ask for the sample photo, production photo and QC report', function () {
+    [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'deposit_paid_at' => now()->subDays(4), 'production_started_at' => now()->subDays(3)]);
+    $stageRoute  = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $attachRoute = route('grp.models.purchase-order.attachment.attach', $purchaseOrder->id);
+    $file        = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+    $today       = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+
+    $this->patch($stageRoute, ['field' => 'sample_approved_at', 'date' => $today])->assertSessionHasErrors('reason');
+    $this->post($attachRoute, ['attachments' => [$file('sample.pdf')], 'scope' => 'Sample photo'])->assertSessionHasNoErrors();
+    $this->patch($stageRoute, ['field' => 'sample_approved_at', 'date' => $today])->assertSessionHasNoErrors();
+
+    $this->patch($stageRoute, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasErrors('reason');
+    $this->post($attachRoute, ['attachments' => [$file('line.pdf')], 'scope' => 'Production photo'])->assertSessionHasNoErrors();
+    $this->patch($stageRoute, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasErrors('reason');
+    $this->post($attachRoute, ['attachments' => [$file('qc.pdf')], 'scope' => 'QC report'])->assertSessionHasNoErrors();
+    $this->patch($stageRoute, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasNoErrors();
+
+    expect($purchaseOrder->refresh()->qc_passed_at)->not->toBeNull();
+
+    $this->withoutVite();
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('stages.stages.2.evidence.0.count', 1)
+            ->where('stages.stages.2.evidence.1.count', 1)
+            ->where('stages.stages.3.evidence.0.count', 1)
+            ->where('stages.stages.3.reached', true));
+});
+
+test('a delivery ships with its packing list and bill of lading, or with a reason', function () {
+    $stockDelivery = createStockDeliveryWithItems($this, 'SHIP-DOCS-'.Str::random(6), [2]);
+    $stockDelivery->updateQuietly(['data' => array_merge($stockDelivery->data ?? [], ['delivery_type' => 'container'])]);
+    $route = route('grp.models.stock-delivery.dispatch', $stockDelivery->id);
+
+    $this->patch($route)->assertSessionHasErrors('reason');
+
+    $this->post(route('grp.models.stock-delivery.attachment.attach', $stockDelivery->id), [
+        'attachments' => [\Illuminate\Http\UploadedFile::fake()->createWithContent('packing.pdf', '%PDF-1.4 packing '.Str::random(12))],
+        'scope'       => 'Packing list',
+    ])->assertSessionHasNoErrors();
+    expect(DispatchStockDelivery::missingEvidence($stockDelivery->refresh()))->toBe([__('Bill of lading')]);
+
+    $this->patch($route)->assertSessionHasErrors('reason');
+    $this->patch($route, ['reason' => 'The bill of lading comes by courier'])->assertSessionHasNoErrors();
+
+    expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::DISPATCHED)
+        ->and(Audit::where('auditable_type', 'StockDelivery')->where('auditable_id', $stockDelivery->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('The bill of lading comes by courier');
+});
+
+test('agents upload evidence, edit the shipping details of their containers and dispatch them', function (PurchaseOrder $purchaseOrder) {
+    $agentUser     = User::where('username', 'agent-clerk')->firstOrFail();
+    $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-SHIP-'.Str::random(6), [3]);
+    $stockDelivery->updateQuietly(['agent_id' => $purchaseOrder->agent_id]);
+    $file          = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+
+    actingAs($agentUser);
+    $this->post(route('grp.models.purchase-order.attachment.attach', $purchaseOrder->id), ['attachments' => [$file('sample.pdf')], 'scope' => 'Sample photo'])->assertSessionHasNoErrors();
+    $sample = $purchaseOrder->attachments()->wherePivot('scope', 'Sample photo')->get()->last();
+    $this->delete(route('grp.models.purchase-order.attachment.detach', [$purchaseOrder->id, $sample->id]))->assertForbidden();
+
+    $this->patch(route('grp.models.stock-delivery.update', $stockDelivery->id), ['container_number' => 'MSKU1234567', 'tracking_number' => 'BL-998877'])->assertSessionHasNoErrors();
+    $this->patch(route('grp.models.stock-delivery.update', $stockDelivery->id), ['container_number' => 'MSKU7654321', 'incoterm' => 'FOB'])->assertForbidden();
+    $this->post(route('grp.models.stock-delivery.attachment.attach', $stockDelivery->id), ['attachments' => [$file('packing.pdf')], 'scope' => 'Packing list'])->assertSessionHasNoErrors();
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
+    actingAs($this->adminGuest->getUser());
+
+    expect($stockDelivery->refresh()->data['container_number'])->toBe('MSKU1234567')
+        ->and($stockDelivery->data['tracking_number'])->toBe('BL-998877')
+        ->and(DispatchStockDelivery::missingEvidence($stockDelivery))->toBe([])
+        ->and($purchaseOrder->attachments()->wherePivot('scope', 'Sample photo')->count())->toBeGreaterThan(0);
+})->depends('create purchase order through an agent');
+
+test('stages carry expected dates, late orders reach the weekly summary and agent changes reach the buyer', function (PurchaseOrder $purchaseOrder) {
+    \Illuminate\Support\Facades\Notification::fake();
+    $agentUser = User::where('username', 'agent-clerk')->firstOrFail();
+    $admin     = $this->adminGuest->getUser();
+
+    $purchaseOrder->updateQuietly([
+        'state'                 => PurchaseOrderStateEnum::SUBMITTED,
+        'created_at'            => now()->subDays(200),
+        'submitted_at'          => now()->subDays(200),
+        'deposit_paid_at'       => null,
+        'production_started_at' => null,
+        'buyer_id'              => $admin->id,
+    ]);
+
+    $expected = GetPurchaseOrderStages::make()->expectedDates($purchaseOrder->refresh());
+    expect($expected)->toHaveKeys(['submitted', 'deposit_paid', 'shipped', 'received']);
+
+    $stages = collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->keyBy('key');
+    expect($stages['deposit_paid']['days_late'])->toBeGreaterThan(0)
+        ->and($stages['submitted']['days_late'])->toBe(0);
+
+    $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
+    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
+
+    $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasNoErrors();
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    actingAs($agentUser);
+    $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    actingAs($admin);
+
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $admin,
+        \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
+        fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started'))
+    );
+
+    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => null, 'production_started_at' => null]);
+    \App\Actions\Procurement\PurchaseOrder\SendStuckPurchaseOrdersSummary::run($purchaseOrder->group);
+
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $agentUser,
+        \App\Notifications\StuckPurchaseOrdersSummaryNotification::class,
+        fn ($notification) => $notification->ownOrdersOnly && collect($notification->orders)->contains('reference', $purchaseOrder->reference)
+    );
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null]);
+})->depends('create purchase order through an agent');
+
+test('a purchase order lists the compliance documents of its products, due by the arrival estimate less a buffer', function (PurchaseOrder $purchaseOrder) {
+    \Illuminate\Support\Facades\Notification::fake();
+    $agentUser = User::where('username', 'agent-clerk')->firstOrFail();
+    $orgStock  = $purchaseOrder->purchaseOrderTransactions()->firstOrFail()->orgStock;
+    $tradeUnit = $orgStock->tradeUnits()->first() ?? tap(\App\Models\Goods\TradeUnit::orderBy('id')->firstOrFail(), fn ($tradeUnit) => $orgStock->tradeUnits()->attach($tradeUnit->id, ['quantity' => 1]));
+    $other     = \App\Models\Goods\TradeUnit::whereNotIn('id', GetPurchaseOrderCompliance::make()->tradeUnits($purchaseOrder)->pluck('id'))->firstOrFail();
+    $eta       = now()->addDays(17)->toDateString();
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::CONFIRMED, 'buyer_id' => $agentUser->id, 'estimated_received_at' => $eta, 'data' => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => $eta])]);
+    $before    = collect(GetPurchaseOrderCompliance::make()->documents($tradeUnit->refresh())['documents'])->firstWhere('scope', 'cpsr')['count'];
+    $file      = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+
+    actingAs($agentUser);
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $tradeUnit->id]), ['attachments' => [$file('cpsr.pdf')], 'scope' => 'cpsr'])->assertSessionHasNoErrors();
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $other->id]), ['attachments' => [$file('cpsr.pdf')], 'scope' => 'cpsr'])->assertSessionHasErrors('scope');
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $tradeUnit->id]), ['attachments' => [$file('photo.pdf')], 'scope' => 'other'])->assertSessionHasErrors('scope');
+    actingAs($this->adminGuest->getUser());
+
+    $compliance = GetPurchaseOrderCompliance::run($purchaseOrder->refresh());
+    $product    = collect($compliance['products'])->firstWhere('trade_unit_id', $tradeUnit->id);
+    expect($compliance['eta'])->toBe($eta)
+        ->and($compliance['deadline'])->toBe(now()->addDays(7)->toDateString())
+        ->and($compliance['missing'])->toBe(0)
+        ->and(collect($product['documents'])->firstWhere('scope', 'cpsr')['count'])->toBe($before + 1);
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendComplianceDocumentsReminders::run())->toBe(0);
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    $this->mock(GetPurchaseOrderCompliance::class)->makePartial()
+        ->shouldReceive('requiredDocuments')->andReturn([\App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum::TEST_REPORTS])
+        ->shouldReceive('supplierOnlyDocuments')->andReturn([\App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum::TEST_REPORTS]);
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendComplianceDocumentsReminders::make()->remind($purchaseOrder))->toBeTrue()
+        ->and(GetPurchaseOrderStages::make()->skippedBy($purchaseOrder, 'qc_passed_at', GetPurchaseOrderStages::run($purchaseOrder)))->toContain(__(':document for :code', ['document' => __('Test Reports'), 'code' => $tradeUnit->code]));
+    \Illuminate\Support\Facades\Notification::assertSentTo($agentUser, \App\Notifications\ComplianceDocumentsReminderNotification::class);
+
+    $this->withoutVite();
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]).'?tab=compliance')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('compliance_summary.deadline', now()->addDays(7)->toDateString())
+            ->where('compliance.data', fn ($rows) => collect($rows)->contains('id', $tradeUnit->id)));
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'buyer_id' => null]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {
@@ -1230,7 +1453,7 @@ test('all supplier products list shows the other open purchase orders each produ
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS]);
 
     expect($rowMatchedByOrgStock->org_stock_id)->toBe($transaction->org_stock_id)
-        ->and($rowMatchedByOrgStock->other_open_purchase_orders->pluck('reference')->all())->toBe([$purchaseOrder->reference]);
+        ->and($rowMatchedByOrgStock->other_open_purchase_orders->pluck('reference')->all())->toContain($purchaseOrder->reference);
 })->depends('add more items to purchase order');
 
 test('add items search finds a supplier product by its SKO code', function (PurchaseOrder $purchaseOrder) {
@@ -4489,7 +4712,8 @@ test('an agent invoices a container from its lines, adds its charges, takes off 
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
     $second->updateQuietly(['unit_quantity' => 4]);
 
-    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasNoErrors();
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('reason');
+    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods'])->assertSessionHasNoErrors();
 
     expect(fn () => StoreAgentInvoice::make()->handle($this->agent, $stockDelivery->refresh()))->toThrow(ValidationException::class)
         ->and(fn () => UpdateAgentInvoiceCharges::make()->handle($again->refresh(), ['charges' => []]))->toThrow(ValidationException::class);
@@ -10313,14 +10537,14 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
     $this->get($url.'?'.http_build_query(['filter' => ['global' => strtolower(substr($code, 2, 8))]]))->assertInertia(fn (AssertableInertia $page) => $page
         ->where('items.data', fn ($items) => collect($items)->contains('code', $code) && collect($items)->every(fn (array $item) => array_key_exists('bucket', $item))));
 
-    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
-
-    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
     $this->get($url.'?cover=w1')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('bucket', 'w1')
         ->where('active.cover', 'w1')
         ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => $item['bucket'] === 'w1')));
 
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
         ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
 
     $this->get($url.'?drafts=1&'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
@@ -14505,7 +14729,7 @@ test('a container on the way shows and is found by its shipper reference and tra
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('EditModel')
             ->where('formData.args.updateRoute.name', 'grp.models.stock-delivery.update')
-            ->where('formData.blueprint', fn ($blueprint) => array_keys(collect($blueprint)->firstWhere('title', 'Tracking')['fields']) === ['shipper_reference', 'tracking_number', 'shipping_agent'])
+            ->where('formData.blueprint', fn ($blueprint) => array_keys(collect($blueprint)->firstWhere('title', 'Tracking')['fields']) === ['shipper_reference', 'tracking_number', 'container_number', 'shipping_agent'])
             ->etc());
 
     $stageUrl = route('grp.org.procurement.org_agents.show.shopping.stage', [$this->organisation->slug, $this->orgAgent->slug, $stages::ON_THE_WAY]);

@@ -9,11 +9,13 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum as Stage;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\User;
+use App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -56,7 +58,8 @@ class GetPurchaseOrderStages
                 ? $this->deliveryStage($stage, $deliveries)
                 : [
                     'recorded'   => $purchaseOrder->{$stage->column()} !== null
-                        || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS),
+                        || ($stage === Stage::SUBMITTED && $purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS)
+                        || ($stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder)),
                     'date'       => $purchaseOrder->{$stage->column()},
                     'user_id'    => $purchaseOrder->stageMarkUserId($stage->column()),
                     'deliveries' => null,
@@ -79,28 +82,45 @@ class GetPurchaseOrderStages
      */
     public function skippedBy(PurchaseOrder $purchaseOrder, string $field, array $stages): array
     {
-        $stage  = Stage::MARKABLE_FIELDS[$field];
-        $labels = Stage::labels();
-
-        if ($field !== $stage->column()) {
-            return [];
-        }
-
+        $stage   = Stage::MARKABLE_FIELDS[$field];
         $skipped = [];
-        foreach (Stage::cases() as $earlier) {
-            if ($earlier->position() >= $stage->position()) {
-                break;
-            }
-            if (!$stages[$earlier->value]['recorded']) {
-                $skipped[] = $labels[$earlier->value];
+
+        if ($field === $stage->column()) {
+            foreach (Stage::cases() as $earlier) {
+                if ($earlier->position() >= $stage->position()) {
+                    break;
+                }
+                if (!$stages[$earlier->value]['recorded']) {
+                    $skipped[] = Stage::labels()[$earlier->value];
+                }
             }
         }
 
-        if ($stage->gate() && $purchaseOrder->{$stage->gate()} === null) {
-            $skipped[] = Stage::fieldLabels()[$stage->gate()];
+        foreach (Stage::FIELD_GATES[$field] ?? [] as $gate) {
+            if ($gate instanceof PurchaseOrderAttachmentScopeEnum) {
+                if (!$this->evidenceCount($purchaseOrder, $gate)) {
+                    $skipped[] = PurchaseOrderAttachmentScopeEnum::labels()[$gate->value];
+                }
+            } elseif ($purchaseOrder->{$gate} === null) {
+                $skipped[] = Stage::fieldLabels()[$gate];
+            }
+        }
+
+        if ($field === 'qc_passed_at') {
+            array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingSupplierOnly($purchaseOrder));
         }
 
         return $skipped;
+    }
+
+    public function depositNotRequired(PurchaseOrder $purchaseOrder): bool
+    {
+        return $purchaseOrder->deposit_paid_at === null && $purchaseOrder->deposit_amount !== null && (float) $purchaseOrder->deposit_amount == 0;
+    }
+
+    public function evidenceCount(PurchaseOrder $purchaseOrder, PurchaseOrderAttachmentScopeEnum $scope): int
+    {
+        return $purchaseOrder->attachments()->wherePivot('scope', $scope->value)->count();
     }
 
     /**
@@ -125,7 +145,9 @@ class GetPurchaseOrderStages
         $names = User::whereIn('id', $userIds)->get(['id', 'contact_name', 'username'])
             ->mapWithKeys(fn (User $user) => [$user->id => $user->contact_name ?: $user->username]);
 
-        $current = collect($stages)->filter(fn (array $stage) => $stage['reached'])->keys()->last();
+        $current  = collect($stages)->filter(fn (array $stage) => $stage['reached'])->keys()->last();
+        $expected = $this->expectedDates($purchaseOrder);
+        $today    = now()->startOfDay();
 
         return collect(Stage::cases())->map(fn (Stage $stage) => [
             'key'         => $stage->value,
@@ -136,15 +158,26 @@ class GetPurchaseOrderStages
             'current'     => $stage->value === $current,
             'date'        => $stages[$stage->value]['date'],
             'by'          => $names->get($stages[$stage->value]['user_id']),
+            'expected'    => $expected[$stage->value] ?? null,
+            'days_late'   => !$stages[$stage->value]['reached'] && isset($expected[$stage->value]) && Carbon::parse($expected[$stage->value])->lt($today)
+                ? (int) Carbon::parse($expected[$stage->value])->diffInDays($today)
+                : 0,
             'deliveries'  => $stages[$stage->value]['deliveries'],
+            'not_required' => $stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder),
             'steps'       => collect($steps[$stage->value] ?? [])->map(fn (array $step) => [
                 'key'   => $step['key'],
                 'label' => $step['label'],
                 'date'  => $step['date'],
                 'by'    => $names->get($step['user_id']),
             ])->all(),
+            'evidence'    => collect($stage->evidence())->map(fn (PurchaseOrderAttachmentScopeEnum $scope) => [
+                'scope' => $scope->value,
+                'label' => PurchaseOrderAttachmentScopeEnum::labels()[$scope->value],
+                'count' => $this->evidenceCount($purchaseOrder, $scope),
+            ])->all(),
             'marks'       => collect(Stage::MARKABLE_FIELDS)
-                ->filter(fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields))
+                ->filter(fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
+                    && !($field === 'deposit_paid_at' && $this->depositNotRequired($purchaseOrder)))
                 ->keys()
                 ->map(fn (string $field) => [
                     'field'   => $field,
@@ -153,6 +186,35 @@ class GetPurchaseOrderStages
                     'skipped' => $this->skippedBy($purchaseOrder, $field, $stages),
                 ])->values()->all(),
         ])->all();
+    }
+
+    /**
+     * Each stage's expected date, from the plan the PO journey board draws for the order: the agent's or
+     * supplier's lead time stretched over the stages, and the approved ready date for QC. The board works the
+     * dispatch back from the arrival estimate, so a stage is never expected before the one ahead of it.
+     *
+     * @return array<string, string>
+     */
+    public function expectedDates(PurchaseOrder $purchaseOrder): array
+    {
+        $ribbon = ShowSupplyChainPurchaseOrderJourney::make()->ribbons($purchaseOrder->group, $purchaseOrder->id)->first();
+        if (!$ribbon) {
+            return [];
+        }
+
+        $planned  = collect($ribbon['segments'])->mapWithKeys(fn (array $segment) => [$segment['key'] => $segment['done_at'] ?: $segment['planned_at']]);
+        $expected = [];
+        $previous = null;
+
+        foreach (Stage::cases() as $stage) {
+            $date = collect($stage->plannedFrom())->map(fn (string $key) => $planned->get($key))->filter()->first();
+            if ($date) {
+                $previous                = $previous ? max($previous, $date) : $date;
+                $expected[$stage->value] = $previous;
+            }
+        }
+
+        return $expected;
     }
 
     private function liveDeliveries(PurchaseOrder $purchaseOrder): Collection

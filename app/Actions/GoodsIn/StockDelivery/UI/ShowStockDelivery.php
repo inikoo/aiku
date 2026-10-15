@@ -17,6 +17,7 @@ use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DistributeStockDeliveryExtraCost;
@@ -191,10 +192,18 @@ class ShowStockDelivery extends OrgAction
 
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
-        $editRoute = $this->canEdit && !$this->goodsIn && $stockDelivery->organisation_id === $this->organisation->id && !$stockDelivery->isManagedByPartner() ? [
-            'name'       => 'grp.org.procurement.stock_deliveries.edit',
-            'parameters' => [$this->organisation->slug, $stockDelivery->slug],
-        ] : null;
+        $editRoute = match (true) {
+            !$this->canEdit || $this->goodsIn || $stockDelivery->isManagedByPartner() => null,
+            $this->viewedByAgent => [
+                'name'       => 'grp.org.agent.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            $stockDelivery->organisation_id === $this->organisation->id => [
+                'name'       => 'grp.org.procurement.stock_deliveries.edit',
+                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
+            ],
+            default => null,
+        };
 
         return Inertia::render(
             'Procurement/StockDelivery',
@@ -225,6 +234,7 @@ class ShowStockDelivery extends OrgAction
                     'navigation' => $this->getTabsNavigation($stockDelivery),
                 ],
                 'costing'          => $this->getCosting($stockDelivery),
+                'missing_evidence' => in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP]) ? DispatchStockDelivery::missingEvidence($stockDelivery) : [],
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
                 'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
@@ -618,12 +628,10 @@ class ShowStockDelivery extends OrgAction
 
     private function getAllowedActions(StockDelivery $stockDelivery): array
     {
-        if ($this->canEdit) {
-            return $this->getActions($stockDelivery);
-        }
-
         if ($this->viewedByAgent) {
-            $allowedKeys = ['action'];
+            $allowedKeys = $this->canEdit ? ['dispatch_stock_delivery', 'action'] : ['action'];
+        } elseif ($this->canEdit) {
+            return $this->getActions($stockDelivery);
         } elseif (!$this->canBookIn || $stockDelivery->organisation_id !== $this->organisation->id) {
             return [];
         } else {
@@ -673,6 +681,7 @@ class ShowStockDelivery extends OrgAction
                     'delivery_address' => Arr::get($stockDelivery->data, 'delivery_address'),
                     'shipper_reference' => Arr::get($stockDelivery->data, 'shipper_reference'),
                     'tracking_number'   => Arr::get($stockDelivery->data, 'tracking_number'),
+                    'container_number'  => Arr::get($stockDelivery->data, 'container_number'),
                     'shipping_agent'    => Arr::get($stockDelivery->data, 'shipping_agent'),
                 ],
             ],

@@ -143,7 +143,15 @@ class MarkPurchaseOrderStage extends OrgAction
         $this->purchaseOrder = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, $request);
 
-        return $this->handle($purchaseOrder, $this->validatedData);
+        $field         = $this->validatedData['field'];
+        $purchaseOrder = $this->handle($purchaseOrder, $this->validatedData);
+
+        $label = PurchaseOrderStageEnum::fieldLabels()[$field];
+        NotifyBuyerOfAgentStageChange::run($purchaseOrder, $request->user(), $purchaseOrder->{$field}
+            ? __(':stage on :date', ['stage' => $label, 'date' => $purchaseOrder->{$field}->toDateString()])
+            : __(':stage cleared', ['stage' => $label]));
+
+        return $purchaseOrder;
     }
 
     public function htmlResponse(): RedirectResponse

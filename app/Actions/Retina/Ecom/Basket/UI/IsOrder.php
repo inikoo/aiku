@@ -34,6 +34,7 @@ use App\Models\Ordering\Order;
 use App\Helpers\NaturalLanguage;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use Illuminate\Support\Facades\DB;
+use App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems;
 
 trait IsOrder
 {
@@ -241,6 +242,7 @@ trait IsOrder
                     ],
                     'shipper_directive'            => $this->getShipperDirective($deliveryNote),
                     'shipments'                    => ShipmentsResource::collection($deliveryNote->shipments)->resolve(),
+                    'customs_export'               => GetDeliveryNoteCustomsItems::make()->exportProp($deliveryNote, request()->user()),
                     'shipments_routes'             => [
                         'can_work'     => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->canBeShippedBy(request()->user()),
                         'submit_route' => [

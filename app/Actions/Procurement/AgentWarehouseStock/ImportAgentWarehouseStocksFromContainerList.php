@@ -8,8 +8,11 @@
 
 namespace App\Actions\Procurement\AgentWarehouseStock;
 
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\AgentWarehouseStock;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
@@ -23,6 +26,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  * Replaces an agent's packed stock for one organisation and container with the China agent's container list
  * ("AW CHINA PRODUCT LIST": code, units per carton, cartons ordered), HELP-3961/3962/3963.
  * China fills several containers at once, so they are told apart by their number in the notes, not by next or later.
+ * Only lines whose code is filled green are in China's warehouse; the rest are still being made by the supplier,
+ * so their purchase order is marked as in production instead.
  */
 class ImportAgentWarehouseStocksFromContainerList
 {
@@ -33,17 +38,20 @@ class ImportAgentWarehouseStocksFromContainerList
     private const string CODE = 'B';
     private const string UNITS_PER_CARTON = 'F';
     private const string CARTONS = 'H';
+    private const string IN_WAREHOUSE_FILL = '92D050';
 
     /**
-     * @return array{rows: list<array<string, mixed>>, unmatched: list<string>}
+     * @return array{rows: list<array<string, mixed>>, unmatched: list<string>, in_production: list<array{code: string, units: float, purchase_order: ?string}>}
      */
     public function handle(Agent $agent, Organisation $organisation, string $file, bool $dryRun = false): array
     {
-        $rows      = [];
-        $unmatched = [];
-        $container = preg_match('/AWChina-\d+/i', basename($file), $match) ? $match[0] : pathinfo($file, PATHINFO_FILENAME);
+        $rows         = [];
+        $unmatched    = [];
+        $inProduction = [];
+        $container    = preg_match('/AWChina-\d+/i', basename($file), $match) ? $match[0] : pathinfo($file, PATHINFO_FILENAME);
+        $sheet        = IOFactory::load($file)->getSheet(0);
 
-        foreach (IOFactory::load($file)->getSheet(0)->toArray(null, true, false, true) as $line) {
+        foreach ($sheet->toArray(null, true, false, true) as $rowNumber => $line) {
             $rawCode = trim((string) ($line[self::CODE] ?? ''));
             $cartons = (float) str_replace(',', '', (string) ($line[self::CARTONS] ?? ''));
             if ($rawCode === '' || $cartons <= 0 || !is_numeric(str_replace(',', '', (string) ($line[self::UNITS_PER_CARTON] ?? '')))) {
@@ -56,14 +64,26 @@ class ImportAgentWarehouseStocksFromContainerList
                 continue;
             }
 
+            $units           = $cartons * (float) str_replace(',', '', (string) $line[self::UNITS_PER_CARTON]);
+            $purchaseOrderId = $this->latestOrderWithProduct($organisation, $supplierProduct);
+
+            if ($sheet->getStyle(self::CODE.$rowNumber)->getFill()->getStartColor()->getRGB() !== self::IN_WAREHOUSE_FILL) {
+                $purchaseOrder  = $purchaseOrderId ? PurchaseOrder::find($purchaseOrderId) : null;
+                $inProduction[] = ['code' => $supplierProduct->code, 'units' => $units, 'purchase_order' => $purchaseOrder?->reference];
+                if (!$dryRun && $purchaseOrder) {
+                    $this->markInProduction($purchaseOrder, $container);
+                }
+                continue;
+            }
+
             $rows[] = [
                 'group_id'            => $agent->group_id,
                 'agent_id'            => $agent->id,
                 'organisation_id'     => $organisation->id,
                 'supplier_product_id' => $supplierProduct->id,
                 'state'               => AgentWarehouseStockStateEnum::PACKED_FOR_NEXT_CONTAINER->value,
-                'quantity'            => $cartons * (float) str_replace(',', '', (string) $line[self::UNITS_PER_CARTON]),
-                'purchase_order_id'   => $this->latestOrderWithProduct($organisation, $supplierProduct),
+                'quantity'            => $units,
+                'purchase_order_id'   => $purchaseOrderId,
                 'notes'               => $container,
                 'created_at'          => now(),
                 'updated_at'          => now(),
@@ -77,7 +97,20 @@ class ImportAgentWarehouseStocksFromContainerList
             });
         }
 
-        return ['rows' => $rows, 'unmatched' => $unmatched];
+        return ['rows' => $rows, 'unmatched' => $unmatched, 'in_production' => $inProduction];
+    }
+
+    private function markInProduction(PurchaseOrder $purchaseOrder, string $container): void
+    {
+        if ($purchaseOrder->production_started_at || !in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED])) {
+            return;
+        }
+
+        MarkPurchaseOrderStage::make()->action($purchaseOrder, [
+            'field'  => 'production_started_at',
+            'date'   => MarkPurchaseOrderStage::today($purchaseOrder->organisation),
+            'reason' => "China agent container list $container: still being made by the supplier",
+        ]);
     }
 
     /**
@@ -125,6 +158,9 @@ class ImportAgentWarehouseStocksFromContainerList
         $result       = $this->handle($agent, $organisation, $command->argument('file'), (bool) $command->option('dry-run'));
 
         $command->info(count($result['rows']).' rows '.($command->option('dry-run') ? 'would be imported' : 'imported'));
+        foreach ($result['in_production'] as $line) {
+            $command->line("In production: {$line['code']} {$line['units']} units, purchase order ".($line['purchase_order'] ?? 'none found'));
+        }
         foreach ($result['unmatched'] as $code) {
             $command->warn("Skipped $code: no product of the agent with that code");
         }
