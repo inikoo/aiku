@@ -61,10 +61,12 @@ class IndexAttachments extends OrgAction
                 'model_has_attachments.caption',
                 'model_has_attachments.scope',
                 'media.id as media_id',
-                'media.ulid as media_ulid'
+                'media.ulid as media_ulid',
+                'media.file_name',
+                'media.size',
             ]);
 
-        return $queryBuilder->allowedSorts(['caption', 'scope'])
+        return $queryBuilder->allowedSorts(['caption', 'scope', 'size'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString();
@@ -99,6 +101,8 @@ class IndexAttachments extends OrgAction
 
             $table->column(key: 'scope', label: __('Scope'), canBeHidden: false, searchable: true);
             $table->column(key: 'caption', label: __('Caption'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'file_type', label: __('Type'), canBeHidden: false);
+            $table->column(key: 'size', label: __('Size'), canBeHidden: false, sortable: true, align: 'right');
             $table->column(key: 'action', label: __('Actions'), canBeHidden: false, sortable: false, searchable: false);
         };
     }
