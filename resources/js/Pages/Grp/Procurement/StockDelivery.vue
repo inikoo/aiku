@@ -1122,14 +1122,16 @@ const confirmDeleteStockDelivery = (action: any) => {
 						<FontAwesomeIcon v-tooltip="ctrans('Bill of lading number')" icon="fal fa-ship" aria-hidden="true" fixed-width />
 					</dt>
 					<dd>
-						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.tracking_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.tracking_number }}</a>
+						{{ box_stats.first_block.delivery.tracking_number }}
 					</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.container_number" class="flex items-center gap-2">
 					<dt>
 						<FontAwesomeIcon v-tooltip="ctrans('Container number')" icon="fal fa-container-storage" aria-hidden="true" fixed-width />
 					</dt>
-					<dd>{{ box_stats.first_block.delivery.container_number }}</dd>
+					<dd>
+						<a :href="`https://www.track-trace.com/container?number=${encodeURIComponent(box_stats.first_block.delivery.container_number)}`" target="_blank" rel="noopener" class="underline decoration-dotted underline-offset-2">{{ box_stats.first_block.delivery.container_number }}</a>
+					</dd>
 				</div>
 				<div v-if="box_stats.first_block.delivery.shipper_reference" class="flex items-center gap-2">
 					<dt>
