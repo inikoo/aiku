@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onUnmounted } from "vue"
 import { routeType } from "@/types/route"
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -15,6 +15,12 @@ import Checkbox from "primevue/checkbox"
 import InputText from "primevue/inputtext"
 import Textarea from "primevue/textarea"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faRobot } from "@fal"
+library.add(faRobot)
 
 type LabelField = {
     key: string
@@ -42,6 +48,7 @@ type LabelOptions = {
         batch: string | null
         batch_pattern: string
         levels: Record<string, { size: string; blockers: string[] }>
+        translate_names?: { route: routeType; blockers: Record<string, string> } | null
     }
 }
 
@@ -73,13 +80,72 @@ const unifiedLevel = computed(() => props.options?.unified?.levels[activeLevel.v
 
 const isBatchValid = computed(() => new RegExp(props.options?.unified?.batch_pattern ?? ".").test(batch.value.trim().toUpperCase()))
 
+const translatedNameBlockers = ref<string[]>([])
+const isTranslatingNames = ref(false)
+
+const translateNames = computed(() => props.options?.unified?.translate_names ?? null)
+
+watch(() => props.options, () => { translatedNameBlockers.value = [] })
+
+const hasMissingNames = computed(() => !!translateNames.value
+    && Object.values(translateNames.value.blockers).some((blocker) => (unifiedLevel.value?.blockers ?? []).includes(blocker) && !translatedNameBlockers.value.includes(blocker)))
+
+const listeningTo = ref<string | null>(null)
+
+const stopListening = () => {
+    if (listeningTo.value && window.Echo) {
+        window.Echo.leave(listeningTo.value)
+    }
+    listeningTo.value = null
+}
+
+onUnmounted(stopListening)
+
+const translateMissingNames = async () => {
+    if (!translateNames.value) {
+        return
+    }
+
+    const blockersByLanguage = translateNames.value.blockers
+    const channel = `grp.trade-unit.${translateNames.value.route.parameters.tradeUnit}`
+
+    isTranslatingNames.value = true
+    stopListening()
+    if (window.Echo) {
+        listeningTo.value = channel
+        window.Echo.private(channel).listen(".name-translation-progress", (event: { state: string; failed: string[] }) => {
+            if (event.state !== "done") {
+                return
+            }
+
+            translatedNameBlockers.value = Object.entries(blockersByLanguage)
+                .filter(([language]) => !event.failed.includes(language))
+                .map(([, blocker]) => blocker)
+            isTranslatingNames.value = false
+            stopListening()
+
+            if (event.failed.length) {
+                notify({ title: ctrans("Some names could not be translated"), text: event.failed.join(", ").toUpperCase(), type: "error" })
+            }
+        })
+    }
+
+    try {
+        await axios.post(route(translateNames.value.route.name, translateNames.value.route.parameters))
+    } catch {
+        isTranslatingNames.value = false
+        stopListening()
+        notify({ title: ctrans("Something went wrong"), text: ctrans("The names could not be translated"), type: "error" })
+    }
+}
+
 const blockers = computed<string[]>(() => {
     if (!isUnified.value) {
         return []
     }
 
     return [
-        ...(unifiedLevel.value?.blockers ?? []),
+        ...(unifiedLevel.value?.blockers ?? []).filter((blocker) => !translatedNameBlockers.value.includes(blocker)),
         ...(isBatchValid.value ? [] : [ctrans("The batch code takes up to 20 characters: A to Z, 0 to 9 and hyphen")]),
     ]
 })
@@ -230,6 +296,18 @@ const checkboxPt = {
                     <ul class="list-disc pl-5">
                         <li v-for="blocker in blockers" :key="blocker">{{ blocker }}</li>
                     </ul>
+                    <Button
+                        v-if="hasMissingNames"
+                        type="tertiary"
+                        size="xs"
+                        class="mt-2"
+                        :label="isTranslatingNames ? ctrans('Translating names…') : ctrans('Translate missing names')"
+                        :loading="isTranslatingNames"
+                        @click="translateMissingNames">
+                        <template #icon>
+                            <FontAwesomeIcon icon="fal fa-robot" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
                 </div>
             </template>
 

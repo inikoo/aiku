@@ -77,10 +77,20 @@ class GetOrgStockLabelOptions
             ];
         }
 
+        $tradeUnit         = $orgStock->tradeUnits->count() === 1 ? $orgStock->tradeUnits->first() : null;
+        $missingNameBlockers = $tradeUnit ? GetOrgStockUnifiedLabelData::make()->getMissingNameBlockers($tradeUnit) : [];
+
         return [
-            'batch'         => $batch,
-            'batch_pattern' => trim(GetOrgStockUnifiedLabelData::BATCH_PATTERN, '/'),
-            'levels'        => $levels,
+            'batch'           => $batch,
+            'batch_pattern'   => trim(GetOrgStockUnifiedLabelData::BATCH_PATTERN, '/'),
+            'levels'          => $levels,
+            'translate_names' => $missingNameBlockers ? [
+                'route'    => [
+                    'name'       => 'grp.models.trade-unit.translate_names',
+                    'parameters' => ['tradeUnit' => $tradeUnit->id],
+                ],
+                'blockers' => $missingNameBlockers,
+            ] : null,
         ];
     }
 

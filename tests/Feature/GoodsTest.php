@@ -34,6 +34,7 @@ use App\Enums\Goods\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\Stock;
 use App\Models\Goods\StockFamily;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Models\Goods\TradeUnit;
 use Inertia\Testing\AssertableInertia;
@@ -1980,4 +1981,101 @@ test('sizes sharing documents show the source trade unit IFRA, SDS and allergen 
 
     expect($sizeTradeUnit->fresh()->documents_trade_unit_id)->toBeNull()
         ->and($sizeMedia())->toBe(collect([$oldSds->id, $howToUse->id])->sort()->values()->all());
+});
+
+test('HELP-3997 a trade unit name is translated into every open shop language and a new English name retranslates only the machine ones', function () {
+    $spanish = \App\Models\Helpers\Language::where('code', 'es')->firstOrFail();
+    $shopBefore = $this->shop->only(['state', 'language_id']);
+    $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN, 'language_id' => $spanish->id]);
+
+    \Illuminate\Support\Facades\Event::fake([\App\Events\TradeUnitNameTranslationProgressEvent::class]);
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')
+        ->andReturnUsing(fn (string $text, $from, $to) => strtoupper($to->code).' '.$text);
+
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), [
+        'code' => 'SWTS-H3997-'.Str::random(4),
+        'name' => 'Small Stone Washed T-shirt',
+    ]))->fresh();
+
+    $languages = \App\Actions\Goods\TradeUnit\GetTradeUnitNameTranslationLanguages::run($this->group);
+
+    expect($languages)->toContain('es')->not->toContain('en')
+        ->and($tradeUnit->getTranslation('name_i8n', 'es'))->toBe('ES Small Stone Washed T-shirt')
+        ->and(array_keys(array_filter($tradeUnit->getTranslations('name_i8n'))))->toEqualCanonicalizing($languages)
+        ->and(data_get($tradeUnit->data, 'name_i8n_status.es'))->toEqual(['source' => 'Small Stone Washed T-shirt', 'auto' => true])
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit)['es'])->toBe(['state' => 'review', 'auto' => true])
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::isRunning($tradeUnit))->toBeFalse();
+
+    \Illuminate\Support\Facades\Event::assertDispatched(
+        \App\Events\TradeUnitNameTranslationProgressEvent::class,
+        fn ($event) => $event->tradeUnit->id === $tradeUnit->id && $event->progress['state'] === 'done' && $event->progress['done'] === count($languages)
+    );
+
+    $otherLanguage = collect($languages)->first(fn (string $code) => $code !== 'es');
+
+    UpdateTradeUnit::make()->action($tradeUnit, ['name_i8n' => array_merge($tradeUnit->getTranslations('name_i8n'), ['es' => 'Camiseta escrita a mano'])]);
+    UpdateTradeUnit::make()->action($tradeUnit->fresh(), ['name' => 'Large Stone Washed T-shirt']);
+    $tradeUnit->refresh();
+
+    $statuses = \App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit);
+
+    expect($tradeUnit->getTranslation('name_i8n', 'es'))->toBe('Camiseta escrita a mano')
+        ->and($statuses['es'])->toBe(['state' => 'outdated', 'auto' => false]);
+
+    if ($otherLanguage) {
+        expect($tradeUnit->getTranslation('name_i8n', $otherLanguage))->toBe(strtoupper($otherLanguage).' Large Stone Washed T-shirt')
+            ->and($statuses[$otherLanguage])->toBe(['state' => 'ok', 'auto' => true]);
+    }
+
+    $this->postJson(route('grp.models.trade-unit.translate_names', $tradeUnit->id))
+        ->assertOk()->assertJson(['queued' => true]);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('Camiseta escrita a mano');
+
+    $this->postJson(route('grp.models.trade-unit.translate_names', $tradeUnit->id), ['include_outdated' => true])
+        ->assertOk()->assertJson(['queued' => true]);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('ES Large Stone Washed T-shirt');
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])
+        ->post(route('grp.models.trade-unit.approve_name_translations', $tradeUnit->id), ['languages' => ['es']])
+        ->assertRedirect();
+    $this->flushHeaders();
+
+    $tradeUnit->refresh();
+    expect(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::make()->getStatuses($tradeUnit)['es'])->toBe(['state' => 'ok', 'auto' => false]);
+
+    UpdateTradeUnit::make()->action($tradeUnit, ['name' => 'Medium Stone Washed T-shirt']);
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'es'))->toBe('ES Large Stone Washed T-shirt');
+
+    $this->shop->update($shopBefore);
+});
+
+test('HELP-3997 a name the translator hands back in English is reported and left missing, and the list translates a selection', function () {
+    $slovak = \App\Models\Helpers\Language::where('code', 'sk')->firstOrFail();
+    $shopBefore = $this->shop->only(['state', 'language_id']);
+    $this->shop->update(['state' => \App\Enums\Catalogue\Shop\ShopStateEnum::OPEN, 'language_id' => $slovak->id]);
+
+    $translatorWorks = false;
+    \App\Actions\Helpers\Translations\Translate::mock()->shouldReceive('handle')
+        ->andReturnUsing(function (string $text, $from, $to) use (&$translatorWorks) {
+            return $translatorWorks ? strtoupper($to->code).' '.$text : $text;
+        });
+
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, array_merge(TradeUnit::factory()->definition(), [
+        'code' => 'SWTS-H3997F-'.Str::random(4),
+        'name' => 'Everything is Magic T-shirt',
+    ]));
+
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'sk', false))->toBe('')
+        ->and(\App\Actions\Goods\TradeUnit\TranslateTradeUnitName::run($tradeUnit->fresh()))->toContain('sk');
+
+    $translatorWorks = true;
+
+    \Pest\Laravel\withHeaders(['X-Inertia' => 'true'])
+        ->post(route('grp.models.trade_units.bulk_translate_names'), ['trade_units' => [$tradeUnit->id]])
+        ->assertRedirect();
+    $this->flushHeaders();
+
+    expect($tradeUnit->fresh()->getTranslation('name_i8n', 'sk'))->toBe('SK Everything is Magic T-shirt');
+
+    $this->shop->update($shopBefore);
 });
