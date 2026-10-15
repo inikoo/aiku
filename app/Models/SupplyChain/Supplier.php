@@ -53,6 +53,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
+ * @property string|null $wechat
+ * @property string|null $whatsapp
+ * @property bool $is_generic a placeholder record holding products whose real factory is not set yet
+ * @property int|null $default_lead_time_days
+ * @property array<int, array{from: string, to: string, note?: string|null}> $factory_holidays
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property string|null $contact_website
@@ -116,6 +121,8 @@ class Supplier extends Model implements HasMedia, Auditable
         'location'        => 'array',
         'sources'         => 'array',
         'status'          => 'boolean',
+        'is_generic'       => 'boolean',
+        'factory_holidays' => 'array',
         'archived_at'     => 'datetime',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
@@ -126,6 +133,7 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings' => '{}',
         'location' => '{}',
         'sources'  => '{}',
+        'factory_holidays' => '[]',
     ];
 
     protected $guarded = [];
@@ -211,6 +219,10 @@ class Supplier extends Model implements HasMedia, Auditable
         'identity_document_type',
         'identity_document_number',
         'contact_website',
+        'wechat',
+        'whatsapp',
+        'is_generic',
+        'default_lead_time_days',
         'archived_at'
     ];
 
@@ -227,6 +239,11 @@ class Supplier extends Model implements HasMedia, Auditable
     public function supplierProducts(): HasMany
     {
         return $this->hasMany(SupplierProduct::class);
+    }
+
+    public function supplierStockFamilies(): HasMany
+    {
+        return $this->hasMany(SupplierStockFamily::class);
     }
 
     public function agent(): BelongsTo

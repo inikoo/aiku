@@ -30,6 +30,7 @@ trait WithSupplierProductJsonColumns
         'unit_expense',
         'carton_weight',
         'carton_net_weight',
+        'availability_new_cost',
     ];
 
     /**
