@@ -9,6 +9,7 @@
 namespace App\Actions\CRM\CustomerEmailTemplate;
 
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\CustomerEmailTemplate;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -72,21 +73,26 @@ class SeedShopCustomerEmailTemplates
         ],
     ];
 
+    /**
+     * One statement inserts all ten, so two staff opening the shop's first customer page at the
+     * same moment neither collide on the unique position nor see half the list.
+     */
     public function handle(Shop $shop): void
     {
         if ($shop->customerEmailTemplates()->exists()) {
             return;
         }
 
-        foreach (self::DEFAULTS as $position => $template) {
-            $shop->customerEmailTemplates()->create(array_merge($template, [
-                'group_id'        => $shop->group_id,
-                'organisation_id' => $shop->organisation_id,
-                'position'        => $position + 1,
-            ]));
-        }
+        $inserted = CustomerEmailTemplate::insertOrIgnore(array_map(fn (array $template, int $position) => array_merge($template, [
+            'group_id'        => $shop->group_id,
+            'organisation_id' => $shop->organisation_id,
+            'shop_id'         => $shop->id,
+            'position'        => $position + 1,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]), self::DEFAULTS, array_keys(self::DEFAULTS)));
 
-        if ($shop->language->code !== 'en') {
+        if ($inserted && $shop->language->code !== 'en') {
             TranslateShopCustomerEmailTemplates::dispatch($shop);
         }
     }

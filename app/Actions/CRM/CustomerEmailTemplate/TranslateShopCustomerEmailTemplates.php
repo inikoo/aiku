@@ -10,11 +10,13 @@ namespace App\Actions\CRM\CustomerEmailTemplate;
 
 use App\Actions\Helpers\Translations\Translate;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\CustomerEmailTemplate;
 use App\Models\Helpers\Language;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * Translates the shop's copies of the default emails it has not edited yet. A text whose
+ * Translates the shop's copies of the default emails it has not edited yet, checked again at
+ * the moment of writing, since staff can save a template while the translation runs. A text whose
  * {placeholders} did not survive the translation stays in English, since a broken
  * placeholder would reach the customer as a literal word.
  */
@@ -31,11 +33,13 @@ class TranslateShopCustomerEmailTemplates
         $english = Language::where('code', 'en')->firstOrFail();
 
         foreach ($shop->customerEmailTemplates()->whereNull('updated_by_user_id')->get() as $template) {
-            $template->update([
+            $translation = [
                 'name'    => $this->translate($template->name, $english, $shop->language),
                 'subject' => $this->translate($template->subject, $english, $shop->language),
                 'body'    => $this->translate($template->body, $english, $shop->language),
-            ]);
+            ];
+
+            CustomerEmailTemplate::where('id', $template->id)->whereNull('updated_by_user_id')->update($translation);
         }
     }
 

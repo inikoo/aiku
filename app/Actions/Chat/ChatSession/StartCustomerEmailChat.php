@@ -95,7 +95,7 @@ class StartCustomerEmailChat extends OrgAction
      */
     public static function userCanEmailCustomersOnShop(User $user, Shop $shop): bool
     {
-        return $user->authTo(["orders.{$shop->id}.edit", "marketing.{$shop->id}.edit"]);
+        return $user->status && $user->authTo(["orders.{$shop->id}.edit", "marketing.{$shop->id}.edit"]);
     }
 
     /**

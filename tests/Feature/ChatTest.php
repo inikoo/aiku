@@ -13844,13 +13844,19 @@ test('a shop starts with ten customer email templates that staff edit and send w
         ->and($sent)->toStartWith('Hello Matt Shaw,')
         ->and($sent)->not->toContain('{');
 
-    \App\Actions\Helpers\Translations\Translate::shouldRun()->andReturnUsing(
-        fn (string $text) => 'ES '.str_replace('{contact_name}', 'cliente', $text)
-    );
+    $editedMeanwhile = $this->shop->customerEmailTemplates()->where('position', 3)->first();
+    \App\Actions\Helpers\Translations\Translate::shouldRun()->andReturnUsing(function (string $text) use ($editedMeanwhile) {
+        if ($text === $editedMeanwhile->name) {
+            $editedMeanwhile->update(['subject' => 'Edited meanwhile', 'updated_by_user_id' => $this->user->id]);
+        }
+
+        return 'ES '.str_replace('{contact_name}', 'cliente', $text);
+    });
     \App\Actions\CRM\CustomerEmailTemplate\TranslateShopCustomerEmailTemplates::run($this->shop);
 
     $untouched = $this->shop->customerEmailTemplates()->where('position', 2)->first();
     expect($template->fresh()->subject)->toBe('Your basket at {shop_name}')
+        ->and($editedMeanwhile->fresh()->subject)->toBe('Edited meanwhile')
         ->and($untouched->name)->toStartWith('ES ')
         ->and($untouched->body)->toStartWith('Hello {contact_name}');
 });
