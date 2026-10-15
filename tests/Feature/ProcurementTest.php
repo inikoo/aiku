@@ -539,6 +539,27 @@ function createAgentOrgSupplierWithProduct(object $test, ?OrgAgent $orgAgent = n
     return [$orgSupplier->refresh(), $orgSupplierProduct];
 }
 
+/**
+ * @param  list<array{0: string, 1: int, 2: int, 3: bool}>  $lines  code, units per carton, cartons, code filled green (in China's warehouse)
+ */
+function writeChinaContainerList(string $name, array $lines): string
+{
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet       = $spreadsheet->getActiveSheet();
+    $sheet->fromArray(['Barcode', 'Code', 'Description', 'RMB', 'Packing', 'Carton Qty', '', 'ORDER']);
+    foreach ($lines as $index => [$code, $unitsPerCarton, $cartons, $inWarehouse]) {
+        $row = $index + 2;
+        $sheet->fromArray(['', $code, '', '', '', $unitsPerCarton, '', $cartons], null, "A$row");
+        if ($inWarehouse) {
+            $sheet->getStyle("B$row")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('92D050');
+        }
+    }
+    $file = sys_get_temp_dir().'/'.$name;
+    \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx')->save($file);
+
+    return $file;
+}
+
 function createFreshOrgAgent(object $test): OrgAgent
 {
     $agent = StoreAgent::make()->action($test->group, Agent::factory()->definition());
@@ -731,8 +752,7 @@ test('agent manager only sees their own agent organisation', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Org/Procurement/AgentWarehouseStocks')
             ->where('data.data', fn ($rows) => collect($rows)->contains(fn ($row) => $row['code'] === $warehouseSupplierProduct->code && $row['state'] === 'packed_for_next_container')));
-    $containerList = sys_get_temp_dir().'/Slovakia AWChina-95.csv';
-    file_put_contents($containerList, "Barcode,Code,Description,RMB,Packing,Carton Qty,,ORDER\n,G14 {$warehouseSupplierProduct->code},,,,120,,3\n,NOPE-999,,,,10,,1\n,{$warehouseSupplierProduct->code},,,,120,,0\n");
+    $containerList = writeChinaContainerList('Slovakia AWChina-95.xlsx', [["G14 {$warehouseSupplierProduct->code}", 120, 3, true], ['NOPE-999', 10, 1, true], [$warehouseSupplierProduct->code, 120, 0, true]]);
     $imported = \App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromContainerList::run($this->agent, $this->organisation, $containerList);
     unlink($containerList);
     expect($imported['unmatched'])->toBe(['NOPE-999'])
@@ -10476,14 +10496,14 @@ test('UI agent browse lists the whole catalogue as a standard table and searches
     $this->get($url.'?'.http_build_query(['filter' => ['global' => strtolower(substr($code, 2, 8))]]))->assertInertia(fn (AssertableInertia $page) => $page
         ->where('items.data', fn ($items) => collect($items)->contains('code', $code) && collect($items)->every(fn (array $item) => array_key_exists('bucket', $item))));
 
-    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
-
-    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
     $this->get($url.'?cover=w1')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('bucket', 'w1')
         ->where('active.cover', 'w1')
         ->where('items.data', fn ($items) => collect($items)->every(fn (array $item) => $item['bucket'] === 'w1')));
 
+    $this->get($url.'?'.http_build_query(['filter' => ['global' => 'no-such-product-zzz']]))->assertInertia(fn (AssertableInertia $page) => $page->where('items.meta.total', 0));
+
+    $this->get($url.'?'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
         ->where('items.data', fn ($items) => collect($items)->contains('code', $code)));
 
     $this->get($url.'?drafts=1&'.http_build_query(['filter' => ['supplier' => $supplierId]]))->assertInertia(fn (AssertableInertia $page) => $page
