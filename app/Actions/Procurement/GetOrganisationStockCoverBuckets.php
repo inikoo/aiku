@@ -206,19 +206,18 @@ class GetOrganisationStockCoverBuckets
         ]);
         $counted  = "'".StockDeliveryStateEnum::CHECKED->value."', '".StockDeliveryStateEnum::BOOKING_IN->value."'";
         $ordered  = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
-        $onDelivery = StoreStockDeliveryFromPurchaseOrder::liveDeliveryItemsOfTransaction(DB::query())->selectRaw('1')->toRawSql();
+        $onDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery()->toRawSql();
 
         return "((coalesce((select sum(greatest(case when stock_deliveries.state in ($counted) then stock_delivery_items.unit_quantity_checked else stock_delivery_items.unit_quantity end - coalesce(stock_delivery_items.unit_quantity_placed, 0), 0))
                 from stock_delivery_items
                 join stock_deliveries on stock_deliveries.id = stock_delivery_items.stock_delivery_id and stock_deliveries.deleted_at is null
                 where stock_delivery_items.org_stock_id = $orgStocks.id and stock_delivery_items.deleted_at is null
                     and stock_deliveries.state in ('$arriving')), 0)
-            + coalesce((select sum(purchase_order_transactions.quantity_ordered)
+            + coalesce((select sum(greatest(purchase_order_transactions.quantity_ordered - ($onDelivery), 0))
                 from purchase_order_transactions
                 join purchase_orders on purchase_orders.id = purchase_order_transactions.purchase_order_id and purchase_orders.deleted_at is null
                 where purchase_order_transactions.org_stock_id = $orgStocks.id and purchase_order_transactions.deleted_at is null
-                    and purchase_orders.state in ($ordered)
-                    and not exists ($onDelivery)), 0))
+                    and purchase_orders.state in ($ordered)), 0))
             / greatest(coalesce($orgStocks.packed_in, 1), 1))";
     }
 

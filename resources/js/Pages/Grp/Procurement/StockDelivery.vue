@@ -29,6 +29,7 @@ import StockDeliverySupplierPayments from "@/Components/Procurement/StockDeliver
 import StockDeliveryServiceInvoices from "@/Components/Procurement/StockDeliveryServiceInvoices.vue"
 import AgentContainerInvoicePanel from "@/Components/Procurement/AgentContainerInvoicePanel.vue"
 import AgreedTermDifferences from "@/Components/Procurement/AgreedTermDifferences.vue"
+import StockDeliveryAddItems from "@/Components/Procurement/StockDeliveryAddItems.vue"
 import TableStockDeliveryItems from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryItems.vue"
 import TableStockDeliveryDiscrepancies from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveryDiscrepancies.vue"
 import StockDeliveryCustoms from "@/Components/Procurement/StockDeliveryCustoms.vue"
@@ -114,6 +115,7 @@ const props = defineProps<{
 			in_this_container: boolean
 		}[]
 	} | null
+	add_purchase_order_items?: InstanceType<typeof StockDeliveryAddItems>["$props"]["data"]
 	remove_purchase_orders: Record<number, {
 		reference: string
 		route: routeType
@@ -316,6 +318,13 @@ const addPurchaseOrders = () => {
 			})
 		},
 	})
+}
+
+const addItemsOpen = ref(false)
+
+const openAddItems = () => {
+	addItemsOpen.value = true
+	router.reload({ only: ["add_purchase_order_items"] })
 }
 
 const purchaseOrderToRemoveId = ref<number | null>(null)
@@ -868,6 +877,32 @@ const confirmDeleteStockDelivery = (action: any) => {
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
+		<template v-if="add_purchase_orders" #otherBefore>
+			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
+				<Button
+					type="tertiary"
+					:label="ctrans('Add items')"
+					:disabled="add_purchase_orders.purchase_orders.length === 0"
+					@click="openAddItems"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
+			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
+				<Button
+					type="tertiary"
+					:label="ctrans('Add purchase orders')"
+					:disabled="add_purchase_orders.purchase_orders.length === 0"
+					@click="openAddPurchaseOrders"
+				>
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</span>
+		</template>
 		<template #other>
 			<Button
 				v-if="currentTab === 'attachments'"
@@ -1423,21 +1458,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 	</Dialog>
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-	<div v-if="currentTab === 'purchase_orders' && add_purchase_orders" class="flex items-center justify-end gap-3 px-4 pt-3">
-		<span v-if="add_purchase_orders.purchase_orders.length === 0" class="text-sm text-gray-500">
-			{{ ctrans("No confirmed purchase orders of this agent are waiting for a container") }}
-		</span>
-		<Button
-			type="tertiary"
-			:label="ctrans('Add purchase orders')"
-			:disabled="add_purchase_orders.purchase_orders.length === 0"
-			@click="openAddPurchaseOrders"
-		>
-			<template #icon>
-				<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-			</template>
-		</Button>
-	</div>
+	<StockDeliveryAddItems v-if="add_purchase_orders" v-model:visible="addItemsOpen" :data="add_purchase_order_items" />
 	<component
 		:is="component"
 		:key="currentTab"
