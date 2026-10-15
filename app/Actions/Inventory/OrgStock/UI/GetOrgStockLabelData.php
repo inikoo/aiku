@@ -30,6 +30,8 @@ class GetOrgStockLabelData
 
     public const ES_IMPORTER = "Imported to Spain by: AW Artisan S.L, 39 Caleta de\nVelez Street 29004 Málaga, Spain,\nhola@awartisan.es";
 
+    public const CARTON_ORGANISATION_CODE = 'SK';
+
     /**
      * @return array<string, mixed>
      */
@@ -73,9 +75,10 @@ class GetOrgStockLabelData
         $unitsPerPack   = $supplierProduct?->units_per_pack ?? (int) ($orgStock->packed_in ?? 1);
         $unitsPerCarton = $supplierProduct?->units_per_carton;
         $supplierCode   = $supplierProduct?->supplier?->code;
+        $organisation   = $this->getCartonOrganisation($orgStock);
 
         return [
-            'commercialised_by' => $orgStock->organisation->name,
+            'commercialised_by' => $organisation->name,
             'description'       => $supplierProduct?->name ?? $tradeUnits->first()?->name ?? $orgStock->name,
             'units_per_pack'    => $unitsPerPack,
             'packs_per_carton'  => $unitsPerCarton && $unitsPerPack ? trimDecimalZeros(round($unitsPerCarton / $unitsPerPack, 2)) : null,
@@ -84,8 +87,14 @@ class GetOrgStockLabelData
             'net_weight'        => $this->getKilograms($supplierProduct?->carton_net_weight),
             'gross_weight'      => $this->getKilograms($supplierProduct?->carton_weight),
             'origin'            => strtoupper((string) $this->getSharedTradeUnit($tradeUnits, 'country_of_origin')?->country_of_origin) ?: null,
-            'signature'         => ($signature = $this->getSignature($orgStock->organisation)) ? str_replace("\n", ', ', $signature) : null,
+            'signature'         => ($signature = $this->getSignature($organisation)) ? str_replace("\n", ', ', $signature) : null,
         ];
+    }
+
+    private function getCartonOrganisation(OrgStock $orgStock): Organisation
+    {
+        return Organisation::where('code', self::CARTON_ORGANISATION_CODE)->with('address')->first()
+            ?? $orgStock->organisation;
     }
 
     /**
