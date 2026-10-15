@@ -11269,7 +11269,97 @@ test('repair supplier drift leaves rows whose correct twin already exists', func
     $result = RepairOrgSupplierProductsSupplierDrift::make()->handle(fix: true);
 
     expect($result['collisions'])->toBe($baseline['collisions'] + 1)
-        ->and($drifted->refresh()->org_supplier_id)->toBe($orgSupplierA->id);
+        ->and(OrgSupplierProduct::find($drifted->id))->toBeNull()
+        ->and(OrgSupplierProduct::where('organisation_id', $this->organisation->id)->where('supplier_product_id', $supplierProduct->id)->count())->toBe(1);
+});
+
+test('repair supplier drift moves open purchase order lines to the twin and discontinues a drifted row with history', function () {
+    $supplierA = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $supplierB = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+
+    $orgSupplierA = $supplierA->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orgSupplierB = $supplierB->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+
+    $supplierProduct = StoreSupplierProduct::make()->action($supplierB, [
+        'code'             => 'DRIFT-3',
+        'name'             => 'Drifted Asset 3',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100
+    ]);
+
+    $twin = OrgSupplierProduct::where('org_supplier_id', $orgSupplierB->id)
+        ->where('supplier_product_id', $supplierProduct->id)
+        ->firstOrFail();
+
+    $drifted = $twin->replicate()->fill(['org_supplier_id' => $orgSupplierA->id, 'slug' => 'drift-3-'.Str::random(6)]);
+    $drifted->saveQuietly();
+
+    $addLineOnDrifted = function (PurchaseOrderStateEnum $state) use ($orgSupplierB, $supplierProduct, $drifted): PurchaseOrderTransaction {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplierB, PurchaseOrder::factory()->definition());
+        $line          = StorePurchaseOrderTransaction::make()->action(
+            $purchaseOrder,
+            $supplierProduct->historicSupplierProduct,
+            $this->orgStocks[0],
+            PurchaseOrderTransaction::factory()->definition()
+        );
+        $purchaseOrder->updateQuietly(['state' => $state]);
+        $line->updateQuietly(['org_supplier_product_id' => $drifted->id]);
+
+        return $line;
+    };
+
+    $settledLine   = $addLineOnDrifted(PurchaseOrderStateEnum::SETTLED);
+    $submittedLine = $addLineOnDrifted(PurchaseOrderStateEnum::SUBMITTED);
+
+    RepairOrgSupplierProductsSupplierDrift::make()->handle(fix: true);
+
+    expect($submittedLine->refresh()->org_supplier_product_id)->toBe($twin->id)
+        ->and($settledLine->refresh()->org_supplier_product_id)->toBe($drifted->id)
+        ->and($drifted->refresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
+        ->and($twin->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
+});
+
+test('storing an org supplier product for a moved supplier product repoints the organisation row instead of adding a second one', function () {
+    $supplierA = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $supplierB = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+
+    $orgSupplierA = $supplierA->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orgSupplierB = $supplierB->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+
+    $supplierProduct = StoreSupplierProduct::make()->action($supplierA, [
+        'code'             => 'DRIFT-4',
+        'name'             => 'Drifted Asset 4',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100
+    ]);
+
+    $original = OrgSupplierProduct::where('org_supplier_id', $orgSupplierA->id)
+        ->where('supplier_product_id', $supplierProduct->id)
+        ->firstOrFail();
+
+    $supplierProduct->updateQuietly(['supplier_id' => $supplierB->id]);
+
+    $stored = StoreOrgSupplierProduct::make()->action($orgSupplierB, $supplierProduct->refresh());
+
+    expect($stored->id)->toBe($original->id)
+        ->and($stored->org_supplier_id)->toBe($orgSupplierB->id)
+        ->and(OrgSupplierProduct::where('organisation_id', $this->organisation->id)->where('supplier_product_id', $supplierProduct->id)->count())->toBe(1);
 });
 
 test('storing an org supplier product twice for the same org supplier returns the first row', function () {
