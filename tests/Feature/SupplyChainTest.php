@@ -249,6 +249,21 @@ test('update supplier', function (Supplier $supplier) {
     return $updatedSupplier;
 })->depends('create independent supplier');
 
+test('rename supplier that buying organisations order from', function (Supplier $supplier) {
+    if ($supplier->orgSuppliers()->doesntExist()) {
+        StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    }
+
+    $renamedSupplier = UpdateSupplier::make()->action($supplier, [
+        'code'         => 'REN'.$supplier->id,
+        'company_name' => 'Renamed supplier',
+    ]);
+
+    expect($renamedSupplier->code)->toBe('REN'.$supplier->id)
+        ->and($renamedSupplier->wasChanged('code'))->toBeTrue()
+        ->and($renamedSupplier->orgSuppliers()->exists())->toBeTrue();
+})->depends('update supplier');
+
 test('create independent supplier 2', function () {
     $supplier = StoreSupplier::make()->action(
         parent: $this->group,

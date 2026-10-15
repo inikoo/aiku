@@ -133,17 +133,6 @@ class UpdateSupplier extends OrgAction
             $supplier->update(['data' => Arr::except($supplier->data, self::CONTAINER_ONLY_FIELDS)]);
         }
 
-        if ($supplier->wasChanged(['name', 'code'])) {
-            foreach ($supplier->orgSuppliers as $orgSupplier) {
-                $orgSupplier->update(
-                    [
-                        'code' => $supplier->code,
-                        'name' => $supplier->name
-                    ]
-                );
-            }
-        }
-
         return $supplier;
     }
 
