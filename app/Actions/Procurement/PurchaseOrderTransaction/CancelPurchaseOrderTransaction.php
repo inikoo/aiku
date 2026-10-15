@@ -14,6 +14,7 @@ use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionState
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -31,11 +32,12 @@ class CancelPurchaseOrderTransaction extends OrgAction
             $purchaseOrderTransaction->refresh();
 
             if ($purchaseOrderTransaction->state === PurchaseOrderTransactionStateEnum::CONFIRMED) {
-                $isAwaitingDelivery = StoreStockDeliveryFromPurchaseOrder::transactionsAwaitingDelivery($purchaseOrder)
+                $isOnDelivery = $purchaseOrder->purchaseOrderTransactions()
                     ->whereKey($purchaseOrderTransaction->id)
+                    ->whereExists(fn (Builder $items) => StoreStockDeliveryFromPurchaseOrder::liveDeliveryItemsOfTransaction($items))
                     ->exists();
 
-                if (!$isAwaitingDelivery) {
+                if ($isOnDelivery) {
                     abort(422, __('This item is on a stock delivery, deal with it there'));
                 }
             } elseif ($purchaseOrderTransaction->state !== PurchaseOrderTransactionStateEnum::SUBMITTED) {

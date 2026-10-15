@@ -13,9 +13,11 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Actions\SupplyChain\AgentInvoice\ApproveAgentInvoiceCharges;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetAgreement;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
@@ -152,7 +154,11 @@ class ShowStockDelivery extends OrgAction
             $this->set('tab', null);
         }
         $this->withTab($this->getTabs($stockDelivery));
+        $agentCanEdit = $this->canEdit;
         $this->authorizeProcurementRecord($stockDelivery);
+        if ($this->viewedByAgent && $this->organisationAgentSupplies($stockDelivery)) {
+            $this->canEdit = $agentCanEdit;
+        }
 
         return $this->handle($stockDelivery);
     }
@@ -236,6 +242,7 @@ class ShowStockDelivery extends OrgAction
                 'costing'          => $this->getCosting($stockDelivery),
                 'missing_evidence' => in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::CONFIRMED, StockDeliveryStateEnum::READY_TO_SHIP]) ? DispatchStockDelivery::missingEvidence($stockDelivery) : [],
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
+                'add_purchase_order_items' => $this->canAddPurchaseOrders ? Inertia::optional(fn () => $this->getAddPurchaseOrderItems($stockDelivery)) : null,
                 'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
                 'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
@@ -1366,6 +1373,45 @@ class ShowStockDelivery extends OrgAction
                     'in_this_container'              => in_array($purchaseOrder->id, $purchaseOrderIdsInContainer, true),
                 ])
                 ->values(),
+        ];
+    }
+
+    /**
+     * Every line still awaiting delivery on the purchase orders this container accepts, in units, with what one SKO
+     * and one carton hold so the page can show the quantity each way.
+     */
+    private function getAddPurchaseOrderItems(StockDelivery $stockDelivery): array
+    {
+        return [
+            'route' => [
+                'method'     => 'post',
+                'name'       => 'grp.models.stock-delivery.purchase_order_items.add',
+                'parameters' => ['stockDelivery' => $stockDelivery->id],
+            ],
+            'items' => AddPurchaseOrderItemsToStockDelivery::addableItems($stockDelivery)
+                ->with([
+                    'purchaseOrder:id,reference,parent_name,agent_order_reference',
+                    'supplierProduct:id,code,name,units_per_pack,units_per_carton',
+                    'orgStock:id,code,name,packed_in',
+                ])
+                ->orderBy('purchase_order_transactions.purchase_order_id')
+                ->orderBy('purchase_order_transactions.id')
+                ->get()
+                ->map(fn (PurchaseOrderTransaction $transaction) => [
+                    'id'                         => $transaction->id,
+                    'purchase_order_id'          => $transaction->purchase_order_id,
+                    'purchase_order_reference'   => $transaction->purchaseOrder->reference,
+                    'supplier'                   => $transaction->purchaseOrder->parent_name,
+                    'agent_order_reference'      => $transaction->purchaseOrder->agent_order_reference,
+                    'code'                       => $transaction->supplierProduct?->code ?? $transaction->orgStock?->code,
+                    'name'                       => $transaction->supplierProduct?->name ?? $transaction->orgStock?->name,
+                    'quantity_ordered'           => (float) $transaction->quantity_ordered,
+                    'quantity_awaiting_delivery' => (float) $transaction->quantity_awaiting_delivery,
+                    'units_per_sko'              => (float) (($transaction->supplierProduct ? $transaction->supplierProduct->units_per_pack : $transaction->orgStock?->packed_in) ?: 1),
+                    'units_per_carton'           => (float) (($transaction->supplierProduct ? $transaction->supplierProduct->units_per_carton : $transaction->orgStock?->packed_in) ?: 0),
+                ])
+                ->values()
+                ->all(),
         ];
     }
 

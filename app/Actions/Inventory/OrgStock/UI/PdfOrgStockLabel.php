@@ -203,6 +203,8 @@ class PdfOrgStockLabel
      */
     private const TOP_PADDING = 0.8;
 
+    private const SHEET_ROW_SPACING = 3.0;
+
     private const WIDE_RATIO = 2.75;
 
     private const CODE128_MODULE_MM = 0.3804;
@@ -291,19 +293,28 @@ class PdfOrgStockLabel
      */
     private function getSheetPdf(array $sheet, array $label, array $show, array $options, string $level, bool $withBarcode, string $filename)
     {
+        $rowSpacing    = $sheet['row_gap'] > 0 ? 0.0 : self::SHEET_ROW_SPACING;
+        $contentWidth  = $sheet['cell_width'] - 2 * self::CELL_PADDING;
+        $contentHeight = $sheet['cell_height'] - $rowSpacing;
+        $scale         = $this->getScale($contentWidth, $contentHeight, $level, $show['image'], $withBarcode);
+
+        $edgePadding = $level === 'unit' && ($scale['layout'] ?? null) !== 'wide' ? self::CELL_PADDING : 0.0;
+
         return PDF::loadView('labels.templates.pdf.org_stock.label_sheet', [
             'label'       => $label,
             'show'        => $show,
             'level'       => $level,
-            'skoBarcode'  => $this->getSkoBarcode($label, $level, $sheet['cell_width'], $sheet['cell_height']),
-            'cartonBarcode' => $this->getCartonBarcode($label, $level, $sheet['cell_width'], $sheet['cell_height']),
+            'skoBarcode'  => $this->getSkoBarcode($label, $level, $sheet['cell_width'], $contentHeight),
+            'cartonBarcode' => $this->getCartonBarcode($label, $level, $sheet['cell_width'], $contentHeight),
             'customText'  => $this->getCustomText($options),
-            'scale'       => $this->getScale($sheet['cell_width'], $sheet['cell_height'], $level, $show['image'], $withBarcode),
+            'scale'       => $scale,
             'cells'       => $this->getCells($sheet),
             'cellWidth'   => $sheet['cell_width'],
             'cellHeight'  => $sheet['cell_height'],
-            'cellPadding' => self::CELL_PADDING,
-            'cellTopPadding' => self::TOP_PADDING,
+            'cellPadding' => self::CELL_PADDING - $edgePadding,
+            'edgePadding' => $edgePadding,
+            'cellTopPadding' => self::TOP_PADDING + $rowSpacing / 2,
+            'cellBottomPadding' => self::CELL_PADDING + $rowSpacing / 2,
             'cutGuides'   => filter_var($options['cut_guides'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ], [], [
             'title'         => $filename,

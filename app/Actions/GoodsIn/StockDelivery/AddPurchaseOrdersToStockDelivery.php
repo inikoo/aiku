@@ -5,13 +5,11 @@ namespace App\Actions\GoodsIn\StockDelivery;
 use App\Actions\OrgAction;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -57,9 +55,7 @@ class AddPurchaseOrdersToStockDelivery extends OrgAction
      */
     public static function addablePurchaseOrders(StockDelivery $stockDelivery): Builder
     {
-        $itemsAwaitingDelivery = fn (Builder|HasMany $transactions) => $transactions
-            ->where('state', PurchaseOrderTransactionStateEnum::CONFIRMED)
-            ->whereNotExists(fn (QueryBuilder $items) => StoreStockDeliveryFromPurchaseOrder::liveDeliveryItemsOfTransaction($items));
+        $itemsAwaitingDelivery = fn (Builder|HasMany $transactions) => StoreStockDeliveryFromPurchaseOrder::whereAwaitingDelivery($transactions);
 
         return PurchaseOrder::query()
             ->when(!self::acceptsPurchaseOrders($stockDelivery), fn (Builder $query) => $query->whereRaw('false'))
