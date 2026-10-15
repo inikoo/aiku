@@ -67,6 +67,7 @@ use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\IndexSupplierCoverBucketItems;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\ShowSupplierShoppingDashboard;
+use App\Actions\Procurement\OrgSupplier\UI\ShowSupplierDraftsToSend;
 use App\Actions\Procurement\OrgSupplier\RemoveMisplacedSupplierShoppingListItems;
 use App\Actions\Procurement\ShoppingListItem\StoreShoppingListItems;
 use App\Actions\Procurement\ShoppingListItem\SuggestSupplierShoppingList;
@@ -207,6 +208,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::prefix('{orgSupplier}/shopping')->as('show.shopping.')->group(function () {
         Route::get('', ShowSupplierShoppingDashboard::class)->name('dashboard');
         Route::get('items', IndexSupplierCoverBucketItems::class)->name('items.index');
+        Route::get('drafts', ShowSupplierDraftsToSend::class)->name('drafts.index');
         Route::post('suggest', SuggestSupplierShoppingList::class)->name('suggest');
         Route::delete('misplaced', RemoveMisplacedSupplierShoppingListItems::class)->name('misplaced.destroy');
     });

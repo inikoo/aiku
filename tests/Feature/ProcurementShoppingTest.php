@@ -1788,6 +1788,30 @@ test('UI supplier shopping dashboard renders', function () {
     });
 });
 
+test('UI supplier drafts to submit shows only our drafts with products, styled like the agent page', function () {
+    [$orgSupplier, , $orgSupplierProduct] = independentOrgSupplierFixture($this);
+
+    $draft = App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder::make()->action($orgSupplier, []);
+
+    $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $orgSupplier->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 0)->where('draft', null));
+
+    StorePurchaseOrderTransaction::make()->action($draft, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 200]);
+
+    $response = $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $orgSupplier->slug]));
+
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('Procurement/SupplierDraftsToSend')
+        ->has('data.data', 1)
+        ->where('draft.purchase_order_id', $draft->id)
+        ->where('draft.lines', 1)
+        ->where('data.data.0.cartons', fn ($cartons) => (float) $cartons === 2.0)
+        ->where('pageHead.subNavigation', fn ($subNavigation) => collect($subNavigation)->firstWhere('route.name', 'grp.org.procurement.org_suppliers.show.shopping.drafts.index')['number'] === 1));
+
+    $this->get(route('grp.org.procurement.org_suppliers.show.shopping.drafts.index', [$this->organisation->slug, $this->orgSupplier->slug]))
+        ->assertNotFound();
+});
+
 test('supplier shopping dashboard is only for suppliers we buy from directly', function () {
     expect($this->orgSupplier->org_agent_id)->not->toBeNull();
 
