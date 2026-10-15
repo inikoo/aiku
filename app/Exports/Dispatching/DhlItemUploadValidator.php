@@ -40,6 +40,10 @@ class DhlItemUploadValidator
         'tax_paid',
     ];
 
+    public function __construct(public string $delimiter = '|')
+    {
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -97,6 +101,12 @@ class DhlItemUploadValidator
 
             foreach ($validator->errors()->messages() as $field => $messages) {
                 $rowErrors[$rowIndex][array_search($field, self::FIELDS)] = $messages;
+            }
+
+            foreach ($row as $columnIndex => $cell) {
+                if (str_contains($cell, $this->delimiter)) {
+                    $rowErrors[$rowIndex][$columnIndex][] = __('Must not contain the delimiter :delimiter.', ['delimiter' => $this->delimiter]);
+                }
             }
         }
 
