@@ -419,21 +419,21 @@ const isReasonGiven = computed(() => overrideReason.value.trim().length >= MINIM
                         {{ ctrans(":organisations have not said their order to :supplier is ready.", { organisations: waitingParts(overrideCard).map((part) => part.organisation_name).join(", "), supplier: overrideCard.supplier_code }) }}
                     </p>
                     <p class="mt-1">
-                        {{ ctrans("If you submit now, :agent starts on this supplier without them. Their drafts stay behind as drafts and miss this order. This cannot be undone from here.", { agent: agentName }) }}
+                        {{ ctrans("If you submit now, their drafts go with yours as they are, so :agent can start on everything for this supplier. Nobody can add to them afterwards. This cannot be undone from here.", { agent: agentName }) }}
                     </p>
                 </div>
             </div>
 
             <label class="block">
                 <span class="font-medium text-gray-800">{{ ctrans("Why are you not waiting for them?") }}</span>
-                <Textarea v-model="overrideReason" rows="3" autoResize class="mt-1 w-full" :class="fieldFocusClass" :placeholder="ctrans('It is recorded on the purchase orders you submit')" />
+                <Textarea v-model="overrideReason" rows="3" autoResize class="mt-1 w-full" :class="fieldFocusClass" :placeholder="ctrans('It is recorded on every purchase order submitted')" />
                 <span class="mt-1 block text-xs text-gray-500">{{ ctrans("At least :count characters", { count: MINIMUM_REASON_LENGTH }) }}</span>
             </label>
 
             <div class="flex justify-end gap-2">
                 <Button :label="ctrans('Keep waiting')" type="tertiary" size="s" @click="overrideCard = null" />
                 <Button
-                    :label="ctrans('Submit without them')"
+                    :label="ctrans('Submit everything now')"
                     type="negative"
                     icon="fal fa-paper-plane"
                     size="s"

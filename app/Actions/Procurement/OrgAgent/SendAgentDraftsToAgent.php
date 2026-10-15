@@ -30,11 +30,11 @@ class SendAgentDraftsToAgent extends OrgAction
      * Sends a supplier's drafts to the agent, which is when the agent starts on them. Every
      * organisation stacking on that supplier has to have marked its draft ready; whoever sends takes
      * their own organisation's draft with them. Sending before the others are ready needs a written
-     * reason, and then only the ready drafts go: an organisation that has not agreed keeps its draft
-     * and is never ordered for.
+     * reason, and then every draft on that supplier goes, so the agent can start on all of it: the
+     * reason is kept on each draft that had not said it was ready.
      *
      * @param  array<int, int>  $supplierIds
-     * @return array{sent: int, held_back: int}
+     * @return array{sent: int}
      *
      * @throws ValidationException
      */
@@ -45,23 +45,22 @@ class SendAgentDraftsToAgent extends OrgAction
                 ->lockForUpdate()
                 ->get();
 
-            $sent     = 0;
-            $heldBack = 0;
+            $sent = 0;
 
             foreach ($supplierIds as $supplierId) {
                 $supplierDrafts = $drafts->where('supplier_id', $supplierId);
-                $isGoing        = fn (PurchaseOrder $draft) => $draft->organisation_id === $orgAgent->organisation_id || isset($draft->data['ready_to_send']);
+                $isReady        = fn (PurchaseOrder $draft) => $draft->organisation_id === $orgAgent->organisation_id || isset($draft->data['ready_to_send']);
 
                 if (!$supplierDrafts->contains('organisation_id', $orgAgent->organisation_id)) {
                     throw ValidationException::withMessages(['drafts' => __('Your organisation has no draft for this supplier, so it is not yours to submit')]);
                 }
 
-                $waiting = $supplierDrafts->reject($isGoing);
+                $waiting = $supplierDrafts->reject($isReady);
                 if ($waiting->isNotEmpty() && !$overrideReason) {
                     throw ValidationException::withMessages(['override_reason' => __('Not every organisation has marked its draft ready, write why you are submitting without them')]);
                 }
 
-                foreach ($supplierDrafts->filter($isGoing) as $draft) {
+                foreach ($supplierDrafts as $draft) {
                     $data = $draft->data ?? [];
                     unset($data['ready_to_send']);
                     if ($waiting->isNotEmpty()) {
@@ -77,11 +76,9 @@ class SendAgentDraftsToAgent extends OrgAction
                     UpdatePurchaseOrderStateToSubmitted::make()->action($draft);
                     $sent++;
                 }
-
-                $heldBack += $waiting->count();
             }
 
-            return ['sent' => $sent, 'held_back' => $heldBack];
+            return ['sent' => $sent];
         });
     }
 
@@ -142,9 +139,9 @@ class SendAgentDraftsToAgent extends OrgAction
     public function htmlResponse(array $result): RedirectResponse
     {
         return Redirect::back()->with('notification', [
-            'status'  => $result['held_back'] ? 'warning' : 'success',
+            'status'  => 'success',
             'title'   => __('Sent to the agent'),
-            'message' => __(':sent purchase orders sent, :held left as drafts', ['sent' => $result['sent'], 'held' => $result['held_back']]),
+            'message' => __(':sent purchase orders sent', ['sent' => $result['sent']]),
         ]);
     }
 }

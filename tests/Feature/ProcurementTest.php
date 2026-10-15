@@ -10117,7 +10117,7 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
     }
 });
 
-test('agent drafts are sent once every organisation is ready, or early with a reason and without the others', function () {
+test('agent drafts are sent once every organisation is ready, or early with a reason taking the drafts of every organisation', function () {
     $otherOrganisation = Organisation::where('code', 'prc2')->first()
         ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
 
@@ -10170,13 +10170,15 @@ test('agent drafts are sent once every organisation is ready, or early with a re
 
     $result = $send->handle($this->orgAgent, [$supplier->id], 'Supplier closes for the holidays', 'tester');
 
-    expect($result)->toBe(['sent' => 1, 'held_back' => 1])
+    expect($result)->toBe(['sent' => 2])
         ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
         ->and($ours->fresh()->data['sent_without_waiting']['reason'])->toBe('Supplier closes for the holidays')
         ->and($ours->fresh()->data['sent_without_waiting']['waiting'])->toBe([$theirs->reference])
-        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
+        ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
+        ->and($theirs->fresh()->data['sent_without_waiting']['reason'])->toBe('Supplier closes for the holidays');
 
     $oursAgain = $draftWithLine($ourOrgSupplier);
+    $theirs    = $draftWithLine($theirOrgSupplier);
     App\Actions\Procurement\PurchaseOrder\SetPurchaseOrderReadyToSend::make()->handle($theirs->fresh(), true, 'their buyer');
 
     expect($theirs->fresh()->data['ready_to_send']['by'])->toBe('their buyer');
@@ -10184,7 +10186,7 @@ test('agent drafts are sent once every organisation is ready, or early with a re
 
     $result = $send->handle($this->orgAgent, [$supplier->id]);
 
-    expect($result)->toBe(['sent' => 2, 'held_back' => 0])
+    expect($result)->toBe(['sent' => 2])
         ->and($oursAgain->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
         ->and($theirs->fresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED)
         ->and($theirs->fresh()->data)->not->toHaveKey('ready_to_send')
