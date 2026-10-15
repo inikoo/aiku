@@ -15,6 +15,7 @@ hosts:
     environment: 'production'
     deploy_path: '~/aiku'
     branch: production
+    ssr_check_host: www.awgifts.sk
     labels:
       env: prod
   aiku_litio:
@@ -29,6 +30,7 @@ hosts:
     deploy_path: '~/aiku'
     branch: production
     octane_replica_state_file: logs/litio-replica-octane-server-state.json
+    ssr_check_host: www.awgifts.sk
     labels:
       env: prod
   staging:
