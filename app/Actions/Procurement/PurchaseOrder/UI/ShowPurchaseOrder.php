@@ -19,6 +19,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderPaymentMethodEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
+use App\Http\Resources\Procurement\PurchaseOrderComplianceDocumentsResource;
 use App\Actions\Procurement\ProcurementNote\UI\IndexProcurementNotes;
 use App\Http\Resources\Procurement\ProcurementNoteResource;
 use App\Actions\OrgAction;
@@ -295,9 +296,10 @@ class ShowPurchaseOrder extends OrgAction
                     : [],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => $showProductsTab
-                        ? PurchaseOrderTabsEnum::navigation()
-                        : PurchaseOrderTabsEnum::navigationExcept([PurchaseOrderTabsEnum::PRODUCTS]),
+                    'navigation' => PurchaseOrderTabsEnum::navigationExcept(array_filter([
+                        $showProductsTab ? null : PurchaseOrderTabsEnum::PRODUCTS,
+                        $purchaseOrder->parent_type === 'OrgPartner' ? PurchaseOrderTabsEnum::COMPLIANCE : null,
+                    ])),
                 ],
                 'routes'      => [
                     'updatePurchaseOrderRoute' => [
@@ -394,6 +396,13 @@ class ShowPurchaseOrder extends OrgAction
                     'parameters' => [$purchaseOrder->id],
                 ],
 
+                PurchaseOrderTabsEnum::COMPLIANCE->value => $this->tab == PurchaseOrderTabsEnum::COMPLIANCE->value ?
+                    fn () => PurchaseOrderComplianceDocumentsResource::collection(IndexPurchaseOrderComplianceDocuments::run($purchaseOrder, PurchaseOrderTabsEnum::COMPLIANCE->value))
+                    : Inertia::optional(fn () => PurchaseOrderComplianceDocumentsResource::collection(IndexPurchaseOrderComplianceDocuments::run($purchaseOrder, PurchaseOrderTabsEnum::COMPLIANCE->value))),
+                'compliance_summary' => $this->tab == PurchaseOrderTabsEnum::COMPLIANCE->value
+                    ? fn () => $this->getComplianceSummary($purchaseOrder)
+                    : Inertia::optional(fn () => $this->getComplianceSummary($purchaseOrder)),
+
                 PurchaseOrderTabsEnum::ATTACHMENTS->value => $this->tab == PurchaseOrderTabsEnum::ATTACHMENTS->value ?
                     fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder))
                     : Inertia::optional(fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder))),
@@ -430,6 +439,7 @@ class ShowPurchaseOrder extends OrgAction
                     : IndexPurchaseOrderOrgSupplierProducts::make()->tableStructure(prefix: PurchaseOrderTabsEnum::PRODUCTS->value)
             )
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: PurchaseOrderTabsEnum::NOTES->value))
+            ->table(IndexPurchaseOrderComplianceDocuments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::COMPLIANCE->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexDispatchedEmailsInOrder::make()->tableStructure(prefix: PurchaseOrderTabsEnum::DISPATCHED_EMAILS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
@@ -770,6 +780,24 @@ class ShowPurchaseOrder extends OrgAction
     private function datedByItsStockDeliveries(PurchaseOrder $purchaseOrder): bool
     {
         return $purchaseOrder->isAgentOrder() && $this->hasActiveStockDelivery($purchaseOrder);
+    }
+
+    public function getComplianceSummary(PurchaseOrder $purchaseOrder): array
+    {
+        $compliance = GetPurchaseOrderCompliance::run($purchaseOrder);
+        $canUpload  = ($this->canEdit && $purchaseOrder->organisation_id === $this->organisation->id) || $this->agentCanEdit;
+
+        return [
+            'eta'          => $compliance['eta'],
+            'deadline'     => $compliance['deadline'],
+            'buffer_days'  => GetPurchaseOrderCompliance::DEADLINE_BUFFER_DAYS,
+            'missing'      => $compliance['missing'],
+            'overdue'      => $compliance['overdue'],
+            'upload_route' => $canUpload ? [
+                'name'       => 'grp.models.purchase-order.compliance.attach',
+                'parameters' => ['purchaseOrder' => $purchaseOrder->id],
+            ] : null,
+        ];
     }
 
     /**

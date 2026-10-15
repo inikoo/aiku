@@ -76,6 +76,7 @@ use App\Actions\GoodsIn\StockDeliveryItem\UpdateStockDeliveryItemCost;
 use App\Actions\Inventory\OrgStock\Stock\RebuildOrgStockHistoriesSince;
 use App\Models\Helpers\Audit;
 use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages;
+use App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderCompliance;
 use App\Models\Inventory\OrganisationStockHistory;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\GoodsIn\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
@@ -1084,6 +1085,50 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
     );
 
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null]);
+})->depends('create purchase order through an agent');
+
+test('a purchase order lists the compliance documents of its products, due by the arrival estimate less a buffer', function (PurchaseOrder $purchaseOrder) {
+    \Illuminate\Support\Facades\Notification::fake();
+    $agentUser = User::where('username', 'agent-clerk')->firstOrFail();
+    $orgStock  = $purchaseOrder->purchaseOrderTransactions()->firstOrFail()->orgStock;
+    $tradeUnit = $orgStock->tradeUnits()->first() ?? tap(\App\Models\Goods\TradeUnit::orderBy('id')->firstOrFail(), fn ($tradeUnit) => $orgStock->tradeUnits()->attach($tradeUnit->id, ['quantity' => 1]));
+    $other     = \App\Models\Goods\TradeUnit::whereNotIn('id', GetPurchaseOrderCompliance::make()->tradeUnits($purchaseOrder)->pluck('id'))->firstOrFail();
+    $eta       = now()->addDays(17)->toDateString();
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::CONFIRMED, 'buyer_id' => $agentUser->id, 'estimated_received_at' => $eta, 'data' => array_merge($purchaseOrder->data ?? [], ['estimated_receiving_date' => $eta])]);
+    $before    = collect(GetPurchaseOrderCompliance::make()->documents($tradeUnit->refresh())['documents'])->firstWhere('scope', 'cpsr')['count'];
+    $file      = fn (string $name) => \Illuminate\Http\UploadedFile::fake()->createWithContent($name, '%PDF-1.4 '.$name.' '.Str::random(12));
+
+    actingAs($agentUser);
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $tradeUnit->id]), ['attachments' => [$file('cpsr.pdf')], 'scope' => 'cpsr'])->assertSessionHasNoErrors();
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $other->id]), ['attachments' => [$file('cpsr.pdf')], 'scope' => 'cpsr'])->assertSessionHasErrors('scope');
+    $this->post(route('grp.models.purchase-order.compliance.attach', [$purchaseOrder->id, $tradeUnit->id]), ['attachments' => [$file('photo.pdf')], 'scope' => 'other'])->assertSessionHasErrors('scope');
+    actingAs($this->adminGuest->getUser());
+
+    $compliance = GetPurchaseOrderCompliance::run($purchaseOrder->refresh());
+    $product    = collect($compliance['products'])->firstWhere('trade_unit_id', $tradeUnit->id);
+    expect($compliance['eta'])->toBe($eta)
+        ->and($compliance['deadline'])->toBe(now()->addDays(7)->toDateString())
+        ->and($compliance['missing'])->toBe(0)
+        ->and(collect($product['documents'])->firstWhere('scope', 'cpsr')['count'])->toBe($before + 1);
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendComplianceDocumentsReminders::run())->toBe(0);
+    \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+    $this->mock(GetPurchaseOrderCompliance::class)->makePartial()
+        ->shouldReceive('requiredDocuments')->andReturn([\App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum::TEST_REPORTS])
+        ->shouldReceive('supplierOnlyDocuments')->andReturn([\App\Enums\Goods\TradeUnit\TradeAttachmentScopeEnum::TEST_REPORTS]);
+
+    expect(\App\Actions\Procurement\PurchaseOrder\SendComplianceDocumentsReminders::make()->remind($purchaseOrder))->toBeTrue()
+        ->and(GetPurchaseOrderStages::make()->skippedBy($purchaseOrder, 'qc_passed_at', GetPurchaseOrderStages::run($purchaseOrder)))->toContain(__(':document for :code', ['document' => __('Test Reports'), 'code' => $tradeUnit->code]));
+    \Illuminate\Support\Facades\Notification::assertSentTo($agentUser, \App\Notifications\ComplianceDocumentsReminderNotification::class);
+
+    $this->withoutVite();
+    $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]).'?tab=compliance')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('compliance_summary.deadline', now()->addDays(7)->toDateString())
+            ->where('compliance.data', fn ($rows) => collect($rows)->contains('id', $tradeUnit->id)));
+
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'buyer_id' => null]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {

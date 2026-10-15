@@ -106,6 +106,10 @@ class GetPurchaseOrderStages
             }
         }
 
+        if ($field === 'qc_passed_at') {
+            array_push($skipped, ...GetPurchaseOrderCompliance::make()->missingSupplierOnly($purchaseOrder));
+        }
+
         return $skipped;
     }
 
