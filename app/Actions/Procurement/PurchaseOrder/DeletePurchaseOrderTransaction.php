@@ -52,7 +52,7 @@ class DeletePurchaseOrderTransaction extends OrgAction
 
     public static function reopenShoppingListItems(array $purchaseOrderTransactionIds): void
     {
-        ShoppingListItem::whereIn('purchase_order_transaction_id', $purchaseOrderTransactionIds)->update([
+        ShoppingListItem::withTrashed()->whereIn('purchase_order_transaction_id', $purchaseOrderTransactionIds)->update([
             'purchase_order_transaction_id' => null,
             'state'                         => ShoppingListItemStateEnum::OPEN,
         ]);
