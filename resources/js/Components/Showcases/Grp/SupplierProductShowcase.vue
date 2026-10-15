@@ -45,6 +45,7 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 import ProductImageViewerDialog from "@/Components/Product/ProductImageViewerDialog.vue"
+import AgentSupplierProductPanel from "@/Components/Procurement/AgentSupplierProductPanel.vue"
 
 library.add(
     faBarcode,
@@ -103,11 +104,12 @@ const props = defineProps<{
         costs: {
             currency_code: string | null
             unit_cost: number
-            extra_costs_percentage: number
-            delivered_unit_cost: number
-            pack_cost: number | null
-            carton_cost: number | null
+            extra_costs_percentage?: number
+            delivered_unit_cost?: number
+            pack_cost?: number | null
+            carton_cost?: number | null
         }
+        agent?: InstanceType<typeof AgentSupplierProductPanel>["$props"]["panel"]
         packaging: {
             units_per_pack: number | null
             units_per_carton: number | null
@@ -215,12 +217,12 @@ const money = (value: number | null) =>
     value === null || value === undefined ? "-" : locale.currencyFormat(props.data.costs.currency_code, value)
 
 const costRows = computed(() => [
-    { label: ctrans("Unit cost"), value: money(props.data.costs.unit_cost), strong: true },
-    { label: ctrans("Extra costs"), value: `${locale.number(props.data.costs.extra_costs_percentage)} %` },
-    { label: ctrans("Delivered unit cost"), value: money(props.data.costs.delivered_unit_cost), strong: true },
-    { label: ctrans("Delivered pack cost"), value: money(props.data.costs.pack_cost) },
-    { label: ctrans("Delivered carton cost"), value: money(props.data.costs.carton_cost) },
-])
+    { key: "unit_cost", label: ctrans("Unit cost"), value: money(props.data.costs.unit_cost), strong: true },
+    { key: "extra_costs_percentage", label: ctrans("Extra costs"), value: `${locale.number(props.data.costs.extra_costs_percentage)} %` },
+    { key: "delivered_unit_cost", label: ctrans("Delivered unit cost"), value: money(props.data.costs.delivered_unit_cost), strong: true },
+    { key: "pack_cost", label: ctrans("Delivered pack cost"), value: money(props.data.costs.pack_cost) },
+    { key: "carton_cost", label: ctrans("Delivered carton cost"), value: money(props.data.costs.carton_cost) },
+].filter((row) => row.key in props.data.costs))
 
 const packagingRows = computed(() => [
     {
@@ -592,6 +594,8 @@ const availabilityBadge = (isAvailable: boolean) =>
 
 <template>
     <div class="grid gap-6 p-6 md:grid-cols-3">
+        <AgentSupplierProductPanel v-if="data.agent" :panel="data.agent" />
+
         <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div class="flex gap-4">
                 <button v-if="data.product.image" type="button" class="h-28 w-28 shrink-0 cursor-zoom-in"
@@ -673,7 +677,7 @@ const availabilityBadge = (isAvailable: boolean) =>
             </div>
 
             <Link v-if="data.product.route" :href="route(data.product.route.name, data.product.route.parameters)"
-                class="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-500 hover:text-indigo-700">
+                class="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-800">
                 <Icon :data="{ icon: 'fal fa-external-link' }" />
                 {{ ctrans("Supplier product in supply chain") }}
             </Link>
@@ -890,7 +894,7 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div class="flex flex-col gap-4">
                 <div v-for="tradeUnit in data.composition" :key="tradeUnit.slug">
                     <component :is="tradeUnit.route ? Link : 'div'" :href="tradeUnit.route ? route(tradeUnit.route.name, tradeUnit.route.parameters) : undefined"
-                        class="text-sm font-medium text-gray-700 hover:text-indigo-600">
+                        class="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline">
                         {{ tradeUnit.code }} <span class="text-gray-400 font-normal">{{ tradeUnit.name }}</span>
                     </component>
                     <div v-if="tradeUnit.org_stocks.length" class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -914,7 +918,7 @@ const availabilityBadge = (isAvailable: boolean) =>
             <div class="flex flex-col divide-y divide-gray-100">
                 <component :is="stock.route ? Link : 'div'" v-for="stock in data.stocks" :key="stock.slug"
                     :href="stock.route ? route(stock.route.name, stock.route.parameters) : undefined"
-                    class="flex items-baseline justify-between gap-3 py-2 hover:text-indigo-600">
+                    class="flex items-baseline justify-between gap-3 py-2 hover:text-gray-900 hover:underline">
                     <span class="truncate text-sm text-gray-700">{{ stock.name }}</span>
                     <span class="shrink-0 text-xs tabular-nums text-gray-400">{{ stock.code }}</span>
                 </component>

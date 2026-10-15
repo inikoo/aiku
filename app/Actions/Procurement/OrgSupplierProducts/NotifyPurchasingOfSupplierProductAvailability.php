@@ -1,0 +1,88 @@
+<?php
+
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 15 Oct 2026 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2026, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Procurement\OrgSupplierProducts;
+
+use App\Actions\SysAdmin\User\NotifyUserOnChosenChannels;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductAvailabilityStatusEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductUnavailableReasonEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Enums\SysAdmin\User\UserNotificationEnum;
+use App\Models\Procurement\OrgSupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\User;
+use App\Notifications\SupplierProductAvailabilityChangedNotification;
+use Illuminate\Support\Collection;
+use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\Permission\Models\Permission;
+
+/**
+ * Tells the purchasing lead of every organisation that buys a product when its agent changes its availability.
+ */
+class NotifyPurchasingOfSupplierProductAvailability
+{
+    use AsAction;
+
+    public function handle(SupplierProduct $supplierProduct, ?User $changedBy): int
+    {
+        $orgSupplierProducts = $supplierProduct->orgSupplierProducts()
+            ->whereHas('organisation', fn ($query) => $query->where('type', '!=', OrganisationTypeEnum::AGENT))
+            ->with('organisation')
+            ->get();
+
+        $title = __(':code: :status', ['code' => $supplierProduct->code, 'status' => SupplierProductAvailabilityStatusEnum::labels()[$supplierProduct->availability_status->value]]);
+        $body  = $this->body($supplierProduct, $changedBy);
+
+        $notified = 0;
+        foreach ($orgSupplierProducts as $orgSupplierProduct) {
+            foreach ($this->purchasingLeads($orgSupplierProduct, $changedBy) as $user) {
+                NotifyUserOnChosenChannels::run(
+                    $user,
+                    UserNotificationEnum::SUPPLIER_PRODUCT_AVAILABILITY,
+                    new SupplierProductAvailabilityChangedNotification($orgSupplierProduct, $title, $body),
+                    $title,
+                    $body,
+                    route('grp.org.procurement.org_supplier_products.show', [$orgSupplierProduct->organisation->slug, $orgSupplierProduct->slug])
+                );
+                $notified++;
+            }
+        }
+
+        return $notified;
+    }
+
+    private function body(SupplierProduct $supplierProduct, ?User $changedBy): string
+    {
+        $parts = array_filter([
+            $supplierProduct->name,
+            $supplierProduct->unavailable_reason ? __('Reason: :reason', ['reason' => SupplierProductUnavailableReasonEnum::labels()[$supplierProduct->unavailable_reason->value]]) : null,
+            $supplierProduct->available_from ? __('Available from :date', ['date' => $supplierProduct->available_from->toDateString()]) : null,
+            $supplierProduct->availability_new_cost !== null ? __('New cost asked: :cost', ['cost' => trimDecimalZeros($supplierProduct->availability_new_cost).' '.$supplierProduct->currency->code]) : null,
+            $supplierProduct->availability_note,
+            $changedBy ? __('Recorded by :user', ['user' => $changedBy->contact_name ?: $changedBy->username]) : null,
+        ]);
+
+        return implode('. ', $parts).'.';
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    private function purchasingLeads(OrgSupplierProduct $orgSupplierProduct, ?User $changedBy): Collection
+    {
+        $permissions = Permission::where('name', "org-supervisor.$orgSupplierProduct->organisation_id.procurement")->pluck('name')->all();
+        if (!$permissions) {
+            return collect();
+        }
+
+        return User::permission($permissions)
+            ->where('status', true)
+            ->when($changedBy, fn ($query) => $query->where('users.id', '!=', $changedBy->id))
+            ->get();
+    }
+}

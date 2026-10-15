@@ -111,6 +111,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Testing\AssertableInertia;
+use App\Actions\Procurement\OrgSupplierProducts\NotifyPurchasingOfSupplierProductAvailability;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
+use App\Notifications\SupplierProductAvailabilityChangedNotification;
+use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Permission;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -3082,4 +3087,74 @@ test('agent organisation products list one row per supplier product with every b
 
     expect($rows)->toHaveCount(1)
         ->and(explode(', ', $rows->first()['organisations']))->toEqualCanonicalizing([$this->organisation->code, $otherOrganisation->code]);
+});
+
+test('HELP-4019 an agent sees its product by our code with what to fix, and never the landed costs', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation       = $orgSupplierProduct->orgAgent->agent->organisation;
+    $orgSupplierProduct->supplierProduct->update(['cbm' => 0.5, 'minimum_carton_order' => 4, 'extra_costs' => 0.2]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id]);
+
+    $this->withoutExceptionHandling();
+    $this->get(route('grp.org.agent.org_supplier_products.show', [$agentOrganisation->slug, $orgSupplierProduct->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.title', $this->stocks[0]->code)
+            ->where('showcase.agent.internal_code', $this->stocks[0]->code)
+            ->has('showcase.agent.checks', 9)
+            ->where('showcase.agent.key.moq.units', 400)
+            ->where('showcase.agent.key.moq.value', 40000)
+            ->where('showcase.agent.containers.40ft', 116)
+            ->missing('showcase.costs.extra_costs_percentage')
+            ->missing('showcase.costs.delivered_unit_cost')
+            ->missing('showcase.supplierProductInfo.unit_expense')
+            ->etc());
+});
+
+test('HELP-4019 an agent saves carton size, packaging and availability on the product, and contacts on its supplier', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $agentOrganisation       = $orgSupplierProduct->orgAgent->agent->organisation;
+    NotifyPurchasingOfSupplierProductAvailability::shouldRun()->once();
+
+    $this->patch(route('grp.models.org.org_supplier_product.agent_details.update', [$agentOrganisation->id, $orgSupplierProduct->id]), [
+        'carton_dimensions'   => ['l' => 50, 'w' => 40, 'h' => 30],
+        'carton_weight'       => 12000,
+        'carton_net_weight'   => 11000,
+        'packaging_terms'     => ['retail_box' => 'us'],
+        'availability_status' => 'unavailable',
+        'unavailable_reason'  => 'factory_holiday',
+        'available_from'      => '2027-02-20',
+    ])->assertSessionHasNoErrors();
+
+    $supplierProduct = $orgSupplierProduct->supplierProduct->refresh();
+    expect((float) $supplierProduct->cbm)->toBe(0.06)
+        ->and($supplierProduct->is_available)->toBeFalse()
+        ->and($supplierProduct->packaging_terms)->toBe(['retail_box' => 'us']);
+
+    $this->patch(route('grp.models.org.org_supplier_product.agent_details.update', [$agentOrganisation->id, $orgSupplierProduct->id]), [
+        'availability_status' => 'limited',
+    ])->assertSessionHasErrors('unavailable_reason');
+
+    $this->patch(route('grp.models.org.org_supplier_product.supplier_contacts.update', [$agentOrganisation->id, $orgSupplierProduct->id]), [
+        'wechat' => 'factory_wx_01',
+    ])->assertSessionHasNoErrors();
+    expect($supplierProduct->supplier->refresh()->wechat)->toBe('factory_wx_01');
+
+    $supplierProduct->supplier->update(['is_generic' => true]);
+    $this->patch(route('grp.models.org.org_supplier_product.supplier_contacts.update', [$agentOrganisation->id, $orgSupplierProduct->id]), [
+        'whatsapp' => '+8613800000000',
+    ])->assertSessionHasErrors('whatsapp');
+});
+
+test('HELP-4019 purchasing leads of the buying organisations hear when a product availability changes', function () {
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    Notification::fake();
+
+    $lead = $this->adminGuest->getUser();
+    setPermissionsTeamId($this->group->id);
+    $lead->givePermissionTo(Permission::where('name', "org-supervisor.{$orgSupplierProduct->organisation_id}.procurement")->firstOrFail());
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($orgSupplierProduct->supplierProduct, ['availability_status' => 'unavailable', 'unavailable_reason' => 'quality']);
+
+    expect(NotifyPurchasingOfSupplierProductAvailability::run($supplierProduct, null))->toBeGreaterThanOrEqual(1);
+    Notification::assertSentTo($lead, SupplierProductAvailabilityChangedNotification::class);
 });
