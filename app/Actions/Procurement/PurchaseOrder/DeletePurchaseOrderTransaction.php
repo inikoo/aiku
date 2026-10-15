@@ -12,18 +12,34 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\PurchaseOrder;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\Procurement\ShoppingListItem;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Validation\Validator;
 
 class DeletePurchaseOrderTransaction extends OrgAction
 {
     use WithProcurementEditAuthorisation;
     use AsAction;
     use WithAttributes;
+
+    private PurchaseOrderTransaction $purchaseOrderTransaction;
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->asAction) {
+            return;
+        }
+
+        $state = $this->purchaseOrderTransaction->purchaseOrder->state;
+        if ($state !== PurchaseOrderStateEnum::IN_PROCESS) {
+            $validator->errors()->add('state', __('You can not delete a line of a purchase order with state :state', ['state' => $state->value]));
+        }
+    }
 
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): void
     {
@@ -51,6 +67,7 @@ class DeletePurchaseOrderTransaction extends OrgAction
 
     public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): void
     {
+        $this->purchaseOrderTransaction = $purchaseOrderTransaction;
         $this->initialisation($purchaseOrderTransaction->organisation, $request);
         $this->handle($purchaseOrderTransaction);
     }

@@ -1344,7 +1344,16 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
         expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
             ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
 
-        DeletePurchaseOrder::make()->action(App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->purchaseOrder);
+        $orderedLine = App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id);
+        $orderedLine->purchaseOrder->update(['state' => PurchaseOrderStateEnum::CONFIRMED]);
+
+        $this->delete(route('grp.models.purchase-order.transaction.delete', [$orderedLine->purchase_order_id, $orderedLine->id]))
+            ->assertSessionHasErrors('state');
+
+        expect($orderedLine->fresh())->not->toBeNull();
+
+        $orderedLine->purchaseOrder->update(['state' => PurchaseOrderStateEnum::IN_PROCESS]);
+        DeletePurchaseOrder::make()->action($orderedLine->purchaseOrder->fresh());
 
         expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::OPEN)
             ->and($item->fresh()->purchase_order_transaction_id)->toBeNull();
