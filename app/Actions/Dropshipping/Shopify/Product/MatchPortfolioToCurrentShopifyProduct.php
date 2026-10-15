@@ -14,6 +14,7 @@ use App\Actions\Retina\Dropshipping\Portfolio\UnlinkRetinaPortfolio;
 use App\Events\UploadProductToShopifyProgressEvent;
 use App\Models\Dropshipping\Portfolio;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,11 +22,16 @@ class MatchPortfolioToCurrentShopifyProduct extends OrgAction
 {
     use AsAction;
 
-    public function handle(Portfolio $portfolio, array $modelData)
+    /**
+     * @return array{0: bool, 1: string}
+     */
+    public function handle(Portfolio $portfolio, array $modelData): array
     {
         $shopifyProductId = Arr::get($modelData, 'shopify_product_id');
 
-        if (AdoptShopifyProductVariant::run($portfolio, $shopifyProductId, Arr::has($modelData, 'manage_price') ? (bool) Arr::get($modelData, 'manage_price') : null) === null) {
+        $result = AdoptShopifyProductVariant::run($portfolio, $shopifyProductId, Arr::has($modelData, 'manage_price') ? (bool) Arr::get($modelData, 'manage_price') : null);
+
+        if ($result === null) {
             $refusal = LinkShopifyPortfolio::refusal($portfolio->customerSalesChannel, $shopifyProductId, null, $portfolio);
 
             if ($refusal === null) {
@@ -37,7 +43,7 @@ class MatchPortfolioToCurrentShopifyProduct extends OrgAction
                 UpdatePortfolio::run($portfolio, ['errors_response' => ['message' => $refusal]]);
                 UploadProductToShopifyProgressEvent::dispatch($portfolio->customerSalesChannel->user, $portfolio->refresh());
 
-                return;
+                return [false, $refusal];
             }
 
             if ($portfolio->isShopifyVariantAdopted()) {
@@ -47,12 +53,26 @@ class MatchPortfolioToCurrentShopifyProduct extends OrgAction
             LinkShopifyPortfolio::run($portfolio, $shopifyProductId);
 
             $portfolio->refresh();
-            StoreShopifyProductVariant::run($portfolio, 0);
+            $result = StoreShopifyProductVariant::run($portfolio, 0);
         }
 
         $portfolio = CheckShopifyPortfolio::run($portfolio->refresh());
 
         UploadProductToShopifyProgressEvent::dispatch($portfolio->customerSalesChannel->user, $portfolio);
+
+        return $result;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public static function throwIfRefused(array $result): void
+    {
+        [$matched, $message] = $result;
+
+        if (!$matched) {
+            throw ValidationException::withMessages(['message' => $message]);
+        }
     }
 
 
@@ -68,7 +88,7 @@ class MatchPortfolioToCurrentShopifyProduct extends OrgAction
     {
 
         $this->initialisation($portfolio->customerSalesChannel->organisation, $request);
-        $this->handle($portfolio, $this->validatedData);
+        self::throwIfRefused($this->handle($portfolio, $this->validatedData));
     }
 
 }
