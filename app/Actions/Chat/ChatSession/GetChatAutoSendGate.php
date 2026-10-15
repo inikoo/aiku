@@ -33,7 +33,7 @@ class GetChatAutoSendGate
 
         $drafts = ChatAiDraft::where('shop_id', $shop->id)
             ->where('topic', $topic)
-            ->whereRaw("coalesce(facts->>'mode', '') <> ?", [DraftChatReply::SUGGESTION])
+            ->whereRaw("coalesce(facts->>'mode', '') not in (?, ?)", [DraftChatReply::SUGGESTION, DraftChatReply::ASSISTANT])
             ->where('created_at', '>=', $since);
 
         $counts = (clone $drafts)

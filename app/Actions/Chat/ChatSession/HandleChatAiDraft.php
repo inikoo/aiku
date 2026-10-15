@@ -13,6 +13,7 @@ use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
 use App\Models\Chat\ChatAiDraft;
 use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChatSession;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -166,6 +167,10 @@ class HandleChatAiDraft
             'text'        => $draft->text,
             'topic'       => $draft->topic->value,
             'topic_label' => $draft->topic->label(),
+            'assistant'   => data_get($draft->facts, 'mode') === DraftChatReply::ASSISTANT ? array_filter([
+                'of'     => User::find(data_get($draft->facts, 'user_id'))?->contact_name,
+                'client' => data_get($draft->facts, 'client'),
+            ]) : null,
             'rating'      => $draft->rating,
             'reason'      => $draft->rating_reason,
         ] : null, 'suggestions' => ClassifyChatTurn::suggestions($chatSession)]);

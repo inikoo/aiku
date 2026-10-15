@@ -12,32 +12,36 @@ use App\Actions\Chat\ChatSession\CloseChatSession;
 use App\Actions\Chat\ChatSession\ConfirmSuggestedChatCustomer;
 use App\Actions\Chat\ChatSession\LinkChatSessionCustomer;
 use App\Actions\Chat\ChatSession\SendChatMessage;
+use App\Actions\Chat\ChatSession\StoreAssistantChatDraft;
 use App\Actions\Chat\ChatSession\SuggestChatSessionCustomer;
 use App\Actions\Chat\ChatSession\WaitForCustomerReply;
+use App\Actions\Helpers\Translations\DetectLanguageWithJev;
 use App\Enums\CRM\Livechat\ChatChannelEnum;
 use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
 use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
+use App\Listeners\RememberMcpClientName;
 use App\Models\Chat\ChatSession;
 use App\Models\CRM\Customer;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 
-#[Description('Acts on a customer chat, by its Chat ID, as the user: reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email) or unlink_customer. Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant.')]
+#[Description('Acts on a customer chat, by its Chat ID, as the user: save_draft (puts message on the chat as a draft reply the user reviews and sends from Aiku; nothing reaches the customer, no confirm needed; the usual way to help with a reply), reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email) or unlink_customer. Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant.')]
 class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
 {
     use WithMcpChangeLog;
 
-    private const array ACTIONS = ['reply', 'assign_to_me', 'close', 'wait_for_reply', 'stop_waiting', 'link_customer', 'unlink_customer'];
+    private const array ACTIONS = ['save_draft', 'reply', 'assign_to_me', 'close', 'wait_for_reply', 'stop_waiting', 'link_customer', 'unlink_customer'];
 
     public function handle(Request $request): Response
     {
         $request->validate([
             'chat_id'      => ['required', 'string', 'max:40'],
             'action'       => ['required', 'in:'.implode(',', self::ACTIONS)],
-            'message'      => ['required_if:action,reply', 'nullable', 'string', 'max:5000'],
+            'message'      => ['required_if:action,reply,save_draft', 'nullable', 'string', 'max:5000'],
             'hours'        => ['required_if:action,wait_for_reply', 'nullable', 'integer', 'min:1', 'max:720'],
             'customer'     => ['required_if:action,link_customer', 'nullable', 'string', 'max:255'],
             'confirm'      => ['sometimes', 'boolean'],
@@ -65,8 +69,12 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             }
         }
 
-        if (in_array($action, ['close', 'wait_for_reply', 'stop_waiting']) && $chatSession->status === ChatSessionStatusEnum::CLOSED) {
+        if (in_array($action, ['save_draft', 'close', 'wait_for_reply', 'stop_waiting']) && $chatSession->status === ChatSessionStatusEnum::CLOSED) {
             return Response::error('This chat is closed. Nothing was changed.');
+        }
+
+        if ($action === 'save_draft') {
+            return $this->saveDraft($request, $chatSession);
         }
 
         if (!$request->boolean('confirm')) {
@@ -103,6 +111,39 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'waiting_until' => WaitForCustomerReply::until($chatSession),
             'customer'      => $this->customerOf($chatSession)?->name,
             'change_log_id' => $this->mcpChange?->id,
+        ]);
+    }
+
+    /**
+     * A draft only lands in the agent's draft box, so it needs no confirmation: discarding it there
+     * is the undo. It is refused on a colleague's chat and in a language the customer does not write.
+     */
+    private function saveDraft(Request $request, ChatSession $chatSession): Response
+    {
+        if (!$this->userCanDisposeOfChat($request->user(), $chatSession)) {
+            return Response::error($this->chatHeldByAnotherAgentMessage($chatSession).' Nothing was saved.');
+        }
+
+        $text     = trim($request->string('message')->toString());
+        $language = $this->replyLanguage($chatSession);
+        $written  = $language ? DetectLanguageWithJev::run($text, [$language]) : null;
+
+        if ($written && $written->id !== $language->id) {
+            return Response::error("Write the draft in {$language->name}, the language of this conversation. Nothing was saved.");
+        }
+
+        $draft = StoreAssistantChatDraft::run(
+            $chatSession,
+            $request->user(),
+            $text,
+            $request->sessionId() ? Cache::get(RememberMcpClientName::key($request->sessionId())) : null
+        );
+
+        return Response::json([
+            'saved'     => 'draft',
+            'chat'      => $chatSession->ulid,
+            'draft_id'  => $draft->id,
+            'next_step' => 'Nothing was sent. The draft is waiting on the chat in Aiku, where the user can send it, edit it or discard it. Any [[gap]] left in it must be filled there before it can be sent.',
         ]);
     }
 
@@ -180,7 +221,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
         return [
             'chat_id'      => $schema->string()->description('Chat ID copied from the Overview panel of the chat')->required(),
             'action'       => $schema->string()->enum(self::ACTIONS)->description('What to do on the chat')->required(),
-            'message'      => $schema->string()->description('For reply: the full text sent to the customer, plain text, signed as the user would sign it'),
+            'message'      => $schema->string()->description('For save_draft and reply: the full text for the customer, plain text, in the language reply_in names, signed as the user would sign it. In a draft, [[what to check]] marks something only the user can decide'),
             'hours'        => $schema->integer()->description('For wait_for_reply: hours to wait for the customer, 24, 72 or 168 are the usual ones')->min(1)->max(720),
             'customer'     => $schema->string()->description('For link_customer: the customer\'s reference, slug or email'),
             'confirm'      => $schema->boolean()->description('true only after the user has seen the preview and said yes'),

@@ -9440,7 +9440,7 @@ test('order facts follow a replacement sent lately for an older order, and produ
 });
 
 test('a general question is answered from the knowledge base entry jev picks, and only when the quote is really in it', function () {
-    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key']);
+    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key', 'chat.suggestion_shop_types' => [$this->shop->type->value]]);
     Bus::fake([\App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class, TranslateChatMessage::class]);
 
     $sections = \App\Actions\Chat\ChatSession\HydrateChatKnowledge::sections(['blocks' => ['<h2>Returns</h2><p>You may return goods within 30 days of delivery, unused and in their original packaging.</p><h3>Refunds</h3><p>Refunds are made to your account balance once the goods are back with us.</p>']], 'Returns page');
@@ -12934,7 +12934,7 @@ test('jev works out what the customer wants in rounds, and only a clear single q
 });
 
 test('a claim gets a suggested reply with gaps for the agent, never sent on its own, and a number aiku does not hold drops it', function () {
-    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key']);
+    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key', 'chat.suggestion_shop_types' => [$this->shop->type->value]]);
     Bus::fake([\App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class, TranslateChatMessage::class]);
     fakeDraftLanguageDetection();
 
@@ -12953,6 +12953,10 @@ test('a claim gets a suggested reply with gaps for the agent, never sent on its 
 
     $session = ChatSession::create(['ulid' => (string) Str::ulid(), 'status' => ChatSessionStatusEnum::ACTIVE, 'channel' => ChatChannelEnum::WEBSITE, 'shop_id' => $this->shop->id, 'last_visitor_message_at' => now()]);
     ChatMessage::create(['chat_session_id' => $session->id, 'message_type' => ChatMessageTypeEnum::TEXT, 'sender_type' => ChatSenderTypeEnum::GUEST, 'message_text' => 'Two of the mugs arrived broken, what can you do?']);
+
+    config(['chat.suggestion_shop_types' => []]);
+    expect(\App\Actions\Chat\ChatSession\DraftChatReply::run($session))->toBeNull();
+    config(['chat.suggestion_shop_types' => [$this->shop->type->value]]);
 
     $draft = \App\Actions\Chat\ChatSession\DraftChatReply::run($session);
 
@@ -13045,7 +13049,7 @@ test('agent replies become examples embedded by what the customer meant, found b
 });
 
 test('a weak suggestion is rewritten by the rewrite model from the critic notes, the best version kept, and a gap nobody needs dropped with its sentence', function () {
-    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key', 'chat.suggestion_model' => 'openai/gpt-5.6-luna']);
+    config(['chat.ai_drafts' => true, 'services.openrouter.api_key' => 'or-key', 'chat.suggestion_model' => 'openai/gpt-5.6-luna', 'chat.suggestion_shop_types' => [$this->shop->type->value]]);
     Bus::fake([\App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class, TranslateChatMessage::class]);
     fakeDraftLanguageDetection();
 

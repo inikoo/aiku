@@ -57,6 +57,12 @@ class DraftChatReply implements ShouldBeUnique
     public const string SUGGESTION = 'suggestion';
 
     /**
+     * Written by the agent's own assistant through the customer service connection and saved here
+     * for the agent to use, edit or discard. Never sent on its own and never counted towards auto-send.
+     */
+    public const string ASSISTANT = 'assistant';
+
+    /**
      * A gap the agent fills before sending: [[what to decide]].
      */
     public const string GAP = '~\[\[[^\]]*\]\]~u';
@@ -88,7 +94,7 @@ class DraftChatReply implements ShouldBeUnique
         $text    = GetChatClaimDetails::run($chatSession, $since)['text'];
         $trigger = $chatSession->messages()->whereIn('sender_type', [ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::USER])->latest('id')->first();
 
-        if (mb_strlen($text) < 10 || !$trigger || data_get($trigger->metadata, 'auto_reply')) {
+        if (mb_strlen($text) < 10 || !$trigger || data_get($trigger->metadata, 'auto_reply') || self::assistantAlreadyDrafted($chatSession, $trigger)) {
             return null;
         }
 
@@ -169,7 +175,10 @@ class DraftChatReply implements ShouldBeUnique
      */
     private function suggestionDraft(ChatSession|MetaChatSession $chatSession, ChatMessage|MetaChatMessage $trigger, ?array $turn, string $text, string $weSaid): ?ChatAiDraft
     {
-        if (!$turn || !self::wantsAnAnswer($turn) || ($chatSession instanceof ChatSession && ($chatSession->is_carrier || $chatSession->is_colleague))) {
+        if (!$turn
+            || !self::wantsAnAnswer($turn)
+            || !in_array($chatSession->shop->type?->value, config('chat.suggestion_shop_types'), true)
+            || ($chatSession instanceof ChatSession && ($chatSession->is_carrier || $chatSession->is_colleague))) {
             return null;
         }
 
@@ -596,6 +605,17 @@ class DraftChatReply implements ShouldBeUnique
     public static function isShadow(string $shopSlug, array $facts): bool
     {
         return ($facts['mode'] ?? null) === self::SUGGESTION && in_array($shopSlug, config('chat.suggestion_shadow_shops'), true);
+    }
+
+    /**
+     * The agent's own assistant answered this message while the drafter was still thinking: its
+     * draft is the one the agent asked for, so it is not replaced.
+     */
+    private static function assistantAlreadyDrafted(ChatSession|MetaChatSession $chatSession, ChatMessage|MetaChatMessage $trigger): bool
+    {
+        $pending = self::pendingDraft($chatSession);
+
+        return data_get($pending?->facts, 'mode') === self::ASSISTANT && $pending->trigger_message_id === $trigger->id;
     }
 
     public static function pendingDraft(ChatSession|MetaChatSession $chatSession): ?ChatAiDraft
