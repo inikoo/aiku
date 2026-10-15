@@ -745,7 +745,6 @@ class ShowOrder extends OrgAction
                     'icon' => $order->salesChannel->type->icon()
                 ] : null,
                 'is_faire_order'    => $order->shop->engine == ShopEngineEnum::FAIRE,
-                'can_edit_faire_label_shipping' => $request->user()->authTo("accounting.$order->organisation_id.edit"),
                 'allow_order_modification'          => $allowOrderModification,
 
                 OrderTabsEnum::TRANSACTIONS->value => $this->tab == OrderTabsEnum::TRANSACTIONS->value ?
