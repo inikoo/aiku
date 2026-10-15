@@ -12,7 +12,9 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Models\Procurement\PurchaseOrder;
+use App\Enums\Procurement\ShoppingListItem\ShoppingListItemStateEnum;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use App\Models\Procurement\ShoppingListItem;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -26,9 +28,18 @@ class DeletePurchaseOrderTransaction extends OrgAction
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): void
     {
         $purchaseOrder = $purchaseOrderTransaction->purchaseOrder;
+        self::reopenShoppingListItems([$purchaseOrderTransaction->id]);
         $purchaseOrderTransaction->delete();
         CalculatePurchaseOrderTotalAmounts::run($purchaseOrder);
         PurchaseOrderHydrateTransactions::dispatch($purchaseOrder);
+    }
+
+    public static function reopenShoppingListItems(array $purchaseOrderTransactionIds): void
+    {
+        ShoppingListItem::whereIn('purchase_order_transaction_id', $purchaseOrderTransactionIds)->update([
+            'purchase_order_transaction_id' => null,
+            'state'                         => ShoppingListItemStateEnum::OPEN,
+        ]);
     }
 
     public function action(PurchaseOrderTransaction $purchaseOrderTransaction): void

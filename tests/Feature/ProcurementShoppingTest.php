@@ -1344,6 +1344,11 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
         expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::ORDERED)
             ->and((float) App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->quantity_ordered)->toBe(200.0);
 
+        DeletePurchaseOrder::make()->action(App\Models\Procurement\PurchaseOrderTransaction::findOrFail($item->fresh()->purchase_order_transaction_id)->purchaseOrder);
+
+        expect($item->fresh()->state)->toBe(ShoppingListItemStateEnum::OPEN)
+            ->and($item->fresh()->purchase_order_transaction_id)->toBeNull();
+
         $statsBefore = $orgStock->stats->only(['days_of_cover', 'predicted_daily_usage']);
         $buckets     = App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets::make();
 

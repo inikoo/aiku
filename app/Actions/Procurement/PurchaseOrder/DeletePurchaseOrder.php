@@ -41,6 +41,7 @@ class DeletePurchaseOrder extends OrgAction
         /** @var OrgSupplier|OrgPartner $parent */
         $parent = $purchaseOrder->parent;
 
+        DeletePurchaseOrderTransaction::reopenShoppingListItems($purchaseOrder->purchaseOrderTransactions()->pluck('id')->all());
         $purchaseOrder->purchaseOrderTransactions()->delete();
         $purchaseOrderDeleted = $purchaseOrder->delete();
 
