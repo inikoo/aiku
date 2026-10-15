@@ -58,6 +58,7 @@ class OrderApiResource extends JsonResource
             'customer_notes' => $order->customer_notes,
             'shipping_notes' => $order->shipping_notes,
             'customer' => CustomerResource::make($order->customer)->getArray(),
+            'customer_client' => $order->customerClient ? CustomerClientApiResource::make($order->customerClient)->getArray() : null,
             'delivery_address' => AddressResource::make($order->deliveryAddress ?? new Address()),
             'billing_address' => AddressResource::make($order->billingAddress ?? new Address()),
             'products' => [
