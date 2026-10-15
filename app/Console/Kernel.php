@@ -143,6 +143,7 @@ class Kernel extends ConsoleKernel
             ->name('prune-traffic-source-clicks')->dailyAt('04:30')->timezone('UTC')->onOneServer();
         $schedule->command('procurement:reprice_partner_purchase_orders')->dailyAt('01:00')->timezone('UTC')->onOneServer()->withoutOverlapping(60);
         $schedule->command('procurement:send_stuck_purchase_orders_summary')->weeklyOn(1, '07:00')->timezone('Europe/London')->onOneServer();
+        $schedule->command('procurement:stamp_purchase_orders_online')->hourlyAt(20)->onOneServer()->withoutOverlapping(30);
         $schedule->command('procurement:send_compliance_documents_reminders')->dailyAt('07:30')->timezone('Europe/London')->onOneServer()->withoutOverlapping(60);
         $schedule->command('search:propose-synonyms')->weeklyOn(1, '03:00')->onOneServer();
         $schedule->command('customers:product-suggestions')->weeklyOn(1, '02:00')->timezone('UTC')->onOneServer();

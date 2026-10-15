@@ -1075,7 +1075,7 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
         fn ($notification) => $notification->purchaseOrder->is($purchaseOrder) && str_contains($notification->change, __('Production started'))
     );
 
-    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => null, 'production_started_at' => null]);
+    $purchaseOrder->updateQuietly(['buyer_id' => $agentUser->id, 'deposit_paid_at' => now()->subDays(190), 'production_started_at' => null, 'produced_at' => null, 'qc_passed_at' => null, 'handed_over_at' => null]);
     \App\Actions\Procurement\PurchaseOrder\SendStuckPurchaseOrdersSummary::run($purchaseOrder->group);
 
     \Illuminate\Support\Facades\Notification::assertSentTo(
@@ -1084,7 +1084,7 @@ test('stages carry expected dates, late orders reach the weekly summary and agen
         fn ($notification) => $notification->ownOrdersOnly && collect($notification->orders)->contains('reference', $purchaseOrder->reference)
     );
 
-    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null]);
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'created_at' => now(), 'submitted_at' => null, 'buyer_id' => null, 'deposit_paid_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('a purchase order lists the compliance documents of its products, due by the arrival estimate less a buffer', function (PurchaseOrder $purchaseOrder) {
@@ -1129,6 +1129,27 @@ test('a purchase order lists the compliance documents of its products, due by th
             ->where('compliance.data', fn ($rows) => collect($rows)->contains('id', $tradeUnit->id)));
 
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::IN_PROCESS, 'buyer_id' => null]);
+})->depends('create purchase order through an agent');
+
+test('an order is stamped online once all its products are placed and live, and keeps that date', function (PurchaseOrder $purchaseOrder) {
+    $purchaseOrder->updateQuietly(['online_at' => null]);
+    $onlineDay = now()->subDays(3)->toDateString();
+    $ribbon    = fn (string $state, ?string $doneAt) => ['id' => $purchaseOrder->id, 'segments' => [['key' => 'products_online', 'state' => $state, 'done_at' => $doneAt]]];
+
+    $this->mock(\App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney::class)
+        ->shouldReceive('ribbons')->andReturn(collect([$ribbon('future', null)]), collect([$ribbon('done', $onlineDay)]), collect([$ribbon('done', now()->toDateString())]));
+
+    expect(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(0)
+        ->and($purchaseOrder->refresh()->online_at)->toBeNull()
+        ->and(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(1)
+        ->and($purchaseOrder->refresh()->online_at->toDateString())->toBe($onlineDay)
+        ->and(\App\Actions\Procurement\PurchaseOrder\StampPurchaseOrdersOnline::run($purchaseOrder->group))->toBe(0)
+        ->and($purchaseOrder->refresh()->online_at->toDateString())->toBe($onlineDay);
+
+    $received = collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'received');
+    expect(collect($received['steps'])->firstWhere('key', 'online_at')['date']->toDateString())->toBe($onlineDay);
+
+    $purchaseOrder->updateQuietly(['online_at' => null]);
 })->depends('create purchase order through an agent');
 
 test('aurora purchase order buyers are filled from the Aurora main buyer', function (PurchaseOrder $purchaseOrder) {

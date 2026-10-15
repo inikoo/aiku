@@ -564,11 +564,19 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
         $placed   = $filtered->filter(fn (array $ribbon) => $ribbon['placed_at'] !== null);
         $dueSoon  = $open->filter(fn (array $ribbon) => $ribbon['status'] !== 'overdue' && $ribbon['eta'] && Carbon::parse($ribbon['eta'])->lte($today->copy()->addDays(30)));
         $oldest   = $open->min('created_at');
+        $online   = $placed->map(function (array $ribbon) {
+            $segment = collect($ribbon['segments'])->firstWhere('key', 'products_online');
+
+            return $segment && $segment['state'] === 'done' && $segment['done_at']
+                ? Carbon::parse($ribbon['placed_at'])->diffInDays(Carbon::parse($segment['done_at']))
+                : null;
+        })->filter(fn ($days) => $days !== null);
 
         return [
             'average_lead_days'  => $placed->count()
                 ? (int) round($placed->avg(fn (array $ribbon) => Carbon::parse($ribbon['created_at'])->diffInDays(Carbon::parse($ribbon['placed_at']))))
                 : null,
+            'average_online_days' => $online->count() ? (int) round($online->avg()) : null,
             'oldest_open_days'   => $oldest ? (int) Carbon::parse($oldest)->diffInDays($today) : null,
             'open_value'         => round($open->sum('amount_grp'), 2),
             'due_30_days'        => $dueSoon->count(),
