@@ -1,7 +1,7 @@
 ---
 title: Scoring agent clean handovers
 summary: For procurement teams — why the Clean Handover Score exists, which five facts you must record on every agent purchase order, who should own each one, and how to read the hygiene strip that tells you when the score is being managed instead of earned.
-date: 2026-09-01
+date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 help_routes: grp.supply-chain.agents
@@ -73,7 +73,7 @@ And one operational caveat: the score only exists for orders with an approved re
 
 <aside class="wayfinder">
 <b>Where to click in aiku</b><br>
-Group → <b>Supply Chain → Agents</b> → pick the agent. The showcase shows the <b>Clean Handover Score</b> panel with the hygiene strip. To record the five facts: the agent's <b>Purchase Orders</b> list → open a PO → <b>Edit</b> → the <b>Clean handover</b> section (proposed/approved ready dates, handed over, QC passed, compliance complete, exclusion toggle + reason). The agent sees their score, without the hygiene strip, on their own dashboard at login.
+Group → <b>Supply Chain → Agents</b> → pick the agent. The showcase shows the <b>Clean Handover Score</b> panel with the hygiene strip. To record the five facts: the agent's <b>Purchase Orders</b> list → open a PO. <b>QC passed</b> is the <b>QC approved</b> button on the stages at the top of the order. The rest are under <b>Edit</b> → the <b>Clean handover</b> section (proposed/approved ready dates, handed over, compliance complete, exclusion toggle + reason). The agent sees their score, without the hygiene strip, on their own dashboard at login.
 </aside>
 
 <aside class="wayfinder">

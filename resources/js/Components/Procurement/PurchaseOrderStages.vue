@@ -70,8 +70,9 @@ const needsReason = computed(() => {
     if (!date.value) {
         return !!editing.value.date
     }
-    const today = toIso(new Date()) as string
-    return (toIso(date.value) as string) < today || editing.value.skipped.length > 0
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    return (toIso(date.value) as string) < (toIso(yesterday) as string) || editing.value.skipped.length > 0
 })
 
 function save() {

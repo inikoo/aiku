@@ -1,7 +1,7 @@
 ---
 title: Reading the PO journey board
 summary: For buyers and management — how every open purchase order becomes one ribbon, what each colour and date means, where the targets come from, how to mark the stages nobody else records, and how to find the orders that need you.
-date: 2026-10-08
+date: 2026-10-15
 tags: procurement, supply-chain, agents
 category: procurement
 help_routes: grp.supply-chain.dashboard
@@ -83,7 +83,7 @@ The cards count the orders in the current filter: open orders, their value in po
 
 <aside class="wayfinder">
 <b>Where to click in aiku</b><br>
-<b>Supply Chain</b> in the left menu opens the board. <b>PO journey</b> in the top menu brings you back to it; <b>Overview</b> next to it has the supply chain cards and shopping lists. Click a cell to mark a stage; click the order reference to open the order. Stage days per agent: <b>Supply Chain → Agents →</b> the agent <b>→ Edit</b>, section <b>PO journey</b>.
+<b>Supply Chain</b> in the left menu opens the board. <b>PO journey</b> in the top menu brings you back to it; <b>Overview</b> next to it has the supply chain cards and shopping lists. Click a cell to mark a stage; a date more than a day in the past, a stage marked before the one before it, or clearing a date asks for a reason, kept in the order's history. Click the order reference to open the order. Stage days per agent: <b>Supply Chain → Agents →</b> the agent <b>→ Edit</b>, section <b>PO journey</b>.
 </aside>
 
 <aside class="wayfinder">

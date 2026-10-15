@@ -6067,10 +6067,15 @@ describe('supplier deposits', function () {
         expect($accountingClerk->authTo("procurement.{$this->organisation->id}.edit"))->toBeFalse();
         actingAs($accountingClerk);
 
-        $this->post($confirmRoute, $payment())->assertRedirect()->assertSessionHasNoErrors();
+        $paidLastWeek = now()->subDays(5)->toDateString();
+        $this->post($confirmRoute, $payment(['paid_at' => $paidLastWeek]))->assertSessionHasErrors('reason');
+        expect($purchaseOrder->refresh()->deposit_paid_at)->toBeNull();
+
+        $this->post($confirmRoute, $payment(['paid_at' => $paidLastWeek, 'reason' => 'Bank statement arrived late']))->assertRedirect()->assertSessionHasNoErrors();
 
         $purchaseOrder->refresh();
-        expect($purchaseOrder->deposit_paid_at)->not->toBeNull()
+        expect($purchaseOrder->deposit_paid_at->toDateString())->toBe($paidLastWeek)
+            ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toBe('Bank statement arrived late')
             ->and((float) $purchaseOrder->deposit_amount)->toBe(300.0)
             ->and($purchaseOrder->deposit_paid_by_id)->toBe($accountingClerk->id)
             ->and(data_get($purchaseOrder->data, 'payments.deposit.method'))->toBe('bank_transfer')

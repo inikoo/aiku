@@ -1,8 +1,8 @@
 ---
 title: Registrar el progreso de un pedido como agente
-summary: Para agentes — las cuatro fechas que registras en cada pedido a un proveedor (depósito pagado, muestra aprobada, producción terminada, fecha de listo propuesta), cuándo registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
-date: 2026-09-25
-source_date: 2026-10-08
+summary: Para agentes — las fechas que registras en cada pedido a un proveedor (depósito pagado, producción iniciada, producción terminada, fecha de listo propuesta), cuándo y dónde registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
+date: 2026-10-15
+source_date: 2026-10-15
 tags: procurement, agents, supply-chain
 category: procurement
 series: PO journey
@@ -10,32 +10,33 @@ order: 2
 ---
 
 <aside class="tldr">
-Para agentes de coordinación. La empresa compradora sigue cada pedido en un panel, etapa por etapa. Puede ver por sí sola cuándo se envía la mercancía y cuándo llega, pero no puede ver qué pasa en el proveedor. Esa parte depende de ti: en cada pedido a un proveedor registras cuándo se pagó el depósito, cuándo se aprobó la muestra, cuándo terminó la producción, y la fecha en la que esperas que la mercancía esté lista. Registra cada una el día en que ocurre. La parte del comprador en el panel se explica en <a href="/docs/reading-the-po-journey-board-es">cómo leer el panel de PO journey</a>.
+Para agentes de coordinación. La empresa compradora sigue cada pedido en siete etapas: enviado, depósito pagado, en producción, listo y control de calidad superado, expedido, llegado y despachado, recibido. Puede ver por sí sola cuándo se envía la mercancía y cuándo llega, pero no puede ver qué pasa en el proveedor. Esa parte depende de ti: en cada pedido a un proveedor registras cuándo se pagó el depósito, cuándo empezó la producción, cuándo terminó la producción, y la fecha en la que esperas que la mercancía esté lista. Registra cada una el día en que ocurre. La parte del comprador se explica en <a href="/docs/reading-the-po-journey-board-es">cómo leer el panel de PO journey</a>.
 </aside>
 
 ## Por qué importan tus fechas
 
-Cada pedido que la empresa compradora hace a través de ti aparece en su panel de PO journey como una fila de etapas: creado, muestra, depósito, producción, control de calidad, entrega limpia, enviado, en tránsito, recibido, publicado. Cada etapa tiene una fecha objetivo. Cuando una etapa pasa su fecha objetivo, se pone en rojo y muestra cuántos días de retraso lleva.
+Cada pedido que la empresa compradora hace a través de ti muestra sus etapas en la parte superior de la página del pedido, y otra vez como una fila en el panel de PO journey. Cada etapa muestra su fecha y quién la registró. Cuando una etapa pasa su fecha objetivo, se pone en rojo en el panel y muestra cuántos días de retraso lleva.
 
-Sin tus fechas, el panel solo ve dos cosas de tu lado: el día en que se te envió el pedido y el día en que salió la mercancía. Todo lo que pasa entre medias es invisible, y un retraso se ve igual tanto si ocurrió en el proveedor, en el control de calidad o en la entrega. Con tus fechas, el panel muestra exactamente dónde está un pedido, y un proveedor con retraso se ve semanas antes de la fecha en que la mercancía debía salir.
+Sin tus fechas, la empresa compradora solo ve dos cosas de tu lado: el día en que se te envió el pedido y el día en que salió la mercancía. Todo lo que pasa entre medias es invisible, y un retraso se ve igual tanto si ocurrió en el proveedor, en el control de calidad o en la entrega. Con tus fechas, las etapas muestran exactamente dónde está un pedido, y un proveedor con retraso se ve semanas antes de la fecha en que la mercancía debía salir.
 
-En cuanto registras la primera fecha en un pedido, el panel espera las siguientes. Si la fecha objetivo de una etapa pasa y no la has registrado, esa etapa aparece como retrasada, aunque el trabajo ya estuviera hecho. Una fecha que falta se ve exactamente igual que un retraso.
+En cuanto registras la primera fecha en un pedido, se esperan las siguientes. Si la fecha objetivo de una etapa pasa y no la has registrado, esa etapa aparece como retrasada, aunque el trabajo ya estuviera hecho. Una fecha que falta se ve exactamente igual que un retraso.
 
-## Las cuatro fechas que registras
+## Las fechas que registras
 
-| Date | Regístrala cuando | Notas |
+| Fecha | Regístrala cuando | Dónde |
 |---|---|---|
-| Deposit paid | Pagues el depósito al proveedor. | Registra también el importe del depósito en la misma página. |
-| Sample approved | El comprador apruebe la muestra. | Solo productos nuevos. Los pedidos repetidos no tienen muestra. |
-| Production done | La mercancía esté terminada en el proveedor. | Terminada significa todo el pedido, no el primer lote. |
-| Proposed ready date | Sepas cuándo estará lista la mercancía para la entrega. | Una fecha en la que confías. El comprador la aprueba. |
+| Deposit paid | El proveedor ya tiene el depósito. | El botón **Deposit paid** en las etapas de la parte superior del pedido. Registra el importe del depósito en la página **Edit** del pedido. |
+| Production started | El proveedor empieza a fabricar la mercancía. | El botón **Production started** en las etapas de la parte superior del pedido. |
+| Production done | La mercancía está terminada en el proveedor. Terminada significa todo el pedido, no el primer lote. | La sección **Production** de la página **Edit** del pedido. |
+| Proposed ready date | Sabes cuándo estará lista la mercancía para la entrega. Una fecha en la que confías. El comprador la aprueba. | La sección **Clean handover** de la página **Edit** del pedido. |
 
-Registra cada fecha el mismo día en que ocurre. Una fecha introducida una semana después sigue siendo mejor que ninguna fecha, pero mientras tanto el panel habrá mostrado la etapa como retrasada.
+Las etapas van en orden. Registra cada fecha el mismo día en que ocurre. Una fecha de más de un día en el pasado, una etapa registrada antes de la anterior o una fecha que borras te pide un motivo. El motivo queda guardado en el historial del pedido, con tu nombre, para que el comprador vea por qué.
 
 ## Qué registra la empresa compradora
 
 Hay fechas que no puedes introducir tú, y es intencionado:
 
+- **Sample approved.** El comprador aprueba la muestra. Solo productos nuevos; los pedidos repetidos no tienen muestra.
 - **Approved ready date.** El comprador aprueba tu fecha propuesta. A partir de ahí queda fijada, y marca los plazos: el control de calidad debe completarse ese día, y la entrega limpia dentro de los siete días siguientes.
 - **QC passed** y **clean handover.** El comprador las confirma, normalmente a partir de tu evidencia de calidad y del recibo del agente de transporte.
 - **Compliance pack complete.**
@@ -44,16 +45,16 @@ Estos son los datos con los que se calcula tu <a href="/docs/your-clean-handover
 
 ## Buenos hábitos
 
-- **Regístralo el mismo día.** Cinco segundos el día que toca te ahorran una discusión después sobre una etapa en rojo.
+- **Regístralo el mismo día.** Cinco segundos el día que toca te ahorran una discusión después sobre una etapa en rojo, y un motivo que escribir.
 - **Propón fechas de listo en las que confíes.** Una fecha realista que cumples es mejor que una fecha optimista que fallas.
 - **Avisa pronto al comprador** cuando una fecha se vaya a retrasar. Una nueva fecha aprobada a tiempo mantiene el pedido en plazo; una fecha que se retrasa sin que nadie la haya acordado aparece como retraso.
 
 <aside class="wayfinder">
 <b>Dónde pulsar en aiku</b><br>
-Inicia sesión → <b>Purchase Orders</b> → abre el pedido → <b>Edit</b>. Cada orden de compra es para uno de tus proveedores. <b>Deposit paid</b> y <b>Deposit amount</b> están en la sección <b>Payments</b>. <b>Sample approved</b> y <b>Production done</b> están en la sección <b>Production</b>. <b>Proposed ready date</b> está en la sección <b>Clean handover</b>.
+Inicia sesión → <b>Purchase Orders</b> → abre el pedido. Cada orden de compra es para uno de tus proveedores. Las siete etapas están en la parte superior de la página: usa ahí los botones <b>Deposit paid</b> y <b>Production started</b>. Después abre <b>Edit</b>: <b>Deposit amount</b> está en la sección <b>Payments</b>, <b>Production done</b> en la sección <b>Production</b> y <b>Proposed ready date</b> en la sección <b>Clean handover</b>.
 </aside>
 
 <aside class="wayfinder">
 <b>Permisos que necesitas</b><br>
-Un acceso para tu organización de agente. Tu formulario solo contiene los campos que tú registras: muestra aprobada, producción terminada, fecha de listo propuesta, importe del depósito y depósito pagado. Los campos de fecha de listo aprobada, control de calidad, entrega limpia y cumplimiento normativo no aparecen en él, porque los registra la empresa compradora.
+Un acceso para tu organización de agente. Solo puedes marcar tus propias etapas, en tus propios pedidos: depósito pagado y producción iniciada, además de producción terminada, fecha de listo propuesta e importe del depósito en la página de edición. La aprobación de la muestra, la fecha de listo aprobada, el control de calidad, la entrega limpia y el cumplimiento normativo no están abiertos para ti, porque los registra la empresa compradora.
 </aside>

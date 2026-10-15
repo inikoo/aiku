@@ -2,7 +2,7 @@
 title: Leer el panel de PO journey
 summary: Para compradores y dirección — cómo cada pedido de compra abierto se convierte en una franja, qué significa cada color y cada fecha, de dónde vienen los plazos previstos, cómo marcar las etapas que nadie más registra, y cómo encontrar los pedidos que necesitan tu atención.
 date: 2026-09-25
-source_date: 2026-10-08
+source_date: 2026-10-15
 tags: procurement, supply-chain, agents
 category: procurement
 series: PO journey
@@ -83,7 +83,7 @@ Las tarjetas cuentan los pedidos del filtro actual: pedidos abiertos, su valor e
 
 <aside class="wayfinder">
 <b>Dónde pulsar en aiku</b><br>
-<b>Supply Chain</b> en el menú de la izquierda abre el panel. <b>PO journey</b> en el menú superior te devuelve a él; <b>Overview</b>, al lado, tiene las tarjetas de supply chain y las listas de la compra. Haz clic en una celda para marcar una etapa; haz clic en la referencia del pedido para abrirlo. Días por etapa de cada agente: <b>Supply Chain → Agents →</b> el agente <b>→ Edit</b>, sección <b>PO journey</b>.
+<b>Supply Chain</b> en el menú de la izquierda abre el panel. <b>PO journey</b> en el menú superior te devuelve a él; <b>Overview</b>, al lado, tiene las tarjetas de supply chain y las listas de la compra. Haz clic en una celda para marcar una etapa; una fecha de más de un día en el pasado, una etapa marcada antes de la anterior o borrar una fecha pide un motivo, que queda guardado en el historial del pedido. Haz clic en la referencia del pedido para abrirlo. Días por etapa de cada agente: <b>Supply Chain → Agents →</b> el agente <b>→ Edit</b>, sección <b>PO journey</b>.
 </aside>
 
 <aside class="wayfinder">

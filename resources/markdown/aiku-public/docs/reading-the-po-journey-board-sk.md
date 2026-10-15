@@ -2,7 +2,7 @@
 title: Čítanie tabule postupu objednávok (PO journey board)
 summary: Pre nákupcov a manažment — ako sa každá otvorená objednávka (PO) stáva jednou stužkou, čo znamenajú jednotlivé farby a dátumy, odkiaľ pochádzajú termíny, ako označiť fázy, ktoré nikto iný nezaznamenáva, a ako nájsť objednávky, ktoré potrebujú vašu pozornosť.
 date: 2026-09-25
-source_date: 2026-10-08
+source_date: 2026-10-15
 tags: procurement, supply-chain, agents
 category: procurement
 series: PO journey
@@ -83,7 +83,7 @@ Karty počítajú objednávky v aktuálnom filtri: otvorené objednávky, ich ho
 
 <aside class="wayfinder">
 <b>Kde kliknúť v aiku</b><br>
-<b>Supply Chain</b> v ľavom menu otvorí tabuľu. <b>PO journey</b> v hornom menu vás na ňu vráti; <b>Overview</b> vedľa neho obsahuje karty dodávateľského reťazca a nákupné zoznamy. Kliknutím na bunku označíte fázu; kliknutím na referenciu objednávky ju otvoríte. Dni fáz podľa agenta: <b>Supply Chain → Agents →</b> agent <b>→ Edit</b>, sekcia <b>PO journey</b>.
+<b>Supply Chain</b> v ľavom menu otvorí tabuľu. <b>PO journey</b> v hornom menu vás na ňu vráti; <b>Overview</b> vedľa neho obsahuje karty dodávateľského reťazca a nákupné zoznamy. Kliknutím na bunku označíte fázu; dátum starší ako jeden deň, fáza označená pred predchádzajúcou fázou alebo vymazanie dátumu si vyžiada dôvod, ktorý sa uchová v histórii objednávky. Kliknutím na referenciu objednávky ju otvoríte. Dni fáz podľa agenta: <b>Supply Chain → Agents →</b> agent <b>→ Edit</b>, sekcia <b>PO journey</b>.
 </aside>
 
 <aside class="wayfinder">

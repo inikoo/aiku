@@ -52,7 +52,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
      * Only what is paid before the goods ship is confirmed on the purchase order: a deposit, up to the whole
      * total. The rest is paid on the stock delivery, against the supplier's invoice.
      *
-     * @param  array{ paid_at: string, method: string, reference?: string|null, bank_statement?: UploadedFile|null, user_id?: int|null}  $modelData
+     * @param  array{ paid_at: string, method: string, reference?: string|null, bank_statement?: UploadedFile|null, user_id?: int|null, reason?: string|null}  $modelData
      */
     public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
     {
@@ -70,6 +70,10 @@ class ConfirmPurchaseOrderPayment extends OrgAction
                 ],
             ],
         ], ['data']);
+
+        if ($reason = Arr::get($modelData, 'reason')) {
+            MarkPurchaseOrderStage::auditOverride($purchaseOrder, 'deposit_paid_at', null, $purchaseOrder->deposit_paid_at?->toDateString(), $reason);
+        }
 
         if ($file) {
             SaveModelAttachment::make()->action($purchaseOrder, [
@@ -98,6 +102,7 @@ class ConfirmPurchaseOrderPayment extends OrgAction
             'reference'      => ['sometimes', 'nullable', 'string', 'max:255'],
             'bank_statement' => ['required_unless:method,cash', 'nullable', 'file', 'max:20480', 'mimes:pdf,jpg,jpeg,png,webp,heic'],
             'user_id'        => ['sometimes', 'nullable', 'integer'],
+            'reason'         => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
 
@@ -109,6 +114,11 @@ class ConfirmPurchaseOrderPayment extends OrgAction
             $validator->errors()->add('paid_at', __('This payment is already confirmed'));
         } elseif ((float) $this->purchaseOrder->deposit_amount <= 0) {
             $validator->errors()->add('paid_at', __('Set the deposit before paying it'));
+        } elseif (!$this->asAction && $validator->errors()->isEmpty() && !trim((string) $this->get('reason'))) {
+            $reasons = MarkPurchaseOrderStage::make()->reasonsNeeded($this->purchaseOrder, 'deposit_paid_at', $this->get('paid_at'));
+            if ($reasons) {
+                $validator->errors()->add('reason', __('Give a reason: :reasons', ['reasons' => implode('; ', $reasons)]));
+            }
         }
     }
 
