@@ -75,6 +75,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
 import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapLinkDialog.vue"
+import type { LinkDialogValue } from "@/Components/Forms/Fields/BubleTextEditor/linkHref"
 import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
 import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue"
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
@@ -124,6 +125,10 @@ const showDialog = ref(false)
 const contentResult = ref<string>()
 const currentLinkInDialog = ref<string | undefined>()
 const currentLinkUnderlineInDialog = ref<boolean | undefined>()
+const currentLinkTextInDialog = ref<string>('')
+const currentLinkTitleInDialog = ref<string | null>(null)
+const currentLinkTargetInDialog = ref<string | null>(null)
+const linkRangeInDialog = ref<{ from: number, to: number } | null>(null)
 const showLinkDialogCustom = ref<boolean>()
 const showAddYoutubeDialog = ref<boolean>(false)
 const showAddTableDialog = ref<boolean>(false)
@@ -188,6 +193,11 @@ const editorInstance = useEditor({
             addAttributes() {
                 return {
                     ...this.parent?.(),
+                    title: {
+                        default: null,
+                        parseHTML: (element: HTMLElement) => element.getAttribute('title'),
+                        renderHTML: (attributes: Record<string, any>) => attributes.title ? { title: attributes.title } : {},
+                    },
                     underline: {
                         default: null,
                         parseHTML: (element: HTMLElement) => {
@@ -425,46 +435,51 @@ function updateLinkCustom(value) {
 
 
 function openLinkDialog() {
-    const linkAttributes = editorInstance.value?.getAttributes("link") ?? {}
+    const editor = editorInstance.value
+    if (editor?.isActive("link")) {
+        editor.chain().extendMarkRange("link").run()
+    }
+    const linkAttributes = editor?.getAttributes("link") ?? {}
+    const selection = editor?.state.selection
+    linkRangeInDialog.value = !selection ? null : selection.empty ? getWordRangeAtCursor() : { from: selection.from, to: selection.to }
     currentLinkInDialog.value = linkAttributes.href
+    currentLinkTextInDialog.value = editor && linkRangeInDialog.value ? editor.state.doc.textBetween(linkRangeInDialog.value.from, linkRangeInDialog.value.to, ' ') : ''
+    currentLinkTitleInDialog.value = linkAttributes.title ?? null
+    currentLinkTargetInDialog.value = linkAttributes.target ?? null
     currentLinkUnderlineInDialog.value = typeof linkAttributes.underline === 'boolean' ? linkAttributes.underline : props.linkUnderline
     showLinkDialog.value = true
     showDialog.value = true;
 }
 
-function updateLink(value?: string, underline?: boolean) {
-    if (!value) {
-        editorInstance.value
-            ?.chain()
-            .focus()
-            .extendMarkRange("link")
-            .unsetLink()
-            .run()
-        return
-    }
-
+function updateLink(link: LinkDialogValue) {
     const editor = editorInstance.value
-    if (!editor) {
+    if (!editor || !link.href) {
         return
     }
 
-    const linkAttributes = { href: value, ...(typeof underline === 'boolean' ? { underline } : {}) } as { href: string }
+    const linkAttributes = {
+        href: link.href,
+        target: link.target,
+        title: link.title.trim() || null,
+        ...(typeof link.underline === 'boolean' ? { underline: link.underline } : {}),
+    } as { href: string }
+    const text = link.text.trim() ? link.text : ''
+    const range = linkRangeInDialog.value
 
-    if (!editor.state.selection.empty || editor.isActive("link")) {
-        editor.chain().focus().extendMarkRange("link").setLink(linkAttributes).run()
-        return
-    }
-
-    const wordRange = getWordRangeAtCursor()
-    if (wordRange) {
-        editor.chain().focus().setTextSelection(wordRange).setLink(linkAttributes).run()
+    if (range) {
+        const currentText = editor.state.doc.textBetween(range.from, range.to, ' ')
+        if (!text || text === currentText) {
+            editor.chain().focus().setTextSelection(range).setLink(linkAttributes).run()
+            return
+        }
+        editor.chain().focus().insertContentAt(range, { type: "text", text, marks: [{ type: "link", attrs: linkAttributes }] }).run()
         return
     }
 
     editor
         .chain()
         .focus()
-        .insertContent({ type: "text", text: value, marks: [{ type: "link", attrs: linkAttributes }] })
+        .insertContent({ type: "text", text: text || link.href, marks: [{ type: "link", attrs: linkAttributes }] })
         .run()
 }
 
@@ -1421,6 +1436,9 @@ onMounted(async () => {
             v-if="showLinkDialog"
             :show="showLinkDialog"
             :current-url="currentLinkInDialog"
+            :current-text="currentLinkTextInDialog"
+            :current-title="currentLinkTitleInDialog"
+            :current-target="currentLinkTargetInDialog"
             :underline="currentLinkUnderlineInDialog"
             :showUnderlineOption="typeof linkUnderline === 'boolean'"
             @close="() => { showLinkDialog = false; showDialog = false; }"

@@ -1810,7 +1810,7 @@ test('each morning a tip on reaching the target is written for the shop and show
 
 test('stock tab shows stock health by days of cover; warehouse work lives on operations', function () {
     createWarehouse();
-    Cache::forget("warehouse-dashboard-stock-cover:{$this->organisation->id}");
+    Cache::forget(GetGroupWarehouseDashboardData::cacheKey($this->group, $this->group->organisations()->where('type', OrganisationTypeEnum::SHOP)->pluck('id')->all()));
 
     $overview        = GetGroupWarehouseDashboardData::run($this->group->refresh());
     $organisationRow = collect($overview['organisations'])->firstWhere('slug', $this->organisation->slug);
