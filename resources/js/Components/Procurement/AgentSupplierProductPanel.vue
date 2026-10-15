@@ -17,7 +17,7 @@ import InputText from "primevue/inputtext"
 import Select from "primevue/select"
 import DatePicker from "primevue/datepicker"
 import Textarea from "primevue/textarea"
-import { ctrans } from "@/Composables/useTrans"
+import { ctrans, ctransChoice } from "@/Composables/useTrans"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import CopyButton from "@/Components/Utils/CopyButton.vue"
@@ -307,7 +307,7 @@ const card = "rounded-xl border border-gray-200 bg-white p-4 shadow-sm scroll-mt
                         {{ panel.key.moq.cartons ? ctrans(":count cartons", { count: panel.key.moq.cartons }) : "-" }}
                     </dd>
                     <dd v-if="panel.key.moq.cartons" class="text-xs tabular-nums text-gray-500">
-                        {{ number(panel.key.moq.units) }} {{ ctrans("units") }} · {{ number(panel.key.moq.cbm, 3) }} m³ · {{ money(panel.key.moq.value) }}
+                        {{ ctransChoice(":count unit|:count units", panel.key.moq.units ?? 0, { count: number(panel.key.moq.units) }) }} · {{ number(panel.key.moq.cbm, 3) }} m³ · {{ money(panel.key.moq.value) }}
                     </dd>
                     <dd v-if="sourceLabel(panel.key.moq.source)" class="text-xs italic text-gray-400">{{ sourceLabel(panel.key.moq.source) }}</dd>
                 </div>
