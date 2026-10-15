@@ -14813,7 +14813,7 @@ test('a buyer records the terms agreed with a supplier and they are the terms in
 
     $this->post($store, ['term_type' => 'incoterm', 'value_type' => 'text', 'value_text' => 'FOB Ningbo', 'agreed_on' => today()->toDateString(), 'show_on_po' => true, 'visibility' => 'supplier'])
         ->assertSessionHasNoErrors();
-    $this->post($store, ['term_type' => 'packing_charge', 'value_type' => 'included', 'agreed_on' => today()->toDateString()])
+    $this->post($store, ['term_type' => 'packing_charge', 'value_type' => 'included', 'value_text' => 'in the FOB price', 'agreed_on' => today()->toDateString()])
         ->assertSessionHasNoErrors();
     $this->post($store, ['term_type' => 'payment_currency', 'value_type' => 'text', 'value_text' => 'USD', 'agreed_on' => today()->toDateString()])
         ->assertSessionHasNoErrors();
@@ -14830,6 +14830,7 @@ test('a buyer records the terms agreed with a supplier and they are the terms in
     expect($terms->map(fn ($term) => $term->term_type->value)->all())->toBe(['incoterm', 'packing_charge', 'label_charge', 'payment_currency'])
         ->and($terms->pluck('level')->unique()->all())->toBe(['supplier'])
         ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->valueLabel())->toBe('EUR 0.02 per unit')
+        ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::PACKING_CHARGE)->valueLabel())->toBe('Included · in the FOB price')
         ->and($terms->firstWhere('term_type', App\Enums\Procurement\SupplierAgreedTerm\SupplierAgreedTermTypeEnum::LABEL_CHARGE)->attachments()->count())->toBe(1)
         ->and($terms->first()->agreed_by_user_id)->toBe($this->adminGuest->getUser()->id);
 });
