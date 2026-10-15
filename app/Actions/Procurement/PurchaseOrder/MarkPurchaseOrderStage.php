@@ -106,7 +106,7 @@ class MarkPurchaseOrderStage extends OrgAction
 
         return [
             'field'  => ['required', Rule::in($fields)],
-            'date'   => ['present', 'nullable', 'date', 'before_or_equal:'.self::today($this->organisation)],
+            'date'   => ['present', 'nullable', 'date', 'before_or_equal:'.Carbon::parse(self::today($this->organisation))->addDay()->toDateString()],
             'reason' => ['sometimes', 'nullable', 'string', 'max:500'],
         ];
     }
@@ -170,6 +170,6 @@ class MarkPurchaseOrderStage extends OrgAction
             return null;
         }
 
-        return Carbon::parse($date)->toDateString() === self::today($this->organisation) ? now() : Carbon::parse($date);
+        return Carbon::parse($date)->toDateString() >= self::today($this->organisation) ? now() : Carbon::parse($date);
     }
 }

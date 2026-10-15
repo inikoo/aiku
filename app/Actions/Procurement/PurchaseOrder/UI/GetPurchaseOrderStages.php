@@ -192,7 +192,7 @@ class GetPurchaseOrderStages
     /**
      * Each stage's expected date, from the plan the PO journey board draws for the order: the agent's or
      * supplier's lead time stretched over the stages, and the approved ready date for QC. The board works the
-     * dispatch back from the arrival estimate, so a stage is never expected before the one ahead of it.
+     * shipping date back from the arrival estimate, so a stage is never expected before the one ahead of it.
      *
      * @return array<string, string>
      */
@@ -208,7 +208,7 @@ class GetPurchaseOrderStages
         $previous = null;
 
         foreach (Stage::cases() as $stage) {
-            $date = collect($stage->plannedFrom())->map(fn (string $key) => $planned->get($key))->filter()->first();
+            $date = $planned->get($stage->value);
             if ($date) {
                 $previous                = $previous ? max($previous, $date) : $date;
                 $expected[$stage->value] = $previous;

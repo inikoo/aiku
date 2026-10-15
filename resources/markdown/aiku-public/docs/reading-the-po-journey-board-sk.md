@@ -13,7 +13,7 @@ order: 1
 Pre nákupcov, nákupných manažérov a riaditeľov. Prvá stránka <b>Supply Chain</b> zobrazuje každú otvorenú objednávku (PO) ako jednu stužku, zľava doprava, odo dňa jej vytvorenia po deň, keď sú jej produkty v predaji. Zelená znamená hotovo, modrá je fáza, v ktorej sa objednávka práve nachádza, červená je fáza, ktorá mešká, s počtom dní meškania. Zaškrtnite <b>Problems only</b> (len problémy), ak chcete vidieť iba objednávky, ktoré niekoho potrebujú. Agenti zaznamenávajú svoju stranu práce podľa popisu v <a href="/docs/recording-order-progress-for-agents-sk">zaznamenávaní postupu objednávky ako agent</a>.
 </aside>
 
-<figure><img src="/art/docs/draw-po-journey.svg" alt="Akvarelová skica troch stužiek nákupných objednávok: prvá je celá zelená až do konca, druhá je zelená a potom modrá pri fáze In transit, tretia je zelená a potom červená pri fáze Production s plus dvanástimi dňami, a za ňou sivé plánované dátumy" width="1200" height="750" loading="lazy"><figcaption>Jedna objednávka, jedna stužka. Červená bunka je miesto, kde sa zasekla.</figcaption></figure>
+<figure><img src="/art/docs/draw-po-journey.svg" alt="Akvarelová skica troch stužiek nákupných objednávok: prvá je celá zelená až do konca, druhá je zelená a potom modrá v polovici, tretia je zelená a potom červená pri jednej fáze s plus dvanástimi dňami, a za ňou sivé plánované dátumy" width="1200" height="750" loading="lazy"><figcaption>Jedna objednávka, jedna stužka. Červená bunka je miesto, kde sa zasekla.</figcaption></figure>
 
 ## Čo je na tabuli
 
@@ -27,20 +27,20 @@ Objednávka z tabule zmizne, len čo je jej tovar uložený v sklade a každý p
 
 ## Fázy
 
+Tabuľa používa rovnakých sedem fáz ako stránka objednávky plus posledný stĺpec pre produkty, ktoré idú online.
+
 | Fáza | Splnené keď |
 |---|---|
-| PO created (vytvorenie objednávky) | Objednávka je odoslaná dodávateľovi. Koncept sa nepočíta. |
-| Spec / Sample (špecifikácia / vzorka) | Vzorka je schválená. Len pri nových produktoch. |
-| Deposit paid (zaplatená záloha) | Je zaplatená záloha dodávateľovi. |
-| Production (výroba) | Tovar je vyrobený. |
-| QC (kontrola kvality) | Tovar prejde kontrolou kvality. |
-| Clean handover (čisté odovzdanie) | Tovar je odovzdaný kompletný, skontrolovaný a s dokladmi. |
-| Dispatched (expedícia) | Tovar opúšťa dodávateľa. |
-| In transit (na ceste) | Tovar dorazí do nášho skladu. |
-| Warehouse received (prijaté na sklade) | Tovar je skontrolovaný a uložený na svoje miesto. |
-| Products online (produkty online) | Každý produkt z objednávky je vytvorený a v predaji na webe. |
+| PO submitted (objednávka odoslaná) | Objednávka je odoslaná dodávateľovi alebo agentovi. Koncept sa nepočíta. |
+| Deposit paid (zaplatená záloha) | Dodávateľ má zálohu. |
+| In production (vo výrobe) | Dodávateľ začne tovar vyrábať. Vzorka sa pri nových produktoch schvaľuje pred tým. |
+| Ready & QC passed (pripravené a QC schválená) | Tovar je vyrobený a kontrola kvality je schválená. |
+| Shipped (odoslané) | Tovar je odovzdaný kompletný a skontrolovaný a opúšťa dodávateľa. |
+| Arrived & cleared (dorazilo a preclené) | Každá zásielka objednávky dorazila do prístavu a prešla colným odbavením. |
+| Received at warehouse (prijaté na sklade) | Každá zásielka objednávky je prijatá v našom sklade. |
+| Products online (produkty online) | Nie je to fáza: každý produkt z objednávky je vytvorený a v predaji na webe. |
 
-Nie každá objednávka prechádza všetkými fázami. Objednávky medzi spoločnosťami AW idú priamo z vytvorenia do expedície. Opakované objednávky preskakujú špecifikáciu a vzorku. Stĺpec, ktorý objednávka nevyužíva, sa zobrazuje ako tenká čiara.
+Nie každá objednávka prechádza všetkými fázami. Objednávky medzi spoločnosťami AW idú priamo z odoslania objednávky do odoslania tovaru. Objednávky priamym dodávateľom zobrazujú zálohu, len keď je nastavená, a výrobu, len keď dodávateľ udáva dni výroby. Stĺpec, ktorý objednávka nevyužíva, sa zobrazuje ako tenká čiara. Schválenie vzorky a čisté odovzdanie sú kroky vo vnútri svojej fázy: zobrazujú sa na stránke objednávky, nie ako stĺpce tu.
 
 ## Čítanie farieb
 
@@ -60,20 +60,20 @@ Každá fáza dostane počet dní od chvíle, keď skutočne skončila fáza pre
 
 Počet dní pochádza, v tomto poradí, z:
 
-1. **Dátumov dohodnutých na objednávke.** Odhadovaný dátum výroby, dátum príchodu na objednávke alebo na jej zásielke, alebo agentom schválený dátum pripravenosti. Keď je známy dátum príchodu, expedícia má termín o dobu prepravy skôr. Keď je dohodnutý dátum pripravenosti, kontrola kvality má termín v ten deň a čisté odovzdanie do siedmich dní od neho, ako je uvedené v agentskej zmluve.
+1. **Dátumov dohodnutých na objednávke.** Odhadovaný dátum výroby, dátum príchodu na objednávke alebo na jej zásielke, alebo agentom schválený dátum pripravenosti. Keď je známy dátum príchodu, odoslanie tovaru má termín o dobu prepravy skôr. Keď je dohodnutý dátum pripravenosti, kontrola kvality má termín v ten deň a tovar sa odošle, po čistom odovzdaní, do siedmich dní od neho, ako je uvedené v agentskej zmluve.
 2. **Vlastných dní fáz agenta**, ak sú nastavené na stránke agenta.
 3. **Dodacej doby agenta alebo dodávateľa**, rozloženej medzi jednotlivé fázy. Dodacia doba každého agenta je nastavená podľa toho, ako rýchlo dorazilo 80 % jeho doterajších objednávok, takže červená znamená pre daného agenta pomalšie ako zvyčajne.
 
 ## Fázy, ktoré nikto iný nezaznamenáva
 
-Systém sám vidí, kedy je objednávka odoslaná, kedy tovar odchádza, prichádza a je uložený, a kedy sú produkty online. Nevidí však, kedy je schválená vzorka, zaplatená záloha, dokončená výroba, tovar skontrolovaný alebo odovzdaný. Toto musí niekto označiť.
+Systém sám vidí, kedy je objednávka odoslaná, kedy tovar odchádza a je prijatý, kedy je uložený a kedy sú produkty online. Príchod do prístavu sa zadáva na paneli colného odbavenia zásielky. Nevidí však, kedy je zaplatená záloha, začatá výroba alebo kedy tovar prejde kontrolou kvality. Toto musí niekto označiť.
 
-- **Agenti** označujú <b>Deposit paid</b>, <b>Sample approved</b> a <b>Production done</b> na svojich vlastných objednávkach.
-- **Nákupcovia** potvrdzujú kontrolu kvality (QC) a <b>Clean handover</b>. Agenti tieto dve položky nemôžu nastaviť.
+- **Agenti** označujú <b>Deposit paid</b> a začatie výroby na svojich vlastných objednávkach.
+- **Nákupcovia** môžu označiť každú fázu a len oni schvaľujú vzorku a kontrolu kvality (QC).
 
-Kým nie je na objednávke označená ani jedna z týchto vecí, jej bunky zostávajú prázdne a objednávka sa sleduje len podľa expedície a príchodu. Len čo je jedna označená, objednávka čaká na ďalšej neoznačenej fáze, takže začnite od prvej a pokračujte ďalej.
+Kým nie je na objednávke označená ani jedna z týchto vecí, jej bunky zostávajú prázdne a objednávka sa sleduje len podľa odoslania a príchodu. Len čo je jedna označená, objednávka čaká na ďalšej neoznačenej fáze, takže začnite od prvej a pokračujte ďalej.
 
-Ak chcete označiť fázu, kliknite na jej bunku, skontrolujte dátum a kliknite na <b>Mark done</b>. <b>Clear</b> odstráni dátum zadaný omylom. Každá zmena sa zaznamenáva spolu s tým, kto ju vykonal.
+Ak chcete označiť fázu, kliknite na jej bunku, skontrolujte dátum a kliknite na <b>Mark done</b>. <b>Clear</b> odstráni dátum zadaný omylom. Fázy idú v poradí: dátum starší ako jeden deň, fáza označená pred predchádzajúcou fázou alebo vymazanie dátumu si vyžiada dôvod, ktorý sa uchová v histórii objednávky spolu s tým, kto zmenu vykonal.
 
 ## Filtre a čísla
 

@@ -10,78 +10,61 @@ namespace App\Enums\Procurement\PurchaseOrder;
 
 use App\Enums\EnumHelperTrait;
 
+/**
+ * The PO journey board's columns: the seven stages of a purchase order, worded as on the order, and the day its
+ * products went online, which is not a stage.
+ */
 enum PurchaseOrderJourneyStageEnum: string
 {
     use EnumHelperTrait;
 
-    case PO_CREATED = 'po_created';
-    case SPEC_SAMPLE = 'spec_sample';
+    case SUBMITTED = 'submitted';
     case DEPOSIT_PAID = 'deposit_paid';
-    case PRODUCTION = 'production';
-    case QC = 'qc';
-    case CLEAN_HANDOVER = 'clean_handover';
-    case DISPATCHED = 'dispatched';
-    case IN_TRANSIT = 'in_transit';
-    case WAREHOUSE_RECEIVED = 'warehouse_received';
+    case IN_PRODUCTION = 'in_production';
+    case READY = 'ready';
+    case SHIPPED = 'shipped';
+    case ARRIVED = 'arrived';
+    case RECEIVED = 'received';
     case PRODUCTS_ONLINE = 'products_online';
 
     public static function labels(): array
     {
         return [
-            'po_created'         => __('PO created'),
-            'spec_sample'        => __('Spec / Sample'),
-            'deposit_paid'       => __('Deposit paid'),
-            'production'         => __('Production'),
-            'qc'                 => __('QC'),
-            'clean_handover'     => __('Clean handover'),
-            'dispatched'         => __('Dispatched'),
-            'in_transit'         => __('In transit'),
-            'warehouse_received' => __('Warehouse received'),
-            'products_online'    => __('Products online'),
+            ...PurchaseOrderStageEnum::labels(),
+            'products_online' => __('Products online'),
         ];
     }
 
     public static function descriptions(): array
     {
         return [
-            'po_created'         => __('Done when the PO is sent to the supplier'),
-            'spec_sample'        => __('New products only: specification and sample approved'),
-            'deposit_paid'       => __('Deposit paid to the supplier'),
-            'production'         => __('Goods produced'),
-            'qc'                 => __('Quality check passed'),
-            'clean_handover'     => __('Goods handed over complete, checked and with their paperwork'),
-            'dispatched'         => __('Goods left the supplier'),
-            'in_transit'         => __('Done when the goods arrive at our warehouse'),
-            'warehouse_received' => __('Goods checked and placed in their locations'),
-            'products_online'    => __('Every product from the PO created and on sale on the website'),
+            ...PurchaseOrderStageEnum::descriptions(),
+            'shipped'         => __('Goods handed over complete and checked, and left the supplier'),
+            'products_online' => __('Every product from the PO created and on sale on the website'),
         ];
     }
 
     public static function waitingLabels(): array
     {
         return [
-            'po_created'         => __('Not sent yet'),
-            'spec_sample'        => __('Waiting for sample approval'),
-            'deposit_paid'       => __('Waiting for deposit'),
-            'production'         => __('In production'),
-            'qc'                 => __('Waiting for QC'),
-            'clean_handover'     => __('Waiting for handover'),
-            'dispatched'         => __('Waiting for dispatch'),
-            'in_transit'         => __('In transit'),
-            'warehouse_received' => __('Waiting to be placed'),
-            'products_online'    => __('Waiting to go online'),
+            'submitted'       => __('Not sent yet'),
+            'deposit_paid'    => __('Waiting for deposit'),
+            'in_production'   => __('Waiting for production'),
+            'ready'           => __('Waiting for QC'),
+            'shipped'         => __('Waiting for dispatch'),
+            'arrived'         => __('In transit'),
+            'received'        => __('Arrived, on its way to the warehouse'),
+            'products_online' => __('Waiting to go online'),
         ];
     }
 
     public function markColumn(): ?string
     {
         return match ($this) {
-            self::SPEC_SAMPLE    => 'sample_approved_at',
-            self::DEPOSIT_PAID   => 'deposit_paid_at',
-            self::PRODUCTION     => 'produced_at',
-            self::QC             => 'qc_passed_at',
-            self::CLEAN_HANDOVER => 'handed_over_at',
-            default              => null,
+            self::DEPOSIT_PAID  => 'deposit_paid_at',
+            self::IN_PRODUCTION => 'production_started_at',
+            self::READY         => 'qc_passed_at',
+            default             => null,
         };
     }
 
@@ -91,23 +74,25 @@ enum PurchaseOrderJourneyStageEnum: string
     public function defaultDays(string $journey): int
     {
         return match ($this) {
-            self::PO_CREATED         => $journey === 'agent' ? 7 : 3,
-            self::SPEC_SAMPLE        => $journey === 'agent' ? 21 : 14,
-            self::DEPOSIT_PAID       => 7,
-            self::PRODUCTION         => $journey === 'agent' ? 35 : 14,
-            self::QC, self::CLEAN_HANDOVER => 5,
-            self::DISPATCHED         => match ($journey) {
-                'agent'   => 5,
+            self::SUBMITTED       => $journey === 'agent' ? 7 : 3,
+            self::DEPOSIT_PAID    => 7,
+            self::IN_PRODUCTION   => $journey === 'agent' ? 21 : 7,
+            self::READY           => $journey === 'agent' ? 40 : 19,
+            self::SHIPPED         => match ($journey) {
+                'agent'   => 10,
                 'partner' => 21,
                 default   => 14,
             },
-            self::IN_TRANSIT         => match ($journey) {
-                'agent'   => 35,
-                'partner' => 4,
-                default   => 7,
+            self::ARRIVED         => match ($journey) {
+                'agent'   => 31,
+                'partner' => 3,
+                default   => 6,
             },
-            self::WAREHOUSE_RECEIVED => 3,
-            self::PRODUCTS_ONLINE    => 7,
+            self::RECEIVED        => match ($journey) {
+                'agent'   => 4,
+                default   => 1,
+            },
+            self::PRODUCTS_ONLINE => 7,
         };
     }
 }

@@ -174,7 +174,7 @@ test('update agent', function (Agent $agent) {
         'delivery_time' => 45,
         'payment_terms' => '50% upfront',
         'image'         => \Illuminate\Http\UploadedFile::fake()->image('agent.jpg', 200, 200),
-        'journey_days_production' => 40,
+        'journey_days_ready' => 40,
     ];
     $updatedAgent = UpdateAgent::make()->action(
         agent: $agent,
@@ -186,7 +186,7 @@ test('update agent', function (Agent $agent) {
         ->and(Arr::get($updatedAgent->data, 'delivery_type'))->toBe('parcel')
         ->and(Arr::get($updatedAgent->data, 'delivery_time'))->toBe(45)
         ->and(Arr::get($updatedAgent->settings, 'payment_terms'))->toBe('50% upfront')
-        ->and(Arr::get($updatedAgent->settings, 'journey_stage_days.production'))->toBe(40)
+        ->and(Arr::get($updatedAgent->settings, 'journey_stage_days.ready'))->toBe(40)
         ->and($updatedAgent->image_id)->not->toBeNull();
 
     return $updatedAgent;
@@ -1272,21 +1272,22 @@ test('UI supply chain PO journey', function (Supplier $supplier) {
                 ->has('quickStats')
                 ->where('active.journey', 'supplier')
                 ->where('ribbons', fn ($ribbons) => collect($ribbons)->contains(
-                    fn ($ribbon) => $ribbon['reference'] === $purchaseOrder->reference && $ribbon['current_stage'] === 'po_created'
+                    fn ($ribbon) => $ribbon['reference'] === $purchaseOrder->reference && $ribbon['current_stage'] === 'submitted'
                 ))));
 
+    $purchaseOrder->updateQuietly(['state' => \App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()]);
     $this->patch(route('grp.models.purchase-order.journey_stage', ['purchaseOrder' => $purchaseOrder->id]), [
-        'stage' => 'production',
+        'stage' => 'deposit_paid',
         'date'  => now()->toDateString(),
-    ])->assertRedirect();
+    ])->assertRedirect()->assertSessionHasNoErrors();
 
-    expect($purchaseOrder->fresh()->produced_at)->not->toBeNull();
+    expect($purchaseOrder->fresh()->deposit_paid_at)->not->toBeNull();
 
     $this->get(route('grp.supply-chain.dashboard', ['search' => $purchaseOrder->reference]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->loadDeferredProps('journey', fn (AssertableInertia $reload) => $reload
                 ->where('ribbons.0.reference', $purchaseOrder->reference)
-                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'production')['state'] === 'done')));
+                ->where('ribbons.0.segments', fn ($segments) => collect($segments)->firstWhere('key', 'deposit_paid')['state'] === 'done')));
 
     $partial = $this->withHeaders([
         'X-Inertia'                   => 'true',
