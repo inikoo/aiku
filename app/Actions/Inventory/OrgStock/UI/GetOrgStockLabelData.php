@@ -11,7 +11,9 @@ namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -33,7 +35,7 @@ class GetOrgStockLabelData
     /**
      * @return array<string, mixed>
      */
-    public function handle(OrgStock $orgStock, string $level = 'unit', ?SupplierProduct $supplierProduct = null): array
+    public function handle(OrgStock $orgStock, string $level = 'unit', ?SupplierProduct $supplierProduct = null, ?Organisation $commercialisingOrganisation = null): array
     {
         $tradeUnits = $orgStock->tradeUnits;
         $tradeUnit  = $tradeUnits->first();
@@ -58,22 +60,23 @@ class GetOrgStockLabelData
                 'number' => $barcode['number'] ?? null,
                 'type'   => $this->getBarcodeType($barcode['number'] ?? ''),
             ],
-            'carton'          => $level === 'carton' ? $this->getCartonData($orgStock, $tradeUnits, $supplierProduct) : null,
+            'carton'          => $level === 'carton' ? $this->getCartonData($orgStock, $tradeUnits, $supplierProduct, $commercialisingOrganisation) : null,
         ];
     }
 
     /**
      * The carton is the supplier's outer box, so what it holds and what it weighs come off the
      * supplier product, and the batch code defaults to the supplier code and the month, as Aurora did.
+     * It is commercialised by the buyer picked when printing, or else the SKO's organisation.
      *
      * @return array<string, mixed>
      */
-    private function getCartonData(OrgStock $orgStock, $tradeUnits, ?SupplierProduct $supplierProduct): array
+    private function getCartonData(OrgStock $orgStock, $tradeUnits, ?SupplierProduct $supplierProduct, ?Organisation $commercialisingOrganisation): array
     {
         $unitsPerPack   = $supplierProduct?->units_per_pack ?? (int) ($orgStock->packed_in ?? 1);
         $unitsPerCarton = $supplierProduct?->units_per_carton;
         $supplierCode   = $supplierProduct?->supplier?->code;
-        $organisation   = $orgStock->organisation;
+        $organisation   = $commercialisingOrganisation ?? $orgStock->organisation;
 
         return [
             'commercialised_by' => $organisation->name,
@@ -235,6 +238,33 @@ class GetOrgStockLabelData
             ->when($supplierProductId, fn ($query) => $query->where('id', $supplierProductId))
             ->orderByRaw('image_id is null, units_per_carton is null')
             ->first();
+    }
+
+    /**
+     * The organisations a carton of this stock can be commercialised by: the SKO's own and every
+     * organisation buying one of the supplier products of its stock, so whoever prints picks the
+     * buyer the carton is going to and nobody else's name can be put on it.
+     *
+     * @return Collection<int, Organisation>
+     */
+    public function getCartonOrganisations(OrgStock $orgStock): Collection
+    {
+        return Organisation::query()
+            ->where(fn ($query) => $query
+                ->where('id', $orgStock->organisation_id)
+                ->when($orgStock->stock_id, fn ($query) => $query->orWhereIn(
+                    'id',
+                    OrgSupplierProduct::whereIn('supplier_product_id', DB::table('stock_has_supplier_products')->where('stock_id', $orgStock->stock_id)->select('supplier_product_id'))
+                        ->select('organisation_id')
+                )))
+            ->with('address')
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function getCommercialisingOrganisation(OrgStock $orgStock, ?int $organisationId): ?Organisation
+    {
+        return $organisationId ? $this->getCartonOrganisations($orgStock)->firstWhere('id', $organisationId) : null;
     }
 
     /**

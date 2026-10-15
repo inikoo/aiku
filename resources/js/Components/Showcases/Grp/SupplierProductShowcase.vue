@@ -183,6 +183,12 @@ const props = defineProps<{
             carton_barcode_update_route: routeType | null
         }[]
         selected_label_org_stock_id?: number | null
+        label_organisation?: {
+            id: number
+            code: string
+            name: string
+            has_org_stock: boolean
+        }
         carton?: {
             supplier_product_id: number
             net_weight: number | null
@@ -309,6 +315,24 @@ const selectedLabelOrgStockOption = computed<string | undefined>({
     },
 })
 
+const selectedLabelOrgStock = computed(() =>
+    labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value) ?? null)
+
+const labelOrganisationNotice = computed(() => {
+    const labelOrganisation = props.data.label_organisation
+
+    if (!labelOrganisation || labelOrganisation.has_org_stock || !selectedLabelOrgStock.value) {
+        return null
+    }
+
+    return ctrans(":organisation has no SKO of this product, so these barcodes and labels are :sko_organisation's. The carton label lets you pick who it is commercialised by.", {
+        organisation: labelOrganisation.code,
+        sko_organisation: selectedLabelOrgStock.value.organisation_code,
+    })
+})
+
+const labelQuery = computed(() => props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {})
+
 const shownBarcodes = computed<Barcode[]>(() =>
     labelOrgStocks.value.find((orgStock) => orgStock.id === selectedLabelOrgStockId.value)?.barcodes ?? props.data.barcodes ?? [])
 
@@ -369,13 +393,12 @@ const openLabelModal = async (level: string) => {
     try {
         const { data } = await axios.get(route(orgStock.label_options_route.name, {
             ...orgStock.label_options_route.parameters,
-            ...(props.data.carton ? { supplier_product: props.data.carton.supplier_product_id } : {}),
+            ...labelQuery.value,
+            ...(props.data.label_organisation ? { commercialised_by: props.data.label_organisation.id } : {}),
         }))
 
         labelOptions.value = data.options
-        labelRoute.value = props.data.carton
-            ? { ...data.label_route, parameters: { ...data.label_route.parameters, supplier_product: props.data.carton.supplier_product_id } }
-            : data.label_route
+        labelRoute.value = { ...data.label_route, parameters: { ...data.label_route.parameters, ...labelQuery.value } }
         labelLevel.value = level
         isLabelModalOpen.value = true
     } catch (error) {
@@ -724,11 +747,15 @@ const availabilityBadge = (isAvailable: boolean) =>
                     {{ ctrans("Barcodes") }}
                 </h3>
                 <div v-if="labelOrgStocks.length > 1" class="ml-auto flex flex-wrap items-center gap-2 text-sm">
-                    <span class="text-gray-500" v-tooltip="ctrans('The label prints the name and address of the organisation that owns the SKO')">
+                    <span class="text-gray-500" v-tooltip="ctrans('The SKO and unit labels print the name and address of the organisation that owns the SKO')">
                         {{ ctrans("SKO of") }}
                     </span>
                     <SegmentedToggle v-model="selectedLabelOrgStockOption" :options="labelOrgStockOptions" :ariaLabel="ctrans('SKO of')" />
                 </div>
+            </div>
+            <div v-if="labelOrganisationNotice" class="mb-3 flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="mt-0.5 shrink-0" />
+                <span>{{ labelOrganisationNotice }}</span>
             </div>
             <div class="grid grid-cols-1 gap-3 xl:grid-cols-[auto_auto_auto_1fr] xl:items-center xl:gap-x-4 xl:gap-y-3">
                 <template v-for="barcode in shownBarcodes" :key="selectedLabelOrgStockId + '-' + barcode.level">
