@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Actions\Retina\CRM\Appointment\IndexRetinaAppointments;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -62,6 +63,9 @@ class GetRetinaEcomNavigation
             ],
         ];
 
+        if ($appointmentsNavigation = IndexRetinaAppointments::navigation($webUser)) {
+            $groupNavigation['appointments'] = $appointmentsNavigation;
+        }
 
         $groupNavigation['sysadmin'] = [
             'label'   => __('Settings'),

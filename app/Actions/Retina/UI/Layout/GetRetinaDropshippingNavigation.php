@@ -8,6 +8,7 @@
 
 namespace App\Actions\Retina\UI\Layout;
 
+use App\Actions\Retina\CRM\Appointment\IndexRetinaAppointments;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\WebUser;
@@ -167,6 +168,10 @@ class GetRetinaDropshippingNavigation
                 'name' => 'retina.dropshipping.invoices.index'
             ],
         ];
+
+        if ($appointmentsNavigation = IndexRetinaAppointments::navigation($webUser)) {
+            $groupNavigation['appointments'] = $appointmentsNavigation;
+        }
 
         // $groupNavigation['packing-list'] = [
         //     'label' => __('Packing Lists'),

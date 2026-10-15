@@ -29,6 +29,10 @@ Route::middleware(
         ->name("email.")
         ->group(__DIR__."/customer_account/email.php");
 
+    Route::prefix("appointments")
+        ->name("appointments.")
+        ->group(__DIR__."/customer_account/appointments.php");
+
     Route::prefix("fulfilment")
         ->name("fulfilment.")
         ->group(__DIR__."/fulfilment/fulfilment_app.php");
