@@ -788,6 +788,29 @@ test('container list lines not filled green are still being made, so their purch
         ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toContain('AWChina-777');
 });
 
+test('stock spreadsheet In Production lines mark their open purchase order as in production', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $purchaseOrder                      = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'production_started_at' => null]);
+    $code = $orgSupplierProduct->supplierProduct->code;
+
+    $line = fn (string $code, string $units) => '"'.implode('","', array_replace(array_fill(0, 30, ''), [2 => $code, 7 => $units, 26 => 'NEW ORDER'])).'"';
+    \Illuminate\Support\Facades\Http::fake(fn (\Illuminate\Http\Client\Request $request) => \Illuminate\Support\Facades\Http::response(
+        str_contains($request->url(), 'htmlview') ? '{name: "In Production"}' : implode("\n", ['"header"', $line($code, '1,200'), $line('NOT-A-PRODUCT', '5')])
+    ));
+
+    $imported = \App\Actions\Procurement\AgentWarehouseStock\ImportAgentWarehouseStocksFromSheet::run($orgSupplier->orgAgent->agent, $purchaseOrder->organisation, 'sheet-id');
+
+    expect($imported['in_production'])->toBe([
+        ['code' => $code, 'units' => 1200.0, 'purchase_order' => $purchaseOrder->reference],
+        ['code' => 'NOT-A-PRODUCT', 'units' => 5.0, 'purchase_order' => null],
+    ])
+        ->and($imported['rows'])->toBe([])
+        ->and($purchaseOrder->refresh()->production_started_at)->not->toBeNull()
+        ->and(Audit::where('auditable_type', 'PurchaseOrder')->where('auditable_id', $purchaseOrder->id)->where('event', 'stage_override')->latest('id')->first()?->new_values['reason'])->toContain('In Production tab');
+});
+
 test('agent marks only its own stages and the order shows its slowest delivery', function (PurchaseOrder $purchaseOrder) {
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::CONFIRMED, 'submitted_at' => now()->subDays(5), 'deposit_paid_at' => null, 'production_started_at' => null]);
     $route = route('grp.models.purchase-order.stage', $purchaseOrder->id);
