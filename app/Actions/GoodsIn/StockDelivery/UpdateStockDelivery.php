@@ -48,9 +48,10 @@ class UpdateStockDelivery extends OrgAction
     ];
 
     /**
-     * What the agent of a container enters before it ships: references, shipping agent and dates.
+     * What the agent of a container enters before it ships: its name, references, shipping agent and dates.
      */
     public const array AGENT_FIELDS = [
+        'reference',
         'shipper_reference',
         'tracking_number',
         'container_number',
@@ -190,6 +191,10 @@ class UpdateStockDelivery extends OrgAction
             if (Arr::has($stockDelivery->data, 'costing_reopened') && !$request->user()->authTo("org-supervisor.{$stockDelivery->organisation_id}.accounting")) {
                 throw ValidationException::withMessages(['org_exchange' => __('Only an accounting manager can change the costing while it is being updated')]);
             }
+        }
+
+        if ($request->has('reference') && !$stockDelivery->isStaged() && !$request->user()->authTo("procurement.{$stockDelivery->organisation_id}.edit")) {
+            throw ValidationException::withMessages(['reference' => __('The name of a container can only be changed before it is dispatched')]);
         }
 
         $this->stockDelivery = $stockDelivery;

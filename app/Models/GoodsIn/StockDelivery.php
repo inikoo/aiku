@@ -278,6 +278,18 @@ class StockDelivery extends Model implements HasMedia, Auditable
         ], true);
     }
 
+    /**
+     * Still with the agent or supplier: being filled, confirmed or ready to ship.
+     */
+    public function isStaged(): bool
+    {
+        return in_array($this->state, [
+            StockDeliveryStateEnum::IN_PROCESS,
+            StockDeliveryStateEnum::CONFIRMED,
+            StockDeliveryStateEnum::READY_TO_SHIP,
+        ], true);
+    }
+
     public function hasNoProducts(): bool
     {
         return !$this->items()->where('state', '!=', StockDeliveryItemStateEnum::CANCELLED)->exists();

@@ -49,6 +49,20 @@ class EditStockDelivery extends OrgAction
         return $this->handle($stockDelivery);
     }
 
+    private function agentFields(StockDelivery $stockDelivery, array $fields): array
+    {
+        $fields = Arr::only($fields, UpdateStockDelivery::AGENT_FIELDS);
+
+        if (!$stockDelivery->isStaged()) {
+            unset($fields['reference']);
+        } elseif (isset($fields['reference'])) {
+            $fields['reference']['label']       = __('Name');
+            $fields['reference']['information'] = __('Letters, numbers, dashes and underscores.');
+        }
+
+        return $fields;
+    }
+
     public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
         $icons = [
@@ -83,7 +97,7 @@ class EditStockDelivery extends OrgAction
                             'label'  => $section['title'],
                             'title'  => $section['title'],
                             'icon'   => $icons[array_key_first($section['fields'])] ?? 'fal fa-info-circle',
-                            'fields' => $this->editedByAgent ? Arr::only($section['fields'], UpdateStockDelivery::AGENT_FIELDS) : $section['fields'],
+                            'fields' => $this->editedByAgent ? $this->agentFields($stockDelivery, $section['fields']) : $section['fields'],
                         ])
                         ->filter(fn (array $section) => $section['fields'])
                         ->values()
